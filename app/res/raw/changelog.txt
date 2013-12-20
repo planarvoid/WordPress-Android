@@ -2,6 +2,8 @@ $ 76
   % v 2.7.5-BETA
   _ 2013-12-17
   ! Maintenance
+    * improved on image caching
+    * Fixed some track inconsistencies when resuming player activity
     * Fixed some playback crashes
     * Added a host of localytics tracking
     * Fixed playing remote search result
