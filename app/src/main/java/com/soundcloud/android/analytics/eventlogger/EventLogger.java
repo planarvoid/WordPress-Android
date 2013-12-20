@@ -44,6 +44,7 @@ public class EventLogger {
     void stop() {
         if (mHandler != null) {
             mHandler.obtainMessage(EventLoggerHandler.FINISH_TOKEN).sendToTarget();
+            mHandler = null;
         }
         mShutdownSubscription.unsubscribe();
     }

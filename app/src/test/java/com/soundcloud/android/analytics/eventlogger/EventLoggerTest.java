@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -71,5 +72,14 @@ public class EventLoggerTest {
 
         Event.PLAYBACK_SERVICE_DESTROYED.publish();
         verify(finishMessage).sendToTarget();
+    }
+
+    @Test
+    public void shouldCreateNewHandlerAfterShutDown() throws Exception {
+        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN,playbackEventData)).thenReturn(message);
+        eventLogger.trackEvent(playbackEventData);
+        Event.PLAYBACK_SERVICE_DESTROYED.publish();
+        eventLogger.trackEvent(playbackEventData);
+        verify(eventLoggerHandlerFactory, times(2)).create(any(Looper.class));
     }
 }
