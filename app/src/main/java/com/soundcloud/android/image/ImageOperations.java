@@ -20,7 +20,8 @@ import java.util.regex.Pattern;
 public class ImageOperations {
 
     private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1024 * 1024; // available mem in bytes
-    private static final Pattern pattern = Pattern.compile("^https?://([^\\?]+)(?:\\?.*)?");
+    private static final Pattern PATTERN = Pattern.compile("^https?://([^\\?]+)(?:\\?.*)?");
+    private static final String URL_BASE = "http://%s";
 
     private ImageLoader mImageLoader;
 
@@ -101,10 +102,10 @@ public class ImageOperations {
      */
     private String adjustUrl(String url) {
         if (ScTextUtils.isNotBlank(url)) {
-            Matcher matcher = pattern.matcher(url);
+            Matcher matcher = PATTERN.matcher(url);
             matcher.find();
             if (matcher.groupCount() == 1) {
-                return "http://" + matcher.group(1);
+                return String.format(URL_BASE, matcher.group(1));
             }
         }
         return url; // fallback to original url
