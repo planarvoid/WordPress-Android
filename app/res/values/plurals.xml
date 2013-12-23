@@ -59,4 +59,11 @@
         <item quantity="other">Followed by you and %s other people</item>
     </plurals>
 
+    <string name="number_of_liked_tracks_you_liked_zero">You have no liked tracks</string>
+    <plurals name="number_of_liked_tracks_you_liked">
+        <item quantity="one">You liked 1 track</item>
+        <item quantity="other">You liked %d tracks</item>
+    </plurals>
+
+
 </resources>

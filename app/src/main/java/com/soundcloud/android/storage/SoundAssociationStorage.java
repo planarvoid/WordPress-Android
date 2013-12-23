@@ -5,10 +5,10 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.DBHelper;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -144,6 +144,24 @@ public class SoundAssociationStorage extends ScheduledOperations {
 
     public List<SoundAssociation> getPlaylistCreationsForCurrentUser() {
         return mAllSoundAssocsDAO.queryAllByUri(Content.ME_PLAYLISTS.uri);
+    }
+
+    public List<Long> getTrackLikesAsIds() {
+        return mLikesDAO.buildQuery()
+                .select(DBHelper.SoundAssociationView._ID)
+                .where(DBHelper.SoundAssociationView._TYPE + " = ?", String.valueOf(Track.DB_TYPE_TRACK))
+                .queryIds();
+    }
+
+    public Observable<List<Long>> getTrackLikesAsIdsAsync(){
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<List<Long>>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super List<Long>> observer) {
+                observer.onNext(getTrackLikesAsIds());
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
     }
 
     /**

@@ -2,6 +2,7 @@ package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.google.common.collect.Sets;
 import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
@@ -13,6 +14,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.sync.ApiSyncerTest;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -218,6 +220,19 @@ public class SoundAssociationStorageTest {
         storage.addCreation(playlist);
 
         expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/playlists/1");
+    }
+
+    @Test
+    public void shouldReturnTrackLikesIds() throws CreateModelException {
+        Track track1 = TestHelper.getModelFactory().createModel(Track.class);
+        Track track2 = TestHelper.getModelFactory().createModel(Track.class);
+        Playlist playlist = TestHelper.getModelFactory().createModel(Playlist.class);
+
+        TestHelper.insertAsSoundAssociation(track1, SoundAssociation.Type.TRACK_LIKE);
+        TestHelper.insertAsSoundAssociation(track2, SoundAssociation.Type.TRACK_LIKE);
+        TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_LIKE);
+
+        expect(Sets.newHashSet(storage.getTrackLikesAsIds())).toContainExactly(track1.getId(), track2.getId());
     }
 
     private void insertSoundAssociations(Track track, Playlist playlist) {

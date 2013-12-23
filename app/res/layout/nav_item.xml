@@ -4,8 +4,8 @@
                                                    android:layout_height="68dp"
                                                    android:paddingTop="20dp"
                                                    android:paddingBottom="20dp"
-                                                   android:paddingLeft="@dimen/default_side_padding"
-                                                   android:paddingRight="@dimen/default_side_padding"
+                                                   android:paddingLeft="@dimen/default_list_item_padding"
+                                                   android:paddingRight="@dimen/default_list_item_padding"
                                                    android:orientation="horizontal"
                                                    android:gravity="bottom">
 

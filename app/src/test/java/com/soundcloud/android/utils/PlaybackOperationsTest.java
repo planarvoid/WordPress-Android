@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
@@ -114,6 +115,29 @@ public class PlaybackOperationsTest {
         playSessionSource.setPlaylist(playlist);
         checkStartIntent(application.getNextStartedService(), 1, playSessionSource,
                 tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
+    }
+
+    @Test
+    public void playFromIdsShuffledShould() {
+        playbackOperations = new PlaybackOperations(modelManager, new TrackStorage());
+        final ArrayList<Long> idsOrig = Lists.newArrayList(1L, 2L, 3L);
+        playbackOperations.playFromIdListShuffled(Robolectric.application, idsOrig, Screen.YOUR_LIKES);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        Intent startedActivity = application.getNextStartedActivity();
+
+        expect(startedActivity).not.toBeNull();
+        expect(startedActivity.getAction()).toBe(Actions.PLAYER);
+
+        Intent startintent = application.getNextStartedService();
+        expect(startintent).not.toBeNull();
+        expect(startintent.getAction()).toBe(PlaybackService.Actions.PLAY_ACTION);
+        expect(startintent.getIntExtra(PlayExtras.START_POSITION, -1)).toBe(0);
+        expect(startintent.getParcelableExtra(PlayExtras.PLAY_SESSION_SOURCE)).toEqual(new PlaySessionSource(Screen.YOUR_LIKES));
+
+        final List<Long> trackIdList = Longs.asList(startintent.getLongArrayExtra(PlayExtras.TRACK_ID_LIST));
+        expect(Sets.newHashSet(trackIdList)).toContainExactly(1L, 2L, 3L);
+        expect(trackIdList).not.toBe(idsOrig);
     }
 
     @Test

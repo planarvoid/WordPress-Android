@@ -75,7 +75,8 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private static final String EXTRA_TITLE_ID = "title";
     private static final String EXTRA_SCREEN = "screen";
 
-    private @Nullable ScListView mListView;
+    @Nullable
+    private ScListView mListView;
     private ScBaseAdapter<?> mAdapter;
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
@@ -123,12 +124,22 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
 
     public static ScListFragment newInstance(Uri contentUri, int titleId, Screen screen) {
         ScListFragment fragment = new ScListFragment();
+        Bundle args = createArguments(contentUri, titleId, screen);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Nullable
+    public ScListView getScListView() {
+        return mListView;
+    }
+
+    protected static Bundle createArguments(Uri contentUri, int titleId, Screen screen) {
         Bundle args = new Bundle();
         args.putParcelable(EXTRA_CONTENT_URI, contentUri);
         args.putSerializable(EXTRA_SCREEN, screen);
         args.putInt(EXTRA_TITLE_ID, titleId);
-        fragment.setArguments(args);
-        return fragment;
+        return args;
     }
 
     @Override
@@ -607,7 +618,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     }
 
 
-    private ScListView configureList(ScListView lv) {
+    protected ScListView configureList(ScListView lv) {
         lv.getRefreshableView().setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.getRefreshableView().setFastScrollEnabled(false);
         return lv;
@@ -672,7 +683,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     }
 
 
-    private void onContentChanged() {
+    protected void onContentChanged() {
         final ScBaseAdapter listAdapter = getListAdapter();
         if (listAdapter instanceof ActivitiesAdapter && !((ActivitiesAdapter) listAdapter).isExpired(mLocalCollection)) {
             log("Activity content has changed, no newer items, skipping refresh");

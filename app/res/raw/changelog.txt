@@ -2,6 +2,7 @@ $ 76
   % v 2.7.5-BETA
   _ 2013-12-23
   ! Happy Holidays
+    * Shuffle My Likes! (rough draft, beta only)
     * Adjusting image urls to result in more cache hits
     * Fixed an image prefetching crash
     - improved on image caching

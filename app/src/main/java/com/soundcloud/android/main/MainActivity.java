@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.UserOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.ApiModule;
+import com.soundcloud.android.associations.LikesListFragment;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
@@ -243,7 +244,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private void displayLikes() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(LIKES_FRAGMENT_TAG);
         if (fragment == null) {
-            fragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes, Screen.SIDE_MENU_LIKES);
+            fragment = mApplicationProperties.isBetaBuild() ? LikesListFragment.newInstance() :
+                    ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes, Screen.SIDE_MENU_LIKES);;
             attachFragment(fragment, LIKES_FRAGMENT_TAG, R.string.side_menu_likes);
         }
     }

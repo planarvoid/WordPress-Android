@@ -31,6 +31,7 @@ import android.net.Uri;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -145,6 +146,13 @@ public class PlaybackOperations {
         context.startService(getPlayIntent(Lists.newArrayList(id), 0, new PlaySessionSource(screen)));
     }
 
+    public void playFromIdListShuffled(final Context context, List<Long> ids, Screen screen) {
+        List<Long> shuffled = Lists.newArrayList(ids);
+        Collections.shuffle(shuffled);
+        context.startService(getPlayIntent(shuffled, 0, new PlaySessionSource(screen)));
+        gotoPlayer(context, shuffled.get(0));
+    }
+
     private ArrayList<Long> getPlayableIdsFromModels(List<? extends ScModel> data) {
         final Iterable<? extends ScModel> playables = Iterables.filter(data, PLAYABLE_HOLDER_PREDICATE);
         Iterable<Long> trackIds = Iterables.transform(playables, new Function<ScModel, Long>() {
@@ -183,10 +191,13 @@ public class PlaybackOperations {
 
     private void cacheAndGoToPlayer(Context context, Track initialTrack) {
         mModelManager.cache(initialTrack);
+        gotoPlayer(context, initialTrack.getId());
+    }
 
+    private void gotoPlayer(Context context, long initialTrackId) {
         // intent for player activity
         context.startActivity(new Intent(Actions.PLAYER)
-                .putExtra(Track.EXTRA_ID, initialTrack.getId())
+                .putExtra(Track.EXTRA_ID, initialTrackId)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
     }
 
