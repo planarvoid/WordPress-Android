@@ -9,17 +9,12 @@ import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.activities.Activities;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 
-import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Receives and processes the results from a sync run initiated in {@link SyncAdapterService}, creating
@@ -112,8 +107,6 @@ class SyncServiceResultReceiver extends ResultReceiver {
             message = NotificationMessage.getIncomingNotificationMessage(app, stream);
             String artwork_url = stream.getFirstAvailableArtwork();
 
-            prefetchArtwork(app, stream);
-
             NotificationMessage.showDashboardNotification(app, ticker, title, message, NotificationMessage.createNotificationIntent(Actions.STREAM),
                     Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID, artwork_url);
 
@@ -148,7 +141,6 @@ class SyncServiceResultReceiver extends ResultReceiver {
             notifyable.sort();
 
             if (notifyable.newerThan(ContentStats.getLastNotifiedItem(app, Content.ME_ACTIVITIES))) {
-                prefetchArtwork(app, notifyable);
                 NotificationMessage msg = new NotificationMessage(app.getResources(), notifyable, likes, comments, reposts);
                 NotificationMessage.showDashboardNotification(app, msg.ticker, msg.title, msg.message,
                         NotificationMessage.createNotificationIntent(Actions.ACTIVITY),
@@ -159,23 +151,5 @@ class SyncServiceResultReceiver extends ResultReceiver {
                 return true;
             } else return false;
         } else return false;
-    }
-
-    private int prefetchArtwork(Context context, Activities... activities) {
-        if (IOUtils.isWifiConnected(context)) {
-            Set<String> urls = new HashSet<String>();
-            for (Activities a : activities) {
-                urls.addAll(a.artworkUrls());
-            }
-            int tofetch = SyncAdapterService.MAX_ARTWORK_PREFETCH;
-            for (String url : urls) {
-                mImageOperations.prefetch(url);
-                if (tofetch-- <= 0) break;
-            }
-            return Math.min(urls.size(), SyncAdapterService.MAX_ARTWORK_PREFETCH);
-        } else {
-            // prefetch artwork only when connected to wifi
-            return 0;
-        }
     }
 }
