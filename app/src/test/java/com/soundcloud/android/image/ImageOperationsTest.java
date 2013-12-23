@@ -57,7 +57,7 @@ public class ImageOperationsTest {
     ArgumentCaptor<DisplayImageOptions> displayImageOptionsArgumentCaptor;
 
     final private String URL = "https://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
-    final private String ADJUSTED_URL = "https://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
+    final private String ADJUSTED_URL = "http://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg";
 
     @Before
     public void setUp() throws Exception {

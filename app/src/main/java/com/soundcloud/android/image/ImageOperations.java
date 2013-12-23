@@ -6,6 +6,7 @@ import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
 import android.view.View;
@@ -13,10 +14,13 @@ import android.widget.AbsListView;
 import android.widget.ImageView;
 
 import javax.inject.Inject;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ImageOperations {
 
     private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1024 * 1024; // available mem in bytes
+    private static final Pattern pattern = Pattern.compile("^https?://([^\\?]+)(?:\\?.*)?");
 
     private ImageLoader mImageLoader;
 
@@ -45,35 +49,35 @@ public class ImageOperations {
     }
 
     public void load(String imageUrl, ImageListener imageListener) {
-        mImageLoader.loadImage(imageUrl, new ImageListenerUILAdapter (imageListener));
+        mImageLoader.loadImage(adjustUrl(imageUrl), new ImageListenerUILAdapter(imageListener));
     }
 
     public void display(String imageUrl, ImageView imageView) {
-        mImageLoader.displayImage(imageUrl, new ImageViewAware(imageView,false));
+        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false));
     }
 
     public void displayInGridView(String imageUrl, ImageView imageView) {
-        mImageLoader.displayImage(imageUrl, new ImageViewAware(imageView, false), ImageOptionsFactory.gridView());
+        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false), ImageOptionsFactory.gridView());
     }
 
     public void displayInAdapterView(String imageUrl, ImageView imageView, int defaultResId) {
-        mImageLoader.displayImage(imageUrl, new ImageViewAware(imageView, false), ImageOptionsFactory.adapterView(defaultResId));
+        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false), ImageOptionsFactory.adapterView(defaultResId));
     }
 
     public void displayInPlayerView(String imageUrl, ImageView imageView, View parentView, boolean priority, ImageListener imageListener) {
-        mImageLoader.displayImage(imageUrl, new ImageViewAware(imageView, false), ImageOptionsFactory.player(parentView, priority), new ImageListenerUILAdapter(imageListener));
+        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false), ImageOptionsFactory.player(parentView, priority), new ImageListenerUILAdapter(imageListener));
     }
 
     public void displayInFullDialogView(String imageUrl, ImageView imageView, ImageListener imageListener) {
-        mImageLoader.displayImage(imageUrl, new ImageViewAware(imageView, false), ImageOptionsFactory.fullImageDialog(), new ImageListenerUILAdapter(imageListener));
+        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false), ImageOptionsFactory.fullImageDialog(), new ImageListenerUILAdapter(imageListener));
     }
 
     public void displayPlaceholder(String imageUrl, ImageView imageView, int defaultResId) {
-        mImageLoader.displayImage(imageUrl, new ImageViewAware(imageView, false), ImageOptionsFactory.placeholder(defaultResId));
+        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false), ImageOptionsFactory.placeholder(defaultResId));
     }
 
-    public void prefetch(String imageurl) {
-        mImageLoader.loadImage(imageurl, ImageOptionsFactory.prefetch(), null);
+    public void prefetch(String imageUrl) {
+        mImageLoader.loadImage(adjustUrl(imageUrl), ImageOptionsFactory.prefetch(), null);
     }
 
     public void resume() {
@@ -90,5 +94,19 @@ public class ImageOperations {
 
     public AbsListView.OnScrollListener createScrollPauseListener(boolean pauseOnScroll, boolean pauseOnFling) {
         return new PauseOnScrollListener(mImageLoader, pauseOnScroll, pauseOnFling);
+    }
+
+    /**
+     * Adjust urls to use insecure protocol and remove Rails cache fragment. Will result in more cache hits
+     */
+    private String adjustUrl(String url) {
+        if (ScTextUtils.isNotBlank(url)) {
+            Matcher matcher = pattern.matcher(url);
+            matcher.find();
+            if (matcher.groupCount() == 1) {
+                return "http://" + matcher.group(1);
+            }
+        }
+        return url; // fallback to original url
     }
 }
