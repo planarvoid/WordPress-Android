@@ -776,7 +776,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private boolean next(boolean userTriggered) {
         if (getPlayQueueInternal().moveToNext(userTriggered)) {
-            openCurrent();
             return true;
         } else {
             return false;
@@ -1142,6 +1141,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     if (!service.mAutoAdvance || !service.autoNext()) {
                         service.notifyChange(Broadcasts.PLAYBACK_COMPLETE);
                         service.gotoIdleState(PlaybackState.COMPLETED);
+                    } else {
+                        // advanced successfully
+                        service.openCurrent();
                     }
                     break;
                 case CLEAR_LAST_SEEK:

@@ -64,15 +64,33 @@ public class PlaybackReceiverTest {
     }
 
     @Test
-    public void nextActionShouldCallNextOnService() {
+    public void nextActionShouldCallNextAndOpenCurrentIfNextSuccessful() {
+        when(playbackService.next()).thenReturn(true);
         playbackReceiver.onReceive(Robolectric.application, new Intent(PlaybackService.Actions.NEXT_ACTION));
-        verify(playbackService).next();
+        verify(playbackService).openCurrent();
     }
 
     @Test
-    public void prevActionShouldCallNextOnService() {
+    public void nextActionShouldCallNextAndNotOpenCurrentIfNextNotSuccessful() {
+        when(playbackService.next()).thenReturn(false);
+        playbackReceiver.onReceive(Robolectric.application, new Intent(PlaybackService.Actions.NEXT_ACTION));
+        verify(playbackService).next();
+        verify(playbackService, never()).openCurrent();
+    }
+
+    @Test
+    public void prevActionShouldCallPrevAndOpenCurrentIfPrevSuccessful() {
+        when(playbackService.prev()).thenReturn(true);
+        playbackReceiver.onReceive(Robolectric.application, new Intent(PlaybackService.Actions.PREVIOUS_ACTION));
+        verify(playbackService).openCurrent();
+    }
+
+    @Test
+    public void prevActionShouldCallPrevAndNotOpenCurrentIfPrevNotSuccessful() {
+        when(playbackService.prev()).thenReturn(false);
         playbackReceiver.onReceive(Robolectric.application, new Intent(PlaybackService.Actions.PREVIOUS_ACTION));
         verify(playbackService).prev();
+        verify(playbackService, never()).openCurrent();
     }
 
     @Test

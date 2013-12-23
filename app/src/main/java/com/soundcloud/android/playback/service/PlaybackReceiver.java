@@ -59,9 +59,13 @@ class PlaybackReceiver extends BroadcastReceiver {
         } else if (mAccountOperations.soundCloudAccountExists()) {
 
             if (Actions.NEXT_ACTION.equals(action)) {
-                mPlaybackService.next();
+                if (mPlaybackService.next()){
+                    mPlaybackService.openCurrent();
+                }
             } else if (Actions.PREVIOUS_ACTION.equals(action)) {
-                mPlaybackService.prev();
+                if (mPlaybackService.prev()){
+                    mPlaybackService.openCurrent();
+                }
             } else if (Actions.TOGGLEPLAYBACK_ACTION.equals(action)) {
                 mPlaybackService.togglePlayback();
             } else if (Actions.PAUSE_ACTION.equals(action)) {
