@@ -1,13 +1,15 @@
 $ 76
   % v 2.7.5-BETA
-  _ 2013-12-17
-  ! Maintenance
-    * improved on image caching
-    * Fixed some track inconsistencies when resuming player activity
-    * Fixed some playback crashes
-    * Added a host of localytics tracking
-    * Fixed playing remote search result
-    * Added some proper up button functionality to player
+  _ 2013-12-23
+  ! Happy Holidays
+    * Adjusting image urls to result in more cache hits
+    * Fixed an image prefetching crash
+    - improved on image caching
+    - Fixed some track inconsistencies when resuming player activity
+    - Fixed some playback crashes
+    - Added a host of localytics tracking
+    - Fixed playing remote search result
+    - Added some proper up button functionality to player
     - Fixed recording crash when recording after editing
     - Properly dropping audio focus on logout
 
