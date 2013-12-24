@@ -221,6 +221,7 @@ namespace :debug do
 
     Mvn.install.projects('app').
       with_profiles(DEBUG_BUILD_TYPE, 'sign', 'update-android-manifest').
+      skip_tests.
       set_version_code(version_code + 1).
       set_version_name(version_name(DEBUG_BUILD_TYPE)).
       execute()
