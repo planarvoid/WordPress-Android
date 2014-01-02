@@ -182,6 +182,11 @@ def get_build_number
   ENV['BUILD_NUMBER'] ? "-#{ENV['BUILD_NUMBER']}" : ""
 end
 
+def update_and_commit_version(version)
+  update_version(version)
+  sh "git commit -a -m 'Bumped to #{version}'"
+end
+
 def gitsha1()
   `git rev-parse HEAD`.tap do |head|
     raise "could not get current HEAD" unless $?.success?
@@ -285,8 +290,7 @@ namespace :release do
     raise "Uncommitted changes in working tree" unless system("git diff --exit-code --quiet")
 
     version = bump_minor(versionName.to_s)
-    update_version(version)
-    sh "git commit -a -m 'Bumped to #{versionName}'"
+    update_and_commit_version(version)
   end
 end
 
@@ -297,8 +301,7 @@ namespace :hotfix do
     raise "Uncommitted changes in working tree" unless system("git diff --exit-code --quiet")
 
     version = bump_revision(versionName.to_s)
-    update_version(version)
-    sh "git commit -a -m 'Bumped to #{versionName}'"
+    update_and_commit_version(version)
   end
 end
 
