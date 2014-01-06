@@ -58,7 +58,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             eventAttributes.put("track_length_ms", String.valueOf(duration));
             eventAttributes.put("track_length_bucket", getTrackLengthBucket(duration));
 
-            eventAttributes.put("duration_ms", String.valueOf(eventData.getListenTime()));
+            eventAttributes.put("play_duration_ms", String.valueOf(eventData.getListenTime()));
             eventAttributes.put("percent_listened", getPercentListenedBucket(eventData, duration));
 
             // be careful of null values allowed in attributes, will propogate a hard to trace exception

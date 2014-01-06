@@ -88,7 +88,7 @@ public class LocalyticsAnalyticsProviderTest {
         verify(localyticsSession).tagEvent(eq("Listen"), stopEventAttributes.capture());
 
         expect(stopEventAttributes.getValue().get("context")).toEqual(Screen.YOUR_LIKES.get());
-        expect(stopEventAttributes.getValue().get("duration_ms")).toEqual("1000");
+        expect(stopEventAttributes.getValue().get("play_duration_ms")).toEqual("1000");
         expect(stopEventAttributes.getValue().get("track_length_ms")).toEqual(String.valueOf(track.duration));
         expect(stopEventAttributes.getValue().get("track_id")).toEqual(String.valueOf(track.getId()));
         expect(stopEventAttributes.getValue().get("tag")).toEqual(String.valueOf(track.getGenreOrTag()));
