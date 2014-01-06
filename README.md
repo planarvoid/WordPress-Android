@@ -70,22 +70,20 @@ Add a file `local.properties` to the app directory containing the path to the An
 Change the default JUnit Run/Debug configuration to look like this:
 ![JUnit default run config][JUnit default run config]
 
-## Integration tests
+## [Wiki][wiki] topics
 
-Documented on the wiki: [integration-tests][].
-
-## Betas and releasing
-
-Documented on the wiki: [releasing][], [betas][].
-
-## Coding conventions / guidelines
-
-Documented on the [wiki][].
+* [Integration tests][integration-tests]
+* [Releasing][releasing]
+* [Betas][betas]
+* [Android guidelines][android-guide]
+* [Java syntax][java-syntax]
 
 [Android SDK]: http://developer.android.com/sdk/index.html
 [wiki]: https://github.com/soundcloud/SoundCloud-Android/wiki/
 [releasing]: https://github.com/soundcloud/SoundCloud-Android/wiki/Releasing
 [betas]: https://github.com/soundcloud/SoundCloud-Android/wiki/Betas
 [integration-tests]: https://github.com/soundcloud/SoundCloud-Android/wiki/Integration-tests
+[android-guide]: https://github.com/soundcloud/SoundCloud-Android/wiki/Android-Guidelines
+[java-syntax]: https://github.com/soundcloud/SoundCloud-Android/wiki/Java-Syntax-Conventions
 [JUnit default run config]: http://f.cl.ly/items/153m2C2d001j0Y1L1K02/Screen%20Shot%202012-11-27%20at%2012.57.25%20PM.png
 
