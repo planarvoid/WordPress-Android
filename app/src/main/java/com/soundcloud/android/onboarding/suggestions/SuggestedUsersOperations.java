@@ -1,10 +1,11 @@
-package com.soundcloud.android.api;
+package com.soundcloud.android.onboarding.suggestions;
 
 
 import static com.soundcloud.android.api.http.SoundCloudAPIRequest.RequestBuilder;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;

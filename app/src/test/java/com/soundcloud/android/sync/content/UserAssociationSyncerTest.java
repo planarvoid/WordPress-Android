@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.api.SuggestedUsersOperations;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersOperations;
 import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.storage.UserAssociationStorage;
