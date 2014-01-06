@@ -135,6 +135,13 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
+    public void trackEvent(AnalyticsEvent event) {
+        Log.d(TAG, "Track playback event " + event.toString());
+        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
+            analyticsProvider.trackEvent(event);
+        }
+    }
+
     @VisibleForTesting
     protected boolean activitySessionIsClosed() {
         return !sActivitySessionOpen.get();

@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics.localytics;
 
 import com.google.common.base.Objects;
 import com.localytics.android.LocalyticsSession;
+import com.soundcloud.android.analytics.AnalyticsEvent;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.PlaybackEventData;
@@ -45,6 +46,76 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void trackScreen(String screenTag) {
         mLocalyticsSession.tagScreen(screenTag);
+    }
+
+    public void trackEvent(AnalyticsEvent event) {
+        switch (event.getType()) {
+            case AnalyticsEvent.TYPE_FOLLOW:
+                trackFollow(event.getAttributes());
+                break;
+            case AnalyticsEvent.TYPE_LIKE:
+                trackLike(event.getAttributes());
+                break;
+            case AnalyticsEvent.TYPE_REPOST:
+                trackRepost(event.getAttributes());
+                break;
+            case AnalyticsEvent.TYPE_ADD_TO_PLAYLIST:
+                trackAddToPlaylist(event.getAttributes());
+                break;
+            case AnalyticsEvent.TYPE_COMMENT:
+                trackComment(event.getAttributes());
+                break;
+            case AnalyticsEvent.TYPE_SHARE:
+                trackShare(event.getAttributes());
+                break;
+        }
+    }
+
+    private void trackFollow(AnalyticsEvent.Attributes sourceAttributes) {
+        Map<String, String> eventAttributes = new HashMap<String, String>();
+        eventAttributes.put("context", sourceAttributes.screenTag);
+        eventAttributes.put("user_id", String.valueOf(sourceAttributes.userId));
+        mLocalyticsSession.tagEvent(LocalyticsEvents.FOLLOW, eventAttributes);
+    }
+
+    private void trackLike(AnalyticsEvent.Attributes sourceAttributes) {
+        Map<String, String> eventAttributes = new HashMap<String, String>();
+        eventAttributes.put("context", sourceAttributes.screenTag);
+        eventAttributes.put("resource", sourceAttributes.resource);
+        eventAttributes.put("resource_id", String.valueOf(sourceAttributes.resourceId));
+        mLocalyticsSession.tagEvent(LocalyticsEvents.LIKE, eventAttributes);
+    }
+
+    private void trackRepost(AnalyticsEvent.Attributes sourceAttributes) {
+        Map<String, String> eventAttributes = new HashMap<String, String>();
+        eventAttributes.put("context", sourceAttributes.screenTag);
+        eventAttributes.put("resource", sourceAttributes.resource);
+        eventAttributes.put("resource_id", String.valueOf(sourceAttributes.resourceId));
+        mLocalyticsSession.tagEvent(LocalyticsEvents.REPOST, eventAttributes);
+    }
+
+    private void trackAddToPlaylist(AnalyticsEvent.Attributes sourceAttributes) {
+        Map<String, String> eventAttributes = new HashMap<String, String>();
+        eventAttributes.put("context", sourceAttributes.screenTag);
+        eventAttributes.put("new playlist", String.valueOf(sourceAttributes.isNewPlaylist));
+        eventAttributes.put("track_id", String.valueOf(sourceAttributes.trackId));
+        mLocalyticsSession.tagEvent(LocalyticsEvents.ADD_TO_PLAYLIST, eventAttributes);
+    }
+
+    private void trackComment(AnalyticsEvent.Attributes sourceAttributes) {
+        Map<String, String> eventAttributes = new HashMap<String, String>();
+        eventAttributes.put("context", sourceAttributes.screenTag);
+        eventAttributes.put("track_id", String.valueOf(sourceAttributes.trackId));
+        mLocalyticsSession.tagEvent(LocalyticsEvents.COMMENT, eventAttributes);
+    }
+
+    private void trackShare(AnalyticsEvent.Attributes sourceAttributes) {
+        Map<String, String> eventAttributes = new HashMap<String, String>();
+        eventAttributes.put("context", sourceAttributes.screenTag);
+        eventAttributes.put("resource", sourceAttributes.resource);
+        eventAttributes.put("resource_id", String.valueOf(sourceAttributes.resourceId));
+        eventAttributes.put("shared_to", sourceAttributes.sharedTo);
+        mLocalyticsSession.tagEvent(LocalyticsEvents.SHARE, eventAttributes);
     }
 
     @Override

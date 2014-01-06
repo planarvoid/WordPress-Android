@@ -34,6 +34,13 @@ public interface AnalyticsProvider {
     void trackScreen(String screenTag);
 
     /**
+     * Signals to the analytics provider that a generic event has occurred
+     *
+     * @param event generic event information
+     */
+    void trackEvent(AnalyticsEvent event);
+
+    /**
      * Signals to the analytics provider that a playback event has occurred
      *
      * @param eventData what the playback event consisted of
