@@ -159,6 +159,11 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
             case STREAM:
                 Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_STREAM.get());
                 break;
+            case EXPLORE:
+                // Publish event for default page in the explore fragment
+                // Doesn't fire in onPageSelected() due to https://code.google.com/p/android/issues/detail?id=27526
+                Event.SCREEN_ENTERED.publish(Screen.EXPLORE_GENRES.get());
+                break;
             case LIKES:
                 Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_LIKES.get());
                 break;

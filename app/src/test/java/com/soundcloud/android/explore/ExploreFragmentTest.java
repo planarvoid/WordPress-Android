@@ -77,15 +77,6 @@ public class ExploreFragmentTest {
     }
 
     @Test
-    public void shouldTrackGenresScreenWhenCreated() {
-        Subscription subscription = Event.SCREEN_ENTERED.subscribe(observer);
-        mExploreFragment.onCreate(null);
-        verify(observer).onNext("explore:genres");
-        verifyNoMoreInteractions(observer);
-        subscription.unsubscribe();
-    }
-
-    @Test
     public void shouldTrackGenresScreenOnPageSelected() {
         Subscription subscription = Event.SCREEN_ENTERED.subscribe(observer);
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener();

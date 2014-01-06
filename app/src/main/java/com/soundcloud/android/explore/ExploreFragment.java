@@ -35,11 +35,6 @@ public class ExploreFragment extends Fragment {
     public void onCreate(Bundle state) {
         super.onCreate(state);
         mExplorePagerAdapter = mExplorePagerAdapterFactory.create(this.getChildFragmentManager());
-
-        // Workaround for the bug in ViewPager, which does not
-        // fire the onPageSelected() for the first
-        // item: https://code.google.com/p/android/issues/detail?id=27526
-        Event.SCREEN_ENTERED.publish(Screen.EXPLORE_GENRES.get());
     }
 
     @Override
