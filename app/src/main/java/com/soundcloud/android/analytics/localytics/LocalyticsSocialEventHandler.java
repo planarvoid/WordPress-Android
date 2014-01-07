@@ -25,11 +25,20 @@ class LocalyticsSocialEventHandler {
             case SocialEvent.TYPE_FOLLOW:
                 handleEventFollow(sourceEventAttributes, mappedEventAttributes);
                 break;
+            case SocialEvent.TYPE_UNFOLLOW:
+                handleEventUnfollow(sourceEventAttributes, mappedEventAttributes);
+                break;
             case SocialEvent.TYPE_LIKE:
                 handleEventLike(sourceEventAttributes, mappedEventAttributes);
                 break;
+            case SocialEvent.TYPE_UNLIKE:
+                handleEventUnlike(sourceEventAttributes, mappedEventAttributes);
+                break;
             case SocialEvent.TYPE_REPOST:
                 handleEventRepost(sourceEventAttributes, mappedEventAttributes);
+                break;
+            case SocialEvent.TYPE_UNREPOST:
+                handleEventUnrepost(sourceEventAttributes, mappedEventAttributes);
                 break;
             case SocialEvent.TYPE_ADD_TO_PLAYLIST:
                 handleEventAddToPlaylist(sourceEventAttributes, mappedEventAttributes);
@@ -53,6 +62,13 @@ class LocalyticsSocialEventHandler {
     }
 
     @VisibleForTesting
+    void handleEventUnfollow(SocialEvent.Attributes sourceAttributes, Map<String, String> eventAttributes) {
+        eventAttributes.put("context", sourceAttributes.screenTag);
+        eventAttributes.put("user_id", String.valueOf(sourceAttributes.userId));
+        mLocalyticsSession.tagEvent(LocalyticsEvents.Social.UNFOLLOW, eventAttributes);
+    }
+
+    @VisibleForTesting
     void handleEventLike(SocialEvent.Attributes sourceAttributes, Map<String, String> eventAttributes) {
         eventAttributes.put("context", sourceAttributes.screenTag);
         eventAttributes.put("resource", sourceAttributes.resource);
@@ -61,11 +77,27 @@ class LocalyticsSocialEventHandler {
     }
 
     @VisibleForTesting
+    void handleEventUnlike(SocialEvent.Attributes sourceAttributes, Map<String, String> eventAttributes) {
+        eventAttributes.put("context", sourceAttributes.screenTag);
+        eventAttributes.put("resource", sourceAttributes.resource);
+        eventAttributes.put("resource_id", String.valueOf(sourceAttributes.resourceId));
+        mLocalyticsSession.tagEvent(LocalyticsEvents.Social.UNLIKE, eventAttributes);
+    }
+
+    @VisibleForTesting
     void handleEventRepost(SocialEvent.Attributes sourceAttributes, Map<String, String> eventAttributes) {
         eventAttributes.put("context", sourceAttributes.screenTag);
         eventAttributes.put("resource", sourceAttributes.resource);
         eventAttributes.put("resource_id", String.valueOf(sourceAttributes.resourceId));
         mLocalyticsSession.tagEvent(LocalyticsEvents.Social.REPOST, eventAttributes);
+    }
+
+    @VisibleForTesting
+    void handleEventUnrepost(SocialEvent.Attributes sourceAttributes, Map<String, String> eventAttributes) {
+        eventAttributes.put("context", sourceAttributes.screenTag);
+        eventAttributes.put("resource", sourceAttributes.resource);
+        eventAttributes.put("resource_id", String.valueOf(sourceAttributes.resourceId));
+        mLocalyticsSession.tagEvent(LocalyticsEvents.Social.UNREPOST, eventAttributes);
     }
 
     @VisibleForTesting

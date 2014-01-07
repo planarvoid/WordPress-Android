@@ -50,6 +50,16 @@ public class LocalyticsSocialEventHandlerTest {
     }
 
     @Test
+    public void shouldHandleEventUnfollow() throws Exception {
+        sourceAttributes.screenTag = "screen";
+        sourceAttributes.userId = 30;
+        localyticsSocialEventHandler.handleEventUnfollow(sourceAttributes, mappedEventAttributes);
+        verify(localyticsSession).tagEvent("Unfollow", mappedEventAttributes);
+        assertEquals(mappedEventAttributes.get("context"), "screen");
+        assertEquals(mappedEventAttributes.get("user_id"), "30");
+    }
+
+    @Test
     public void shouldHandleEventLike() throws Exception {
         sourceAttributes.screenTag = "screen";
         sourceAttributes.resource = "resource";
@@ -62,12 +72,36 @@ public class LocalyticsSocialEventHandlerTest {
     }
 
     @Test
+    public void shouldHandleEventUnlike() throws Exception {
+        sourceAttributes.screenTag = "screen";
+        sourceAttributes.resource = "resource";
+        sourceAttributes.resourceId = 30;
+        localyticsSocialEventHandler.handleEventUnlike(sourceAttributes, mappedEventAttributes);
+        verify(localyticsSession).tagEvent("Unlike", mappedEventAttributes);
+        assertEquals(mappedEventAttributes.get("context"), "screen");
+        assertEquals(mappedEventAttributes.get("resource"), "resource");
+        assertEquals(mappedEventAttributes.get("resource_id"), "30");
+    }
+
+    @Test
     public void shouldHandleEventRepost() throws Exception {
         sourceAttributes.screenTag = "screen";
         sourceAttributes.resource = "resource";
         sourceAttributes.resourceId = 30;
         localyticsSocialEventHandler.handleEventRepost(sourceAttributes, mappedEventAttributes);
         verify(localyticsSession).tagEvent("Repost", mappedEventAttributes);
+        assertEquals(mappedEventAttributes.get("context"), "screen");
+        assertEquals(mappedEventAttributes.get("resource"), "resource");
+        assertEquals(mappedEventAttributes.get("resource_id"), "30");
+    }
+
+    @Test
+    public void shouldHandleEventUnrepost() throws Exception {
+        sourceAttributes.screenTag = "screen";
+        sourceAttributes.resource = "resource";
+        sourceAttributes.resourceId = 30;
+        localyticsSocialEventHandler.handleEventUnrepost(sourceAttributes, mappedEventAttributes);
+        verify(localyticsSession).tagEvent("Unrepost", mappedEventAttributes);
         assertEquals(mappedEventAttributes.get("context"), "screen");
         assertEquals(mappedEventAttributes.get("resource"), "resource");
         assertEquals(mappedEventAttributes.get("resource_id"), "30");
