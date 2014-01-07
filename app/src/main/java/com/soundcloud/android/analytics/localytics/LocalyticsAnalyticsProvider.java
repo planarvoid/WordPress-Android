@@ -50,10 +50,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         mLocalyticsSession.tagScreen(screenTag);
     }
 
-    public void trackSocialEvent(SocialEvent event) {
-        mLocalyticsSocialEventHandler.handleEvent(event);
-    }
-
     @Override
     public void trackPlaybackEvent(PlaybackEventData eventData) {
         if (eventData.isStopEvent()) {
@@ -86,6 +82,10 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
             mLocalyticsSession.tagEvent(LocalyticsEvents.LISTEN, eventAttributes);
         }
+    }
+
+    public void trackSocialEvent(SocialEvent event) {
+        mLocalyticsSocialEventHandler.handleEvent(event);
     }
 
     private void logAttributes(Map<String, String> eventAttributes) {
