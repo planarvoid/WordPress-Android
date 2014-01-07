@@ -17,6 +17,7 @@ import java.util.Map;
 public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     public final String TAG = "LocalyticsProvider";
     private LocalyticsSession mLocalyticsSession;
+    private LocalyticsSocialEventHandler mLocalyticsSocialEventHandler;
 
     public LocalyticsAnalyticsProvider(Context context) {
         this(new LocalyticsSession(context.getApplicationContext(),
@@ -25,6 +26,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     protected LocalyticsAnalyticsProvider(LocalyticsSession localyticsSession) {
         mLocalyticsSession = localyticsSession;
+        mLocalyticsSocialEventHandler = new LocalyticsSocialEventHandler(mLocalyticsSession);
     }
 
     @Override
@@ -49,73 +51,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     public void trackSocialEvent(SocialEvent event) {
-        switch (event.getType()) {
-            case SocialEvent.TYPE_FOLLOW:
-                trackSocialEventFollow(event.getAttributes());
-                break;
-            case SocialEvent.TYPE_LIKE:
-                trackSocialEventLike(event.getAttributes());
-                break;
-            case SocialEvent.TYPE_REPOST:
-                trackSocialEventRepost(event.getAttributes());
-                break;
-            case SocialEvent.TYPE_ADD_TO_PLAYLIST:
-                trackSocialEventAddToPlaylist(event.getAttributes());
-                break;
-            case SocialEvent.TYPE_COMMENT:
-                trackSocialEventComment(event.getAttributes());
-                break;
-            case SocialEvent.TYPE_SHARE:
-                trackSocialEventShare(event.getAttributes());
-                break;
-        }
-    }
-
-    private void trackSocialEventFollow(SocialEvent.Attributes sourceAttributes) {
-        Map<String, String> eventAttributes = new HashMap<String, String>();
-        eventAttributes.put("context", sourceAttributes.screenTag);
-        eventAttributes.put("user_id", String.valueOf(sourceAttributes.userId));
-        mLocalyticsSession.tagEvent(LocalyticsEvents.FOLLOW, eventAttributes);
-    }
-
-    private void trackSocialEventLike(SocialEvent.Attributes sourceAttributes) {
-        Map<String, String> eventAttributes = new HashMap<String, String>();
-        eventAttributes.put("context", sourceAttributes.screenTag);
-        eventAttributes.put("resource", sourceAttributes.resource);
-        eventAttributes.put("resource_id", String.valueOf(sourceAttributes.resourceId));
-        mLocalyticsSession.tagEvent(LocalyticsEvents.LIKE, eventAttributes);
-    }
-
-    private void trackSocialEventRepost(SocialEvent.Attributes sourceAttributes) {
-        Map<String, String> eventAttributes = new HashMap<String, String>();
-        eventAttributes.put("context", sourceAttributes.screenTag);
-        eventAttributes.put("resource", sourceAttributes.resource);
-        eventAttributes.put("resource_id", String.valueOf(sourceAttributes.resourceId));
-        mLocalyticsSession.tagEvent(LocalyticsEvents.REPOST, eventAttributes);
-    }
-
-    private void trackSocialEventAddToPlaylist(SocialEvent.Attributes sourceAttributes) {
-        Map<String, String> eventAttributes = new HashMap<String, String>();
-        eventAttributes.put("context", sourceAttributes.screenTag);
-        eventAttributes.put("new playlist", String.valueOf(sourceAttributes.isNewPlaylist));
-        eventAttributes.put("track_id", String.valueOf(sourceAttributes.trackId));
-        mLocalyticsSession.tagEvent(LocalyticsEvents.ADD_TO_PLAYLIST, eventAttributes);
-    }
-
-    private void trackSocialEventComment(SocialEvent.Attributes sourceAttributes) {
-        Map<String, String> eventAttributes = new HashMap<String, String>();
-        eventAttributes.put("context", sourceAttributes.screenTag);
-        eventAttributes.put("track_id", String.valueOf(sourceAttributes.trackId));
-        mLocalyticsSession.tagEvent(LocalyticsEvents.COMMENT, eventAttributes);
-    }
-
-    private void trackSocialEventShare(SocialEvent.Attributes sourceAttributes) {
-        Map<String, String> eventAttributes = new HashMap<String, String>();
-        eventAttributes.put("context", sourceAttributes.screenTag);
-        eventAttributes.put("resource", sourceAttributes.resource);
-        eventAttributes.put("resource_id", String.valueOf(sourceAttributes.resourceId));
-        eventAttributes.put("shared_to", sourceAttributes.sharedTo);
-        mLocalyticsSession.tagEvent(LocalyticsEvents.SHARE, eventAttributes);
+        mLocalyticsSocialEventHandler.handleEvent(event);
     }
 
     @Override
