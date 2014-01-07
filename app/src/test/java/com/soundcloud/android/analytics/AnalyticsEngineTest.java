@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.events.Event;
 import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.model.Track;
@@ -385,6 +386,17 @@ public class AnalyticsEngineTest {
 
         verify(analyticsProviderOne, times(1)).trackPlaybackEvent(playbackEventData);
         verify(analyticsProviderTwo, times(1)).trackPlaybackEvent(playbackEventData);
+    }
+
+    @Test
+    public void shouldTrackEvent() throws Exception {
+        initialiseAnalyticsEngine();
+
+        SocialEvent socialEvent = SocialEvent.createFollow("screen", 0);
+        Event.SOCIAL.publish(socialEvent);
+
+        verify(analyticsProviderOne, times(1)).trackSocialEvent(socialEvent);
+        verify(analyticsProviderTwo, times(1)).trackSocialEvent(socialEvent);
     }
 
     private void setAnalyticsPropertyDisabledPreferenceEnabled() {

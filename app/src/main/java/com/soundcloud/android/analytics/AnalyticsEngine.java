@@ -70,6 +70,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         mCloudPlaybackStateWrapper = cloudPlaybackStateWrapper;
 
         Event.PLAYBACK.subscribe(new PlaybackEventObserver());
+        Event.SOCIAL.subscribe(new SocialEventObserver());
     }
 
     /**
@@ -136,6 +137,9 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
+    /**
+     * Tracks a social engagement event
+     */
     public void trackSocialEvent(SocialEvent event) {
         Log.d(TAG, "Track social event " + event);
         for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
@@ -227,6 +231,14 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         public void onNext(PlaybackEventData args) {
             Log.d(TAG, "PlaybackEventObserver onNext: " + args);
             trackPlaybackEvent(args);
+        }
+    }
+
+    private final class SocialEventObserver extends DefaultObserver<SocialEvent> {
+        @Override
+        public void onNext(SocialEvent args) {
+            Log.d(TAG, "SocialEventObserver onNext: " + args);
+            trackSocialEvent(args);
         }
     }
 }
