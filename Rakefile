@@ -496,14 +496,13 @@ namespace :ci do
 end
 
 class Mvn
-
   def self.install
     self.new('mvn clean install')
   end
 
   def self.test
-      self.new('mvn clean test')
-    end
+    self.new('mvn clean test')
+  end
 
   def self.set_version(version)
     self.new("mvn versions:set -DnewVersion=#{version} -DgenerateBackupPoms=false -DupdateMatchingVersions=false")
