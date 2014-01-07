@@ -34,7 +34,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private static final String TAG = AnalyticsEngine.class.getSimpleName();
 
     @VisibleForTesting
-    protected static AtomicBoolean sActivitySessionOpen = new AtomicBoolean();
+    protected static final AtomicBoolean sActivitySessionOpen = new AtomicBoolean();
     private static AnalyticsEngine sInstance;
 
     private final Collection<AnalyticsProvider> mAnalyticsProviders;
