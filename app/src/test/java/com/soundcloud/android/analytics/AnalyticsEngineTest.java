@@ -392,7 +392,7 @@ public class AnalyticsEngineTest {
     public void shouldTrackEvent() throws Exception {
         initialiseAnalyticsEngine();
 
-        SocialEvent socialEvent = SocialEvent.createFollow("screen", 0);
+        SocialEvent socialEvent = SocialEvent.fromFollow("screen", 0);
         Event.SOCIAL.publish(socialEvent);
 
         verify(analyticsProviderOne, times(1)).trackSocialEvent(socialEvent);

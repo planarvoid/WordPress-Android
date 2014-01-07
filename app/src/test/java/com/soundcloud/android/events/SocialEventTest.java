@@ -6,8 +6,8 @@ import org.junit.Test;
 
 public class SocialEventTest {
     @Test
-    public void shouldCreateFollow() throws Exception {
-        SocialEvent socialEvent = SocialEvent.createFollow("screen", 30);
+    public void shouldCreateEventFromFollow() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromFollow("screen", 30);
         SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
         assertEquals(socialEvent.getType(), 0);
         assertEquals(socialEventAttributes.screenTag, "screen");
@@ -15,8 +15,8 @@ public class SocialEventTest {
     }
 
     @Test
-    public void shouldCreateLike() throws Exception {
-        SocialEvent socialEvent = SocialEvent.createLike("screen", "resource", 30);
+    public void shouldCreateEventFromLike() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromLike("screen", "resource", 30);
         SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
         assertEquals(socialEvent.getType(), 1);
         assertEquals(socialEventAttributes.screenTag, "screen");
@@ -25,8 +25,8 @@ public class SocialEventTest {
     }
 
     @Test
-    public void shouldCreateRepost() throws Exception {
-        SocialEvent socialEvent = SocialEvent.createRepost("screen", "resource", 30);
+    public void shouldCreateEventFromRepost() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromRepost("screen", "resource", 30);
         SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
         assertEquals(socialEvent.getType(), 2);
         assertEquals(socialEventAttributes.screenTag, "screen");
@@ -35,8 +35,8 @@ public class SocialEventTest {
     }
 
     @Test
-    public void shouldCreateAddToPlaylist() throws Exception {
-        SocialEvent socialEvent = SocialEvent.createAddToPlaylist("screen", true, 30);
+    public void shouldCreateEventFromAddToPlaylist() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromAddToPlaylist("screen", true, 30);
         SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
         assertEquals(socialEvent.getType(), 3);
         assertEquals(socialEventAttributes.screenTag, "screen");
@@ -45,8 +45,8 @@ public class SocialEventTest {
     }
 
     @Test
-    public void shouldCreateComment() throws Exception {
-        SocialEvent socialEvent = SocialEvent.createComment("screen", 30);
+    public void shouldCreateEventFromComment() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromComment("screen", 30);
         SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
         assertEquals(socialEvent.getType(), 4);
         assertEquals(socialEventAttributes.screenTag, "screen");
@@ -54,8 +54,8 @@ public class SocialEventTest {
     }
 
     @Test
-    public void shouldCreateShare() throws Exception {
-        SocialEvent socialEvent = SocialEvent.createShare("screen", "resource", 30, "facebook");
+    public void shouldCreateEventFromShare() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromShare("screen", "resource", 30, "facebook");
         SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
         assertEquals(socialEvent.getType(), 5);
         assertEquals(socialEventAttributes.screenTag, "screen");

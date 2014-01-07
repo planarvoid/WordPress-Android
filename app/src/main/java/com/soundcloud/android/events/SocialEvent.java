@@ -14,14 +14,14 @@ public class SocialEvent {
     private Attributes mAttributes;
 
 
-    public static SocialEvent createFollow(String screenTag, int userId) {
+    public static SocialEvent fromFollow(String screenTag, int userId) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.userId = userId;
         return new SocialEvent(TYPE_FOLLOW, attributes);
     }
 
-    public static SocialEvent createLike(String screenTag, String resource, int resourceId) {
+    public static SocialEvent fromLike(String screenTag, String resource, int resourceId) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.resource = resource;
@@ -29,7 +29,7 @@ public class SocialEvent {
         return new SocialEvent(TYPE_LIKE, attributes);
     }
 
-    public static SocialEvent createRepost(String screenTag, String resource, int resourceId) {
+    public static SocialEvent fromRepost(String screenTag, String resource, int resourceId) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.resource = resource;
@@ -37,7 +37,7 @@ public class SocialEvent {
         return new SocialEvent(TYPE_REPOST, attributes);
     }
 
-    public static SocialEvent createAddToPlaylist(String screenTag, boolean isNewPlaylist, int trackId) {
+    public static SocialEvent fromAddToPlaylist(String screenTag, boolean isNewPlaylist, int trackId) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.isNewPlaylist = isNewPlaylist;
@@ -45,14 +45,14 @@ public class SocialEvent {
         return new SocialEvent(TYPE_ADD_TO_PLAYLIST, attributes);
     }
 
-    public static SocialEvent createComment(String screenTag, int trackId) {
+    public static SocialEvent fromComment(String screenTag, int trackId) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.trackId = trackId;
         return new SocialEvent(TYPE_COMMENT, attributes);
     }
 
-    public static SocialEvent createShare(String screenTag, String resource, int resourceId, String sharedTo) {
+    public static SocialEvent fromShare(String screenTag, String resource, int resourceId, String sharedTo) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.resource = resource;
