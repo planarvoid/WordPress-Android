@@ -15,26 +15,33 @@ class LocalyticsSocialEventHandler {
     }
 
     public void handleEvent(SocialEvent sourceEvent) {
+        handleEvent(sourceEvent.getType(), sourceEvent.getAttributes());
+    }
+
+    @VisibleForTesting
+    void handleEvent(int sourceEventType, SocialEvent.Attributes sourceEventAttributes) {
         Map<String, String> mappedEventAttributes = new HashMap<String, String>();
-        switch (sourceEvent.getType()) {
+        switch (sourceEventType) {
             case SocialEvent.TYPE_FOLLOW:
-                handleEventFollow(sourceEvent.getAttributes(), mappedEventAttributes);
+                handleEventFollow(sourceEventAttributes, mappedEventAttributes);
                 break;
             case SocialEvent.TYPE_LIKE:
-                handleEventLike(sourceEvent.getAttributes(), mappedEventAttributes);
+                handleEventLike(sourceEventAttributes, mappedEventAttributes);
                 break;
             case SocialEvent.TYPE_REPOST:
-                handleEventRepost(sourceEvent.getAttributes(), mappedEventAttributes);
+                handleEventRepost(sourceEventAttributes, mappedEventAttributes);
                 break;
             case SocialEvent.TYPE_ADD_TO_PLAYLIST:
-                handleEventAddToPlaylist(sourceEvent.getAttributes(), mappedEventAttributes);
+                handleEventAddToPlaylist(sourceEventAttributes, mappedEventAttributes);
                 break;
             case SocialEvent.TYPE_COMMENT:
-                handleEventComment(sourceEvent.getAttributes(), mappedEventAttributes);
+                handleEventComment(sourceEventAttributes, mappedEventAttributes);
                 break;
             case SocialEvent.TYPE_SHARE:
-                handleEventShare(sourceEvent.getAttributes(), mappedEventAttributes);
+                handleEventShare(sourceEventAttributes, mappedEventAttributes);
                 break;
+            default:
+                throw new IllegalArgumentException("Social Event type is invalid");
         }
     }
 

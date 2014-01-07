@@ -34,6 +34,11 @@ public class LocalyticsSocialEventHandlerTest {
         mappedEventAttributes = new HashMap<String, String>();
     }
 
+    @Test (expected = IllegalArgumentException.class)
+    public void shouldThrownExceptionForInvalidSocialEventType() throws Exception {
+        localyticsSocialEventHandler.handleEvent(-1, sourceAttributes);
+    }
+
     @Test
     public void shouldHandleEventFollow() throws Exception {
         sourceAttributes.screenTag = "screen";
