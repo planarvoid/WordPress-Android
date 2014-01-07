@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics;
 
+import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.events.PlaybackEventData;
 
 /**
@@ -34,16 +35,16 @@ public interface AnalyticsProvider {
     void trackScreen(String screenTag);
 
     /**
-     * Signals to the analytics provider that a generic event has occurred
-     *
-     * @param event generic event information
-     */
-    void trackEvent(AnalyticsEvent event);
-
-    /**
      * Signals to the analytics provider that a playback event has occurred
      *
      * @param eventData what the playback event consisted of
      */
     void trackPlaybackEvent(PlaybackEventData eventData);
+
+    /**
+     * Signals to the analytics provider that a social event has occurred
+     *
+     * @param event social event information
+     */
+    void trackSocialEvent(SocialEvent event);
 }

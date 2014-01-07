@@ -1,7 +1,7 @@
-package com.soundcloud.android.analytics;
+package com.soundcloud.android.events;
 
 
-public class AnalyticsEvent {
+public class SocialEvent {
 
     public static final int TYPE_FOLLOW = 0;
     public static final int TYPE_LIKE = 1;
@@ -14,48 +14,48 @@ public class AnalyticsEvent {
     private Attributes mAttributes;
 
 
-    public static AnalyticsEvent createFollow(String screenTag, int userId) {
+    public static SocialEvent createFollow(String screenTag, int userId) {
         Attributes attributes = new Attributes();
         attributes.userId = userId;
-        return new AnalyticsEvent(TYPE_FOLLOW, attributes);
+        return new SocialEvent(TYPE_FOLLOW, attributes);
     }
 
-    public static AnalyticsEvent createLike(String screenTag, String resource, int resourceId) {
+    public static SocialEvent createLike(String screenTag, String resource, int resourceId) {
         Attributes attributes = new Attributes();
         attributes.resource = resource;
         attributes.resourceId = resourceId;
-        return new AnalyticsEvent(TYPE_LIKE, attributes);
+        return new SocialEvent(TYPE_LIKE, attributes);
     }
 
-    public static AnalyticsEvent createRepost(String screenTag, String resource, int resourceId) {
+    public static SocialEvent createRepost(String screenTag, String resource, int resourceId) {
         Attributes attributes = new Attributes();
         attributes.resource = resource;
         attributes.resourceId = resourceId;
-        return new AnalyticsEvent(TYPE_REPOST, attributes);
+        return new SocialEvent(TYPE_REPOST, attributes);
     }
 
-    public static AnalyticsEvent createAddToPlaylist(String screenTag, boolean isNewPlaylist, int trackId) {
+    public static SocialEvent createAddToPlaylist(String screenTag, boolean isNewPlaylist, int trackId) {
         Attributes attributes = new Attributes();
         attributes.isNewPlaylist = isNewPlaylist;
         attributes.trackId = trackId;
-        return new AnalyticsEvent(TYPE_ADD_TO_PLAYLIST, attributes);
+        return new SocialEvent(TYPE_ADD_TO_PLAYLIST, attributes);
     }
 
-    public static AnalyticsEvent createComment(String screenTag, int trackId) {
+    public static SocialEvent createComment(String screenTag, int trackId) {
         Attributes attributes = new Attributes();
         attributes.trackId = trackId;
-        return new AnalyticsEvent(TYPE_COMMENT, attributes);
+        return new SocialEvent(TYPE_COMMENT, attributes);
     }
 
-    public static AnalyticsEvent createComment(String screenTag, String resource, int resourceId, String sharedTo) {
+    public static SocialEvent createComment(String screenTag, String resource, int resourceId, String sharedTo) {
         Attributes attributes = new Attributes();
         attributes.resource = resource;
         attributes.resourceId = resourceId;
         attributes.sharedTo = sharedTo;
-        return new AnalyticsEvent(TYPE_SHARE, attributes);
+        return new SocialEvent(TYPE_SHARE, attributes);
     }
 
-    private AnalyticsEvent(int type, Attributes attributes) {
+    private SocialEvent(int type, Attributes attributes) {
         mType = type;
         mAttributes = attributes;
     }
@@ -66,11 +66,6 @@ public class AnalyticsEvent {
 
     public Attributes getAttributes() {
         return mAttributes;
-    }
-
-    @Override
-    public String toString() {
-        return "";
     }
 
     public static class Attributes {

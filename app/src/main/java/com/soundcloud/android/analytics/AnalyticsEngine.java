@@ -6,6 +6,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
+import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.events.Event;
 import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -135,10 +136,10 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    public void trackEvent(AnalyticsEvent event) {
-        Log.d(TAG, "Track playback event " + event.toString());
+    public void trackSocialEvent(SocialEvent event) {
+        Log.d(TAG, "Track social event " + event);
         for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-            analyticsProvider.trackEvent(event);
+            analyticsProvider.trackSocialEvent(event);
         }
     }
 

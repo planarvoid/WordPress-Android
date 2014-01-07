@@ -2,7 +2,7 @@ package com.soundcloud.android.analytics.localytics;
 
 import com.google.common.base.Objects;
 import com.localytics.android.LocalyticsSession;
-import com.soundcloud.android.analytics.AnalyticsEvent;
+import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.PlaybackEventData;
@@ -48,37 +48,37 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         mLocalyticsSession.tagScreen(screenTag);
     }
 
-    public void trackEvent(AnalyticsEvent event) {
+    public void trackSocialEvent(SocialEvent event) {
         switch (event.getType()) {
-            case AnalyticsEvent.TYPE_FOLLOW:
-                trackFollow(event.getAttributes());
+            case SocialEvent.TYPE_FOLLOW:
+                trackSocialEventFollow(event.getAttributes());
                 break;
-            case AnalyticsEvent.TYPE_LIKE:
-                trackLike(event.getAttributes());
+            case SocialEvent.TYPE_LIKE:
+                trackSocialEventLike(event.getAttributes());
                 break;
-            case AnalyticsEvent.TYPE_REPOST:
-                trackRepost(event.getAttributes());
+            case SocialEvent.TYPE_REPOST:
+                trackSocialEventRepost(event.getAttributes());
                 break;
-            case AnalyticsEvent.TYPE_ADD_TO_PLAYLIST:
-                trackAddToPlaylist(event.getAttributes());
+            case SocialEvent.TYPE_ADD_TO_PLAYLIST:
+                trackSocialEventAddToPlaylist(event.getAttributes());
                 break;
-            case AnalyticsEvent.TYPE_COMMENT:
-                trackComment(event.getAttributes());
+            case SocialEvent.TYPE_COMMENT:
+                trackSocialEventComment(event.getAttributes());
                 break;
-            case AnalyticsEvent.TYPE_SHARE:
-                trackShare(event.getAttributes());
+            case SocialEvent.TYPE_SHARE:
+                trackSocialEventShare(event.getAttributes());
                 break;
         }
     }
 
-    private void trackFollow(AnalyticsEvent.Attributes sourceAttributes) {
+    private void trackSocialEventFollow(SocialEvent.Attributes sourceAttributes) {
         Map<String, String> eventAttributes = new HashMap<String, String>();
         eventAttributes.put("context", sourceAttributes.screenTag);
         eventAttributes.put("user_id", String.valueOf(sourceAttributes.userId));
         mLocalyticsSession.tagEvent(LocalyticsEvents.FOLLOW, eventAttributes);
     }
 
-    private void trackLike(AnalyticsEvent.Attributes sourceAttributes) {
+    private void trackSocialEventLike(SocialEvent.Attributes sourceAttributes) {
         Map<String, String> eventAttributes = new HashMap<String, String>();
         eventAttributes.put("context", sourceAttributes.screenTag);
         eventAttributes.put("resource", sourceAttributes.resource);
@@ -86,7 +86,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         mLocalyticsSession.tagEvent(LocalyticsEvents.LIKE, eventAttributes);
     }
 
-    private void trackRepost(AnalyticsEvent.Attributes sourceAttributes) {
+    private void trackSocialEventRepost(SocialEvent.Attributes sourceAttributes) {
         Map<String, String> eventAttributes = new HashMap<String, String>();
         eventAttributes.put("context", sourceAttributes.screenTag);
         eventAttributes.put("resource", sourceAttributes.resource);
@@ -94,7 +94,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         mLocalyticsSession.tagEvent(LocalyticsEvents.REPOST, eventAttributes);
     }
 
-    private void trackAddToPlaylist(AnalyticsEvent.Attributes sourceAttributes) {
+    private void trackSocialEventAddToPlaylist(SocialEvent.Attributes sourceAttributes) {
         Map<String, String> eventAttributes = new HashMap<String, String>();
         eventAttributes.put("context", sourceAttributes.screenTag);
         eventAttributes.put("new playlist", String.valueOf(sourceAttributes.isNewPlaylist));
@@ -102,14 +102,14 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         mLocalyticsSession.tagEvent(LocalyticsEvents.ADD_TO_PLAYLIST, eventAttributes);
     }
 
-    private void trackComment(AnalyticsEvent.Attributes sourceAttributes) {
+    private void trackSocialEventComment(SocialEvent.Attributes sourceAttributes) {
         Map<String, String> eventAttributes = new HashMap<String, String>();
         eventAttributes.put("context", sourceAttributes.screenTag);
         eventAttributes.put("track_id", String.valueOf(sourceAttributes.trackId));
         mLocalyticsSession.tagEvent(LocalyticsEvents.COMMENT, eventAttributes);
     }
 
-    private void trackShare(AnalyticsEvent.Attributes sourceAttributes) {
+    private void trackSocialEventShare(SocialEvent.Attributes sourceAttributes) {
         Map<String, String> eventAttributes = new HashMap<String, String>();
         eventAttributes.put("context", sourceAttributes.screenTag);
         eventAttributes.put("resource", sourceAttributes.resource);
