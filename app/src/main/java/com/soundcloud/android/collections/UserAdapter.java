@@ -14,17 +14,19 @@ import android.net.Uri;
 
 public class UserAdapter extends ScBaseAdapter<User> implements FollowingOperations.FollowStatusChangedListener {
 
-    private ImageOperations mImageOperations;
+    private final ImageOperations mImageOperations;
+    private final Screen mOriginScreen;
 
-    public UserAdapter(Uri uri, ImageOperations imageOperations) {
+    public UserAdapter(Uri uri, Screen originScreen, ImageOperations imageOperations) {
         super(uri);
+        mOriginScreen = originScreen;
         mImageOperations = imageOperations;
         new FollowingOperations().requestUserFollowings(this);
     }
 
     @Override
     protected IconLayout createRow(Context context, int position) {
-        return new UserlistRow(context, mImageOperations);
+        return new UserlistRow(context, mOriginScreen, mImageOperations);
     }
 
     @Override

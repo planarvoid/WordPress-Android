@@ -24,7 +24,7 @@ public class FriendAdapter extends ScBaseAdapter<Friend> implements FollowingOpe
 
     @Override
     protected IconLayout createRow(Context context, int position) {
-        return new UserlistRow(context, mImageOperations);
+        return new UserlistRow(context, null, mImageOperations);
     }
 
     @Override

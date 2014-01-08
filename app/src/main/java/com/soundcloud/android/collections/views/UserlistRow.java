@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ListRow;
 import com.soundcloud.android.image.ImageOperations;
@@ -35,10 +36,12 @@ public class UserlistRow extends IconLayout implements ListRow {
     private ToggleButton mFollowBtn;
     private AccountOperations mAccountOperations;
     private FollowingOperations mFollowingOperations;
+    private Screen mOriginScreen;
 
 
-    public UserlistRow(Context context, ImageOperations imageOperations) {
+    public UserlistRow(Context context, Screen originScreen, ImageOperations imageOperations) {
         super(context, imageOperations);
+        mOriginScreen = originScreen;
         mFollowingOperations = new FollowingOperations();
         mAccountOperations = new AccountOperations(context);
         mUsername = (TextView) findViewById(R.id.username);
@@ -125,7 +128,8 @@ public class UserlistRow extends IconLayout implements ListRow {
     }
 
     private void toggleFollowing(final User user) {
-        mFollowingOperations.toggleFollowing(user).observeOn(AndroidSchedulers.mainThread()).subscribe(new DefaultObserver<UserAssociation>() {
+        mFollowingOperations.toggleFollowing(mOriginScreen, user).observeOn(
+                AndroidSchedulers.mainThread()).subscribe(new DefaultObserver<UserAssociation>() {
             @Override
             public void onCompleted() {
                 SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());

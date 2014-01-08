@@ -2,7 +2,6 @@ package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -11,10 +10,12 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
@@ -22,9 +23,10 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -56,16 +58,15 @@ public class FollowingOperationsTest {
     @Mock
     private SoundCloudRxHttpClient soundCloudRxHttpClient;
     @Mock
-    private UserAssociation userAssociationsOne;
+    private UserAssociation userAssociationOne;
     @Mock
-    private UserAssociation userAssociationsTwo;
+    private UserAssociation userAssociationTwo;
     @Mock
     private Observable observable;
     @Mock
-    private Observer<Collection<UserAssociation>> observer;
+    private Observer observer;
 
     private User user;
-    private List<User> users;
     private SuggestedUser suggestedUser;
     private List<SuggestedUser> suggestedUsers;
     private Collection<UserAssociation> userAssociations;
@@ -73,28 +74,23 @@ public class FollowingOperationsTest {
     @Before
     public void before() throws CreateModelException {
         when(scModelManager.cache(any(User.class), any(ScResource.CacheUpdateMode.class))).thenReturn(mock(User.class));
+        when(userAssociationStorage.follow(any(User.class))).thenReturn(observable);
+        when(userAssociationStorage.unfollow(any(User.class))).thenReturn(observable);
 
         ops = new FollowingOperations(soundCloudRxHttpClient, userAssociationStorage, syncStateManager, followStatus, scModelManager);
 
         user = TestHelper.getModelFactory().createModel(User.class);
-        users = TestHelper.createUsers(5);
 
         suggestedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
         suggestedUsers = TestHelper.createSuggestedUsers(3);
 
-        userAssociations = Lists.newArrayList(userAssociationsOne, userAssociationsTwo);
+        userAssociations = Lists.newArrayList(userAssociationOne, userAssociationTwo);
     }
 
     @Test
     public void shouldToggleFollowingOnAddition() throws CreateModelException {
-        ops.addFollowing(user);
+        ops.addFollowing(Screen.TOUR, user);
         verify(followStatus).toggleFollowing(user.getId());
-    }
-
-    @Test
-    public void shouldToggleFollowingsOnAdditions() throws CreateModelException {
-        ops.addFollowings(users);
-        verify(followStatus).toggleFollowing(ScModel.getIdList(users));
     }
 
     @Test
@@ -111,99 +107,47 @@ public class FollowingOperationsTest {
 
     @Test
     public void shouldToggleFollowingOnRemoval() throws CreateModelException {
-        ops.removeFollowing(user);
+        ops.removeFollowing(Screen.TOUR, user);
         verify(followStatus).toggleFollowing(user.getId());
     }
 
     @Test
-    public void shouldToggleFollowingsListOnRemoval() throws CreateModelException {
-        ops.removeFollowings(users);
-        verify(followStatus).toggleFollowing(ScModel.getIdList(users));
-    }
-
-    @Test
     public void shouldUpdateCacheForEachUserOnAddition() throws CreateModelException {
-        ops.addFollowing(user);
+        ops.addFollowing(Screen.TOUR, user);
         verify(scModelManager, times(1)).getCachedUser(user.getId());
-    }
-
-    @Test
-    public void shouldUpdateCacheForEachUserOnListAddition() throws CreateModelException {
-        ops.addFollowings(users);
-        verify(scModelManager, times(5)).getCachedUser(anyLong());
     }
 
     @Test
     public void shouldUpdateCacheForEachUserOnRemoval() throws CreateModelException {
-        ops.removeFollowing(user);
+        ops.removeFollowing(Screen.TOUR, user);
         verify(scModelManager, times(1)).getCachedUser(user.getId());
-    }
-
-    @Test
-    public void shouldUpdateCacheForEachUserOnListRemoval() throws CreateModelException {
-        ops.removeFollowings(users);
-        verify(scModelManager, times(5)).getCachedUser(anyLong());
     }
 
     @Test
     public void shouldForceStreamToStaleIfFirstFollowingFromAddition() {
         when(syncStateManager.forceToStaleAsync(Content.ME_SOUND_STREAM)).thenReturn(observable);
         when(followStatus.isEmpty()).thenReturn(true, false);
-        ops.addFollowing(user);
-        verify(observable).subscribe(any(Observer.class));
-    }
-
-    @Test
-    public void shouldForceStreamToStaleIfFirstFollowingFromListAddition() {
-        when(syncStateManager.forceToStaleAsync(Content.ME_SOUND_STREAM)).thenReturn(observable);
-        when(followStatus.isEmpty()).thenReturn(true, false);
-        ops.addFollowings(users);
+        ops.addFollowing(Screen.TOUR, user);
         verify(observable).subscribe(any(Observer.class));
     }
 
     @Test
     public void shouldNotForceStreamToStaleIfFollowingsNotEmpty() {
         when(followStatus.isEmpty()).thenReturn(false);
-        ops.addFollowing(user);
-        verify(syncStateManager, never()).forceToStale(Content.ME_SOUND_STREAM);
-    }
-
-    @Test
-    public void shouldNotForceStreamToStaleFromListIfFollowingsNotEmpty() {
-        when(followStatus.isEmpty()).thenReturn(false);
-        ops.addFollowings(users);
-        verify(syncStateManager, never()).forceToStale(Content.ME_SOUND_STREAM);
-    }
-
-    @Test
-    public void shouldNotForceStreamToStaleFromListIfUsersListIsEmpty() {
-        when(followStatus.isEmpty()).thenReturn(true);
-        ops.addFollowings(Collections.<User>emptyList());
+        ops.addFollowing(Screen.TOUR, user);
         verify(syncStateManager, never()).forceToStale(Content.ME_SOUND_STREAM);
     }
 
     @Test
     public void shouldCommitFollowingsListToLocalStorageOnAddition() throws CreateModelException {
-        ops.addFollowing(user);
+        ops.addFollowing(Screen.TOUR, user);
         verify(userAssociationStorage).follow(user);
     }
 
     @Test
     public void shouldCommitFollowingsListToLocalStorageOnRemoval() throws CreateModelException {
-        ops.removeFollowing(user);
+        ops.removeFollowing(Screen.TOUR, user);
         verify(userAssociationStorage).unfollow(user);
-    }
-
-    @Test
-    public void shouldCommitFollowingsListToLocalStorageOnListAddition() throws CreateModelException {
-        ops.addFollowings(users);
-        verify(userAssociationStorage).followList(users);
-    }
-
-    @Test
-    public void shouldCommitFollowingsListToLocalStorageOnListRemoval() throws CreateModelException {
-        ops.removeFollowings(users);
-        verify(userAssociationStorage).unfollowList(users);
     }
 
     @Test
@@ -218,8 +162,8 @@ public class FollowingOperationsTest {
     @Test
     public void shouldMakeAPostRequestWhenBulkFollowing() {
         when(soundCloudRxHttpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>empty());
-        when(userAssociationsOne.getToken()).thenReturn("token1");
-        when(userAssociationsOne.hasToken()).thenReturn(true);
+        when(userAssociationOne.getToken()).thenReturn("token1");
+        when(userAssociationOne.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(observer);
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(soundCloudRxHttpClient).fetchResponse(argumentCaptor.capture());
@@ -229,8 +173,8 @@ public class FollowingOperationsTest {
     @Test
     public void shouldMakeRequestToPublicAPIWhenBulkFollowing() {
         when(soundCloudRxHttpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>empty());
-        when(userAssociationsOne.getToken()).thenReturn("token1");
-        when(userAssociationsOne.hasToken()).thenReturn(true);
+        when(userAssociationOne.getToken()).thenReturn("token1");
+        when(userAssociationOne.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(observer);
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(soundCloudRxHttpClient).fetchResponse(argumentCaptor.capture());
@@ -240,10 +184,10 @@ public class FollowingOperationsTest {
     @Test
     public void shouldAddTokensAsQueryParametersWhenBulkFollowing() {
         when(soundCloudRxHttpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>empty());
-        when(userAssociationsOne.getToken()).thenReturn("token1");
-        when(userAssociationsTwo.getToken()).thenReturn("token2");
-        when(userAssociationsOne.hasToken()).thenReturn(true);
-        when(userAssociationsTwo.hasToken()).thenReturn(true);
+        when(userAssociationOne.getToken()).thenReturn("token1");
+        when(userAssociationTwo.getToken()).thenReturn("token2");
+        when(userAssociationOne.hasToken()).thenReturn(true);
+        when(userAssociationTwo.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(observer);
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(soundCloudRxHttpClient).fetchResponse(argumentCaptor.capture());
@@ -254,8 +198,8 @@ public class FollowingOperationsTest {
     @Test
     public void shouldReturnTrueIfBulkFollowingRequestSucceeds(){
         when(soundCloudRxHttpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>empty());
-        when(userAssociationsOne.getToken()).thenReturn("token1");
-        when(userAssociationsOne.hasToken()).thenReturn(true);
+        when(userAssociationOne.getToken()).thenReturn("token1");
+        when(userAssociationOne.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(observer);
         verify(observer).onCompleted();
     }
@@ -279,5 +223,25 @@ public class FollowingOperationsTest {
 
         ops.bulkFollowAssociations(associations).subscribe(observer);
         verify(userAssociationStorage).setFollowingsAsSynced(associations);
+    }
+
+    @Test
+    public void shouldPublishSocialEventWhenFollowingUser() throws Exception {
+        Observer<SocialEvent> eventObserver = mock(Observer.class);
+        Event.SOCIAL.subscribe(eventObserver);
+        ops.addFollowing(Screen.ACTIVITIES, user).subscribe(observer);
+        ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
+        verify(eventObserver).onNext(socialEvent.capture());
+        expect(socialEvent.getValue().getType()).toEqual(SocialEvent.TYPE_FOLLOW);
+    }
+
+    @Test
+    public void shouldPublishSocialEventWhenUnfollowingUser() throws Exception {
+        Observer<SocialEvent> eventObserver = mock(Observer.class);
+        Event.SOCIAL.subscribe(eventObserver);
+        ops.removeFollowing(Screen.ACTIVITIES, user).subscribe(observer);
+        ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
+        verify(eventObserver).onNext(socialEvent.capture());
+        expect(socialEvent.getValue().getType()).toEqual(SocialEvent.TYPE_UNFOLLOW);
     }
 }

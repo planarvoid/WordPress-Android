@@ -16,7 +16,6 @@ import android.view.View;
 public class TrackInteractionActivity extends PlayableInteractionActivity {
 
     private PlaybackOperations mPlaybackOperations;
-    private Screen mScreen;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -24,15 +23,12 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
 
         switch (mInteraction) {
             case TRACK_LIKE:
-                mScreen = Screen.PLAYER_LIKES;
                 setTitle(R.string.list_header_track_likers);
                 break;
             case TRACK_REPOST:
-                mScreen = Screen.PLAYER_REPOSTS;
                 setTitle(R.string.list_header_track_reposters);
                 break;
             case COMMENT:
-                mScreen = Screen.PLAYER_COMMENTS;
                 setTitle(R.string.list_header_track_comments);
                 break;
             default:
@@ -45,7 +41,7 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
             public void onClick(View v) {
                 // if it comes from a mention, might not have a user
                 if (mPlayable.user != null) {
-                    mPlaybackOperations.playTrack(TrackInteractionActivity.this, (Track) mPlayable, mScreen);
+                    mPlaybackOperations.playTrack(TrackInteractionActivity.this, (Track) mPlayable, getCurrentScreen());
                 }
             }
         });
@@ -55,12 +51,21 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            Event.SCREEN_ENTERED.publish(mScreen.get());
+            Event.SCREEN_ENTERED.publish(getCurrentScreen().get());
         }
     }
 
     protected Screen getCurrentScreen() {
-        return mScreen;
+        switch (mInteraction) {
+            case TRACK_LIKE:
+                return Screen.PLAYER_LIKES;
+            case TRACK_REPOST:
+                return Screen.PLAYER_REPOSTS;
+            case COMMENT:
+                return Screen.PLAYER_COMMENTS;
+            default:
+                throw new IllegalArgumentException("Unexpected track interation: " + mInteraction);
+        }
     }
 
     @Override

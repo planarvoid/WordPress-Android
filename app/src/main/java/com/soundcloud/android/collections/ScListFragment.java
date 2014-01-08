@@ -343,11 +343,11 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
                 case PLAYLIST_LIKERS:
                 case PLAYLIST_REPOSTERS:
                 case SUGGESTED_USERS:
-                    mAdapter = new UserAdapter(mContentUri, mImageOperations);
+                    mAdapter = new UserAdapter(mContentUri, getScreen(), mImageOperations);
                     break;
                 case ME_FOLLOWERS:
                 case ME_FOLLOWINGS:
-                    mAdapter = new UserAssociationAdapter(mContentUri, mImageOperations);
+                    mAdapter = new UserAssociationAdapter(mContentUri, getScreen(), mImageOperations);
                     break;
                 case ME_FRIENDS:
                     mAdapter = new FriendAdapter(mContentUri, mImageOperations);

@@ -1,13 +1,15 @@
 package com.soundcloud.android.tests;
 
-import android.app.Activity;
-import android.content.Context;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.content.UserAssociationSyncer;
 import rx.concurrency.Schedulers;
+
+import android.app.Activity;
+import android.content.Context;
 
 import java.io.IOException;
 
@@ -46,7 +48,7 @@ public class TestUser {
             @Override
             public void run() {
                 for (long userId : followingOperations.getFollowedUserIds()){
-                    followingOperations.removeFollowing(new User(userId));
+                    followingOperations.removeFollowing(Screen.ACTIVITIES, new User(userId));
                 }
 
                 try {

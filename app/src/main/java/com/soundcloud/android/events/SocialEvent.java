@@ -100,6 +100,11 @@ public class SocialEvent {
         return mAttributes;
     }
 
+    @Override
+    public String toString() {
+        return  String.format("Social Event with type id %s and %s",  getType(), getAttributes().toString());
+    }
+
     public static class Attributes {
         public String screenTag;
         public long userId;
@@ -108,5 +113,10 @@ public class SocialEvent {
         public int trackId;
         public boolean isNewPlaylist;
         public String sharedTo;
+
+        @Override
+        public String toString() {
+            return String.format("screenTag: %s", screenTag);
+        }
     }
 }

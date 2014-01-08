@@ -303,7 +303,7 @@ public class ProfileActivity extends ScActivity implements
     }
 
     private void toggleFollowing(User user) {
-        mFollowingOperations.toggleFollowing(user).subscribe(new DefaultObserver<UserAssociation>() {
+        mFollowingOperations.toggleFollowing(Screen.USER_HEADER, user).subscribe(new DefaultObserver<UserAssociation>() {
             @Override
             public void onCompleted() {
                 SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
