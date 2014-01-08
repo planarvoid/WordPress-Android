@@ -357,12 +357,7 @@
         <dependency>
             <groupId>com.netflix.rxjava</groupId>
             <artifactId>rxjava-android</artifactId>
-            <version>0.14.3.410af37</version>
-        </dependency>
-        <dependency>
-            <groupId>com.netflix.rxjava</groupId>
-            <artifactId>rxjava-core</artifactId>
-            <version>0.14.2</version>
+            <version>0.15.1</version>
         </dependency>
         <dependency>
             <groupId>com.nostra13.universalimageloader</groupId>
