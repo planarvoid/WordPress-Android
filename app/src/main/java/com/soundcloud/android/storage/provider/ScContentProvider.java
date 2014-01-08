@@ -154,7 +154,6 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
-            case ME_FRIENDS:
                 /* XXX special case for now. we  need to not join in the users table on an id only request, because
                 it is an inner join and will not return ids with missing users. Switching to a left join is possible
                 but not 4 days before major release*/
@@ -173,19 +172,8 @@ public class ScContentProvider extends ContentProvider {
                     qb.appendWhere(Table.USER_ASSOCIATION_VIEW.name + "." + DBHelper.UserAssociationView.USER_ASSOCIATION_OWNER_ID + " = " + String.valueOf(userId));
                     qb.appendWhere(" AND " + DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType);
 
-                    if (content == Content.ME_FRIENDS) {
-                        //special sorting for friends (only if we use default columns though)
-                        if (_sortOrder == null) {
-                            _sortOrder = makeCollectionSort(uri, sortOrder == null ?
-                                    DBHelper.Users.USER_FOLLOWING + " ASC, " + DBHelper.Users._ID + " ASC" : sortOrder);
-                        } else {
-                            _sortOrder = makeCollectionSort(uri, sortOrder);
-                        }
-                    } else {
-                        _sortOrder = makeCollectionSort(uri, sortOrder != null ?
-                                sortOrder : DBHelper.UserAssociationView.USER_ASSOCIATION_POSITION);
-                    }
-
+                    _sortOrder = makeCollectionSort(uri, sortOrder != null ?
+                            sortOrder : DBHelper.UserAssociationView.USER_ASSOCIATION_POSITION);
                 }
                 break;
 
@@ -552,7 +540,6 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
-            case ME_FRIENDS:
                 whereAppend = Table.USER_ASSOCIATIONS.name + "." + DBHelper.UserAssociations.OWNER_ID + " = " + userIdFromContext
                         + " AND " + DBHelper.UserAssociations.ASSOCIATION_TYPE + " = " + content.collectionType;
                 where = TextUtils.isEmpty(where) ? whereAppend
@@ -753,7 +740,6 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
-            case ME_FRIENDS:
                 table = Table.USER_ASSOCIATIONS;
                 extraCV = new String[]{DBHelper.UserAssociations.ASSOCIATION_TYPE, String.valueOf(content.collectionType)};
                 break;

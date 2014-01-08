@@ -133,15 +133,6 @@ public class UserAssociationSyncer extends SyncStrategy {
                 }
                 startPosition = resources.size();
                 break;
-            case ME_FRIENDS:
-                // sync all friends. It is the only way ordering works properly
-                added = mCollectionStorage.fetchAndStoreMissingCollectionItems(
-                        mApi,
-                        remote,
-                        Content.USERS,
-                        false
-                );
-                break;
         }
 
         log("Added " + added + " new items for this endpoint");

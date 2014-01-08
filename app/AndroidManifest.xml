@@ -211,13 +211,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:configChanges="orientation" android:label="@string/side_menu_friend_finder" android:name=".associations.FriendFinderActivity">
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.FRIEND_FINDER"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-
 
         <activity android:exported="true" android:label="@string/app_name" android:name=".onboarding.OnboardActivity" android:theme="@style/Theme.ScAuth" android:windowSoftInputMode="adjustResize"/>
         <activity android:configChanges="orientation" android:label="@string/app_name" android:name=".onboarding.auth.RecoverActivity" android:theme="@style/Theme.ScAuth"/>

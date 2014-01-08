@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.api.SuggestedUsersOperations;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersOperations;
 import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.storage.UserAssociationStorage;
@@ -117,19 +117,6 @@ public class UserAssociationSyncerTest {
         userAssociationSyncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
 
         verify(userAssociationStorage).insertInBatches(Content.ME_FOLLOWERS, USER_ID, newArrayList(792584L, 1255758L, 308291L), 0, Integer.MAX_VALUE);
-    }
-
-    @Test
-    public void shouldSyncFriends() throws Exception {
-        addIdResponse("/me/connections/friends/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        TestHelper.addResourceResponse(ApiSyncServiceTest.class, "/users?linked_partitioning=1&limit=200&ids=792584%2C1255758%2C308291", "users.json");
-
-        sync(Content.ME_FRIENDS.uri);
-
-        // make sure tracks+users got written
-        expect(Content.USERS).toHaveCount(3);
-        expect(Content.ME_FRIENDS).toHaveCount(3);
-        assertFirstIdToBe(Content.ME_FRIENDS, 308291);
     }
 
     @Test

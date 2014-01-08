@@ -462,14 +462,4 @@ public class UserAssociationStorageTest {
         storage.deleteAssociations(Content.ME_FOLLOWERS.uri, storedIds);
         expect(Content.ME_FOLLOWERS).toHaveCount(0);
     }
-
-    @Test
-    public void shouldDeleteFriends() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FRIENDS.uri);
-        expect(Content.ME_FRIENDS).toHaveCount(2);
-
-        List<Long> storedIds = storage.getStoredIds(Content.ME_FRIENDS.uri);
-        storage.deleteAssociations(Content.ME_FRIENDS.uri, storedIds);
-        expect(Content.ME_FRIENDS).toHaveCount(0);
-    }
 }

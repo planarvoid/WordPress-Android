@@ -35,7 +35,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private static final String TAG = AnalyticsEngine.class.getSimpleName();
 
     @VisibleForTesting
-    protected static AtomicBoolean sActivitySessionOpen = new AtomicBoolean();
+    protected static final AtomicBoolean ACTIVITY_SESSION_OPEN = new AtomicBoolean();
     private static AnalyticsEngine sInstance;
 
     private final Collection<AnalyticsProvider> mAnalyticsProviders;
@@ -77,7 +77,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
      * Opens an analytics session for activities
      */
     public void openSessionForActivity() {
-        sActivitySessionOpen.set(true);
+        ACTIVITY_SESSION_OPEN.set(true);
         openSessionIfAnalyticsEnabled();
     }
 
@@ -85,7 +85,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
      * Closes a analytics session for activities
      */
     public void closeSessionForActivity() {
-        sActivitySessionOpen.set(false);
+        ACTIVITY_SESSION_OPEN.set(false);
         if (mCloudPlaybackStateWrapper.isPlayerPlaying() || !closeSessionIfAnalyticsEnabled()) {
             Log.d(TAG, "Didn't close analytics session");
         }
@@ -114,7 +114,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
      * Tracks a single screen (Activity or Fragment) under the given tag
      */
     public void trackScreen(String screenTag) {
-        if (analyticsIsEnabled() && sActivitySessionOpen.get()) {
+        if (analyticsIsEnabled() && ACTIVITY_SESSION_OPEN.get()) {
             Log.d(TAG, "Track screen " + screenTag);
             for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
                 analyticsProvider.trackScreen(screenTag);
@@ -149,7 +149,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
 
     @VisibleForTesting
     protected boolean activitySessionIsClosed() {
-        return !sActivitySessionOpen.get();
+        return !ACTIVITY_SESSION_OPEN.get();
     }
 
     private void openSessionIfAnalyticsEnabled() {

@@ -64,4 +64,21 @@ public class UnauthorisedRequestReceiverTest {
         receiver.onReceive(context, intent);
         verify(registry).clearObservedUnauthorisedRequestTimestamp();
     }
+
+    @Test
+    public void shouldShowDialogIfNotAlreadyShowing() {
+        when(fragmentManager.findFragmentByTag(TokenExpiredDialogFragment.TAG)).thenReturn(null);
+        when(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).thenReturn(true);
+        receiver.onReceive(context, intent);
+        verify(tokenExpiredDialog).show(fragmentManager, TokenExpiredDialogFragment.TAG);
+    }
+
+    @Test
+    public void shouldNotShowDialogIfAlreadyShowing() {
+        when(fragmentManager.findFragmentByTag(TokenExpiredDialogFragment.TAG)).thenReturn(tokenExpiredDialog);
+        when(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).thenReturn(true);
+        receiver.onReceive(context, intent);
+        verify(tokenExpiredDialog, never()).show(fragmentManager, TokenExpiredDialogFragment.TAG);
+    }
+
 }

@@ -20,7 +20,6 @@ enum SyncContent {
     MyFollowings(Content.ME_FOLLOWINGS, SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS),
     MyFollowers (Content.ME_FOLLOWERS,  SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS),
     MyConnections (Content.ME_CONNECTIONS,  SyncConfig.CONNECTIONS_STALE_TIME,  null),
-    MyFriends   (Content.ME_FRIENDS,  SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS),
     MyShortcuts (Content.ME_SHORTCUTS,  SyncConfig.SHORTCUTS_STALE_TIME,  null);
 
     SyncContent(Content content, long syncDelay, int[] backoffMultipliers) {
