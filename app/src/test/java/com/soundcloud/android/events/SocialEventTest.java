@@ -11,7 +11,7 @@ public class SocialEventTest {
         SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
         assertEquals(socialEvent.getType(), 0);
         assertEquals(socialEventAttributes.screenTag, "screen");
-        assertEquals(socialEventAttributes.userId, 30);
+        assertEquals(socialEventAttributes.userId, 30L);
     }
 
     @Test
@@ -20,7 +20,7 @@ public class SocialEventTest {
         SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
         assertEquals(socialEvent.getType(), 1);
         assertEquals(socialEventAttributes.screenTag, "screen");
-        assertEquals(socialEventAttributes.userId, 30);
+        assertEquals(socialEventAttributes.userId, 30L);
     }
 
     @Test

@@ -17,14 +17,14 @@ public class SocialEvent {
     private Attributes mAttributes;
 
 
-    public static SocialEvent fromFollow(String screenTag, int userId) {
+    public static SocialEvent fromFollow(String screenTag, long userId) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.userId = userId;
         return new SocialEvent(TYPE_FOLLOW, attributes);
     }
 
-    public static SocialEvent fromUnfollow(String screenTag, int userId) {
+    public static SocialEvent fromUnfollow(String screenTag, long userId) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.userId = userId;
@@ -102,7 +102,7 @@ public class SocialEvent {
 
     public static class Attributes {
         public String screenTag;
-        public int userId;
+        public long userId;
         public String resource;
         public int resourceId;
         public int trackId;

@@ -42,7 +42,7 @@ public class LocalyticsSocialEventHandlerTest {
     @Test
     public void shouldHandleEventFollow() throws Exception {
         sourceAttributes.screenTag = "screen";
-        sourceAttributes.userId = 30;
+        sourceAttributes.userId = 30L;
         localyticsSocialEventHandler.handleEventFollow(sourceAttributes, mappedEventAttributes);
         verify(localyticsSession).tagEvent("Follow", mappedEventAttributes);
         assertEquals(mappedEventAttributes.get("context"), "screen");
@@ -52,7 +52,7 @@ public class LocalyticsSocialEventHandlerTest {
     @Test
     public void shouldHandleEventUnfollow() throws Exception {
         sourceAttributes.screenTag = "screen";
-        sourceAttributes.userId = 30;
+        sourceAttributes.userId = 30L;
         localyticsSocialEventHandler.handleEventUnfollow(sourceAttributes, mappedEventAttributes);
         verify(localyticsSession).tagEvent("Unfollow", mappedEventAttributes);
         assertEquals(mappedEventAttributes.get("context"), "screen");
