@@ -2,14 +2,12 @@ package com.soundcloud.android.storage.provider;
 
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.FOLLOWER;
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.FOLLOWING;
-import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.FRIEND;
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.LIKE;
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.REPOST;
 
 import com.soundcloud.android.api.TempEndpoints;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
@@ -69,8 +67,6 @@ public enum Content  {
     ME_SOUND_STREAM("me/stream", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),
     ME_ACTIVITIES("me/activities/all/own", TempEndpoints.e1.MY_ACTIVITIES, 142, Activity.class, -1, Table.ACTIVITIES),
     ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.ACTIVITIES),
-
-    ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, Friend.class, FRIEND, Table.USER_ASSOCIATIONS),
 
     SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 190, User.class, -1, null),
 
@@ -187,8 +183,7 @@ public enum Content  {
 
     public static final EnumSet<Content> ID_BASED = EnumSet.of(
             Content.ME_FOLLOWINGS,
-            Content.ME_FOLLOWERS,
-            Content.ME_FRIENDS
+            Content.ME_FOLLOWERS
     );
 
     public static final EnumSet<Content> LISTEN_FOR_PLAYLIST_CHANGES = EnumSet.of(

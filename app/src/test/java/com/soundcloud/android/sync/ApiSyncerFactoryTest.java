@@ -23,11 +23,6 @@ public class ApiSyncerFactoryTest {
         expect(getSyncer(Content.ME_FOLLOWERS)).toBeInstanceOf(UserAssociationSyncer.class);
     }
 
-    @Test
-    public void shouldReturnUserAssociationSyncerForFriends() throws Exception {
-        expect(getSyncer(Content.ME_FRIENDS)).toBeInstanceOf(UserAssociationSyncer.class);
-    }
-
     private SyncStrategy getSyncer(Content content) {
         return new ApiSyncerFactory().forContentUri(Robolectric.application, content.uri);
     }

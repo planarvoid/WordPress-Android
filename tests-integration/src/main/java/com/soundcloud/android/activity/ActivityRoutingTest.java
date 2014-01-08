@@ -2,18 +2,17 @@ package com.soundcloud.android.activity;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.activities.ActivitiesActivity;
-import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.main.ResolveActivity;
-import com.soundcloud.android.preferences.AccountSettingsActivity;
-import com.soundcloud.android.profile.MeActivity;
-import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.associations.FriendFinderActivity;
-import com.soundcloud.android.playback.PlayerActivity;
-import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.creators.upload.UploadMonitorActivity;
+import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.main.ResolveActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
+import com.soundcloud.android.playback.PlayerActivity;
+import com.soundcloud.android.preferences.AccountSettingsActivity;
+import com.soundcloud.android.profile.MeActivity;
+import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.search.SearchActivity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -69,10 +68,6 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
     public void ignore_testUserBrowser() throws Exception {
         assertActivityStarted(ProfileActivity.class, Actions.USER_BROWSER);
         assertActivityStarted(ProfileActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/users/1235"));
-    }
-
-    public void ignore_testFriendFinder() throws Exception {
-        assertActivityStarted(FriendFinderActivity.class, Actions.FRIEND_FINDER);
     }
 
     public void ignore_testSuggestedUsers() throws Exception {

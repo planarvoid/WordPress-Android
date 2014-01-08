@@ -5,7 +5,6 @@ import static com.soundcloud.android.explore.ExploreGenresAdapter.MUSIC_SECTION;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.associations.FriendFinderFragment;
 import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
@@ -103,7 +102,7 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
-                setEmptyViewStatus(FriendFinderFragment.Status.WAITING);
+                setEmptyViewStatus(EmptyListView.Status.WAITING);
                 mGenresObservable = buildObservable(mObservableFactory.create(ExploreGenresFragment.this));
                 mSubscription = loadCategories();
             }

@@ -13,7 +13,6 @@ import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.associations.CommentAdapter;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.associations.FriendAdapter;
 import com.soundcloud.android.associations.SoundAssociationAdapter;
 import com.soundcloud.android.associations.UserAssociationAdapter;
 import com.soundcloud.android.collections.tasks.CollectionParams;
@@ -348,9 +347,6 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
                 case ME_FOLLOWERS:
                 case ME_FOLLOWINGS:
                     mAdapter = new UserAssociationAdapter(mContentUri, mImageOperations);
-                    break;
-                case ME_FRIENDS:
-                    mAdapter = new FriendAdapter(mContentUri, mImageOperations);
                     break;
                 case ME_SOUNDS:
                     mAdapter = new MyTracksAdapter(getScActivity(), mImageOperations);

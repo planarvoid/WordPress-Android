@@ -14,7 +14,6 @@ public class ApiSyncerFactory {
         switch (Content.match(contentUri)) {
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
-            case ME_FRIENDS:
                 return new UserAssociationSyncer(context);
 
             default:
