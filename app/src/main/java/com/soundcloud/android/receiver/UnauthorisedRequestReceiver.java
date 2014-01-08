@@ -26,14 +26,15 @@ public class UnauthorisedRequestReceiver extends BroadcastReceiver {
         mRequestRegistry = unauthorisedRequestRegistry;
         mFragmentManager = fragmentManager;
         mTokenExpiredDialog = tokenExpiredDialog;
-
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if(mRequestRegistry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()){
             mRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
-            mTokenExpiredDialog.show(mFragmentManager, TokenExpiredDialogFragment.TAG);
+            if (mFragmentManager.findFragmentByTag(TokenExpiredDialogFragment.TAG) == null) {
+                mTokenExpiredDialog.show(mFragmentManager, TokenExpiredDialogFragment.TAG);
+            }
         }
     }
 }
