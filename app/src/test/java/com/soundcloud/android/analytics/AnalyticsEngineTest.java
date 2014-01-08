@@ -42,7 +42,7 @@ public class AnalyticsEngineTest {
 
     @After
     public void tearDown(){
-        AnalyticsEngine.sActivitySessionOpen.set(false);
+        AnalyticsEngine.ACTIVITY_SESSION_OPEN.set(false);
     }
 
     @Test
