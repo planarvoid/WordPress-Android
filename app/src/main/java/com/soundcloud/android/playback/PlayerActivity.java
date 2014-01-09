@@ -73,7 +73,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     @NotNull
     private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
-    private LinearLayout mPlayerInfoLayout;
     private PlayerTrackDetailsLayout mTrackDetailsView;
     private PlayableInfoAndEngagementsController mPlayableInfoAndEngagementsController;
 
@@ -106,7 +105,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         mTransportBar.setOnPauseListener(mPauseListener);
         mTransportBar.setOnCommentListener(mCommentListener);
 
-        mPlayerInfoLayout = (LinearLayout) findViewById(R.id.player_info_view);
+        // only exists in tablet layouts
+        LinearLayout mPlayerInfoLayout = (LinearLayout) findViewById(R.id.player_info_view);
         if (mPlayerInfoLayout != null){
             mTrackDetailsView = (PlayerTrackDetailsLayout) mPlayerInfoLayout.findViewById(R.id.player_track_details);
             mPlayableInfoAndEngagementsController = new PlayableInfoAndEngagementsController(mPlayerInfoLayout, this);
