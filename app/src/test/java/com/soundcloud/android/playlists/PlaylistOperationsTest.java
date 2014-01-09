@@ -5,13 +5,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.storage.PlaylistStorage;
-import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.storage.PlaylistStorage;
+import com.soundcloud.android.storage.SoundAssociationStorage;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,4 +64,15 @@ public class PlaylistOperationsTest {
         verify(observer).onNext(createdPlaylist);
     }
 
+    @Test
+    public void shouldAddATrackToExistingPlaylist() {
+        Playlist playlist = new Playlist(123L);
+        Observable<Playlist> storageObservable = Observable.from(playlist);
+        when(playlistStorage.loadPlaylistAsync(123L)).thenReturn(storageObservable);
+        when(playlistStorage.addTrackToPlaylist(playlist, 1L)).thenReturn(playlist);
+
+        playlistOperations.addTrackToPlaylist(123L, 1L).subscribe(observer);
+        verify(playlistStorage).addTrackToPlaylist(playlist, 1L);
+        verify(observer).onNext(playlist);
+    }
 }

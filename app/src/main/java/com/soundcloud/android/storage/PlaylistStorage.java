@@ -6,10 +6,10 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.activities.Activity;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -36,6 +36,30 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         super(ScSchedulers.STORAGE_SCHEDULER);
         mResolver = SoundCloudApplication.instance.getContentResolver();
         mPlaylistDAO = new PlaylistDAO(mResolver);
+    }
+
+    public Playlist loadPlaylist(long playlistId) throws NotFoundException {
+        final Playlist playlist = mPlaylistDAO.queryById(playlistId);
+        if (playlist == null) {
+            throw new NotFoundException(playlistId);
+        } else {
+            return playlist;
+        }
+    }
+
+    public Observable<Playlist> loadPlaylistAsync(final long playlistId) {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Playlist>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super Playlist> observer) {
+                try {
+                    observer.onNext(loadPlaylist(playlistId));
+                    observer.onCompleted();
+                } catch (NotFoundException e) {
+                    observer.onError(e);
+                }
+                return Subscriptions.empty();
+            }
+        }));
     }
 
     @Override
@@ -79,21 +103,22 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         return storeAsync(playlist);
     }
 
-    public Uri addTrackToPlaylist(Playlist playlist, long trackId){
-        return addTrackToPlaylist(playlist, trackId,System.currentTimeMillis());
+    public Playlist addTrackToPlaylist(Playlist playlist, long trackId) {
+        return addTrackToPlaylist(playlist, trackId, System.currentTimeMillis());
     }
 
-    public Uri addTrackToPlaylist(Playlist playlist, long trackId, long time){
+    public Playlist addTrackToPlaylist(Playlist playlist, long trackId, long timeAdded) {
         playlist.setTrackCount(playlist.getTrackCount() + 1);
 
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlist.getId());
         cv.put(DBHelper.PlaylistTracks.TRACK_ID, trackId);
-        cv.put(DBHelper.PlaylistTracks.ADDED_AT, time);
+        cv.put(DBHelper.PlaylistTracks.ADDED_AT, timeAdded);
         cv.put(DBHelper.PlaylistTracks.POSITION, playlist.getTrackCount());
-        return mResolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.getId())), cv);
-    }
+        mResolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.getId())), cv);
 
+        return playlist;
+    }
 
     /**
      * Remove a playlist and all associations such as likes, reposts or sharings from the database.
