@@ -2,8 +2,13 @@ package com.soundcloud.android.events;
 
 import static org.junit.Assert.assertEquals;
 
+import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(SoundCloudTestRunner.class)
 public class SocialEventTest {
     @Test
     public void shouldCreateEventFromFollow() throws Exception {
@@ -24,42 +29,82 @@ public class SocialEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromLike() throws Exception {
-        SocialEvent socialEvent = SocialEvent.fromLike("screen", "resource", 30);
+    public void shouldCreateEventFromLikedTrack() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromLike("screen", new Track(30));
         SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
         assertEquals(socialEvent.getType(), 2);
         assertEquals(socialEventAttributes.screenTag, "screen");
-        assertEquals(socialEventAttributes.resource, "resource");
+        assertEquals(socialEventAttributes.resource, "track");
         assertEquals(socialEventAttributes.resourceId, 30);
     }
 
     @Test
-    public void shouldCreateEventFromUnlike() throws Exception {
-        SocialEvent socialEvent = SocialEvent.fromUnlike("screen", "resource", 30);
+    public void shouldCreateEventFromLikedPlaylist() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromLike("screen", new Playlist(30));
+        SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
+        assertEquals(socialEvent.getType(), 2);
+        assertEquals(socialEventAttributes.screenTag, "screen");
+        assertEquals(socialEventAttributes.resource, "playlist");
+        assertEquals(socialEventAttributes.resourceId, 30);
+    }
+
+    @Test
+    public void shouldCreateEventFromUnlikedTrack() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromUnlike("screen", new Track(30));
         SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
         assertEquals(socialEvent.getType(), 3);
         assertEquals(socialEventAttributes.screenTag, "screen");
-        assertEquals(socialEventAttributes.resource, "resource");
+        assertEquals(socialEventAttributes.resource, "track");
         assertEquals(socialEventAttributes.resourceId, 30);
     }
 
     @Test
-    public void shouldCreateEventFromRepost() throws Exception {
-        SocialEvent socialEvent = SocialEvent.fromRepost("screen", "resource", 30);
+    public void shouldCreateEventFromUnlikedPlaylist() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromUnlike("screen", new Playlist(30));
+        SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
+        assertEquals(socialEvent.getType(), 3);
+        assertEquals(socialEventAttributes.screenTag, "screen");
+        assertEquals(socialEventAttributes.resource, "playlist");
+        assertEquals(socialEventAttributes.resourceId, 30);
+    }
+
+    @Test
+    public void shouldCreateEventFromRepostedTrack() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromRepost("screen", new Track(30));
         SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
         assertEquals(socialEvent.getType(), 4);
         assertEquals(socialEventAttributes.screenTag, "screen");
-        assertEquals(socialEventAttributes.resource, "resource");
+        assertEquals(socialEventAttributes.resource, "track");
         assertEquals(socialEventAttributes.resourceId, 30);
     }
 
     @Test
-    public void shouldCreateEventFromUnrepost() throws Exception {
-        SocialEvent socialEvent = SocialEvent.fromUnrepost("screen", "resource", 30);
+    public void shouldCreateEventFromRepostedPlaylist() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromRepost("screen", new Playlist(30));
+        SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
+        assertEquals(socialEvent.getType(), 4);
+        assertEquals(socialEventAttributes.screenTag, "screen");
+        assertEquals(socialEventAttributes.resource, "playlist");
+        assertEquals(socialEventAttributes.resourceId, 30);
+    }
+
+    @Test
+    public void shouldCreateEventFromUnrepostedTrack() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromUnrepost("screen", new Track(30));
         SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
         assertEquals(socialEvent.getType(), 5);
         assertEquals(socialEventAttributes.screenTag, "screen");
-        assertEquals(socialEventAttributes.resource, "resource");
+        assertEquals(socialEventAttributes.resource, "track");
+        assertEquals(socialEventAttributes.resourceId, 30);
+    }
+
+    @Test
+    public void shouldCreateEventFromUnrepostedPlaylist() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromUnrepost("screen", new Playlist(30));
+        SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
+        assertEquals(socialEvent.getType(), 5);
+        assertEquals(socialEventAttributes.screenTag, "screen");
+        assertEquals(socialEventAttributes.resource, "playlist");
         assertEquals(socialEventAttributes.resourceId, 30);
     }
 

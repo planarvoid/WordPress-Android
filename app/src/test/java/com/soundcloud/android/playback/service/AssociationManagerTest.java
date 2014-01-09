@@ -3,19 +3,23 @@ package com.soundcloud.android.playback.service;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMatcherForUriWithClientId;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.TempEndpoints;
 import com.soundcloud.android.associations.AssociationManager;
-import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.activities.Activities;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -23,6 +27,8 @@ import org.apache.http.client.methods.HttpDelete;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import rx.Observer;
 
 @RunWith(DefaultTestRunner.class)
 public class AssociationManagerTest {
@@ -42,7 +48,7 @@ public class AssociationManagerTest {
         long likesCount = t.likes_count;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl(), new TestHttpResponse(201, "OK"));
-        associationManager.setLike(t, true);
+        associationManager.setLike(t, true, "screen_tag");
 
         expect(TestHelper.reload(t).user_like).toBeTrue();
         expect(TestHelper.reload(t).likes_count).toEqual(likesCount + 1);
@@ -54,7 +60,7 @@ public class AssociationManagerTest {
         t.likes_count = Track.NOT_SET;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl(), new TestHttpResponse(201, "OK"));
-        associationManager.setLike(t, true);
+        associationManager.setLike(t, true, "screen_tag");
         expect(TestHelper.reload(t).user_like).toBeTrue();
     }
 
@@ -66,7 +72,7 @@ public class AssociationManagerTest {
         expect(TestHelper.reload(t).likes_count).toEqual(5L);
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl(), new TestHttpResponse(200, "OK"));
-        associationManager.setLike(t, true);
+        associationManager.setLike(t, true, "screen_tag");
 
         expect(TestHelper.reload(t).user_like).toBeTrue();
         expect(TestHelper.reload(t).likes_count).toEqual(5L);
@@ -79,7 +85,7 @@ public class AssociationManagerTest {
         long likesCount = t.likes_count;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl(), new TestHttpResponse(404, "FAIL"));
-        associationManager.setLike(t, true);
+        associationManager.setLike(t, true, "screen_tag");
 
         expect(TestHelper.reload(t).user_like).toBeFalse();
         expect(TestHelper.reload(t).likes_count).toEqual(likesCount);
@@ -92,7 +98,7 @@ public class AssociationManagerTest {
 
         String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_LIKE, track.getId()).toUrl();
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
-        associationManager.setLike(track, false);
+        associationManager.setLike(track, false, "screen_tag");
 
         expect(TestHelper.reload(track).user_like).toBeFalse();
         expect(TestHelper.reload(track).likes_count).toEqual(4L);
@@ -109,7 +115,7 @@ public class AssociationManagerTest {
 
         String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl();
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
-        associationManager.setLike(t, false);
+        associationManager.setLike(t, false, "screen_tag");
 
         expect(TestHelper.reload(p).user_like).toBeTrue();
         expect(TestHelper.reload(p).likes_count).toEqual(1L);
@@ -122,7 +128,7 @@ public class AssociationManagerTest {
         long repostsCount = t.reposts_count;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.getId()).toUrl(), new TestHttpResponse(201, "OK"));
-        associationManager.setRepost(t, true);
+        associationManager.setRepost(t, true, "screen_tag");
 
         expect(t.user_repost).toBeTrue();
         expect(TestHelper.reload(t).user_repost).toBeTrue();
@@ -135,7 +141,7 @@ public class AssociationManagerTest {
         t.reposts_count = Track.NOT_SET;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.getId()).toUrl(), new TestHttpResponse(201, "OK"));
-        associationManager.setRepost(t, true);
+        associationManager.setRepost(t, true, "screen_tag");
 
         expect(t.user_repost).toBeTrue();
         expect(TestHelper.reload(t).user_repost).toBeTrue();
@@ -149,7 +155,7 @@ public class AssociationManagerTest {
         long repostsCount = p.reposts_count;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, p.getId()).toUrl(), new TestHttpResponse(201, "OK"));
-        associationManager.setRepost(p, true);
+        associationManager.setRepost(p, true, "screen_tag");
 
         expect(p.user_repost).toBeTrue();
         expect(TestHelper.reload(p).user_repost).toBeTrue();
@@ -169,7 +175,7 @@ public class AssociationManagerTest {
 
         String playlistRepostUrl = Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.getId()).toUrl();
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, playlistRepostUrl), new TestHttpResponse(200, "OK"));
-        associationManager.setRepost(playlist, false);
+        associationManager.setRepost(playlist, false, "screen_tag");
         expect(Content.ME_SOUND_STREAM).toHaveCount(0);
     }
 
@@ -187,8 +193,70 @@ public class AssociationManagerTest {
 
         String playlistRepostUrl = Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.getId()).toUrl();
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, playlistRepostUrl), new TestHttpResponse(200, "OK"));
-        associationManager.setRepost(playlist, false);
+        associationManager.setRepost(playlist, false, "screen_tag");
         expect(Content.ME_SOUND_STREAM).toHaveCount(0);
+    }
+
+    @Test
+    public void shouldPublishSocialEventWhenCreatingNewPlayableLike() throws Exception {
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, 1L).toUrl(), new TestHttpResponse(201, "OK"));
+
+        Observer<SocialEvent> eventObserver = mock(Observer.class);
+        Event.SOCIAL.subscribe(eventObserver);
+
+        associationManager.setLike(new Track(1L), true, "screen_tag");
+
+        ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
+        verify(eventObserver).onNext(socialEvent.capture());
+        expect(socialEvent.getValue().getType()).toBe(SocialEvent.TYPE_LIKE);
+        expect(socialEvent.getValue().getAttributes().screenTag).toEqual("screen_tag");
+    }
+
+    @Test
+    public void shouldPublishSocialEventWhenCreatingPlayableUnlike() throws Exception {
+        String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_LIKE, 1L).toUrl();
+        addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
+
+        Observer<SocialEvent> eventObserver = mock(Observer.class);
+        Event.SOCIAL.subscribe(eventObserver);
+
+        associationManager.setLike(new Track(1L), false, "screen_tag");
+
+        ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
+        verify(eventObserver).onNext(socialEvent.capture());
+        expect(socialEvent.getValue().getType()).toBe(SocialEvent.TYPE_UNLIKE);
+        expect(socialEvent.getValue().getAttributes().screenTag).toEqual("screen_tag");
+    }
+
+    @Test
+    public void shouldPublishSocialEventWhenCreatingNewPlayableRepost() throws Exception {
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, 1L).toUrl(), new TestHttpResponse(201, "OK"));
+
+        Observer<SocialEvent> eventObserver = mock(Observer.class);
+        Event.SOCIAL.subscribe(eventObserver);
+
+        associationManager.setRepost(new Track(1L), true, "screen_tag");
+
+        ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
+        verify(eventObserver).onNext(socialEvent.capture());
+        expect(socialEvent.getValue().getType()).toBe(SocialEvent.TYPE_REPOST);
+        expect(socialEvent.getValue().getAttributes().screenTag).toEqual("screen_tag");
+    }
+
+    @Test
+    public void shouldPublishSocialEventWhenCreatingPlayableUnrepost() throws Exception {
+        String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_REPOST, 1L).toUrl();
+        addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
+
+        Observer<SocialEvent> eventObserver = mock(Observer.class);
+        Event.SOCIAL.subscribe(eventObserver);
+
+        associationManager.setRepost(new Track(1L), false, "screen_tag");
+
+        ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
+        verify(eventObserver).onNext(socialEvent.capture());
+        expect(socialEvent.getValue().getType()).toBe(SocialEvent.TYPE_UNREPOST);
+        expect(socialEvent.getValue().getAttributes().screenTag).toEqual("screen_tag");
     }
 
     private Track createTrack() {

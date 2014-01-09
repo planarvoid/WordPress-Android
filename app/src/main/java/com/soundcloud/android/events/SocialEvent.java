@@ -1,6 +1,9 @@
 package com.soundcloud.android.events;
 
 
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Track;
+
 public class SocialEvent {
 
     public static final int TYPE_FOLLOW = 0;
@@ -31,35 +34,35 @@ public class SocialEvent {
         return new SocialEvent(TYPE_UNFOLLOW, attributes);
     }
 
-    public static SocialEvent fromLike(String screenTag, String resource, long resourceId) {
+    public static SocialEvent fromLike(String screenTag, Playable playable) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
-        attributes.resource = resource;
-        attributes.resourceId = resourceId;
+        attributes.resource = (playable instanceof Track ? "track" : "playlist");
+        attributes.resourceId = playable.getId();
         return new SocialEvent(TYPE_LIKE, attributes);
     }
 
-    public static SocialEvent fromUnlike(String screenTag, String resource, long resourceId) {
+    public static SocialEvent fromUnlike(String screenTag, Playable playable) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
-        attributes.resource = resource;
-        attributes.resourceId = resourceId;
+        attributes.resource = (playable instanceof Track ? "track" : "playlist");
+        attributes.resourceId = playable.getId();
         return new SocialEvent(TYPE_UNLIKE, attributes);
     }
 
-    public static SocialEvent fromRepost(String screenTag, String resource, long resourceId) {
+    public static SocialEvent fromRepost(String screenTag, Playable playable) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
-        attributes.resource = resource;
-        attributes.resourceId = resourceId;
+        attributes.resource = (playable instanceof Track ? "track" : "playlist");
+        attributes.resourceId = playable.getId();
         return new SocialEvent(TYPE_REPOST, attributes);
     }
 
-    public static SocialEvent fromUnrepost(String screenTag, String resource, long resourceId) {
+    public static SocialEvent fromUnrepost(String screenTag, Playable playable) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
-        attributes.resource = resource;
-        attributes.resourceId = resourceId;
+        attributes.resource = (playable instanceof Track ? "track" : "playlist");
+        attributes.resourceId = playable.getId();
         return new SocialEvent(TYPE_UNREPOST, attributes);
     }
 
