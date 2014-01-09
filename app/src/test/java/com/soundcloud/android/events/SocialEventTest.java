@@ -128,12 +128,23 @@ public class SocialEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromShare() throws Exception {
-        SocialEvent socialEvent = SocialEvent.fromShare("screen", "resource", 30, "facebook");
+    public void shouldCreateEventFromTrackShare() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromShare("screen", new Track(30), "facebook");
         SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
         assertEquals(socialEvent.getType(), 8);
         assertEquals(socialEventAttributes.screenTag, "screen");
-        assertEquals(socialEventAttributes.resource, "resource");
+        assertEquals(socialEventAttributes.resource, "track");
+        assertEquals(socialEventAttributes.resourceId, 30);
+        assertEquals(socialEventAttributes.sharedTo, "facebook");
+    }
+
+    @Test
+    public void shouldCreateEventFromPlaylistShare() throws Exception {
+        SocialEvent socialEvent = SocialEvent.fromShare("screen", new Playlist(30), "facebook");
+        SocialEvent.Attributes socialEventAttributes = socialEvent.getAttributes();
+        assertEquals(socialEvent.getType(), 8);
+        assertEquals(socialEventAttributes.screenTag, "screen");
+        assertEquals(socialEventAttributes.resource, "playlist");
         assertEquals(socialEventAttributes.resourceId, 30);
         assertEquals(socialEventAttributes.sharedTo, "facebook");
     }

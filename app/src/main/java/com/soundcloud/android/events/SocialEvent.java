@@ -3,6 +3,7 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
+import org.jetbrains.annotations.NotNull;
 
 public class SocialEvent {
 
@@ -34,34 +35,34 @@ public class SocialEvent {
         return new SocialEvent(TYPE_UNFOLLOW, attributes);
     }
 
-    public static SocialEvent fromLike(String screenTag, Playable playable) {
+    public static SocialEvent fromLike(String screenTag, @NotNull Playable playable) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
-        attributes.resource = (playable instanceof Track ? "track" : "playlist");
+        attributes.resource = getPlayableType(playable);
         attributes.resourceId = playable.getId();
         return new SocialEvent(TYPE_LIKE, attributes);
     }
 
-    public static SocialEvent fromUnlike(String screenTag, Playable playable) {
+    public static SocialEvent fromUnlike(String screenTag, @NotNull Playable playable) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
-        attributes.resource = (playable instanceof Track ? "track" : "playlist");
+        attributes.resource = getPlayableType(playable);
         attributes.resourceId = playable.getId();
         return new SocialEvent(TYPE_UNLIKE, attributes);
     }
 
-    public static SocialEvent fromRepost(String screenTag, Playable playable) {
+    public static SocialEvent fromRepost(String screenTag, @NotNull Playable playable) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
-        attributes.resource = (playable instanceof Track ? "track" : "playlist");
+        attributes.resource = getPlayableType(playable);
         attributes.resourceId = playable.getId();
         return new SocialEvent(TYPE_REPOST, attributes);
     }
 
-    public static SocialEvent fromUnrepost(String screenTag, Playable playable) {
+    public static SocialEvent fromUnrepost(String screenTag, @NotNull Playable playable) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
-        attributes.resource = (playable instanceof Track ? "track" : "playlist");
+        attributes.resource = getPlayableType(playable);
         attributes.resourceId = playable.getId();
         return new SocialEvent(TYPE_UNREPOST, attributes);
     }
@@ -81,13 +82,17 @@ public class SocialEvent {
         return new SocialEvent(TYPE_COMMENT, attributes);
     }
 
-    public static SocialEvent fromShare(String screenTag, String resource, long resourceId, String sharedTo) {
+    public static SocialEvent fromShare(String screenTag, @NotNull Playable playable, String sharedTo) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
-        attributes.resource = resource;
-        attributes.resourceId = resourceId;
+        attributes.resource = getPlayableType(playable);
+        attributes.resourceId = playable.getId();
         attributes.sharedTo = sharedTo;
         return new SocialEvent(TYPE_SHARE, attributes);
+    }
+
+    private static String getPlayableType(Playable playable) {
+        return (playable instanceof Track ? "track" : "playlist");
     }
 
     private SocialEvent(int type, Attributes attributes) {
