@@ -247,7 +247,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     public void addNewComment(final Comment comment) {
         setCommentMode(false, true);
-        AddCommentDialog.from(comment).show(getSupportFragmentManager(), "comment_dialog");
+        AddCommentDialog.from(comment, mPlaybackService.getPlayQueueOriginScreen()).show(getSupportFragmentManager(), "comment_dialog");
     }
 
     private void setCommentMode(boolean isCommenting, boolean animate) {
