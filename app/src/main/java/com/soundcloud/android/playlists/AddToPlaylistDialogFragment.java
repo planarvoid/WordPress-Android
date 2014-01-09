@@ -11,6 +11,7 @@ import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.storage.provider.Table;
+import com.soundcloud.android.utils.ScTextUtils;
 import eu.inmite.android.lib.dialogs.BaseDialogFragment;
 
 import android.app.Dialog;
@@ -79,7 +80,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
                     CreatePlaylistDialogFragment.from(getArguments().getLong(KEY_TRACK_ID)).show(getFragmentManager(), "create_new_set_dialog");
                     getDialog().dismiss();
                 } else if (getActivity() != null) {
-                    onAddTrackToSet(rowId);
+                    onAddTrackToSet(rowId, view);
                 }
             }
         });
@@ -94,8 +95,13 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
         return builder;
     }
 
-    private void onAddTrackToSet(long playlistId) {
+    private void onAddTrackToSet(long playlistId, View trackRowView) {
         long trackId = getArguments().getLong(KEY_TRACK_ID);
+
+        final TextView txtTrackCount = (TextView) trackRowView.findViewById(R.id.trackCount);
+        long newTracksCount = ScTextUtils.safeParseLong(String.valueOf(txtTrackCount.getText())) + 1;
+        txtTrackCount.setText(String.valueOf(newTracksCount));
+
         fromFragment(this, mPlaylistOperations.addTrackToPlaylist(
                 playlistId, trackId)).subscribe(new TrackAddedObserver());
     }
@@ -146,8 +152,6 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
 
         @Override
         public void onNext(Playlist playlist) {
-            mAdapter.notifyDataSetChanged();
-
             // TODO: move to an Rx event
             // broadcast the information that the number of tracks changed
             Intent intent = new Intent(Playlist.ACTION_CONTENT_CHANGED);
