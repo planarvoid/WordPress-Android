@@ -2,6 +2,7 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Search;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.model.ScResource;
@@ -10,6 +11,7 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.collections.views.IconLayout;
 import com.soundcloud.android.collections.views.PlayableRow;
 import com.soundcloud.android.collections.views.UserlistRow;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +22,8 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> {
 
     private static final int TYPE_TRACK = 0;
     private static final int TYPE_USER = 1;
+    @Nullable
+    private Search mSearch;
     private PlaybackOperations mPlaybackOperations;
     private ImageOperations mImageOperations;
 
@@ -27,6 +31,10 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> {
         super(uri);
         mPlaybackOperations = new PlaybackOperations();
         mImageOperations = imageOperations;
+    }
+
+    void setCurrentSearch(Search search) {
+        mSearch = search;
     }
 
     @Override
@@ -59,7 +67,7 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> {
             case TYPE_TRACK:
                 return new PlayableRow(context, mImageOperations);
             case TYPE_USER:
-                return new UserlistRow(context, mImageOperations);
+                return new UserlistRow(context, mSearch.getScreen(), mImageOperations);
             default:
                 throw new IllegalArgumentException("no view for playlists yet");
         }

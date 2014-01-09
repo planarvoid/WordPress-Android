@@ -37,6 +37,7 @@ public enum Screen {
     YOUR_FOLLOWERS("you:followers"),
 
     // other user's profiles
+    USER_HEADER("users:header"),
     USER_POSTS("users:posts"),
     USER_INFO("users:info"),
     USER_PLAYLISTS("users:playlists"),

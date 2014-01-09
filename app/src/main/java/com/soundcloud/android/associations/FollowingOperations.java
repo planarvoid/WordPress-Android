@@ -9,24 +9,27 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.TempEndpoints;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.TempEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.model.activities.Activities;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
@@ -86,7 +89,8 @@ public class FollowingOperations {
         mModelManager = modelManager;
     }
 
-    public Observable<UserAssociation> addFollowing(@NotNull final User user) {
+    public Observable<UserAssociation> addFollowing(Screen originScreen, @NotNull final User user) {
+        Event.SOCIAL.publish(SocialEvent.fromFollow(originScreen.get(), user.getId()));
         updateLocalStatus(true, user.getId());
         return mUserAssociationStorage.follow(user);
     }
@@ -96,19 +100,10 @@ public class FollowingOperations {
         return mUserAssociationStorage.followSuggestedUser(suggestedUser);
     }
 
-    public Observable<UserAssociation> addFollowings(final List<User> users) {
-        updateLocalStatus(true, ScModel.getIdList(users));
-        return mUserAssociationStorage.followList(users);
-    }
-
-    public Observable<UserAssociation> removeFollowing(final User user) {
+    public Observable<UserAssociation> removeFollowing(Screen originScreen, final User user) {
+        Event.SOCIAL.publish(SocialEvent.fromUnfollow(originScreen.get(), user.getId()));
         updateLocalStatus(false, user.getId());
         return mUserAssociationStorage.unfollow(user);
-    }
-
-    public Observable<UserAssociation> removeFollowings(final List<User> users) {
-        updateLocalStatus(false, ScModel.getIdList(users));
-        return mUserAssociationStorage.unfollowList(users);
     }
 
     public Observable<UserAssociation> addFollowingsBySuggestedUsers(final List<SuggestedUser> suggestedUsers) {
@@ -125,17 +120,23 @@ public class FollowingOperations {
         }));
     }
 
-    public Observable<UserAssociation> toggleFollowing(User user) {
+    private Observable<UserAssociation> removeFollowings(final List<User> users) {
+        updateLocalStatus(false, ScModel.getIdList(users));
+        return mUserAssociationStorage.unfollowList(users);
+    }
+
+    public Observable<UserAssociation> toggleFollowing(Screen originScreen, User user) {
         if (mFollowStatus.isFollowing(user)) {
-            return removeFollowing(user);
+            return removeFollowing(originScreen, user);
         } else {
-            return addFollowing(user);
+            return addFollowing(originScreen, user);
         }
     }
 
     public Observable<UserAssociation> toggleFollowingBySuggestedUser(SuggestedUser suggestedUser) {
         if (mFollowStatus.isFollowing(suggestedUser.getId())) {
-            return removeFollowing(new User(suggestedUser));
+            // TODO: passing the screen tag still needs spec'ing
+            return removeFollowing(null, new User(suggestedUser));
         } else {
             return addFollowingBySuggestedUser(suggestedUser);
         }

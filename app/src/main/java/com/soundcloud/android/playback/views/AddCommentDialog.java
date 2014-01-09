@@ -3,6 +3,8 @@ package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -25,11 +27,13 @@ import java.util.ArrayList;
 
 public class AddCommentDialog extends BaseDialogFragment {
 
-    public static final String EXTRA_COMMENT = "comment";
+    private static final String EXTRA_COMMENT = "comment";
+    private static final String EXTRA_ORIGIN_SCREEN = "origin_screen";
 
-    public static AddCommentDialog from(Comment comment) {
+    public static AddCommentDialog from(Comment comment, String originScreen) {
         Bundle b = new Bundle();
         b.putParcelable(EXTRA_COMMENT,comment);
+        b.putString(EXTRA_ORIGIN_SCREEN, originScreen);
         AddCommentDialog addCommentDialog = new AddCommentDialog();
         addCommentDialog.setArguments(b);
         return addCommentDialog;
@@ -47,7 +51,7 @@ public class AddCommentDialog extends BaseDialogFragment {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE && applyTextAndUpload(comment, input.getText().toString())){
-                    dismiss();
+                    handleCommentAdded(comment);
                     return true;
                 }
                 return false;
@@ -64,11 +68,17 @@ public class AddCommentDialog extends BaseDialogFragment {
             @Override
             public void onClick(View v) {
                 if (applyTextAndUpload(comment, input.getText().toString())){
-                    dismiss();
+                    handleCommentAdded(comment);
                 }
             }
         });
         return initialBuilder;
+    }
+
+    private void handleCommentAdded(Comment comment) {
+        final String screenTag = getArguments().getString(EXTRA_ORIGIN_SCREEN);
+        Event.SOCIAL.publish(SocialEvent.fromComment(screenTag, comment.track_id));
+        dismiss();
     }
 
     private void configureHint(Comment comment, EditText input) {

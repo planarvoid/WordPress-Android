@@ -73,7 +73,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     @NotNull
     private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
-    private LinearLayout mPlayerInfoLayout;
     private PlayerTrackDetailsLayout mTrackDetailsView;
     private PlayableInfoAndEngagementsController mPlayableInfoAndEngagementsController;
 
@@ -106,7 +105,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         mTransportBar.setOnPauseListener(mPauseListener);
         mTransportBar.setOnCommentListener(mCommentListener);
 
-        mPlayerInfoLayout = (LinearLayout) findViewById(R.id.player_info_view);
+        // only exists in tablet layouts
+        LinearLayout mPlayerInfoLayout = (LinearLayout) findViewById(R.id.player_info_view);
         if (mPlayerInfoLayout != null){
             mTrackDetailsView = (PlayerTrackDetailsLayout) mPlayerInfoLayout.findViewById(R.id.player_track_details);
             mPlayableInfoAndEngagementsController = new PlayableInfoAndEngagementsController(mPlayerInfoLayout, this);
@@ -220,7 +220,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     @Override
     public void onAddToPlaylist(Track track) {
         if (track != null && isForeground()) {
-            AddToPlaylistDialogFragment.from(track).show(getSupportFragmentManager(), "playlist_dialog");
+            AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track, mPlaybackService.getPlayQueueOriginScreen());
+            from.show(getSupportFragmentManager(), "playlist_dialog");
         }
     }
 
@@ -246,7 +247,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     public void addNewComment(final Comment comment) {
         setCommentMode(false, true);
-        AddCommentDialog.from(comment).show(getSupportFragmentManager(), "comment_dialog");
+        AddCommentDialog.from(comment, mPlaybackService.getPlayQueueOriginScreen()).show(getSupportFragmentManager(), "comment_dialog");
     }
 
     private void setCommentMode(boolean isCommenting, boolean animate) {

@@ -20,6 +20,7 @@ public enum Event {
     CURRENT_USER_UPDATED(User.class),
     SCREEN_ENTERED(String.class),
     PLAYBACK(PlaybackEventData.class),
+    SOCIAL(SocialEvent.class),
 
     /**
      * Signals the playback service is destoryed. Used to flush events and stop handler in {@link com.soundcloud.android.analytics.eventlogger.EventLogger}

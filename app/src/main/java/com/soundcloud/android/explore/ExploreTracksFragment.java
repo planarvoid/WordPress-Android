@@ -19,7 +19,7 @@ import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observer;
 import rx.Subscription;
-import rx.android.AndroidObservables;
+import rx.android.observables.AndroidObservable;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
@@ -89,7 +89,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     private ConnectableObservable<Page<SuggestedTracksCollection>> buildSuggestedTracksObservable() {
         final ExploreGenre category = getExploreCategory();
         final ExploreTracksOperations operations = new ExploreTracksOperations();
-        return AndroidObservables.fromFragment(this, operations.getSuggestedTracks(category)).replay();
+        return AndroidObservable.fromFragment(this, operations.getSuggestedTracks(category)).replay();
     }
 
     private ExploreGenre getExploreCategory() {

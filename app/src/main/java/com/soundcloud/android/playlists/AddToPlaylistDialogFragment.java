@@ -1,17 +1,21 @@
 package com.soundcloud.android.playlists;
 
+import static rx.android.observables.AndroidObservable.fromFragment;
+
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
-import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.storage.provider.Table;
+import com.soundcloud.android.utils.ScTextUtils;
+import eu.inmite.android.lib.dialogs.BaseDialogFragment;
 
 import android.app.Dialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -22,7 +26,7 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -30,9 +34,11 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class AddToPlaylistDialogFragment extends PlaylistDialogFragment
+public class AddToPlaylistDialogFragment extends BaseDialogFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final String KEY_ORIGIN_SCREEN = "ORIGIN_SCREEN";
+    private static final String KEY_TRACK_ID = "TRACK_ID";
     private static final String KEY_TRACK_TITLE = "TRACK_TITLE";
     private static final String COL_ALREADY_ADDED = "ALREADY_ADDED";
 
@@ -41,12 +47,13 @@ public class AddToPlaylistDialogFragment extends PlaylistDialogFragment
     private static final int CLOSE_DELAY_MILLIS = 500;
 
     private MyPlaylistsAdapter mAdapter;
-    private AccountOperations accountOperations;
+    private PlaylistOperations mPlaylistOperations;
 
-    public static AddToPlaylistDialogFragment from(Track track) {
+    public static AddToPlaylistDialogFragment from(Track track, String originScreen) {
         Bundle b = new Bundle();
         b.putLong(KEY_TRACK_ID, track.getId());
         b.putString(KEY_TRACK_TITLE, track.title);
+        b.putString(KEY_ORIGIN_SCREEN, originScreen);
 
         AddToPlaylistDialogFragment fragment = new AddToPlaylistDialogFragment();
         fragment.setArguments(b);
@@ -59,7 +66,7 @@ public class AddToPlaylistDialogFragment extends PlaylistDialogFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        accountOperations = new AccountOperations(getActivity());
+        mPlaylistOperations = new PlaylistOperations(getActivity());
     }
 
     @Override
@@ -71,7 +78,9 @@ public class AddToPlaylistDialogFragment extends PlaylistDialogFragment
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final long rowId = mAdapter.getItemId(position);
                 if (rowId == NEW_PLAYLIST_ITEM) {
-                    CreatePlaylistDialogFragment.from(getArguments().getLong(KEY_TRACK_ID)).show(getFragmentManager(), "create_new_set_dialog");
+                    final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
+                    final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
+                    CreatePlaylistDialogFragment.from(firstTrackId, originScreen).show(getFragmentManager(), "create_new_set_dialog");
                     getDialog().dismiss();
                 } else if (getActivity() != null) {
                     onAddTrackToSet(rowId, view);
@@ -89,42 +98,15 @@ public class AddToPlaylistDialogFragment extends PlaylistDialogFragment
         return builder;
     }
 
-    //TODO: almost all of this logic should go into PlaylistOperations
-    private void onAddTrackToSet(long playlistId, View view) {
-        final Playlist playlist = SoundCloudApplication.sModelManager.getPlaylist(playlistId);
+    private void onAddTrackToSet(long playlistId, View trackRowView) {
+        long trackId = getArguments().getLong(KEY_TRACK_ID);
 
-        if (playlist == null) {
-            Toast.makeText(getActivity(), getString(R.string.playlist_removed), Toast.LENGTH_SHORT).show();
-            return;
-        }
+        final TextView txtTrackCount = (TextView) trackRowView.findViewById(R.id.trackCount);
+        long newTracksCount = ScTextUtils.safeParseLong(String.valueOf(txtTrackCount.getText())) + 1;
+        txtTrackCount.setText(String.valueOf(newTracksCount));
 
-        getPlaylistStorage().addTrackToPlaylist(playlist, getArguments().getLong(KEY_TRACK_ID));
-
-        // tell the service to update the playlist
-        ContentResolver.requestSync(accountOperations.getSoundCloudAccount(), ScContentProvider.AUTHORITY, new Bundle());
-
-        final TextView txtTrackCount = (TextView) view.findViewById(R.id.trackCount);
-        // TODO: ridiculous. the new count should come from the service or model
-        int newTracksCount = Integer.parseInt(String.valueOf(txtTrackCount.getText())) + 1;
-        try {
-            txtTrackCount.setText(String.valueOf(newTracksCount));
-        } catch (NumberFormatException e) {
-            Log.e(SoundCloudApplication.TAG, "Could not parse track count of " + txtTrackCount.getText(), e);
-        }
-
-        // broadcast the information that the number of tracks changed
-        Intent intent = new Intent(Playlist.ACTION_CONTENT_CHANGED);
-        intent.putExtra(Playlist.EXTRA_ID, playlistId);
-        intent.putExtra(Playlist.EXTRA_TRACKS_COUNT, newTracksCount);
-        getActivity().sendBroadcast(intent);
-
-        // brief pause to show them the updated track count
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                final Dialog toDismiss = getDialog();
-                if (toDismiss != null) toDismiss.dismiss();
-            }
-        }, CLOSE_DELAY_MILLIS);
+        fromFragment(this, mPlaylistOperations.addTrackToPlaylist(
+                playlistId, trackId, getArguments().getString(KEY_ORIGIN_SCREEN))).subscribe(new TrackAddedObserver());
     }
 
     @Override
@@ -167,6 +149,37 @@ public class AddToPlaylistDialogFragment extends PlaylistDialogFragment
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.setCursor(null);
+    }
+
+    private final class TrackAddedObserver extends DefaultObserver<Playlist> {
+
+        @Override
+        public void onNext(Playlist playlist) {
+            // TODO: move to an Rx event
+            // broadcast the information that the number of tracks changed
+            Intent intent = new Intent(Playlist.ACTION_CONTENT_CHANGED);
+            intent.putExtra(Playlist.EXTRA_ID, playlist.getId());
+            intent.putExtra(Playlist.EXTRA_TRACKS_COUNT, playlist.getTrackCount());
+
+            LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
+
+            // brief pause to show them the updated track count
+            new Handler().postDelayed(new Runnable() {
+                public void run() {
+                    final Dialog toDismiss = getDialog();
+                    if (toDismiss != null) toDismiss.dismiss();
+                }
+            }, CLOSE_DELAY_MILLIS);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            if (e instanceof NotFoundException) {
+                Toast.makeText(getActivity(), getString(R.string.playlist_removed), Toast.LENGTH_SHORT).show();
+            } else {
+                super.onError(e);
+            }
+        }
     }
 
     private static class MyPlaylistsAdapter extends BaseAdapter {

@@ -4,6 +4,8 @@ package com.soundcloud.android.associations;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.storage.SoundAssociationStorage;
@@ -38,14 +40,28 @@ public class AssociationManager {
         mOldCloudAPI = new PublicApi(context);
     }
 
-    public void setLike(@Nullable Playable playable, boolean likeAdded) {
+    public void setLike(@Nullable Playable playable, boolean likeAdded, String originScreen) {
         if (playable == null) return;
+        SocialEvent socialEvent;
+        if (likeAdded) {
+            socialEvent = SocialEvent.fromLike(originScreen, playable);
+        } else {
+            socialEvent = SocialEvent.fromUnlike(originScreen, playable);
+        }
+        Event.SOCIAL.publish(socialEvent);
         onLikeStatusSet(playable, likeAdded);
         pushToRemote(playable, Content.ME_LIKES, likeAdded, likeListener);
     }
 
-    public void setRepost(@Nullable Playable playable, boolean repostAdded) {
+    public void setRepost(@Nullable Playable playable, boolean repostAdded, String originScreen) {
         if (playable == null) return;
+        SocialEvent socialEvent;
+        if (repostAdded) {
+            socialEvent = SocialEvent.fromRepost(originScreen, playable);
+        } else {
+            socialEvent = SocialEvent.fromUnrepost(originScreen, playable);
+        }
+        Event.SOCIAL.publish(socialEvent);
         onRepostStatusSet(playable, repostAdded);
         pushToRemote(playable, Content.ME_REPOSTS, repostAdded, repostListener);
     }

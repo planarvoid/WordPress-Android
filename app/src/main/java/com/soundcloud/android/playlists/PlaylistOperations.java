@@ -2,15 +2,18 @@ package com.soundcloud.android.playlists;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.storage.PlaylistStorage;
-import com.soundcloud.android.storage.SoundAssociationStorage;
+import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.storage.PlaylistStorage;
+import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.SyncStateManager;
 import rx.Observable;
+import rx.util.functions.Action0;
 import rx.util.functions.Func1;
 
 import android.accounts.Account;
@@ -39,11 +42,17 @@ public class PlaylistOperations {
         this.mAccountOperations = accountOperations;
     }
 
-    public Observable<Playlist> createNewPlaylist(User currentUser, String title, boolean isPrivate, long firstTrackId) {
+    public Observable<Playlist> createNewPlaylist(
+            User currentUser, String title, boolean isPrivate, long firstTrackId, String originScreen) {
+        Event.SOCIAL.publish(SocialEvent.fromAddToPlaylist(originScreen, true, firstTrackId));
         // insert the new playlist into the database
         return mPlaylistStorage.createNewUserPlaylistAsync(currentUser, title, isPrivate, firstTrackId)
                 .mapMany(handlePlaylistStored())
                 .mapMany(handlePlaylistCreationStored());
+    }
+
+    public Observable<Playlist> loadPlaylist(long playlistId) {
+        return mPlaylistStorage.loadPlaylistAsync(playlistId);
     }
 
     private Func1<Playlist, Observable<SoundAssociation>> handlePlaylistStored() {
@@ -65,6 +74,26 @@ public class PlaylistOperations {
                 mSyncStateManager.forceToStale(Content.ME_PLAYLISTS);
                 ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, new Bundle());
                 return Observable.just((Playlist) soundAssociation.getPlayable());
+            }
+        };
+    }
+
+    public Observable<Playlist> addTrackToPlaylist(final long playlistId, final long trackId, String originScreen) {
+        Event.SOCIAL.publish(SocialEvent.fromAddToPlaylist(originScreen, false, trackId));
+        return mPlaylistStorage.loadPlaylistAsync(playlistId).map(new Func1<Playlist, Playlist>() {
+            @Override
+            public Playlist call(Playlist playlist) {
+                return mPlaylistStorage.addTrackToPlaylist(playlist, trackId);
+            }
+        }).doOnCompleted(syncUpdatedPlaylist());
+    }
+
+    private Action0 syncUpdatedPlaylist() {
+        return new Action0() {
+            @Override
+            public void call() {
+                ContentResolver.requestSync(
+                        mAccountOperations.getSoundCloudAccount(), ScContentProvider.AUTHORITY, new Bundle());
             }
         };
     }

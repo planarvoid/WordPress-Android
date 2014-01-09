@@ -5,6 +5,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.collections.UserAdapter;
@@ -42,7 +43,7 @@ public class UpdateCollectionTaskTest {
 
         UpdateCollectionTask task = new UpdateCollectionTask(api, "/tracks", new HashSet<Long>());
 
-        UserAdapter adapter = new UserAdapter(Content.USERS.uri, imageOperations);
+        UserAdapter adapter = new UserAdapter(Content.USERS.uri, Screen.SEARCH_EVERYTHING, imageOperations);
         User existingUser = new User(1);
         SoundCloudApplication.sModelManager.cache(existingUser);
         adapter.addItems(Arrays.asList(existingUser));

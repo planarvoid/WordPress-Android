@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics.localytics;
 
 import com.google.common.base.Objects;
 import com.localytics.android.LocalyticsSession;
+import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.PlaybackEventData;
@@ -16,6 +17,7 @@ import java.util.Map;
 public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     public final String TAG = "LocalyticsProvider";
     private LocalyticsSession mLocalyticsSession;
+    private LocalyticsSocialEventHandler mLocalyticsSocialEventHandler;
 
     public LocalyticsAnalyticsProvider(Context context) {
         this(new LocalyticsSession(context.getApplicationContext(),
@@ -24,6 +26,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     protected LocalyticsAnalyticsProvider(LocalyticsSession localyticsSession) {
         mLocalyticsSession = localyticsSession;
+        mLocalyticsSocialEventHandler = new LocalyticsSocialEventHandler(mLocalyticsSession);
     }
 
     @Override
@@ -79,6 +82,10 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
             mLocalyticsSession.tagEvent(LocalyticsEvents.LISTEN, eventAttributes);
         }
+    }
+
+    public void trackSocialEvent(SocialEvent event) {
+        mLocalyticsSocialEventHandler.handleEvent(event);
     }
 
     private void logAttributes(Map<String, String> eventAttributes) {

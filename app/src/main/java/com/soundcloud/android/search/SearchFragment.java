@@ -28,6 +28,10 @@ public class SearchFragment extends ScListFragment {
     public void setCurrentSearch(Search currentSearch) {
         if (mCurrentSearch != currentSearch) {
             mCurrentSearch = currentSearch;
+            SearchAdapter adapter = (SearchAdapter) getListAdapter();
+            if (adapter != null) {
+                adapter.setCurrentSearch(currentSearch);
+            }
             reset();
         }
     }

@@ -33,6 +33,16 @@ public class PlaylistStorageTest {
     }
 
     @Test
+    public void shouldLoadExistingPlaylist() throws Exception {
+        TestHelper.insert(playlist);
+
+        playlist = storage.loadPlaylist(2524386L);
+
+        expect(playlist).not.toBeNull();
+        expect(playlist.getId()).toEqual(2524386L);
+    }
+
+    @Test
     public void shouldCreatePlaylistWithTracks() throws Exception {
         expect(playlist.user.username).toEqual("Natalie");
         expect(playlist.tracks.size()).toEqual(41);
@@ -61,8 +71,7 @@ public class PlaylistStorageTest {
         TestHelper.bulkInsert(tracks);
 
         for (Track track : tracks){
-            final Uri insert = storage.addTrackToPlaylist(playlist, track.getId(), System.currentTimeMillis());
-            expect(insert).not.toBeNull();
+            storage.addTrackToPlaylist(playlist, track.getId());
         }
 
         Playlist p2 = TestHelper.loadPlaylist(playlist.getId());

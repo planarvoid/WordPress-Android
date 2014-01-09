@@ -16,18 +16,15 @@ import android.view.View;
 
 public class PlaylistInteractionActivity extends PlayableInteractionActivity {
 
-    private Screen mScreen;
-
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+
         // TODO: do we need different titles for playlists?
         if (mInteraction == Activity.Type.PLAYLIST_LIKE) {
             setTitle(R.string.list_header_track_likers);
-            mScreen = Screen.PLAYLIST_LIKES;
         } else {
             setTitle(R.string.list_header_track_reposters);
-            mScreen = Screen.PLAYLIST_REPOSTS;
         }
 
         mPlayableInfoBar.setOnClickListener(new View.OnClickListener() {
@@ -42,13 +39,17 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            Event.SCREEN_ENTERED.publish(mScreen.get());
+            Event.SCREEN_ENTERED.publish(getCurrentScreen().get());
         }
     }
 
     @Override
     protected Screen getCurrentScreen() {
-        return mScreen;
+        if (mInteraction == Activity.Type.PLAYLIST_LIKE) {
+            return Screen.PLAYLIST_LIKES;
+        } else {
+            return Screen.PLAYLIST_REPOSTS;
+        }
     }
 
     @Override

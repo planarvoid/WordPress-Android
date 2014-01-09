@@ -1,6 +1,6 @@
 package com.soundcloud.android.main;
 
-import static rx.android.AndroidObservables.fromActivity;
+import static rx.android.observables.AndroidObservable.fromActivity;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;

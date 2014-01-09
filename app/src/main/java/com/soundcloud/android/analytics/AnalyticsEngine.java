@@ -6,6 +6,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
+import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.events.Event;
 import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -69,6 +70,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         mCloudPlaybackStateWrapper = cloudPlaybackStateWrapper;
 
         Event.PLAYBACK.subscribe(new PlaybackEventObserver());
+        Event.SOCIAL.subscribe(new SocialEventObserver());
     }
 
     /**
@@ -132,6 +134,16 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         Log.d(TAG, "Track playback event " + playbackEventData);
         for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
             analyticsProvider.trackPlaybackEvent(playbackEventData);
+        }
+    }
+
+    /**
+     * Tracks a social engagement event
+     */
+    public void trackSocialEvent(SocialEvent event) {
+        Log.d(TAG, "Track social event " + event);
+        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
+            analyticsProvider.trackSocialEvent(event);
         }
     }
 
@@ -219,6 +231,14 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         public void onNext(PlaybackEventData args) {
             Log.d(TAG, "PlaybackEventObserver onNext: " + args);
             trackPlaybackEvent(args);
+        }
+    }
+
+    private final class SocialEventObserver extends DefaultObserver<SocialEvent> {
+        @Override
+        public void onNext(SocialEvent args) {
+            Log.d(TAG, "SocialEventObserver onNext: " + args);
+            trackSocialEvent(args);
         }
     }
 }
