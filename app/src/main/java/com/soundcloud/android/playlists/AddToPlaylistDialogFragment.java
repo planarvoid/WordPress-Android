@@ -4,6 +4,7 @@ import static rx.android.observables.AndroidObservable.fromFragment;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.DefaultObserver;
@@ -36,6 +37,7 @@ import android.widget.Toast;
 public class AddToPlaylistDialogFragment extends BaseDialogFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final String KEY_ORIGIN_SCREEN = "ORIGIN_SCREEN";
     private static final String KEY_TRACK_ID = "TRACK_ID";
     private static final String KEY_TRACK_TITLE = "TRACK_TITLE";
     private static final String COL_ALREADY_ADDED = "ALREADY_ADDED";
@@ -45,13 +47,13 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
     private static final int CLOSE_DELAY_MILLIS = 500;
 
     private MyPlaylistsAdapter mAdapter;
-    private AccountOperations accountOperations;
     private PlaylistOperations mPlaylistOperations;
 
-    public static AddToPlaylistDialogFragment from(Track track) {
+    public static AddToPlaylistDialogFragment from(Track track, String originScreen) {
         Bundle b = new Bundle();
         b.putLong(KEY_TRACK_ID, track.getId());
         b.putString(KEY_TRACK_TITLE, track.title);
+        b.putString(KEY_ORIGIN_SCREEN, originScreen);
 
         AddToPlaylistDialogFragment fragment = new AddToPlaylistDialogFragment();
         fragment.setArguments(b);
@@ -64,7 +66,6 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        accountOperations = new AccountOperations(getActivity());
         mPlaylistOperations = new PlaylistOperations(getActivity());
     }
 
@@ -77,7 +78,9 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final long rowId = mAdapter.getItemId(position);
                 if (rowId == NEW_PLAYLIST_ITEM) {
-                    CreatePlaylistDialogFragment.from(getArguments().getLong(KEY_TRACK_ID)).show(getFragmentManager(), "create_new_set_dialog");
+                    final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
+                    final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
+                    CreatePlaylistDialogFragment.from(firstTrackId, originScreen).show(getFragmentManager(), "create_new_set_dialog");
                     getDialog().dismiss();
                 } else if (getActivity() != null) {
                     onAddTrackToSet(rowId, view);
@@ -103,7 +106,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
         txtTrackCount.setText(String.valueOf(newTracksCount));
 
         fromFragment(this, mPlaylistOperations.addTrackToPlaylist(
-                playlistId, trackId)).subscribe(new TrackAddedObserver());
+                playlistId, trackId, getArguments().getString(KEY_ORIGIN_SCREEN))).subscribe(new TrackAddedObserver());
     }
 
     @Override

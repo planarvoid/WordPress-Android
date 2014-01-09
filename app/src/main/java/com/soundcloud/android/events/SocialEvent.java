@@ -31,7 +31,7 @@ public class SocialEvent {
         return new SocialEvent(TYPE_UNFOLLOW, attributes);
     }
 
-    public static SocialEvent fromLike(String screenTag, String resource, int resourceId) {
+    public static SocialEvent fromLike(String screenTag, String resource, long resourceId) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.resource = resource;
@@ -39,7 +39,7 @@ public class SocialEvent {
         return new SocialEvent(TYPE_LIKE, attributes);
     }
 
-    public static SocialEvent fromUnlike(String screenTag, String resource, int resourceId) {
+    public static SocialEvent fromUnlike(String screenTag, String resource, long resourceId) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.resource = resource;
@@ -47,7 +47,7 @@ public class SocialEvent {
         return new SocialEvent(TYPE_UNLIKE, attributes);
     }
 
-    public static SocialEvent fromRepost(String screenTag, String resource, int resourceId) {
+    public static SocialEvent fromRepost(String screenTag, String resource, long resourceId) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.resource = resource;
@@ -55,7 +55,7 @@ public class SocialEvent {
         return new SocialEvent(TYPE_REPOST, attributes);
     }
 
-    public static SocialEvent fromUnrepost(String screenTag, String resource, int resourceId) {
+    public static SocialEvent fromUnrepost(String screenTag, String resource, long resourceId) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.resource = resource;
@@ -63,7 +63,7 @@ public class SocialEvent {
         return new SocialEvent(TYPE_UNREPOST, attributes);
     }
 
-    public static SocialEvent fromAddToPlaylist(String screenTag, boolean isNewPlaylist, int trackId) {
+    public static SocialEvent fromAddToPlaylist(String screenTag, boolean isNewPlaylist, long trackId) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.isNewPlaylist = isNewPlaylist;
@@ -71,14 +71,14 @@ public class SocialEvent {
         return new SocialEvent(TYPE_ADD_TO_PLAYLIST, attributes);
     }
 
-    public static SocialEvent fromComment(String screenTag, int trackId) {
+    public static SocialEvent fromComment(String screenTag, long trackId) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.trackId = trackId;
         return new SocialEvent(TYPE_COMMENT, attributes);
     }
 
-    public static SocialEvent fromShare(String screenTag, String resource, int resourceId, String sharedTo) {
+    public static SocialEvent fromShare(String screenTag, String resource, long resourceId, String sharedTo) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.resource = resource;
@@ -109,8 +109,8 @@ public class SocialEvent {
         public String screenTag;
         public long userId;
         public String resource;
-        public int resourceId;
-        public int trackId;
+        public long resourceId;
+        public long trackId;
         public boolean isNewPlaylist;
         public String sharedTo;
 

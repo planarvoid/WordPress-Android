@@ -17,13 +17,15 @@ import android.widget.Toast;
 
 public class CreatePlaylistDialogFragment extends BaseDialogFragment {
 
+    private static final String KEY_ORIGIN_SCREEN = "ORIGIN_SCREEN";
     private static final String KEY_TRACK_ID = "TRACK_ID";
 
     private ApplicationProperties mApplicationProperties;
 
-    public static CreatePlaylistDialogFragment from(long trackId) {
+    public static CreatePlaylistDialogFragment from(long trackId, String originScreen) {
         Bundle b = new Bundle();
         b.putLong(KEY_TRACK_ID, trackId);
+        b.putString(KEY_ORIGIN_SCREEN, originScreen);
         CreatePlaylistDialogFragment fragment = new CreatePlaylistDialogFragment();
         fragment.setArguments(b);
         return fragment;
@@ -72,6 +74,8 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
     private void createPlaylist(final String title, final boolean isPrivate) {
         PlaylistOperations playlistOperations = new PlaylistOperations(getActivity());
         final User currentUser = SoundCloudApplication.instance.getLoggedInUser();
-        fireAndForget(playlistOperations.createNewPlaylist(currentUser, title, isPrivate, getArguments().getLong(KEY_TRACK_ID)));
+        final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
+        final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
+        fireAndForget(playlistOperations.createNewPlaylist(currentUser, title, isPrivate, firstTrackId, originScreen));
     }
 }
