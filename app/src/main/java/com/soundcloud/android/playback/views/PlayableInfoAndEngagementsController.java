@@ -5,9 +5,12 @@ import static com.soundcloud.android.playback.service.PlaybackService.Actions.AD
 import static com.soundcloud.android.playback.service.PlaybackService.Actions.REMOVE_LIKE_ACTION;
 import static com.soundcloud.android.playback.service.PlaybackService.Actions.REMOVE_REPOST_ACTION;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.collections.views.PlayableBar;
+import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.profile.ProfileActivity;
@@ -80,6 +83,7 @@ public class PlayableInfoAndEngagementsController {
                 @Override
                 public void onClick(View v) {
                     if (mPlayable != null) {
+                        Event.SOCIAL.publish(SocialEvent.fromShare("<unknown>", mPlayable));
                         Intent shareIntent = mPlayable.getShareIntent();
                         if (shareIntent != null) {
                             mRootView.getContext().startActivity(shareIntent);
@@ -162,6 +166,7 @@ public class PlayableInfoAndEngagementsController {
         }
     }
 
+    @VisibleForTesting
     String labelForCount(int count) {
         if (count <= 0) {
             return "";
