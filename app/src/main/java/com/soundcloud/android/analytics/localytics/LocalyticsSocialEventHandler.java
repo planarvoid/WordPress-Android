@@ -120,7 +120,6 @@ class LocalyticsSocialEventHandler {
         eventAttributes.put("context", sourceAttributes.screenTag);
         eventAttributes.put("resource", sourceAttributes.resource);
         eventAttributes.put("resource_id", String.valueOf(sourceAttributes.resourceId));
-        eventAttributes.put("shared_to", sourceAttributes.sharedTo);
         mLocalyticsSession.tagEvent(LocalyticsEvents.Social.SHARE, eventAttributes);
     }
 }

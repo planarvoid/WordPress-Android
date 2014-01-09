@@ -145,12 +145,10 @@ public class LocalyticsSocialEventHandlerTest {
         sourceAttributes.screenTag = "screen";
         sourceAttributes.resource = "resource";
         sourceAttributes.resourceId = 30;
-        sourceAttributes.sharedTo = "facebook";
         localyticsSocialEventHandler.handleEventShare(sourceAttributes, mappedEventAttributes);
         verify(localyticsSession).tagEvent("Share", mappedEventAttributes);
         assertEquals(mappedEventAttributes.get("context"), "screen");
         assertEquals(mappedEventAttributes.get("resource"), "resource");
         assertEquals(mappedEventAttributes.get("resource_id"), "30");
-        assertEquals(mappedEventAttributes.get("shared_to"), "facebook");
     }
 }

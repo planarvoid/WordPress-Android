@@ -82,12 +82,11 @@ public class SocialEvent {
         return new SocialEvent(TYPE_COMMENT, attributes);
     }
 
-    public static SocialEvent fromShare(String screenTag, @NotNull Playable playable, String sharedTo) {
+    public static SocialEvent fromShare(String screenTag, @NotNull Playable playable) {
         Attributes attributes = new Attributes();
         attributes.screenTag = screenTag;
         attributes.resource = getPlayableType(playable);
         attributes.resourceId = playable.getId();
-        attributes.sharedTo = sharedTo;
         return new SocialEvent(TYPE_SHARE, attributes);
     }
 
@@ -120,7 +119,6 @@ public class SocialEvent {
         public long resourceId;
         public long trackId;
         public boolean isNewPlaylist;
-        public String sharedTo;
 
         @Override
         public String toString() {
