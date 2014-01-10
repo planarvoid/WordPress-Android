@@ -19,9 +19,8 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     private LocalyticsSession mLocalyticsSession;
     private LocalyticsSocialEventHandler mLocalyticsSocialEventHandler;
 
-    public LocalyticsAnalyticsProvider(Context context) {
-        this(new LocalyticsSession(context.getApplicationContext(),
-                new AnalyticsProperties(context.getResources()).getLocalyticsAppKey()));
+    public LocalyticsAnalyticsProvider(Context context, AnalyticsProperties analyticsProperties) {
+        this(new LocalyticsSession(context.getApplicationContext(), analyticsProperties.getLocalyticsAppKey()));
     }
 
     protected LocalyticsAnalyticsProvider(LocalyticsSession localyticsSession) {

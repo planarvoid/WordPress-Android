@@ -64,8 +64,8 @@ public class ApplicationModule {
     }
 
     @Provides
-    public AnalyticsEngine provideAnalyticsEngine(Context context) {
-        return AnalyticsEngine.getInstance(context);
+    public AnalyticsEngine provideAnalyticsEngine() {
+        return mApplication.getAnalyticsEngine();
     }
 
     @Provides

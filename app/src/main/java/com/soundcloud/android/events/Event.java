@@ -17,6 +17,9 @@ import rx.subjects.PublishSubject;
  */
 public enum Event {
 
+    // Android life-cycle events
+    ACTIVITY_EVENT(ActivityLifeCycleEvent.class),
+
     CURRENT_USER_UPDATED(User.class),
     SCREEN_ENTERED(String.class),
     PLAYBACK(PlaybackEventData.class),

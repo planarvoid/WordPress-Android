@@ -5,12 +5,15 @@ import com.soundcloud.android.analytics.AnalyticsProperties;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 public class LocalyticsReferralReceiver extends ReferralReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        AnalyticsProperties analyticsProperties = new AnalyticsProperties(context.getResources());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        AnalyticsProperties analyticsProperties = new AnalyticsProperties(context.getResources(), preferences);
         appKey = analyticsProperties.getLocalyticsAppKey();
         super.onReceive(context, intent);
     }

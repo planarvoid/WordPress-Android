@@ -7,6 +7,7 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.enableSy
 import com.crashlytics.android.Crashlytics;
 import com.localytics.android.Constants;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
@@ -37,6 +38,7 @@ import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
@@ -54,6 +56,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
     private User mLoggedInUser;
     private AccountOperations accountOperations;
+    private AnalyticsEngine mAnalyticsEngine;
 
     private ObjectGraph mObjectGraph;
 
@@ -68,8 +71,10 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
         new MigrationEngine(this).migrate();
 
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         ApplicationProperties appProperties = new ApplicationProperties(getResources());
-        AnalyticsProperties analyticsProperties = new AnalyticsProperties(getResources());
+        AnalyticsProperties analyticsProperties = new AnalyticsProperties(getResources(), sharedPreferences);
 
         Log.i(TAG, "Application starting up in mode " + appProperties.getBuildType());
         Log.d(TAG, appProperties.toString());
@@ -81,6 +86,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
         if (analyticsProperties.isAnalyticsEnabled()){
             Constants.IS_LOGGABLE = appProperties.isDebugBuild();
+            mAnalyticsEngine = new AnalyticsEngine(this, analyticsProperties);
         }
 
         if (ApplicationProperties.shouldReportCrashes()) {
@@ -105,10 +111,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
             AndroidUtils.doOnce(this, "reset.c2dm.reg_id", new Runnable() {
                 @Override
                 public void run() {
-                    PreferenceManager.getDefaultSharedPreferences(SoundCloudApplication.this)
-                            .edit()
-                            .remove(Consts.PrefKeys.C2DM_DEVICE_URL)
-                            .commit();
+                    sharedPreferences.edit().remove(Consts.PrefKeys.C2DM_DEVICE_URL).commit();
                 }
             });
             // delete old cache dir
@@ -193,6 +196,10 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         } else {
             return false;
         }
+    }
+
+    public AnalyticsEngine getAnalyticsEngine() {
+        return mAnalyticsEngine;
     }
 
     /**

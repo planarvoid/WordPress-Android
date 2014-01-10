@@ -1,7 +1,6 @@
 import com.soundcloud.android.analytics.AnalyticsEngine;
-
+import com.soundcloud.android.events.*;
 import android.app.Activity;
-import android.util.Log;
 
 aspect AnalyticsAspect {
 
@@ -11,13 +10,15 @@ aspect AnalyticsAspect {
     pointcut activityOnResume(Activity activity): execution(* Activity.onResume(..)) && target(activity);
     pointcut activityOnPause(Activity activity): execution(* Activity.onPause(..)) && target(activity);
 
-    before(Activity activity): (activityOnCreate(activity) || activityOnResume(activity)) {
-        Log.d(TAG, "Opening session for " + activity.getClass().getSimpleName());
-        AnalyticsEngine.getInstance(activity).openSessionForActivity();
+    before(Activity activity): activityOnCreate(activity) {
+        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(activity.getClass()));
+    }
+
+    before(Activity activity): activityOnResume(activity) {
+        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnResume(activity.getClass()));
     }
 
     before(Activity activity): activityOnPause(activity) {
-        Log.d(TAG, "Closing session for " + activity.getClass().getSimpleName());
-        AnalyticsEngine.getInstance(activity).closeSessionForActivity();
+        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnPause(activity.getClass()));
     }
 }

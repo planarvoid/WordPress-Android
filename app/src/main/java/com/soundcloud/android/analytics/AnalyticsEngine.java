@@ -6,21 +6,24 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
-import com.soundcloud.android.events.SocialEvent;
+import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.Event;
 import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackState;
-import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.Log;
+import rx.Scheduler;
 import rx.Subscription;
+import rx.android.concurrency.AndroidSchedulers;
+import rx.subscriptions.BooleanSubscription;
+import rx.util.functions.Action0;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -30,53 +33,78 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p/>
  * The analytics engine should be used in aspects located in the aspect folder under src/main/java
  */
-public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChangeListener {
-
-    private static final String TAG = AnalyticsEngine.class.getSimpleName();
+public class AnalyticsEngine {
 
     @VisibleForTesting
-    protected static final AtomicBoolean ACTIVITY_SESSION_OPEN = new AtomicBoolean();
-    private static AnalyticsEngine sInstance;
+    static final AtomicBoolean ACTIVITY_SESSION_OPEN = new AtomicBoolean();
+    @VisibleForTesting
+    static long FLUSH_DELAY_SECONDS = 5L; // FIXME: set to realistic value
 
     private final Collection<AnalyticsProvider> mAnalyticsProviders;
     private final AnalyticsProperties mAnalyticsProperties;
-    private boolean mAnalyticsPreferenceEnabled;
-    private CloudPlayerStateWrapper mCloudPlaybackStateWrapper;
+    private PlaybackServiceStateWrapper mPlaybackStateWrapper;
+
     private Subscription mEnterScreenEventSub;
+    private BooleanSubscription mFlushSubscription;
+    private Scheduler mScheduler;
 
-    public static AnalyticsEngine getInstance(Context context) {
-        if (sInstance == null) {
-            Log.d(TAG, "Creating analytics engine");
-            sInstance = new AnalyticsEngine(context.getApplicationContext());
+    // will be called by the Rx scheduler after a given delay, as long as events come in
+    private final Action0 mFlushAction = new Action0() {
+        @Override
+        public void call() {
+            if (mAnalyticsProperties.isAnalyticsEnabled()) {
+                Log.d(AnalyticsEngine.this, "Flushing event data");
+                for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
+                    analyticsProvider.flush();
+                }
+                mFlushSubscription.unsubscribe();
+            }
         }
-        return sInstance;
-    }
+    };
 
-    private AnalyticsEngine(Context context) {
-        this(new AnalyticsProperties(context.getResources()), new CloudPlayerStateWrapper(),
-                PreferenceManager.getDefaultSharedPreferences(context),
-                new LocalyticsAnalyticsProvider(context.getApplicationContext()),
+    public AnalyticsEngine(Context context, AnalyticsProperties analyticsProperties) {
+        this(analyticsProperties,
+                new PlaybackServiceStateWrapper(), AndroidSchedulers.mainThread(),
+                new LocalyticsAnalyticsProvider(context, analyticsProperties),
                 new EventLoggerAnalyticsProvider());
     }
 
     @VisibleForTesting
-    protected AnalyticsEngine(AnalyticsProperties analyticsProperties, CloudPlayerStateWrapper cloudPlaybackStateWrapper,
-                              SharedPreferences sharedPreferences, AnalyticsProvider... analyticsProviders) {
+    protected AnalyticsEngine(AnalyticsProperties analyticsProperties, PlaybackServiceStateWrapper playbackStateWrapper,
+                              Scheduler scheduler, AnalyticsProvider... analyticsProviders) {
+        Log.d(this, "Creating analytics engine");
         checkArgument(analyticsProviders.length > 0, "Need to provide at least one analytics provider");
         mAnalyticsProviders = Lists.newArrayList(analyticsProviders);
         mAnalyticsProperties = analyticsProperties;
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        mAnalyticsPreferenceEnabled = sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true);
-        mCloudPlaybackStateWrapper = cloudPlaybackStateWrapper;
+        mPlaybackStateWrapper = playbackStateWrapper;
+        mScheduler = scheduler;
 
         Event.PLAYBACK.subscribe(new PlaybackEventObserver());
         Event.SOCIAL.subscribe(new SocialEventObserver());
+        Event.ACTIVITY_EVENT.subscribe(new ActivityEventObserver());
+    }
+
+    private void scheduleFlush() {
+        if (mFlushSubscription == null || mFlushSubscription.isUnsubscribed()) {
+            Log.d(this, "Scheduling flush in " + FLUSH_DELAY_SECONDS + " secs");
+            final Subscription subscription = mScheduler.schedule(mFlushAction, FLUSH_DELAY_SECONDS, TimeUnit.SECONDS);
+            // FIXME: Clunky. Replace with a mutable SerialSubscription once we update RxJava to 0.16.+
+            mFlushSubscription = new BooleanSubscription() {
+                @Override
+                public void unsubscribe() {
+                    subscription.unsubscribe();
+                    super.unsubscribe();
+                }
+            };
+        } else {
+            Log.d(this, "Ignoring flush event; already scheduled");
+        }
     }
 
     /**
      * Opens an analytics session for activities
      */
-    public void openSessionForActivity() {
+    private void openSessionForActivity() {
         ACTIVITY_SESSION_OPEN.set(true);
         openSessionIfAnalyticsEnabled();
     }
@@ -84,10 +112,10 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     /**
      * Closes a analytics session for activities
      */
-    public void closeSessionForActivity() {
+    private void closeSessionForActivity() {
         ACTIVITY_SESSION_OPEN.set(false);
-        if (mCloudPlaybackStateWrapper.isPlayerPlaying() || !closeSessionIfAnalyticsEnabled()) {
-            Log.d(TAG, "Didn't close analytics session");
+        if (mPlaybackStateWrapper.isPlayerPlaying() || !closeSessionIfAnalyticsEnabled()) {
+            Log.d(this, "Didn't close analytics session");
         }
     }
 
@@ -107,15 +135,15 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
                 return;
             }
         }
-        Log.d(TAG, "Didn't close analytics session for player");
+        Log.d(this, "Didn't close analytics session for player");
     }
 
     /**
      * Tracks a single screen (Activity or Fragment) under the given tag
      */
-    public void trackScreen(String screenTag) {
-        if (analyticsIsEnabled() && ACTIVITY_SESSION_OPEN.get()) {
-            Log.d(TAG, "Track screen " + screenTag);
+    private void trackScreen(String screenTag) {
+        if (mAnalyticsProperties.isAnalyticsEnabled() && ACTIVITY_SESSION_OPEN.get()) {
+            Log.d(this, "Track screen " + screenTag);
             for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
                 analyticsProvider.trackScreen(screenTag);
             }
@@ -123,15 +151,13 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     }
 
     /**
-     * Tracks a playback event from :
-     * {@link com.soundcloud.android.playback.service.PlaybackService#trackPlayEvent()}
-     * {@link com.soundcloud.android.playback.service.PlaybackService#trackStopEvent()} ()}
+     * Tracks a playback event.
      *
      * This currently will get tracked regardless of Sessions or Analytics settings. Need to make sure this
      * should be the case for all providers, not just {@link EventLoggerAnalyticsProvider}
      */
     public void trackPlaybackEvent(PlaybackEventData playbackEventData) {
-        Log.d(TAG, "Track playback event " + playbackEventData);
+        Log.d(this, "Track playback event " + playbackEventData);
         for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
             analyticsProvider.trackPlaybackEvent(playbackEventData);
         }
@@ -141,7 +167,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
      * Tracks a social engagement event
      */
     public void trackSocialEvent(SocialEvent event) {
-        Log.d(TAG, "Track social event " + event);
+        Log.d(this, "Track social event " + event);
         for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
             analyticsProvider.trackSocialEvent(event);
         }
@@ -153,21 +179,20 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     }
 
     private void openSessionIfAnalyticsEnabled() {
-        if (analyticsIsEnabled()) {
+        if (mAnalyticsProperties.isAnalyticsEnabled()) {
+            Log.d(this, "Open session");
             for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
                 analyticsProvider.openSession();
             }
             if (mEnterScreenEventSub == null) {
-                Log.d(TAG, "Subscribing to SCREEN_ENTERED events");
+                Log.d(this, "Subscribing to SCREEN_ENTERED events");
                 mEnterScreenEventSub = Event.SCREEN_ENTERED.subscribe(new ScreenTrackingObserver());
             }
-        } else {
-            Log.d(TAG, "Didn't open analytics session");
         }
     }
 
     private boolean closeSessionIfAnalyticsEnabled() {
-        if (analyticsIsEnabled()) {
+        if (mAnalyticsProperties.isAnalyticsEnabled()) {
             closeSession();
             return true;
         }
@@ -178,7 +203,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
 
     private void closeSession() {
         if (mEnterScreenEventSub != null) {
-            Log.d(TAG, "Unsubscribing from SCREEN_ENTERED events");
+            Log.d(this, "Unsubscribing from SCREEN_ENTERED events");
             mEnterScreenEventSub.unsubscribe();
             mEnterScreenEventSub = null;
         }
@@ -187,32 +212,24 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    private boolean analyticsIsEnabled() {
-        return !mAnalyticsProperties.isAnalyticsDisabled() && mAnalyticsPreferenceEnabled;
-
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (SettingsActivity.ANALYTICS_ENABLED.equalsIgnoreCase(key)) {
-            mAnalyticsPreferenceEnabled = sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true);
-
-            if (!mAnalyticsPreferenceEnabled){
-                closeSession();
-            }
-        }
-    }
-
-    @VisibleForTesting
-    protected boolean isAnalyticsPreferenceEnabled() {
-        return mAnalyticsPreferenceEnabled;
-    }
-
     //To make testing easier
-    protected static class CloudPlayerStateWrapper {
+    protected static class PlaybackServiceStateWrapper {
         public boolean isPlayerPlaying() {
             PlaybackState playbackPlaybackState = PlaybackService.getPlaybackState();
             return playbackPlaybackState.isSupposedToBePlaying();
+        }
+    }
+
+    private final class ActivityEventObserver extends DefaultObserver<ActivityLifeCycleEvent> {
+        @Override
+        public void onNext(ActivityLifeCycleEvent event) {
+            Log.d(this, "ActivityEventObserver onNext: " + event);
+            if (event.isCreateEvent() || event.isResumeEvent()) {
+                openSessionForActivity();
+            } else {
+                closeSessionForActivity();
+            }
+            scheduleFlush();
         }
     }
 
@@ -221,24 +238,27 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         public void onNext(String screenTag) {
             //TODO Be defensive, check screenTag value
             //If dev/beta build and empty crash the app, otherwise log silent error
-            Log.d(TAG, "ScreenTrackingObserver onNext: " + screenTag);
+            Log.d(this, "ScreenTrackingObserver onNext: " + screenTag);
             trackScreen(screenTag);
+            scheduleFlush();
         }
     }
 
     private final class PlaybackEventObserver extends DefaultObserver<PlaybackEventData> {
         @Override
         public void onNext(PlaybackEventData args) {
-            Log.d(TAG, "PlaybackEventObserver onNext: " + args);
+            Log.d(this, "PlaybackEventObserver onNext: " + args);
             trackPlaybackEvent(args);
+            scheduleFlush();
         }
     }
 
     private final class SocialEventObserver extends DefaultObserver<SocialEvent> {
         @Override
         public void onNext(SocialEvent args) {
-            Log.d(TAG, "SocialEventObserver onNext: " + args);
+            Log.d(this, "SocialEventObserver onNext: " + args);
             trackSocialEvent(args);
+            scheduleFlush();
         }
     }
 }
