@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SocialEvent {
+public final class SocialEvent {
 
     public static final int TYPE_FOLLOW = 0;
     public static final int TYPE_UNFOLLOW = 1;
