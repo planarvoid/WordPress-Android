@@ -209,7 +209,7 @@ public class AssociationManagerTest {
         ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
         verify(eventObserver).onNext(socialEvent.capture());
         expect(socialEvent.getValue().getType()).toBe(SocialEvent.TYPE_LIKE);
-        expect(socialEvent.getValue().getAttributes().screenTag).toEqual("screen_tag");
+        expect(socialEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
     }
 
     @Test
@@ -225,7 +225,7 @@ public class AssociationManagerTest {
         ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
         verify(eventObserver).onNext(socialEvent.capture());
         expect(socialEvent.getValue().getType()).toBe(SocialEvent.TYPE_UNLIKE);
-        expect(socialEvent.getValue().getAttributes().screenTag).toEqual("screen_tag");
+        expect(socialEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
     }
 
     @Test
@@ -240,7 +240,7 @@ public class AssociationManagerTest {
         ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
         verify(eventObserver).onNext(socialEvent.capture());
         expect(socialEvent.getValue().getType()).toBe(SocialEvent.TYPE_REPOST);
-        expect(socialEvent.getValue().getAttributes().screenTag).toEqual("screen_tag");
+        expect(socialEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
     }
 
     @Test
@@ -256,7 +256,7 @@ public class AssociationManagerTest {
         ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
         verify(eventObserver).onNext(socialEvent.capture());
         expect(socialEvent.getValue().getType()).toBe(SocialEvent.TYPE_UNREPOST);
-        expect(socialEvent.getValue().getAttributes().screenTag).toEqual("screen_tag");
+        expect(socialEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
     }
 
     private Track createTrack() {
