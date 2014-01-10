@@ -46,10 +46,8 @@ public class EmptyListViewFactory {
                     mMessageText = context.getString(R.string.error_onboarding_fail);
                 } else {
                     mMessageText = context.getString(R.string.list_empty_stream_message);
-                    mSecondaryText = context.getString(R.string.list_empty_stream_secondary);
                     mActionText = context.getString(R.string.list_empty_stream_action);
                     mPrimaryAction = new Intent(Actions.WHO_TO_FOLLOW);
-                    mSecondaryAction = new Intent(Actions.FRIEND_FINDER);
                 }
                 break;
 
@@ -151,21 +149,6 @@ public class EmptyListViewFactory {
 
     public EmptyListViewFactory withMessageText(@Nullable String messageText) {
         mMessageText = messageText;
-        return this;
-    }
-
-    public EmptyListViewFactory withActionText(@Nullable String actionText) {
-        mActionText = actionText;
-        return this;
-    }
-
-    public EmptyListViewFactory withImage(int imageId) {
-        mImage = imageId;
-        return this;
-    }
-
-    public EmptyListViewFactory withPrimaryAction(Intent action) {
-        mPrimaryAction = action;
         return this;
     }
 
