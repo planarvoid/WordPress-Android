@@ -4,7 +4,6 @@
     <supports-screens android:anyDensity="true"/>
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16"/>
 
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <!-- needed for pre 2.2: automatic call muting -->
