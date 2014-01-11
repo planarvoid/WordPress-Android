@@ -1,5 +1,7 @@
 package com.soundcloud.android.events;
 
+import com.google.common.base.Objects;
+
 import java.util.Map;
 
 public abstract class Event {
@@ -20,5 +22,8 @@ public abstract class Event {
         return mAttributes;
     }
 
-
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).omitNullValues().add("kind", mKind).add("attributes", mAttributes).toString();
+    }
 }
