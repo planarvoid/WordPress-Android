@@ -4,12 +4,14 @@ import com.google.common.annotations.VisibleForTesting;
 
 import android.app.Activity;
 
+import java.util.Collections;
+
 /**
  * WARNING LABEL! :-)
  *
  * These events are currently published by the AnalyticsAspect and woven into the byte code, so don't remove it!
  */
-public class ActivityLifeCycleEvent {
+public class ActivityLifeCycleEvent extends Event {
 
     private static final int ON_RESUME_EVENT = 0;
     private static final int ON_CREATE_EVENT = 1;
@@ -32,6 +34,7 @@ public class ActivityLifeCycleEvent {
 
     @VisibleForTesting
     protected ActivityLifeCycleEvent(Class<? extends Activity> activityClass, int lifeCycleMethod) {
+        super(lifeCycleMethod, Collections.<String, String>emptyMap());
         mActivityClass = activityClass;
         mLifeCycleMethod = lifeCycleMethod;
     }
