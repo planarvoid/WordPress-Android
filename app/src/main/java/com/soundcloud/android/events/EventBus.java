@@ -28,8 +28,9 @@ public enum EventBus {
      */
     PLAYBACK_SERVICE_DESTROYED(Void.class);
 
+    public final PublishSubject QUEUE = PublishSubject.create();
+
     private final Class<?> eventDataType;
-    private final PublishSubject eventQueue = PublishSubject.create();
 
     EventBus(Class<?> eventDataType) {
         this.eventDataType = eventDataType;
@@ -41,7 +42,7 @@ public enum EventBus {
      */
     @SuppressWarnings("unchecked")
     public <T> Subscription subscribe(Observer<T> observer) {
-        return eventQueue.observeOn(AndroidSchedulers.mainThread()).subscribe(observer);
+        return QUEUE.observeOn(AndroidSchedulers.mainThread()).subscribe(observer);
     }
 
     /**
@@ -50,7 +51,7 @@ public enum EventBus {
      */
     @SuppressWarnings("unchecked")
     public <T> Subscription subscribeHere(Observer<T> observer) {
-        return eventQueue.subscribe(observer);
+        return QUEUE.subscribe(observer);
     }
 
     @SuppressWarnings("unchecked")
@@ -60,7 +61,7 @@ public enum EventBus {
                     eventData.getClass().getCanonicalName() +
                     "; expected " + eventDataType.getCanonicalName());
         }
-        eventQueue.onNext(eventData);
+        QUEUE.onNext(eventData);
     }
 
     @SuppressWarnings("unchecked")
@@ -68,7 +69,7 @@ public enum EventBus {
         if (eventDataType != Void.class) {
             throw new IllegalArgumentException("Event Data required; expected " + eventDataType.getCanonicalName());
         }
-        eventQueue.onNext(null);
+        QUEUE.onNext(null);
     }
 
 }
