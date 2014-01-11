@@ -111,6 +111,7 @@ public class AnalyticsEngineTrackingTest {
 
     @Test
     public void shouldTrackPlaybackEvent() throws Exception {
+        setAnalyticsEnabled();
         initialiseAnalyticsEngine();
 
         PlaybackEvent playbackEvent = PlaybackEvent.forPlay(mock(Track.class), 0, Mockito.mock(TrackSourceInfo.class));
@@ -122,6 +123,7 @@ public class AnalyticsEngineTrackingTest {
 
     @Test
     public void shouldTrackSocialEvent() throws Exception {
+        setAnalyticsEnabled();
         initialiseAnalyticsEngine();
 
         SocialEvent socialEvent = SocialEvent.fromFollow("screen", 0);

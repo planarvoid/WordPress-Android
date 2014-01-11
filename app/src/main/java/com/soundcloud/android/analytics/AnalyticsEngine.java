@@ -79,9 +79,11 @@ public class AnalyticsEngine {
         mPlaybackStateWrapper = playbackStateWrapper;
         mScheduler = scheduler;
 
-        EventBus.PLAYBACK.subscribe(new PlaybackEventObserver());
-        EventBus.SOCIAL.subscribe(new SocialEventObserver());
-        EventBus.ACTIVITY_LIFECYCLE.subscribe(new ActivityEventObserver());
+        if (analyticsProperties.isAnalyticsEnabled()) {
+            EventBus.PLAYBACK.subscribe(new PlaybackEventObserver());
+            EventBus.SOCIAL.subscribe(new SocialEventObserver());
+            EventBus.ACTIVITY_LIFECYCLE.subscribe(new ActivityEventObserver());
+        }
     }
 
     private void scheduleFlush() {
