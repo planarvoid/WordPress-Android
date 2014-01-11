@@ -131,16 +131,6 @@ public class AnalyticsEngineSessionHandlingTest {
     }
 
     @Test
-    public void shouldSetTheActivitySessionStateToTrueWhenOpeningActivitySessionAndAnalyticsDisabled(){
-        setAnalyticsDisabled();
-        initialiseAnalyticsEngineWithActivitySessionState(false);
-
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-
-        expect(analyticsEngine.activitySessionIsClosed()).toBeFalse();
-    }
-
-    @Test
     public void shouldSetTheActivitySessionStateToFalseWhenClosingActivitySessionAndAnalyticsEnabled(){
         setAnalyticsEnabled();
         initialiseAnalyticsEngineWithActivitySessionState(true);
