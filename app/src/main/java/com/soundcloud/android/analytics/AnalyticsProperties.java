@@ -13,10 +13,10 @@ import android.content.res.Resources;
 
 public class AnalyticsProperties implements SharedPreferences.OnSharedPreferenceChangeListener {
     private final String mLocalyticsAppKey;
-    private boolean mAnalyticsEnabledForBuild, mAnalyticsEnabledViaSettings;
+    private boolean mAnalyticsAvailable, mAnalyticsEnabled;
 
     public AnalyticsProperties(Resources resources, SharedPreferences preferences) {
-        mAnalyticsEnabledForBuild = resources.getBoolean(R.bool.analytics_enabled);
+        mAnalyticsAvailable = resources.getBoolean(R.bool.analytics_enabled);
         mLocalyticsAppKey = resources.getString(R.string.localytics_app_key);
         checkArgument(isNotBlank(mLocalyticsAppKey), "Localytics keys must be provided");
 
@@ -32,18 +32,22 @@ public class AnalyticsProperties implements SharedPreferences.OnSharedPreference
     }
 
     public boolean isAnalyticsEnabled() {
-        return mAnalyticsEnabledForBuild && mAnalyticsEnabledViaSettings;
+        return mAnalyticsAvailable && mAnalyticsEnabled;
+    }
+
+    public boolean isAnalyticsAvailable() {
+        return mAnalyticsAvailable;
     }
 
     @Override
     public String toString(){
-        return Objects.toStringHelper(this).add("analyticsEnabled", mAnalyticsEnabledForBuild).toString();
+        return Objects.toStringHelper(this).add("analyticsEnabled", mAnalyticsAvailable).toString();
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (SettingsActivity.ANALYTICS_ENABLED.equalsIgnoreCase(key)) {
-            mAnalyticsEnabledViaSettings = sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true);
+            mAnalyticsEnabled = sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true);
         }
     }
 }

@@ -74,20 +74,15 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         ApplicationProperties appProperties = new ApplicationProperties(getResources());
-        AnalyticsProperties analyticsProperties = new AnalyticsProperties(getResources(), sharedPreferences);
 
         Log.i(TAG, "Application starting up in mode " + appProperties.getBuildType());
         Log.d(TAG, appProperties.toString());
-        Log.d(TAG, analyticsProperties.toString());
 
         if (appProperties.isDevBuildRunningOnDalvik() && !ActivityManager.isUserAMonkey()) {
             setupStrictMode();
         }
 
-        if (analyticsProperties.isAnalyticsEnabled()){
-            Constants.IS_LOGGABLE = appProperties.isDebugBuild();
-            mAnalyticsEngine = new AnalyticsEngine(this, analyticsProperties);
-        }
+        setupAnalytics(sharedPreferences, appProperties);
 
         if (ApplicationProperties.shouldReportCrashes()) {
             Crashlytics.start(this);
@@ -143,6 +138,13 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         }
 
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
+    }
+
+    private void setupAnalytics(SharedPreferences sharedPreferences, ApplicationProperties appProperties) {
+        AnalyticsProperties analyticsProperties = new AnalyticsProperties(getResources(), sharedPreferences);
+        Log.d(TAG, analyticsProperties.toString());
+        mAnalyticsEngine = new AnalyticsEngine(this, analyticsProperties);
+        Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && appProperties.isDebugBuild();
     }
 
     public ObjectGraph getObjectGraph() {
