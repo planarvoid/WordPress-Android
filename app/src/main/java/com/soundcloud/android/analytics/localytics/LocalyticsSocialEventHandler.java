@@ -13,36 +13,36 @@ class LocalyticsSocialEventHandler {
     }
 
     public void handleEvent(SocialEvent sourceEvent) {
-        handleEvent(sourceEvent.getType(), sourceEvent.getAttributes());
+        handleEvent(sourceEvent.getKind(), sourceEvent.getAttributes());
     }
 
     private void handleEvent(int sourceEventType, Map<String, String> eventAttributes) {
         switch (sourceEventType) {
-            case SocialEvent.TYPE_FOLLOW:
+            case SocialEvent.FOLLOW:
                 mLocalyticsSession.tagEvent(LocalyticsEvents.Social.FOLLOW, eventAttributes);
                 break;
-            case SocialEvent.TYPE_UNFOLLOW:
+            case SocialEvent.UNFOLLOW:
                 mLocalyticsSession.tagEvent(LocalyticsEvents.Social.UNFOLLOW, eventAttributes);
                 break;
-            case SocialEvent.TYPE_LIKE:
+            case SocialEvent.LIKE:
                 mLocalyticsSession.tagEvent(LocalyticsEvents.Social.LIKE, eventAttributes);
                 break;
-            case SocialEvent.TYPE_UNLIKE:
+            case SocialEvent.UNLIKE:
                 mLocalyticsSession.tagEvent(LocalyticsEvents.Social.UNLIKE, eventAttributes);
                 break;
-            case SocialEvent.TYPE_REPOST:
+            case SocialEvent.REPOST:
                 mLocalyticsSession.tagEvent(LocalyticsEvents.Social.REPOST, eventAttributes);
                 break;
-            case SocialEvent.TYPE_UNREPOST:
+            case SocialEvent.UNREPOST:
                 mLocalyticsSession.tagEvent(LocalyticsEvents.Social.UNREPOST, eventAttributes);
                 break;
-            case SocialEvent.TYPE_ADD_TO_PLAYLIST:
+            case SocialEvent.ADD_TO_PLAYLIST:
                 mLocalyticsSession.tagEvent(LocalyticsEvents.Social.ADD_TO_PLAYLIST, eventAttributes);
                 break;
-            case SocialEvent.TYPE_COMMENT:
+            case SocialEvent.COMMENT:
                 mLocalyticsSession.tagEvent(LocalyticsEvents.Social.COMMENT, eventAttributes);
                 break;
-            case SocialEvent.TYPE_SHARE:
+            case SocialEvent.SHARE:
                 mLocalyticsSession.tagEvent(LocalyticsEvents.Social.SHARE, eventAttributes);
                 break;
             default:

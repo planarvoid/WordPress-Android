@@ -8,34 +8,30 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class SocialEvent {
+public final class SocialEvent extends Event {
 
-    public static final int TYPE_FOLLOW = 0;
-    public static final int TYPE_UNFOLLOW = 1;
-    public static final int TYPE_LIKE = 2;
-    public static final int TYPE_UNLIKE = 3;
-    public static final int TYPE_REPOST = 4;
-    public static final int TYPE_UNREPOST = 5;
-    public static final int TYPE_ADD_TO_PLAYLIST = 6;
-    public static final int TYPE_COMMENT = 7;
-    public static final int TYPE_SHARE = 8;
-
-    private int mType;
-    private Map<String, String> mAttributes;
-
+    public static final int FOLLOW = 0;
+    public static final int UNFOLLOW = 1;
+    public static final int LIKE = 2;
+    public static final int UNLIKE = 3;
+    public static final int REPOST = 4;
+    public static final int UNREPOST = 5;
+    public static final int ADD_TO_PLAYLIST = 6;
+    public static final int COMMENT = 7;
+    public static final int SHARE = 8;
 
     public static SocialEvent fromFollow(String screenTag, long userId) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);
         attributes.put("user_id", String.valueOf(userId));
-        return new SocialEvent(TYPE_FOLLOW, attributes);
+        return new SocialEvent(FOLLOW, attributes);
     }
 
     public static SocialEvent fromUnfollow(String screenTag, long userId) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);
         attributes.put("user_id", String.valueOf(userId));
-        return new SocialEvent(TYPE_UNFOLLOW, attributes);
+        return new SocialEvent(UNFOLLOW, attributes);
     }
 
     public static SocialEvent fromLike(String screenTag, @NotNull Playable playable) {
@@ -43,7 +39,7 @@ public final class SocialEvent {
         attributes.put("context", screenTag);
         attributes.put("resource", getPlayableType(playable));
         attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new SocialEvent(TYPE_LIKE, attributes);
+        return new SocialEvent(LIKE, attributes);
     }
 
     public static SocialEvent fromUnlike(String screenTag, @NotNull Playable playable) {
@@ -51,7 +47,7 @@ public final class SocialEvent {
         attributes.put("context", screenTag);
         attributes.put("resource", getPlayableType(playable));
         attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new SocialEvent(TYPE_UNLIKE, attributes);
+        return new SocialEvent(UNLIKE, attributes);
     }
 
     public static SocialEvent fromRepost(String screenTag, @NotNull Playable playable) {
@@ -59,7 +55,7 @@ public final class SocialEvent {
         attributes.put("context", screenTag);
         attributes.put("resource", getPlayableType(playable));
         attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new SocialEvent(TYPE_REPOST, attributes);
+        return new SocialEvent(REPOST, attributes);
     }
 
     public static SocialEvent fromUnrepost(String screenTag, @NotNull Playable playable) {
@@ -67,7 +63,7 @@ public final class SocialEvent {
         attributes.put("context", screenTag);
         attributes.put("resource", getPlayableType(playable));
         attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new SocialEvent(TYPE_UNREPOST, attributes);
+        return new SocialEvent(UNREPOST, attributes);
     }
 
     public static SocialEvent fromAddToPlaylist(String screenTag, boolean isNewPlaylist, long trackId) {
@@ -75,14 +71,14 @@ public final class SocialEvent {
         attributes.put("context", screenTag);
         attributes.put("is_new_playlist", isNewPlaylist ? "yes" : "no");
         attributes.put("track_id", String.valueOf(trackId));
-        return new SocialEvent(TYPE_ADD_TO_PLAYLIST, attributes);
+        return new SocialEvent(ADD_TO_PLAYLIST, attributes);
     }
 
     public static SocialEvent fromComment(String screenTag, long trackId) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);
         attributes.put("track_id", String.valueOf(trackId));
-        return new SocialEvent(TYPE_COMMENT, attributes);
+        return new SocialEvent(COMMENT, attributes);
     }
 
     public static SocialEvent fromShare(String screenTag, @NotNull Playable playable) {
@@ -90,7 +86,7 @@ public final class SocialEvent {
         attributes.put("context", screenTag);
         attributes.put("resource", getPlayableType(playable));
         attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new SocialEvent(TYPE_SHARE, attributes);
+        return new SocialEvent(SHARE, attributes);
     }
 
     private static String getPlayableType(Playable playable) {
@@ -98,20 +94,11 @@ public final class SocialEvent {
     }
 
     private SocialEvent(int type, Map<String, String> attributes) {
-        mType = type;
-        mAttributes = attributes;
-    }
-
-    public int getType() {
-        return mType;
-    }
-
-    public Map<String, String> getAttributes() {
-        return mAttributes;
+        super(type, attributes);
     }
 
     @Override
     public String toString() {
-        return  String.format("Social Event with type id %s and %s",  getType(), getAttributes().toString());
+        return  String.format("Social Event with type id %s and %s", mKind, mAttributes.toString());
     }
 }

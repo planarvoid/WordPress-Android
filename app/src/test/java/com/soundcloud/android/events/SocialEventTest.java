@@ -16,7 +16,7 @@ public class SocialEventTest {
     public void shouldCreateEventFromFollow() throws Exception {
         SocialEvent socialEvent = SocialEvent.fromFollow("screen", 30);
         Map<String, String> socialEventAttributes = socialEvent.getAttributes();
-        assertEquals(socialEvent.getType(), 0);
+        assertEquals(socialEvent.getKind(), 0);
         assertEquals(socialEventAttributes.get("context"), "screen");
         assertEquals(socialEventAttributes.get("user_id"), "30");
     }
@@ -25,7 +25,7 @@ public class SocialEventTest {
     public void shouldCreateEventFromUnfollow() throws Exception {
         SocialEvent socialEvent = SocialEvent.fromUnfollow("screen", 30);
         Map<String, String> socialEventAttributes = socialEvent.getAttributes();
-        assertEquals(socialEvent.getType(), 1);
+        assertEquals(socialEvent.getKind(), 1);
         assertEquals(socialEventAttributes.get("context"), "screen");
         assertEquals(socialEventAttributes.get("user_id"), "30");
     }
@@ -34,7 +34,7 @@ public class SocialEventTest {
     public void shouldCreateEventFromLikedTrack() throws Exception {
         SocialEvent socialEvent = SocialEvent.fromLike("screen", new Track(30));
         Map<String, String> socialEventAttributes = socialEvent.getAttributes();
-        assertEquals(socialEvent.getType(), 2);
+        assertEquals(socialEvent.getKind(), 2);
         assertEquals(socialEventAttributes.get("context"), "screen");
         assertEquals(socialEventAttributes.get("resource"), "track");
         assertEquals(socialEventAttributes.get("resource_id"), "30");
@@ -44,7 +44,7 @@ public class SocialEventTest {
     public void shouldCreateEventFromLikedPlaylist() throws Exception {
         SocialEvent socialEvent = SocialEvent.fromLike("screen", new Playlist(30));
         Map<String, String> socialEventAttributes = socialEvent.getAttributes();
-        assertEquals(socialEvent.getType(), 2);
+        assertEquals(socialEvent.getKind(), 2);
         assertEquals(socialEventAttributes.get("context"), "screen");
         assertEquals(socialEventAttributes.get("resource"), "playlist");
         assertEquals(socialEventAttributes.get("resource_id"), "30");
@@ -54,7 +54,7 @@ public class SocialEventTest {
     public void shouldCreateEventFromUnlikedTrack() throws Exception {
         SocialEvent socialEvent = SocialEvent.fromUnlike("screen", new Track(30));
         Map<String, String> socialEventAttributes = socialEvent.getAttributes();
-        assertEquals(socialEvent.getType(), 3);
+        assertEquals(socialEvent.getKind(), 3);
         assertEquals(socialEventAttributes.get("context"), "screen");
         assertEquals(socialEventAttributes.get("resource"), "track");
         assertEquals(socialEventAttributes.get("resource_id"), "30");
@@ -64,7 +64,7 @@ public class SocialEventTest {
     public void shouldCreateEventFromUnlikedPlaylist() throws Exception {
         SocialEvent socialEvent = SocialEvent.fromUnlike("screen", new Playlist(30));
         Map<String, String> socialEventAttributes = socialEvent.getAttributes();
-        assertEquals(socialEvent.getType(), 3);
+        assertEquals(socialEvent.getKind(), 3);
         assertEquals(socialEventAttributes.get("context"), "screen");
         assertEquals(socialEventAttributes.get("resource"), "playlist");
         assertEquals(socialEventAttributes.get("resource_id"), "30");
@@ -74,7 +74,7 @@ public class SocialEventTest {
     public void shouldCreateEventFromRepostedTrack() throws Exception {
         SocialEvent socialEvent = SocialEvent.fromRepost("screen", new Track(30));
         Map<String, String> socialEventAttributes = socialEvent.getAttributes();
-        assertEquals(socialEvent.getType(), 4);
+        assertEquals(socialEvent.getKind(), 4);
         assertEquals(socialEventAttributes.get("context"), "screen");
         assertEquals(socialEventAttributes.get("resource"), "track");
         assertEquals(socialEventAttributes.get("resource_id"), "30");
@@ -84,7 +84,7 @@ public class SocialEventTest {
     public void shouldCreateEventFromRepostedPlaylist() throws Exception {
         SocialEvent socialEvent = SocialEvent.fromRepost("screen", new Playlist(30));
         Map<String, String> socialEventAttributes = socialEvent.getAttributes();
-        assertEquals(socialEvent.getType(), 4);
+        assertEquals(socialEvent.getKind(), 4);
         assertEquals(socialEventAttributes.get("context"), "screen");
         assertEquals(socialEventAttributes.get("resource"), "playlist");
         assertEquals(socialEventAttributes.get("resource_id"), "30");
@@ -94,7 +94,7 @@ public class SocialEventTest {
     public void shouldCreateEventFromUnrepostedTrack() throws Exception {
         SocialEvent socialEvent = SocialEvent.fromUnrepost("screen", new Track(30));
         Map<String, String> socialEventAttributes = socialEvent.getAttributes();
-        assertEquals(socialEvent.getType(), 5);
+        assertEquals(socialEvent.getKind(), 5);
         assertEquals(socialEventAttributes.get("context"), "screen");
         assertEquals(socialEventAttributes.get("resource"), "track");
         assertEquals(socialEventAttributes.get("resource_id"), "30");
@@ -104,7 +104,7 @@ public class SocialEventTest {
     public void shouldCreateEventFromUnrepostedPlaylist() throws Exception {
         SocialEvent socialEvent = SocialEvent.fromUnrepost("screen", new Playlist(30));
         Map<String, String> socialEventAttributes = socialEvent.getAttributes();
-        assertEquals(socialEvent.getType(), 5);
+        assertEquals(socialEvent.getKind(), 5);
         assertEquals(socialEventAttributes.get("context"), "screen");
         assertEquals(socialEventAttributes.get("resource"), "playlist");
         assertEquals(socialEventAttributes.get("resource_id"), "30");
@@ -114,7 +114,7 @@ public class SocialEventTest {
     public void shouldCreateEventFromAddToPlaylistWhenPlaylistIsNew() throws Exception {
         SocialEvent socialEvent = SocialEvent.fromAddToPlaylist("screen", true, 30);
         Map<String, String> socialEventAttributes = socialEvent.getAttributes();
-        assertEquals(socialEvent.getType(), 6);
+        assertEquals(socialEvent.getKind(), 6);
         assertEquals(socialEventAttributes.get("context"), "screen");
         assertEquals(socialEventAttributes.get("is_new_playlist"), "yes");
         assertEquals(socialEventAttributes.get("track_id"), "30");
@@ -124,7 +124,7 @@ public class SocialEventTest {
     public void shouldCreateEventFromAddToPlaylistWhenPlaylistExisted() throws Exception {
         SocialEvent socialEvent = SocialEvent.fromAddToPlaylist("screen", false, 30);
         Map<String, String> socialEventAttributes = socialEvent.getAttributes();
-        assertEquals(socialEvent.getType(), 6);
+        assertEquals(socialEvent.getKind(), 6);
         assertEquals(socialEventAttributes.get("context"), "screen");
         assertEquals(socialEventAttributes.get("is_new_playlist"), "no");
         assertEquals(socialEventAttributes.get("track_id"), "30");
@@ -134,7 +134,7 @@ public class SocialEventTest {
     public void shouldCreateEventFromComment() throws Exception {
         SocialEvent socialEvent = SocialEvent.fromComment("screen", 30);
         Map<String, String> socialEventAttributes = socialEvent.getAttributes();
-        assertEquals(socialEvent.getType(), 7);
+        assertEquals(socialEvent.getKind(), 7);
         assertEquals(socialEventAttributes.get("context"), "screen");
         assertEquals(socialEventAttributes.get("track_id"), "30");
     }
@@ -143,7 +143,7 @@ public class SocialEventTest {
     public void shouldCreateEventFromTrackShare() throws Exception {
         SocialEvent socialEvent = SocialEvent.fromShare("screen", new Track(30));
         Map<String, String> socialEventAttributes = socialEvent.getAttributes();
-        assertEquals(socialEvent.getType(), 8);
+        assertEquals(socialEvent.getKind(), 8);
         assertEquals(socialEventAttributes.get("context"), "screen");
         assertEquals(socialEventAttributes.get("resource"), "track");
         assertEquals(socialEventAttributes.get("resource_id"), "30");
@@ -153,7 +153,7 @@ public class SocialEventTest {
     public void shouldCreateEventFromPlaylistShare() throws Exception {
         SocialEvent socialEvent = SocialEvent.fromShare("screen", new Playlist(30));
         Map<String, String> socialEventAttributes = socialEvent.getAttributes();
-        assertEquals(socialEvent.getType(), 8);
+        assertEquals(socialEvent.getKind(), 8);
         assertEquals(socialEventAttributes.get("context"), "screen");
         assertEquals(socialEventAttributes.get("resource"), "playlist");
         assertEquals(socialEventAttributes.get("resource_id"), "30");

@@ -5,8 +5,10 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
+
 @SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
-public class PlaybackEvent {
+public class PlaybackEvent extends Event {
 
     public static final int STOP_REASON_PAUSE = 0;
     public static final int STOP_REASON_BUFFERING = 1;
@@ -22,7 +24,6 @@ public class PlaybackEvent {
     @NotNull
     private Track mTrack;
 
-    private int mEventKind;
     private long mUserId;
     private TrackSourceInfo mTrackSourceInfo;
     private long mTimeStamp;
@@ -52,8 +53,9 @@ public class PlaybackEvent {
     }
 
     private PlaybackEvent(int eventKind, @NotNull Track track, long userId, TrackSourceInfo trackSourceInfo, long timestamp) {
+        super(eventKind, Collections.<String, String>emptyMap());
         mTrack = track;
-        mEventKind = eventKind;
+        mKind = eventKind;
         mUserId = userId;
         mTrackSourceInfo = trackSourceInfo;
         mTimeStamp = timestamp;
@@ -64,7 +66,7 @@ public class PlaybackEvent {
     }
 
     public boolean isPlayEvent() {
-        return mEventKind == EVENT_KIND_PLAY;
+        return mKind == EVENT_KIND_PLAY;
     }
 
     public boolean isStopEvent() {
@@ -99,7 +101,7 @@ public class PlaybackEvent {
     public String toString() {
         return Objects.toStringHelper(PlaybackEvent.class)
                 .add("Track_ID", mTrack.getId())
-                .add("Event", mEventKind)
+                .add("Event", mKind)
                 .add("UserID", mUserId)
                 .add("TrackSourceInfo", mTrackSourceInfo)
                 .add("TimeStamp", mTimeStamp)

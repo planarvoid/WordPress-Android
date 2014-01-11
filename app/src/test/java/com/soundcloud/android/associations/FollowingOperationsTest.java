@@ -232,7 +232,7 @@ public class FollowingOperationsTest {
         ops.addFollowing(Screen.ACTIVITIES, user).subscribe(observer);
         ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
         verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getType()).toEqual(SocialEvent.TYPE_FOLLOW);
+        expect(socialEvent.getValue().getKind()).toEqual(SocialEvent.FOLLOW);
     }
 
     @Test
@@ -242,6 +242,6 @@ public class FollowingOperationsTest {
         ops.removeFollowing(Screen.ACTIVITIES, user).subscribe(observer);
         ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
         verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getType()).toEqual(SocialEvent.TYPE_UNFOLLOW);
+        expect(socialEvent.getValue().getKind()).toEqual(SocialEvent.UNFOLLOW);
     }
 }

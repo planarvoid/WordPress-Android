@@ -87,7 +87,7 @@ public class PlaylistOperationsTest {
 
         ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
         verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getType()).toBe(SocialEvent.TYPE_ADD_TO_PLAYLIST);
+        expect(socialEvent.getValue().getKind()).toBe(SocialEvent.ADD_TO_PLAYLIST);
         expect(socialEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
     }
 
@@ -111,7 +111,7 @@ public class PlaylistOperationsTest {
 
         ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
         verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getType()).toBe(SocialEvent.TYPE_ADD_TO_PLAYLIST);
+        expect(socialEvent.getValue().getKind()).toBe(SocialEvent.ADD_TO_PLAYLIST);
         expect(socialEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
     }
 }
