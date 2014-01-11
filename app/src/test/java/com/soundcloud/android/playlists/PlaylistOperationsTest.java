@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
@@ -79,7 +79,7 @@ public class PlaylistOperationsTest {
         long firstTrackId = 1L;
 
         Observer<SocialEvent> eventObserver = mock(Observer.class);
-        Event.SOCIAL.subscribe(eventObserver);
+        EventBus.SOCIAL.subscribe(eventObserver);
         when(playlistStorage.createNewUserPlaylistAsync(
                 currentUser, "new playlist", false, firstTrackId)).thenReturn(Observable.just(playlist));
 
@@ -104,7 +104,7 @@ public class PlaylistOperationsTest {
     @Test
     public void shouldPublishSocialEventWhenAddingTrackToPlaylist() {
         Observer<SocialEvent> eventObserver = mock(Observer.class);
-        Event.SOCIAL.subscribe(eventObserver);
+        EventBus.SOCIAL.subscribe(eventObserver);
         when(playlistStorage.addTrackToPlaylist(playlist, 1L)).thenReturn(playlist);
 
         playlistOperations.addTrackToPlaylist(123L, 1L, "screen_tag").subscribe(observer);

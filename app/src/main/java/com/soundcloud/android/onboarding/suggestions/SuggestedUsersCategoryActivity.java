@@ -3,7 +3,7 @@ package com.soundcloud.android.onboarding.suggestions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.associations.FollowingOperations;
@@ -43,9 +43,9 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
         super.onResume();
         if (shouldTrackScreen()) {
             if (mCategory.isFacebookCategory()) {
-                Event.SCREEN_ENTERED.publish(Screen.ONBOARDING_FACEBOOK.get());
+                EventBus.SCREEN_ENTERED.publish(Screen.ONBOARDING_FACEBOOK.get());
             } else {
-                Event.SCREEN_ENTERED.publish(Screen.ONBOARDING_GENRE.get());
+                EventBus.SCREEN_ENTERED.publish(Screen.ONBOARDING_GENRE.get());
             }
         }
     }

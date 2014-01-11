@@ -22,7 +22,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.ScSchedulers;
@@ -97,7 +97,7 @@ public class SettingsActivity extends ScSettingsActivity {
         findPreference(CHANGE_LOG).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        Event.SCREEN_ENTERED.publish(Screen.SETTINGS_CHANGE_LOG.get());
+                        EventBus.SCREEN_ENTERED.publish(Screen.SETTINGS_CHANGE_LOG.get());
                         cl.getDialog(true).show();
                         return true;
                     }
@@ -251,7 +251,7 @@ public class SettingsActivity extends ScSettingsActivity {
         updateClearCacheTitles();
         super.onResume();
         if (shouldTrackScreen()) {
-            Event.SCREEN_ENTERED.publish(Screen.SETTINGS_MAIN.get());
+            EventBus.SCREEN_ENTERED.publish(Screen.SETTINGS_MAIN.get());
         }
     }
 

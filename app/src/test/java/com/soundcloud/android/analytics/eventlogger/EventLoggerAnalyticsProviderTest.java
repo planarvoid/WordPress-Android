@@ -2,7 +2,7 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import dagger.Module;
@@ -32,7 +32,7 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Test
     public void shouldTrackPlaybackEventInPlayEventTracker(){
-        final PlaybackEventData mock = Mockito.mock(PlaybackEventData.class);
+        final PlaybackEvent mock = Mockito.mock(PlaybackEvent.class);
         eventLoggerAnalyticsProvider.trackPlaybackEvent(mock);
         verify(eventLogger).trackEvent(mock);
     }

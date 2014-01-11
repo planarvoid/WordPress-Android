@@ -12,7 +12,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.model.ExploreGenre;
@@ -139,7 +139,7 @@ public class ExploreGenresFragmentTest {
     @Test
     public void shouldPublishScreenEnterEventWhenOpeningSpecificGenre(){
         dependencyInjector.inject(fragment);
-        Subscription subscription = Event.SCREEN_ENTERED.subscribe(screenTrackingObserver);
+        Subscription subscription = EventBus.SCREEN_ENTERED.subscribe(screenTrackingObserver);
         when(listView.getTag()).thenReturn("screentag");
         fragment.onItemClick(listView, listView, 0,0);
         verify(screenTrackingObserver).onNext("screentag");

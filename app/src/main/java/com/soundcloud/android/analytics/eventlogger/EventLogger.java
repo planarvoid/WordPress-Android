@@ -2,8 +2,8 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import static android.os.Process.THREAD_PRIORITY_LOWEST;
 
-import com.soundcloud.android.events.Event;
-import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
@@ -26,17 +26,17 @@ public class EventLogger {
         mEventLoggerHandlerFactory = eventLoggerHandlerFactory;
     }
 
-    public void trackEvent(PlaybackEventData playbackEventData) {
+    public void trackEvent(PlaybackEvent playbackEvent) {
         if (mHandler == null) {
             HandlerThread thread = new HandlerThread("PlayEvent-tracking", THREAD_PRIORITY_LOWEST);
             thread.start();
             mHandler = mEventLoggerHandlerFactory.create(thread.getLooper());
 
-            mShutdownSubscription = Event.PLAYBACK_SERVICE_DESTROYED.subscribe(new PlaybackServiceDestroyedObserver());
+            mShutdownSubscription = EventBus.PLAYBACK_SERVICE_DESTROYED.subscribe(new PlaybackServiceDestroyedObserver());
         }
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + playbackEventData.toString());
-        Message insert = mHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEventData);
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + playbackEvent.toString());
+        Message insert = mHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent);
         mHandler.removeMessages(EventLoggerHandler.FINISH_TOKEN);
         mHandler.sendMessage(insert);
     }

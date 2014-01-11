@@ -9,7 +9,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.collections.views.PlayableBar;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -83,7 +83,7 @@ public class PlayableInfoAndEngagementsController {
                 @Override
                 public void onClick(View v) {
                     if (mPlayable != null) {
-                        Event.SOCIAL.publish(SocialEvent.fromShare("<unknown>", mPlayable));
+                        EventBus.SOCIAL.publish(SocialEvent.fromShare("<unknown>", mPlayable));
                         Intent shareIntent = mPlayable.getShareIntent();
                         if (shareIntent != null) {
                             mRootView.getContext().startActivity(shareIntent);

@@ -15,35 +15,29 @@ import rx.subjects.PublishSubject;
  * Event queues are not type safe, but an error will be raised immediately as soon as you try to emit event data that
  * does not match the type given when declaring the event.
  */
-public enum Event {
+public enum EventBus {
 
-    // Android life-cycle events
-    ACTIVITY_EVENT(ActivityLifeCycleEvent.class),
-
+    ACTIVITY_LIFECYCLE(ActivityLifeCycleEvent.class),
     CURRENT_USER_UPDATED(User.class),
     SCREEN_ENTERED(String.class),
-    PLAYBACK(PlaybackEventData.class),
+    PLAYBACK(PlaybackEvent.class),
     SOCIAL(SocialEvent.class),
 
     /**
      * Signals the playback service is destoryed. Used to flush events and stop handler in {@link com.soundcloud.android.analytics.eventlogger.EventLogger}
      */
-    PLAYBACK_SERVICE_DESTROYED(Void.class),
-
-    // I'd like to keep this to make unit testing simpler and not bound to our app specific events.
-    TEST_EVENT(String.class),
-    TEST_VOID_EVENT(Void.class);
+    PLAYBACK_SERVICE_DESTROYED(Void.class);
 
     private final Class<?> eventDataType;
     private final PublishSubject eventQueue = PublishSubject.create();
 
-    Event(Class<?> eventDataType) {
+    EventBus(Class<?> eventDataType) {
         this.eventDataType = eventDataType;
     }
 
     /**
      * Subscribes to this event and receives notifications on the main UI thread. For callers that wish to receive
-     * notfications on a background, use {@link #subscribeBackground(rx.Observer)} instead.
+     * notfications on the current thread, use {@link #subscribeHere(rx.Observer)} instead.
      */
     @SuppressWarnings("unchecked")
     public <T> Subscription subscribe(Observer<T> observer) {
@@ -55,7 +49,7 @@ public enum Event {
      * by components that want to consume events on a background thread.
      */
     @SuppressWarnings("unchecked")
-    public <T> Subscription subscribeBackground(Observer<T> observer) {
+    public <T> Subscription subscribeHere(Observer<T> observer) {
         return eventQueue.subscribe(observer);
     }
 

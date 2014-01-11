@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -48,14 +48,14 @@ public class EventLoggerHandlerTest {
     public void shouldInsertTrackingEventsIntoDatabase() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
 
-        final PlaybackEventData playbackEventData1 = PlaybackEventData.forPlay(track, 1l, trackSourceInfo);
-        final PlaybackEventData playbackEventData2 = PlaybackEventData.forStop(track, 2l, trackSourceInfo, playbackEventData1, PlaybackEventData.STOP_REASON_PAUSE);
+        final PlaybackEvent playbackEvent1 = PlaybackEvent.forPlay(track, 1l, trackSourceInfo);
+        final PlaybackEvent playbackEvent2 = PlaybackEvent.forStop(track, 2l, trackSourceInfo, playbackEvent1, PlaybackEvent.STOP_REASON_PAUSE);
 
-        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEventData1));
-        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEventData2));
+        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent1));
+        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent2));
 
-        verify(storage).insertEvent(playbackEventData1);
-        verify(storage).insertEvent(playbackEventData2);
+        verify(storage).insertEvent(playbackEvent1);
+        verify(storage).insertEvent(playbackEvent2);
     }
 
     @Test

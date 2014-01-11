@@ -5,8 +5,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.Event;
-import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.After;
 import org.junit.Before;
@@ -24,7 +24,7 @@ public class EventLoggerTest {
     @Mock
     EventLoggerHandlerFactory eventLoggerHandlerFactory;
     @Mock
-    PlaybackEventData playbackEventData;
+    PlaybackEvent playbackEvent;
     @Mock
     EventLoggerHandler handler;
     @Mock
@@ -46,40 +46,40 @@ public class EventLoggerTest {
 
     @Test
     public void shouldCreateNewEventLoggerOnTrackEvent() throws Exception {
-        eventLogger.trackEvent(playbackEventData);
+        eventLogger.trackEvent(playbackEvent);
         verify(eventLoggerHandlerFactory).create(any(Looper.class));
     }
 
     @Test
     public void shouldSendTrackingEventToHandler() throws Exception {
-        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN,playbackEventData)).thenReturn(message);
-        eventLogger.trackEvent(playbackEventData);
+        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent)).thenReturn(message);
+        eventLogger.trackEvent(playbackEvent);
         verify(handler).sendMessage(message);
     }
 
     @Test
     public void shouldRemoveFinishTokenOnTrackEvent() throws Exception {
-        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN,playbackEventData)).thenReturn(message);
-        eventLogger.trackEvent(playbackEventData);
+        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent)).thenReturn(message);
+        eventLogger.trackEvent(playbackEvent);
         verify(handler).removeMessages(EventLoggerHandler.FINISH_TOKEN);
     }
 
     @Test
     public void playbackServiceShutdownEventShouldSendFinishToken() throws Exception {
         // send event to start handler
-        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN,playbackEventData)).thenReturn(message);
-        eventLogger.trackEvent(playbackEventData);
+        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent)).thenReturn(message);
+        eventLogger.trackEvent(playbackEvent);
 
-        Event.PLAYBACK_SERVICE_DESTROYED.publish();
+        EventBus.PLAYBACK_SERVICE_DESTROYED.publish();
         verify(finishMessage).sendToTarget();
     }
 
     @Test
     public void shouldCreateNewHandlerAfterShutDown() throws Exception {
-        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN,playbackEventData)).thenReturn(message);
-        eventLogger.trackEvent(playbackEventData);
-        Event.PLAYBACK_SERVICE_DESTROYED.publish();
-        eventLogger.trackEvent(playbackEventData);
+        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent)).thenReturn(message);
+        eventLogger.trackEvent(playbackEvent);
+        EventBus.PLAYBACK_SERVICE_DESTROYED.publish();
+        eventLogger.trackEvent(playbackEvent);
         verify(eventLoggerHandlerFactory, times(2)).create(any(Looper.class));
     }
 }

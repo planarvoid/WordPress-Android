@@ -2,7 +2,7 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.storage.provider.Content;
@@ -156,16 +156,16 @@ public class SearchActivity extends ScActivity {
         final int position = mSpinner.getSelectedItemPosition();
         switch (position) {
             case SPINNER_POS_ALL:
-                Event.SCREEN_ENTERED.publish(Screen.SEARCH_EVERYTHING.get());
+                EventBus.SCREEN_ENTERED.publish(Screen.SEARCH_EVERYTHING.get());
                 break;
             case SPINNER_POS_SOUNDS:
-                Event.SCREEN_ENTERED.publish(Screen.SEARCH_TRACKS.get());
+                EventBus.SCREEN_ENTERED.publish(Screen.SEARCH_TRACKS.get());
                 break;
             case SPINNER_POS_PLAYLISTS:
-                Event.SCREEN_ENTERED.publish(Screen.SEARCH_PLAYLISTS.get());
+                EventBus.SCREEN_ENTERED.publish(Screen.SEARCH_PLAYLISTS.get());
                 break;
             case SPINNER_POS_USERS:
-                Event.SCREEN_ENTERED.publish(Screen.SEARCH_USERS.get());
+                EventBus.SCREEN_ENTERED.publish(Screen.SEARCH_USERS.get());
                 break;
             default:
                 throw new IllegalStateException("Unexpected search filter with position " + position);

@@ -12,9 +12,9 @@ import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.AssociationManager;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackModule;
@@ -263,7 +263,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mPlayerHandler.removeCallbacksAndMessages(null);
 
-        Event.PLAYBACK_SERVICE_DESTROYED.publish();
+        EventBus.PLAYBACK_SERVICE_DESTROYED.publish();
 
         mFocus.abandonMusicFocus(false);
         unregisterReceiver(mIntentReceiver);
@@ -403,8 +403,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     void onTrackEnded(){
 
-        final int stopReason = getPlayQueueInternal().hasNextTrack() ? PlaybackEventData.STOP_REASON_TRACK_FINISHED
-                : PlaybackEventData.STOP_REASON_END_OF_QUEUE;
+        final int stopReason = getPlayQueueInternal().hasNextTrack() ? PlaybackEvent.STOP_REASON_TRACK_FINISHED
+                : PlaybackEvent.STOP_REASON_END_OF_QUEUE;
 
         mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(), stopReason);
         mPlayerHandler.sendEmptyMessage(PlaybackService.TRACK_ENDED);
@@ -520,7 +520,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 if (isMediaPlayerPlaying()) {
                     final boolean changedContext = newTrackSourceInfo != null && !newTrackSourceInfo.sharesSameOrigin(mCurrentTrackSourceInfo);
                     mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(),
-                            changedContext ? PlaybackEventData.STOP_REASON_NEW_QUEUE : PlaybackEventData.STOP_REASON_SKIP);
+                            changedContext ? PlaybackEvent.STOP_REASON_NEW_QUEUE : PlaybackEvent.STOP_REASON_SKIP);
                 }
 
                 mCurrentTrack = track;
@@ -692,7 +692,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         }
         if (!mPlaybackState.isSupposedToBePlaying()) return;
 
-        mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(), PlaybackEventData.STOP_REASON_PAUSE);
+        mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(), PlaybackEvent.STOP_REASON_PAUSE);
 
         safePause();
         notifyChange(Broadcasts.PLAYSTATE_CHANGED);
@@ -1169,7 +1169,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
                     mPlaybackState = PlaybackState.PAUSED_FOR_BUFFERING;
                     mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(),
-                            PlaybackEventData.STOP_REASON_BUFFERING);
+                            PlaybackEvent.STOP_REASON_BUFFERING);
                     notifyChange(Broadcasts.BUFFERING);
                     break;
 
@@ -1288,7 +1288,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             //noinspection ObjectEquality
             if (mp == mMediaPlayer && mPlaybackState != PlaybackState.STOPPED) {
                 mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(),
-                        PlaybackEventData.STOP_REASON_ERROR);
+                        PlaybackEvent.STOP_REASON_ERROR);
                 // when the proxy times out it will just close the connection - different implementations
                 // return different error codes. try to reconnect at least twice before giving up.
                 if (mConnectRetries++ < 4) {

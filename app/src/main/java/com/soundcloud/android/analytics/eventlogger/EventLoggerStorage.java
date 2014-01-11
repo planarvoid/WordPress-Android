@@ -3,7 +3,7 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParams.Action;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.model.ClientUri;
 
 import android.content.ContentValues;
@@ -27,9 +27,9 @@ public class EventLoggerStorage {
         mEventLoggerParamsBuilder = eventLoggerParamsBuilder;
     }
 
-    public long insertEvent(PlaybackEventData playbackEventData){
+    public long insertEvent(PlaybackEvent playbackEvent){
         final SQLiteDatabase database = mDbHelper.getWritableDatabase();
-        return database.insertOrThrow(EventLoggerDbHelper.EVENTS_TABLE, null, createValuesFromPlaybackEvent(playbackEventData));
+        return database.insertOrThrow(EventLoggerDbHelper.EVENTS_TABLE, null, createValuesFromPlaybackEvent(playbackEvent));
     }
 
     public List<Pair<Long, String>> getUnpushedEvents(EventLoggerApi api) {
@@ -64,7 +64,7 @@ public class EventLoggerStorage {
     }
 
 
-    private ContentValues createValuesFromPlaybackEvent(PlaybackEventData params) {
+    private ContentValues createValuesFromPlaybackEvent(PlaybackEvent params) {
         ContentValues values = new ContentValues();
         values.put(EventLoggerDbHelper.TrackingEvents.TIMESTAMP, params.getTimeStamp());
         values.put(EventLoggerDbHelper.TrackingEvents.ACTION, params.isPlayEvent() ? Action.PLAY : Action.STOP);

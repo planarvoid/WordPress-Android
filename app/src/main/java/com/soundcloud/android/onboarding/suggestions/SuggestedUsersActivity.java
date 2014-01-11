@@ -2,7 +2,7 @@ package com.soundcloud.android.onboarding.suggestions;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,7 +27,7 @@ public class SuggestedUsersActivity extends SuggestedUsersBaseActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            Event.SCREEN_ENTERED.publish(Screen.ONBOARDING_MAIN.get());
+            EventBus.SCREEN_ENTERED.publish(Screen.ONBOARDING_MAIN.get());
         }
     }
 

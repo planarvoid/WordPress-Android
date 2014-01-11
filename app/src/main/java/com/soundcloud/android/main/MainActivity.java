@@ -14,6 +14,7 @@ import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.model.User;
@@ -21,7 +22,6 @@ import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.events.Event;
 import com.soundcloud.android.rx.RxModule;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.StorageModule;
@@ -109,7 +109,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
 
-        mSubscription.add(Event.CURRENT_USER_UPDATED.subscribe(userObserver));
+        mSubscription.add(EventBus.CURRENT_USER_UPDATED.subscribe(userObserver));
     }
 
     private NavigationFragment findNavigationFragment() {
@@ -157,18 +157,18 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         final int position = mNavigationFragment.getCurrentSelectedPosition();
         switch (NavigationFragment.NavItem.values()[position]) {
             case STREAM:
-                Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_STREAM.get());
+                EventBus.SCREEN_ENTERED.publish(Screen.SIDE_MENU_STREAM.get());
                 break;
             case EXPLORE:
                 // Publish event for default page in the explore fragment
                 // Doesn't fire in onPageSelected() due to https://code.google.com/p/android/issues/detail?id=27526
-                Event.SCREEN_ENTERED.publish(Screen.EXPLORE_GENRES.get());
+                EventBus.SCREEN_ENTERED.publish(Screen.EXPLORE_GENRES.get());
                 break;
             case LIKES:
-                Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_LIKES.get());
+                EventBus.SCREEN_ENTERED.publish(Screen.SIDE_MENU_LIKES.get());
                 break;
             case PLAYLISTS:
-                Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_PLAYLISTS.get());
+                EventBus.SCREEN_ENTERED.publish(Screen.SIDE_MENU_PLAYLISTS.get());
             default:
                 break; // the remaining content fragments are tracked individually
         }

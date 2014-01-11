@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlaybackEventDataTest {
+public class PlaybackEventTest {
 
     long USER_ID = 1L;
 
@@ -27,15 +27,15 @@ public class PlaybackEventDataTest {
 
     @Test
     public void stopEventSetsTimeElapsedSinceLastPlayEvent() throws Exception {
-        PlaybackEventData playEvent = PlaybackEventData.forPlay(track, USER_ID, trackSourceInfo);
-        final PlaybackEventData stopEvent = PlaybackEventData.forStop(track, USER_ID, trackSourceInfo, playEvent, PlaybackEventData.STOP_REASON_BUFFERING);
+        PlaybackEvent playEvent = PlaybackEvent.forPlay(track, USER_ID, trackSourceInfo);
+        final PlaybackEvent stopEvent = PlaybackEvent.forStop(track, USER_ID, trackSourceInfo, playEvent, PlaybackEvent.STOP_REASON_BUFFERING);
         expect(stopEvent.getListenTime()).toEqual(stopEvent.getTimeStamp() - playEvent.getTimeStamp());
     }
 
     @Test
     public void stopEventSetsStopReason() throws Exception {
-        PlaybackEventData playEvent = PlaybackEventData.forPlay(track, USER_ID, trackSourceInfo);
-        final PlaybackEventData stopEvent = PlaybackEventData.forStop(track, USER_ID, trackSourceInfo, playEvent, PlaybackEventData.STOP_REASON_BUFFERING);
-        expect(stopEvent.getStopReason()).toEqual(PlaybackEventData.STOP_REASON_BUFFERING);
+        PlaybackEvent playEvent = PlaybackEvent.forPlay(track, USER_ID, trackSourceInfo);
+        final PlaybackEvent stopEvent = PlaybackEvent.forStop(track, USER_ID, trackSourceInfo, playEvent, PlaybackEvent.STOP_REASON_BUFFERING);
+        expect(stopEvent.getStopReason()).toEqual(PlaybackEvent.STOP_REASON_BUFFERING);
     }
 }

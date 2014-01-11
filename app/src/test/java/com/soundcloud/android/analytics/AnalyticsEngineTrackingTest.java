@@ -10,8 +10,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.Event;
-import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -50,8 +50,8 @@ public class AnalyticsEngineTrackingTest {
         setAnalyticsEnabled();
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        Event.SCREEN_ENTERED.publish("screen");
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.SCREEN_ENTERED.publish("screen");
 
         verify(analyticsProviderOne).trackScreen(eq("screen"));
         verify(analyticsProviderTwo).trackScreen(eq("screen"));
@@ -62,8 +62,8 @@ public class AnalyticsEngineTrackingTest {
         setAnalyticsDisabled();
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        Event.SCREEN_ENTERED.publish("screen");
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.SCREEN_ENTERED.publish("screen");
 
         verify(analyticsProviderOne, never()).trackScreen(anyString());
         verify(analyticsProviderTwo, never()).trackScreen(anyString());
@@ -74,7 +74,7 @@ public class AnalyticsEngineTrackingTest {
         setAnalyticsEnabled();
         initialiseAnalyticsEngine();
 
-        Event.SCREEN_ENTERED.publish("screen");
+        EventBus.SCREEN_ENTERED.publish("screen");
 
         verify(analyticsProviderOne, never()).trackScreen(anyString());
         verify(analyticsProviderTwo, never()).trackScreen(anyString());
@@ -84,10 +84,10 @@ public class AnalyticsEngineTrackingTest {
     public void shouldOnlySubscribeToEnterScreenEventOncePerSession() {
         setAnalyticsEnabled();
         initialiseAnalyticsEngine();
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
 
-        Event.SCREEN_ENTERED.publish("screen");
+        EventBus.SCREEN_ENTERED.publish("screen");
 
         verify(analyticsProviderOne, times(1)).trackScreen(eq("screen"));
         verify(analyticsProviderTwo, times(1)).trackScreen(eq("screen"));
@@ -99,11 +99,11 @@ public class AnalyticsEngineTrackingTest {
     public void shouldResubscribeToEnterScreenEventAfterOpenCloseSessionCycle() {
         setAnalyticsEnabled();
         initialiseAnalyticsEngine();
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
 
-        Event.SCREEN_ENTERED.publish("screen");
+        EventBus.SCREEN_ENTERED.publish("screen");
 
         verify(analyticsProviderOne, times(1)).trackScreen(eq("screen"));
         verify(analyticsProviderTwo, times(1)).trackScreen(eq("screen"));
@@ -113,11 +113,11 @@ public class AnalyticsEngineTrackingTest {
     public void shouldTrackPlaybackEvent() throws Exception {
         initialiseAnalyticsEngine();
 
-        PlaybackEventData playbackEventData = PlaybackEventData.forPlay(mock(Track.class), 0, Mockito.mock(TrackSourceInfo.class));
-        Event.PLAYBACK.publish(playbackEventData);
+        PlaybackEvent playbackEvent = PlaybackEvent.forPlay(mock(Track.class), 0, Mockito.mock(TrackSourceInfo.class));
+        EventBus.PLAYBACK.publish(playbackEvent);
 
-        verify(analyticsProviderOne, times(1)).trackPlaybackEvent(playbackEventData);
-        verify(analyticsProviderTwo, times(1)).trackPlaybackEvent(playbackEventData);
+        verify(analyticsProviderOne, times(1)).trackPlaybackEvent(playbackEvent);
+        verify(analyticsProviderTwo, times(1)).trackPlaybackEvent(playbackEvent);
     }
 
     @Test
@@ -125,7 +125,7 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         SocialEvent socialEvent = SocialEvent.fromFollow("screen", 0);
-        Event.SOCIAL.publish(socialEvent);
+        EventBus.SOCIAL.publish(socialEvent);
 
         verify(analyticsProviderOne, times(1)).trackSocialEvent(socialEvent);
         verify(analyticsProviderTwo, times(1)).trackSocialEvent(socialEvent);

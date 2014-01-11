@@ -12,8 +12,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.Event;
-import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -64,8 +64,8 @@ public class AnalyticsEngineEventFlushingTest {
         setAnalyticsEnabled();
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        Event.SCREEN_ENTERED.publish("screen");
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.SCREEN_ENTERED.publish("screen");
 
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
@@ -75,8 +75,8 @@ public class AnalyticsEngineEventFlushingTest {
         setAnalyticsEnabled();
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        Event.SCREEN_ENTERED.publish("screen");
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.SCREEN_ENTERED.publish("screen");
 
         ArgumentCaptor<Action0> flushAction = ArgumentCaptor.forClass(Action0.class);
         verify(scheduler).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
@@ -90,8 +90,8 @@ public class AnalyticsEngineEventFlushingTest {
         setAnalyticsEnabled();
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        Event.SCREEN_ENTERED.publish("screen");
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.SCREEN_ENTERED.publish("screen");
 
         ArgumentCaptor<Action0> flushAction = ArgumentCaptor.forClass(Action0.class);
         verify(scheduler).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
@@ -104,8 +104,8 @@ public class AnalyticsEngineEventFlushingTest {
         setAnalyticsEnabled();
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        Event.SCREEN_ENTERED.publish("screen1");
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.SCREEN_ENTERED.publish("screen1");
 
         InOrder inOrder = inOrder(scheduler, scheduler);
 
@@ -113,7 +113,7 @@ public class AnalyticsEngineEventFlushingTest {
         inOrder.verify(scheduler).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
         flushAction.getValue().call(); // finishes the first flush
 
-        Event.SCREEN_ENTERED.publish("screen2");
+        EventBus.SCREEN_ENTERED.publish("screen2");
         inOrder.verify(scheduler).schedule(any(Action0.class), anyLong(), any(TimeUnit.class));
     }
 
@@ -122,9 +122,9 @@ public class AnalyticsEngineEventFlushingTest {
         setAnalyticsEnabled();
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        Event.SCREEN_ENTERED.publish("screen1");
-        Event.SCREEN_ENTERED.publish("screen2");
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.SCREEN_ENTERED.publish("screen1");
+        EventBus.SCREEN_ENTERED.publish("screen2");
 
         verify(scheduler, times(1)).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
@@ -134,8 +134,8 @@ public class AnalyticsEngineEventFlushingTest {
         setAnalyticsDisabled();
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        Event.SCREEN_ENTERED.publish("screen");
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.SCREEN_ENTERED.publish("screen");
 
         verifyZeroInteractions(analyticsProviderOne, analyticsProviderTwo);
     }
@@ -145,7 +145,7 @@ public class AnalyticsEngineEventFlushingTest {
         setAnalyticsEnabled();
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
 
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
@@ -155,7 +155,7 @@ public class AnalyticsEngineEventFlushingTest {
         setAnalyticsEnabled();
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
 
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
@@ -165,7 +165,7 @@ public class AnalyticsEngineEventFlushingTest {
         setAnalyticsEnabled();
         initialiseAnalyticsEngine();
 
-        Event.PLAYBACK.publish(PlaybackEventData.forPlay(new Track(), 1L, mock(TrackSourceInfo.class)));
+        EventBus.PLAYBACK.publish(PlaybackEvent.forPlay(new Track(), 1L, mock(TrackSourceInfo.class)));
 
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
@@ -175,7 +175,7 @@ public class AnalyticsEngineEventFlushingTest {
         setAnalyticsEnabled();
         initialiseAnalyticsEngine();
 
-        Event.SOCIAL.publish(SocialEvent.fromComment("screen", 1L));
+        EventBus.SOCIAL.publish(SocialEvent.fromComment("screen", 1L));
 
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }

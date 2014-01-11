@@ -2,7 +2,7 @@ package com.soundcloud.android.associations;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.activities.Activity;
@@ -39,7 +39,7 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            Event.SCREEN_ENTERED.publish(getCurrentScreen().get());
+            EventBus.SCREEN_ENTERED.publish(getCurrentScreen().get());
         }
     }
 

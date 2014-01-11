@@ -7,8 +7,8 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.Event;
-import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackState;
@@ -79,9 +79,9 @@ public class AnalyticsEngine {
         mPlaybackStateWrapper = playbackStateWrapper;
         mScheduler = scheduler;
 
-        Event.PLAYBACK.subscribe(new PlaybackEventObserver());
-        Event.SOCIAL.subscribe(new SocialEventObserver());
-        Event.ACTIVITY_EVENT.subscribe(new ActivityEventObserver());
+        EventBus.PLAYBACK.subscribe(new PlaybackEventObserver());
+        EventBus.SOCIAL.subscribe(new SocialEventObserver());
+        EventBus.ACTIVITY_LIFECYCLE.subscribe(new ActivityEventObserver());
     }
 
     private void scheduleFlush() {
@@ -156,10 +156,10 @@ public class AnalyticsEngine {
      * This currently will get tracked regardless of Sessions or Analytics settings. Need to make sure this
      * should be the case for all providers, not just {@link EventLoggerAnalyticsProvider}
      */
-    public void trackPlaybackEvent(PlaybackEventData playbackEventData) {
-        Log.d(this, "Track playback event " + playbackEventData);
+    public void trackPlaybackEvent(PlaybackEvent playbackEvent) {
+        Log.d(this, "Track playback event " + playbackEvent);
         for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-            analyticsProvider.trackPlaybackEvent(playbackEventData);
+            analyticsProvider.trackPlaybackEvent(playbackEvent);
         }
     }
 
@@ -186,7 +186,7 @@ public class AnalyticsEngine {
             }
             if (mEnterScreenEventSub == null) {
                 Log.d(this, "Subscribing to SCREEN_ENTERED events");
-                mEnterScreenEventSub = Event.SCREEN_ENTERED.subscribe(new ScreenTrackingObserver());
+                mEnterScreenEventSub = EventBus.SCREEN_ENTERED.subscribe(new ScreenTrackingObserver());
             }
         }
     }
@@ -244,9 +244,9 @@ public class AnalyticsEngine {
         }
     }
 
-    private final class PlaybackEventObserver extends DefaultObserver<PlaybackEventData> {
+    private final class PlaybackEventObserver extends DefaultObserver<PlaybackEvent> {
         @Override
-        public void onNext(PlaybackEventData args) {
+        public void onNext(PlaybackEvent args) {
             Log.d(this, "PlaybackEventObserver onNext: " + args);
             trackPlaybackEvent(args);
             scheduleFlush();

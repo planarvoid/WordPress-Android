@@ -4,7 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.views.PlayableInfoAndEngagementsController;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -83,7 +83,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            Event.SCREEN_ENTERED.publish(Screen.PLAYLIST_DETAILS.get());
+            EventBus.SCREEN_ENTERED.publish(Screen.PLAYLIST_DETAILS.get());
         }
     }
 

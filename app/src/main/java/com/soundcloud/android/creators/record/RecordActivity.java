@@ -6,7 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.creators.upload.UploadActivity;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
@@ -195,9 +195,9 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
 
     private void trackScreen() {
         if (mCurrentState.isEdit()) {
-            Event.SCREEN_ENTERED.publish(Screen.RECORD_EDIT.get());
+            EventBus.SCREEN_ENTERED.publish(Screen.RECORD_EDIT.get());
         } else {
-            Event.SCREEN_ENTERED.publish(Screen.RECORD_MAIN.get());
+            EventBus.SCREEN_ENTERED.publish(Screen.RECORD_MAIN.get());
         }
     }
 
@@ -368,7 +368,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             @Override
             public void onClick(View v) {
                 updateUi(isPlayState() ? CreateState.EDIT_PLAYBACK : CreateState.EDIT);
-                Event.SCREEN_ENTERED.publish(Screen.RECORD_EDIT.get());
+                EventBus.SCREEN_ENTERED.publish(Screen.RECORD_EDIT.get());
             }
         });
         return button;

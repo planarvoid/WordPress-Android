@@ -5,6 +5,7 @@ import static com.soundcloud.android.api.PublicCloudAPI.NotFoundException;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.TempEndpoints;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.ConnectionDAO;
@@ -25,7 +26,6 @@ import com.soundcloud.android.model.activities.Activities;
 import com.soundcloud.android.model.activities.Activity;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
-import com.soundcloud.android.events.Event;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.sync.exception.PlaylistUpdateException;
 import com.soundcloud.android.tasks.FetchUserTask;
@@ -92,7 +92,7 @@ public class ApiSyncer extends SyncStrategy {
                     if (result.success) {
                         mResolver.notifyChange(Content.ME.uri, null);
                         User loggedInUser = SoundCloudApplication.fromContext(mContext).getLoggedInUser();
-                        Event.CURRENT_USER_UPDATED.publish(loggedInUser);
+                        EventBus.CURRENT_USER_UPDATED.publish(loggedInUser);
                     }
                     PreferenceManager.getDefaultSharedPreferences(mContext)
                             .edit()

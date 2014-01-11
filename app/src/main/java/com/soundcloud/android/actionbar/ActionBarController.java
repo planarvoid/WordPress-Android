@@ -6,7 +6,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.provider.Content;
@@ -201,7 +201,7 @@ public class ActionBarController {
         mInSearchMode = !mInSearchMode;
         mOwner.getActivity().supportInvalidateOptionsMenu();
         if (mInSearchMode) {
-            Event.SCREEN_ENTERED.publish(Screen.SEARCH_SUGGESTIONS.get());
+            EventBus.SCREEN_ENTERED.publish(Screen.SEARCH_SUGGESTIONS.get());
         }
     }
 

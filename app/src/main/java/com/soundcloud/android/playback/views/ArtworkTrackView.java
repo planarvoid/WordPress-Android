@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.image.PlayerArtworkLoadListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
@@ -177,7 +177,7 @@ public class ArtworkTrackView extends PlayerTrackView {
             trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
             trackFlipper.showNext();
 
-            Event.SCREEN_ENTERED.publish(Screen.PLAYER_INFO.get());
+            EventBus.SCREEN_ENTERED.publish(Screen.PLAYER_INFO.get());
 
         } else if (!showDetails && trackFlipper.getDisplayedChild() == 1){
             trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));

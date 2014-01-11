@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.TempEndpoints;
 import com.soundcloud.android.associations.AssociationManager;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
@@ -202,7 +202,7 @@ public class AssociationManagerTest {
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, 1L).toUrl(), new TestHttpResponse(201, "OK"));
 
         Observer<SocialEvent> eventObserver = mock(Observer.class);
-        Event.SOCIAL.subscribe(eventObserver);
+        EventBus.SOCIAL.subscribe(eventObserver);
 
         associationManager.setLike(new Track(1L), true, "screen_tag");
 
@@ -218,7 +218,7 @@ public class AssociationManagerTest {
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
 
         Observer<SocialEvent> eventObserver = mock(Observer.class);
-        Event.SOCIAL.subscribe(eventObserver);
+        EventBus.SOCIAL.subscribe(eventObserver);
 
         associationManager.setLike(new Track(1L), false, "screen_tag");
 
@@ -233,7 +233,7 @@ public class AssociationManagerTest {
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, 1L).toUrl(), new TestHttpResponse(201, "OK"));
 
         Observer<SocialEvent> eventObserver = mock(Observer.class);
-        Event.SOCIAL.subscribe(eventObserver);
+        EventBus.SOCIAL.subscribe(eventObserver);
 
         associationManager.setRepost(new Track(1L), true, "screen_tag");
 
@@ -249,7 +249,7 @@ public class AssociationManagerTest {
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
 
         Observer<SocialEvent> eventObserver = mock(Observer.class);
-        Event.SOCIAL.subscribe(eventObserver);
+        EventBus.SOCIAL.subscribe(eventObserver);
 
         associationManager.setRepost(new Track(1L), false, "screen_tag");
 

@@ -14,7 +14,7 @@ import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.creators.record.SoundRecorder;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.main.ScActivity;
@@ -242,7 +242,7 @@ public class ProfileActivity extends ScActivity implements
     @Override
     public void onPageSelected(int position) {
         Tab currentTab = Tab.values()[position];
-        Event.SCREEN_ENTERED.publish(isLoggedInUser() ? currentTab.youScreen.get() : currentTab.userScreen.get());
+        EventBus.SCREEN_ENTERED.publish(isLoggedInUser() ? currentTab.youScreen.get() : currentTab.userScreen.get());
     }
 
     @Override

@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.After;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class AnalyticsEngineSessionHandlingTest {
         setAnalyticsEnabled();
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
 
         verify(analyticsProviderOne).openSession();
         verify(analyticsProviderTwo).openSession();
@@ -54,7 +54,7 @@ public class AnalyticsEngineSessionHandlingTest {
         setAnalyticsEnabled();
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnResume(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnResume(Activity.class));
 
         verify(analyticsProviderOne).openSession();
         verify(analyticsProviderTwo).openSession();
@@ -65,8 +65,8 @@ public class AnalyticsEngineSessionHandlingTest {
         setAnalyticsDisabled();
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnResume(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnResume(Activity.class));
 
         verifyZeroInteractions(analyticsProviderOne);
         verifyZeroInteractions(analyticsProviderTwo);
@@ -78,7 +78,7 @@ public class AnalyticsEngineSessionHandlingTest {
         when(playbackWrapper.isPlayerPlaying()).thenReturn(false);
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
 
         verify(analyticsProviderOne).closeSession();
         verify(analyticsProviderTwo).closeSession();
@@ -90,7 +90,7 @@ public class AnalyticsEngineSessionHandlingTest {
         when(playbackWrapper.isPlayerPlaying()).thenReturn(true);
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
 
         verifyZeroInteractions(analyticsProviderOne);
         verifyZeroInteractions(analyticsProviderTwo);
@@ -102,7 +102,7 @@ public class AnalyticsEngineSessionHandlingTest {
         when(playbackWrapper.isPlayerPlaying()).thenReturn(false);
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
 
         verifyZeroInteractions(analyticsProviderOne);
         verifyZeroInteractions(analyticsProviderTwo);
@@ -114,7 +114,7 @@ public class AnalyticsEngineSessionHandlingTest {
         when(playbackWrapper.isPlayerPlaying()).thenReturn(true);
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
 
         verifyZeroInteractions(analyticsProviderOne);
         verifyZeroInteractions(analyticsProviderTwo);
@@ -125,7 +125,7 @@ public class AnalyticsEngineSessionHandlingTest {
         setAnalyticsEnabled();
         initialiseAnalyticsEngineWithActivitySessionState(false);
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
 
         expect(analyticsEngine.activitySessionIsClosed()).toBeFalse();
     }
@@ -135,7 +135,7 @@ public class AnalyticsEngineSessionHandlingTest {
         setAnalyticsDisabled();
         initialiseAnalyticsEngineWithActivitySessionState(false);
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
 
         expect(analyticsEngine.activitySessionIsClosed()).toBeFalse();
     }
@@ -145,7 +145,7 @@ public class AnalyticsEngineSessionHandlingTest {
         setAnalyticsEnabled();
         initialiseAnalyticsEngineWithActivitySessionState(true);
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
 
         expect(analyticsEngine.activitySessionIsClosed()).toBeTrue();
     }
@@ -155,7 +155,7 @@ public class AnalyticsEngineSessionHandlingTest {
         setAnalyticsDisabled();
         initialiseAnalyticsEngine();
 
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
 
         expect(analyticsEngine.activitySessionIsClosed()).toBeTrue();
     }
@@ -226,9 +226,9 @@ public class AnalyticsEngineSessionHandlingTest {
     private void initialiseAnalyticsEngineWithActivitySessionState(boolean state) {
         initialiseAnalyticsEngine();
         if (state){
-            Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+            EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
         } else {
-            Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
+            EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
         }
     }
 

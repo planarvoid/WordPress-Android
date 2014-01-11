@@ -2,7 +2,7 @@ package com.soundcloud.android.playlists;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
@@ -44,7 +44,7 @@ public class PlaylistOperations {
 
     public Observable<Playlist> createNewPlaylist(
             User currentUser, String title, boolean isPrivate, long firstTrackId, String originScreen) {
-        Event.SOCIAL.publish(SocialEvent.fromAddToPlaylist(originScreen, true, firstTrackId));
+        EventBus.SOCIAL.publish(SocialEvent.fromAddToPlaylist(originScreen, true, firstTrackId));
         // insert the new playlist into the database
         return mPlaylistStorage.createNewUserPlaylistAsync(currentUser, title, isPrivate, firstTrackId)
                 .mapMany(handlePlaylistStored())
@@ -79,7 +79,7 @@ public class PlaylistOperations {
     }
 
     public Observable<Playlist> addTrackToPlaylist(final long playlistId, final long trackId, String originScreen) {
-        Event.SOCIAL.publish(SocialEvent.fromAddToPlaylist(originScreen, false, trackId));
+        EventBus.SOCIAL.publish(SocialEvent.fromAddToPlaylist(originScreen, false, trackId));
         return mPlaylistStorage.loadPlaylistAsync(playlistId).map(new Func1<Playlist, Playlist>() {
             @Override
             public Playlist call(Playlist playlist) {

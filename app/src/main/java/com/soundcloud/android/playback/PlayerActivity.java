@@ -11,7 +11,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.Screen.NoUpDestinationException;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
@@ -125,7 +125,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         if (shouldTrackScreen()) {
             // we track whatever sound gets played first here, and then every subsequent sound through the view pager,
             // to accommodate for lazy loading of sounds
-            Event.SCREEN_ENTERED.publish(Screen.PLAYER_MAIN.get());
+            EventBus.SCREEN_ENTERED.publish(Screen.PLAYER_MAIN.get());
         }
     }
 
@@ -175,7 +175,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 && (mChangeTrackFast || PlaybackService.getPlaybackState().isSupposedToBePlaying()) // responding to transport click or already playing
                 ) {
             sendTrackChangeOnDelay();
-            Event.SCREEN_ENTERED.publish(Screen.PLAYER_MAIN.get());
+            EventBus.SCREEN_ENTERED.publish(Screen.PLAYER_MAIN.get());
         }
         mChangeTrackFast = false;
         mTransportBar.setIsCommenting(mTrackPager.getCurrentItem() == mTrackPagerAdapter.getCommentingPosition());

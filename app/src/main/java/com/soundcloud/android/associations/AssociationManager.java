@@ -4,7 +4,7 @@ package com.soundcloud.android.associations;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
@@ -48,7 +48,7 @@ public class AssociationManager {
         } else {
             socialEvent = SocialEvent.fromUnlike(originScreen, playable);
         }
-        Event.SOCIAL.publish(socialEvent);
+        EventBus.SOCIAL.publish(socialEvent);
         onLikeStatusSet(playable, likeAdded);
         pushToRemote(playable, Content.ME_LIKES, likeAdded, likeListener);
     }
@@ -61,7 +61,7 @@ public class AssociationManager {
         } else {
             socialEvent = SocialEvent.fromUnrepost(originScreen, playable);
         }
-        Event.SOCIAL.publish(socialEvent);
+        EventBus.SOCIAL.publish(socialEvent);
         onRepostStatusSet(playable, repostAdded);
         pushToRemote(playable, Content.ME_REPOSTS, repostAdded, repostListener);
     }

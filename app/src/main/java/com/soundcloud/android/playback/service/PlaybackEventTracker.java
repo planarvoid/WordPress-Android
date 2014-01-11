@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.service;
 
-import com.soundcloud.android.events.Event;
-import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.model.Track;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,7 +9,7 @@ import javax.inject.Inject;
 
 public class PlaybackEventTracker {
 
-    private PlaybackEventData mLastPlayEventData;
+    private PlaybackEvent mLastPlayEventData;
 
     @Inject
     public PlaybackEventTracker() {
@@ -17,15 +17,15 @@ public class PlaybackEventTracker {
 
     public void trackPlayEvent(@Nullable Track track, @Nullable TrackSourceInfo trackSourceInfo, long userId) {
         if (track != null && trackSourceInfo != null) {
-            mLastPlayEventData = PlaybackEventData.forPlay(track, userId, trackSourceInfo);
-            Event.PLAYBACK.publish(mLastPlayEventData);
+            mLastPlayEventData = PlaybackEvent.forPlay(track, userId, trackSourceInfo);
+            EventBus.PLAYBACK.publish(mLastPlayEventData);
         }
     }
 
     public void trackStopEvent(@Nullable Track track, @Nullable TrackSourceInfo trackSourceInfo, long userId, int stopReason) {
         if (mLastPlayEventData != null && track != null && trackSourceInfo != null) {
-            final PlaybackEventData eventData = PlaybackEventData.forStop(track, userId, trackSourceInfo, mLastPlayEventData, stopReason);
-            Event.PLAYBACK.publish(eventData);
+            final PlaybackEvent eventData = PlaybackEvent.forStop(track, userId, trackSourceInfo, mLastPlayEventData, stopReason);
+            EventBus.PLAYBACK.publish(eventData);
             mLastPlayEventData = null;
         }
     }

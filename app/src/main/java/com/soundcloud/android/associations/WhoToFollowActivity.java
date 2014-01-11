@@ -2,7 +2,7 @@ package com.soundcloud.android.associations;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.storage.provider.Content;
@@ -26,7 +26,7 @@ public class WhoToFollowActivity extends ScActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            Event.SCREEN_ENTERED.publish(Screen.WHO_TO_FOLLOW.get());
+            EventBus.SCREEN_ENTERED.publish(Screen.WHO_TO_FOLLOW.get());
         }
     }
 

@@ -1,7 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.content.Context;
@@ -46,7 +46,7 @@ public class EventLoggerHandler extends Handler {
     private void handleTrackingEvent(Message msg) {
         switch (msg.what) {
             case INSERT_TOKEN:
-                final PlaybackEventData params = (PlaybackEventData) msg.obj;
+                final PlaybackEvent params = (PlaybackEvent) msg.obj;
                 long id = mStorage.insertEvent(params);
                 if (id < 0) {
                     Log.w(EventLogger.TAG, "error inserting tracking event");

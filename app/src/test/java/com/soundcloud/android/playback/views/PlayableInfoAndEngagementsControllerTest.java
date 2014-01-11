@@ -7,7 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -49,7 +49,7 @@ public class PlayableInfoAndEngagementsControllerTest {
         controller.setTrack(new Track(1L));
 
         Observer<SocialEvent> eventObserver = mock(Observer.class);
-        Event.SOCIAL.subscribe(eventObserver);
+        EventBus.SOCIAL.subscribe(eventObserver);
 
         rootView.findViewById(R.id.btn_share).performClick();
 
@@ -63,7 +63,7 @@ public class PlayableInfoAndEngagementsControllerTest {
     @Test
     public void shouldNotPublishSocialEventWhenTrackIsNull() {
         Observer<SocialEvent> eventObserver = mock(Observer.class);
-        Event.SOCIAL.subscribe(eventObserver);
+        EventBus.SOCIAL.subscribe(eventObserver);
 
         rootView.findViewById(R.id.btn_share).performClick();
 

@@ -14,7 +14,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.ScModel;
@@ -228,7 +228,7 @@ public class FollowingOperationsTest {
     @Test
     public void shouldPublishSocialEventWhenFollowingUser() throws Exception {
         Observer<SocialEvent> eventObserver = mock(Observer.class);
-        Event.SOCIAL.subscribe(eventObserver);
+        EventBus.SOCIAL.subscribe(eventObserver);
         ops.addFollowing(Screen.ACTIVITIES, user).subscribe(observer);
         ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
         verify(eventObserver).onNext(socialEvent.capture());
@@ -238,7 +238,7 @@ public class FollowingOperationsTest {
     @Test
     public void shouldPublishSocialEventWhenUnfollowingUser() throws Exception {
         Observer<SocialEvent> eventObserver = mock(Observer.class);
-        Event.SOCIAL.subscribe(eventObserver);
+        EventBus.SOCIAL.subscribe(eventObserver);
         ops.removeFollowing(Screen.ACTIVITIES, user).subscribe(observer);
         ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
         verify(eventObserver).onNext(socialEvent.capture());

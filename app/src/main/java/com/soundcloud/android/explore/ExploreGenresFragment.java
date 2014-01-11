@@ -9,7 +9,7 @@ import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
-import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;
@@ -86,7 +86,7 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
         int adjustedPosition = position - ((ListView) parent).getHeaderViewsCount();
         ExploreGenre category = mGenresAdapter.getItem(adjustedPosition);
 
-        Event.SCREEN_ENTERED.publish(view.getTag());
+        EventBus.SCREEN_ENTERED.publish(view.getTag());
 
         intent.putExtra(ExploreGenre.EXPLORE_GENRE_EXTRA, category);
         intent.putExtra(ExploreTracksFragment.SCREEN_TAG_EXTRA, view.getTag().toString());
