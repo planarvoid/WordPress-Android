@@ -148,10 +148,10 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
      */
     private void closeSessionForActivity() {
         ACTIVITY_SESSION_OPEN.set(false);
-        if (!mPlaybackStateWrapper.isPlayerPlaying()) {
-            closeSession();
-        } else {
+        if (mPlaybackStateWrapper.isPlayerPlaying()) {
             Log.d(this, "Didn't close analytics session; playback service still alive and well!");
+        } else {
+            closeSession();
         }
     }
 

@@ -30,6 +30,8 @@ public class EventLoggerTest {
     @Mock
     Message message;
     @Mock
+    Message flushMessage;
+    @Mock
     Message finishMessage;
 
     @Before
@@ -55,6 +57,15 @@ public class EventLoggerTest {
         when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent)).thenReturn(message);
         eventLogger.trackEvent(playbackEvent);
         verify(handler).sendMessage(message);
+    }
+
+    @Test
+    public void shouldSendFlushEventToHandler() {
+        eventLogger.trackEvent(playbackEvent); // make sure handler is alive
+
+        when(handler.obtainMessage(EventLoggerHandler.FLUSH_TOKEN)).thenReturn(flushMessage);
+        eventLogger.flush();
+        verify(flushMessage).sendToTarget();
     }
 
     @Test

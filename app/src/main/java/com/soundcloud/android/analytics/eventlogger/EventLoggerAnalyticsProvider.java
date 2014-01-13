@@ -33,6 +33,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void flush() {
+        mEventLogger.flush();
     }
 
     @Override

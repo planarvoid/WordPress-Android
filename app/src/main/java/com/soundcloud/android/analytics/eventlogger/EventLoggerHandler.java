@@ -15,8 +15,6 @@ import java.util.List;
 
 public class EventLoggerHandler extends Handler {
 
-    // service stop delay is 60s, this is bigger to avoid simultaneous flushes
-    private static final int FLUSH_DELAY   = 90 * 1000;
     static final int BATCH_SIZE    = 10;
 
     static final int INSERT_TOKEN = 0;
@@ -51,8 +49,6 @@ public class EventLoggerHandler extends Handler {
                 if (id < 0) {
                     Log.w(EventLogger.TAG, "error inserting tracking event");
                 }
-                removeMessages(FLUSH_TOKEN);
-                sendMessageDelayed(obtainMessage(FLUSH_TOKEN), FLUSH_DELAY);
                 break;
 
             case FLUSH_TOKEN:

@@ -37,6 +37,12 @@ public class EventLoggerAnalyticsProviderTest {
         verify(eventLogger).trackEvent(mock);
     }
 
+    @Test
+    public void shouldForwardFlushCallToEventLogger() {
+        eventLoggerAnalyticsProvider.flush();
+        verify(eventLogger).flush();
+    }
+
     @Module(library = true, injects = EventLoggerAnalyticsProviderTest.class)
     public class TestModule {
         @Provides

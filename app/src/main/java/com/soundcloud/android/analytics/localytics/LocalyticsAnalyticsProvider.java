@@ -36,7 +36,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void closeSession() {
         mLocalyticsSession.close();
-        mLocalyticsSession.upload();
     }
 
     @Override

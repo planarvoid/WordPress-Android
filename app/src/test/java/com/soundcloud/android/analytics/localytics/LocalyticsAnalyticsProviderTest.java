@@ -59,15 +59,15 @@ public class LocalyticsAnalyticsProviderTest {
     }
 
     @Test
-    public void shouldUploadDataWhenClosingSession(){
-        localyticsProvider.closeSession();
-        verify(localyticsSession).upload();
-    }
-
-    @Test
     public void shouldCloseSession(){
         localyticsProvider.closeSession();
         verify(localyticsSession).close();
+    }
+
+    @Test
+    public void shouldUploadDataWhenFlushing(){
+        localyticsProvider.flush();
+        verify(localyticsSession).upload();
     }
 
     @Test

@@ -49,6 +49,10 @@ public class EventLogger {
         mShutdownSubscription.unsubscribe();
     }
 
+    void flush() {
+        mHandler.obtainMessage(EventLoggerHandler.FLUSH_TOKEN).sendToTarget();
+    }
+
     private class PlaybackServiceDestroyedObserver extends DefaultObserver<Void> {
         @Override
         public void onNext(Void args) {
