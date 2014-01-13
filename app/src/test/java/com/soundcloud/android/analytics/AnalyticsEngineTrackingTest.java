@@ -1,9 +1,11 @@
 package com.soundcloud.android.analytics;
 
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -217,6 +219,27 @@ public class AnalyticsEngineTrackingTest {
 
         verify(analyticsProviderOne, times(1)).trackSocialEvent(socialEvent);
         verify(analyticsProviderTwo, times(1)).trackSocialEvent(socialEvent);
+    }
+
+    @Test
+    public void shouldIsolateProvidersExceptions() throws Exception {
+        setAnalyticsEnabledViaSettings();
+        initialiseAnalyticsEngine();
+
+        doThrow(new RuntimeException()).when(analyticsProviderOne).openSession();
+        doThrow(new RuntimeException()).when(analyticsProviderOne).trackPlaybackEvent(any(PlaybackEvent.class));
+        doThrow(new RuntimeException()).when(analyticsProviderOne).trackScreen(anyString());
+        doThrow(new RuntimeException()).when(analyticsProviderOne).trackSocialEvent(any(SocialEvent.class));
+
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        EventBus.PLAYBACK.publish(PlaybackEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
+        EventBus.SCREEN_ENTERED.publish("screen");
+        EventBus.SOCIAL.publish(SocialEvent.fromFollow("screen", 0));
+
+        verify(analyticsProviderTwo).openSession();
+        verify(analyticsProviderTwo).trackPlaybackEvent(any(PlaybackEvent.class));
+        verify(analyticsProviderTwo).trackScreen(anyString());
+        verify(analyticsProviderTwo).trackSocialEvent(any(SocialEvent.class));
     }
 
     private void setAnalyticsDisabledViaSettings() {

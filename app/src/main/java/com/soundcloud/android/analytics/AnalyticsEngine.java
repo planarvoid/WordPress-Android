@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
@@ -181,7 +182,11 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         if (ACTIVITY_SESSION_OPEN.get()) {
             Log.d(this, "Track screen " + screenTag);
             for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-                analyticsProvider.trackScreen(screenTag);
+                try {
+                    analyticsProvider.trackScreen(screenTag);
+                } catch (Throwable t) {
+                    handleProviderError(t, analyticsProvider, "trackScreen");
+                }
             }
         }
     }
@@ -195,7 +200,11 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     public void trackPlaybackEvent(PlaybackEvent playbackEvent) {
         Log.d(this, "Track playback event " + playbackEvent);
         for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-            analyticsProvider.trackPlaybackEvent(playbackEvent);
+            try {
+                analyticsProvider.trackPlaybackEvent(playbackEvent);
+            } catch (Throwable t) {
+                handleProviderError(t, analyticsProvider, "trackPlaybackEvent");
+            }
         }
     }
 
@@ -205,7 +214,11 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     public void trackSocialEvent(SocialEvent event) {
         Log.d(this, "Track social event " + event);
         for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-            analyticsProvider.trackSocialEvent(event);
+            try {
+                analyticsProvider.trackSocialEvent(event);
+            } catch (Throwable t) {
+                handleProviderError(t, analyticsProvider, "trackSocialEvent");
+            }
         }
     }
 
@@ -217,15 +230,30 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private void openSession() {
         Log.d(this, "Open session");
         for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-            analyticsProvider.openSession();
+            try {
+                analyticsProvider.openSession();
+            } catch (Throwable t) {
+                handleProviderError(t, analyticsProvider, "openSession");
+            }
         }
     }
 
     private void closeSession() {
         Log.d(this, "Close session");
         for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-            analyticsProvider.closeSession();
+            try {
+                analyticsProvider.closeSession();
+            } catch (Throwable t) {
+                handleProviderError(t, analyticsProvider, "closeSession");
+            }
         }
+    }
+
+    private void handleProviderError(Throwable t, AnalyticsProvider provider, String methodName) {
+        final String message = String.format("exception while processing %s for provider %s, with error = %s",
+                methodName, provider.getClass(), t.toString());
+        Log.e(this, message);
+        SoundCloudApplication.handleSilentException(message, t);
     }
 
     //To make testing easier

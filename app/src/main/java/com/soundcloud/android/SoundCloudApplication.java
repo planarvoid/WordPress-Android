@@ -228,7 +228,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
     public static void handleSilentException(@Nullable String message, Throwable e) {
         if (ApplicationProperties.shouldReportCrashes()) {
-            Log.e(TAG, "Handling silent exception L " + message, e);
+            Log.e(TAG, "Handling silent exception: " + message, e);
             Crashlytics.logException(e);
         }
     }
