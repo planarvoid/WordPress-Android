@@ -7,22 +7,22 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 
-public class PlaybackEventTracker {
+public class PlaybackEventSource {
 
     private PlaybackEvent mLastPlayEventData;
 
     @Inject
-    public PlaybackEventTracker() {
+    public PlaybackEventSource() {
     }
 
-    public void trackPlayEvent(@Nullable Track track, @Nullable TrackSourceInfo trackSourceInfo, long userId) {
+    public void publishPlayEvent(@Nullable Track track, @Nullable TrackSourceInfo trackSourceInfo, long userId) {
         if (track != null && trackSourceInfo != null) {
             mLastPlayEventData = PlaybackEvent.forPlay(track, userId, trackSourceInfo);
             EventBus.PLAYBACK.publish(mLastPlayEventData);
         }
     }
 
-    public void trackStopEvent(@Nullable Track track, @Nullable TrackSourceInfo trackSourceInfo, long userId, int stopReason) {
+    public void publishStopEvent(@Nullable Track track, @Nullable TrackSourceInfo trackSourceInfo, long userId, int stopReason) {
         if (mLastPlayEventData != null && track != null && trackSourceInfo != null) {
             final PlaybackEvent eventData = PlaybackEvent.forStop(track, userId, trackSourceInfo, mLastPlayEventData, stopReason);
             EventBus.PLAYBACK.publish(eventData);

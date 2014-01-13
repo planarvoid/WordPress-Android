@@ -18,12 +18,12 @@ import rx.Observer;
 import rx.Subscription;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlaybackEventTrackerTest {
+public class PlaybackEventSourceTest {
 
     private static final long USER_ID = 123L;
     private static final long WAIT_TIME = 50L;
 
-    private PlaybackEventTracker playbackEventTracker;
+    private PlaybackEventSource playbackEventSource;
     private Track track;
 
     @Mock
@@ -34,13 +34,13 @@ public class PlaybackEventTrackerTest {
     @Before
     public void setUp() throws Exception {
         track = TestHelper.getModelFactory().createModel(Track.class);
-        playbackEventTracker = new PlaybackEventTracker();
+        playbackEventSource = new PlaybackEventSource();
     }
 
     @Test
     public void trackPlayEventPublishesPlaybackEventWithPlaybackEventData() throws Exception {
         Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackPlayEvent(track, trackSourceInfo, USER_ID);
+        playbackEventSource.publishPlayEvent(track, trackSourceInfo, USER_ID);
 
         ArgumentCaptor<PlaybackEvent> captor = ArgumentCaptor.forClass(PlaybackEvent.class);
         verify(observer).onNext(captor.capture());
@@ -58,16 +58,16 @@ public class PlaybackEventTrackerTest {
     @Test
     public void trackStopEventDoesNothingWhenCallingStopAfterNoPlayEvent() throws Exception {
         Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID, 0);
+        playbackEventSource.publishStopEvent(track, trackSourceInfo, USER_ID, 0);
         verifyZeroInteractions(observer);
         subscription.unsubscribe();
     }
 
     @Test
     public void trackStopEventPublishesPlaybackEventWithPlaybackEventDataAfterInitialPlayEvent() throws Exception {
-        playbackEventTracker.trackPlayEvent(track, trackSourceInfo, USER_ID);
+        playbackEventSource.publishPlayEvent(track, trackSourceInfo, USER_ID);
         Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID, PlaybackEvent.STOP_REASON_BUFFERING);
+        playbackEventSource.publishStopEvent(track, trackSourceInfo, USER_ID, PlaybackEvent.STOP_REASON_BUFFERING);
 
         ArgumentCaptor<PlaybackEvent> captor = ArgumentCaptor.forClass(PlaybackEvent.class);
         verify(observer).onNext(captor.capture());
@@ -85,10 +85,10 @@ public class PlaybackEventTrackerTest {
 
     @Test
     public void trackStopEventDoesNothingWhenCallingStopAfterPlayEventConsumed() throws Exception {
-        playbackEventTracker.trackPlayEvent(track, trackSourceInfo, USER_ID);
-        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID, 0);
+        playbackEventSource.publishPlayEvent(track, trackSourceInfo, USER_ID);
+        playbackEventSource.publishStopEvent(track, trackSourceInfo, USER_ID, 0);
         Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID, 0);
+        playbackEventSource.publishStopEvent(track, trackSourceInfo, USER_ID, 0);
         verifyZeroInteractions(observer);
         subscription.unsubscribe();
     }
@@ -96,7 +96,7 @@ public class PlaybackEventTrackerTest {
     @Test
     public void trackPlayEventShouldSkipNullTracks() {
         Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackPlayEvent(null, trackSourceInfo, USER_ID);
+        playbackEventSource.publishPlayEvent(null, trackSourceInfo, USER_ID);
         verifyZeroInteractions(observer);
         subscription.unsubscribe();
     }
@@ -104,25 +104,25 @@ public class PlaybackEventTrackerTest {
     @Test
     public void trackPlayEventShouldSkipNullSourceInfo() {
         Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackPlayEvent(track, null, USER_ID);
+        playbackEventSource.publishPlayEvent(track, null, USER_ID);
         verifyZeroInteractions(observer);
         subscription.unsubscribe();
     }
 
     @Test
     public void trackStopEventShouldSkipNullTracks() {
-        playbackEventTracker.trackPlayEvent(track, trackSourceInfo, USER_ID);
+        playbackEventSource.publishPlayEvent(track, trackSourceInfo, USER_ID);
         Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackStopEvent(null, trackSourceInfo, USER_ID, 0);
+        playbackEventSource.publishStopEvent(null, trackSourceInfo, USER_ID, 0);
         verifyZeroInteractions(observer);
         subscription.unsubscribe();
     }
 
     @Test
     public void trackStopEventShouldSkipNullSourceInfo() {
-        playbackEventTracker.trackPlayEvent(track, trackSourceInfo, USER_ID);
+        playbackEventSource.publishPlayEvent(track, trackSourceInfo, USER_ID);
         Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackStopEvent(track, null, USER_ID, 0);
+        playbackEventSource.publishStopEvent(track, null, USER_ID, 0);
         verifyZeroInteractions(observer);
         subscription.unsubscribe();
     }
