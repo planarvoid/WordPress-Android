@@ -89,7 +89,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    public final void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (SettingsActivity.ANALYTICS_ENABLED.equals(key)) {
             handleAnalyticsAvailability(sharedPreferences);
         }

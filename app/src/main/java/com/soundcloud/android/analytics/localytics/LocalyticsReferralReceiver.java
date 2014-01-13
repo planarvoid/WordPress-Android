@@ -13,7 +13,7 @@ public class LocalyticsReferralReceiver extends ReferralReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        AnalyticsProperties analyticsProperties = new AnalyticsProperties(context.getResources(), preferences);
+        AnalyticsProperties analyticsProperties = new AnalyticsProperties(context.getResources());
         appKey = analyticsProperties.getLocalyticsAppKey();
         super.onReceive(context, intent);
     }

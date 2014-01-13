@@ -7,14 +7,13 @@ import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 import com.google.common.base.Objects;
 import com.soundcloud.android.R;
 
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 
 public class AnalyticsProperties {
     private final String mLocalyticsAppKey;
-    private boolean mAnalyticsAvailable;
+    private final boolean mAnalyticsAvailable;
 
-    public AnalyticsProperties(Resources resources, SharedPreferences preferences) {
+    public AnalyticsProperties(Resources resources) {
         mAnalyticsAvailable = resources.getBoolean(R.bool.analytics_enabled);
         mLocalyticsAppKey = resources.getString(R.string.localytics_app_key);
         checkArgument(isNotBlank(mLocalyticsAppKey), "Localytics keys must be provided");

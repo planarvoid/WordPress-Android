@@ -141,7 +141,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     }
 
     private void setupAnalytics(SharedPreferences sharedPreferences, ApplicationProperties appProperties) {
-        AnalyticsProperties analyticsProperties = new AnalyticsProperties(getResources(), sharedPreferences);
+        AnalyticsProperties analyticsProperties = new AnalyticsProperties(getResources());
         Log.d(TAG, analyticsProperties.toString());
         mAnalyticsEngine = new AnalyticsEngine(this, sharedPreferences, analyticsProperties);
         Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && appProperties.isDebugBuild();
