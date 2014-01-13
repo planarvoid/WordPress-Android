@@ -28,7 +28,7 @@ public class EventLogger {
 
     public void trackEvent(PlaybackEvent playbackEvent) {
         if (mHandler == null) {
-            HandlerThread thread = new HandlerThread("PlayEvent-tracking", THREAD_PRIORITY_LOWEST);
+            HandlerThread thread = new HandlerThread("EventLogger", THREAD_PRIORITY_LOWEST);
             thread.start();
             mHandler = mEventLoggerHandlerFactory.create(thread.getLooper());
 
