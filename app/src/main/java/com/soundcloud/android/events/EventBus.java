@@ -1,6 +1,7 @@
 package com.soundcloud.android.events;
 
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.utils.Log;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.concurrency.AndroidSchedulers;
@@ -42,6 +43,7 @@ public enum EventBus {
      */
     @SuppressWarnings("unchecked")
     public <T> Subscription subscribe(Observer<T> observer) {
+        Log.d(this, "subscribing to queue " + name());
         return QUEUE.observeOn(AndroidSchedulers.mainThread()).subscribe(observer);
     }
 
@@ -56,6 +58,7 @@ public enum EventBus {
 
     @SuppressWarnings("unchecked")
     public void publish(Object eventData) {
+        Log.d(this, "publishing event: queue = " + name() + "; data = " + eventData);
         if (!eventData.getClass().isAssignableFrom(eventDataType)) {
             throw new IllegalArgumentException("Cannot publish event data of type " +
                     eventData.getClass().getCanonicalName() +
@@ -66,6 +69,7 @@ public enum EventBus {
 
     @SuppressWarnings("unchecked")
     public void publish() {
+        Log.d(this, "publishing event: queue = " + name() + "; <no data>");
         if (eventDataType != Void.class) {
             throw new IllegalArgumentException("Event Data required; expected " + eventDataType.getCanonicalName());
         }
