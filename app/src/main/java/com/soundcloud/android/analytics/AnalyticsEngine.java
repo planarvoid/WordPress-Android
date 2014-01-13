@@ -42,7 +42,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     @VisibleForTesting
     static final AtomicBoolean ACTIVITY_SESSION_OPEN = new AtomicBoolean();
     @VisibleForTesting
-    static final long FLUSH_DELAY_SECONDS = 5L; // FIXME: set to realistic value
+    static final long FLUSH_DELAY_SECONDS = 120L;
 
     private final Collection<AnalyticsProvider> mAnalyticsProviders;
     private final AnalyticsProperties mAnalyticsProperties;
