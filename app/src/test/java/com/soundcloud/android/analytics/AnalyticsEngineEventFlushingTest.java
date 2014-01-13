@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics;
 
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
@@ -17,6 +18,7 @@ import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
+import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.After;
 import org.junit.Before;
@@ -30,6 +32,7 @@ import rx.Subscription;
 import rx.util.functions.Action0;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 
 import java.util.concurrent.TimeUnit;
 
@@ -38,6 +41,8 @@ public class AnalyticsEngineEventFlushingTest {
     private AnalyticsEngine analyticsEngine;
     @Mock
     private AnalyticsProperties analyticsProperties;
+    @Mock
+    private SharedPreferences sharedPreferences;
     @Mock
     private AnalyticsProvider analyticsProviderOne;
     @Mock
@@ -61,7 +66,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldScheduleToFlushEventDataOnFirstTrackingEvent() {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
@@ -72,7 +77,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void flushActionShouldCallFlushOnAllProviders() {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
@@ -87,7 +92,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void successfulFlushShouldResetSubscription() {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
@@ -101,7 +106,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldRescheduleFlushForTrackingEventAfterPreviousFlushFinished() {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
@@ -119,7 +124,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldNotScheduleFlushIfFlushIsAlreadyScheduled() {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
@@ -131,7 +136,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldNotFlushIfAnalyticsDisabled() {
-        setAnalyticsDisabled();
+        setAnalyticsDisabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
@@ -142,7 +147,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldScheduleFlushesFromOpenSessionEvents() {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
@@ -152,7 +157,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldScheduleFlushesFromCloseSessionEvents() {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
@@ -162,7 +167,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldScheduleFlushesFromPlaybackEvents() {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.PLAYBACK.publish(PlaybackEvent.forPlay(new Track(), 1L, mock(TrackSourceInfo.class)));
@@ -172,7 +177,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldScheduleFlushesFromSocialEvents() {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.SOCIAL.publish(SocialEvent.fromComment("screen", 1L));
@@ -180,18 +185,18 @@ public class AnalyticsEngineEventFlushingTest {
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
-    private void setAnalyticsDisabled() {
-        when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
-        when(analyticsProperties.isAnalyticsEnabled()).thenReturn(false);
+    private void setAnalyticsDisabledViaSettings() {
+        when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
+        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(false);
     }
 
-    private void setAnalyticsEnabled() {
-        when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
-        when(analyticsProperties.isAnalyticsEnabled()).thenReturn(true);
+    private void setAnalyticsEnabledViaSettings() {
+        when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
+        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(true);
     }
 
     private void initialiseAnalyticsEngine() {
-        analyticsEngine = new AnalyticsEngine(analyticsProperties, playbackWrapper, scheduler,
+        analyticsEngine = new AnalyticsEngine(sharedPreferences, analyticsProperties, playbackWrapper, scheduler,
                 analyticsProviderOne, analyticsProviderTwo);
     }
 

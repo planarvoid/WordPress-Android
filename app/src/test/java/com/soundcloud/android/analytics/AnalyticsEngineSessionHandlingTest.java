@@ -2,6 +2,8 @@ package com.soundcloud.android.analytics;
 
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -10,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.After;
 import org.junit.Test;
@@ -18,12 +21,15 @@ import org.mockito.Mock;
 import rx.Scheduler;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AnalyticsEngineSessionHandlingTest {
     private AnalyticsEngine analyticsEngine;
     @Mock
     private AnalyticsProperties analyticsProperties;
+    @Mock
+    private SharedPreferences sharedPreferences;
     @Mock
     private AnalyticsProvider analyticsProviderOne;
     @Mock
@@ -40,7 +46,7 @@ public class AnalyticsEngineSessionHandlingTest {
 
     @Test
     public void shouldCallOpenSessionOnAllProvidersWhenActivityCreated() {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
@@ -51,7 +57,7 @@ public class AnalyticsEngineSessionHandlingTest {
 
     @Test
     public void shouldCallOpenSessionOnAllProvidersWhenActivityResumed() {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnResume(Activity.class));
@@ -62,7 +68,7 @@ public class AnalyticsEngineSessionHandlingTest {
 
     @Test
     public void shouldNotCallOpenSessionOnAnyProvidersIfAnalyticsDisabled(){
-        setAnalyticsDisabled();
+        setAnalyticsDisabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
@@ -74,7 +80,7 @@ public class AnalyticsEngineSessionHandlingTest {
 
     @Test
     public void shouldCallCloseSessionOnAllProvidersWhenActivityPausedAndPlayerNotPlaying(){
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         when(playbackWrapper.isPlayerPlaying()).thenReturn(false);
         initialiseAnalyticsEngine();
 
@@ -86,7 +92,7 @@ public class AnalyticsEngineSessionHandlingTest {
 
     @Test
     public void shouldNotCallCloseSessionOnAnyProvidersIfPlayerIsPlaying(){
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         when(playbackWrapper.isPlayerPlaying()).thenReturn(true);
         initialiseAnalyticsEngine();
 
@@ -98,7 +104,7 @@ public class AnalyticsEngineSessionHandlingTest {
 
     @Test
     public void shouldNotCallCloseSessionOnAnyProvidersIfAnalyticsDisabledAndPlayerIsNotPlaying(){
-        setAnalyticsDisabled();
+        setAnalyticsDisabledViaSettings();
         when(playbackWrapper.isPlayerPlaying()).thenReturn(false);
         initialiseAnalyticsEngine();
 
@@ -110,7 +116,7 @@ public class AnalyticsEngineSessionHandlingTest {
 
     @Test
     public void shouldNotCallCloseSessionOnAnyProvidersIfAnalyticsDisabledAndPlayerIsPlaying(){
-        setAnalyticsDisabled();
+        setAnalyticsDisabledViaSettings();
         when(playbackWrapper.isPlayerPlaying()).thenReturn(true);
         initialiseAnalyticsEngine();
 
@@ -122,37 +128,37 @@ public class AnalyticsEngineSessionHandlingTest {
 
     @Test
     public void shouldSetTheActivitySessionStateToTrueWhenOpeningActivitySession(){
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngineWithActivitySessionState(false);
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
 
-        expect(analyticsEngine.activitySessionIsClosed()).toBeFalse();
+        expect(analyticsEngine.isActivitySessionClosed()).toBeFalse();
     }
 
     @Test
     public void shouldSetTheActivitySessionStateToFalseWhenClosingActivitySessionAndAnalyticsEnabled(){
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngineWithActivitySessionState(true);
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
 
-        expect(analyticsEngine.activitySessionIsClosed()).toBeTrue();
+        expect(analyticsEngine.isActivitySessionClosed()).toBeTrue();
     }
 
     @Test
     public void shouldSetTheActivitySessionStateToFalseWhenClosingActivitySessionAndAnalyticsIsDisabled(){
-        setAnalyticsDisabled();
+        setAnalyticsDisabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
 
-        expect(analyticsEngine.activitySessionIsClosed()).toBeTrue();
+        expect(analyticsEngine.isActivitySessionClosed()).toBeTrue();
     }
 
     @Test
     public void shouldOpenPlayerSessionWhenAnalyticsEnabled(){
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         analyticsEngine.openSessionForPlayer();
@@ -163,7 +169,7 @@ public class AnalyticsEngineSessionHandlingTest {
 
     @Test
     public void shouldNotOpenPlayerSessionWhenAnalyticsIsDisabled(){
-        setAnalyticsDisabled();
+        setAnalyticsDisabledViaSettings();
         initialiseAnalyticsEngine();
 
         analyticsEngine.openSessionForPlayer();
@@ -173,7 +179,7 @@ public class AnalyticsEngineSessionHandlingTest {
 
     @Test
     public void shouldClosePlayerSessionIfAnalyticsEnabledAndNoActivitySessionIsOpen(){
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngineWithActivitySessionState(false);
 
         analyticsEngine.closeSessionForPlayer();
@@ -184,7 +190,7 @@ public class AnalyticsEngineSessionHandlingTest {
 
     @Test
     public void shouldNotClosePlayerSessionIfAnalyticsDisabledAndActivitySessionIsOpen(){
-        setAnalyticsDisabled();
+        setAnalyticsDisabledViaSettings();
         initialiseAnalyticsEngineWithActivitySessionState(true);
 
         analyticsEngine.closeSessionForPlayer();
@@ -194,7 +200,7 @@ public class AnalyticsEngineSessionHandlingTest {
 
     @Test
     public void shouldNotClosePlayerSessionIfAnalyticsEnabledAndActivitySessionIsOpen(){
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngineWithActivitySessionState(true);
 
         analyticsEngine.closeSessionForPlayer();
@@ -203,14 +209,14 @@ public class AnalyticsEngineSessionHandlingTest {
         verify(analyticsProviderTwo, never()).closeSession();
     }
 
-    private void setAnalyticsDisabled() {
-        when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
-        when(analyticsProperties.isAnalyticsEnabled()).thenReturn(false);
+    private void setAnalyticsDisabledViaSettings() {
+        when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
+        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(false);
     }
 
-    private void setAnalyticsEnabled() {
-        when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
-        when(analyticsProperties.isAnalyticsEnabled()).thenReturn(true);
+    private void setAnalyticsEnabledViaSettings() {
+        when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
+        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(true);
     }
 
     private void initialiseAnalyticsEngineWithActivitySessionState(boolean state) {
@@ -223,7 +229,7 @@ public class AnalyticsEngineSessionHandlingTest {
     }
 
     private void initialiseAnalyticsEngine() {
-        analyticsEngine = new AnalyticsEngine(analyticsProperties, playbackWrapper, scheduler,
+        analyticsEngine = new AnalyticsEngine(sharedPreferences, analyticsProperties, playbackWrapper, scheduler,
                 analyticsProviderOne, analyticsProviderTwo);
     }
 

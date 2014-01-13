@@ -1,12 +1,14 @@
 package com.soundcloud.android.analytics;
 
 
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
@@ -15,6 +17,7 @@ import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
+import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.After;
 import org.junit.Test;
@@ -24,6 +27,7 @@ import org.mockito.Mockito;
 import rx.Scheduler;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AnalyticsEngineTrackingTest {
@@ -31,6 +35,8 @@ public class AnalyticsEngineTrackingTest {
     private AnalyticsEngine analyticsEngine;
     @Mock
     private AnalyticsProperties analyticsProperties;
+    @Mock
+    private SharedPreferences sharedPreferences;
     @Mock
     private AnalyticsProvider analyticsProviderOne;
     @Mock
@@ -41,13 +47,105 @@ public class AnalyticsEngineTrackingTest {
     private Scheduler scheduler;
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         AnalyticsEngine.ACTIVITY_SESSION_OPEN.set(false);
+        analyticsEngine.unsubscribeFromEvents();
+    }
+
+    @Test
+    public void shouldNotSubscribeToEventsIfAnalyticsDisabledForBuild() {
+        setAnalyticsEnabledViaSettings();
+        when(analyticsProperties.isAnalyticsAvailable()).thenReturn(false);
+
+        initialiseAnalyticsEngine();
+
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+
+        verifyZeroInteractions(analyticsProviderOne);
+        verifyZeroInteractions(analyticsProviderTwo);
+    }
+
+    @Test
+    public void shouldNotSubscribeToEventsIfAnalyticsEnabledForBuildButDisabledInSettings() {
+        setAnalyticsDisabledViaSettings();
+
+        initialiseAnalyticsEngine();
+
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+
+        verifyZeroInteractions(analyticsProviderOne);
+        verifyZeroInteractions(analyticsProviderTwo);
+    }
+
+    @Test
+    public void shouldUnsubscribeFromEventsIfAnalyticsWasEnabledThenBecomesDisabledViaSettings() {
+        setAnalyticsEnabledViaSettings();
+
+        initialiseAnalyticsEngine();
+        // send the first event; should arrive
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+
+        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(false);
+        analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingsActivity.ANALYTICS_ENABLED);
+
+        // send the second event; should NOT arrive
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+
+        verify(analyticsProviderOne, times(1)).openSession();
+        verify(analyticsProviderTwo, times(1)).openSession();
+    }
+
+    @Test
+    public void shouldResubscribeToEventsIfAnalyticsWasDisabledThenBecomesEnabledViaSettings() {
+        setAnalyticsDisabledViaSettings();
+
+        initialiseAnalyticsEngine();
+        // send the first event; should not arrive
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+
+        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(true);
+        analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingsActivity.ANALYTICS_ENABLED);
+
+        // send the second event; should arrive
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+
+        verify(analyticsProviderOne, times(1)).openSession();
+        verify(analyticsProviderTwo, times(1)).openSession();
+    }
+
+    @Test
+    public void shouldSubscribeToSharedPreferenceChanges() {
+        setAnalyticsEnabledViaSettings();
+        initialiseAnalyticsEngine();
+
+        verify(sharedPreferences).registerOnSharedPreferenceChangeListener(analyticsEngine);
+    }
+
+    @Test
+    public void shouldNotSubscribeMultipleTimesToEventsWhenSharedPreferencesChangeAndAnalyticsAlreadyEnabled() {
+        setAnalyticsEnabledViaSettings();
+        initialiseAnalyticsEngine();
+
+        analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingsActivity.ANALYTICS_ENABLED);
+
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+
+        verify(analyticsProviderOne, times(1)).openSession();
+    }
+
+    @Test
+    public void shouldOnlyHandleAnalyticsEnabledSettingInSharedPreferenceChangedCallback() {
+        initialiseAnalyticsEngine();
+
+        SharedPreferences preferences = mock(SharedPreferences.class);
+        analyticsEngine.onSharedPreferenceChanged(preferences, "wrong key");
+
+        verify(preferences, never()).getBoolean(anyString(), anyBoolean());
     }
 
     @Test
     public void shouldTrackScreenForAllProvidersWhenScreenEnteredAndSessionIsOpen() {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
@@ -58,20 +156,8 @@ public class AnalyticsEngineTrackingTest {
     }
 
     @Test
-    public void shouldNotTrackScreenWhenActivityCreatedAndAnalyticsDisabled() {
-        setAnalyticsDisabled();
-        initialiseAnalyticsEngine();
-
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        EventBus.SCREEN_ENTERED.publish("screen");
-
-        verify(analyticsProviderOne, never()).trackScreen(anyString());
-        verify(analyticsProviderTwo, never()).trackScreen(anyString());
-    }
-
-    @Test
     public void shouldNotTrackScreenIfNoSessionIsOpen() {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         EventBus.SCREEN_ENTERED.publish("screen");
@@ -82,7 +168,7 @@ public class AnalyticsEngineTrackingTest {
 
     @Test
     public void shouldOnlySubscribeToEnterScreenEventOncePerSession() {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
@@ -97,7 +183,7 @@ public class AnalyticsEngineTrackingTest {
     // from one Activity must not reuse event subscriptions from previous Activities
     @Test
     public void shouldResubscribeToEnterScreenEventAfterOpenCloseSessionCycle() {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
@@ -111,7 +197,7 @@ public class AnalyticsEngineTrackingTest {
 
     @Test
     public void shouldTrackPlaybackEvent() throws Exception {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         PlaybackEvent playbackEvent = PlaybackEvent.forPlay(mock(Track.class), 0, Mockito.mock(TrackSourceInfo.class));
@@ -123,7 +209,7 @@ public class AnalyticsEngineTrackingTest {
 
     @Test
     public void shouldTrackSocialEvent() throws Exception {
-        setAnalyticsEnabled();
+        setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
         SocialEvent socialEvent = SocialEvent.fromFollow("screen", 0);
@@ -133,18 +219,18 @@ public class AnalyticsEngineTrackingTest {
         verify(analyticsProviderTwo, times(1)).trackSocialEvent(socialEvent);
     }
 
-    private void setAnalyticsDisabled() {
-        when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
-        when(analyticsProperties.isAnalyticsEnabled()).thenReturn(false);
+    private void setAnalyticsDisabledViaSettings() {
+        when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
+        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(false);
     }
 
-    private void setAnalyticsEnabled() {
-        when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
-        when(analyticsProperties.isAnalyticsEnabled()).thenReturn(true);
+    private void setAnalyticsEnabledViaSettings() {
+        when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
+        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(true);
     }
 
     private void initialiseAnalyticsEngine() {
-        analyticsEngine = new AnalyticsEngine(analyticsProperties, playbackWrapper, scheduler,
+        analyticsEngine = new AnalyticsEngine(sharedPreferences, analyticsProperties, playbackWrapper, scheduler,
                 analyticsProviderOne, analyticsProviderTwo);
     }
 
