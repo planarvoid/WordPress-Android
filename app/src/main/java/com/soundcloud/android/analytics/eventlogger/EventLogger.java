@@ -50,7 +50,9 @@ public class EventLogger {
     }
 
     void flush() {
-        mHandler.obtainMessage(EventLoggerHandler.FLUSH_TOKEN).sendToTarget();
+        if (mHandler != null) {
+            mHandler.obtainMessage(EventLoggerHandler.FLUSH_TOKEN).sendToTarget();
+        }
     }
 
     private class PlaybackServiceDestroyedObserver extends DefaultObserver<Void> {
