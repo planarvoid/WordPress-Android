@@ -11,14 +11,14 @@ aspect AnalyticsAspect {
     pointcut activityOnPause(Activity activity): execution(* Activity.onPause(..)) && target(activity);
 
     before(Activity activity): activityOnCreate(activity) {
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnCreate(activity.getClass()));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(activity.getClass()));
     }
 
     before(Activity activity): activityOnResume(activity) {
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnResume(activity.getClass()));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnResume(activity.getClass()));
     }
 
     before(Activity activity): activityOnPause(activity) {
-        Event.ACTIVITY_EVENT.publish(ActivityLifeCycleEvent.forOnPause(activity.getClass()));
+        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(activity.getClass()));
     }
 }
