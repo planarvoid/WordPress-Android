@@ -78,11 +78,11 @@
     <string name="side_menu_activity">Actividad</string>
     <string name="side_menu_record">Grabar</string>
     <string name="title_search">Buscar</string>
-    <string name="side_menu_stream">Canal</string>
+    <string name="side_menu_stream">Stream</string>
     <string name="side_menu_you">Tú</string>
     <string name="side_menu_settings">Ajustes</string>
 
-    <string name="side_menu_likes">Tus votos positivos</string>
+    <string name="side_menu_likes">Favoritos</string>
     <string name="side_menu_friend_finder">Encontrar amigos</string>
     <string name="side_menu_who_to_follow">A quién seguir</string>
 
@@ -250,8 +250,8 @@
     <string name="explore_genre_header_music">Música</string>
     <string name="explore_genre_header_audio">Audio</string>
 
-    <string name="explore_category_trending_music">Música de moda</string>
-    <string name="explore_category_trending_audio">Audio de moda</string>
+    <string name="explore_category_trending_music">Música destacada</string>
+    <string name="explore_category_trending_audio">Audio destacado</string>
 
     <string name="error_soundcloud_no_response">SoundCloud no responde.</string>
     <string name="error_no_internet">No hay Internet.</string>
