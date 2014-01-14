@@ -129,6 +129,33 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
+    @VisibleForTesting
+    protected boolean isActivitySessionClosed() {
+        return !ACTIVITY_SESSION_OPEN.get();
+    }
+
+    private void openSession() {
+        Log.d(this, "Open session");
+        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
+            try {
+                analyticsProvider.openSession();
+            } catch (Throwable t) {
+                handleProviderError(t, analyticsProvider, "openSession");
+            }
+        }
+    }
+
+    private void closeSession() {
+        Log.d(this, "Close session");
+        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
+            try {
+                analyticsProvider.closeSession();
+            } catch (Throwable t) {
+                handleProviderError(t, analyticsProvider, "closeSession");
+            }
+        }
+    }
+
     /**
      * Opens an analytics session for activities
      */
@@ -199,33 +226,6 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
                 analyticsProvider.handleSocialEvent(event);
             } catch (Throwable t) {
                 handleProviderError(t, analyticsProvider, "handleSocialEvent");
-            }
-        }
-    }
-
-    @VisibleForTesting
-    protected boolean isActivitySessionClosed() {
-        return !ACTIVITY_SESSION_OPEN.get();
-    }
-
-    private void openSession() {
-        Log.d(this, "Open session");
-        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-            try {
-                analyticsProvider.openSession();
-            } catch (Throwable t) {
-                handleProviderError(t, analyticsProvider, "openSession");
-            }
-        }
-    }
-
-    private void closeSession() {
-        Log.d(this, "Close session");
-        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-            try {
-                analyticsProvider.closeSession();
-            } catch (Throwable t) {
-                handleProviderError(t, analyticsProvider, "closeSession");
             }
         }
     }
