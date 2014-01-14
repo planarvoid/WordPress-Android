@@ -27,7 +27,8 @@ public enum EventBus {
     /**
      * Signals the playback service is destoryed. Used to flush events and stop handler in {@link com.soundcloud.android.analytics.eventlogger.EventLogger}
      */
-    PLAYBACK_SERVICE_DESTROYED(Void.class);
+    PLAYBACK_SERVICE_DESTROYED(Void.class),
+    PLAYER_LIFECYCLE(PlayerLifeCycleEvent.class);
 
     public final PublishSubject QUEUE = PublishSubject.create();
 
