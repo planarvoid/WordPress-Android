@@ -5,10 +5,15 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.AUTHORIT
 import static com.soundcloud.android.storage.provider.ScContentProvider.enableSyncing;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.common.collect.Lists;
 import com.localytics.android.Constants;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsProperties;
+import com.soundcloud.android.analytics.AnalyticsProvider;
+import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
+import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
+import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.image.ImageOperations;
@@ -42,6 +47,9 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+
+import java.util.Collections;
+import java.util.List;
 
 public class SoundCloudApplication extends Application implements ObjectGraphProvider {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
@@ -143,7 +151,18 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     private void setupAnalytics(SharedPreferences sharedPreferences, ApplicationProperties appProperties) {
         AnalyticsProperties analyticsProperties = new AnalyticsProperties(getResources());
         Log.d(TAG, analyticsProperties.toString());
-        mAnalyticsEngine = new AnalyticsEngine(this, sharedPreferences, analyticsProperties);
+        // Unfortunately, both Localytics and ComScore are unmockable in tests and were crashing the tests during
+        // initialiation of AnalyticsEngine, so we do not register them unless we're running on a real device
+        final List<AnalyticsProvider> analyticsProviders;
+        if (appProperties.isRunningOnDalvik()) {
+            analyticsProviders = Lists.newArrayList(
+                    new LocalyticsAnalyticsProvider(this, analyticsProperties),
+                    new EventLoggerAnalyticsProvider(),
+                    new ComScoreAnalyticsProvider(this));
+        } else {
+           analyticsProviders = Collections.emptyList();
+        }
+        mAnalyticsEngine = new AnalyticsEngine(sharedPreferences, analyticsProperties, analyticsProviders);
         Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && appProperties.isDebugBuild();
     }
 

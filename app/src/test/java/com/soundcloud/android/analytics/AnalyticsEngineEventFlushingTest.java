@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.PlaybackEvent;
@@ -197,7 +198,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     private void initialiseAnalyticsEngine() {
         analyticsEngine = new AnalyticsEngine(sharedPreferences, analyticsProperties, playbackWrapper, scheduler,
-                analyticsProviderOne, analyticsProviderTwo);
+                Lists.newArrayList(analyticsProviderOne, analyticsProviderTwo));
     }
 
 }

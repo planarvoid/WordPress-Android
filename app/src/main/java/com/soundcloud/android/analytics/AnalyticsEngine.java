@@ -1,13 +1,9 @@
 package com.soundcloud.android.analytics;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
-import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.PlaybackEvent;
@@ -24,10 +20,10 @@ import rx.subscriptions.BooleanSubscription;
 import rx.subscriptions.CompositeSubscription;
 import rx.util.functions.Action0;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -65,20 +61,18 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     };
 
-    public AnalyticsEngine(Context context, SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties) {
+    public AnalyticsEngine(SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
+            List<AnalyticsProvider> analyticsProviders) {
         this(sharedPreferences, analyticsProperties,
                 new PlaybackServiceStateWrapper(), AndroidSchedulers.mainThread(),
-                new LocalyticsAnalyticsProvider(context, analyticsProperties),
-                new EventLoggerAnalyticsProvider(),
-                new ComScoreAnalyticsProvider(context));
+                analyticsProviders);
     }
 
     @VisibleForTesting
     protected AnalyticsEngine(SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
                               PlaybackServiceStateWrapper playbackStateWrapper,
-                              Scheduler scheduler, AnalyticsProvider... analyticsProviders) {
+                              Scheduler scheduler, List<AnalyticsProvider> analyticsProviders) {
         Log.d(this, "Creating analytics engine");
-        checkArgument(analyticsProviders.length > 0, "Need to provide at least one analytics provider");
         mAnalyticsProviders = Lists.newArrayList(analyticsProviders);
         mAnalyticsProperties = analyticsProperties;
         mPlaybackStateWrapper = playbackStateWrapper;

@@ -1,6 +1,8 @@
 package com.soundcloud.android;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import static com.soundcloud.android.Expect.expect;
+
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.w3c.dom.Document;
@@ -13,10 +15,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.File;
 
-import static com.soundcloud.android.Expect.expect;
 
-
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class AppTest {
 
     @Test
