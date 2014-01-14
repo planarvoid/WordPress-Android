@@ -1,11 +1,16 @@
 package com.soundcloud.android.analytics.localytics;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.localytics.android.LocalyticsSession;
+import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.analytics.AnalyticsProvider;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.service.PlaybackState;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -13,34 +18,50 @@ import android.content.Context;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
-    public final String TAG = "LocalyticsProvider";
+    public static final String TAG = "LocalyticsProvider";
+
+    @VisibleForTesting
+    static final AtomicBoolean ACTIVITY_SESSION_OPEN = new AtomicBoolean();
+
     private LocalyticsSession mLocalyticsSession;
     private LocalyticsSocialEventHandler mLocalyticsSocialEventHandler;
+    private PlaybackServiceStateWrapper mPlaybackStateWrapper;
 
     public LocalyticsAnalyticsProvider(Context context, AnalyticsProperties analyticsProperties) {
-        this(new LocalyticsSession(context.getApplicationContext(), analyticsProperties.getLocalyticsAppKey()));
+        this(new LocalyticsSession(context.getApplicationContext(), analyticsProperties.getLocalyticsAppKey()),
+                new PlaybackServiceStateWrapper());
     }
 
-    protected LocalyticsAnalyticsProvider(LocalyticsSession localyticsSession) {
+    @VisibleForTesting
+    protected LocalyticsAnalyticsProvider(LocalyticsSession localyticsSession,
+                                          PlaybackServiceStateWrapper playbackStateWrapper) {
         mLocalyticsSession = localyticsSession;
         mLocalyticsSocialEventHandler = new LocalyticsSocialEventHandler(mLocalyticsSession);
-    }
-
-    @Override
-    public void openSession() {
-        mLocalyticsSession.open();
-    }
-
-    @Override
-    public void closeSession() {
-        mLocalyticsSession.close();
+        mPlaybackStateWrapper = playbackStateWrapper;
     }
 
     @Override
     public void flush() {
         mLocalyticsSession.upload();
+    }
+
+    @Override
+    public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
+        if (event.isCreateEvent() || event.isResumeEvent()) {
+            openSessionForActivity();
+        } else if (event.isPauseEvent()) {
+            closeSessionForActivity();
+        }
+    }
+
+    @Override
+    public void handlePlayerLifeCycleEvent(PlayerLifeCycleEvent event) {
+        if (event.getKind() == PlayerLifeCycleEvent.STATE_IDLE) {
+            closeSessionForPlayer();
+        }
     }
 
     @Override
@@ -51,6 +72,8 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void handlePlaybackEvent(PlaybackEvent eventData) {
         if (eventData.isStopEvent()) {
+            openSession();
+
             Map<String, String> eventAttributes = new HashMap<String, String>();
             eventAttributes.put("context", eventData.getTrackSourceInfo().getOriginScreen());
             eventAttributes.put("track_id", String.valueOf(eventData.getTrack().getId()));
@@ -84,6 +107,50 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     public void handleSocialEvent(SocialEvent event) {
         mLocalyticsSocialEventHandler.handleEvent(event);
+    }
+
+    @VisibleForTesting
+    protected boolean isActivitySessionClosed() {
+        return !ACTIVITY_SESSION_OPEN.get();
+    }
+
+    private void openSession() {
+        mLocalyticsSession.open();
+    }
+
+    private void closeSession() {
+        mLocalyticsSession.close();
+    }
+
+    /**
+     * Opens an analytics session for activities
+     */
+    private void openSessionForActivity() {
+        ACTIVITY_SESSION_OPEN.set(true);
+        openSession();
+    }
+
+    /**
+     * Closes a analytics session for activities
+     */
+    private void closeSessionForActivity() {
+        ACTIVITY_SESSION_OPEN.set(false);
+        if (mPlaybackStateWrapper.isPlayerPlaying()) {
+            Log.d(this, "Didn't close analytics session; playback service still alive and well!");
+        } else {
+            closeSession();
+        }
+    }
+
+    /**
+     * Closes a analytics session for the player
+     */
+    public void closeSessionForPlayer() {
+        if (isActivitySessionClosed()) {
+            closeSession();
+        } else {
+            Log.d(this, "Didn't close analytics session for player; activity session still alive and well!");
+        }
     }
 
     private void logAttributes(Map<String, String> eventAttributes) {
@@ -139,6 +206,15 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
                 return "playback_error";
             default:
                 throw new IllegalArgumentException("Unexpected stop reason : " + eventData.getStopReason());
+        }
+    }
+
+    //To make testing easier
+    @VisibleForTesting
+    static class PlaybackServiceStateWrapper {
+        public boolean isPlayerPlaying() {
+            PlaybackState playbackPlaybackState = PlaybackService.getPlaybackState();
+            return playbackPlaybackState.isSupposedToBePlaying();
         }
     }
 }

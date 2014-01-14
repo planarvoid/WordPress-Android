@@ -3,6 +3,7 @@ package com.soundcloud.android.analytics.eventlogger;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -42,6 +43,13 @@ public class EventLoggerAnalyticsProviderTest {
     public void shouldForwardFlushCallToEventLogger() {
         eventLoggerAnalyticsProvider.flush();
         verify(eventLogger).flush();
+    }
+
+    @Test
+    public void shouldStopEventLoggerOnPlayerLifeCycleDestroyedEvent() {
+        PlayerLifeCycleEvent event = PlayerLifeCycleEvent.forDestroyed();
+        eventLoggerAnalyticsProvider.handlePlayerLifeCycleEvent(event);
+        verify(eventLogger).stop();
     }
 
     @Module(library = true, injects = EventLoggerAnalyticsProviderTest.class)

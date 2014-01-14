@@ -80,12 +80,13 @@ public class EventLoggerTest {
     }
 
     @Test
-    public void shouldStopOnPlayerLifeCycleDestroyedEvent() throws Exception {
+    public void shouldSendFinishMessageWhenCallingStop() throws Exception {
         // send event to start handler
         when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent)).thenReturn(message);
         eventLogger.trackEvent(playbackEvent);
 
-        EventBus.PLAYER_LIFECYCLE.publish(PlayerLifeCycleEvent.forDestroyed());
+        eventLogger.stop();
+
         verify(finishMessage).sendToTarget();
     }
 

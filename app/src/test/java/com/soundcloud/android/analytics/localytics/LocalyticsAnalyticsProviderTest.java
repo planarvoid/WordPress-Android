@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics.localytics;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider.PlaybackServiceStateWrapper;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -29,6 +31,8 @@ public class LocalyticsAnalyticsProviderTest {
     private LocalyticsAnalyticsProvider localyticsProvider;
     @Mock
     private LocalyticsSession localyticsSession;
+    @Mock
+    private PlaybackServiceStateWrapper playbackServiceStateWrapper;
     @Captor
     private ArgumentCaptor<Map<String, String>> stopEventAttributes;
 
@@ -38,7 +42,7 @@ public class LocalyticsAnalyticsProviderTest {
 
     @Before
     public void setUp() throws CreateModelException {
-        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession);
+        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, playbackServiceStateWrapper);
         track = TestHelper.getModelFactory().createModel(Track.class);
         trackSourceInfo = new TrackSourceInfo(Screen.YOUR_LIKES.get(), true);
 
@@ -50,18 +54,6 @@ public class LocalyticsAnalyticsProviderTest {
 
         startEvent = PlaybackEvent.forPlay(track, 123L, trackSourceInfo, startTime);
         stopEvent = PlaybackEvent.forStop(track, 123L, trackSourceInfo, startEvent, PlaybackEvent.STOP_REASON_PAUSE, stopTime);
-    }
-
-    @Test
-    public void shouldOpenSession(){
-        localyticsProvider.openSession();
-        verify(localyticsSession).open();
-    }
-
-    @Test
-    public void shouldCloseSession(){
-        localyticsProvider.closeSession();
-        verify(localyticsSession).close();
     }
 
     @Test
@@ -79,6 +71,12 @@ public class LocalyticsAnalyticsProviderTest {
     @Test
     public void shouldNotTrackPlaybackStartEvents() throws CreateModelException {
         localyticsProvider.handlePlaybackEvent(startEvent);
+        verifyZeroInteractions(localyticsSession);
+    }
+
+    @Test
+    public void shouldOnlyHandlePlayerLifeCycleIdleEvent() {
+        localyticsProvider.handlePlayerLifeCycleEvent(PlayerLifeCycleEvent.forDestroyed());
         verifyZeroInteractions(localyticsSession);
     }
 

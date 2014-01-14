@@ -21,7 +21,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,8 +48,6 @@ public class AnalyticsEngineEventFlushingTest {
     @Mock
     private AnalyticsProvider analyticsProviderTwo;
     @Mock
-    private AnalyticsEngine.PlaybackServiceStateWrapper playbackWrapper;
-    @Mock
     private Scheduler scheduler;
     @Mock
     private Subscription subscription;
@@ -58,11 +55,6 @@ public class AnalyticsEngineEventFlushingTest {
     @Before
     public void setUp() throws Exception {
         when(scheduler.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(subscription);
-    }
-
-    @After
-    public void tearDown(){
-        AnalyticsEngine.ACTIVITY_SESSION_OPEN.set(false);
     }
 
     @Test
@@ -197,7 +189,7 @@ public class AnalyticsEngineEventFlushingTest {
     }
 
     private void initialiseAnalyticsEngine() {
-        analyticsEngine = new AnalyticsEngine(sharedPreferences, analyticsProperties, playbackWrapper, scheduler,
+        analyticsEngine = new AnalyticsEngine(sharedPreferences, analyticsProperties, scheduler,
                 Lists.newArrayList(analyticsProviderOne, analyticsProviderTwo));
     }
 

@@ -1,7 +1,9 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
@@ -24,16 +26,19 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void openSession() {
-    }
-
-    @Override
-    public void closeSession() {
-    }
-
-    @Override
     public void flush() {
         mEventLogger.flush();
+    }
+
+    @Override
+    public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
+    }
+
+    @Override
+    public void handlePlayerLifeCycleEvent(PlayerLifeCycleEvent event) {
+        if (event.getKind() == PlayerLifeCycleEvent.STATE_DESTROYED) {
+            mEventLogger.stop();
+        }
     }
 
     @Override

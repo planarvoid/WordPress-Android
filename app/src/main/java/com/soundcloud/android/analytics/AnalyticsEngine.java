@@ -7,8 +7,6 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.SocialEvent;
-import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.service.PlaybackState;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.Log;
@@ -24,29 +22,23 @@ import android.content.SharedPreferences;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * The engine which drives sending analytics. Important that all analytics providers to this engine
- * do not rely on singletons to do their work. It should be possible to create multiple providers and open sessions,
- * close sessions and handle the events being sent in a multi-threaded environment.
+ * The engine which drives sending analytics. It acts as an event broker which forwards system events relevant for
+ * analytics to any number of registered {@link AnalyticsProvider}s, and enables/disabled itself based on both
+ * availability of analytics in the current build as well as user toggled application settings.
  */
 public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    @VisibleForTesting
-    static final AtomicBoolean ACTIVITY_SESSION_OPEN = new AtomicBoolean();
     @VisibleForTesting
     static final long FLUSH_DELAY_SECONDS = 120L;
 
     private final Collection<AnalyticsProvider> mAnalyticsProviders;
     private final AnalyticsProperties mAnalyticsProperties;
-    private PlaybackServiceStateWrapper mPlaybackStateWrapper;
 
     private CompositeSubscription mEventsSubscription;
     private BooleanSubscription mFlushSubscription;
     private Scheduler mScheduler;
-
-    private boolean mAnalyticsEnabled;
 
     // will be called by the Rx scheduler after a given delay, as long as events come in
     private final Action0 mFlushAction = new Action0() {
@@ -62,19 +54,15 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
 
     public AnalyticsEngine(SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
             List<AnalyticsProvider> analyticsProviders) {
-        this(sharedPreferences, analyticsProperties,
-                new PlaybackServiceStateWrapper(), AndroidSchedulers.mainThread(),
-                analyticsProviders);
+        this(sharedPreferences, analyticsProperties, AndroidSchedulers.mainThread(), analyticsProviders);
     }
 
     @VisibleForTesting
     protected AnalyticsEngine(SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
-                              PlaybackServiceStateWrapper playbackStateWrapper,
                               Scheduler scheduler, List<AnalyticsProvider> analyticsProviders) {
         Log.d(this, "Creating analytics engine");
         mAnalyticsProviders = Lists.newArrayList(analyticsProviders);
         mAnalyticsProperties = analyticsProperties;
-        mPlaybackStateWrapper = playbackStateWrapper;
         mScheduler = scheduler;
 
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
@@ -90,11 +78,9 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     }
 
     private void handleAnalyticsAvailability(SharedPreferences sharedPreferences) {
-        // TODO: as long as the playback service makes direct calls into this class (which it shouldn't), we'll have to
-        // cache this to be used as guards in the open/closeSessionForPlayer methods
         unsubscribeFromEvents();
-        mAnalyticsEnabled = sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true);
-        if (mAnalyticsProperties.isAnalyticsAvailable() && mAnalyticsEnabled) {
+        boolean analyticsEnabled = sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true);
+        if (mAnalyticsProperties.isAnalyticsAvailable() && analyticsEnabled) {
             Log.d(this, "Subscribing to events");
             mEventsSubscription = new CompositeSubscription();
             mEventsSubscription.add(EventBus.PLAYBACK.subscribe(new PlaybackEventObserver()));
@@ -129,81 +115,24 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    @VisibleForTesting
-    protected boolean isActivitySessionClosed() {
-        return !ACTIVITY_SESSION_OPEN.get();
-    }
-
-    private void openSession() {
-        Log.d(this, "Open session");
+    private void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
+        Log.d(this, "Activity life-cycle event " + event);
         for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
             try {
-                analyticsProvider.openSession();
+                analyticsProvider.handleActivityLifeCycleEvent(event);
             } catch (Throwable t) {
-                handleProviderError(t, analyticsProvider, "openSession");
+                handleProviderError(t, analyticsProvider, "handleActivityLifeCycleEvent");
             }
         }
-    }
-
-    private void closeSession() {
-        Log.d(this, "Close session");
-        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-            try {
-                analyticsProvider.closeSession();
-            } catch (Throwable t) {
-                handleProviderError(t, analyticsProvider, "closeSession");
-            }
-        }
-    }
-
-    /**
-     * Opens an analytics session for activities
-     */
-    private void openSessionForActivity() {
-        ACTIVITY_SESSION_OPEN.set(true);
-        openSession();
-    }
-
-    /**
-     * Closes a analytics session for activities
-     */
-    private void closeSessionForActivity() {
-        ACTIVITY_SESSION_OPEN.set(false);
-        if (mPlaybackStateWrapper.isPlayerPlaying()) {
-            Log.d(this, "Didn't close analytics session; playback service still alive and well!");
-        } else {
-            closeSession();
-        }
-    }
-
-    /**
-     * Opens an analytics session for the player
-     */
-    public void openSessionForPlayer() {
-        if (mAnalyticsProperties.isAnalyticsAvailable() && mAnalyticsEnabled) {
-            openSession();
-        }
-    }
-
-    /**
-     * Closes a analytics session for the player
-     */
-    public void closeSessionForPlayer() {
-        if (mAnalyticsProperties.isAnalyticsAvailable() && mAnalyticsEnabled && isActivitySessionClosed()) {
-            closeSession();
-        }
-        Log.d(this, "Didn't close analytics session for player");
     }
 
     private void handleScreenEvent(String screenTag) {
-        if (ACTIVITY_SESSION_OPEN.get()) {
-            Log.d(this, "Track screen " + screenTag);
-            for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-                try {
-                    analyticsProvider.handleScreenEvent(screenTag);
-                } catch (Throwable t) {
-                    handleProviderError(t, analyticsProvider, "handleScreenEvent");
-                }
+        Log.d(this, "Track screen " + screenTag);
+        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
+            try {
+                analyticsProvider.handleScreenEvent(screenTag);
+            } catch (Throwable t) {
+                handleProviderError(t, analyticsProvider, "handleScreenEvent");
             }
         }
     }
@@ -237,23 +166,11 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         SoundCloudApplication.handleSilentException(message, t);
     }
 
-    //To make testing easier
-    protected static class PlaybackServiceStateWrapper {
-        public boolean isPlayerPlaying() {
-            PlaybackState playbackPlaybackState = PlaybackService.getPlaybackState();
-            return playbackPlaybackState.isSupposedToBePlaying();
-        }
-    }
-
     private final class ActivityEventObserver extends DefaultObserver<ActivityLifeCycleEvent> {
         @Override
         public void onNext(ActivityLifeCycleEvent event) {
             Log.d(this, "ActivityEventObserver onNext: " + event);
-            if (event.isCreateEvent() || event.isResumeEvent()) {
-                openSessionForActivity();
-            } else {
-                closeSessionForActivity();
-            }
+            handleActivityLifeCycleEvent(event);
             scheduleFlush();
         }
     }

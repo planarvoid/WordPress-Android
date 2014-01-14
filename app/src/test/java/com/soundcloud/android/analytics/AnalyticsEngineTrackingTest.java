@@ -45,13 +45,10 @@ public class AnalyticsEngineTrackingTest {
     @Mock
     private AnalyticsProvider analyticsProviderTwo;
     @Mock
-    private AnalyticsEngine.PlaybackServiceStateWrapper playbackWrapper;
-    @Mock
     private Scheduler scheduler;
 
     @After
     public void tearDown() {
-        AnalyticsEngine.ACTIVITY_SESSION_OPEN.set(false);
         analyticsEngine.unsubscribeFromEvents();
     }
 
@@ -86,16 +83,20 @@ public class AnalyticsEngineTrackingTest {
 
         initialiseAnalyticsEngine();
         // send the first event; should arrive
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        final ActivityLifeCycleEvent event1 = ActivityLifeCycleEvent.forOnCreate(Activity.class);
+        EventBus.ACTIVITY_LIFECYCLE.publish(event1);
 
         when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(false);
         analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingsActivity.ANALYTICS_ENABLED);
 
         // send the second event; should NOT arrive
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        final ActivityLifeCycleEvent event2 = ActivityLifeCycleEvent.forOnCreate(Activity.class);
+        EventBus.ACTIVITY_LIFECYCLE.publish(event2);
 
-        verify(analyticsProviderOne, times(1)).openSession();
-        verify(analyticsProviderTwo, times(1)).openSession();
+        verify(analyticsProviderOne).handleActivityLifeCycleEvent(event1);
+        verify(analyticsProviderTwo).handleActivityLifeCycleEvent(event1);
+        verify(analyticsProviderOne, never()).handleActivityLifeCycleEvent(event2);
+        verify(analyticsProviderTwo, never()).handleActivityLifeCycleEvent(event2);
     }
 
     @Test
@@ -104,16 +105,20 @@ public class AnalyticsEngineTrackingTest {
 
         initialiseAnalyticsEngine();
         // send the first event; should not arrive
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        final ActivityLifeCycleEvent event1 = ActivityLifeCycleEvent.forOnCreate(Activity.class);
+        EventBus.ACTIVITY_LIFECYCLE.publish(event1);
 
         when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(true);
         analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingsActivity.ANALYTICS_ENABLED);
 
         // send the second event; should arrive
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        final ActivityLifeCycleEvent event2 = ActivityLifeCycleEvent.forOnCreate(Activity.class);
+        EventBus.ACTIVITY_LIFECYCLE.publish(event2);
 
-        verify(analyticsProviderOne, times(1)).openSession();
-        verify(analyticsProviderTwo, times(1)).openSession();
+        verify(analyticsProviderOne, never()).handleActivityLifeCycleEvent(event1);
+        verify(analyticsProviderTwo, never()).handleActivityLifeCycleEvent(event1);
+        verify(analyticsProviderOne).handleActivityLifeCycleEvent(event2);
+        verify(analyticsProviderTwo).handleActivityLifeCycleEvent(event2);
     }
 
     @Test
@@ -133,7 +138,7 @@ public class AnalyticsEngineTrackingTest {
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
 
-        verify(analyticsProviderOne, times(1)).openSession();
+        verify(analyticsProviderOne, times(1)).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
     }
 
     @Test
@@ -147,50 +152,21 @@ public class AnalyticsEngineTrackingTest {
     }
 
     @Test
-    public void shouldTrackScreenForAllProvidersWhenScreenEnteredAndSessionIsOpen() {
+    public void shouldTrackActivityLifeCycleEvent() throws Exception {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        EventBus.SCREEN_ENTERED.publish("screen");
+        final ActivityLifeCycleEvent event = ActivityLifeCycleEvent.forOnCreate(Activity.class);
+        EventBus.ACTIVITY_LIFECYCLE.publish(event);
 
-        verify(analyticsProviderOne).handleScreenEvent(eq("screen"));
-        verify(analyticsProviderTwo).handleScreenEvent(eq("screen"));
+        verify(analyticsProviderOne, times(1)).handleActivityLifeCycleEvent(event);
+        verify(analyticsProviderTwo, times(1)).handleActivityLifeCycleEvent(event);
     }
 
     @Test
-    public void shouldNotTrackScreenIfNoSessionIsOpen() {
+    public void shouldTrackScreenEvent() {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
-
-        EventBus.SCREEN_ENTERED.publish("screen");
-
-        verify(analyticsProviderOne, never()).handleScreenEvent(anyString());
-        verify(analyticsProviderTwo, never()).handleScreenEvent(anyString());
-    }
-
-    @Test
-    public void shouldOnlySubscribeToEnterScreenEventOncePerSession() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-
-        EventBus.SCREEN_ENTERED.publish("screen");
-
-        verify(analyticsProviderOne, times(1)).handleScreenEvent(eq("screen"));
-        verify(analyticsProviderTwo, times(1)).handleScreenEvent(eq("screen"));
-    }
-
-    // this is in fact a necessary requirement since AnalyticsEngine is a singleton, and unsubscribing
-    // from one Activity must not reuse event subscriptions from previous Activities
-    @Test
-    public void shouldResubscribeToEnterScreenEventAfterOpenCloseSessionCycle() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
 
         EventBus.SCREEN_ENTERED.publish("screen");
 
@@ -227,7 +203,7 @@ public class AnalyticsEngineTrackingTest {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
-        doThrow(new RuntimeException()).when(analyticsProviderOne).openSession();
+        doThrow(new RuntimeException()).when(analyticsProviderOne).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlaybackEvent(any(PlaybackEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleScreenEvent(anyString());
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleSocialEvent(any(SocialEvent.class));
@@ -237,7 +213,7 @@ public class AnalyticsEngineTrackingTest {
         EventBus.SCREEN_ENTERED.publish("screen");
         EventBus.SOCIAL.publish(SocialEvent.fromFollow("screen", 0));
 
-        verify(analyticsProviderTwo).openSession();
+        verify(analyticsProviderTwo).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
         verify(analyticsProviderTwo).handlePlaybackEvent(any(PlaybackEvent.class));
         verify(analyticsProviderTwo).handleScreenEvent(anyString());
         verify(analyticsProviderTwo).handleSocialEvent(any(SocialEvent.class));
@@ -254,7 +230,7 @@ public class AnalyticsEngineTrackingTest {
     }
 
     private void initialiseAnalyticsEngine() {
-        analyticsEngine = new AnalyticsEngine(sharedPreferences, analyticsProperties, playbackWrapper, scheduler,
+        analyticsEngine = new AnalyticsEngine(sharedPreferences, analyticsProperties, scheduler,
                 Lists.newArrayList(analyticsProviderOne, analyticsProviderTwo));
     }
 

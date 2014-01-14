@@ -1,6 +1,8 @@
 package com.soundcloud.android.analytics;
 
+import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SocialEvent;
 
 /**
@@ -8,24 +10,20 @@ import com.soundcloud.android.events.SocialEvent;
  */
 public interface AnalyticsProvider {
     /**
-     * Signals to the analytics provider that user session is open/started
-     * Calls to this method should be idempotent and should not signal to the analytics
-     * provider of multiple sessions if one already is open or raise an error
-     */
-    void openSession();
-
-    /**
-     * Signals to the analytics provider that the user is session closed/stopped
-     * Calls to this method should be idempotent and should not signal to the analytics
-     * provider of multiple session closures if a session is not open or raise an error
-     */
-    void closeSession();
-
-    /**
      * Signals to the analytics provider that pending event/session data should be transmitted
      * to the remote service.
      */
     void flush();
+
+    /**
+     * Signals to the analytics provider that a life-cycle event occurred in an Activity (created, paused, etc.)
+     */
+    void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event);
+
+    /**
+     * Signals to the analytics provider that a life-cycle event occurred in the playback service
+     */
+    void handlePlayerLifeCycleEvent(PlayerLifeCycleEvent event);
 
     /**
      * Signals to the analytics provider that a screen (Activity, Fragment or View) was being opened.
