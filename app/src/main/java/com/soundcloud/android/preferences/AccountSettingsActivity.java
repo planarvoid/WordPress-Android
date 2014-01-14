@@ -16,11 +16,6 @@ public class AccountSettingsActivity extends ScSettingsActivity {
      }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {

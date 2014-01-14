@@ -110,6 +110,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+
         setContentView(R.layout.start);
         mOldCloudAPI = new PublicApi(this);
         overridePendingTransition(0, 0);
@@ -224,11 +225,6 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
                 }
             }
         });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     @Override

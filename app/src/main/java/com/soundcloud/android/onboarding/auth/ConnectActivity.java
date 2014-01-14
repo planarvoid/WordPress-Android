@@ -3,8 +3,8 @@ package com.soundcloud.android.onboarding.auth;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.creators.upload.tasks.NewConnectionTask;
+import com.soundcloud.android.main.TrackedActivity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -22,7 +22,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class ConnectActivity extends Activity {
+public class ConnectActivity extends TrackedActivity {
 
     private WebView mWebView;
 
@@ -105,18 +105,6 @@ public class ConnectActivity extends Activity {
 
         removeAllCookies();
         mWebView.loadUrl(url);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // do not remove until we remove aspectJ
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // do not remove until we remove aspectJ
     }
 
     private void removeAllCookies() {
