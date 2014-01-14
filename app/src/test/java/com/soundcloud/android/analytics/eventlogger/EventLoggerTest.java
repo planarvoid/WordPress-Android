@@ -10,6 +10,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,11 +23,10 @@ import android.os.Message;
 @RunWith(SoundCloudTestRunner.class)
 public class EventLoggerTest {
     private EventLogger eventLogger;
+    private PlaybackEvent playbackEvent;
 
     @Mock
     EventLoggerHandlerFactory eventLoggerHandlerFactory;
-    @Mock
-    PlaybackEvent playbackEvent;
     @Mock
     EventLoggerHandler handler;
     @Mock
@@ -41,6 +41,8 @@ public class EventLoggerTest {
         eventLogger = new EventLogger(eventLoggerHandlerFactory);
         when(eventLoggerHandlerFactory.create(any(Looper.class))).thenReturn(handler);
         when(handler.obtainMessage(EventLoggerHandler.FINISH_TOKEN)).thenReturn(finishMessage);
+
+        playbackEvent = TestHelper.getModelFactory().createModel(PlaybackEvent.class);
     }
 
     @After

@@ -5,6 +5,8 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import dagger.Module;
 import dagger.ObjectGraph;
 import dagger.Provides;
@@ -12,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 @RunWith(SoundCloudTestRunner.class)
 public class EventLoggerAnalyticsProviderTest {
@@ -31,10 +32,10 @@ public class EventLoggerAnalyticsProviderTest {
     }
 
     @Test
-    public void shouldTrackPlaybackEventInPlayEventTracker(){
-        final PlaybackEvent mock = Mockito.mock(PlaybackEvent.class);
-        eventLoggerAnalyticsProvider.handlePlaybackEvent(mock);
-        verify(eventLogger).trackEvent(mock);
+    public void shouldTrackPlaybackEventInPlayEventTracker() throws CreateModelException {
+        final PlaybackEvent event = TestHelper.getModelFactory().createModel(PlaybackEvent.class);
+        eventLoggerAnalyticsProvider.handlePlaybackEvent(event);
+        verify(eventLogger).trackEvent(event);
     }
 
     @Test
