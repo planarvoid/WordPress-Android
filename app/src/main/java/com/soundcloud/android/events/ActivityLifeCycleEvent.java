@@ -6,6 +6,11 @@ import android.app.Activity;
 
 import java.util.Collections;
 
+/**
+ * WARNING LABEL! :-)
+ *
+ * These events are currently published by the AnalyticsAspect and woven into the byte code, so don't remove it!
+ */
 public class ActivityLifeCycleEvent extends Event {
 
     private static final int ON_RESUME_EVENT = 0;
@@ -65,7 +70,7 @@ public class ActivityLifeCycleEvent extends Event {
                 return "onPause";
             default:
                 throw new IllegalStateException(
-                        "Attempting to get name of unknown lifecycle method code: " + mLifeCycleMethod);
+                        "Attempting to get name of unknonw lifecycle method code: " + mLifeCycleMethod);
         }
     }
 }

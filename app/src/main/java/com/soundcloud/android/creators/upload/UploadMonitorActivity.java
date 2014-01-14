@@ -5,11 +5,11 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -26,8 +26,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class UploadMonitorActivity extends TrackedActivity {
-
+public class UploadMonitorActivity extends Activity {
     private static final int MAX = 100;
     public static final int BUTTON_BAR_CANCEL_ID = 0;
     public static final int BUTTON_BAR_RETRY_ID = 1;
@@ -111,6 +110,16 @@ public class UploadMonitorActivity extends TrackedActivity {
             Log.d(TAG, "recording not found");
             finish();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     @Override

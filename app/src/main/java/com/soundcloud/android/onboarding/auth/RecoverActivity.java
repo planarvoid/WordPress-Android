@@ -3,11 +3,11 @@ package com.soundcloud.android.onboarding.auth;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.onboarding.auth.tasks.RecoverPasswordTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -19,8 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class RecoverActivity extends TrackedActivity {
-
+public class RecoverActivity extends Activity {
     private PublicCloudAPI mPublicCloudAPI;
 
     @Override
@@ -28,6 +27,16 @@ public class RecoverActivity extends TrackedActivity {
         super.onCreate(bundle);
 
         build();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     protected void build() {

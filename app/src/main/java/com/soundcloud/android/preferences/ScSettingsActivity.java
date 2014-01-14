@@ -1,8 +1,5 @@
 package com.soundcloud.android.preferences;
 
-import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.EventBus;
-
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
@@ -16,8 +13,6 @@ public abstract class ScSettingsActivity extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(this.getClass()));
-
         mOnCreateCalled = true;
         if (savedInstanceState != null) {
             mIsConfigurationChange = savedInstanceState.getBoolean(BUNDLE_CONFIGURATION_CHANGE, false);
@@ -27,15 +22,12 @@ public abstract class ScSettingsActivity extends PreferenceActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(this.getClass()));
-
         mOnCreateCalled = false;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnResume(this.getClass()));
     }
 
     @Override

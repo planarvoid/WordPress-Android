@@ -58,6 +58,11 @@ public class EmailConfirmationActivity extends ScActivity {
         updateLastReminded();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
     private void updateLastReminded() {
         mAccountOperations.setAccountData(Consts.PrefKeys.LAST_EMAIL_CONFIRMATION_REMINDER,
                 String.valueOf(System.currentTimeMillis()));

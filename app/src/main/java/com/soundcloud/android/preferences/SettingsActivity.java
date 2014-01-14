@@ -255,6 +255,11 @@ public class SettingsActivity extends ScSettingsActivity {
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
     private void setClearCacheTitle(final String pref, final int key, final File dir) {
         final Handler handler = new Handler();
         new Thread() {

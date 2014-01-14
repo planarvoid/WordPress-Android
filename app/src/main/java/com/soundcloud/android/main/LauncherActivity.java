@@ -3,12 +3,12 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
-public class LauncherActivity extends TrackedActivity {
-
+public class LauncherActivity extends Activity {
     private AccountOperations mAccountOperations;
 
     @Override
@@ -33,4 +33,8 @@ public class LauncherActivity extends TrackedActivity {
         });
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
 }

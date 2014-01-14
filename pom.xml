@@ -17,6 +17,7 @@
     </organization>
 
     <properties>
+        <build.skipAspectWeaving>true</build.skipAspectWeaving>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <androidApiLevel>16</androidApiLevel>
         <android.maven.plugin.version>3.6.1-ndkfix</android.maven.plugin.version>
@@ -106,6 +107,7 @@
             <properties>
                 <build.type>release</build.type>
                 <build.debuggable>false</build.debuggable>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
                 <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
                 <keystore.alias>jons keystore</keystore.alias>
                 <build.proguard.skip>false</build.proguard.skip>
@@ -116,6 +118,7 @@
             <properties>
                 <build.type>beta</build.type>
                 <build.debuggable>true</build.debuggable>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
                 <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
                 <keystore.alias>beta-key</keystore.alias>
                 <build.proguard.skip>false</build.proguard.skip>
@@ -129,6 +132,7 @@
             <properties>
                 <build.type>debug</build.type>
                 <build.debuggable>true</build.debuggable>
+                <build.skipAspectWeaving>true</build.skipAspectWeaving>
                 <keystore.alias>androiddebugkey</keystore.alias>
                 <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
                 <keystore.password>android</keystore.password>
@@ -142,6 +146,7 @@
             <properties>
                 <build.type>debug</build.type>
                 <build.debuggable>false</build.debuggable>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
                 <keystore.alias>androiddebugkey</keystore.alias>
                 <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
                 <keystore.password>android</keystore.password>

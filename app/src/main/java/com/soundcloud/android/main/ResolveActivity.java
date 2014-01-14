@@ -11,14 +11,14 @@ import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.Nullable;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-public class ResolveActivity extends TrackedActivity implements FetchModelTask.Listener<ScResource> {
-
+public class ResolveActivity extends Activity implements FetchModelTask.Listener<ScResource> {
     @Nullable
     private ResolveFetchTask mResolveTask;
     private PublicCloudAPI mOldCloudAPI;
@@ -48,6 +48,11 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
         } else {
             finish();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     private SoundCloudApplication getApp() {

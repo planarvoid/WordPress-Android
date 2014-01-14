@@ -2,8 +2,7 @@ package com.soundcloud.android.onboarding.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.main.TrackedActivity;
-
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,7 +11,7 @@ import android.util.Log;
  * Handles Facebook auth-flow: this activity first tries to use SSO to log in, falling
  * back to a WebView based login flow if FB app is not installed or fails to return a valid token.
  */
-public class FacebookSwitcherActivity extends TrackedActivity {
+public class FacebookSwitcherActivity extends Activity {
     public static final int SSO = 1;
     public static final int WEBFLOW = 2;
 
@@ -32,6 +31,16 @@ public class FacebookSwitcherActivity extends TrackedActivity {
 
     /* package */ boolean isSSOEnabled() {
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     @Override

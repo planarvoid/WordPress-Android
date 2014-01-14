@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
@@ -35,6 +34,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * The engine which drives sending analytics. Important that all analytics providers to this engine
  * do not rely on singletons to do their work. It should be possible to create multiple providers and open sessions,
  * close sessions and handle the events being sent in a multi-threaded environment.
+ * <p/>
+ * The analytics engine should be used in aspects located in the aspect folder under src/main/java
  */
 public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -69,8 +70,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         this(sharedPreferences, analyticsProperties,
                 new PlaybackServiceStateWrapper(), AndroidSchedulers.mainThread(),
                 new LocalyticsAnalyticsProvider(context, analyticsProperties),
-                new EventLoggerAnalyticsProvider(),
-                new ComScoreAnalyticsProvider(context));
+                new EventLoggerAnalyticsProvider());
     }
 
     @VisibleForTesting

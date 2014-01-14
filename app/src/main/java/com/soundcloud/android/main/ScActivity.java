@@ -9,8 +9,6 @@ import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.NowPlayingActionBarController;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.preferences.SettingsActivity;
@@ -45,7 +43,6 @@ import java.lang.ref.WeakReference;
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
 public abstract class ScActivity extends ActionBarActivity implements ActionBarController.ActionBarOwner {
-
     protected static final int CONNECTIVITY_MSG = 0;
     private static final String BUNDLE_CONFIGURATION_CHANGE = "BUNDLE_CONFIGURATION_CHANGE";
 
@@ -69,7 +66,6 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(this.getClass()));
 
         setContentView();
 
@@ -151,7 +147,6 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     @Override
     protected void onResume() {
         super.onResume();
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnResume(this.getClass()));
 
         //Ensures that ImageLoader will be resumed if the preceding activity was killed during scrolling
         mImageOperations.resume();
@@ -172,8 +167,6 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     @Override
     protected void onPause() {
         super.onPause();
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(this.getClass()));
-
         safeUnregisterReceiver(mUnauthoriedRequestReceiver);
         mIsForeground = false;
         mOnCreateCalled = false;

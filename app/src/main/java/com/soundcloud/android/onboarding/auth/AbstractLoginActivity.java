@@ -4,8 +4,6 @@ package com.soundcloud.android.onboarding.auth;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoriesFragment;
@@ -33,7 +31,6 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(this.getClass()));
 
         mAccountAuthenticatorResponse = getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
         if (mAccountAuthenticatorResponse != null) {
@@ -44,13 +41,11 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
     @Override
     protected void onResume() {
         super.onResume();
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnResume(this.getClass()));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(this.getClass()));
     }
 
     public void finish() {
