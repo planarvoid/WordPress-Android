@@ -6,20 +6,10 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
 public class LegalActivity extends PreferenceActivity {
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.legal);
-    }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     @Override

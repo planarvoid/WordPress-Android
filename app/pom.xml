@@ -96,34 +96,6 @@
                 <artifactId>cobertura-maven-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.5</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <skip>${build.skipAspectWeaving}</skip>
-                    <showWeaveInfo>true</showWeaveInfo>
-                    <verbose>true</verbose>
-                    <argumentFileName>aspectj_output.log</argumentFileName>
-                    <source>${source.version}</source>
-                    <complianceLevel>${source.version}</complianceLevel>
-                    <target>${source.version}</target>
-                    <privateScope>true</privateScope>
-                    <includes>
-                        <!-- For Activities which need to be weaved -->
-                        <include>com/soundcloud/android/**/*Activity.java</include>
-                        <include>com/soundcloud/android/cropimage/**/*Activity.java</include>
-                        <include>aspect/*.aj</include>
-                    </includes>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>com.crashlytics</groupId>
                 <artifactId>crashlytics-maven</artifactId>
                 <version>1.0.3</version>
@@ -227,14 +199,14 @@
 
         <!-- runtime 3rd party dependencies -->
         <dependency>
+            <groupId>com.comscore</groupId>
+            <artifactId>comscore</artifactId>
+            <version>2.1309.19</version>
+        </dependency>
+        <dependency>
             <groupId>com.squareup.dagger</groupId>
             <artifactId>dagger</artifactId>
             <version>1.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
-            <version>1.7.3</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
