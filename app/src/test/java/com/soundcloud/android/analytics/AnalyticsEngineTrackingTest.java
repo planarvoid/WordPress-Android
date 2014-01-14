@@ -154,8 +154,8 @@ public class AnalyticsEngineTrackingTest {
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
         EventBus.SCREEN_ENTERED.publish("screen");
 
-        verify(analyticsProviderOne).trackScreen(eq("screen"));
-        verify(analyticsProviderTwo).trackScreen(eq("screen"));
+        verify(analyticsProviderOne).handleScreenEvent(eq("screen"));
+        verify(analyticsProviderTwo).handleScreenEvent(eq("screen"));
     }
 
     @Test
@@ -165,8 +165,8 @@ public class AnalyticsEngineTrackingTest {
 
         EventBus.SCREEN_ENTERED.publish("screen");
 
-        verify(analyticsProviderOne, never()).trackScreen(anyString());
-        verify(analyticsProviderTwo, never()).trackScreen(anyString());
+        verify(analyticsProviderOne, never()).handleScreenEvent(anyString());
+        verify(analyticsProviderTwo, never()).handleScreenEvent(anyString());
     }
 
     @Test
@@ -178,8 +178,8 @@ public class AnalyticsEngineTrackingTest {
 
         EventBus.SCREEN_ENTERED.publish("screen");
 
-        verify(analyticsProviderOne, times(1)).trackScreen(eq("screen"));
-        verify(analyticsProviderTwo, times(1)).trackScreen(eq("screen"));
+        verify(analyticsProviderOne, times(1)).handleScreenEvent(eq("screen"));
+        verify(analyticsProviderTwo, times(1)).handleScreenEvent(eq("screen"));
     }
 
     // this is in fact a necessary requirement since AnalyticsEngine is a singleton, and unsubscribing
@@ -194,8 +194,8 @@ public class AnalyticsEngineTrackingTest {
 
         EventBus.SCREEN_ENTERED.publish("screen");
 
-        verify(analyticsProviderOne, times(1)).trackScreen(eq("screen"));
-        verify(analyticsProviderTwo, times(1)).trackScreen(eq("screen"));
+        verify(analyticsProviderOne, times(1)).handleScreenEvent(eq("screen"));
+        verify(analyticsProviderTwo, times(1)).handleScreenEvent(eq("screen"));
     }
 
     @Test
@@ -206,8 +206,8 @@ public class AnalyticsEngineTrackingTest {
         PlaybackEvent playbackEvent = PlaybackEvent.forPlay(mock(Track.class), 0, Mockito.mock(TrackSourceInfo.class));
         EventBus.PLAYBACK.publish(playbackEvent);
 
-        verify(analyticsProviderOne, times(1)).trackPlaybackEvent(playbackEvent);
-        verify(analyticsProviderTwo, times(1)).trackPlaybackEvent(playbackEvent);
+        verify(analyticsProviderOne, times(1)).handlePlaybackEvent(playbackEvent);
+        verify(analyticsProviderTwo, times(1)).handlePlaybackEvent(playbackEvent);
     }
 
     @Test
@@ -218,8 +218,8 @@ public class AnalyticsEngineTrackingTest {
         SocialEvent socialEvent = SocialEvent.fromFollow("screen", 0);
         EventBus.SOCIAL.publish(socialEvent);
 
-        verify(analyticsProviderOne, times(1)).trackSocialEvent(socialEvent);
-        verify(analyticsProviderTwo, times(1)).trackSocialEvent(socialEvent);
+        verify(analyticsProviderOne, times(1)).handleSocialEvent(socialEvent);
+        verify(analyticsProviderTwo, times(1)).handleSocialEvent(socialEvent);
     }
 
     @Test
@@ -228,9 +228,9 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         doThrow(new RuntimeException()).when(analyticsProviderOne).openSession();
-        doThrow(new RuntimeException()).when(analyticsProviderOne).trackPlaybackEvent(any(PlaybackEvent.class));
-        doThrow(new RuntimeException()).when(analyticsProviderOne).trackScreen(anyString());
-        doThrow(new RuntimeException()).when(analyticsProviderOne).trackSocialEvent(any(SocialEvent.class));
+        doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlaybackEvent(any(PlaybackEvent.class));
+        doThrow(new RuntimeException()).when(analyticsProviderOne).handleScreenEvent(anyString());
+        doThrow(new RuntimeException()).when(analyticsProviderOne).handleSocialEvent(any(SocialEvent.class));
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
         EventBus.PLAYBACK.publish(PlaybackEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
@@ -238,9 +238,9 @@ public class AnalyticsEngineTrackingTest {
         EventBus.SOCIAL.publish(SocialEvent.fromFollow("screen", 0));
 
         verify(analyticsProviderTwo).openSession();
-        verify(analyticsProviderTwo).trackPlaybackEvent(any(PlaybackEvent.class));
-        verify(analyticsProviderTwo).trackScreen(anyString());
-        verify(analyticsProviderTwo).trackSocialEvent(any(SocialEvent.class));
+        verify(analyticsProviderTwo).handlePlaybackEvent(any(PlaybackEvent.class));
+        verify(analyticsProviderTwo).handleScreenEvent(anyString());
+        verify(analyticsProviderTwo).handleSocialEvent(any(SocialEvent.class));
     }
 
     private void setAnalyticsDisabledViaSettings() {

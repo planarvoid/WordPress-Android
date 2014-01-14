@@ -3,7 +3,6 @@ package com.soundcloud.android.analytics;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.PlaybackEvent;
@@ -101,7 +100,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             mEventsSubscription.add(EventBus.PLAYBACK.subscribe(new PlaybackEventObserver()));
             mEventsSubscription.add(EventBus.SOCIAL.subscribe(new SocialEventObserver()));
             mEventsSubscription.add(EventBus.ACTIVITY_LIFECYCLE.subscribe(new ActivityEventObserver()));
-            mEventsSubscription.add(EventBus.SCREEN_ENTERED.subscribe(new ScreenTrackingObserver()));
+            mEventsSubscription.add(EventBus.SCREEN_ENTERED.subscribe(new ScreenEventObserver()));
         }
     }
 
@@ -169,49 +168,37 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         Log.d(this, "Didn't close analytics session for player");
     }
 
-    /**
-     * Tracks a single screen (Activity or Fragment) under the given tag
-     */
-    private void trackScreen(String screenTag) {
+    private void handleScreenEvent(String screenTag) {
         if (ACTIVITY_SESSION_OPEN.get()) {
             Log.d(this, "Track screen " + screenTag);
             for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
                 try {
-                    analyticsProvider.trackScreen(screenTag);
+                    analyticsProvider.handleScreenEvent(screenTag);
                 } catch (Throwable t) {
-                    handleProviderError(t, analyticsProvider, "trackScreen");
+                    handleProviderError(t, analyticsProvider, "handleScreenEvent");
                 }
             }
         }
     }
 
-    /**
-     * Tracks a playback event.
-     *
-     * This currently will get tracked regardless of Sessions or Analytics settings. Need to make sure this
-     * should be the case for all providers, not just {@link EventLoggerAnalyticsProvider}
-     */
-    public void trackPlaybackEvent(PlaybackEvent playbackEvent) {
+    private void handlePlaybackEvent(PlaybackEvent playbackEvent) {
         Log.d(this, "Track playback event " + playbackEvent);
         for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
             try {
-                analyticsProvider.trackPlaybackEvent(playbackEvent);
+                analyticsProvider.handlePlaybackEvent(playbackEvent);
             } catch (Throwable t) {
-                handleProviderError(t, analyticsProvider, "trackPlaybackEvent");
+                handleProviderError(t, analyticsProvider, "handlePlaybackEvent");
             }
         }
     }
 
-    /**
-     * Tracks a social engagement event
-     */
-    public void trackSocialEvent(SocialEvent event) {
+    private void handleSocialEvent(SocialEvent event) {
         Log.d(this, "Track social event " + event);
         for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
             try {
-                analyticsProvider.trackSocialEvent(event);
+                analyticsProvider.handleSocialEvent(event);
             } catch (Throwable t) {
-                handleProviderError(t, analyticsProvider, "trackSocialEvent");
+                handleProviderError(t, analyticsProvider, "handleSocialEvent");
             }
         }
     }
@@ -271,13 +258,13 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    private final class ScreenTrackingObserver extends DefaultObserver<String> {
+    private final class ScreenEventObserver extends DefaultObserver<String> {
         @Override
         public void onNext(String screenTag) {
             //TODO Be defensive, check screenTag value
             //If dev/beta build and empty crash the app, otherwise log silent error
             Log.d(this, "ScreenTrackingObserver onNext: " + screenTag);
-            trackScreen(screenTag);
+            handleScreenEvent(screenTag);
             scheduleFlush();
         }
     }
@@ -286,7 +273,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         @Override
         public void onNext(PlaybackEvent args) {
             Log.d(this, "PlaybackEventObserver onNext: " + args);
-            trackPlaybackEvent(args);
+            handlePlaybackEvent(args);
             scheduleFlush();
         }
     }
@@ -295,7 +282,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         @Override
         public void onNext(SocialEvent args) {
             Log.d(this, "SocialEventObserver onNext: " + args);
-            trackSocialEvent(args);
+            handleSocialEvent(args);
             scheduleFlush();
         }
     }

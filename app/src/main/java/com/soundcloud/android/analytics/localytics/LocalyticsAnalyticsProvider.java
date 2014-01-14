@@ -44,12 +44,12 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void trackScreen(String screenTag) {
+    public void handleScreenEvent(String screenTag) {
         mLocalyticsSession.tagScreen(screenTag);
     }
 
     @Override
-    public void trackPlaybackEvent(PlaybackEvent eventData) {
+    public void handlePlaybackEvent(PlaybackEvent eventData) {
         if (eventData.isStopEvent()) {
             Map<String, String> eventAttributes = new HashMap<String, String>();
             eventAttributes.put("context", eventData.getTrackSourceInfo().getOriginScreen());
@@ -82,7 +82,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         }
     }
 
-    public void trackSocialEvent(SocialEvent event) {
+    public void handleSocialEvent(SocialEvent event) {
         mLocalyticsSocialEventHandler.handleEvent(event);
     }
 

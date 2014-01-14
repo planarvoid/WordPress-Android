@@ -28,23 +28,23 @@ public interface AnalyticsProvider {
     void flush();
 
     /**
-     * Signals to the analytics provider that a screen (Activity or Fragment) was being opened.
+     * Signals to the analytics provider that a screen (Activity, Fragment or View) was being opened.
      *
      * @param screenTag the tag under which to track the screen
      */
-    void trackScreen(String screenTag);
+    void handleScreenEvent(String screenTag);
 
     /**
      * Signals to the analytics provider that a playback event has occurred
      *
      * @param eventData what the playback event consisted of
      */
-    void trackPlaybackEvent(PlaybackEvent eventData);
+    void handlePlaybackEvent(PlaybackEvent eventData);
 
     /**
      * Signals to the analytics provider that a social event has occurred
      *
      * @param event social event information
      */
-    void trackSocialEvent(SocialEvent event);
+    void handleSocialEvent(SocialEvent event);
 }

@@ -29,12 +29,12 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void trackScreen(String screenTag) {}
+    public void handleScreenEvent(String screenTag) {}
 
     @Override
-    public void trackPlaybackEvent(PlaybackEvent eventData) {}
+    public void handlePlaybackEvent(PlaybackEvent eventData) {}
 
     @Override
-    public void trackSocialEvent(SocialEvent event) {}
+    public void handleSocialEvent(SocialEvent event) {}
 
 }

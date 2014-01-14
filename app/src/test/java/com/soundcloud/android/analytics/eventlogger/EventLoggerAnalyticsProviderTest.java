@@ -33,7 +33,7 @@ public class EventLoggerAnalyticsProviderTest {
     @Test
     public void shouldTrackPlaybackEventInPlayEventTracker(){
         final PlaybackEvent mock = Mockito.mock(PlaybackEvent.class);
-        eventLoggerAnalyticsProvider.trackPlaybackEvent(mock);
+        eventLoggerAnalyticsProvider.handlePlaybackEvent(mock);
         verify(eventLogger).trackEvent(mock);
     }
 
