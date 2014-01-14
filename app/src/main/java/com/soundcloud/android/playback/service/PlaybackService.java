@@ -6,7 +6,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
@@ -120,13 +119,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         String RESET_ALL                = "com.soundcloud.android.resetAll";
     }
 
-    @Inject
-    PlayQueueManager mPlayQueueManager;
-    @Inject
-    PlaybackOperations mPlaybackOperations;
-    @Inject
-    PlaybackEventSource mPlaybackEventSource;
-
     // private stuff
     private static final int TRACK_ENDED      = 1;
     private static final int SERVER_DIED      = 2;
@@ -143,6 +135,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private static final float FADE_CHANGE = 0.02f; // change to fade faster/slower
 
     private PlaybackState mPlaybackState = PlaybackState.STOPPED;
+
+    @Inject
+    PlayQueueManager mPlayQueueManager;
+    @Inject
+    PlaybackOperations mPlaybackOperations;
+    @Inject
+    PlaybackEventSource mPlaybackEventSource;
 
     private @Nullable MediaPlayer mMediaPlayer;
     private int mLoadPercent = 0;       // track buffer indicator

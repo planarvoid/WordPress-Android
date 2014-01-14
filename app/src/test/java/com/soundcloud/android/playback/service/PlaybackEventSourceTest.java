@@ -21,7 +21,6 @@ import rx.Subscription;
 public class PlaybackEventSourceTest {
 
     private static final long USER_ID = 123L;
-    private static final long WAIT_TIME = 50L;
 
     private PlaybackEventSource playbackEventSource;
     private Track track;

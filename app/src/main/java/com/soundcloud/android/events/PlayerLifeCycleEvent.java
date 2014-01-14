@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PlayerLifeCycleEvent extends Event {
+public final class PlayerLifeCycleEvent extends Event {
 
     public static final int STATE_IDLE = 0;
     public static final int STATE_DESTROYED = 1;

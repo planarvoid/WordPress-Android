@@ -6,7 +6,7 @@ import android.app.Activity;
 
 import java.util.Collections;
 
-public class ActivityLifeCycleEvent extends Event {
+public final class ActivityLifeCycleEvent extends Event {
 
     private static final int ON_RESUME_EVENT = 0;
     private static final int ON_CREATE_EVENT = 1;
@@ -28,7 +28,7 @@ public class ActivityLifeCycleEvent extends Event {
     }
 
     @VisibleForTesting
-    protected ActivityLifeCycleEvent(Class<? extends Activity> activityClass, int lifeCycleMethod) {
+    ActivityLifeCycleEvent(Class<? extends Activity> activityClass, int lifeCycleMethod) {
         super(lifeCycleMethod, Collections.<String, String>emptyMap());
         mActivityClass = activityClass;
         mLifeCycleMethod = lifeCycleMethod;
