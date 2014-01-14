@@ -4,6 +4,7 @@ import static android.os.Process.THREAD_PRIORITY_LOWEST;
 
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
@@ -32,7 +33,7 @@ public class EventLogger {
             thread.start();
             mHandler = mEventLoggerHandlerFactory.create(thread.getLooper());
 
-            mShutdownSubscription = EventBus.PLAYBACK_SERVICE_DESTROYED.subscribe(new PlaybackServiceDestroyedObserver());
+            mShutdownSubscription = EventBus.PLAYER_LIFECYCLE.subscribe(new PlaybackServiceDestroyedObserver());
         }
 
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + playbackEvent.toString());
@@ -55,10 +56,12 @@ public class EventLogger {
         }
     }
 
-    private class PlaybackServiceDestroyedObserver extends DefaultObserver<Void> {
+    private class PlaybackServiceDestroyedObserver extends DefaultObserver<PlayerLifeCycleEvent> {
         @Override
-        public void onNext(Void args) {
-            stop();
+        public void onNext(PlayerLifeCycleEvent event) {
+            if (event.getKind() == PlayerLifeCycleEvent.STATE_DESTROYED) {
+                stop();
+            }
         }
     }
 }

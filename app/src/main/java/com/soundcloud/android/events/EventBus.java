@@ -19,16 +19,11 @@ import rx.subjects.PublishSubject;
 public enum EventBus {
 
     ACTIVITY_LIFECYCLE(ActivityLifeCycleEvent.class),
+    PLAYER_LIFECYCLE(PlayerLifeCycleEvent.class),
     CURRENT_USER_UPDATED(User.class),
     SCREEN_ENTERED(String.class),
     PLAYBACK(PlaybackEvent.class),
-    SOCIAL(SocialEvent.class),
-
-    /**
-     * Signals the playback service is destoryed. Used to flush events and stop handler in {@link com.soundcloud.android.analytics.eventlogger.EventLogger}
-     */
-    PLAYBACK_SERVICE_DESTROYED(Void.class),
-    PLAYER_LIFECYCLE(PlayerLifeCycleEvent.class);
+    SOCIAL(SocialEvent.class);
 
     public final PublishSubject QUEUE = PublishSubject.create();
 

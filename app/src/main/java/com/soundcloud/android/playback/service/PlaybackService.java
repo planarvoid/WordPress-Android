@@ -14,6 +14,7 @@ import com.soundcloud.android.associations.AssociationManager;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -123,8 +124,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     PlayQueueManager mPlayQueueManager;
     @Inject
     PlaybackOperations mPlaybackOperations;
-    @Inject
-    AnalyticsEngine mAnalyticsEngine;
     @Inject
     PlaybackEventSource mPlaybackEventSource;
 
@@ -262,13 +261,11 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mPlayerHandler.removeCallbacksAndMessages(null);
-
-        EventBus.PLAYBACK_SERVICE_DESTROYED.publish();
-
         mFocus.abandonMusicFocus(false);
         unregisterReceiver(mIntentReceiver);
         unregisterReceiver(mNoisyReceiver);
         if (mProxy != null && mProxy.isRunning()) mProxy.stop();
+        EventBus.PLAYER_LIFECYCLE.publish(PlayerLifeCycleEvent.forDestroyed());
         super.onDestroy();
     }
 
@@ -675,7 +672,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 notifyChange(Broadcasts.PLAYSTATE_CHANGED);
                 if (!Consts.SdkSwitches.useRichNotifications) setPlayingNotification(mCurrentTrack);
 
-                mAnalyticsEngine.openSessionForPlayer();
                 mPlaybackEventSource.publishPlayEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId());
 
             } else if (mPlaybackState != PlaybackState.PLAYING) {
@@ -743,7 +739,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private void gotoIdleState(PlaybackState newPlaybackState) {
         if (!newPlaybackState.isInIdleState()) throw new IllegalArgumentException(newPlaybackState + " is not a valid idle state");
-        mAnalyticsEngine.closeSessionForPlayer();
+        EventBus.PLAYER_LIFECYCLE.publish(PlayerLifeCycleEvent.forIdle());
         mPlaybackState = newPlaybackState;
         mPlayerHandler.removeMessages(FADE_OUT);
         mPlayerHandler.removeMessages(FADE_IN);

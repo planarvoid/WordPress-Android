@@ -1,12 +1,14 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.After;
 import org.junit.Before;
@@ -76,20 +78,30 @@ public class EventLoggerTest {
     }
 
     @Test
-    public void playbackServiceShutdownEventShouldSendFinishToken() throws Exception {
+    public void shouldStopOnPlayerLifeCycleDestroyedEvent() throws Exception {
         // send event to start handler
         when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent)).thenReturn(message);
         eventLogger.trackEvent(playbackEvent);
 
-        EventBus.PLAYBACK_SERVICE_DESTROYED.publish();
+        EventBus.PLAYER_LIFECYCLE.publish(PlayerLifeCycleEvent.forDestroyed());
         verify(finishMessage).sendToTarget();
+    }
+
+    @Test
+    public void shouldNotStopOnOtherPlayerLifeCycleEvents() throws Exception {
+        // send event to start handler
+        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent)).thenReturn(message);
+        eventLogger.trackEvent(playbackEvent);
+
+        EventBus.PLAYER_LIFECYCLE.publish(PlayerLifeCycleEvent.forIdle());
+        verify(finishMessage, never()).sendToTarget();
     }
 
     @Test
     public void shouldCreateNewHandlerAfterShutDown() throws Exception {
         when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent)).thenReturn(message);
         eventLogger.trackEvent(playbackEvent);
-        EventBus.PLAYBACK_SERVICE_DESTROYED.publish();
+        EventBus.PLAYER_LIFECYCLE.publish(PlayerLifeCycleEvent.forDestroyed());
         eventLogger.trackEvent(playbackEvent);
         verify(eventLoggerHandlerFactory, times(2)).create(any(Looper.class));
     }
