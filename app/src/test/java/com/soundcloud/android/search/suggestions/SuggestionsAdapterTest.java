@@ -1,27 +1,39 @@
 package com.soundcloud.android.search.suggestions;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.TestApplication;
+import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.model.SearchSuggestions;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.sync.ApiSyncService;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowApplication;
+import com.soundcloud.api.Request;
+import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+import org.apache.http.HttpResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class SuggestionsAdapterTest {
 
     @Before
@@ -48,13 +60,14 @@ public class SuggestionsAdapterTest {
 
     @Test
     public void shouldQuerySuggestApi() throws Exception {
-        SuggestionsAdapter adapter = new SuggestionsAdapter(DefaultTestRunner.application,
-                DefaultTestRunner.application.getCloudAPI());
+        PublicApi mockApi = mockPublicApi("suggest_highlight.json");
 
-        TestHelper.addCannedResponse(SearchSuggestions.class,
-                "/search/suggest?q=foo&highlight_mode=offsets&limit=5", "suggest_highlight.json");
-
+        SuggestionsAdapter adapter = new SuggestionsAdapter(mockContext(), mockApi);
         adapter.runQueryOnBackgroundThread("foo");
+
+        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
+        verify(mockApi).get(requestCaptor.capture());
+        expect(requestCaptor.getValue().toUrl()).toEqual("/search/suggest?q=foo&highlight_mode=offsets&limit=5");
 
         expect(adapter.getRemote().size()).toEqual(3);
         expect(adapter.getLocal().size()).toEqual(0);
@@ -68,24 +81,51 @@ public class SuggestionsAdapterTest {
 
     @Test
     public void shouldPrefetchResources() throws IOException {
-        TestApplication context = DefaultTestRunner.application;
-        SuggestionsAdapter adapter = new SuggestionsAdapter(context, DefaultTestRunner.application.getCloudAPI());
+        TestHelper.connectedViaWifi(true);
+        PublicApi mockApi = mockPublicApi("suggest_mixed.json");
 
-        TestHelper.addCannedResponse(SearchSuggestions.class,
-                "/search/suggest?q=foo&highlight_mode=offsets&limit=5", "suggest_mixed.json");
-
+        final Context context = mockContext();
+        SuggestionsAdapter adapter = new SuggestionsAdapter(context, mockApi);
         adapter.runQueryOnBackgroundThread("foo");
 
-        ShadowApplication shadowApplication = Robolectric.shadowOf(context);
-        Intent syncIntent = shadowApplication.getNextStartedService();
+        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(context).startService(intentCaptor.capture());
 
-        expect(syncIntent).not.toBeNull();
+        Intent syncIntent = intentCaptor.getValue();
+
         List<Uri> uris = syncIntent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS);
         expect(uris.size()).toEqual(3);
         expect(uris.get(0)).toEqual(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/tracks/q/196380%2C196381"));
         expect(uris.get(1).toString()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/users/q/2097360");
         expect(uris.get(2).toString()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/playlists/q/324731");
     }
+
+    private Context mockContext() {
+        Context context = mock(Context.class);
+        ContentResolver mockResolver = mock(ContentResolver.class);
+        when(context.getContentResolver()).thenReturn(mockResolver);
+        when(context.getResources()).thenReturn(mock(Resources.class));
+
+        NetworkInfo networkInfo = mock(NetworkInfo.class);
+        when(networkInfo.isConnectedOrConnecting()).thenReturn(true);
+        ConnectivityManager cm = mock(ConnectivityManager.class);
+        when(cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI)).thenReturn(networkInfo);
+        when(context.getSystemService(Context.CONNECTIVITY_SERVICE)).thenReturn(cm);
+
+        when(mockResolver.query(any(Uri.class), any(String[].class), anyString(), any(String[].class), anyString())).thenReturn(mock(Cursor.class));
+        return context;
+    }
+
+    private PublicApi mockPublicApi(String fixture) throws IOException {
+        PublicApi mockApi = mock(PublicApi.class);
+        when(mockApi.getMapper()).thenReturn(TestHelper.getObjectMapper());
+
+        final String suggestionsJson = TestHelper.resourceAsString(SearchSuggestions.class, fixture);
+        HttpResponse response = new TestHttpResponse(200, suggestionsJson);
+        when(mockApi.get(any(Request.class))).thenReturn(response);
+        return mockApi;
+    }
+
 
     // TODO: shadow for support-v4 CursorAdapter doesn't work. RL 2.0 may fix this.
 //    @DisableStrictI18n
