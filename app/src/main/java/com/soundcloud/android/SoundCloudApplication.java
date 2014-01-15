@@ -63,7 +63,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     public static ScModelManager sModelManager;
 
     private User mLoggedInUser;
-    private AccountOperations accountOperations;
+    private AccountOperations mAccountOperations;
     private AnalyticsEngine mAnalyticsEngine;
 
     private ObjectGraph mObjectGraph;
@@ -101,8 +101,8 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         ImageOperations imageOperations = ImageOperations.newInstance();
         imageOperations.initialise(this);
 
-        accountOperations = new AccountOperations(this);
-        final Account account = accountOperations.getSoundCloudAccount();
+        mAccountOperations = new AccountOperations(this);
+        final Account account = mAccountOperations.getSoundCloudAccount();
 
         if (account != null) {
             if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
@@ -172,19 +172,19 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
     public synchronized User getLoggedInUser() {
         if (mLoggedInUser == null) {
-            final long id = accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
+            final long id = mAccountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
             if (id != -1) {
                 mLoggedInUser = sModelManager.getUser(id);
             }
             // user not in db, fall back to local storage
             if (mLoggedInUser == null) {
                 User user = new User();
-                user.setId(accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()));
-                user.username = accountOperations.getAccountDataString(AccountInfoKeys.USERNAME.getKey());
-                user.permalink = accountOperations.getAccountDataString(AccountInfoKeys.USER_PERMALINK.getKey());
+                user.setId(mAccountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()));
+                user.username = mAccountOperations.getAccountDataString(AccountInfoKeys.USERNAME.getKey());
+                user.permalink = mAccountOperations.getAccountDataString(AccountInfoKeys.USER_PERMALINK.getKey());
                 return user;
             }
-            mLoggedInUser.via = SignupVia.fromString(accountOperations.getAccountDataString(AccountInfoKeys.SIGNUP.getKey()));
+            mLoggedInUser.via = SignupVia.fromString(mAccountOperations.getAccountDataString(AccountInfoKeys.SIGNUP.getKey()));
         }
         return mLoggedInUser;
     }
@@ -195,7 +195,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
     //TODO Move this into AccountOperations once we refactor User info out of here
     public boolean addUserAccountAndEnableSync(User user, Token token, SignupVia via) {
-        Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
+        Account account = mAccountOperations.addOrReplaceSoundCloudAccount(user, token, via);
         if (account != null) {
             mLoggedInUser = user;
 
@@ -238,7 +238,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     }
 
     private long getCurrentUserId()  {
-        return mLoggedInUser == null ? accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : mLoggedInUser.getId();
+        return mLoggedInUser == null ? mAccountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : mLoggedInUser.getId();
     }
 
     public static long getUserId() {
