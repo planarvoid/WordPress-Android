@@ -115,10 +115,12 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void openSession() {
+        Log.d(TAG, "opening session");
         mLocalyticsSession.open();
     }
 
     private void closeSession() {
+        Log.d(TAG, "closing session");
         mLocalyticsSession.close();
     }
 
@@ -136,7 +138,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     private void closeSessionForActivity() {
         ACTIVITY_SESSION_OPEN.set(false);
         if (mPlaybackStateWrapper.isPlayerPlaying()) {
-            Log.d(this, "Didn't close analytics session; playback service still alive and well!");
+            Log.d(TAG, "Didn't close analytics session; playback service still alive and well!");
         } else {
             closeSession();
         }
@@ -149,7 +151,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         if (isActivitySessionClosed()) {
             closeSession();
         } else {
-            Log.d(this, "Didn't close analytics session for player; activity session still alive and well!");
+            Log.d(TAG, "Didn't close analytics session for player; activity session still alive and well!");
         }
     }
 
@@ -158,7 +160,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         for (String key : eventAttributes.keySet()){
             toStringHelper.add(key, eventAttributes.get(key));
         }
-        Log.i(TAG, toStringHelper.toString());
+        Log.d(TAG, toStringHelper.toString());
     }
 
     private String getPercentListenedBucket(PlaybackEvent eventData, int duration) {
