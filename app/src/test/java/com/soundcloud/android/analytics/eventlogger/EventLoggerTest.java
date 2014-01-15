@@ -104,7 +104,7 @@ public class EventLoggerTest {
     public void shouldCreateNewHandlerAfterShutDown() throws Exception {
         when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent)).thenReturn(message);
         eventLogger.trackEvent(playbackEvent);
-        EventBus.PLAYER_LIFECYCLE.publish(PlayerLifeCycleEvent.forDestroyed());
+        eventLogger.stop();
         eventLogger.trackEvent(playbackEvent);
         verify(eventLoggerHandlerFactory, times(2)).create(any(Looper.class));
     }
