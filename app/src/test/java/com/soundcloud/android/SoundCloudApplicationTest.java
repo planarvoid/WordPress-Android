@@ -17,7 +17,7 @@ import java.io.File;
 
 
 @RunWith(SoundCloudTestRunner.class)
-public class AppTest {
+public class SoundCloudApplicationTest {
 
     @Test
     public void shouldOnlyHaveOneLauncherActivity() throws Exception {
