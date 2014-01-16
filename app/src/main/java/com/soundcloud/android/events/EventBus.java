@@ -1,6 +1,5 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.Log;
 import rx.Observer;
 import rx.Subscription;
@@ -20,7 +19,7 @@ public enum EventBus {
 
     ACTIVITY_LIFECYCLE(ActivityLifeCycleEvent.class),
     PLAYER_LIFECYCLE(PlayerLifeCycleEvent.class),
-    CURRENT_USER_UPDATED(User.class),
+    CURRENT_USER_CHANGED(CurrentUserChangedEvent.class),
     SCREEN_ENTERED(String.class),
     PLAYBACK(PlaybackEvent.class),
     SOCIAL(SocialEvent.class),
