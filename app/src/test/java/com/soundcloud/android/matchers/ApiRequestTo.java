@@ -5,14 +5,23 @@ import org.mockito.ArgumentMatcher;
 
 class ApiRequestTo extends ArgumentMatcher<APIRequest> {
 
-    private final String expectedPath;
+    private final String expectedMethod, expectedPath;
+    private final boolean isMobileApi;
 
-    public ApiRequestTo(String expectedPath) {
+    public ApiRequestTo(String expectedMethod, String expectedPath, boolean isMobileApi) {
+        this.expectedMethod = expectedMethod;
         this.expectedPath = expectedPath;
+        this.isMobileApi = isMobileApi;
     }
 
     @Override
     public boolean matches(Object argument) {
-        return ((APIRequest) argument).getUriPath().equals(expectedPath);
+        if (argument instanceof APIRequest) {
+            APIRequest request = (APIRequest) argument;
+            return request.getUriPath().equals(expectedPath) &&
+                    request.getMethod().equalsIgnoreCase(expectedMethod) &&
+                    request.isPrivate() == isMobileApi;
+        }
+        return false;
     }
 }

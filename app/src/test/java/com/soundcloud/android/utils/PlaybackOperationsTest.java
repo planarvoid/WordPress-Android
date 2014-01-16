@@ -2,9 +2,6 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.service.PlaybackService.PlayExtras;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,26 +15,22 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
-import rx.Scheduler;
-import rx.android.concurrency.AndroidSchedulers;
 import rx.concurrency.Schedulers;
-import rx.util.functions.Func1;
 
 import android.content.Intent;
 
@@ -118,7 +111,7 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playFromIdsShuffledShould() {
+    public void playFromIdsShuffledShouldStartPlayerWithGivenTrackIdList() {
         playbackOperations = new PlaybackOperations(modelManager, new TrackStorage());
         final ArrayList<Long> idsOrig = Lists.newArrayList(1L, 2L, 3L);
         playbackOperations.playFromIdListShuffled(Robolectric.application, idsOrig, Screen.YOUR_LIKES);
@@ -225,44 +218,6 @@ public class PlaybackOperationsTest {
     public void playFromAdapterShouldThrowAssertionErrorWhenPositionGreaterThanSize() throws Exception {
         List<Playable> playables = Lists.<Playable>newArrayList(track);
         playbackOperations.playFromAdapter(Robolectric.application, playables, 1, Content.ME_LIKES.uri, ORIGIN_SCREEN);
-    }
-
-    @Test
-    public void shouldLoadTrackFromStorageAndEmitOnUIThreadForPlayback() {
-        Observable<Track> observable = mock(Observable.class);
-        when(trackStorage.getTrackAsync(1L)).thenReturn(observable);
-        when(observable.map(any(Func1.class))).thenReturn(observable);
-        when(observable.observeOn(any(Scheduler.class))).thenReturn(observable);
-
-        Observer<Track> observer = mock(Observer.class);
-        playbackOperations.loadTrack(1L).subscribe(observer);
-
-        verify(observable).observeOn(AndroidSchedulers.mainThread());
-        verify(observable).subscribe(observer);
-    }
-
-    @Test
-    @Ignore("Revisit this after removing model manager")
-    public void loadTrackShouldReplaceNullTrackForDummy() {
-        Observable<Track> observable = Observable.just(null);
-        when(trackStorage.getTrackAsync(1L)).thenReturn(observable);
-        when(modelManager.cache(track)).thenReturn(track);
-
-        Observer<Track> observer = mock(Observer.class);
-        playbackOperations.loadTrack(1L).subscribe(observer);
-
-        verify(observer).onNext(eq(new Track(1L)));
-    }
-
-    @Test
-    public void loadTrackShouldCacheLoadedTrack() {
-        final Track track = new Track(1L);
-        Observable<Track> observable = Observable.just(track);
-        when(trackStorage.getTrackAsync(1L)).thenReturn(observable);
-        Observer<Track> observer = mock(Observer.class);
-        playbackOperations.loadTrack(1L).subscribe(observer);
-
-        verify(modelManager).cache(eq(track));
     }
 
     @Test

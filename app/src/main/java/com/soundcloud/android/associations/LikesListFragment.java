@@ -1,13 +1,17 @@
 package com.soundcloud.android.associations;
 
+import static rx.android.observables.AndroidObservable.fromFragment;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
+import com.soundcloud.android.collections.ScListView;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.storage.SoundAssociationStorage;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.provider.Content;
-import rx.android.concurrency.AndroidSchedulers;
-import rx.util.functions.Action1;
+import org.jetbrains.annotations.NotNull;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,18 +19,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import javax.inject.Inject;
 import java.util.List;
 
 public class LikesListFragment extends ScListFragment {
 
-    public static ScListFragment newInstance() {
-        LikesListFragment likesListFragment = new LikesListFragment();
-        likesListFragment.setArguments(createArguments(Content.ME_LIKES.uri, R.string.side_menu_likes, Screen.SIDE_MENU_LIKES));
-        return likesListFragment;
-    }
+    @Inject
+    PlaybackOperations mPlaybackOperations;
+
+    @Inject
+    SoundAssociationOperations mSoundAssociationOperations;
 
     private ViewGroup mHeaderView;
-    private List<Long> mLikes;
+
+    private Subscription mFetchIdsSubscription = Subscriptions.empty();
+
+    public LikesListFragment() {
+        setArguments(createArguments(Content.ME_LIKES.uri, R.string.side_menu_likes, Screen.SIDE_MENU_LIKES));
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,16 +49,18 @@ public class LikesListFragment extends ScListFragment {
         final View view = super.onCreateView(inflater, container, savedInstanceState);
 
         mHeaderView = (ViewGroup) inflater.inflate(R.layout.likes_shuffle_header, null, false);
-        mHeaderView.findViewById(R.id.shuffle_btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new PlaybackOperations().playFromIdListShuffled(getActivity(), mLikes, Screen.SIDE_MENU_LIKES);
-            }
-        });
 
-        getScListView().getRefreshableView().addHeaderView(mHeaderView);
-        updateShuffleHeader();
+        final ScListView listView = getScListView();
+        if (listView != null) {
+            listView.getRefreshableView().addHeaderView(mHeaderView);
+        }
         return view;
+    }
+
+    @Override
+    public void onDestroy() {
+        mFetchIdsSubscription.unsubscribe();
+        super.onDestroy();
     }
 
     @Override
@@ -57,26 +69,40 @@ public class LikesListFragment extends ScListFragment {
         refreshLikeIds();
     }
 
+    @Override
+    protected void doneRefreshing() {
+        super.doneRefreshing();
+        refreshLikeIds();
+    }
+
     private void refreshLikeIds() {
-        new SoundAssociationStorage().getTrackLikesAsIdsAsync()
-                .observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<List<Long>>() {
+        mFetchIdsSubscription = fromFragment(this, mSoundAssociationOperations.getLikedTracksIds()).subscribe(mLikedTrackIdsObserver);
+    }
+
+    private void updateShuffleHeader(@NotNull final List<Long> likedTrackIds) {
+        final String likeMessage;
+        if (likedTrackIds.isEmpty()) {
+            likeMessage = getString(R.string.number_of_liked_tracks_you_liked_zero);
+        } else {
+            likeMessage = getResources().getQuantityString(R.plurals.number_of_liked_tracks_you_liked, likedTrackIds.size(), likedTrackIds.size());
+        }
+
+        ((TextView) mHeaderView.findViewById(R.id.shuffle_txt)).setText(likeMessage);
+        mHeaderView.findViewById(R.id.shuffle_btn).setEnabled(likedTrackIds.size() > 1);
+
+        mHeaderView.findViewById(R.id.shuffle_btn).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void call(List<Long> longs) {
-                mLikes = longs;
-                updateShuffleHeader();
+            public void onClick(View v) {
+                mPlaybackOperations.playFromIdListShuffled(getActivity(), likedTrackIds, Screen.SIDE_MENU_LIKES);
             }
         });
     }
 
-    private void updateShuffleHeader(){
-        if (mLikes != null){
-            final String likeMessage = mLikes.isEmpty() ? getString(R.string.number_of_liked_tracks_you_liked_zero) :
-                    getResources().getQuantityString(R.plurals.number_of_liked_tracks_you_liked, mLikes.size(), mLikes.size());
-
-            ((TextView) mHeaderView.findViewById(R.id.shuffle_txt)).setText(likeMessage);
-            mHeaderView.findViewById(R.id.shuffle_btn).setEnabled(mLikes.size() > 1);
-        } else {
-
+    private final DefaultObserver<List<Long>> mLikedTrackIdsObserver = new DefaultObserver<List<Long>>() {
+        @Override
+        public void onNext(List<Long> trackIds) {
+            updateShuffleHeader(trackIds);
         }
-    }
+    };
+
 }

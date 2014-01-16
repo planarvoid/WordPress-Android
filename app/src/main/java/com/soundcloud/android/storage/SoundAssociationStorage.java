@@ -18,6 +18,7 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
     private final ContentResolver mResolver;
     private final SoundAssociationDAO mAllSoundAssocsDAO, mLikesDAO, mRepostsDAO, mTrackCreationsDAO, mPlaylistCreationsDAO;
 
+    @Inject
     public SoundAssociationStorage() {
         super(ScSchedulers.STORAGE_SCHEDULER);
         mResolver = SoundCloudApplication.instance.getContentResolver();

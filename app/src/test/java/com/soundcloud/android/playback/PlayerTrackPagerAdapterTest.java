@@ -4,7 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.refEq;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,6 +16,7 @@ import com.soundcloud.android.playback.views.PlayerQueueView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.track.TrackOperations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,15 +36,14 @@ public class PlayerTrackPagerAdapterTest {
     @Mock
     private PlayerQueueView playerQueueView;
     @Mock
-    private PlaybackOperations playbackOperations;
+    private TrackOperations trackOperations;
     @Mock
     private PlayQueueView playQueue;
-
 
     @Before
     public void setUp() throws Exception {
         // TODO remove the override when we move to Robolectric 2
-        adapter = new PlayerTrackPagerAdapter(playbackOperations) {
+        adapter = new PlayerTrackPagerAdapter(trackOperations) {
             @Override
             protected PlayerQueueView createPlayerQueueView(Context context) {
                 return playerQueueView;
@@ -53,6 +53,7 @@ public class PlayerTrackPagerAdapterTest {
         when(playQueue.isLoading()).thenReturn(false);
         when(playQueue.lastLoadWasEmpty()).thenReturn(false);
         when(playQueue.lastLoadFailed()).thenReturn(false);
+        when(trackOperations.loadCompleteTrack(anyLong())).thenReturn(Observable.just(new Track()));
     }
 
     @Test
@@ -86,12 +87,15 @@ public class PlayerTrackPagerAdapterTest {
     }
 
     @Test
-    public void shouldCreateNewPlayerTrackViewFromPlayQueueItem() {
-        final Observable<Track> trackObservable = Observable.just(new Track());
-        when(playbackOperations.loadTrack(123L)).thenReturn(trackObservable);
-
+    public void shouldLoadCompleteTrackByIdFromPlayQueueItem() {
         expect((PlayerQueueView) adapter.getView(123L, null, mock(ViewGroup.class))).toBe(playerQueueView);
-        verify(playerQueueView).showTrack(refEq(trackObservable), anyInt(), anyBoolean());
+        verify(trackOperations).loadCompleteTrack(123L);
+    }
+
+    @Test
+    public void shouldCreateNewPlayerTrackViewFromPlayQueueItem() {
+        expect((PlayerQueueView) adapter.getView(123L, null, mock(ViewGroup.class))).toBe(playerQueueView);
+        verify(playerQueueView).showTrack(any(Observable.class), anyInt(), anyBoolean());
     }
 
     @Test

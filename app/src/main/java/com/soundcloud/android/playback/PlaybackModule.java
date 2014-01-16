@@ -6,6 +6,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlayQueueOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.storage.PlayQueueStorage;
+import com.soundcloud.android.track.TrackOperations;
 import dagger.Module;
 import dagger.Provides;
 
@@ -19,8 +20,8 @@ public class PlaybackModule {
 
     @Provides
     @Singleton
-    PlaybackOperations providePlaybackOperations() {
-        return new PlaybackOperations();
+    TrackOperations provideTrackOperations() {
+        return new TrackOperations();
     }
 
     @Provides

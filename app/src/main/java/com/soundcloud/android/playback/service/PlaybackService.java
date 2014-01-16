@@ -18,7 +18,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackModule;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.managers.AudioManagerFactory;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
@@ -28,6 +27,7 @@ import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.tasks.FetchModelTask;
+import com.soundcloud.android.track.TrackOperations;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -139,7 +139,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Inject
     PlayQueueManager mPlayQueueManager;
     @Inject
-    PlaybackOperations mPlaybackOperations;
+    TrackOperations mTrackOperations;
     @Inject
     PlaybackEventSource mPlaybackEventSource;
 
@@ -487,12 +487,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     /* package */ void openCurrent() {
         if (!getPlayQueueInternal().isEmpty()){
             final long currentTrackId = getPlayQueueInternal().getCurrentTrackId();
-            mPlaybackOperations.loadTrack(currentTrackId).subscribe(new DefaultObserver<Track>() {
-                @Override
-                public void onNext(Track track) {
-                    openCurrent(track);
-                }
-            });
+            mTrackOperations.loadTrack(currentTrackId).observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new DefaultObserver<Track>() {
+                        @Override
+                        public void onNext(Track track) {
+                            openCurrent(track);
+                        }
+                    });
         }
     }
 
@@ -576,7 +577,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private void onStreamableTrack(Track track){
         if (getCurrentTrackId() != track.getId()) return;
 
-        fireAndForget(mPlaybackOperations.markTrackAsPlayed(mCurrentTrack));
+        fireAndForget(mTrackOperations.markTrackAsPlayed(mCurrentTrack));
         startTrack(track);
     }
 

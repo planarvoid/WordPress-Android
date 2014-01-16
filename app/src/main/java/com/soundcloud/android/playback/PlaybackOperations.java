@@ -21,9 +21,6 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.TrackStorage;
-import rx.Observable;
-import rx.android.concurrency.AndroidSchedulers;
-import rx.util.functions.Func1;
 
 import android.content.Context;
 import android.content.Intent;
@@ -50,9 +47,6 @@ public class PlaybackOperations {
     private ScModelManager mModelManager;
     private TrackStorage mTrackStorage;
 
-
-    Uri TEMP_ORIGIN = Uri.EMPTY;
-
     public PlaybackOperations() {
         this(SoundCloudApplication.sModelManager, new TrackStorage());
     }
@@ -61,22 +55,6 @@ public class PlaybackOperations {
     public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage) {
         mModelManager = modelManager;
         mTrackStorage = trackStorage;
-    }
-
-    public Observable<Track> loadTrack(final long trackId) {
-        return mTrackStorage.getTrackAsync(trackId).map(new Func1<Track, Track>() {
-            @Override
-            public Track call(Track track) {
-                if (track == null) {
-                    track = new Track(trackId);
-                }
-                return mModelManager.cache(track);
-            }
-        }).observeOn(AndroidSchedulers.mainThread());
-    }
-
-    public Observable<Track> markTrackAsPlayed(Track track) {
-        return mTrackStorage.createPlayImpressionAsync(track);
     }
 
     /**

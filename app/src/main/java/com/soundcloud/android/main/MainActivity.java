@@ -67,6 +67,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     UserOperations mUserOperations;
     @Inject
     Provider<ExploreFragment> mExploreFragmentProvider;
+    @Inject
+    Provider<LikesListFragment> mLikesListFragmentProvider;
 
     private final DependencyInjector mDependencyInjector;
     private ObjectGraph mObjectGraph;
@@ -249,8 +251,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private void displayLikes() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(LIKES_FRAGMENT_TAG);
         if (fragment == null) {
-            fragment = mApplicationProperties.isBetaBuild() ? LikesListFragment.newInstance() :
-                    ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes, Screen.SIDE_MENU_LIKES);;
+            fragment = mLikesListFragmentProvider.get();
             attachFragment(fragment, LIKES_FRAGMENT_TAG, R.string.side_menu_likes);
         }
     }

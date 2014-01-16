@@ -1,19 +1,18 @@
 package com.soundcloud.android.accounts;
 
-import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.accounts.UserOperations;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.UserStorage;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +46,7 @@ public class UserOperationsTest {
 
         userOperations.refreshCurrentUser().subscribe(userObserver);
 
-        verify(httpClient).fetchModels(argThat(isApiRequestTo(APIEndpoints.CURRENT_USER.path())));
+        verify(httpClient).fetchModels(argThat(isPublicApiRequestTo("GET", APIEndpoints.CURRENT_USER.path())));
         verify(userStorage).createOrUpdateAsync(currentUser);
     }
 }

@@ -668,7 +668,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         return (mRefreshTask != null && !AndroidUtils.isTaskFinished(mRefreshTask));
     }
 
-    private void doneRefreshing() {
+    protected void doneRefreshing() {
         if (mListView != null) {
             mListView.onRefreshComplete();
         }

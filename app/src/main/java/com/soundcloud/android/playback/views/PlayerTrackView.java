@@ -20,6 +20,8 @@ import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.content.Intent;
@@ -50,6 +52,7 @@ public class PlayerTrackView extends FrameLayout implements
     @NotNull
     protected PlayerTrackViewListener mListener;
     private PlayableInfoAndEngagementsController mInfoAndEngagements;
+    private Subscription mTrackSubscription = Subscriptions.empty();
 
     public interface PlayerTrackViewListener extends WaveformControllerLayout.WaveformListener {
         void onAddToPlaylist(Track track);
@@ -78,7 +81,8 @@ public class PlayerTrackView extends FrameLayout implements
 
     public void setPlayQueueItem(Observable<Track> trackObservable, int queuePosition){
         mQueuePosition = queuePosition;
-        trackObservable.subscribe(new DefaultObserver<Track>() {
+        mTrackSubscription.unsubscribe(); // unsubscribe from old subscription which may be in flight
+        mTrackSubscription = trackObservable.subscribe(new DefaultObserver<Track>() {
             @Override
             public void onNext(Track args) {
                 // GET RID OF PRIORITY OR IMPLEMENT IT PROPERLY

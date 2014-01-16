@@ -5,8 +5,16 @@ import org.mockito.ArgumentMatcher;
 
 public class SoundCloudMatchers {
 
-    public static ArgumentMatcher<APIRequest> isApiRequestTo(String path) {
-        return new ApiRequestTo(path);
+    public static ArgumentMatcher<APIRequest> isApiRequestTo(String method, String path) {
+        return new ApiRequestTo(method, path, false);
+    }
+
+    public static ArgumentMatcher<APIRequest> isPublicApiRequestTo(String method, String path) {
+        return new ApiRequestTo(method, path, false);
+    }
+
+    public static ArgumentMatcher<APIRequest> isMobileApiRequestTo(String method, String path) {
+        return new ApiRequestTo(method, path, true);
     }
 
 }
