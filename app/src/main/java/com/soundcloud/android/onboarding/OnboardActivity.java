@@ -14,6 +14,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.AbstractLoginActivity;
 import com.soundcloud.android.onboarding.auth.AcceptTermsLayout;
@@ -183,12 +184,15 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             public void onClick(View v) {
                 setState(StartState.LOGIN);
                 EventBus.SCREEN_ENTERED.publish(Screen.AUTH_LOG_IN.get());
+                EventBus.ONBOARDING.publish(OnboardingEvent.logInPrompt());
             }
         });
+
         findViewById(R.id.signup_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 EventBus.SCREEN_ENTERED.publish(Screen.AUTH_SIGN_UP.get());
+                EventBus.ONBOARDING.publish(OnboardingEvent.signUpPrompt());
 
                 if (!mApplicationProperties.isDevBuildRunningOnDalvik() && SignupLog.shouldThrottleSignup()) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.soundcloud.com")));
@@ -325,6 +329,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     @Override
     public void onLogin(String email, String password) {
         LoginTaskFragment.create(email, password).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
+        EventBus.ONBOARDING.publish(OnboardingEvent.nativeAuthEvent());
     }
 
     @Override
@@ -336,6 +341,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     @Override
     public void onSignUp(final String email, final String password) {
         proposeTermsOfUse(SignupVia.API, SignupTaskFragment.getParams(email, password));
+        EventBus.ONBOARDING.publish(OnboardingEvent.nativeAuthEvent());
     }
 
     @Override
@@ -357,6 +363,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         }
 
         AddUserInfoTaskFragment.create(mUser,avatarFile).show(getSupportFragmentManager(), "add_user_task");
+        EventBus.ONBOARDING.publish(OnboardingEvent.savedUserInfo(username, avatarFile));
     }
 
     @Override
@@ -373,6 +380,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
                 onAuthTaskComplete(mUser, SignupVia.API, false);
             }
         }.execute();
+        EventBus.ONBOARDING.publish(OnboardingEvent.skippedUserInfo());
     }
 
     @Override
@@ -525,11 +533,13 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             });
             builder.show();
         }
+        EventBus.ONBOARDING.publish(OnboardingEvent.googleAuthEvent());
     }
 
     @Override
     public void onFacebookAuth() {
         proposeTermsOfUse(SignupVia.FACEBOOK_SSO, null);
+        EventBus.ONBOARDING.publish(OnboardingEvent.facebookAuthEvent());
     }
 
     @Override
@@ -574,13 +584,15 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         }
 
         hideView(this, getAcceptTerms(), true);
+        EventBus.ONBOARDING.publish(OnboardingEvent.termsAccepted());
 
     }
 
     @Override
-    public void onCancel() {
+    public void onRejectTerms() {
         setState(StartState.TOUR);
         trackTourScreen();
+        EventBus.ONBOARDING.publish(OnboardingEvent.termsRejected());
     }
 
     @Override
@@ -590,6 +602,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             mUser = user;
             setState(StartState.SIGN_UP_DETAILS);
             EventBus.SCREEN_ENTERED.publish(Screen.AUTH_USER_DETAILS.get());
+            EventBus.ONBOARDING.publish(OnboardingEvent.authComplete());
         } else {
             super.onAuthTaskComplete(user, via, wasApiSignupTask);
         }

@@ -3,6 +3,7 @@ package com.soundcloud.android.onboarding.suggestions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.OnboardingEvent;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -35,6 +36,7 @@ public class SuggestedUsersActivity extends SuggestedUsersBaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.finish) {
             startActivity(new Intent(this, SuggestedUsersSyncActivity.class));
+            EventBus.ONBOARDING.publish(OnboardingEvent.onboardingComplete());
             finish();
             return true;
         } else {

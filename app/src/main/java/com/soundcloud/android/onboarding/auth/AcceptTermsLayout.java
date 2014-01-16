@@ -26,7 +26,7 @@ public class AcceptTermsLayout extends RelativeLayout {
         void onShowTermsOfUse();
         void onShowPrivacyPolicy();
         void onShowCookiePolicy();
-        void onCancel();
+        void onRejectTerms();
     }
 
     public AcceptTermsLayout(Context context) {
@@ -64,7 +64,7 @@ public class AcceptTermsLayout extends RelativeLayout {
         findViewById(R.id.btn_cancel).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                getAcceptTermsHandler().onCancel();
+                getAcceptTermsHandler().onRejectTerms();
             }
         });
 

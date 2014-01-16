@@ -3,6 +3,8 @@ package com.soundcloud.android.onboarding.auth.tasks;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.storage.UserStorage;
@@ -60,6 +62,8 @@ public class LoginTask extends AuthTask {
                 // this should never happen, just show a generic error message
                 return AuthTaskResult.failure(app.getString(R.string.authentication_login_error_message));
             }
+
+            EventBus.ONBOARDING.publish(OnboardingEvent.authComplete());
 
             return AuthTaskResult.success(user, signupVia);
 
