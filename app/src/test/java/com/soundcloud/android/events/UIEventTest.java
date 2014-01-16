@@ -158,4 +158,9 @@ public class UIEventTest {
         assertEquals(uiEventAttributes.get("resource"), "playlist");
         assertEquals(uiEventAttributes.get("resource_id"), "30");
     }
+
+    @Test
+    public void shouldCreateEventFromShuffleMyLikes() throws Exception {
+        assertEquals(UIEvent.fromShuffleMyLikes().getKind(), 9);
+    }
 }

@@ -87,4 +87,11 @@ public class LocalyticsUIEventHandlerTest {
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Share", event.getAttributes());
     }
+
+    @Test
+    public void shouldHandleEventShuffleMyLikes() throws Exception {
+        UIEvent event = UIEvent.fromShuffleMyLikes();
+        localyticsUIEventHandler.handleEvent(event);
+        verify(localyticsSession).tagEvent("Shuffle likes", event.getAttributes());
+    }
 }

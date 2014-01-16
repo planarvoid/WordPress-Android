@@ -6,6 +6,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.collections.ScListView;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.provider.Content;
@@ -94,6 +96,7 @@ public class LikesListFragment extends ScListFragment {
             @Override
             public void onClick(View v) {
                 mPlaybackOperations.playFromIdListShuffled(getActivity(), likedTrackIds, Screen.SIDE_MENU_LIKES);
+                EventBus.UI.publish(UIEvent.fromShuffleMyLikes());
             }
         });
     }

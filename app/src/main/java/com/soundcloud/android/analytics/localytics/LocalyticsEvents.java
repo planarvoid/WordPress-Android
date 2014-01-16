@@ -14,6 +14,7 @@ public interface LocalyticsEvents {
         String ADD_TO_PLAYLIST = "Add to playlist";
         String COMMENT = "Comment";
         String SHARE = "Share";
+        String SHUFFLE_LIKES = "Shuffle likes";
     }
 
     interface Onboarding {

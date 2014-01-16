@@ -45,6 +45,9 @@ class LocalyticsUIEventHandler {
             case UIEvent.SHARE:
                 mLocalyticsSession.tagEvent(LocalyticsEvents.UI.SHARE, eventAttributes);
                 break;
+            case UIEvent.SHUFFLE_LIKES:
+                mLocalyticsSession.tagEvent(LocalyticsEvents.UI.SHUFFLE_LIKES, eventAttributes);
+                break;
             default:
                 throw new IllegalArgumentException("UI Event type is invalid");
         }

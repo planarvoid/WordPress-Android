@@ -5,6 +5,7 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ public final class UIEvent implements Event {
     public static final int ADD_TO_PLAYLIST = 6;
     public static final int COMMENT = 7;
     public static final int SHARE = 8;
+    public static final int SHUFFLE_LIKES = 9;
 
     private final int mKind;
     private final Map<String, String> mAttributes;
@@ -92,6 +94,10 @@ public final class UIEvent implements Event {
         return new UIEvent(SHARE, attributes);
     }
 
+    public static UIEvent fromShuffleMyLikes() {
+        return new UIEvent(SHUFFLE_LIKES);
+    }
+
     private static String getPlayableType(Playable playable) {
         return (playable instanceof Track ? "track" : "playlist");
     }
@@ -99,6 +105,10 @@ public final class UIEvent implements Event {
     private UIEvent(int kind, Map<String, String> attributes) {
         mKind = kind;
         mAttributes = attributes;
+    }
+
+    public UIEvent(int kind) {
+        this(kind, Collections.<String,String>emptyMap());
     }
 
     @Override
