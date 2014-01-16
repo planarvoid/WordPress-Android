@@ -111,7 +111,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
 
-        mSubscription.add(EventBus.CURRENT_USER_UPDATED.subscribe(userObserver));
+        mSubscription.add(EventBus.CURRENT_USER_CHANGED.subscribe(userObserver));
     }
 
     private NavigationFragment findNavigationFragment() {
