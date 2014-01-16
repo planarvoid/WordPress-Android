@@ -19,7 +19,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
-import com.soundcloud.android.events.SocialEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
@@ -201,15 +201,15 @@ public class AnalyticsEngineTrackingTest {
     }
 
     @Test
-    public void shouldTrackSocialEvent() throws Exception {
+    public void shouldTrackUIEvent() throws Exception {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
-        SocialEvent socialEvent = SocialEvent.fromFollow("screen", 0);
-        EventBus.SOCIAL.publish(socialEvent);
+        UIEvent uiEvent = UIEvent.fromFollow("screen", 0);
+        EventBus.UI.publish(uiEvent);
 
-        verify(analyticsProviderOne, times(1)).handleSocialEvent(socialEvent);
-        verify(analyticsProviderTwo, times(1)).handleSocialEvent(socialEvent);
+        verify(analyticsProviderOne, times(1)).handleUIEvent(uiEvent);
+        verify(analyticsProviderTwo, times(1)).handleUIEvent(uiEvent);
     }
 
     @Test
@@ -232,19 +232,19 @@ public class AnalyticsEngineTrackingTest {
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlaybackEvent(any(PlaybackEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleScreenEvent(anyString());
-        doThrow(new RuntimeException()).when(analyticsProviderOne).handleSocialEvent(any(SocialEvent.class));
+        doThrow(new RuntimeException()).when(analyticsProviderOne).handleUIEvent(any(UIEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleOnboardingEvent(any(OnboardingEvent.class));
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
         EventBus.PLAYBACK.publish(PlaybackEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
         EventBus.SCREEN_ENTERED.publish("screen");
-        EventBus.SOCIAL.publish(SocialEvent.fromFollow("screen", 0));
+        EventBus.UI.publish(UIEvent.fromFollow("screen", 0));
         EventBus.ONBOARDING.publish(OnboardingEvent.authComplete());
 
         verify(analyticsProviderTwo).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
         verify(analyticsProviderTwo).handlePlaybackEvent(any(PlaybackEvent.class));
         verify(analyticsProviderTwo).handleScreenEvent(anyString());
-        verify(analyticsProviderTwo).handleSocialEvent(any(SocialEvent.class));
+        verify(analyticsProviderTwo).handleUIEvent(any(UIEvent.class));
         verify(analyticsProviderTwo).handleOnboardingEvent(any(OnboardingEvent.class));
     }
 

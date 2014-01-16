@@ -5,7 +5,7 @@ import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.SocialEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.storage.SoundAssociationStorage;
@@ -42,26 +42,26 @@ public class AssociationManager {
 
     public void setLike(@Nullable Playable playable, boolean likeAdded, String originScreen) {
         if (playable == null) return;
-        SocialEvent socialEvent;
+        UIEvent uiEvent;
         if (likeAdded) {
-            socialEvent = SocialEvent.fromLike(originScreen, playable);
+            uiEvent = UIEvent.fromLike(originScreen, playable);
         } else {
-            socialEvent = SocialEvent.fromUnlike(originScreen, playable);
+            uiEvent = UIEvent.fromUnlike(originScreen, playable);
         }
-        EventBus.SOCIAL.publish(socialEvent);
+        EventBus.UI.publish(uiEvent);
         onLikeStatusSet(playable, likeAdded);
         pushToRemote(playable, Content.ME_LIKES, likeAdded, likeListener);
     }
 
     public void setRepost(@Nullable Playable playable, boolean repostAdded, String originScreen) {
         if (playable == null) return;
-        SocialEvent socialEvent;
+        UIEvent uiEvent;
         if (repostAdded) {
-            socialEvent = SocialEvent.fromRepost(originScreen, playable);
+            uiEvent = UIEvent.fromRepost(originScreen, playable);
         } else {
-            socialEvent = SocialEvent.fromUnrepost(originScreen, playable);
+            uiEvent = UIEvent.fromUnrepost(originScreen, playable);
         }
-        EventBus.SOCIAL.publish(socialEvent);
+        EventBus.UI.publish(uiEvent);
         onRepostStatusSet(playable, repostAdded);
         pushToRemote(playable, Content.ME_REPOSTS, repostAdded, repostListener);
     }

@@ -4,7 +4,7 @@ public interface LocalyticsEvents {
 
     String LISTEN = "Listen";
 
-    interface Social {
+    interface UI {
         String FOLLOW = "Follow";
         String UNFOLLOW = "Unfollow";
         String LIKE = "Like";

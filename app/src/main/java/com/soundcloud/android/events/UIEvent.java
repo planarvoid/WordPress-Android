@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class SocialEvent implements Event {
+public final class UIEvent implements Event {
 
     public static final int FOLLOW = 0;
     public static final int UNFOLLOW = 1;
@@ -23,80 +23,80 @@ public final class SocialEvent implements Event {
     private final int mKind;
     private final Map<String, String> mAttributes;
 
-    public static SocialEvent fromFollow(String screenTag, long userId) {
+    public static UIEvent fromFollow(String screenTag, long userId) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);
         attributes.put("user_id", String.valueOf(userId));
-        return new SocialEvent(FOLLOW, attributes);
+        return new UIEvent(FOLLOW, attributes);
     }
 
-    public static SocialEvent fromUnfollow(String screenTag, long userId) {
+    public static UIEvent fromUnfollow(String screenTag, long userId) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);
         attributes.put("user_id", String.valueOf(userId));
-        return new SocialEvent(UNFOLLOW, attributes);
+        return new UIEvent(UNFOLLOW, attributes);
     }
 
-    public static SocialEvent fromLike(String screenTag, @NotNull Playable playable) {
+    public static UIEvent fromLike(String screenTag, @NotNull Playable playable) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);
         attributes.put("resource", getPlayableType(playable));
         attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new SocialEvent(LIKE, attributes);
+        return new UIEvent(LIKE, attributes);
     }
 
-    public static SocialEvent fromUnlike(String screenTag, @NotNull Playable playable) {
+    public static UIEvent fromUnlike(String screenTag, @NotNull Playable playable) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);
         attributes.put("resource", getPlayableType(playable));
         attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new SocialEvent(UNLIKE, attributes);
+        return new UIEvent(UNLIKE, attributes);
     }
 
-    public static SocialEvent fromRepost(String screenTag, @NotNull Playable playable) {
+    public static UIEvent fromRepost(String screenTag, @NotNull Playable playable) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);
         attributes.put("resource", getPlayableType(playable));
         attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new SocialEvent(REPOST, attributes);
+        return new UIEvent(REPOST, attributes);
     }
 
-    public static SocialEvent fromUnrepost(String screenTag, @NotNull Playable playable) {
+    public static UIEvent fromUnrepost(String screenTag, @NotNull Playable playable) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);
         attributes.put("resource", getPlayableType(playable));
         attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new SocialEvent(UNREPOST, attributes);
+        return new UIEvent(UNREPOST, attributes);
     }
 
-    public static SocialEvent fromAddToPlaylist(String screenTag, boolean isNewPlaylist, long trackId) {
+    public static UIEvent fromAddToPlaylist(String screenTag, boolean isNewPlaylist, long trackId) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);
         attributes.put("is_new_playlist", isNewPlaylist ? "yes" : "no");
         attributes.put("track_id", String.valueOf(trackId));
-        return new SocialEvent(ADD_TO_PLAYLIST, attributes);
+        return new UIEvent(ADD_TO_PLAYLIST, attributes);
     }
 
-    public static SocialEvent fromComment(String screenTag, long trackId) {
+    public static UIEvent fromComment(String screenTag, long trackId) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);
         attributes.put("track_id", String.valueOf(trackId));
-        return new SocialEvent(COMMENT, attributes);
+        return new UIEvent(COMMENT, attributes);
     }
 
-    public static SocialEvent fromShare(String screenTag, @NotNull Playable playable) {
+    public static UIEvent fromShare(String screenTag, @NotNull Playable playable) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);
         attributes.put("resource", getPlayableType(playable));
         attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new SocialEvent(SHARE, attributes);
+        return new UIEvent(SHARE, attributes);
     }
 
     private static String getPlayableType(Playable playable) {
         return (playable instanceof Track ? "track" : "playlist");
     }
 
-    private SocialEvent(int kind, Map<String, String> attributes) {
+    private UIEvent(int kind, Map<String, String> attributes) {
         mKind = kind;
         mAttributes = attributes;
     }
@@ -112,6 +112,6 @@ public final class SocialEvent implements Event {
 
     @Override
     public String toString() {
-        return  String.format("Social Event with type id %s and %s", mKind, mAttributes.toString());
+        return  String.format("UI Event with type id %s and %s", mKind, mAttributes.toString());
     }
 }

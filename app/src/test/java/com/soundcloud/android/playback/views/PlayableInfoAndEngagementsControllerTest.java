@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.SocialEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Before;
@@ -45,28 +45,28 @@ public class PlayableInfoAndEngagementsControllerTest {
     }
 
     @Test
-    public void shouldPublishSocialEventWhenSharingPlayable() {
+    public void shouldPublishUIEventWhenSharingPlayable() {
         controller.setTrack(new Track(1L));
 
-        Observer<SocialEvent> eventObserver = mock(Observer.class);
-        EventBus.SOCIAL.subscribe(eventObserver);
+        Observer<UIEvent> eventObserver = mock(Observer.class);
+        EventBus.UI.subscribe(eventObserver);
 
         rootView.findViewById(R.id.btn_share).performClick();
 
-        ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
+        ArgumentCaptor<UIEvent> socialEvent = ArgumentCaptor.forClass(UIEvent.class);
         verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getKind()).toBe(SocialEvent.SHARE);
+        expect(socialEvent.getValue().getKind()).toBe(UIEvent.SHARE);
         //TODO: no idea how to obtain this
         //expect(socialEvent.getValue().getAttributes().screenTag).toEqual("screen_tag");
     }
 
     @Test
-    public void shouldNotPublishSocialEventWhenTrackIsNull() {
-        Observer<SocialEvent> eventObserver = mock(Observer.class);
-        EventBus.SOCIAL.subscribe(eventObserver);
+    public void shouldNotPublishUIEventWhenTrackIsNull() {
+        Observer<UIEvent> eventObserver = mock(Observer.class);
+        EventBus.UI.subscribe(eventObserver);
 
         rootView.findViewById(R.id.btn_share).performClick();
 
-        verify(eventObserver, never()).onNext(any(SocialEvent.class));
+        verify(eventObserver, never()).onNext(any(UIEvent.class));
     }
 }

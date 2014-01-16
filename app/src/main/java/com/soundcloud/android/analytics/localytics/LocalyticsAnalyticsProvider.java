@@ -8,7 +8,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
-import com.soundcloud.android.events.SocialEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -29,7 +29,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     static final AtomicBoolean ACTIVITY_SESSION_OPEN = new AtomicBoolean();
 
     private LocalyticsSession mLocalyticsSession;
-    private LocalyticsSocialEventHandler mLocalyticsSocialEventHandler;
+    private LocalyticsUIEventHandler mLocalyticsUIEventHandler;
     private LocalyticsOnboardingEventHandler mLocalyticsOnboardingEventHandler;
     private PlaybackServiceStateWrapper mPlaybackStateWrapper;
 
@@ -42,7 +42,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     protected LocalyticsAnalyticsProvider(LocalyticsSession localyticsSession,
                                           PlaybackServiceStateWrapper playbackStateWrapper) {
         mLocalyticsSession = localyticsSession;
-        mLocalyticsSocialEventHandler = new LocalyticsSocialEventHandler(mLocalyticsSession);
+        mLocalyticsUIEventHandler = new LocalyticsUIEventHandler(mLocalyticsSession);
         mLocalyticsOnboardingEventHandler = new LocalyticsOnboardingEventHandler(mLocalyticsSession);
         mPlaybackStateWrapper = playbackStateWrapper;
     }
@@ -117,8 +117,8 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         }
     }
 
-    public void handleSocialEvent(SocialEvent event) {
-        mLocalyticsSocialEventHandler.handleEvent(event);
+    public void handleUIEvent(UIEvent event) {
+        mLocalyticsUIEventHandler.handleEvent(event);
     }
 
     public void handleOnboardingEvent(OnboardingEvent event){

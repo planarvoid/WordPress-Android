@@ -7,7 +7,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
-import com.soundcloud.android.events.SocialEvent;
+import com.soundcloud.android.events.UIEvent;
 
 import android.content.Context;
 
@@ -46,7 +46,7 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
     public void handlePlaybackEvent(PlaybackEvent eventData) {}
 
     @Override
-    public void handleSocialEvent(SocialEvent event) {}
+    public void handleUIEvent(UIEvent event) {}
 
     @Override
     public void handleOnboardingEvent(OnboardingEvent event) {}

@@ -5,7 +5,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
-import com.soundcloud.android.events.SocialEvent;
+import com.soundcloud.android.events.UIEvent;
 
 /**
  * Implementations of this interface will be sending information to a specific analytics provider
@@ -48,11 +48,11 @@ public interface AnalyticsProvider {
     void handlePlaybackEvent(PlaybackEvent eventData);
 
     /**
-     * Signals to the analytics provider that a social event has occurred
+     * Signals to the analytics provider that a UI event has occurred
      *
-     * @param event social event information
+     * @param event ui event information
      */
-    void handleSocialEvent(SocialEvent event);
+    void handleUIEvent(UIEvent event);
 
     /**
      * Signals to the analytics provider that a onboarding event has occurred

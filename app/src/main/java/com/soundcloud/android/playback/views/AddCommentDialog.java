@@ -4,7 +4,7 @@ package com.soundcloud.android.playback.views;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.SocialEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -77,7 +77,7 @@ public class AddCommentDialog extends BaseDialogFragment {
 
     private void handleCommentAdded(Comment comment) {
         final String screenTag = getArguments().getString(EXTRA_ORIGIN_SCREEN);
-        EventBus.SOCIAL.publish(SocialEvent.fromComment(screenTag, comment.track_id));
+        EventBus.UI.publish(UIEvent.fromComment(screenTag, comment.track_id));
         dismiss();
     }
 

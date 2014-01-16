@@ -15,7 +15,7 @@ import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.SocialEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
@@ -226,22 +226,22 @@ public class FollowingOperationsTest {
     }
 
     @Test
-    public void shouldPublishSocialEventWhenFollowingUser() throws Exception {
-        Observer<SocialEvent> eventObserver = mock(Observer.class);
-        EventBus.SOCIAL.subscribe(eventObserver);
+    public void shouldPublishUIEventWhenFollowingUser() throws Exception {
+        Observer<UIEvent> eventObserver = mock(Observer.class);
+        EventBus.UI.subscribe(eventObserver);
         ops.addFollowing(Screen.ACTIVITIES, user).subscribe(observer);
-        ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
-        verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getKind()).toEqual(SocialEvent.FOLLOW);
+        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
+        verify(eventObserver).onNext(uiEvent.capture());
+        expect(uiEvent.getValue().getKind()).toEqual(UIEvent.FOLLOW);
     }
 
     @Test
-    public void shouldPublishSocialEventWhenUnfollowingUser() throws Exception {
-        Observer<SocialEvent> eventObserver = mock(Observer.class);
-        EventBus.SOCIAL.subscribe(eventObserver);
+    public void shouldPublishUIEventWhenUnfollowingUser() throws Exception {
+        Observer<UIEvent> eventObserver = mock(Observer.class);
+        EventBus.UI.subscribe(eventObserver);
         ops.removeFollowing(Screen.ACTIVITIES, user).subscribe(observer);
-        ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
-        verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getKind()).toEqual(SocialEvent.UNFOLLOW);
+        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
+        verify(eventObserver).onNext(uiEvent.capture());
+        expect(uiEvent.getValue().getKind()).toEqual(UIEvent.UNFOLLOW);
     }
 }

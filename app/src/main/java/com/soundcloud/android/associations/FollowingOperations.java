@@ -19,7 +19,7 @@ import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.SocialEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.SuggestedUser;
@@ -90,7 +90,7 @@ public class FollowingOperations {
     }
 
     public Observable<UserAssociation> addFollowing(Screen originScreen, @NotNull final User user) {
-        EventBus.SOCIAL.publish(SocialEvent.fromFollow(originScreen.get(), user.getId()));
+        EventBus.UI.publish(UIEvent.fromFollow(originScreen.get(), user.getId()));
         updateLocalStatus(true, user.getId());
         return mUserAssociationStorage.follow(user);
     }
@@ -101,7 +101,7 @@ public class FollowingOperations {
     }
 
     public Observable<UserAssociation> removeFollowing(Screen originScreen, final User user) {
-        EventBus.SOCIAL.publish(SocialEvent.fromUnfollow(originScreen.get(), user.getId()));
+        EventBus.UI.publish(UIEvent.fromUnfollow(originScreen.get(), user.getId()));
         updateLocalStatus(false, user.getId());
         return mUserAssociationStorage.unfollow(user);
     }

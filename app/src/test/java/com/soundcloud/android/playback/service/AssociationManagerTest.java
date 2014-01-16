@@ -10,7 +10,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.TempEndpoints;
 import com.soundcloud.android.associations.AssociationManager;
 import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.SocialEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
@@ -198,65 +198,65 @@ public class AssociationManagerTest {
     }
 
     @Test
-    public void shouldPublishSocialEventWhenCreatingNewPlayableLike() throws Exception {
+    public void shouldPublishUIEventWhenCreatingNewPlayableLike() throws Exception {
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, 1L).toUrl(), new TestHttpResponse(201, "OK"));
 
-        Observer<SocialEvent> eventObserver = mock(Observer.class);
-        EventBus.SOCIAL.subscribe(eventObserver);
+        Observer<UIEvent> eventObserver = mock(Observer.class);
+        EventBus.UI.subscribe(eventObserver);
 
         associationManager.setLike(new Track(1L), true, "screen_tag");
 
-        ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
-        verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getKind()).toBe(SocialEvent.LIKE);
-        expect(socialEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
+        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
+        verify(eventObserver).onNext(uiEvent.capture());
+        expect(uiEvent.getValue().getKind()).toBe(UIEvent.LIKE);
+        expect(uiEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
     }
 
     @Test
-    public void shouldPublishSocialEventWhenCreatingPlayableUnlike() throws Exception {
+    public void shouldPublishUIEventWhenCreatingPlayableUnlike() throws Exception {
         String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_LIKE, 1L).toUrl();
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
 
-        Observer<SocialEvent> eventObserver = mock(Observer.class);
-        EventBus.SOCIAL.subscribe(eventObserver);
+        Observer<UIEvent> eventObserver = mock(Observer.class);
+        EventBus.UI.subscribe(eventObserver);
 
         associationManager.setLike(new Track(1L), false, "screen_tag");
 
-        ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
-        verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getKind()).toBe(SocialEvent.UNLIKE);
-        expect(socialEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
+        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
+        verify(eventObserver).onNext(uiEvent.capture());
+        expect(uiEvent.getValue().getKind()).toBe(UIEvent.UNLIKE);
+        expect(uiEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
     }
 
     @Test
-    public void shouldPublishSocialEventWhenCreatingNewPlayableRepost() throws Exception {
+    public void shouldPublishUIEventWhenCreatingNewPlayableRepost() throws Exception {
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, 1L).toUrl(), new TestHttpResponse(201, "OK"));
 
-        Observer<SocialEvent> eventObserver = mock(Observer.class);
-        EventBus.SOCIAL.subscribe(eventObserver);
+        Observer<UIEvent> eventObserver = mock(Observer.class);
+        EventBus.UI.subscribe(eventObserver);
 
         associationManager.setRepost(new Track(1L), true, "screen_tag");
 
-        ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
-        verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getKind()).toBe(SocialEvent.REPOST);
-        expect(socialEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
+        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
+        verify(eventObserver).onNext(uiEvent.capture());
+        expect(uiEvent.getValue().getKind()).toBe(UIEvent.REPOST);
+        expect(uiEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
     }
 
     @Test
-    public void shouldPublishSocialEventWhenCreatingPlayableUnrepost() throws Exception {
+    public void shouldPublishUIEventWhenCreatingPlayableUnrepost() throws Exception {
         String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_REPOST, 1L).toUrl();
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
 
-        Observer<SocialEvent> eventObserver = mock(Observer.class);
-        EventBus.SOCIAL.subscribe(eventObserver);
+        Observer<UIEvent> eventObserver = mock(Observer.class);
+        EventBus.UI.subscribe(eventObserver);
 
         associationManager.setRepost(new Track(1L), false, "screen_tag");
 
-        ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
-        verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getKind()).toBe(SocialEvent.UNREPOST);
-        expect(socialEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
+        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
+        verify(eventObserver).onNext(uiEvent.capture());
+        expect(uiEvent.getValue().getKind()).toBe(UIEvent.UNREPOST);
+        expect(uiEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
     }
 
     private Track createTrack() {

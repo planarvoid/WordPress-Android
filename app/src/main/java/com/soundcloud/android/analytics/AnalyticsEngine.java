@@ -8,7 +8,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
-import com.soundcloud.android.events.SocialEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.Log;
@@ -86,7 +86,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             Log.d(this, "Subscribing to events");
             mEventsSubscription = new CompositeSubscription();
             mEventsSubscription.add(EventBus.PLAYBACK.subscribe(new PlaybackEventObserver()));
-            mEventsSubscription.add(EventBus.SOCIAL.subscribe(new SocialEventObserver()));
+            mEventsSubscription.add(EventBus.UI.subscribe(new UIEventObserver()));
             mEventsSubscription.add(EventBus.ONBOARDING.subscribe(new OnboardingEventObserver()));
             mEventsSubscription.add(EventBus.ACTIVITY_LIFECYCLE.subscribe(new ActivityEventObserver()));
             mEventsSubscription.add(EventBus.SCREEN_ENTERED.subscribe(new ScreenEventObserver()));
@@ -163,13 +163,13 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    private void handleSocialEvent(SocialEvent event) {
-        Log.d(this, "Track social event " + event);
+    private void handleUIEvent(UIEvent event) {
+        Log.d(this, "Track UI event " + event);
         for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
             try {
-                analyticsProvider.handleSocialEvent(event);
+                analyticsProvider.handleUIEvent(event);
             } catch (Throwable t) {
-                handleProviderError(t, analyticsProvider, "handleSocialEvent");
+                handleProviderError(t, analyticsProvider, "handleUIEvent");
             }
         }
     }
@@ -230,11 +230,11 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    private final class SocialEventObserver extends DefaultObserver<SocialEvent> {
+    private final class UIEventObserver extends DefaultObserver<UIEvent> {
         @Override
-        public void onNext(SocialEvent args) {
-            Log.d(this, "SocialEventObserver onNext: " + args);
-            handleSocialEvent(args);
+        public void onNext(UIEvent args) {
+            Log.d(this, "UIEventObserver onNext: " + args);
+            handleUIEvent(args);
             scheduleFlush();
         }
     }

@@ -16,7 +16,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.PlaybackEvent;
-import com.soundcloud.android.events.SocialEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
@@ -169,11 +169,11 @@ public class AnalyticsEngineEventFlushingTest {
     }
 
     @Test
-    public void shouldScheduleFlushesFromSocialEvents() {
+    public void shouldScheduleFlushesFromUIEvents() {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
-        EventBus.SOCIAL.publish(SocialEvent.fromComment("screen", 1L));
+        EventBus.UI.publish(UIEvent.fromComment("screen", 1L));
 
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }

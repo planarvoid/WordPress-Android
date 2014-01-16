@@ -6,7 +6,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
-import com.soundcloud.android.events.SocialEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
@@ -52,7 +52,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handleSocialEvent(SocialEvent event) {
+    public void handleUIEvent(UIEvent event) {
     }
 
     @Override

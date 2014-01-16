@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.SocialEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.User;
@@ -74,20 +74,20 @@ public class PlaylistOperationsTest {
     }
 
     @Test
-    public void shouldPublishSocialEventWhenCreatingNewPlaylist() {
+    public void shouldPublishUIEventWhenCreatingNewPlaylist() {
         User currentUser = new User();
         long firstTrackId = 1L;
 
-        Observer<SocialEvent> eventObserver = mock(Observer.class);
-        EventBus.SOCIAL.subscribe(eventObserver);
+        Observer<UIEvent> eventObserver = mock(Observer.class);
+        EventBus.UI.subscribe(eventObserver);
         when(playlistStorage.createNewUserPlaylistAsync(
                 currentUser, "new playlist", false, firstTrackId)).thenReturn(Observable.just(playlist));
 
         playlistOperations.createNewPlaylist(currentUser, "new playlist", false, firstTrackId, "screen_tag").subscribe(observer);
 
-        ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
+        ArgumentCaptor<UIEvent> socialEvent = ArgumentCaptor.forClass(UIEvent.class);
         verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getKind()).toBe(SocialEvent.ADD_TO_PLAYLIST);
+        expect(socialEvent.getValue().getKind()).toBe(UIEvent.ADD_TO_PLAYLIST);
         expect(socialEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
     }
 
@@ -102,16 +102,16 @@ public class PlaylistOperationsTest {
     }
 
     @Test
-    public void shouldPublishSocialEventWhenAddingTrackToPlaylist() {
-        Observer<SocialEvent> eventObserver = mock(Observer.class);
-        EventBus.SOCIAL.subscribe(eventObserver);
+    public void shouldPublishUIEventWhenAddingTrackToPlaylist() {
+        Observer<UIEvent> eventObserver = mock(Observer.class);
+        EventBus.UI.subscribe(eventObserver);
         when(playlistStorage.addTrackToPlaylist(playlist, 1L)).thenReturn(playlist);
 
         playlistOperations.addTrackToPlaylist(123L, 1L, "screen_tag").subscribe(observer);
 
-        ArgumentCaptor<SocialEvent> socialEvent = ArgumentCaptor.forClass(SocialEvent.class);
+        ArgumentCaptor<UIEvent> socialEvent = ArgumentCaptor.forClass(UIEvent.class);
         verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getKind()).toBe(SocialEvent.ADD_TO_PLAYLIST);
+        expect(socialEvent.getValue().getKind()).toBe(UIEvent.ADD_TO_PLAYLIST);
         expect(socialEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
     }
 }
