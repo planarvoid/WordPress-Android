@@ -5,9 +5,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-
-public final class PlaybackEvent extends Event {
+public final class PlaybackEvent implements Event {
 
     public static final int STOP_REASON_PAUSE = 0;
     public static final int STOP_REASON_BUFFERING = 1;
@@ -20,6 +18,7 @@ public final class PlaybackEvent extends Event {
     private static final int EVENT_KIND_PLAY = 0;
     private static final int EVENT_KIND_STOP = 1;
 
+    private final int mKind;
     @NotNull
     private Track mTrack;
 
@@ -52,12 +51,16 @@ public final class PlaybackEvent extends Event {
     }
 
     private PlaybackEvent(int eventKind, @NotNull Track track, long userId, TrackSourceInfo trackSourceInfo, long timestamp) {
-        super(eventKind, Collections.<String, String>emptyMap());
         mTrack = track;
         mKind = eventKind;
         mUserId = userId;
         mTrackSourceInfo = trackSourceInfo;
         mTimeStamp = timestamp;
+    }
+
+    @Override
+    public int getKind() {
+        return mKind;
     }
 
     public Track getTrack() {

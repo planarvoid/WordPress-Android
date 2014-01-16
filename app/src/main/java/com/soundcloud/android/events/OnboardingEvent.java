@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class OnboardingEvent extends Event {
+public final class OnboardingEvent implements Event {
 
     public static final int AUTH_PROMPT = 0;
     public static final int AUTH_CREDENTIALS = 1;
@@ -18,8 +18,12 @@ public final class OnboardingEvent extends Event {
     public static final int SKIP_USER_INFO = 5;
     public static final int ONBOARDING_COMPLETE = 6;
 
-    private OnboardingEvent(int type, Map<String, String> attributes) {
-        super(type, attributes);
+    private final int mKind;
+    private final Map<String, String> mAttributes;
+
+    private OnboardingEvent(int kind, Map<String, String> attributes) {
+        mKind = kind;
+        mAttributes = attributes;
     }
 
     private OnboardingEvent(int type) {
@@ -88,7 +92,16 @@ public final class OnboardingEvent extends Event {
     }
 
     @Override
+    public int getKind() {
+        return mKind;
+    }
+
+    public Map<String, String> getAttributes() {
+        return mAttributes;
+    }
+
+    @Override
     public String toString() {
-        return  String.format("UI Event with type id %s and %s", mKind, mAttributes.toString());
+        return  String.format("onboarding Event with type id %s and %s", mKind, mAttributes.toString());
     }
 }

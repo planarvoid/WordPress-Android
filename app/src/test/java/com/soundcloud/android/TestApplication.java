@@ -1,5 +1,8 @@
 package com.soundcloud.android;
 
+import static org.mockito.Mockito.mock;
+
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.creators.record.WavHeader;
@@ -26,6 +29,7 @@ public class TestApplication extends SoundCloudApplication {
     }
 
     private TestApplication(Token token) {
+        super(mock(AccountOperations.class));
         this.token = token;
     }
 

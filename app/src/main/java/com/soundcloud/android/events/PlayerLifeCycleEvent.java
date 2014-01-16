@@ -1,23 +1,26 @@
 package com.soundcloud.android.events;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public final class PlayerLifeCycleEvent extends Event {
+public final class PlayerLifeCycleEvent implements Event {
 
     public static final int STATE_IDLE = 0;
     public static final int STATE_DESTROYED = 1;
 
     public static PlayerLifeCycleEvent forIdle() {
-        return new PlayerLifeCycleEvent(STATE_IDLE, new HashMap<String, String>());
+        return new PlayerLifeCycleEvent(STATE_IDLE);
     }
 
     public static PlayerLifeCycleEvent forDestroyed() {
-        return new PlayerLifeCycleEvent(STATE_DESTROYED, new HashMap<String, String>());
+        return new PlayerLifeCycleEvent(STATE_DESTROYED);
     }
 
-    private PlayerLifeCycleEvent(int state, Map<String, String> attributes) {
-        super(state, attributes);
+    private final int mKind;
+
+    private PlayerLifeCycleEvent(int kind) {
+        mKind = kind;
     }
 
+    @Override
+    public int getKind() {
+        return mKind;
+    }
 }

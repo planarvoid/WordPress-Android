@@ -1,49 +1,36 @@
 package com.soundcloud.android.events;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import android.app.Activity;
 
-import java.util.Collections;
+public final class ActivityLifeCycleEvent implements Event {
 
-public final class ActivityLifeCycleEvent extends Event {
+    public static final int ON_RESUME_EVENT = 0;
+    public static final int ON_CREATE_EVENT = 1;
+    public static final int ON_PAUSE_EVENT = 2;
 
-    private static final int ON_RESUME_EVENT = 0;
-    private static final int ON_CREATE_EVENT = 1;
-    private static final int ON_PAUSE_EVENT = 2;
-
-    private Class<? extends Activity> mActivityClass;
-    private int mLifeCycleMethod;
+    private final Class<? extends Activity> mActivityClass;
+    private final int mKind;
 
     public static ActivityLifeCycleEvent forOnCreate(Class<? extends Activity> activityClass) {
-        return new ActivityLifeCycleEvent(activityClass, ON_CREATE_EVENT);
+        return new ActivityLifeCycleEvent(ON_CREATE_EVENT, activityClass);
     }
 
     public static ActivityLifeCycleEvent forOnResume(Class<? extends Activity> activityClass) {
-        return new ActivityLifeCycleEvent(activityClass, ON_RESUME_EVENT);
+        return new ActivityLifeCycleEvent(ON_RESUME_EVENT, activityClass);
     }
 
     public static ActivityLifeCycleEvent forOnPause(Class<? extends Activity> activityClass) {
-        return new ActivityLifeCycleEvent(activityClass, ON_PAUSE_EVENT);
+        return new ActivityLifeCycleEvent(ON_PAUSE_EVENT, activityClass);
     }
 
-    @VisibleForTesting
-    ActivityLifeCycleEvent(Class<? extends Activity> activityClass, int lifeCycleMethod) {
-        super(lifeCycleMethod, Collections.<String, String>emptyMap());
+    private ActivityLifeCycleEvent(int kind, Class<? extends Activity> activityClass) {
         mActivityClass = activityClass;
-        mLifeCycleMethod = lifeCycleMethod;
+        mKind = kind;
     }
 
-    public boolean isResumeEvent() {
-        return mLifeCycleMethod == ON_RESUME_EVENT;
-    }
-
-    public boolean isCreateEvent() {
-        return mLifeCycleMethod == ON_CREATE_EVENT;
-    }
-
-    public boolean isPauseEvent() {
-        return mLifeCycleMethod == ON_PAUSE_EVENT;
+    @Override
+    public int getKind() {
+        return mKind;
     }
 
     public Class<? extends Activity> getActivityClass() {
@@ -56,7 +43,7 @@ public final class ActivityLifeCycleEvent extends Event {
     }
 
     private String lifeCycleMethodName() {
-        switch (mLifeCycleMethod) {
+        switch (mKind) {
             case ON_CREATE_EVENT:
                 return "onCreate";
             case ON_RESUME_EVENT:
@@ -65,7 +52,7 @@ public final class ActivityLifeCycleEvent extends Event {
                 return "onPause";
             default:
                 throw new IllegalStateException(
-                        "Attempting to get name of unknown lifecycle method code: " + mLifeCycleMethod);
+                        "Attempting to get name of unknown lifecycle method code: " + mKind);
         }
     }
 }

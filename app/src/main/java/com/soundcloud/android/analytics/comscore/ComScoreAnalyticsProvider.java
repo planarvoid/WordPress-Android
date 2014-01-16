@@ -23,9 +23,9 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
-        if (event.isResumeEvent()) {
+        if (event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT) {
             comScore.onEnterForeground();
-        } else if (event.isPauseEvent()) {
+        } else if (event.getKind() == ActivityLifeCycleEvent.ON_PAUSE_EVENT) {
             comScore.onExitForeground();
         }
     }

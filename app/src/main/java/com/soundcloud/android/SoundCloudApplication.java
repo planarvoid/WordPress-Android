@@ -5,6 +5,7 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.AUTHORIT
 import static com.soundcloud.android.storage.provider.ScContentProvider.enableSyncing;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.localytics.android.Constants;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -16,6 +17,8 @@ import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.migrations.MigrationEngine;
 import com.soundcloud.android.model.ContentStats;
@@ -67,6 +70,15 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     private AnalyticsEngine mAnalyticsEngine;
 
     private ObjectGraph mObjectGraph;
+
+    public SoundCloudApplication() {
+        // DO NOT REMOVE, Android needs a default constructor.
+    }
+
+    @VisibleForTesting
+    SoundCloudApplication(AccountOperations accountOperations) {
+        mAccountOperations = accountOperations;
+    }
 
     @Override
     public void onCreate() {
@@ -199,6 +211,8 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         if (account != null) {
             mLoggedInUser = user;
 
+            EventBus.CURRENT_USER_CHANGED.publish(CurrentUserChangedEvent.forUserUpdated(user));
+
             // move this when we can't guarantee we will only have 1 account active at a time
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
 
@@ -206,8 +220,6 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
             Intent intent = new Intent(this, ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                     .setData(Content.ME_SHORTCUT.uri);
-
-
 
             startService(intent);
 

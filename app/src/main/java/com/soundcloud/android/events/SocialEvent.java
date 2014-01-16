@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class SocialEvent extends Event {
+public final class SocialEvent implements Event {
 
     public static final int FOLLOW = 0;
     public static final int UNFOLLOW = 1;
@@ -93,8 +93,21 @@ public final class SocialEvent extends Event {
         return (playable instanceof Track ? "track" : "playlist");
     }
 
-    private SocialEvent(int type, Map<String, String> attributes) {
-        super(type, attributes);
+    private final int mKind;
+    private final Map<String, String> mAttributes;
+
+    private SocialEvent(int kind, Map<String, String> attributes) {
+        mKind = kind;
+        mAttributes = attributes;
+    }
+
+    @Override
+    public int getKind() {
+        return mKind;
+    }
+
+    public Map<String, String> getAttributes() {
+        return mAttributes;
     }
 
     @Override

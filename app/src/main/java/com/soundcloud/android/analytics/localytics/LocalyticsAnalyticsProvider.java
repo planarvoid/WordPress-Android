@@ -53,10 +53,14 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
-        if (event.isCreateEvent() || event.isResumeEvent()) {
-            openSessionForActivity();
-        } else if (event.isPauseEvent()) {
-            closeSessionForActivity();
+        switch (event.getKind()) {
+            case ActivityLifeCycleEvent.ON_CREATE_EVENT:
+            case ActivityLifeCycleEvent.ON_RESUME_EVENT:
+                openSessionForActivity();
+                break;
+            case ActivityLifeCycleEvent.ON_PAUSE_EVENT:
+                closeSessionForActivity();
+                break;
         }
     }
 
