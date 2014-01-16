@@ -40,15 +40,15 @@ public class ScTextUtils {
     private ScTextUtils() {
     }
 
-    public static boolean isBlank(String string){
+    public static boolean isBlank(@Nullable String string){
         return Strings.isNullOrEmpty(nullToEmpty(string).trim());
     }
 
-    public static boolean isNotBlank(String string){
+    public static boolean isNotBlank(@Nullable String string){
         return !isBlank(string);
     }
 
-    public static String safeToString(Object object){
+    public static String safeToString(@Nullable Object object){
         return object == null ? "" : object.toString();
     }
 
