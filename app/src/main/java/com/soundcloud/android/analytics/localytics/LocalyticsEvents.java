@@ -16,4 +16,14 @@ public interface LocalyticsEvents {
         String SHARE = "Share";
     }
 
+    interface Onboarding {
+        String AUTH_PROMPT = "Auth prompt";
+        String AUTH_CREDENTIALS = "Auth credentials";
+        String CONFIRM_TERMS = "Confirm terms";
+        String AUTH_COMPLETE = "Auth complete";
+        String SAVE_USER_INFO = "Save user info";
+        String SKIP_USER_INFO = "Skip user info";
+        String ONBOARDING_COMPLETE = "Onboarding complete";
+    }
+
 }
