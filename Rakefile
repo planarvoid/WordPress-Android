@@ -14,7 +14,7 @@ DEFAULT_LEVELS  = %w(
    VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener
    EventLogger PlayEventTrackerApi ReactiveScheduler ScObservables ReactiveListFragment ActivitiesFragment
    DetachableObserver SyncOperations ActivitiesStorage PlaylistStorage TrackStorage FollowingOperations
-   LoadItemsObserver
+   LoadItemsObserver AnalyticsEngine
 )
 DISABLED_LEVELS = %w()
 
