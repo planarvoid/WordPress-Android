@@ -2,7 +2,6 @@ package com.soundcloud.android.analytics.localytics;
 
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.events.SocialEvent;
@@ -23,7 +22,6 @@ public class LocalyticsSocialEventHandlerTest {
 
     @Before
     public void setUp() throws Exception {
-        initMocks(this);
         localyticsSocialEventHandler = new LocalyticsSocialEventHandler(localyticsSession);
     }
 
