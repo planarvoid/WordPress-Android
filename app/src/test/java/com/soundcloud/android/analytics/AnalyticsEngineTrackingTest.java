@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.model.Track;
@@ -199,6 +200,18 @@ public class AnalyticsEngineTrackingTest {
     }
 
     @Test
+    public void shouldTrackOnboardingEvent() throws Exception {
+        setAnalyticsEnabledViaSettings();
+        initialiseAnalyticsEngine();
+
+        OnboardingEvent onboardingEvent = OnboardingEvent.authComplete();
+        EventBus.ONBOARDING.publish(onboardingEvent);
+
+        verify(analyticsProviderOne, times(1)).handleOnboardingEvent(onboardingEvent);
+        verify(analyticsProviderTwo, times(1)).handleOnboardingEvent(onboardingEvent);
+    }
+
+    @Test
     public void shouldIsolateProvidersExceptions() throws Exception {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
@@ -207,16 +220,19 @@ public class AnalyticsEngineTrackingTest {
         doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlaybackEvent(any(PlaybackEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleScreenEvent(anyString());
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleSocialEvent(any(SocialEvent.class));
+        doThrow(new RuntimeException()).when(analyticsProviderOne).handleOnboardingEvent(any(OnboardingEvent.class));
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
         EventBus.PLAYBACK.publish(PlaybackEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
         EventBus.SCREEN_ENTERED.publish("screen");
         EventBus.SOCIAL.publish(SocialEvent.fromFollow("screen", 0));
+        EventBus.ONBOARDING.publish(OnboardingEvent.authComplete());
 
         verify(analyticsProviderTwo).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
         verify(analyticsProviderTwo).handlePlaybackEvent(any(PlaybackEvent.class));
         verify(analyticsProviderTwo).handleScreenEvent(anyString());
         verify(analyticsProviderTwo).handleSocialEvent(any(SocialEvent.class));
+        verify(analyticsProviderTwo).handleOnboardingEvent(any(OnboardingEvent.class));
     }
 
     private void setAnalyticsDisabledViaSettings() {

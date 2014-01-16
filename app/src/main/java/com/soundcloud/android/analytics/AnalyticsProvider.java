@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SocialEvent;
@@ -45,4 +46,11 @@ public interface AnalyticsProvider {
      * @param event social event information
      */
     void handleSocialEvent(SocialEvent event);
+
+    /**
+     * Signals to the analytics provider that a onboarding event has occurred
+     *
+     * @param event onboarding event information
+     */
+    void handleOnboardingEvent(OnboardingEvent event);
 }

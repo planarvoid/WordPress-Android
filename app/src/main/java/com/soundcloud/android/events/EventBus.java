@@ -23,7 +23,8 @@ public enum EventBus {
     CURRENT_USER_UPDATED(User.class),
     SCREEN_ENTERED(String.class),
     PLAYBACK(PlaybackEvent.class),
-    SOCIAL(SocialEvent.class);
+    SOCIAL(SocialEvent.class),
+    ONBOARDING(OnboardingEvent.class);
 
     public final PublishSubject QUEUE = PublishSubject.create();
 

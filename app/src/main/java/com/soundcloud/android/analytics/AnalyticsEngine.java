@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.SocialEvent;
 import com.soundcloud.android.preferences.SettingsActivity;
@@ -85,6 +86,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             mEventsSubscription = new CompositeSubscription();
             mEventsSubscription.add(EventBus.PLAYBACK.subscribe(new PlaybackEventObserver()));
             mEventsSubscription.add(EventBus.SOCIAL.subscribe(new SocialEventObserver()));
+            mEventsSubscription.add(EventBus.ONBOARDING.subscribe(new OnboardingEventObserver()));
             mEventsSubscription.add(EventBus.ACTIVITY_LIFECYCLE.subscribe(new ActivityEventObserver()));
             mEventsSubscription.add(EventBus.SCREEN_ENTERED.subscribe(new ScreenEventObserver()));
         }
@@ -159,6 +161,17 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
+    private void handleOnboardingEvent(OnboardingEvent event) {
+        Log.d(this, "Track onboarding event " + event);
+        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
+            try {
+                analyticsProvider.handleOnboardingEvent(event);
+            } catch (Throwable t) {
+                handleProviderError(t, analyticsProvider, "handleOnboardingEvent");
+            }
+        }
+    }
+
     private void handleProviderError(Throwable t, AnalyticsProvider provider, String methodName) {
         final String message = String.format("exception while processing %s for provider %s, with error = %s",
                 methodName, provider.getClass(), t.toString());
@@ -200,6 +213,15 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         public void onNext(SocialEvent args) {
             Log.d(this, "SocialEventObserver onNext: " + args);
             handleSocialEvent(args);
+            scheduleFlush();
+        }
+    }
+
+    private final class OnboardingEventObserver extends DefaultObserver<OnboardingEvent> {
+        @Override
+        public void onNext(OnboardingEvent args) {
+            Log.d(this, "OnboardingEventObserver onNext: " + args);
+            handleOnboardingEvent(args);
             scheduleFlush();
         }
     }

@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SocialEvent;
@@ -47,6 +48,10 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleSocialEvent(SocialEvent event) {
+    }
+
+    @Override
+    public void handleOnboardingEvent(OnboardingEvent event) {
     }
 
     @Override

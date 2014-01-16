@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SocialEvent;
@@ -28,6 +29,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     private LocalyticsSession mLocalyticsSession;
     private LocalyticsSocialEventHandler mLocalyticsSocialEventHandler;
+    private LocalyticsOnboardingEventHandler mLocalyticsOnboardingEventHandler;
     private PlaybackServiceStateWrapper mPlaybackStateWrapper;
 
     public LocalyticsAnalyticsProvider(Context context, AnalyticsProperties analyticsProperties) {
@@ -40,6 +42,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
                                           PlaybackServiceStateWrapper playbackStateWrapper) {
         mLocalyticsSession = localyticsSession;
         mLocalyticsSocialEventHandler = new LocalyticsSocialEventHandler(mLocalyticsSession);
+        mLocalyticsOnboardingEventHandler = new LocalyticsOnboardingEventHandler(mLocalyticsSession);
         mPlaybackStateWrapper = playbackStateWrapper;
     }
 
@@ -107,6 +110,10 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     public void handleSocialEvent(SocialEvent event) {
         mLocalyticsSocialEventHandler.handleEvent(event);
+    }
+
+    public void handleOnboardingEvent(OnboardingEvent event){
+        mLocalyticsOnboardingEventHandler.handleEvent(event);
     }
 
     @VisibleForTesting
