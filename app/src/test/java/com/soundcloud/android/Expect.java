@@ -16,6 +16,7 @@ import com.soundcloud.android.robolectric.ContentResolverMatcher;
 import com.soundcloud.android.robolectric.CursorMatcher;
 import com.soundcloud.android.robolectric.NotificationMatcher;
 import com.soundcloud.android.robolectric.UriMatcher;
+import org.jetbrains.annotations.Nullable;
 
 import android.app.Notification;
 import android.content.ContentResolver;
@@ -25,7 +26,7 @@ import android.net.Uri;
 @SuppressWarnings({"unchecked", "UnusedDeclaration", "TypeParameterExplicitlyExtendsObject"})
 public class Expect {
 
-    public static <T extends Object, M extends ObjectMatcher<T, M>> ObjectMatcher<T, ?> expect(T actual) {
+    public static <T extends Object, M extends ObjectMatcher<T, M>> ObjectMatcher<T, ?> expect(@Nullable T actual) {
         return wrapped(ObjectMatcher.class, actual);
     }
 
