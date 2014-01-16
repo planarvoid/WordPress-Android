@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -29,6 +30,10 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void flush() {
         mEventLogger.flush();
+    }
+
+    @Override
+    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
@@ -89,6 +90,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             mEventsSubscription.add(EventBus.ONBOARDING.subscribe(new OnboardingEventObserver()));
             mEventsSubscription.add(EventBus.ACTIVITY_LIFECYCLE.subscribe(new ActivityEventObserver()));
             mEventsSubscription.add(EventBus.SCREEN_ENTERED.subscribe(new ScreenEventObserver()));
+            mEventsSubscription.add(EventBus.CURRENT_USER_CHANGED.subscribe(new CurrentUserChangedEventObserver()));
         }
     }
 
@@ -114,6 +116,17 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             };
         } else {
             Log.d(this, "Ignoring flush event; already scheduled");
+        }
+    }
+
+    private void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
+        Log.d(this, "User changed event " + event.getCurrentUser());
+        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
+            try {
+                analyticsProvider.handleCurrentUserChangedEvent(event);
+            } catch (Throwable t) {
+                handleProviderError(t, analyticsProvider, "handleCurrentUserChangedEvent");
+            }
         }
     }
 
@@ -177,6 +190,15 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
                 methodName, provider.getClass(), t.toString());
         Log.e(this, message);
         SoundCloudApplication.handleSilentException(message, t);
+    }
+
+    private final class CurrentUserChangedEventObserver extends DefaultObserver<CurrentUserChangedEvent> {
+        @Override
+        public void onNext(CurrentUserChangedEvent event) {
+            Log.d(this, "CurrentUserChangedEventObserver onNext: " + event);
+            handleCurrentUserChangedEvent(event);
+            scheduleFlush();
+        }
     }
 
     private final class ActivityEventObserver extends DefaultObserver<ActivityLifeCycleEvent> {

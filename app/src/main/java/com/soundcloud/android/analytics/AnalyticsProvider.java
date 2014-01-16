@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -15,6 +16,12 @@ public interface AnalyticsProvider {
      * to the remote service.
      */
     void flush();
+
+    /**
+     * Signals to the analytics provider that the currently logged-in user has changed
+     * @param event the new user that has logged in
+     */
+    void handleCurrentUserChangedEvent(CurrentUserChangedEvent event);
 
     /**
      * Signals to the analytics provider that a life-cycle event occurred in an Activity (created, paused, etc.)

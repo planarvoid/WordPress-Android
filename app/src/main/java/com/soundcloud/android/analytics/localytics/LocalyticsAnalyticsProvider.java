@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -49,6 +50,10 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void flush() {
         mLocalyticsSession.upload();
+    }
+
+    @Override
+    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
     }
 
     @Override

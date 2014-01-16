@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
@@ -150,6 +151,18 @@ public class AnalyticsEngineTrackingTest {
         analyticsEngine.onSharedPreferenceChanged(preferences, "wrong key");
 
         verify(preferences, never()).getBoolean(anyString(), anyBoolean());
+    }
+
+    @Test
+    public void shouldTrackCurrentUserChangedEvent() throws Exception {
+        setAnalyticsEnabledViaSettings();
+        initialiseAnalyticsEngine();
+
+        final CurrentUserChangedEvent event = CurrentUserChangedEvent.forLogout();
+        EventBus.CURRENT_USER_CHANGED.publish(event);
+
+        verify(analyticsProviderOne, times(1)).handleCurrentUserChangedEvent(event);
+        verify(analyticsProviderTwo, times(1)).handleCurrentUserChangedEvent(event);
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.soundcloud.android.analytics.comscore;
 import com.comscore.analytics.comScore;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -19,6 +20,10 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void flush() {
         comScore.flushCache();
+    }
+
+    @Override
+    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
     }
 
     @Override
