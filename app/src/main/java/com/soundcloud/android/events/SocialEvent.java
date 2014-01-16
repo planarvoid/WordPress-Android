@@ -20,6 +20,9 @@ public final class SocialEvent implements Event {
     public static final int COMMENT = 7;
     public static final int SHARE = 8;
 
+    private final int mKind;
+    private final Map<String, String> mAttributes;
+
     public static SocialEvent fromFollow(String screenTag, long userId) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);
@@ -92,9 +95,6 @@ public final class SocialEvent implements Event {
     private static String getPlayableType(Playable playable) {
         return (playable instanceof Track ? "track" : "playlist");
     }
-
-    private final int mKind;
-    private final Map<String, String> mAttributes;
 
     private SocialEvent(int kind, Map<String, String> attributes) {
         mKind = kind;

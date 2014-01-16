@@ -20,7 +20,7 @@ public final class PlaybackEvent implements Event {
 
     private final int mKind;
     @NotNull
-    private Track mTrack;
+    private final Track mTrack;
 
     private long mUserId;
     private TrackSourceInfo mTrackSourceInfo;

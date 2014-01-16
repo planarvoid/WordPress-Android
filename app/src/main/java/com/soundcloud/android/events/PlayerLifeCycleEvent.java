@@ -5,6 +5,8 @@ public final class PlayerLifeCycleEvent implements Event {
     public static final int STATE_IDLE = 0;
     public static final int STATE_DESTROYED = 1;
 
+    private final int mKind;
+
     public static PlayerLifeCycleEvent forIdle() {
         return new PlayerLifeCycleEvent(STATE_IDLE);
     }
@@ -12,8 +14,6 @@ public final class PlayerLifeCycleEvent implements Event {
     public static PlayerLifeCycleEvent forDestroyed() {
         return new PlayerLifeCycleEvent(STATE_DESTROYED);
     }
-
-    private final int mKind;
 
     private PlayerLifeCycleEvent(int kind) {
         mKind = kind;
