@@ -12,6 +12,7 @@ import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class UIEventTest {
+
     @Test
     public void shouldCreateEventFromFollow() throws Exception {
         UIEvent uiEvent = UIEvent.fromFollow("screen", 30);
@@ -24,6 +25,24 @@ public class UIEventTest {
     @Test
     public void shouldCreateEventFromUnfollow() throws Exception {
         UIEvent uiEvent = UIEvent.fromUnfollow("screen", 30);
+        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
+        assertEquals(uiEvent.getKind(), 1);
+        assertEquals(uiEventAttributes.get("context"), "screen");
+        assertEquals(uiEventAttributes.get("user_id"), "30");
+    }
+
+    @Test
+    public void shouldCreateEventFromToggleToFollow() throws Exception {
+        UIEvent uiEvent = UIEvent.fromToggleFollow(true, "screen", 30);
+        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
+        assertEquals(uiEvent.getKind(), 0);
+        assertEquals(uiEventAttributes.get("context"), "screen");
+        assertEquals(uiEventAttributes.get("user_id"), "30");
+    }
+
+    @Test
+    public void shouldCreateEventFromToggleToUnfollow() throws Exception {
+        UIEvent uiEvent = UIEvent.fromToggleFollow(false, "screen", 30);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 1);
         assertEquals(uiEventAttributes.get("context"), "screen");

@@ -89,7 +89,7 @@ public class FollowingOperationsTest {
 
     @Test
     public void shouldToggleFollowingOnAddition() throws CreateModelException {
-        ops.addFollowing(Screen.TOUR, user);
+        ops.addFollowing(user);
         verify(followStatus).toggleFollowing(user.getId());
     }
 
@@ -107,19 +107,19 @@ public class FollowingOperationsTest {
 
     @Test
     public void shouldToggleFollowingOnRemoval() throws CreateModelException {
-        ops.removeFollowing(Screen.TOUR, user);
+        ops.removeFollowing(user);
         verify(followStatus).toggleFollowing(user.getId());
     }
 
     @Test
     public void shouldUpdateCacheForEachUserOnAddition() throws CreateModelException {
-        ops.addFollowing(Screen.TOUR, user);
+        ops.addFollowing(user);
         verify(scModelManager, times(1)).getCachedUser(user.getId());
     }
 
     @Test
     public void shouldUpdateCacheForEachUserOnRemoval() throws CreateModelException {
-        ops.removeFollowing(Screen.TOUR, user);
+        ops.removeFollowing(user);
         verify(scModelManager, times(1)).getCachedUser(user.getId());
     }
 
@@ -127,26 +127,26 @@ public class FollowingOperationsTest {
     public void shouldForceStreamToStaleIfFirstFollowingFromAddition() {
         when(syncStateManager.forceToStaleAsync(Content.ME_SOUND_STREAM)).thenReturn(observable);
         when(followStatus.isEmpty()).thenReturn(true, false);
-        ops.addFollowing(Screen.TOUR, user);
+        ops.addFollowing(user);
         verify(observable).subscribe(any(Observer.class));
     }
 
     @Test
     public void shouldNotForceStreamToStaleIfFollowingsNotEmpty() {
         when(followStatus.isEmpty()).thenReturn(false);
-        ops.addFollowing(Screen.TOUR, user);
+        ops.addFollowing(user);
         verify(syncStateManager, never()).forceToStale(Content.ME_SOUND_STREAM);
     }
 
     @Test
     public void shouldCommitFollowingsListToLocalStorageOnAddition() throws CreateModelException {
-        ops.addFollowing(Screen.TOUR, user);
+        ops.addFollowing(user);
         verify(userAssociationStorage).follow(user);
     }
 
     @Test
     public void shouldCommitFollowingsListToLocalStorageOnRemoval() throws CreateModelException {
-        ops.removeFollowing(Screen.TOUR, user);
+        ops.removeFollowing(user);
         verify(userAssociationStorage).unfollow(user);
     }
 
@@ -156,7 +156,6 @@ public class FollowingOperationsTest {
         verify(observer).onCompleted();
         verifyZeroInteractions(soundCloudRxHttpClient);
         verifyZeroInteractions(userAssociationStorage);
-
     }
 
     @Test
@@ -225,23 +224,4 @@ public class FollowingOperationsTest {
         verify(userAssociationStorage).setFollowingsAsSynced(associations);
     }
 
-    @Test
-    public void shouldPublishUIEventWhenFollowingUser() throws Exception {
-        Observer<UIEvent> eventObserver = mock(Observer.class);
-        EventBus.UI.subscribe(eventObserver);
-        ops.addFollowing(Screen.ACTIVITIES, user).subscribe(observer);
-        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(uiEvent.capture());
-        expect(uiEvent.getValue().getKind()).toEqual(UIEvent.FOLLOW);
-    }
-
-    @Test
-    public void shouldPublishUIEventWhenUnfollowingUser() throws Exception {
-        Observer<UIEvent> eventObserver = mock(Observer.class);
-        EventBus.UI.subscribe(eventObserver);
-        ops.removeFollowing(Screen.ACTIVITIES, user).subscribe(observer);
-        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(uiEvent.capture());
-        expect(uiEvent.getValue().getKind()).toEqual(UIEvent.UNFOLLOW);
-    }
 }

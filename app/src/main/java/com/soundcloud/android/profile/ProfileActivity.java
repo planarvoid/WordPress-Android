@@ -15,6 +15,7 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.main.ScActivity;
@@ -167,6 +168,8 @@ public class ProfileActivity extends ScActivity implements
                     @Override
                     public void onClick(View v) {
                         toggleFollowing(mUser);
+                        EventBus.UI.publish(UIEvent.fromToggleFollow(mToggleFollow.isChecked(),
+                                Screen.USER_HEADER.get(), mUser.getId()));
                     }
                 });
             }
@@ -298,7 +301,7 @@ public class ProfileActivity extends ScActivity implements
     }
 
     private void toggleFollowing(User user) {
-        mFollowingOperations.toggleFollowing(Screen.USER_HEADER, user).subscribe(new DefaultObserver<UserAssociation>() {
+        mFollowingOperations.toggleFollowing(user).subscribe(new DefaultObserver<UserAssociation>() {
             @Override
             public void onCompleted() {
                 SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());

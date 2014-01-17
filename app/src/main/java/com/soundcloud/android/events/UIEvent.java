@@ -39,6 +39,10 @@ public final class UIEvent implements Event {
         return new UIEvent(UNFOLLOW, attributes);
     }
 
+    public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId) {
+        return isFollow ? fromFollow(screenTag, userId) : fromUnfollow(screenTag, userId);
+    }
+
     public static UIEvent fromLike(String screenTag, @NotNull Playable playable) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);

@@ -8,6 +8,8 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ListRow;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
@@ -62,10 +64,11 @@ public class UserlistRow extends IconLayout implements ListRow {
                 @Override
                 public void onClick(View v) {
                     toggleFollowing(mUser);
+                    EventBus.UI.publish(UIEvent.fromToggleFollow(!mFollowBtn.isChecked(),
+                            mOriginScreen.get(), mUser.getId()));
                 }
             });
         }
-
     }
 
     @Override
@@ -128,7 +131,7 @@ public class UserlistRow extends IconLayout implements ListRow {
     }
 
     private void toggleFollowing(final User user) {
-        mFollowingOperations.toggleFollowing(mOriginScreen, user).observeOn(
+        mFollowingOperations.toggleFollowing(user).observeOn(
                 AndroidSchedulers.mainThread()).subscribe(new DefaultObserver<UserAssociation>() {
             @Override
             public void onCompleted() {

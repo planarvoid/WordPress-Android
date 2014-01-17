@@ -89,8 +89,7 @@ public class FollowingOperations {
         mModelManager = modelManager;
     }
 
-    public Observable<UserAssociation> addFollowing(Screen originScreen, @NotNull final User user) {
-        EventBus.UI.publish(UIEvent.fromFollow(originScreen.get(), user.getId()));
+    public Observable<UserAssociation> addFollowing(@NotNull final User user) {
         updateLocalStatus(true, user.getId());
         return mUserAssociationStorage.follow(user);
     }
@@ -100,8 +99,7 @@ public class FollowingOperations {
         return mUserAssociationStorage.followSuggestedUser(suggestedUser);
     }
 
-    public Observable<UserAssociation> removeFollowing(Screen originScreen, final User user) {
-        EventBus.UI.publish(UIEvent.fromUnfollow(originScreen.get(), user.getId()));
+    public Observable<UserAssociation> removeFollowing(final User user) {
         updateLocalStatus(false, user.getId());
         return mUserAssociationStorage.unfollow(user);
     }
@@ -125,18 +123,17 @@ public class FollowingOperations {
         return mUserAssociationStorage.unfollowList(users);
     }
 
-    public Observable<UserAssociation> toggleFollowing(Screen originScreen, User user) {
+    public Observable<UserAssociation> toggleFollowing(User user) {
         if (mFollowStatus.isFollowing(user)) {
-            return removeFollowing(originScreen, user);
+            return removeFollowing(user);
         } else {
-            return addFollowing(originScreen, user);
+            return addFollowing(user);
         }
     }
 
     public Observable<UserAssociation> toggleFollowingBySuggestedUser(SuggestedUser suggestedUser) {
         if (mFollowStatus.isFollowing(suggestedUser.getId())) {
-            // TODO: passing the screen tag still needs spec'ing
-            return removeFollowing(null, new User(suggestedUser));
+            return removeFollowing(new User(suggestedUser));
         } else {
             return addFollowingBySuggestedUser(suggestedUser);
         }
