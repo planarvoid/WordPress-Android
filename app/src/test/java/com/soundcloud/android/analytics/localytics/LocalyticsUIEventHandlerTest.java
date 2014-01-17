@@ -27,28 +27,28 @@ public class LocalyticsUIEventHandlerTest {
 
     @Test
     public void shouldHandleEventFollow() throws Exception {
-        UIEvent event = UIEvent.fromFollow("screen", 30L);
+        UIEvent event = UIEvent.fromToggleFollow(true, "screen", 30L);
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Follow", event.getAttributes());
     }
 
     @Test
     public void shouldHandleEventUnfollow() throws Exception {
-        UIEvent event = UIEvent.fromUnfollow("screen", 30L);
+        UIEvent event = UIEvent.fromToggleFollow(false, "screen", 30L);
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Unfollow", event.getAttributes());
     }
 
     @Test
     public void shouldHandleEventLike() throws Exception {
-        UIEvent event = UIEvent.fromLike("screen", new Track(30L));
+        UIEvent event = UIEvent.fromToggleLike(true, "screen", new Track(30L));
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Like", event.getAttributes());
     }
 
     @Test
     public void shouldHandleEventUnlike() throws Exception {
-        UIEvent event = UIEvent.fromUnlike("screen", new Track(30L));
+        UIEvent event = UIEvent.fromToggleLike(false, "screen", new Track(30L));
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Unlike", event.getAttributes());
     }

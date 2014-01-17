@@ -25,42 +25,19 @@ public final class UIEvent implements Event {
     private final int mKind;
     private final Map<String, String> mAttributes;
 
-    public static UIEvent fromFollow(String screenTag, long userId) {
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("context", screenTag);
-        attributes.put("user_id", String.valueOf(userId));
-        return new UIEvent(FOLLOW, attributes);
-    }
-
-    public static UIEvent fromUnfollow(String screenTag, long userId) {
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("context", screenTag);
-        attributes.put("user_id", String.valueOf(userId));
-        return new UIEvent(UNFOLLOW, attributes);
-    }
-
     public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId) {
-        return isFollow ? fromFollow(screenTag, userId) : fromUnfollow(screenTag, userId);
-    }
-
-    public static UIEvent fromLike(String screenTag, @NotNull Playable playable) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);
-        attributes.put("resource", getPlayableType(playable));
-        attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new UIEvent(LIKE, attributes);
-    }
-
-    public static UIEvent fromUnlike(String screenTag, @NotNull Playable playable) {
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("context", screenTag);
-        attributes.put("resource", getPlayableType(playable));
-        attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new UIEvent(UNLIKE, attributes);
+        attributes.put("user_id", String.valueOf(userId));
+        return new UIEvent(isFollow ? FOLLOW : UNFOLLOW, attributes);
     }
 
     public static UIEvent fromToggleLike(boolean isLike, String screenTag, @NotNull Playable playable) {
-        return isLike ? fromLike(screenTag, playable) : fromUnlike(screenTag, playable);
+        Map<String, String> attributes = new HashMap<String, String>();
+        attributes.put("context", screenTag);
+        attributes.put("resource", getPlayableType(playable));
+        attributes.put("resource_id", String.valueOf(playable.getId()));
+        return new UIEvent(isLike ? LIKE : UNLIKE, attributes);
     }
 
     public static UIEvent fromRepost(String screenTag, @NotNull Playable playable) {

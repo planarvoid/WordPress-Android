@@ -14,24 +14,6 @@ import java.util.Map;
 public class UIEventTest {
 
     @Test
-    public void shouldCreateEventFromFollow() throws Exception {
-        UIEvent uiEvent = UIEvent.fromFollow("screen", 30);
-        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 0);
-        assertEquals(uiEventAttributes.get("context"), "screen");
-        assertEquals(uiEventAttributes.get("user_id"), "30");
-    }
-
-    @Test
-    public void shouldCreateEventFromUnfollow() throws Exception {
-        UIEvent uiEvent = UIEvent.fromUnfollow("screen", 30);
-        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 1);
-        assertEquals(uiEventAttributes.get("context"), "screen");
-        assertEquals(uiEventAttributes.get("user_id"), "30");
-    }
-
-    @Test
     public void shouldCreateEventFromToggleToFollow() throws Exception {
         UIEvent uiEvent = UIEvent.fromToggleFollow(true, "screen", 30);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
@@ -51,7 +33,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromLikedTrack() throws Exception {
-        UIEvent uiEvent = UIEvent.fromLike("screen", new Track(30));
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", new Track(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 2);
         assertEquals(uiEventAttributes.get("context"), "screen");
@@ -61,7 +43,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromLikedPlaylist() throws Exception {
-        UIEvent uiEvent = UIEvent.fromLike("screen", new Playlist(30));
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", new Playlist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 2);
         assertEquals(uiEventAttributes.get("context"), "screen");
@@ -71,7 +53,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromUnlikedTrack() throws Exception {
-        UIEvent uiEvent = UIEvent.fromUnlike("screen", new Track(30));
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", new Track(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 3);
         assertEquals(uiEventAttributes.get("context"), "screen");
@@ -81,7 +63,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromUnlikedPlaylist() throws Exception {
-        UIEvent uiEvent = UIEvent.fromUnlike("screen", new Playlist(30));
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", new Playlist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 3);
         assertEquals(uiEventAttributes.get("context"), "screen");
