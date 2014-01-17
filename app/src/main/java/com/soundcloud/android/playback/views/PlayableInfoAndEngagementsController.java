@@ -59,8 +59,8 @@ public class PlayableInfoAndEngagementsController {
                         Intent intent = new Intent(action);
                         intent.setData(mPlayable.toUri());
                         view.getContext().startService(intent);
-                        EventBus.UI.publish(UIEvent.fromToggleFollow(mToggleLike.isChecked(),
-                                mHostScreen.get(), mPlayable.getId()));
+                        EventBus.UI.publish(UIEvent.fromToggleLike(mToggleLike.isChecked(),
+                                mHostScreen.get(), mPlayable));
                     }
                 }
             });

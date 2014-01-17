@@ -46,6 +46,36 @@ public class PlayableInfoAndEngagementsControllerTest {
     }
 
     @Test
+    public void shouldPublishUIEventWhenLikingPlayable() {
+        controller.setTrack(new Track(1L));
+
+        Observer<UIEvent> eventObserver = mock(Observer.class);
+        EventBus.UI.subscribe(eventObserver);
+
+        rootView.findViewById(R.id.toggle_like).performClick();
+
+        ArgumentCaptor<UIEvent> socialEvent = ArgumentCaptor.forClass(UIEvent.class);
+        verify(eventObserver).onNext(socialEvent.capture());
+        expect(socialEvent.getValue().getKind()).toBe(UIEvent.LIKE);
+        expect(socialEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
+    }
+
+    @Test
+    public void shouldPublishUIEventWhenRepostingPlayable() {
+        controller.setTrack(new Track(1L));
+
+        Observer<UIEvent> eventObserver = mock(Observer.class);
+        EventBus.UI.subscribe(eventObserver);
+
+        rootView.findViewById(R.id.toggle_repost).performClick();
+
+        ArgumentCaptor<UIEvent> socialEvent = ArgumentCaptor.forClass(UIEvent.class);
+        verify(eventObserver).onNext(socialEvent.capture());
+        expect(socialEvent.getValue().getKind()).toBe(UIEvent.REPOST);
+        expect(socialEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
+    }
+
+    @Test
     public void shouldPublishUIEventWhenSharingPlayable() {
         controller.setTrack(new Track(1L));
 
