@@ -90,7 +90,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             mEventsSubscription.add(EventBus.ONBOARDING.subscribe(new OnboardingEventObserver()));
             mEventsSubscription.add(EventBus.ACTIVITY_LIFECYCLE.subscribe(new ActivityEventObserver()));
             mEventsSubscription.add(EventBus.SCREEN_ENTERED.subscribe(new ScreenEventObserver()));
-            mEventsSubscription.add(EventBus.CURRENT_USER_CHANGED.subscribe(new CurrentUserChangedEventObserver()));
+            mEventsSubscription.add(EventBus.CURRENT_USER_CHANGED.subscribe(new UserChangeEventObserver()));
         }
     }
 
@@ -192,10 +192,10 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         SoundCloudApplication.handleSilentException(message, t);
     }
 
-    private final class CurrentUserChangedEventObserver extends DefaultObserver<CurrentUserChangedEvent> {
+    private final class UserChangeEventObserver extends DefaultObserver<CurrentUserChangedEvent> {
         @Override
         public void onNext(CurrentUserChangedEvent event) {
-            Log.d(this, "CurrentUserChangedEventObserver onNext: " + event);
+            Log.d(this, "UserChangeEventObserver onNext: " + event);
             handleCurrentUserChangedEvent(event);
             scheduleFlush();
         }
