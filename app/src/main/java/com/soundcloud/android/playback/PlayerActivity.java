@@ -109,7 +109,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         LinearLayout mPlayerInfoLayout = (LinearLayout) findViewById(R.id.player_info_view);
         if (mPlayerInfoLayout != null){
             mTrackDetailsView = (PlayerTrackDetailsLayout) mPlayerInfoLayout.findViewById(R.id.player_track_details);
-            mPlayableInfoAndEngagementsController = new PlayableInfoAndEngagementsController(mPlayerInfoLayout, this);
+            mPlayableInfoAndEngagementsController = new PlayableInfoAndEngagementsController(mPlayerInfoLayout, this,
+                    Screen.PLAYER_MAIN);
         }
 
         mIsFirstLoad = bundle == null;

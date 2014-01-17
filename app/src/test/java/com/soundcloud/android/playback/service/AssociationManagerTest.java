@@ -48,7 +48,7 @@ public class AssociationManagerTest {
         long likesCount = t.likes_count;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl(), new TestHttpResponse(201, "OK"));
-        associationManager.setLike(t, true, "screen_tag");
+        associationManager.setLike(t, true);
 
         expect(TestHelper.reload(t).user_like).toBeTrue();
         expect(TestHelper.reload(t).likes_count).toEqual(likesCount + 1);
@@ -60,7 +60,7 @@ public class AssociationManagerTest {
         t.likes_count = Track.NOT_SET;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl(), new TestHttpResponse(201, "OK"));
-        associationManager.setLike(t, true, "screen_tag");
+        associationManager.setLike(t, true);
         expect(TestHelper.reload(t).user_like).toBeTrue();
     }
 
@@ -72,7 +72,7 @@ public class AssociationManagerTest {
         expect(TestHelper.reload(t).likes_count).toEqual(5L);
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl(), new TestHttpResponse(200, "OK"));
-        associationManager.setLike(t, true, "screen_tag");
+        associationManager.setLike(t, true);
 
         expect(TestHelper.reload(t).user_like).toBeTrue();
         expect(TestHelper.reload(t).likes_count).toEqual(5L);
@@ -85,7 +85,7 @@ public class AssociationManagerTest {
         long likesCount = t.likes_count;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl(), new TestHttpResponse(404, "FAIL"));
-        associationManager.setLike(t, true, "screen_tag");
+        associationManager.setLike(t, true);
 
         expect(TestHelper.reload(t).user_like).toBeFalse();
         expect(TestHelper.reload(t).likes_count).toEqual(likesCount);
@@ -98,7 +98,7 @@ public class AssociationManagerTest {
 
         String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_LIKE, track.getId()).toUrl();
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
-        associationManager.setLike(track, false, "screen_tag");
+        associationManager.setLike(track, false);
 
         expect(TestHelper.reload(track).user_like).toBeFalse();
         expect(TestHelper.reload(track).likes_count).toEqual(4L);
@@ -115,7 +115,7 @@ public class AssociationManagerTest {
 
         String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl();
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
-        associationManager.setLike(t, false, "screen_tag");
+        associationManager.setLike(t, false);
 
         expect(TestHelper.reload(p).user_like).toBeTrue();
         expect(TestHelper.reload(p).likes_count).toEqual(1L);
@@ -195,37 +195,6 @@ public class AssociationManagerTest {
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, playlistRepostUrl), new TestHttpResponse(200, "OK"));
         associationManager.setRepost(playlist, false, "screen_tag");
         expect(Content.ME_SOUND_STREAM).toHaveCount(0);
-    }
-
-    @Test
-    public void shouldPublishUIEventWhenCreatingNewPlayableLike() throws Exception {
-        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, 1L).toUrl(), new TestHttpResponse(201, "OK"));
-
-        Observer<UIEvent> eventObserver = mock(Observer.class);
-        EventBus.UI.subscribe(eventObserver);
-
-        associationManager.setLike(new Track(1L), true, "screen_tag");
-
-        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(uiEvent.capture());
-        expect(uiEvent.getValue().getKind()).toBe(UIEvent.LIKE);
-        expect(uiEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
-    }
-
-    @Test
-    public void shouldPublishUIEventWhenCreatingPlayableUnlike() throws Exception {
-        String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_LIKE, 1L).toUrl();
-        addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
-
-        Observer<UIEvent> eventObserver = mock(Observer.class);
-        EventBus.UI.subscribe(eventObserver);
-
-        associationManager.setLike(new Track(1L), false, "screen_tag");
-
-        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(uiEvent.capture());
-        expect(uiEvent.getValue().getKind()).toBe(UIEvent.UNLIKE);
-        expect(uiEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
     }
 
     @Test

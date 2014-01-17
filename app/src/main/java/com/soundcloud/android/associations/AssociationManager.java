@@ -40,15 +40,8 @@ public class AssociationManager {
         mOldCloudAPI = new PublicApi(context);
     }
 
-    public void setLike(@Nullable Playable playable, boolean likeAdded, String originScreen) {
+    public void setLike(@Nullable Playable playable, boolean likeAdded) {
         if (playable == null) return;
-        UIEvent uiEvent;
-        if (likeAdded) {
-            uiEvent = UIEvent.fromLike(originScreen, playable);
-        } else {
-            uiEvent = UIEvent.fromUnlike(originScreen, playable);
-        }
-        EventBus.UI.publish(uiEvent);
         onLikeStatusSet(playable, likeAdded);
         pushToRemote(playable, Content.ME_LIKES, likeAdded, likeListener);
     }

@@ -8,6 +8,7 @@ import static com.soundcloud.android.playback.service.PlaybackService.Actions.RE
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.views.PlayableBar;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.UIEvent;
@@ -39,13 +40,12 @@ public class PlayableInfoAndEngagementsController {
     private PlayableBar mTrackInfoBar;
 
     private Playable mPlayable;
+    private Screen mHostScreen;
 
-    public PlayableInfoAndEngagementsController(View rootView) {
-        this(rootView, null);
-    }
-
-    public PlayableInfoAndEngagementsController(View rootView, final PlayerTrackView.PlayerTrackViewListener mListener) {
+    public PlayableInfoAndEngagementsController(View rootView, final PlayerTrackView.PlayerTrackViewListener mListener,
+                                                Screen hostScreen) {
         mRootView = rootView;
+        mHostScreen = hostScreen;
         mToggleLike = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         mToggleRepost = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
         mShareButton = (ImageButton) rootView.findViewById(R.id.btn_share);
@@ -59,6 +59,8 @@ public class PlayableInfoAndEngagementsController {
                         Intent intent = new Intent(action);
                         intent.setData(mPlayable.toUri());
                         view.getContext().startService(intent);
+                        EventBus.UI.publish(UIEvent.fromToggleFollow(mToggleLike.isChecked(),
+                                mHostScreen.get(), mPlayable.getId()));
                     }
                 }
             });
@@ -140,7 +142,8 @@ public class PlayableInfoAndEngagementsController {
         }
     }
 
-    public void update(ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked, int checkedStringId) {
+    public void update(ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
+                       int checkedStringId) {
         button.setTextOn(labelForCount(count));
         button.setTextOff(labelForCount(count));
         button.setChecked(checked);

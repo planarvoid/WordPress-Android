@@ -59,6 +59,10 @@ public final class UIEvent implements Event {
         return new UIEvent(UNLIKE, attributes);
     }
 
+    public static UIEvent fromToggleLike(boolean isLike, String screenTag, @NotNull Playable playable) {
+        return isLike ? fromLike(screenTag, playable) : fromUnlike(screenTag, playable);
+    }
+
     public static UIEvent fromRepost(String screenTag, @NotNull Playable playable) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);

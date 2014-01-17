@@ -177,10 +177,9 @@ public class PlaybackReceiverTest {
         Intent intent = new Intent(PlaybackService.Actions.ADD_LIKE_ACTION);
         intent.setData(track.toUri());
 
-
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(associationManager).setLike(isA(Track.class), eq(true), eq("screen_tag"));
+        verify(associationManager).setLike(isA(Track.class), eq(true));
     }
 
     @Test
@@ -193,7 +192,7 @@ public class PlaybackReceiverTest {
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(associationManager).setLike(isA(Track.class), eq(false), eq("screen_tag"));
+        verify(associationManager).setLike(isA(Track.class), eq(false));
     }
 
     @Test
@@ -206,7 +205,7 @@ public class PlaybackReceiverTest {
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(associationManager).setLike(isA(Playlist.class), eq(true), eq("screen_tag"));
+        verify(associationManager).setLike(isA(Playlist.class), eq(true));
     }
 
     @Test
@@ -219,7 +218,7 @@ public class PlaybackReceiverTest {
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(associationManager).setLike(isA(Playlist.class), eq(false), eq("screen_tag"));
+        verify(associationManager).setLike(isA(Playlist.class), eq(false));
     }
 
     @Test

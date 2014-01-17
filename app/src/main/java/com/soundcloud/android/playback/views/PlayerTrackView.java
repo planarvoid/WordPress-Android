@@ -7,6 +7,7 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.model.Comment;
@@ -70,7 +71,7 @@ public class PlayerTrackView extends FrameLayout implements
         ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         mWaveformController = (WaveformControllerLayout) findViewById(R.id.waveform_controller);
         mWaveformController.setListener(mListener);
-        mInfoAndEngagements = new PlayableInfoAndEngagementsController(this, mListener);
+        mInfoAndEngagements = new PlayableInfoAndEngagementsController(this, mListener, Screen.PLAYER_MAIN);
     }
 
     // TODO, this is currently true all the time

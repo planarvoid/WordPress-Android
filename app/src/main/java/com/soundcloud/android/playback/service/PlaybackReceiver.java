@@ -46,9 +46,7 @@ class PlaybackReceiver extends BroadcastReceiver {
 
 
     @Override
-
     public void onReceive(Context context, Intent intent) {
-
         String action = intent.getAction();
         Log.d(PlaybackService.TAG, "BroadcastReceiver#onReceive(" + action + ")");
 
@@ -116,7 +114,7 @@ class PlaybackReceiver extends BroadcastReceiver {
 
     public void setLikeStatus(@NotNull Uri playableUri, boolean like) {
         Playable playable = (Playable) SoundCloudApplication.sModelManager.getModel(playableUri);
-        mAssociationManager.setLike(playable, like, mPlaybackService.getPlayQueueOriginScreen());
+        mAssociationManager.setLike(playable, like);
     }
 
     public void setRepostStatus(@NotNull Uri playableUri, boolean repost) {
@@ -125,7 +123,6 @@ class PlaybackReceiver extends BroadcastReceiver {
     }
 
     private void handlePlayAction(Intent intent) {
-
         if (intent.hasExtra(PlayExtras.TRACK_ID_LIST)) {
 
             final List<Long> trackIds = Longs.asList(intent.getLongArrayExtra(PlayExtras.TRACK_ID_LIST));
