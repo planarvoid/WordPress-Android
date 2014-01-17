@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.service.managers;
 
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlaybackState;
-import com.soundcloud.android.playback.service.RemoteControlReceiver;
+import com.soundcloud.android.peripherals.RemoteControlReceiver;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;

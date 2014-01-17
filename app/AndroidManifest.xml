@@ -448,7 +448,7 @@
 
 
         <!-- headphone + remoteclient control -->
-        <receiver android:name=".playback.service.RemoteControlReceiver">
+        <receiver android:name=".peripherals.RemoteControlReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
             </intent-filter>
