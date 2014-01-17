@@ -43,8 +43,7 @@ public class PlaylistOperations {
     }
 
     public Observable<Playlist> createNewPlaylist(
-            User currentUser, String title, boolean isPrivate, long firstTrackId, String originScreen) {
-        EventBus.UI.publish(UIEvent.fromAddToPlaylist(originScreen, true, firstTrackId));
+            User currentUser, String title, boolean isPrivate, long firstTrackId) {
         // insert the new playlist into the database
         return mPlaylistStorage.createNewUserPlaylistAsync(currentUser, title, isPrivate, firstTrackId)
                 .mapMany(handlePlaylistStored())
@@ -78,8 +77,7 @@ public class PlaylistOperations {
         };
     }
 
-    public Observable<Playlist> addTrackToPlaylist(final long playlistId, final long trackId, String originScreen) {
-        EventBus.UI.publish(UIEvent.fromAddToPlaylist(originScreen, false, trackId));
+    public Observable<Playlist> addTrackToPlaylist(final long playlistId, final long trackId) {
         return mPlaylistStorage.loadPlaylistAsync(playlistId).map(new Func1<Playlist, Playlist>() {
             @Override
             public Playlist call(Playlist playlist) {

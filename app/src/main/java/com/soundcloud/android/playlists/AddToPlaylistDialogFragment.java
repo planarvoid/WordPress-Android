@@ -5,6 +5,8 @@ import static rx.android.observables.AndroidObservable.fromFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.DefaultObserver;
@@ -106,7 +108,10 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
         txtTrackCount.setText(String.valueOf(newTracksCount));
 
         fromFragment(this, mPlaylistOperations.addTrackToPlaylist(
-                playlistId, trackId, getArguments().getString(KEY_ORIGIN_SCREEN))).subscribe(new TrackAddedObserver());
+                playlistId, trackId)).subscribe(new TrackAddedObserver());
+
+        final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
+        EventBus.UI.publish(UIEvent.fromAddToPlaylist(originScreen, false, trackId));
     }
 
     @Override

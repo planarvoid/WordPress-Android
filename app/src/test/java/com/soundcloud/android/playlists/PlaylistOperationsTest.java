@@ -1,14 +1,10 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.refEq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.User;
@@ -20,7 +16,6 @@ import com.soundcloud.android.sync.SyncStateManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
@@ -67,51 +62,20 @@ public class PlaylistOperationsTest {
         when(soundAssociationStorage.addCreationAsync(refEq(playlist))).thenReturn(Observable.just(playlistCreation));
         when(accountOperations.getSoundCloudAccount()).thenReturn(account);
 
-        playlistOperations.createNewPlaylist(currentUser, "new playlist", false, firstTrackId, "screen_tag").subscribe(observer);
+        playlistOperations.createNewPlaylist(currentUser, "new playlist", false, firstTrackId).subscribe(observer);
 
         verify(syncStateManager).forceToStale(Content.ME_PLAYLISTS);
         verify(observer).onNext(playlist);
     }
 
     @Test
-    public void shouldPublishUIEventWhenCreatingNewPlaylist() {
-        User currentUser = new User();
-        long firstTrackId = 1L;
-
-        Observer<UIEvent> eventObserver = mock(Observer.class);
-        EventBus.UI.subscribe(eventObserver);
-        when(playlistStorage.createNewUserPlaylistAsync(
-                currentUser, "new playlist", false, firstTrackId)).thenReturn(Observable.just(playlist));
-
-        playlistOperations.createNewPlaylist(currentUser, "new playlist", false, firstTrackId, "screen_tag").subscribe(observer);
-
-        ArgumentCaptor<UIEvent> socialEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getKind()).toBe(UIEvent.ADD_TO_PLAYLIST);
-        expect(socialEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
-    }
-
-    @Test
     public void shouldAddATrackToExistingPlaylist() {
         when(playlistStorage.addTrackToPlaylist(playlist, 1L)).thenReturn(playlist);
 
-        playlistOperations.addTrackToPlaylist(123L, 1L, "screen_tag").subscribe(observer);
+        playlistOperations.addTrackToPlaylist(123L, 1L).subscribe(observer);
 
         verify(playlistStorage).addTrackToPlaylist(playlist, 1L);
         verify(observer).onNext(playlist);
     }
 
-    @Test
-    public void shouldPublishUIEventWhenAddingTrackToPlaylist() {
-        Observer<UIEvent> eventObserver = mock(Observer.class);
-        EventBus.UI.subscribe(eventObserver);
-        when(playlistStorage.addTrackToPlaylist(playlist, 1L)).thenReturn(playlist);
-
-        playlistOperations.addTrackToPlaylist(123L, 1L, "screen_tag").subscribe(observer);
-
-        ArgumentCaptor<UIEvent> socialEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getKind()).toBe(UIEvent.ADD_TO_PLAYLIST);
-        expect(socialEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
-    }
 }
