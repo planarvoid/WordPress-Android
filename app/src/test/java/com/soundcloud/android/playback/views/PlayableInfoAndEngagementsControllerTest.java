@@ -54,10 +54,10 @@ public class PlayableInfoAndEngagementsControllerTest {
 
         rootView.findViewById(R.id.toggle_like).performClick();
 
-        ArgumentCaptor<UIEvent> socialEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getKind()).toBe(UIEvent.LIKE);
-        expect(socialEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
+        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
+        verify(eventObserver).onNext(uiEvent.capture());
+        expect(uiEvent.getValue().getKind()).toBe(UIEvent.LIKE);
+        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
     }
 
     @Test
@@ -69,10 +69,10 @@ public class PlayableInfoAndEngagementsControllerTest {
 
         rootView.findViewById(R.id.toggle_repost).performClick();
 
-        ArgumentCaptor<UIEvent> socialEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getKind()).toBe(UIEvent.REPOST);
-        expect(socialEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
+        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
+        verify(eventObserver).onNext(uiEvent.capture());
+        expect(uiEvent.getValue().getKind()).toBe(UIEvent.REPOST);
+        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
     }
 
     @Test
@@ -84,10 +84,10 @@ public class PlayableInfoAndEngagementsControllerTest {
 
         rootView.findViewById(R.id.btn_share).performClick();
 
-        ArgumentCaptor<UIEvent> socialEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(socialEvent.capture());
-        expect(socialEvent.getValue().getKind()).toBe(UIEvent.SHARE);
-        expect(socialEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
+        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
+        verify(eventObserver).onNext(uiEvent.capture());
+        expect(uiEvent.getValue().getKind()).toBe(UIEvent.SHARE);
+        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
     }
 
     @Test
