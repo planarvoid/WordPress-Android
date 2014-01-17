@@ -54,7 +54,7 @@ public class TrackOperations {
                         observer.onNext(track);
                         if (track.isIncomplete()) {
                             return getCompleteTrackFromApi(trackId)
-                                    .map(cacheTrack(trackId, ScResource.CacheUpdateMode.FULL))
+                                    .map(cacheAndStoreTrack(trackId, ScResource.CacheUpdateMode.FULL))
                                     .subscribe(observer);
                         } else {
                             observer.onCompleted();
@@ -75,6 +75,17 @@ public class TrackOperations {
             @Override
             public Track call(Track nullableTrack) {
                 return mModelManager.cache(nullableTrack == null ? new Track(trackId) : nullableTrack, updateMode);
+            }
+        };
+    }
+
+    private Func1<Track, Track> cacheAndStoreTrack(final long trackId, final ScResource.CacheUpdateMode updateMode){
+        return new Func1<Track, Track>() {
+            @Override
+            public Track call(Track nullableTrack) {
+                final Track track = mModelManager.cache(nullableTrack == null ? new Track(trackId) : nullableTrack, updateMode);
+                mTrackStorage.store(track);
+                return track;
             }
         };
     }
