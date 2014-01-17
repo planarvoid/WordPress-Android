@@ -87,7 +87,7 @@ public class PlayableInfoAndEngagementsController {
                 @Override
                 public void onClick(View v) {
                     if (mPlayable != null) {
-                        EventBus.UI.publish(UIEvent.fromShare("<unknown>", mPlayable));
+                        EventBus.UI.publish(UIEvent.fromShare(mHostScreen.get(), mPlayable));
                         Intent shareIntent = mPlayable.getShareIntent();
                         if (shareIntent != null) {
                             mRootView.getContext().startActivity(shareIntent);
