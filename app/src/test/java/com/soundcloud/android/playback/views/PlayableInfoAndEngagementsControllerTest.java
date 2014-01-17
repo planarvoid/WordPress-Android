@@ -21,6 +21,7 @@ import rx.Observer;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.ToggleButton;
 
 @RunWith(DefaultTestRunner.class)
 public class PlayableInfoAndEngagementsControllerTest {
@@ -61,6 +62,23 @@ public class PlayableInfoAndEngagementsControllerTest {
     }
 
     @Test
+    public void shouldPublishUIEventWhenUnlikingPlayable() {
+        controller.setTrack(new Track(1L));
+
+        Observer<UIEvent> eventObserver = mock(Observer.class);
+        EventBus.UI.subscribe(eventObserver);
+
+        ToggleButton likeToggle = (ToggleButton) rootView.findViewById(R.id.toggle_like);
+        likeToggle.setChecked(true);
+        likeToggle.performClick();
+
+        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
+        verify(eventObserver).onNext(uiEvent.capture());
+        expect(uiEvent.getValue().getKind()).toBe(UIEvent.UNLIKE);
+        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
+    }
+
+    @Test
     public void shouldPublishUIEventWhenRepostingPlayable() {
         controller.setTrack(new Track(1L));
 
@@ -74,6 +92,24 @@ public class PlayableInfoAndEngagementsControllerTest {
         expect(uiEvent.getValue().getKind()).toBe(UIEvent.REPOST);
         expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
     }
+
+    @Test
+    public void shouldPublishUIEventWhenUnrepostingPlayable() {
+        controller.setTrack(new Track(1L));
+
+        Observer<UIEvent> eventObserver = mock(Observer.class);
+        EventBus.UI.subscribe(eventObserver);
+
+        ToggleButton repostToggle = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
+        repostToggle.setChecked(true);
+        repostToggle.performClick();
+
+        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
+        verify(eventObserver).onNext(uiEvent.capture());
+        expect(uiEvent.getValue().getKind()).toBe(UIEvent.UNREPOST);
+        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
+    }
+
 
     @Test
     public void shouldPublishUIEventWhenSharingPlayable() {
