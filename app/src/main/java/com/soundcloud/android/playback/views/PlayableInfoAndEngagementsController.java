@@ -75,6 +75,8 @@ public class PlayableInfoAndEngagementsController {
                         Intent intent = new Intent(action);
                         intent.setData(mPlayable.toUri());
                         view.getContext().startService(intent);
+                        EventBus.UI.publish(UIEvent.fromToggleRepost(mToggleRepost.isChecked(),
+                                mHostScreen.get(), mPlayable));
                     }
                 }
             });

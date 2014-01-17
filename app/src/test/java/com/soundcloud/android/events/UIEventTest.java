@@ -73,7 +73,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromRepostedTrack() throws Exception {
-        UIEvent uiEvent = UIEvent.fromRepost("screen", new Track(30));
+        UIEvent uiEvent = UIEvent.fromToggleRepost(true, "screen", new Track(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 4);
         assertEquals(uiEventAttributes.get("context"), "screen");
@@ -83,7 +83,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromRepostedPlaylist() throws Exception {
-        UIEvent uiEvent = UIEvent.fromRepost("screen", new Playlist(30));
+        UIEvent uiEvent = UIEvent.fromToggleRepost(true, "screen", new Playlist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 4);
         assertEquals(uiEventAttributes.get("context"), "screen");
@@ -93,7 +93,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromUnrepostedTrack() throws Exception {
-        UIEvent uiEvent = UIEvent.fromUnrepost("screen", new Track(30));
+        UIEvent uiEvent = UIEvent.fromToggleRepost(false, "screen", new Track(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 5);
         assertEquals(uiEventAttributes.get("context"), "screen");
@@ -103,7 +103,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromUnrepostedPlaylist() throws Exception {
-        UIEvent uiEvent = UIEvent.fromUnrepost("screen", new Playlist(30));
+        UIEvent uiEvent = UIEvent.fromToggleRepost(false, "screen", new Playlist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 5);
         assertEquals(uiEventAttributes.get("context"), "screen");

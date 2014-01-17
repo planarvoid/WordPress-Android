@@ -40,20 +40,12 @@ public final class UIEvent implements Event {
         return new UIEvent(isLike ? LIKE : UNLIKE, attributes);
     }
 
-    public static UIEvent fromRepost(String screenTag, @NotNull Playable playable) {
+    public static UIEvent fromToggleRepost(boolean isRepost, String screenTag, @NotNull Playable playable) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", screenTag);
         attributes.put("resource", getPlayableType(playable));
         attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new UIEvent(REPOST, attributes);
-    }
-
-    public static UIEvent fromUnrepost(String screenTag, @NotNull Playable playable) {
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("context", screenTag);
-        attributes.put("resource", getPlayableType(playable));
-        attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new UIEvent(UNREPOST, attributes);
+        return new UIEvent(isRepost ? REPOST : UNREPOST, attributes);
     }
 
     public static UIEvent fromAddToPlaylist(String screenTag, boolean isNewPlaylist, long trackId) {

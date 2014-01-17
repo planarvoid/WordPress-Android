@@ -55,14 +55,14 @@ public class LocalyticsUIEventHandlerTest {
 
     @Test
     public void shouldHandleEventRepost() throws Exception {
-        UIEvent event = UIEvent.fromRepost("screen", new Track(30L));
+        UIEvent event = UIEvent.fromToggleRepost(true, "screen", new Track(30L));
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Repost", event.getAttributes());
     }
 
     @Test
     public void shouldHandleEventUnrepost() throws Exception {
-        UIEvent event = UIEvent.fromUnrepost("screen", new Track(30L));
+        UIEvent event = UIEvent.fromToggleRepost(false, "screen", new Track(30L));
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Unrepost", event.getAttributes());
     }

@@ -231,7 +231,7 @@ public class PlaybackReceiverTest {
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(associationManager).setRepost(isA(Track.class), eq(true), eq("screen_tag"));
+        verify(associationManager).setRepost(isA(Track.class), eq(true));
     }
 
     @Test
@@ -244,7 +244,7 @@ public class PlaybackReceiverTest {
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(associationManager).setRepost(isA(Track.class), eq(false), eq("screen_tag"));
+        verify(associationManager).setRepost(isA(Track.class), eq(false));
     }
 
     @Test
@@ -257,7 +257,7 @@ public class PlaybackReceiverTest {
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(associationManager).setRepost(isA(Playlist.class), eq(true), eq("screen_tag"));
+        verify(associationManager).setRepost(isA(Playlist.class), eq(true));
     }
 
     @Test
@@ -270,7 +270,7 @@ public class PlaybackReceiverTest {
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(associationManager).setRepost(isA(Playlist.class), eq(false), eq("screen_tag"));
+        verify(associationManager).setRepost(isA(Playlist.class), eq(false));
     }
 
     @Test
@@ -353,4 +353,5 @@ public class PlaybackReceiverTest {
         playbackReceiver.onReceive(Robolectric.application, intent);
         verifyZeroInteractions(audioManager);
     }
+
 }

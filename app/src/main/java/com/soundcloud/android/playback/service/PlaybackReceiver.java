@@ -119,7 +119,7 @@ class PlaybackReceiver extends BroadcastReceiver {
 
     public void setRepostStatus(@NotNull Uri playableUri, boolean repost) {
         Playable playable = (Playable) SoundCloudApplication.sModelManager.getModel(playableUri);
-        mAssociationManager.setRepost(playable, repost, mPlaybackService.getPlayQueueOriginScreen());
+        mAssociationManager.setRepost(playable, repost);
     }
 
     private void handlePlayAction(Intent intent) {

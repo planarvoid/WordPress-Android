@@ -3,14 +3,10 @@ package com.soundcloud.android.playback.service;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMatcherForUriWithClientId;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.TempEndpoints;
 import com.soundcloud.android.associations.AssociationManager;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
@@ -27,8 +23,6 @@ import org.apache.http.client.methods.HttpDelete;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import rx.Observer;
 
 @RunWith(DefaultTestRunner.class)
 public class AssociationManagerTest {
@@ -128,7 +122,7 @@ public class AssociationManagerTest {
         long repostsCount = t.reposts_count;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.getId()).toUrl(), new TestHttpResponse(201, "OK"));
-        associationManager.setRepost(t, true, "screen_tag");
+        associationManager.setRepost(t, true);
 
         expect(t.user_repost).toBeTrue();
         expect(TestHelper.reload(t).user_repost).toBeTrue();
@@ -141,7 +135,7 @@ public class AssociationManagerTest {
         t.reposts_count = Track.NOT_SET;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.getId()).toUrl(), new TestHttpResponse(201, "OK"));
-        associationManager.setRepost(t, true, "screen_tag");
+        associationManager.setRepost(t, true);
 
         expect(t.user_repost).toBeTrue();
         expect(TestHelper.reload(t).user_repost).toBeTrue();
@@ -155,7 +149,7 @@ public class AssociationManagerTest {
         long repostsCount = p.reposts_count;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, p.getId()).toUrl(), new TestHttpResponse(201, "OK"));
-        associationManager.setRepost(p, true, "screen_tag");
+        associationManager.setRepost(p, true);
 
         expect(p.user_repost).toBeTrue();
         expect(TestHelper.reload(p).user_repost).toBeTrue();
@@ -175,7 +169,7 @@ public class AssociationManagerTest {
 
         String playlistRepostUrl = Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.getId()).toUrl();
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, playlistRepostUrl), new TestHttpResponse(200, "OK"));
-        associationManager.setRepost(playlist, false, "screen_tag");
+        associationManager.setRepost(playlist, false);
         expect(Content.ME_SOUND_STREAM).toHaveCount(0);
     }
 
@@ -193,39 +187,8 @@ public class AssociationManagerTest {
 
         String playlistRepostUrl = Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.getId()).toUrl();
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, playlistRepostUrl), new TestHttpResponse(200, "OK"));
-        associationManager.setRepost(playlist, false, "screen_tag");
+        associationManager.setRepost(playlist, false);
         expect(Content.ME_SOUND_STREAM).toHaveCount(0);
-    }
-
-    @Test
-    public void shouldPublishUIEventWhenCreatingNewPlayableRepost() throws Exception {
-        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, 1L).toUrl(), new TestHttpResponse(201, "OK"));
-
-        Observer<UIEvent> eventObserver = mock(Observer.class);
-        EventBus.UI.subscribe(eventObserver);
-
-        associationManager.setRepost(new Track(1L), true, "screen_tag");
-
-        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(uiEvent.capture());
-        expect(uiEvent.getValue().getKind()).toBe(UIEvent.REPOST);
-        expect(uiEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
-    }
-
-    @Test
-    public void shouldPublishUIEventWhenCreatingPlayableUnrepost() throws Exception {
-        String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_REPOST, 1L).toUrl();
-        addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
-
-        Observer<UIEvent> eventObserver = mock(Observer.class);
-        EventBus.UI.subscribe(eventObserver);
-
-        associationManager.setRepost(new Track(1L), false, "screen_tag");
-
-        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(uiEvent.capture());
-        expect(uiEvent.getValue().getKind()).toBe(UIEvent.UNREPOST);
-        expect(uiEvent.getValue().getAttributes().get("context")).toEqual("screen_tag");
     }
 
     private Track createTrack() {

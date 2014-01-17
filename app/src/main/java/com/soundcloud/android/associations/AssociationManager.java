@@ -4,8 +4,6 @@ package com.soundcloud.android.associations;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.storage.SoundAssociationStorage;
@@ -46,15 +44,8 @@ public class AssociationManager {
         pushToRemote(playable, Content.ME_LIKES, likeAdded, likeListener);
     }
 
-    public void setRepost(@Nullable Playable playable, boolean repostAdded, String originScreen) {
+    public void setRepost(@Nullable Playable playable, boolean repostAdded) {
         if (playable == null) return;
-        UIEvent uiEvent;
-        if (repostAdded) {
-            uiEvent = UIEvent.fromRepost(originScreen, playable);
-        } else {
-            uiEvent = UIEvent.fromUnrepost(originScreen, playable);
-        }
-        EventBus.UI.publish(uiEvent);
         onRepostStatusSet(playable, repostAdded);
         pushToRemote(playable, Content.ME_REPOSTS, repostAdded, repostListener);
     }
