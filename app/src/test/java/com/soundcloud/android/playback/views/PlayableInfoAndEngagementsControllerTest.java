@@ -57,8 +57,7 @@ public class PlayableInfoAndEngagementsControllerTest {
         ArgumentCaptor<UIEvent> socialEvent = ArgumentCaptor.forClass(UIEvent.class);
         verify(eventObserver).onNext(socialEvent.capture());
         expect(socialEvent.getValue().getKind()).toBe(UIEvent.SHARE);
-        //TODO: no idea how to obtain this
-        //expect(socialEvent.getValue().getAttributes().screenTag).toEqual("screen_tag");
+        expect(socialEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
     }
 
     @Test
