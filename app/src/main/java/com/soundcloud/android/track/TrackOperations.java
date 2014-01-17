@@ -84,7 +84,7 @@ public class TrackOperations {
             @Override
             public Track call(Track nullableTrack) {
                 final Track track = mModelManager.cache(nullableTrack == null ? new Track(trackId) : nullableTrack, updateMode);
-                mTrackStorage.store(track);
+                mTrackStorage.createOrUpdate(track);
                 return track;
             }
         };

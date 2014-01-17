@@ -139,7 +139,7 @@ public class TrackOperationsTest {
 
         verify(modelManager).cache(incompleteTrack, ScResource.CacheUpdateMode.NONE);
         verify(modelManager).cache(completedTrack, ScResource.CacheUpdateMode.FULL);
-        verify(trackStorage).store(completedTrack);
+        verify(trackStorage).createOrUpdate(completedTrack);
         verify(observer).onNext(completedTrack);
     }
 
