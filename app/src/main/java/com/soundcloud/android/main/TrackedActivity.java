@@ -9,7 +9,7 @@ import android.os.Bundle;
 /*
  * This base class can be used for lifecycle tracking where extending from ScActivity is not necessary.
  */
-public class TrackedActivity extends Activity {
+public abstract class TrackedActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

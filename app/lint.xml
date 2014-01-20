@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
      
-    <issue id="MissingTranslation">
-        <ignore path="res/values/dev.xml" />
-        <ignore path="res/values/keys.xml" />
-        <ignore path="res/values/array.xml" />
-        <ignore path="res/values/sigs.xml" />
-        <ignore path="res/values/dimens.xml" />
-        <ignore path="res/values/array.xml" />
-        <ignore path="res/values/colors.xml" />
-    </issue>
-
     <issue id="ViewConstructor" severity="ignore"/>
     <issue id="TypographyEllipsis" severity="ignore"/>
 
@@ -18,7 +8,9 @@
     <issue id="MissingTranslation" severity="ignore"/>
     <issue id="DuplicateDefinition" severity="warning"/>
     <issue id="Suspicious0dp" severity="warning"/>
-    <issue id="WrongCall" severity="warning"/>
+
+    <!-- this will be rewritten by a Maven rule anyway -->
+    <issue id="HardcodedDebugMode" severity="ignore"/>
 
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
@@ -71,8 +63,8 @@
     </issue>
 
     <issue id="SetJavaScriptEnabled">
-        <ignore path="src/main/java/com/soundcloud/android/onboarding/auth/Connect.java"/>
-        <ignore path="src/main/java/com/soundcloud/android/onboarding/auth/FacebookWebFlow.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/onboarding/auth/ConnectActivity.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/onboarding/auth/FacebookWebFlowActivity.java"/>
         <ignore path="src/main/java/com/soundcloud/android/main/WebViewActivity.java"/>
     </issue>
 
@@ -139,6 +131,9 @@
         <ignore path="target/classes/com/handmark/pulltorefresh/library/PullToRefreshWebView$InternalWebViewSDK9.class"/>
     </issue>
 
+    <issue id="Registered" severity="error">
+        <ignore path="target/classes/com/soundcloud/android/cropimage/MonitoredActivity.class"/>
+    </issue>
     <!-- can't resolve mvn dependencies at this point -->
     <issue id="MissingRegistered" severity="ignore"/>
 </lint>

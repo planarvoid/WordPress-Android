@@ -14,6 +14,7 @@ import android.os.Build;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Locale;
 
 @Singleton
 public class ApplicationProperties {
@@ -39,7 +40,7 @@ public class ApplicationProperties {
         checkNotNull(resources, "Resources should not be null");
         String buildType = resources.getString(string.build_type);
         checkArgument(ScTextUtils.isNotBlank(buildType), "Build type not found in application package resources");
-        BUILD_TYPE = BuildType.valueOf(buildType.toUpperCase());
+        BUILD_TYPE = BuildType.valueOf(buildType.toUpperCase(Locale.US));
     }
 
     public boolean isReleaseBuild() {

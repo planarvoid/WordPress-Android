@@ -433,7 +433,7 @@ public class Track extends Playable implements PlayableHolder {
         }
         if (bpm != 0) {
             str.append(" ");
-            if (FloatMath.floor(bpm) == bpm) {
+            if (Math.floor(bpm) == bpm) {
                 str.append((int) bpm);
             } else {
                 str.append(bpm);

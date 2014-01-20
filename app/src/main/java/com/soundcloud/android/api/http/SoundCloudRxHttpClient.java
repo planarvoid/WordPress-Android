@@ -39,6 +39,7 @@ import android.content.Context;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 
 public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHttpClient  {
@@ -156,7 +157,7 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
 
         ApiWrapper apiWrapper = mWrapperFactory.createWrapper(apiRequest);
         try {
-            HttpMethod httpMethod = HttpMethod.valueOf(apiRequest.getMethod().toUpperCase());
+            HttpMethod httpMethod = HttpMethod.valueOf(apiRequest.getMethod().toUpperCase(Locale.US));
             Log.d(this, "executing request: " + apiRequest);
             HttpResponse response = httpMethod.execute(apiWrapper, createSCRequest(apiRequest));
             String responseBody = EntityUtils.toString(response.getEntity(), Charsets.UTF_8.name());
@@ -225,7 +226,7 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         public ApiWrapper createWrapper(APIRequest apiRequest){
             PublicApiWrapper publicApiWrapper = new PublicApiWrapper(mContext, mHttpProperties,mAccountOperations, mApplicationProperties);
             String acceptContentType = apiRequest.isPrivate()
-                    ? format(PRIVATE_API_ACCEPT_CONTENT_TYPE, apiRequest.getVersion())
+                    ? format(Locale.US, PRIVATE_API_ACCEPT_CONTENT_TYPE, apiRequest.getVersion())
                     : PUBLIC_API_ACCEPT_CONTENT_TYPE;
             publicApiWrapper.setDefaultContentType(acceptContentType);
             return publicApiWrapper;

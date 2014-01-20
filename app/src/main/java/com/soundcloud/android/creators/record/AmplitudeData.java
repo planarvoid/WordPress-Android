@@ -42,6 +42,7 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
         assert pos <= length;
         data = new float[length];
         source.readFloatArray(data);
+        source.recycle();
     }
 
     public void add(float sample) {
@@ -158,6 +159,7 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
         writeToParcel(p, 0);
         fos.write(p.marshall());
         fos.close();
+        p.recycle();
     }
 
     public static AmplitudeData fromFile(File in) throws IOException {

@@ -27,7 +27,6 @@
                                                             android:paddingLeft="@dimen/list_item_padding_left"
                                                             android:paddingRight="@dimen/list_item_padding_right"/>
                     <TextView android:id="@+id/txtInfo"
-                              android:layout_span="2"
                               android:layout_width="match_parent"
                               android:layout_height="wrap_content"
                               style="@style/txt_player_track_info"
