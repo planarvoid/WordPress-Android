@@ -54,13 +54,11 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
-        switch (event.getKind()) {
-            case CurrentUserChangedEvent.USER_UPDATED:
-                mLocalyticsSession.setCustomerId(Long.toString(event.getCurrentUser().getId()));
-                break;
-            case CurrentUserChangedEvent.USER_REMOVED:
-                mLocalyticsSession.setCustomerId(null);
-                break;
+        int eventKind = event.getKind();
+        if(eventKind == CurrentUserChangedEvent.USER_UPDATED) {
+            mLocalyticsSession.setCustomerId(Long.toString(event.getCurrentUser().getId()));
+        } else if(eventKind == CurrentUserChangedEvent.USER_REMOVED) {
+            mLocalyticsSession.setCustomerId(null);
         }
     }
 
