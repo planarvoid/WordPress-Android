@@ -14,6 +14,7 @@ import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.explore.ExploreModule;
@@ -28,7 +29,6 @@ import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.provider.Content;
 import dagger.ObjectGraph;
 import net.hockeyapp.android.UpdateManager;
-import rx.Observer;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Intent;
@@ -97,21 +97,20 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         mNavigationFragment.initState(savedInstanceState);
 
 
-        final Observer<User> userObserver = new UpdateUserProfileObserver();
         if (savedInstanceState != null) {
             mLastTitle = savedInstanceState.getCharSequence(EXTRA_ACTIONBAR_TITLE);
         } else {
             mLastTitle = getTitle();
 
             if (mAccountOperations.soundCloudAccountExists()) {
-                handleLoggedInUser(mApplicationProperties, userObserver);
+                handleLoggedInUser(mApplicationProperties);
             }
         }
 
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
 
-        mSubscription.add(EventBus.CURRENT_USER_CHANGED.subscribe(userObserver));
+        mSubscription.add(EventBus.CURRENT_USER_CHANGED.subscribe(new CurrentUserChangedObserver()));
     }
 
     private NavigationFragment findNavigationFragment() {
@@ -121,12 +120,11 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
             R.id.navigation_fragment_id);
     }
 
-    private void handleLoggedInUser(ApplicationProperties appProperties, Observer<User> observer) {
+    private void handleLoggedInUser(ApplicationProperties appProperties) {
         boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
         User currentUser = application.getLoggedInUser();
         if (!justAuthenticated && mAccountOperations.shouldCheckForConfirmedEmailAddress(currentUser)) {
-
-            mSubscription.add(fromActivity(this, mUserOperations.refreshCurrentUser()).subscribe(observer));
+            mSubscription.add(fromActivity(this, mUserOperations.refreshCurrentUser()).subscribe(new UserObserver()));
         }
 
         if (appProperties.isBetaBuildRunningOnDalvik()) {
@@ -298,15 +296,25 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         return true;
     }
 
-    private class UpdateUserProfileObserver extends DefaultObserver<User> {
+    private class CurrentUserChangedObserver extends DefaultObserver<CurrentUserChangedEvent> {
+        @Override
+        public void onNext(CurrentUserChangedEvent userChangedEvent) {
+            updateUser(userChangedEvent.getCurrentUser());
+        }
+    }
 
+    private class UserObserver extends DefaultObserver<User> {
         @Override
         public void onNext(User user) {
-            mNavigationFragment.updateProfileItem(user, SoundCloudApplication.instance.getResources());
-            if (!user.isPrimaryEmailConfirmed()) {
-                startActivityForResult(new Intent(MainActivity.this, EmailConfirmationActivity.class)
-                        .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
-            }
+            updateUser(user);
+        }
+    }
+
+    private void updateUser(User user) {
+        mNavigationFragment.updateProfileItem(user, SoundCloudApplication.instance.getResources());
+        if (!user.isPrimaryEmailConfirmed()) {
+            startActivityForResult(new Intent(this, EmailConfirmationActivity.class)
+                    .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
         }
     }
 }
