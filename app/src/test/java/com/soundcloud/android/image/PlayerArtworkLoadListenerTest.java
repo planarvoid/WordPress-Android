@@ -47,10 +47,4 @@ public class PlayerArtworkLoadListenerTest {
         artworkLoadListener.onLoadingStarted("artworkUri", imageView);
         verify(playerArtworkTrackView).setTemporaryArtwork(bitmap);
     }
-
-    @Test
-    public void shouldCallOnArtworkSetWithAnimateOnComplete() throws Exception {
-        artworkLoadListener.onLoadingComplete("artworkUri", imageView, Mockito.mock(Bitmap.class));
-        verify(playerArtworkTrackView).onArtworkSet(true);
-    }
 }

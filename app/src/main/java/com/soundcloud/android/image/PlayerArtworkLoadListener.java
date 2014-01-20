@@ -43,9 +43,5 @@ public class PlayerArtworkLoadListener extends SimpleImageLoadingListener implem
 
     @Override
     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-        ArtworkTrackView trackView = mTrackViewRef.get();
-        if (trackView != null) {
-            trackView.onArtworkSet(true);
-        }
     }
 }

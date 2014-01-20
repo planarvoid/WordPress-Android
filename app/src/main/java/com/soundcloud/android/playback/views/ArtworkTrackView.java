@@ -3,8 +3,8 @@ package com.soundcloud.android.playback.views;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.image.PlayerArtworkLoadListener;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.PlayerArtworkLoadListener;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.utils.AnimUtils;
@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -125,24 +124,6 @@ public class ArtworkTrackView extends PlayerTrackView {
 
     private void removeArtworkBackground() {
         mArtworkHolder.setBackgroundDrawable(null);
-    }
-
-    public void onArtworkSet(boolean animate) {
-        if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
-            mArtwork.setVisibility(View.VISIBLE);
-            if (animate) {
-                AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
-                mArtwork.getAnimation().setAnimationListener(new ArtworkFadeInListener(this));
-            } else {
-                removeArtworkBackground();
-            }
-        }
-    }
-
-    void clearBackgroundAfterAnimation(Animation animation){
-        if (animation.equals(mArtwork.getAnimation())) {
-            removeArtworkBackground();
-        }
     }
 
     public void onTrackDetailsFlip(@NotNull ViewFlipper trackFlipper, boolean showDetails) {

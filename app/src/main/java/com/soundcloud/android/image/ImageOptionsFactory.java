@@ -93,21 +93,16 @@ class ImageOptionsFactory {
             final View wrappedView = imageAware.getWrappedView();
             imageAware.setImageBitmap(bitmap);
             if (wrappedView.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
-                if (loadedFrom == LoadedFrom.NETWORK) {
-                    AnimUtils.runFadeInAnimationOn(wrappedView.getContext(), wrappedView);
-                    wrappedView.getAnimation().setAnimationListener(new AnimUtils.SimpleAnimationListener() {
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            if (animation.equals(wrappedView.getAnimation())) {
-                                mParentView.setBackgroundDrawable(null);
-                            }
+                AnimUtils.runFadeInAnimationOn(wrappedView.getContext(), wrappedView);
+                wrappedView.getAnimation().setAnimationListener(new AnimUtils.SimpleAnimationListener() {
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        if (animation.equals(wrappedView.getAnimation())) {
+                            mParentView.setBackgroundDrawable(null);
                         }
-                    });
-                    wrappedView.setVisibility(View.VISIBLE);
-                } else {
-                    wrappedView.setVisibility(View.VISIBLE);
-                    mParentView.setBackgroundDrawable(null);
-                }
+                    }
+                });
+                wrappedView.setVisibility(View.VISIBLE);
             }
             return bitmap;
         }
