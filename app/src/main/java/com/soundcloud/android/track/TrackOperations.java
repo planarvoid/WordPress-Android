@@ -18,6 +18,7 @@ import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
 import javax.inject.Inject;
+import java.util.Locale;
 
 public class TrackOperations {
 
@@ -96,7 +97,7 @@ public class TrackOperations {
     }
 
     private Observable<Track> getCompleteTrackFromApi(long trackId) {
-        String trackEndpoint = String.format(Endpoints.TRACK_DETAILS, trackId);
+        String trackEndpoint = String.format(Locale.US, Endpoints.TRACK_DETAILS, trackId);
         APIRequest<Track> request = SoundCloudAPIRequest.RequestBuilder.<Track>get(trackEndpoint)
                 .forPublicAPI()
                 .forResource(TypeToken.of(Track.class)).build();
