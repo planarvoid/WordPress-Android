@@ -134,6 +134,11 @@
     <issue id="Registered" severity="error">
         <ignore path="target/classes/com/soundcloud/android/cropimage/MonitoredActivity.class"/>
     </issue>
+
+    <issue id="TypographyDashes">
+        <ignore path="res/values/app_properties.xml"/>
+    </issue>
+
     <!-- can't resolve mvn dependencies at this point -->
     <issue id="MissingRegistered" severity="ignore"/>
 </lint>
