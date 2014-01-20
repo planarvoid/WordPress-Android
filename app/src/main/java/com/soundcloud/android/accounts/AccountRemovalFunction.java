@@ -4,7 +4,6 @@ import static com.soundcloud.android.onboarding.auth.FacebookSSOActivity.FBToken
 import static rx.Observable.OnSubscribeFunc;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.exception.OperationFailedException;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
@@ -12,6 +11,8 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
@@ -94,7 +95,7 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
 
         FBToken.clear(mContext);
 
-        mContext.sendBroadcast(new Intent(Actions.LOGGING_OUT));
+        EventBus.CURRENT_USER_CHANGED.publish(CurrentUserChangedEvent.forLogout());
         mContext.sendBroadcast(new Intent(PlaybackService.Actions.RESET_ALL));
 
 

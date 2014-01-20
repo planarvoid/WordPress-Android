@@ -10,21 +10,24 @@ import com.soundcloud.android.actionbar.NowPlayingActionBarController;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -57,6 +60,8 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     private boolean mOnCreateCalled;
     private boolean mIsConfigurationChange;
 
+    private Subscription mUserEventSubscription = Subscriptions.empty();
+
     private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     protected AccountOperations mAccountOperations;
@@ -80,7 +85,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         mUnauthoriedRequestReceiver = new UnauthorisedRequestReceiver(getApplicationContext(), getSupportFragmentManager());
         // Volume mode should always be music in this app
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        registerReceiver(mLoggingOutListener, new IntentFilter(Actions.LOGGING_OUT));
+        mUserEventSubscription = EventBus.CURRENT_USER_CHANGED.subscribe(mUserEventObserver);
         if (getSupportActionBar() != null) {
             mActionBarController = createActionBarController();
         }
@@ -128,7 +133,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     protected void onDestroy() {
         super.onDestroy();
 
-        safeUnregisterReceiver(mLoggingOutListener);
+        mUserEventSubscription.unsubscribe();
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
         if (mActionBarController != null) {
@@ -355,9 +360,9 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         return this;
     }
 
-    private final BroadcastReceiver mLoggingOutListener = new BroadcastReceiver() {
+    private final DefaultObserver<CurrentUserChangedEvent> mUserEventObserver = new DefaultObserver<CurrentUserChangedEvent>() {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onNext(CurrentUserChangedEvent args) {
             finish();
         }
     };

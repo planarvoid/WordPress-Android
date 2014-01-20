@@ -2,11 +2,13 @@ package com.soundcloud.android.accounts;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,18 +16,19 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.exception.OperationFailedException;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.c2dm.C2DMReceiver;
+import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
-import com.soundcloud.android.creators.record.SoundRecorder;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.SyncStateManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +36,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observer;
+import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
 import android.accounts.Account;
@@ -192,13 +196,17 @@ public class AccountRemovalFunctionTest {
     }
 
     @Test
-    public void shouldBroadcastLogOutIntentIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
+    public void shouldPublishUserRemovalIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(true);
+        Observer<CurrentUserChangedEvent> userEventObserver = mock(Observer.class);
+        Subscription subscription = EventBus.CURRENT_USER_CHANGED.subscribe(userEventObserver);
         function.onSubscribe(observer);
-        ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
-        verify(context, times(2)).sendBroadcast(argumentCaptor.capture());
-        Intent broadcastIntent = argumentCaptor.getAllValues().get(0);
-        assertThat(broadcastIntent.getAction(), is(Actions.LOGGING_OUT));
+
+        ArgumentCaptor<CurrentUserChangedEvent> capturedUserEvent = ArgumentCaptor.forClass(CurrentUserChangedEvent.class);
+        verify(userEventObserver).onNext(capturedUserEvent.capture());
+        assertEquals(capturedUserEvent.getValue().getKind(), CurrentUserChangedEvent.USER_REMOVED);
+
+        subscription.unsubscribe();
     }
 
     @Test
@@ -206,8 +214,8 @@ public class AccountRemovalFunctionTest {
         when(future.getResult()).thenReturn(true);
         function.onSubscribe(observer);
         ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
-        verify(context, times(2)).sendBroadcast(argumentCaptor.capture());
-        Intent broadcastIntent = argumentCaptor.getAllValues().get(1);
+        verify(context, times(1)).sendBroadcast(argumentCaptor.capture());
+        Intent broadcastIntent = argumentCaptor.getAllValues().get(0);
         assertThat(broadcastIntent.getAction(), is(PlaybackService.Actions.RESET_ALL));
     }
 

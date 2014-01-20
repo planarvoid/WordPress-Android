@@ -4,7 +4,6 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activities.ActivitiesAdapter;
@@ -18,6 +17,8 @@ import com.soundcloud.android.associations.UserAssociationAdapter;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.CollectionTask;
 import com.soundcloud.android.collections.tasks.ReturnData;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.ContentStats;
@@ -25,6 +26,7 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.playlists.PlaylistChangedReceiver;
 import com.soundcloud.android.profile.MyTracksAdapter;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.search.SearchAdapter;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -37,6 +39,8 @@ import com.soundcloud.android.view.EmptyListViewFactory;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -105,6 +109,8 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private int mRetainedListPosition;
     private AccountOperations accountOperations;
     protected PublicApi publicApi;
+
+    private Subscription mUserEventSubscription = Subscriptions.empty();
 
     private ImageOperations mImageOperations = ImageOperations.newInstance();
 
@@ -235,10 +241,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         playbackFilter.addAction(Broadcasts.PLAYSTATE_CHANGED);
         getActivity().registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
-        IntentFilter generalIntentFilter = new IntentFilter();
-        generalIntentFilter.addAction(Actions.CONNECTION_ERROR);
-        generalIntentFilter.addAction(Actions.LOGGING_OUT);
-        getActivity().registerReceiver(mGeneralIntentListener, generalIntentFilter);
+        mUserEventSubscription = EventBus.CURRENT_USER_CHANGED.subscribe(mUserEventObserver);
 
         if (mContent.shouldListenForPlaylistChanges()) {
             listenForPlaylistChanges();
@@ -314,7 +317,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
 
     private void stopListening() {
         AndroidUtils.safeUnregisterReceiver(getActivity(), mPlaybackStatusListener);
-        AndroidUtils.safeUnregisterReceiver(getActivity(), mGeneralIntentListener);
+        mUserEventSubscription.unsubscribe();
         if (mContent.shouldListenForPlaylistChanges()) {
             AndroidUtils.safeUnregisterReceiver(getActivity(), mPlaylistChangedReceiver);
         }
@@ -807,13 +810,11 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         }
     };
 
-    private BroadcastReceiver mGeneralIntentListener = new BroadcastReceiver() {
+    private final DefaultObserver<CurrentUserChangedEvent> mUserEventObserver = new DefaultObserver<CurrentUserChangedEvent>() {
         @Override
-        public void onReceive(Context context, Intent intent) {
-            if (Actions.LOGGING_OUT.equals(intent.getAction())) {
-                stopObservingChanges();
-                stopListening();
-            }
+        public void onNext(CurrentUserChangedEvent args) {
+            stopObservingChanges();
+            stopListening();
         }
     };
 

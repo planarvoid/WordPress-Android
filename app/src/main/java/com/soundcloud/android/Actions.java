@@ -42,7 +42,6 @@ public final class Actions {
     public static final String CHANGE_PROXY_ACTION = "com.soundcloud.android.action.CHANGE_PROXY";
     public static final String EXTRA_PROXY         = "proxy"; // proxy URL as string
     public static final String CONNECTION_ERROR    = "com.soundcloud.android.connectionerror";
-    public static final String LOGGING_OUT         = "com.soundcloud.android.loggingout";
     public static final String RESEND              = "com.soundcloud.android.RESEND";
 
     public static final String UPLOAD              = "com.soundcloud.android.actions.upload";
