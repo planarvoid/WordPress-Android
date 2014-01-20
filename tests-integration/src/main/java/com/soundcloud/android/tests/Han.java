@@ -54,7 +54,7 @@ public class Han  {
     }
 
     public void clickOnDone() {
-        clickOnButtonResId(R.string.btn_done);
+        clickOnButtonResId(R.string.done);
     }
 
     public void clickOnPublish() {

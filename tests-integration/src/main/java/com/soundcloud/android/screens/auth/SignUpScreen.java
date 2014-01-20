@@ -50,7 +50,7 @@ public class SignUpScreen {
 
     public void clickLogInButton() {
         solo.clickOnButtonResId(R.string.authentication_log_in);
-        waiter.waitForText(solo.getString(string.btn_done));
+        waiter.waitForText(solo.getString(string.done));
     }
 
     public void signup() {

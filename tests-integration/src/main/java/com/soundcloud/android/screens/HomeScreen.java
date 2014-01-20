@@ -1,12 +1,13 @@
 package com.soundcloud.android.screens;
 
-import android.R.id;
 import com.soundcloud.android.R;
 import com.soundcloud.android.R.string;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.auth.LoginScreen;
 import com.soundcloud.android.screens.auth.SignUpScreen;
 import com.soundcloud.android.tests.Han;
+
+import android.R.id;
 
 public class HomeScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;
@@ -20,7 +21,7 @@ public class HomeScreen extends Screen {
 
     public LoginScreen clickLogInButton() {
         solo.clickOnButtonResId(R.string.authentication_log_in);
-        waiter.waitForText(solo.getString(string.btn_done));
+        waiter.waitForText(solo.getString(string.done));
         return new LoginScreen(solo);
     }
 

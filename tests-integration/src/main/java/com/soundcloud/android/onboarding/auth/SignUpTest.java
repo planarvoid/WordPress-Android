@@ -1,11 +1,12 @@
 package com.soundcloud.android.onboarding.auth;
 
-import android.test.suitebuilder.annotation.Suppress;
-import android.widget.EditText;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cropimage.CropImageActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.tests.ActivityTestCase;
+
+import android.test.suitebuilder.annotation.Suppress;
+import android.widget.EditText;
 
 import java.util.UUID;
 
@@ -56,7 +57,7 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
         // Find Friends
         solo.assertText(R.string.side_menu_who_to_follow);
 
-        solo.clickOnButtonResId(R.string.btn_done);
+        solo.clickOnButtonResId(R.string.done);
 
         solo.assertText(R.string.side_menu_stream);
     }
@@ -119,7 +120,7 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
     public void ignore_testSignupWithoutInput() throws Exception {
         solo.clickOnButtonResId(R.string.authentication_sign_up);
         solo.assertText(R.string.authentication_sign_up);
-        solo.clickOnButtonResId(R.string.btn_done);
+        solo.clickOnButtonResId(R.string.done);
         solo.assertText(R.string.authentication_error_incomplete_fields);
     }
 
@@ -140,7 +141,7 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
         // Find Friends
         solo.assertText(R.string.side_menu_who_to_follow);
 
-        solo.clickOnButtonResId(R.string.btn_done);
+        solo.clickOnButtonResId(R.string.done);
 
         solo.assertText(R.string.side_menu_stream);
 
@@ -232,6 +233,6 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
         solo.assertText(email);
 
         solo.enterText((EditText) solo.getView(R.id.txt_choose_a_password), password);
-        solo.clickOnButtonResId(R.string.btn_done);
+        solo.clickOnButtonResId(R.string.done);
     }
 }

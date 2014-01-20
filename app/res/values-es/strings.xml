@@ -83,7 +83,6 @@
     <string name="side_menu_settings">Ajustes</string>
 
     <string name="side_menu_likes">Favoritos</string>
-    <string name="side_menu_friend_finder">Encontrar amigos</string>
     <string name="side_menu_who_to_follow">A quién seguir</string>
 
     <string name="settings_logging_out">Cerrar la sesión</string>
@@ -96,12 +95,6 @@
 
     <!-- <el cheapo translation> -->
 
-    <!-- Connect with Facebook to discover which of your friends are already on SoundCloud. -->
-    <string name="list_empty_friend_finder_no_connections">Encontrar amigos en Facebook</string>
-    <!-- There was an error finding your friends. -->
-    <string name="list_empty_friend_finder_error">Error al intentar conexión</string>
-    <!-- None of your friends are currently on SoundCloud. -->
-    <string name="list_empty_friend_finder">Actualmente no tienes amigos en Facebook</string>
     <string name="dashboard_notifications_activity_message_repost">%1$s ha vuelto a publicar %2$s</string>
     <plurals name="dashboard_notifications_activity_message_repost">
         <item quantity="one">sobre %1$s</item>
