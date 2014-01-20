@@ -8,9 +8,11 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -60,6 +62,21 @@ public class LocalyticsAnalyticsProviderTest {
     public void shouldUploadDataWhenFlushing(){
         localyticsProvider.flush();
         verify(localyticsSession).upload();
+    }
+
+    @Test
+    public void shouldSetCustomerIdToUserIdWhenUserIsUpdated() {
+        User user = new User(123L);
+        CurrentUserChangedEvent userEvent = CurrentUserChangedEvent.forUserUpdated(user);
+        localyticsProvider.handleCurrentUserChangedEvent(userEvent);
+        verify(localyticsSession).setCustomerId(Long.toString(123L));
+    }
+
+    @Test
+    public void shouldSetCustomerIdToNullWhenUserIsRemoved() {
+        CurrentUserChangedEvent userEvent = CurrentUserChangedEvent.forLogout();
+        localyticsProvider.handleCurrentUserChangedEvent(userEvent);
+        verify(localyticsSession).setCustomerId(null);
     }
 
     @Test
