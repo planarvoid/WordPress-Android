@@ -299,7 +299,9 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private class CurrentUserChangedObserver extends DefaultObserver<CurrentUserChangedEvent> {
         @Override
         public void onNext(CurrentUserChangedEvent userChangedEvent) {
-            updateUser(userChangedEvent.getCurrentUser());
+            if(userChangedEvent.getKind() == CurrentUserChangedEvent.USER_UPDATED) {
+                updateUser(userChangedEvent.getCurrentUser());
+            }
         }
     }
 
