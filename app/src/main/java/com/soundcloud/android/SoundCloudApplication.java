@@ -102,8 +102,6 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
             setupStrictMode();
         }
 
-        setupAnalytics(sharedPreferences, appProperties);
-
         if (ApplicationProperties.shouldReportCrashes()) {
             Crashlytics.start(this);
         }
@@ -156,6 +154,8 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
                 Crashlytics.setUserIdentifier(getLoggedInUser().username);
             }
         }
+
+        setupAnalytics(sharedPreferences, appProperties);
 
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
     }
