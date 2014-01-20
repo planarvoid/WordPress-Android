@@ -1,5 +1,6 @@
 package com.soundcloud.android.track;
 
+import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
@@ -22,8 +23,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
@@ -44,8 +43,6 @@ public class TrackOperationsTest {
     private Playlist playlist;
     @Mock
     private RxHttpClient httpClient;
-    @Captor
-    private ArgumentCaptor<APIRequest> requestCaptor;
 
     private TrackOperations trackOperations;
     private Track track;
@@ -54,6 +51,13 @@ public class TrackOperationsTest {
     public void setUp() throws Exception {
         trackOperations = new TrackOperations(modelManager, trackStorage, httpClient);
         track = TestHelper.getModelFactory().createModel(Track.class);
+    }
+
+    @Test
+    public void shouldLoadTrackFromCacheAndEmitOnUIThreadForPlayback() {
+        when(modelManager.getCachedTrack(1L)).thenReturn(track);
+        expect(trackOperations.loadTrack(1L).toBlockingObservable().last()).toBe(track);
+        verifyZeroInteractions(trackStorage);
     }
 
     @Test

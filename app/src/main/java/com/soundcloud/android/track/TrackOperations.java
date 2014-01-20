@@ -37,7 +37,12 @@ public class TrackOperations {
     }
 
     public Observable<Track> loadTrack(final long trackId) {
-        return mTrackStorage.getTrackAsync(trackId).map(cacheTrack(trackId, ScResource.CacheUpdateMode.NONE));
+        final Track cachedTrack = mModelManager.getCachedTrack(trackId);
+        if (cachedTrack != null) {
+            return Observable.just(cachedTrack);
+        } else {
+            return mTrackStorage.getTrackAsync(trackId).map(cacheTrack(trackId, ScResource.CacheUpdateMode.NONE));
+        }
     }
 
     /**
