@@ -1,9 +1,9 @@
 $ 76
   % v 2.7.5-BETA
-  _ 2014-1-16
+  _ 2014-1-21
   ! Shuffle my likes and Analytics
-    * Shuffle My Likes should complete incomplete tracks now
-    * More analytics
+    * And more analytics
+    - Shuffle My Likes should complete incomplete tracks now
     - shuffle my likes
     - improved on image caching
     - Fixed some track inconsistencies when resuming player activity
