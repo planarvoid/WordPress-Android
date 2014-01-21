@@ -1,6 +1,8 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.UIEvent;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.res.Configuration;
@@ -116,6 +118,7 @@ public class NavigationDrawerFragment extends NavigationFragment {
                     return;
                 }
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+                EventBus.UI.publish(UIEvent.fromDrawerClose());
             }
 
             @Override
@@ -125,6 +128,7 @@ public class NavigationDrawerFragment extends NavigationFragment {
                     return;
                 }
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+                EventBus.UI.publish(UIEvent.fromDrawerOpen());
             }
         };
 
