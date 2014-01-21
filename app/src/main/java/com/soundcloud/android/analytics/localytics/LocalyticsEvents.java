@@ -15,6 +15,11 @@ public interface LocalyticsEvents {
         String COMMENT = "Comment";
         String SHARE = "Share";
         String SHUFFLE_LIKES = "Shuffle likes";
+        String NAV_PROFILE = "nav_you";
+        String NAV_STREAM = "nav_stream";
+        String NAV_EXPLORE = "nav_explore";
+        String NAV_LIKES = "nav_likes";
+        String NAV_PLAYLISTS = "nav_playlists";
     }
 
     interface Onboarding {

@@ -21,6 +21,11 @@ public final class UIEvent implements Event {
     public static final int COMMENT = 7;
     public static final int SHARE = 8;
     public static final int SHUFFLE_LIKES = 9;
+    public static final int NAV_PROFILE = 10;
+    public static final int NAV_STREAM = 11;
+    public static final int NAV_EXPLORE = 12;
+    public static final int NAV_LIKES = 13;
+    public static final int NAV_PLAYLISTS = 14;
 
     private final int mKind;
     private final Map<String, String> mAttributes;
@@ -73,6 +78,26 @@ public final class UIEvent implements Event {
 
     public static UIEvent fromShuffleMyLikes() {
         return new UIEvent(SHUFFLE_LIKES);
+    }
+
+    public static UIEvent fromProfileNav() {
+        return new UIEvent(NAV_PROFILE);
+    }
+
+    public static UIEvent fromStreamNav() {
+        return new UIEvent(NAV_STREAM);
+    }
+
+    public static UIEvent fromExploreNav() {
+        return new UIEvent(NAV_EXPLORE);
+    }
+
+    public static UIEvent fromLikesNav() {
+        return new UIEvent(NAV_LIKES);
+    }
+
+    public static UIEvent fromPlaylistsNav() {
+        return new UIEvent(NAV_PLAYLISTS);
     }
 
     private static String getPlayableType(Playable playable) {

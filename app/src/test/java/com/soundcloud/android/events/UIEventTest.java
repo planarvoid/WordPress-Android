@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.junit.Assert.assertEquals;
 
 import com.soundcloud.android.model.Playlist;
@@ -162,6 +163,31 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromShuffleMyLikes() throws Exception {
-        assertEquals(UIEvent.fromShuffleMyLikes().getKind(), 9);
+        expect(UIEvent.fromShuffleMyLikes().getKind()).toEqual(9);
+    }
+
+    @Test
+    public void shouldCreateEventFromProfileNavigation() throws Exception {
+        expect(UIEvent.fromProfileNav().getKind()).toEqual(10);
+    }
+
+    @Test
+    public void shouldCreateEventFromStreamNavigation() throws Exception {
+        expect(UIEvent.fromStreamNav().getKind()).toEqual(11);
+    }
+
+    @Test
+    public void shouldCreateEventFromExploreNavigation() throws Exception {
+        expect(UIEvent.fromExploreNav().getKind()).toEqual(12);
+    }
+
+    @Test
+    public void shouldCreateEventFromLikesNavigation() throws Exception {
+        expect(UIEvent.fromLikesNav().getKind()).toEqual(13);
+    }
+
+    @Test
+    public void shouldCreateEventFromPlaylistsNavigation() throws Exception {
+        expect(UIEvent.fromPlaylistsNav().getKind()).toEqual(14);
     }
 }

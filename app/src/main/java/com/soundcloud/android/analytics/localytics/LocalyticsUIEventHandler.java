@@ -6,6 +6,7 @@ import com.soundcloud.android.events.UIEvent;
 import java.util.Map;
 
 class LocalyticsUIEventHandler {
+
     private LocalyticsSession mLocalyticsSession;
 
     LocalyticsUIEventHandler(LocalyticsSession localyticsSession) {
@@ -47,6 +48,21 @@ class LocalyticsUIEventHandler {
                 break;
             case UIEvent.SHUFFLE_LIKES:
                 mLocalyticsSession.tagEvent(LocalyticsEvents.UI.SHUFFLE_LIKES, eventAttributes);
+                break;
+            case UIEvent.NAV_PROFILE:
+                mLocalyticsSession.tagEvent(LocalyticsEvents.UI.NAV_PROFILE, eventAttributes);
+                break;
+            case UIEvent.NAV_STREAM:
+                mLocalyticsSession.tagEvent(LocalyticsEvents.UI.NAV_STREAM, eventAttributes);
+                break;
+            case UIEvent.NAV_EXPLORE:
+                mLocalyticsSession.tagEvent(LocalyticsEvents.UI.NAV_EXPLORE, eventAttributes);
+                break;
+            case UIEvent.NAV_LIKES:
+                mLocalyticsSession.tagEvent(LocalyticsEvents.UI.NAV_LIKES, eventAttributes);
+                break;
+            case UIEvent.NAV_PLAYLISTS:
+                mLocalyticsSession.tagEvent(LocalyticsEvents.UI.NAV_PLAYLISTS, eventAttributes);
                 break;
             default:
                 throw new IllegalArgumentException("UI Event type is invalid");
