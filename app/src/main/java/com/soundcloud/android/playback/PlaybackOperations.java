@@ -21,6 +21,10 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.TrackStorage;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -235,6 +239,27 @@ public class PlaybackOperations {
 
     public enum AppendState {
         IDLE, LOADING, ERROR, EMPTY;
+    }
+
+    public @Nullable Intent getServiceBasedUpIntent(@NotNull PlaybackService playbackService) {
+        final String originScreen = playbackService.getPlayQueueOriginScreen();
+        if (ScTextUtils.isBlank(originScreen)){
+            return null; // might have come from widget and the play queue is empty
+        }
+
+        long playlistId = playbackService.getPlayQueuePlaylistId();
+        if (playlistId != Playable.NOT_SET) {
+            return getUpDestinationFromPlaylist(playlistId, originScreen);
+        } else {
+            return Screen.getUpDestinationFromScreenTag(originScreen);
+        }
+    }
+
+    private Intent getUpDestinationFromPlaylist(long playlistId, String originScreen) {
+        Intent upIntent = new Intent(Actions.PLAYLIST).setData(Content.PLAYLIST.forId(playlistId));
+        Screen.fromScreenTag(originScreen).addToIntent(upIntent);
+        upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return upIntent;
     }
 
 }

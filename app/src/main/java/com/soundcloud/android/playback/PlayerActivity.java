@@ -10,7 +10,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.analytics.Screen.NoUpDestinationException;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Comment;
@@ -27,8 +26,6 @@ import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.playback.views.TransportBarView;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.service.LocalBinder;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -134,34 +131,14 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     @Override
     public boolean onSupportNavigateUp() {
         if (mPlaybackService != null) {
-            final String originScreen = mPlaybackService.getPlayQueueOriginScreen();
-            if (ScTextUtils.isNotBlank(originScreen) && startUpIntentFromOriginScreen(originScreen)) {
+            Intent intent = mPlaybackOperations.getServiceBasedUpIntent(mPlaybackService);
+            if (intent != null) {
+                startActivity(intent);
                 finish();
                 return true;
             }
         }
         return super.onSupportNavigateUp();
-    }
-
-    private boolean startUpIntentFromOriginScreen(String originScreen) {
-        long playlistId = mPlaybackService.getPlayQueuePlaylistId();
-        if (playlistId != Playable.NOT_SET) {
-            startActivity(getUpDestinationFromPlaylist(playlistId, originScreen));
-        } else {
-            try {
-                startActivity(Screen.getUpDestinationFromScreenTag(originScreen));
-            } catch (NoUpDestinationException e) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private Intent getUpDestinationFromPlaylist(long playlistId, String originScreen) {
-        Intent upIntent = new Intent(Actions.PLAYLIST).setData(Content.PLAYLIST.forId(playlistId));
-        Screen.fromScreenTag(originScreen).addToIntent(upIntent);
-        upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        return upIntent;
     }
 
     @Override
