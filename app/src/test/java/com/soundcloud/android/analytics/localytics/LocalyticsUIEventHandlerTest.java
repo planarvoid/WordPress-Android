@@ -94,4 +94,54 @@ public class LocalyticsUIEventHandlerTest {
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Shuffle likes", event.getAttributes());
     }
+
+    @Test
+    public void shouldHandleEventProfileNav() throws Exception {
+        UIEvent event = UIEvent.fromProfileNav();
+        localyticsUIEventHandler.handleEvent(event);
+        verify(localyticsSession).tagEvent("nav_you", event.getAttributes());
+    }
+
+    @Test
+    public void shouldHandleEventStreamNav() throws Exception {
+        UIEvent event = UIEvent.fromStreamNav();
+        localyticsUIEventHandler.handleEvent(event);
+        verify(localyticsSession).tagEvent("nav_stream", event.getAttributes());
+    }
+
+    @Test
+    public void shouldHandleEventExploreNav() throws Exception {
+        UIEvent event = UIEvent.fromExploreNav();
+        localyticsUIEventHandler.handleEvent(event);
+        verify(localyticsSession).tagEvent("nav_explore", event.getAttributes());
+    }
+
+    @Test
+    public void shouldHandleEventLikesNav() throws Exception {
+        UIEvent event = UIEvent.fromLikesNav();
+        localyticsUIEventHandler.handleEvent(event);
+        verify(localyticsSession).tagEvent("nav_likes", event.getAttributes());
+    }
+
+    @Test
+    public void shouldHandleEventPlaylistsNav() throws Exception {
+        UIEvent event = UIEvent.fromPlaylistsNav();
+        localyticsUIEventHandler.handleEvent(event);
+        verify(localyticsSession).tagEvent("nav_playlists", event.getAttributes());
+    }
+
+    @Test
+    public void shouldHandleEventDrawerOpen() throws Exception {
+        UIEvent event = UIEvent.fromDrawerOpen();
+        localyticsUIEventHandler.handleEvent(event);
+        verify(localyticsSession).tagEvent("drawer_open", event.getAttributes());
+    }
+
+    @Test
+    public void shouldHandleEventDrawerClose() throws Exception {
+        UIEvent event = UIEvent.fromDrawerClose();
+        localyticsUIEventHandler.handleEvent(event);
+        verify(localyticsSession).tagEvent("drawer_close", event.getAttributes());
+    }
+
 }

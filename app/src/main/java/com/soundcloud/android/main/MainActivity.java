@@ -16,6 +16,7 @@ import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.model.User;
@@ -174,6 +175,25 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         }
     }
 
+    private void publishNavSelectedEvent() {
+        final int position = mNavigationFragment.getCurrentSelectedPosition();
+        switch (NavigationFragment.NavItem.values()[position]) {
+            case STREAM:
+                EventBus.UI.publish(UIEvent.fromStreamNav());
+                break;
+            case EXPLORE:
+                EventBus.UI.publish(UIEvent.fromExploreNav());
+                break;
+            case LIKES:
+                EventBus.UI.publish(UIEvent.fromLikesNav());
+                break;
+            case PLAYLISTS:
+                EventBus.UI.publish(UIEvent.fromPlaylistsNav());
+            default:
+                break;
+        }
+    }
+
     @Override
     protected void onDestroy() {
         UpdateManager.unregister();
@@ -199,6 +219,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         switch (NavigationFragment.NavItem.values()[position]) {
             case PROFILE:
                 displayProfile();
+                // This click is tracked separately since profile item is never selected
+                EventBus.UI.publish(UIEvent.fromProfileNav());
                 return;
             case STREAM:
                 displayStream();
@@ -213,7 +235,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
                 displayPlaylists();
         }
 
-        if (setTitle){
+        if (setTitle) {
             /**
              * In this case, restoreActionBar will not be called since it is already closed.
              * This probably came from {@link NavigationFragment#handleIntent(android.content.Intent)}
@@ -224,6 +246,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
             // only publish content change events here that were user initiated, not those coming from rotation changes
             // and stuff.
             publishContentChangeEvent();
+            publishNavSelectedEvent();
         }
         if (position != NavigationFragment.NavItem.PROFILE.ordinal()) {
             mLastSelection = position;
