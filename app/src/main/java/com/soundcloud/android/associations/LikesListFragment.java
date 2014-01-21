@@ -41,12 +41,6 @@ public class LikesListFragment extends ScListFragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        refreshLikeIds();
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = super.onCreateView(inflater, container, savedInstanceState);
 
@@ -57,6 +51,12 @@ public class LikesListFragment extends ScListFragment {
             listView.getRefreshableView().addHeaderView(mHeaderView);
         }
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        refreshLikeIds();
     }
 
     @Override
