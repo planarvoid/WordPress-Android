@@ -20,6 +20,8 @@ public interface LocalyticsEvents {
         String NAV_EXPLORE = "nav_explore";
         String NAV_LIKES = "nav_likes";
         String NAV_PLAYLISTS = "nav_playlists";
+        String DRAWER_OPEN = "drawer_open";
+        String DRAWER_CLOSE = "drawer_close";
     }
 
     interface Onboarding {

@@ -190,4 +190,15 @@ public class UIEventTest {
     public void shouldCreateEventFromPlaylistsNavigation() throws Exception {
         expect(UIEvent.fromPlaylistsNav().getKind()).toEqual(14);
     }
+
+    @Test
+    public void shouldCreateEventFromDrawerOpen() throws Exception {
+        expect(UIEvent.fromDrawerOpen().getKind()).toEqual(15);
+    }
+
+    @Test
+    public void shouldCreateEventFromDrawerClose() throws Exception {
+        expect(UIEvent.fromDrawerClose().getKind()).toEqual(16);
+    }
+
 }

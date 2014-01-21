@@ -26,6 +26,8 @@ public final class UIEvent implements Event {
     public static final int NAV_EXPLORE = 12;
     public static final int NAV_LIKES = 13;
     public static final int NAV_PLAYLISTS = 14;
+    public static final int DRAWER_OPEN = 15;
+    public static final int DRAWER_CLOSE = 16;
 
     private final int mKind;
     private final Map<String, String> mAttributes;
@@ -98,6 +100,14 @@ public final class UIEvent implements Event {
 
     public static UIEvent fromPlaylistsNav() {
         return new UIEvent(NAV_PLAYLISTS);
+    }
+
+    public static UIEvent fromDrawerOpen() {
+        return new UIEvent(DRAWER_OPEN);
+    }
+
+    public static UIEvent fromDrawerClose() {
+        return new UIEvent(DRAWER_CLOSE);
     }
 
     private static String getPlayableType(Playable playable) {

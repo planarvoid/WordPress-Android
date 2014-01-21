@@ -64,6 +64,12 @@ class LocalyticsUIEventHandler {
             case UIEvent.NAV_PLAYLISTS:
                 mLocalyticsSession.tagEvent(LocalyticsEvents.UI.NAV_PLAYLISTS, eventAttributes);
                 break;
+            case UIEvent.DRAWER_OPEN:
+                mLocalyticsSession.tagEvent(LocalyticsEvents.UI.DRAWER_OPEN, eventAttributes);
+                break;
+            case UIEvent.DRAWER_CLOSE:
+                mLocalyticsSession.tagEvent(LocalyticsEvents.UI.DRAWER_CLOSE, eventAttributes);
+                break;
             default:
                 throw new IllegalArgumentException("UI Event type is invalid");
         }
