@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics;
 
 import com.google.common.collect.Maps;
 import com.soundcloud.android.Actions;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -156,7 +157,7 @@ public enum Screen {
         throw new IllegalArgumentException("Unrecognized screenTag: " + screenTag);
     }
 
-    public static Intent getUpDestinationFromScreenTag(String screenTag) throws NoUpDestinationException {
+    public static Intent getUpDestinationFromScreenTag(@NotNull String screenTag) throws NoUpDestinationException {
         if (screenTag.startsWith(EXPLORE_PREFIX)) {
             return new Intent(Actions.EXPLORE).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         } else {

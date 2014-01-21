@@ -28,6 +28,7 @@ import com.soundcloud.android.playback.views.TransportBarView;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -133,22 +134,27 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     @Override
     public boolean onSupportNavigateUp() {
         if (mPlaybackService != null) {
-            String originScreen = mPlaybackService.getPlayQueueOriginScreen();
-            long playlistId = mPlaybackService.getPlayQueuePlaylistId();
-            if (playlistId != Playable.NOT_SET) {
-                startActivity(getUpDestinationFromPlaylist(playlistId, originScreen));
-            } else {
-                try {
-                    startActivity(Screen.getUpDestinationFromScreenTag(originScreen));
-                } catch (NoUpDestinationException e) {
-                    return super.onSupportNavigateUp();
-                }
+            final String originScreen = mPlaybackService.getPlayQueueOriginScreen();
+            if (ScTextUtils.isNotBlank(originScreen) && startUpIntentFromOriginScreen(originScreen)) {
+                finish();
+                return true;
             }
-            finish();
-            return true;
-        } else {
-            return super.onSupportNavigateUp();
         }
+        return super.onSupportNavigateUp();
+    }
+
+    private boolean startUpIntentFromOriginScreen(String originScreen) {
+        long playlistId = mPlaybackService.getPlayQueuePlaylistId();
+        if (playlistId != Playable.NOT_SET) {
+            startActivity(getUpDestinationFromPlaylist(playlistId, originScreen));
+        } else {
+            try {
+                startActivity(Screen.getUpDestinationFromScreenTag(originScreen));
+            } catch (NoUpDestinationException e) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private Intent getUpDestinationFromPlaylist(long playlistId, String originScreen) {
