@@ -3,14 +3,14 @@ package com.soundcloud.android.analytics.localytics;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.localytics.android.LocalyticsSession;
+import com.soundcloud.android.analytics.AnalyticsProperties;
+import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.analytics.AnalyticsProperties;
-import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackState;
 import com.soundcloud.android.utils.Log;
@@ -33,9 +33,17 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     private LocalyticsOnboardingEventHandler mLocalyticsOnboardingEventHandler;
     private PlaybackServiceStateWrapper mPlaybackStateWrapper;
 
-    public LocalyticsAnalyticsProvider(Context context, AnalyticsProperties analyticsProperties) {
+
+    public LocalyticsAnalyticsProvider(Context context, AnalyticsProperties analyticsProperties, long currentUserId) {
         this(new LocalyticsSession(context.getApplicationContext(), analyticsProperties.getLocalyticsAppKey()),
-                new PlaybackServiceStateWrapper());
+                new PlaybackServiceStateWrapper(), currentUserId);
+    }
+
+    @VisibleForTesting
+    protected LocalyticsAnalyticsProvider(LocalyticsSession localyticsSession,
+                                          PlaybackServiceStateWrapper playbackStateWrapper, long currentUserId) {
+        this(localyticsSession, playbackStateWrapper);
+        localyticsSession.setCustomerId(getCustomerId(currentUserId));
     }
 
     @VisibleForTesting
@@ -174,6 +182,15 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             closeSession();
         } else {
             Log.d(TAG, "Didn't close analytics session for player; activity session still alive and well!");
+        }
+    }
+
+    //TODO: Should be a standardized anonymous id
+    private String getCustomerId(long currentUserId) {
+        if(currentUserId == -1) {
+            return null;
+        } else {
+            return Long.toString(currentUserId);
         }
     }
 

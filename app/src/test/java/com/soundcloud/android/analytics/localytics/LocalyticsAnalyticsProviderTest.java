@@ -65,6 +65,18 @@ public class LocalyticsAnalyticsProviderTest {
     }
 
     @Test
+    public void shouldSetCustomerIdWhenConstructed() throws Exception {
+        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, playbackServiceStateWrapper, 123L);
+        verify(localyticsSession).setCustomerId("123");
+    }
+
+    @Test
+    public void shouldSetCustomerIdToNullIfTheUserIsNotLoggedInWhenConstructed() throws Exception {
+        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, playbackServiceStateWrapper, -1);
+        verify(localyticsSession).setCustomerId(null);
+    }
+
+    @Test
     public void shouldSetCustomerIdToUserIdWhenUserIsUpdated() {
         User user = new User(123L);
         CurrentUserChangedEvent userEvent = CurrentUserChangedEvent.forUserUpdated(user);

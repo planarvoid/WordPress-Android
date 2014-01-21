@@ -168,7 +168,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         final List<AnalyticsProvider> analyticsProviders;
         if (appProperties.isRunningOnDalvik()) {
             analyticsProviders = Lists.newArrayList(
-                    new LocalyticsAnalyticsProvider(this, analyticsProperties),
+                    new LocalyticsAnalyticsProvider(this, analyticsProperties, getCurrentUserId()),
                     new EventLoggerAnalyticsProvider(),
                     new ComScoreAnalyticsProvider(this));
         } else {

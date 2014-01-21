@@ -146,6 +146,7 @@ public class AccountOperations {
     }
 
     //TODO Create a class which works as a service to store preference data instead of exposing these lowlevel constructs
+    //TODO Should have a consistent anonymous user id Uri forUser(long id). ClientUri.forUser() is related with this issue
     public long getAccountDataLong(String key) {
         String data = getAccountDataString(key);
         return data == null ? -1 : Long.parseLong(data);
