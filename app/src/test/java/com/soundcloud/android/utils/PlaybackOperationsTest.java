@@ -33,6 +33,7 @@ import rx.Observer;
 import rx.concurrency.Schedulers;
 
 import android.content.Intent;
+import android.net.Uri;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,6 +56,8 @@ public class PlaybackOperationsTest {
     private Observer observer;
     @Mock
     private Playlist playlist;
+    @Mock
+    private PlaybackService playbackService;
 
     @Before
     public void setUp() throws Exception {
@@ -239,4 +242,31 @@ public class PlaybackOperationsTest {
         checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_SCREEN.get()), 123L);
 
     }
+
+    @Test
+    public void getUpIntentShouldReturnNullWithNoOriginScreen() throws Exception {
+        when(playbackService.getPlayQueueOriginScreen()).thenReturn(null);
+        expect(playbackOperations.getServiceBasedUpIntent(playbackService)).toBeNull();
+    }
+
+    @Test
+    public void getUpIntentShouldReturnPlaylistUpIntent() throws Exception {
+        when(playbackService.getPlayQueueOriginScreen()).thenReturn(Screen.PLAYLIST_DETAILS.get());
+        when(playbackService.getPlayQueuePlaylistId()).thenReturn(123L);
+        final Intent intent = playbackOperations.getServiceBasedUpIntent(playbackService);
+        expect(intent).toHaveAction("com.soundcloud.android.action.PLAYLIST");
+        expect(intent).toHaveData(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/playlists/123"));
+        expect(intent).toHaveFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        expect(intent.getIntExtra("ScreenOrdinal", -1)).toEqual(Screen.PLAYLIST_DETAILS.ordinal());
+    }
+
+    @Test
+    public void getUpIntentShouldReturnLikeUpIntent() throws Exception {
+        when(playbackService.getPlayQueueOriginScreen()).thenReturn(Screen.SIDE_MENU_LIKES.get());
+        when(playbackService.getPlayQueuePlaylistId()).thenReturn(-1L);
+        final Intent intent = playbackOperations.getServiceBasedUpIntent(playbackService);
+        expect(intent).toHaveAction("com.soundcloud.android.action.LIKES");
+        expect(intent).toHaveFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    }
+
 }

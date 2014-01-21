@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics;
 
 import com.google.common.collect.Maps;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;
@@ -128,13 +129,6 @@ public enum Screen {
         intent.putExtra(Screen.ORDINAL_EXTRA, ordinal());
     }
 
-    private String getUpAction() throws NoUpDestinationException {
-        if (mUpAction == null) {
-            throw new NoUpDestinationException(mTag);
-        }
-        return mUpAction;
-    }
-
     private String mTag;
     private String mUpAction;
 
@@ -157,20 +151,17 @@ public enum Screen {
         throw new IllegalArgumentException("Unrecognized screenTag: " + screenTag);
     }
 
-    public static Intent getUpDestinationFromScreenTag(@NotNull String screenTag) throws NoUpDestinationException {
+    public static Intent getUpDestinationFromScreenTag(@NotNull String screenTag) {
         if (screenTag.startsWith(EXPLORE_PREFIX)) {
             return new Intent(Actions.EXPLORE).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         } else {
-            return new Intent(fromScreenTag(screenTag).getUpAction()).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            final String upAction = fromScreenTag(screenTag).mUpAction;
+            if (ScTextUtils.isNotBlank(upAction)){
+                return new Intent(upAction).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            }
         }
+        return null;
     }
 
-    public static class NoUpDestinationException extends Exception {
-        public final String screenTag;
-
-        public NoUpDestinationException(String screenTag) {
-            this.screenTag = screenTag;
-        }
-    }
 
 }

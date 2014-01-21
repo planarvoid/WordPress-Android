@@ -10,16 +10,18 @@ import com.pivotallabs.greatexpectations.matchers.IterableMatcher;
 import com.pivotallabs.greatexpectations.matchers.ObjectMatcher;
 import com.pivotallabs.greatexpectations.matchers.SetMatcher;
 import com.pivotallabs.greatexpectations.matchers.StringMatcher;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.ContentMatcher;
 import com.soundcloud.android.robolectric.ContentResolverMatcher;
 import com.soundcloud.android.robolectric.CursorMatcher;
+import com.soundcloud.android.robolectric.IntentMatcher;
 import com.soundcloud.android.robolectric.NotificationMatcher;
 import com.soundcloud.android.robolectric.UriMatcher;
+import com.soundcloud.android.storage.provider.Content;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Notification;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -76,6 +78,10 @@ public class Expect {
 
     public static <T extends ContentResolver, M extends ContentResolverMatcher<T, M>> ContentResolverMatcher<T, ?> expect(T actual) {
         return wrapped(ContentResolverMatcher.class, actual);
+    }
+
+    public static <T extends Intent, M extends IntentMatcher<T, M>> IntentMatcher<T, ?> expect(T actual) {
+        return wrapped(IntentMatcher.class, actual);
     }
 
     @SuppressWarnings("UnusedDeclaration")
