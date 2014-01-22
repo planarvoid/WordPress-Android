@@ -55,7 +55,7 @@ public class PlayerTrackPagerAdapterTest {
         when(playQueue.isLoading()).thenReturn(false);
         when(playQueue.lastLoadWasEmpty()).thenReturn(false);
         when(playQueue.lastLoadFailed()).thenReturn(false);
-        when(trackOperations.loadCompleteTrack(mock(Activity.class), anyLong())).thenReturn(Observable.just(new Track()));
+        when(trackOperations.loadCompleteTrack(any(Activity.class), anyLong())).thenReturn(Observable.just(new Track()));
     }
 
     @Test
@@ -90,8 +90,11 @@ public class PlayerTrackPagerAdapterTest {
 
     @Test
     public void shouldLoadCompleteTrackByIdFromPlayQueueItem() {
-        expect((PlayerQueueView) adapter.getView(123L, null, mock(ViewGroup.class))).toBe(playerQueueView);
-        verify(trackOperations).loadCompleteTrack(mock(Activity.class), 123L);
+        final ViewGroup viewGroup = mock(ViewGroup.class);
+        final Activity activity = mock(Activity.class);
+        when(viewGroup.getContext()).thenReturn(activity);
+        expect((PlayerQueueView) adapter.getView(123L, null, viewGroup)).toBe(playerQueueView);
+        verify(trackOperations).loadCompleteTrack(activity, 123L);
     }
 
     @Test
