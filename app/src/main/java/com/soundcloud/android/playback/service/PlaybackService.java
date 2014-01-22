@@ -487,7 +487,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     /* package */ void openCurrent() {
         if (!getPlayQueueInternal().isEmpty()){
             final long currentTrackId = getPlayQueueInternal().getCurrentTrackId();
-            mTrackOperations.loadTrack(currentTrackId).observeOn(AndroidSchedulers.mainThread())
+            mTrackOperations.loadTrack(currentTrackId, AndroidSchedulers.mainThread())
                     .subscribe(new DefaultObserver<Track>() {
                         @Override
                         public void onNext(Track track) {

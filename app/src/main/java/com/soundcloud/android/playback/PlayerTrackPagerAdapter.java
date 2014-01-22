@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback;
 
-import static rx.android.observables.AndroidObservable.fromActivity;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -15,7 +13,6 @@ import com.soundcloud.android.playback.views.PlayerQueueView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.track.TrackOperations;
 import org.jetbrains.annotations.Nullable;
-import rx.android.concurrency.AndroidSchedulers;
 
 import android.app.Activity;
 import android.content.Context;
@@ -139,7 +136,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
             queueView.showEmptyViewWithState(mPlayQueue.getAppendState());
         } else {
             playQueuePosition = mPlayQueue.getPositionOfTrackId(id);
-            queueView.showTrack(fromActivity(playerActivity, mTrackOperations.loadCompleteTrack(id)),
+            queueView.showTrack(mTrackOperations.loadCompleteTrack(playerActivity, id),
                     playQueuePosition, mCommentingPosition == playQueuePosition);
         }
         mQueueViewsByPosition.forcePut(queueView, playQueuePosition);
@@ -178,7 +175,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
 
     // since the pager layouts can show 2 completely different things (track views and the empty/loading view),
     // and since notifyDataSetChanged on ViewPager does not re-layout the page views, we have to do it manually
-    public void reloadEmptyView() {
+    public void reloadEmptyView(Activity playerActivity) {
         for (PlayerQueueView playerQueueView : mQueueViewsByPosition.keySet()) {
             if (playerQueueView.isShowingPlayerTrackView()) continue;
 
@@ -189,7 +186,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
             if (id == EMPTY_VIEW_ID) {
                 playerQueueView.showEmptyViewWithState(mPlayQueue.getAppendState());
             } else {
-                playerQueueView.showTrack(mTrackOperations.loadCompleteTrack(id).observeOn(AndroidSchedulers.mainThread()),
+                playerQueueView.showTrack(mTrackOperations.loadCompleteTrack(playerActivity, id),
                         position, mCommentingPosition == position);
             }
         }

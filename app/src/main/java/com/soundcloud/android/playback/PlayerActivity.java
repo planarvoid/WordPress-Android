@@ -576,7 +576,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
                     mPlayQueue = intent.getParcelableExtra(PlayQueueView.EXTRA);
                     mTrackPagerAdapter.setPlayQueueIfChanged(mPlayQueue);
-                    mTrackPagerAdapter.reloadEmptyView();
+                    mTrackPagerAdapter.reloadEmptyView(PlayerActivity.this);
                     mTrackPagerAdapter.notifyDataSetChanged();
 
                     boolean wasOnEmptyView = getCurrentDisplayedTrackView() == null;

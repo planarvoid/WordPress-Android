@@ -28,7 +28,10 @@ import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
+import rx.android.concurrency.AndroidSchedulers;
 import rx.util.functions.Func1;
+
+import android.app.Activity;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackOperationsTest {
@@ -56,7 +59,7 @@ public class TrackOperationsTest {
     @Test
     public void shouldLoadTrackFromCacheAndEmitOnUIThreadForPlayback() {
         when(modelManager.getCachedTrack(1L)).thenReturn(track);
-        expect(trackOperations.loadTrack(1L).toBlockingObservable().last()).toBe(track);
+        expect(trackOperations.loadTrack(1L, AndroidSchedulers.mainThread()).toBlockingObservable().last()).toBe(track);
         verifyZeroInteractions(trackStorage);
     }
 
@@ -67,7 +70,7 @@ public class TrackOperationsTest {
         when(loadFromStorageObservable.map(any(Func1.class))).thenReturn(loadFromStorageObservable);
         when(loadFromStorageObservable.observeOn(any(Scheduler.class))).thenReturn(loadFromStorageObservable);
 
-        trackOperations.loadTrack(1L).subscribe(observer);
+        trackOperations.loadTrack(1L, AndroidSchedulers.mainThread()).subscribe(observer);
 
         verify(loadFromStorageObservable).subscribe(observer);
     }
@@ -79,7 +82,7 @@ public class TrackOperationsTest {
         when(trackStorage.getTrackAsync(1L)).thenReturn(observable);
         when(modelManager.cache(track, ScResource.CacheUpdateMode.NONE)).thenReturn(track);
 
-        trackOperations.loadTrack(1L).subscribe(observer);
+        trackOperations.loadTrack(1L, AndroidSchedulers.mainThread()).subscribe(observer);
 
         verify(observer).onNext(eq(new Track(1L)));
     }
@@ -89,7 +92,7 @@ public class TrackOperationsTest {
         Observable<Track> observable = Observable.just(track);
         when(trackStorage.getTrackAsync(1L)).thenReturn(observable);
         Observer<Track> observer = mock(Observer.class);
-        trackOperations.loadTrack(1L).subscribe(observer);
+        trackOperations.loadTrack(1L, AndroidSchedulers.mainThread()).subscribe(observer);
 
         verify(modelManager).cache(track, ScResource.CacheUpdateMode.NONE);
     }
@@ -101,7 +104,7 @@ public class TrackOperationsTest {
         when(trackStorage.getTrackAsync(1L)).thenReturn(observable);
         when(modelManager.cache(track, ScResource.CacheUpdateMode.NONE)).thenReturn(track);
 
-        trackOperations.loadCompleteTrack(1L).subscribe(observer);
+        trackOperations.loadCompleteTrack(mock(Activity.class), 1L).subscribe(observer);
 
         verify(observer).onNext(track);
         verifyZeroInteractions(httpClient);
@@ -119,7 +122,7 @@ public class TrackOperationsTest {
         Observable apiObservable = Observable.just(Mockito.mock(Track.class));
         when(httpClient.fetchModels(any(APIRequest.class))).thenReturn(apiObservable);
 
-        trackOperations.loadCompleteTrack(1L).subscribe(observer);
+        trackOperations.loadCompleteTrack(mock(Activity.class), 1L).subscribe(observer);
 
         verify(modelManager).cache(incompleteTrack, ScResource.CacheUpdateMode.NONE);
         verify(observer).onNext(incompleteTrack);
@@ -139,7 +142,7 @@ public class TrackOperationsTest {
         when(httpClient.fetchModels(any(APIRequest.class))).thenReturn(apiObservable);
         when(modelManager.cache(completedTrack, ScResource.CacheUpdateMode.FULL)).thenReturn(completedTrack);
 
-        trackOperations.loadCompleteTrack(1L).subscribe(observer);
+        trackOperations.loadCompleteTrack(mock(Activity.class), 1L).subscribe(observer);
 
         verify(modelManager).cache(incompleteTrack, ScResource.CacheUpdateMode.NONE);
         verify(modelManager).cache(completedTrack, ScResource.CacheUpdateMode.FULL);
@@ -158,7 +161,7 @@ public class TrackOperationsTest {
         Observable apiObservable = Observable.just(Mockito.mock(Track.class));
         when(httpClient.fetchModels(any(APIRequest.class))).thenReturn(apiObservable);
 
-        trackOperations.loadCompleteTrack(1L).subscribe(observer);
+        trackOperations.loadCompleteTrack(mock(Activity.class), 1L).subscribe(observer);
 
         verify(httpClient).fetchModels(argThat(isPublicApiRequestTo("GET", "/tracks/1")));
     }
