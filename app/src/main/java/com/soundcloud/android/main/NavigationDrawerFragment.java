@@ -118,7 +118,6 @@ public class NavigationDrawerFragment extends NavigationFragment {
                     return;
                 }
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-                EventBus.UI.publish(UIEvent.fromDrawerClose());
             }
 
             @Override

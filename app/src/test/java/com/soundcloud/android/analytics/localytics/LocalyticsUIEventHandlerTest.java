@@ -137,11 +137,4 @@ public class LocalyticsUIEventHandlerTest {
         verify(localyticsSession).tagEvent("drawer_open", event.getAttributes());
     }
 
-    @Test
-    public void shouldHandleEventDrawerClose() throws Exception {
-        UIEvent event = UIEvent.fromDrawerClose();
-        localyticsUIEventHandler.handleEvent(event);
-        verify(localyticsSession).tagEvent("drawer_close", event.getAttributes());
-    }
-
 }

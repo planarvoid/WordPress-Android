@@ -196,9 +196,4 @@ public class UIEventTest {
         expect(UIEvent.fromDrawerOpen().getKind()).toEqual(15);
     }
 
-    @Test
-    public void shouldCreateEventFromDrawerClose() throws Exception {
-        expect(UIEvent.fromDrawerClose().getKind()).toEqual(16);
-    }
-
 }
