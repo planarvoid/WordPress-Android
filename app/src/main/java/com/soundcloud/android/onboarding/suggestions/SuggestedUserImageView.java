@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 
 /**
  * Offsets the imageview source by ~16%
- * Used by {@link SuggestedUserItemLayout}, {@link com.soundcloud.android.playlists.SuggestedUsersAdapter}
+ * Used by {@link SuggestedUserItemLayout}, {@link SuggestedUsersAdapter}
  */
 public class SuggestedUserImageView extends OptimisedImageView {
 
