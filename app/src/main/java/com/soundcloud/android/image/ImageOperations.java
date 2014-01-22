@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 public class ImageOperations {
 
     private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1024 * 1024; // available mem in bytes
-    private static final Pattern PATTERN = Pattern.compile("^https?://([^\\?]+)(?:\\?.*)?");
+    private static final Pattern PATTERN = Pattern.compile("^https?://([^\\?]+|(?:.+?(?:.+=.+)+))(?:\\?[^=]*)?$");
     private static final String URL_BASE = "http://%s";
 
     private ImageLoader mImageLoader;
