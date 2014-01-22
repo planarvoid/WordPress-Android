@@ -65,7 +65,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
         int eventKind = event.getKind();
-        if(eventKind == CurrentUserChangedEvent.USER_UPDATED) {
+        if (eventKind == CurrentUserChangedEvent.USER_UPDATED) {
             mLocalyticsSession.setCustomerId(Long.toString(event.getCurrentUser().getId()));
         } else if(eventKind == CurrentUserChangedEvent.USER_REMOVED) {
             mLocalyticsSession.setCustomerId(null);
@@ -122,6 +122,8 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             if (eventData.getTrackSourceInfo().isFromPlaylist()) {
                 eventAttributes.put("set_id", String.valueOf(eventData.getTrackSourceInfo().getPlaylistId()));
                 eventAttributes.put("set_owner", eventData.isPlayingOwnPlaylist() ? "you" : "other");
+            } else {
+                eventAttributes.put("set_owner", "none");
             }
             eventAttributes.put("stop_reason", getStopReason(eventData));
 
