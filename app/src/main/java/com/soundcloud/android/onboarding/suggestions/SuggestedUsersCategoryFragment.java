@@ -7,7 +7,6 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.UserAssociation;
-import com.soundcloud.android.playlists.SuggestedUsersAdapter;
 import com.soundcloud.android.view.GridViewCompat;
 import rx.Observable;
 import rx.android.RxFragmentObserver;
