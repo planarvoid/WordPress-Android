@@ -1,8 +1,7 @@
 package com.soundcloud.android.sync;
 
-import com.google.common.collect.Lists;
-import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.tasks.ParallelAsyncTask;
@@ -125,7 +124,6 @@ public class ApiSyncService extends Service {
     }
 
     private class ApiTask extends ParallelAsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> {
-        private SyncPoller mSyncPoller;
 
         @Override
         protected void onPreExecute() {
@@ -134,9 +132,6 @@ public class ApiSyncService extends Service {
 
         @Override
         protected Void doInBackground(final CollectionSyncRequest... tasks) {
-            mSyncPoller = new SyncPoller(mServiceHandler, Thread.currentThread(), Lists.newArrayList(tasks));
-            mSyncPoller.schedule();
-
             for (CollectionSyncRequest task : tasks) {
                 publishProgress(task.execute());
             }
@@ -152,7 +147,6 @@ public class ApiSyncService extends Service {
 
         @Override
         protected void onPostExecute(Void result) {
-            mSyncPoller.stop();
             mActiveTaskCount--;
             flushSyncRequests();
         }

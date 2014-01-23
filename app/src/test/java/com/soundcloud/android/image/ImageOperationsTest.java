@@ -57,7 +57,9 @@ public class ImageOperationsTest {
     ArgumentCaptor<DisplayImageOptions> displayImageOptionsArgumentCaptor;
 
     final private String URL = "https://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
-    final private String ADJUSTED_URL = "http://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg";
+    final private String ADJUSTED_URL = "http://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
+    final private String URL_WITH_PARAMS = "https://api.soundcloud.com/resolve/image?url=soundcloud%3Ausers%3A1818488&client_id=40ccfee680a844780a41fbe23ea89934&size=t500x500";
+    final private String ADJUSTED_URL_WITH_PARAMS = "http://api.soundcloud.com/resolve/image?url=soundcloud%3Ausers%3A1818488&client_id=40ccfee680a844780a41fbe23ea89934&size=t500x500";
 
     @Before
     public void setUp() throws Exception {
@@ -66,9 +68,16 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void loadImageshouldLoadImageWithListener() throws Exception {
+    public void shouldLoadImageWithListener() throws Exception {
         imageOperations.load(URL, imageListener);
         verify(imageLoader).loadImage(eq(ADJUSTED_URL), imageListenerUILAdapterCaptor.capture());
+        verifyCapturedListener();
+    }
+
+    @Test
+    public void shouldLoadImageWithListenerWithParameterizedUrl() throws Exception {
+        imageOperations.load(URL_WITH_PARAMS, imageListener);
+        verify(imageLoader).loadImage(eq(ADJUSTED_URL_WITH_PARAMS), imageListenerUILAdapterCaptor.capture());
         verifyCapturedListener();
     }
 

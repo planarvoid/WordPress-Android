@@ -1,13 +1,12 @@
 package com.soundcloud.android.playback;
 
-import static rx.android.observables.AndroidObservable.fromActivity;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.HashBiMap;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.BasePagerAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlayQueueView;
@@ -15,13 +14,13 @@ import com.soundcloud.android.playback.views.PlayerQueueView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.track.TrackOperations;
 import org.jetbrains.annotations.Nullable;
-import rx.android.concurrency.AndroidSchedulers;
 
 import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
+import javax.inject.Inject;
 import java.util.Collection;
 
 public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
@@ -37,13 +36,14 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
 
     private String mOriginScreen;
 
-    public PlayerTrackPagerAdapter(String originScreen) {
-        this(new TrackOperations(), originScreen);
+    @Inject
+    public PlayerTrackPagerAdapter(TrackOperations trackOperations) {
+        mTrackOperations = trackOperations;
+        mOriginScreen = Screen.UNKNOWN.get();
     }
 
-    public PlayerTrackPagerAdapter(TrackOperations trackOperations, String originScreen) {
-        mTrackOperations = trackOperations;
-        mOriginScreen = originScreen;
+    public void setOriginScreen(String screen) {
+        mOriginScreen = screen;
     }
 
     public Collection<PlayerTrackView> getPlayerTrackViews() {
@@ -53,11 +53,11 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
                 return input.isShowingPlayerTrackView();
             }
         }), new Function<PlayerQueueView, PlayerTrackView>() {
-            @Override
-            public PlayerTrackView apply(PlayerQueueView input) {
-                return input.getTrackView();
-            }
-        });
+        @Override
+        public PlayerTrackView apply(PlayerQueueView input) {
+            return input.getTrackView();
+        }
+    });
     }
 
     public boolean setPlayQueueIfChanged(PlayQueueView playQueue) {
@@ -142,7 +142,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
             queueView.showEmptyViewWithState(mPlayQueue.getAppendState());
         } else {
             playQueuePosition = mPlayQueue.getPositionOfTrackId(id);
-            queueView.showTrack(fromActivity(playerActivity, mTrackOperations.loadCompleteTrack(id)),
+            queueView.showTrack(mTrackOperations.loadCompleteTrack(playerActivity, id),
                     playQueuePosition, mCommentingPosition == playQueuePosition, mOriginScreen);
         }
         mQueueViewsByPosition.forcePut(queueView, playQueuePosition);
@@ -181,7 +181,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
 
     // since the pager layouts can show 2 completely different things (track views and the empty/loading view),
     // and since notifyDataSetChanged on ViewPager does not re-layout the page views, we have to do it manually
-    public void reloadEmptyView() {
+    public void reloadEmptyView(Activity playerActivity) {
         for (PlayerQueueView playerQueueView : mQueueViewsByPosition.keySet()) {
             if (playerQueueView.isShowingPlayerTrackView()) continue;
 
@@ -192,7 +192,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
             if (id == EMPTY_VIEW_ID) {
                 playerQueueView.showEmptyViewWithState(mPlayQueue.getAppendState());
             } else {
-                playerQueueView.showTrack(mTrackOperations.loadCompleteTrack(id).observeOn(AndroidSchedulers.mainThread()),
+                playerQueueView.showTrack(mTrackOperations.loadCompleteTrack(playerActivity, id),
                         position, mCommentingPosition == position, mOriginScreen);
             }
         }

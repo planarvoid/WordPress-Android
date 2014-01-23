@@ -23,16 +23,18 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
+
     public static final String TAG = "LocalyticsProvider";
 
     @VisibleForTesting
     static final AtomicBoolean ACTIVITY_SESSION_OPEN = new AtomicBoolean();
 
+    private  static final int NO_USER = -1;
+
     private LocalyticsSession mLocalyticsSession;
     private LocalyticsUIEventHandler mLocalyticsUIEventHandler;
     private LocalyticsOnboardingEventHandler mLocalyticsOnboardingEventHandler;
     private PlaybackServiceStateWrapper mPlaybackStateWrapper;
-
 
     public LocalyticsAnalyticsProvider(Context context, AnalyticsProperties analyticsProperties, long currentUserId) {
         this(new LocalyticsSession(context.getApplicationContext(), analyticsProperties.getLocalyticsAppKey()),
@@ -63,7 +65,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
         int eventKind = event.getKind();
-        if(eventKind == CurrentUserChangedEvent.USER_UPDATED) {
+        if (eventKind == CurrentUserChangedEvent.USER_UPDATED) {
             mLocalyticsSession.setCustomerId(Long.toString(event.getCurrentUser().getId()));
         } else if(eventKind == CurrentUserChangedEvent.USER_REMOVED) {
             mLocalyticsSession.setCustomerId(null);
@@ -120,6 +122,8 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             if (eventData.getTrackSourceInfo().isFromPlaylist()) {
                 eventAttributes.put("set_id", String.valueOf(eventData.getTrackSourceInfo().getPlaylistId()));
                 eventAttributes.put("set_owner", eventData.isPlayingOwnPlaylist() ? "you" : "other");
+            } else {
+                eventAttributes.put("set_owner", "none");
             }
             eventAttributes.put("stop_reason", getStopReason(eventData));
 
@@ -187,7 +191,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     //TODO: Should be a standardized anonymous id
     private String getCustomerId(long currentUserId) {
-        if(currentUserId == -1) {
+        if (currentUserId == NO_USER) {
             return null;
         } else {
             return Long.toString(currentUserId);

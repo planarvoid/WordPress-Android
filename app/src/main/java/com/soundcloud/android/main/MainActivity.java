@@ -8,7 +8,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.UserOperations;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.associations.LikesListFragment;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
@@ -16,6 +15,7 @@ import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.model.User;
@@ -23,9 +23,7 @@ import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.rx.RxModule;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.provider.Content;
 import dagger.ObjectGraph;
 import net.hockeyapp.android.UpdateManager;
@@ -58,8 +56,6 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private int mLastSelection = NO_SELECTION;
 
     @Inject
-    CompositeSubscription mSubscription;
-    @Inject
     ApplicationProperties mApplicationProperties;
     @Inject
     SoundCloudApplication application;
@@ -72,6 +68,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     private final DependencyInjector mDependencyInjector;
     private ObjectGraph mObjectGraph;
+
+    private CompositeSubscription mSubscription;
 
     @SuppressWarnings("unused")
     public MainActivity() {
@@ -86,12 +84,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-        mObjectGraph = mDependencyInjector.fromAppGraphWithModules(
-                new ExploreModule(),
-                new StorageModule(),
-                new RxModule(),
-                new ApiModule()
-        );
+        mObjectGraph = mDependencyInjector.fromAppGraphWithModules(new ExploreModule());
         mObjectGraph.inject(this);
         mNavigationFragment = findNavigationFragment();
         mNavigationFragment.initState(savedInstanceState);
@@ -110,6 +103,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
 
+        mSubscription = new CompositeSubscription();
         mSubscription.add(EventBus.CURRENT_USER_CHANGED.subscribe(new CurrentUserChangedObserver()));
     }
 
@@ -174,6 +168,25 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         }
     }
 
+    private void publishNavSelectedEvent() {
+        final int position = mNavigationFragment.getCurrentSelectedPosition();
+        switch (NavigationFragment.NavItem.values()[position]) {
+            case STREAM:
+                EventBus.UI.publish(UIEvent.fromStreamNav());
+                break;
+            case EXPLORE:
+                EventBus.UI.publish(UIEvent.fromExploreNav());
+                break;
+            case LIKES:
+                EventBus.UI.publish(UIEvent.fromLikesNav());
+                break;
+            case PLAYLISTS:
+                EventBus.UI.publish(UIEvent.fromPlaylistsNav());
+            default:
+                break;
+        }
+    }
+
     @Override
     protected void onDestroy() {
         UpdateManager.unregister();
@@ -199,6 +212,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         switch (NavigationFragment.NavItem.values()[position]) {
             case PROFILE:
                 displayProfile();
+                // This click is tracked separately since profile item is never selected
+                EventBus.UI.publish(UIEvent.fromProfileNav());
                 return;
             case STREAM:
                 displayStream();
@@ -213,7 +228,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
                 displayPlaylists();
         }
 
-        if (setTitle){
+        if (setTitle) {
             /**
              * In this case, restoreActionBar will not be called since it is already closed.
              * This probably came from {@link NavigationFragment#handleIntent(android.content.Intent)}
@@ -224,6 +239,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
             // only publish content change events here that were user initiated, not those coming from rotation changes
             // and stuff.
             publishContentChangeEvent();
+            publishNavSelectedEvent();
         }
         if (position != NavigationFragment.NavItem.PROFILE.ordinal()) {
             mLastSelection = position;

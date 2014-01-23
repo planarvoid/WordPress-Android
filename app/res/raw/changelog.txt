@@ -1,15 +1,11 @@
-$ 76
-  % v 2.7.5-BETA
-  _ 2014-1-16
-  ! Shuffle my likes and Analytics
-    * Shuffle My Likes should complete incomplete tracks now
-    * More analytics
-    - shuffle my likes
+$ 77
+  % v 2.7.5
+  _ 2014-1-22
+  ! Shuffle your likes!
+    * Listen to your favorite tracks at random directly from the Likes page.
+    * Removed unnecessary system permission
     - improved on image caching
-    - Fixed some track inconsistencies when resuming player activity
-    - Fixed some playback crashes
     - Added a host of localytics tracking
-    - Fixed playing remote search result
     - Added some proper up button functionality to player
     - Fixed recording crash when recording after editing
     - Properly dropping audio focus on logout

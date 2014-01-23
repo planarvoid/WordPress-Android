@@ -26,6 +26,7 @@ import com.soundcloud.android.playback.streaming.StreamProxy;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.LocalBinder;
+import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.track.TrackOperations;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -142,12 +143,15 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     TrackOperations mTrackOperations;
     @Inject
     PlaybackEventSource mPlaybackEventSource;
+    @Inject
+    AccountOperations mAccountOperations;
+    @Inject
+    ImageOperations mImageOperations;
 
     private @Nullable MediaPlayer mMediaPlayer;
     private int mLoadPercent = 0;       // track buffer indicator
     private boolean mAutoPause = true;  // used when svc is first created and playlist is resumed on start
     private boolean mAutoAdvance = true;// automatically skip to next track
-    /* package */ AccountOperations mAccountOperations;
 
     // TODO: this doesn't really belong here. It's only used to PUT likes and reposts, and isn't playback specific.
     /* package */ AssociationManager mAssociationManager;
@@ -187,8 +191,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private TrackCompletionListener mCompletionListener;
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
-
     public interface PlayExtras{
         String TRACK = Track.EXTRA;
         String TRACK_ID = Track.EXTRA_ID;
@@ -215,14 +217,11 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public void onCreate() {
         super.onCreate();
 
-        new DaggerDependencyInjector().fromAppGraphWithModules(
-                new PlaybackModule(), new ApiModule()
-        ).inject(this);
+        new DaggerDependencyInjector().fromAppGraphWithModules(new PlaybackModule()).inject(this);
 
         mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mOldCloudApi = new PublicApi(this);
-        mAccountOperations = new AccountOperations(this);
         mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mAudioManager, mPlayQueueManager);
 
         mCompletionListener = new TrackCompletionListener(this);
@@ -487,7 +486,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     /* package */ void openCurrent() {
         if (!getPlayQueueInternal().isEmpty()){
             final long currentTrackId = getPlayQueueInternal().getCurrentTrackId();
-            mTrackOperations.loadTrack(currentTrackId).observeOn(AndroidSchedulers.mainThread())
+            mTrackOperations.loadTrack(currentTrackId, AndroidSchedulers.mainThread())
                     .subscribe(new DefaultObserver<Track>() {
                         @Override
                         public void onNext(Track track) {

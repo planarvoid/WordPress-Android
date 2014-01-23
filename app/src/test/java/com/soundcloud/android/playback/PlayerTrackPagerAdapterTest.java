@@ -23,8 +23,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.view.ViewGroup;
@@ -45,7 +47,7 @@ public class PlayerTrackPagerAdapterTest {
     @Before
     public void setUp() throws Exception {
         // TODO remove the override when we move to Robolectric 2
-        adapter = new PlayerTrackPagerAdapter(trackOperations, Screen.UNKNOWN.get()) {
+        adapter = new PlayerTrackPagerAdapter(trackOperations) {
             @Override
             protected PlayerQueueView createPlayerQueueView(Context context) {
                 return playerQueueView;
@@ -55,7 +57,7 @@ public class PlayerTrackPagerAdapterTest {
         when(playQueue.isLoading()).thenReturn(false);
         when(playQueue.lastLoadWasEmpty()).thenReturn(false);
         when(playQueue.lastLoadFailed()).thenReturn(false);
-        when(trackOperations.loadCompleteTrack(anyLong())).thenReturn(Observable.just(new Track()));
+        when(trackOperations.loadCompleteTrack(any(Activity.class), anyLong())).thenReturn(Observable.just(new Track()));
     }
 
     @Test
@@ -90,8 +92,11 @@ public class PlayerTrackPagerAdapterTest {
 
     @Test
     public void shouldLoadCompleteTrackByIdFromPlayQueueItem() {
-        expect((PlayerQueueView) adapter.getView(123L, null, mock(ViewGroup.class))).toBe(playerQueueView);
-        verify(trackOperations).loadCompleteTrack(123L);
+        final ViewGroup viewGroup = mock(ViewGroup.class);
+        final Activity activity = mock(Activity.class);
+        when(viewGroup.getContext()).thenReturn(activity);
+        expect((PlayerQueueView) adapter.getView(123L, null, viewGroup)).toBe(playerQueueView);
+        verify(trackOperations).loadCompleteTrack(activity, 123L);
     }
 
     @Test
@@ -214,9 +219,8 @@ public class PlayerTrackPagerAdapterTest {
         verify(playerQueueView2).showEmptyViewWithState(PlaybackOperations.AppendState.LOADING);
 
         adapter.setPlayQueueIfChanged(new PlayQueueView(Lists.newArrayList(1L, 2L), 0, PlaybackOperations.AppendState.IDLE));
-        adapter.reloadEmptyView();
+        adapter.reloadEmptyView(Mockito.mock(Activity.class));
         verify(playerQueueView2).showTrack(any(rx.Observable.class), anyInt(), anyBoolean(), anyString());
-
     }
 
     @Test

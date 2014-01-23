@@ -4,18 +4,21 @@ import com.soundcloud.android.R;
 
 import android.view.View;
 
+import javax.inject.Inject;
+
 public class GridSpacer {
     private final int mSpacingOutsideTopBottomResId;
     private final int mSpacingOutsideLeftRightResId;
     private final int mNumColumnsResId;
 
+    @Inject
     public GridSpacer() {
         this(R.integer.suggested_user_grid_num_columns,
                 R.dimen.explore_suggested_track_item_spacing_outside_left_right,
                 R.dimen.explore_suggested_track_item_spacing_outside_top_bottom);
     }
 
-    public GridSpacer(int numColumnsResId, int spacingOutsideLeftRightResId, int spacingOutsideTopBottomResId) {
+    protected GridSpacer(int numColumnsResId, int spacingOutsideLeftRightResId, int spacingOutsideTopBottomResId) {
         mNumColumnsResId = numColumnsResId;
         mSpacingOutsideLeftRightResId = spacingOutsideLeftRightResId;
         mSpacingOutsideTopBottomResId = spacingOutsideTopBottomResId;

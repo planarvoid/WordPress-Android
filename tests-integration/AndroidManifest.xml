@@ -1,12 +1,11 @@
-<manifest package="com.soundcloud.android.tests" xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="78" android:versionName="2.7.5" package="com.soundcloud.android.tests">
     <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="7"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application>
         <uses-library android:name="android.test.runner"/>
 
-        <activity android:name=".activity.FakeCamera"
-                  android:label="@string/fakecamera">
+        <activity android:label="@string/fakecamera" android:name=".activity.FakeCamera">
 
             <intent-filter>
                 <action android:name="android.media.action.IMAGE_CAPTURE"/>
@@ -19,8 +18,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.FakeGallery"
-                  android:label="@string/fakegallery">
+        <activity android:label="@string/fakegallery" android:name=".activity.FakeGallery">
 
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT"/>
@@ -31,8 +29,7 @@
 
         </activity>
 
-        <activity android:name=".activity.ShareSoundTarget"
-                  android:label="@string/sharesoundtarget">
+        <activity android:label="@string/sharesoundtarget" android:name=".activity.ShareSoundTarget">
 
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
@@ -43,7 +40,5 @@
 
     </application>
 
-    <instrumentation android:label="Tests"
-                     android:targetPackage="com.soundcloud.android"
-                     android:name="com.soundcloud.android.tests.RandomizingRunner"/>
+    <instrumentation android:label="Tests" android:name="com.soundcloud.android.tests.RandomizingRunner" android:targetPackage="com.soundcloud.android"/>
 </manifest>

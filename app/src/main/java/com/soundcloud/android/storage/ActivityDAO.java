@@ -11,6 +11,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,6 +24,7 @@ import java.util.Set;
  */
 /* package */ class ActivityDAO extends BaseDAO<Activity> {
 
+    @Inject
     public ActivityDAO(ContentResolver resolver) {
         super(resolver);
     }
