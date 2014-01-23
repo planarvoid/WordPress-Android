@@ -98,13 +98,12 @@ public class ImageOperations {
     }
 
     /**
-     * Adjust urls to use insecure protocol and remove Rails cache fragment. Will result in more cache hits
+     * Adjust urls to use insecure protocol. Will result in more cache hits
      */
     private String adjustUrl(String url) {
         if (ScTextUtils.isNotBlank(url)) {
             Matcher matcher = PATTERN.matcher(url);
-            matcher.find();
-            if (matcher.groupCount() == 1) {
+            if (matcher.find() && matcher.groupCount() == 1) {
                 return String.format(URL_BASE, matcher.group(1));
             }
         }
