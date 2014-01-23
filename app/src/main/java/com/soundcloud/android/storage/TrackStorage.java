@@ -30,6 +30,8 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
     private ContentResolver mResolver;
     private ScModelManager mModelManager;
 
+    // Use @Inject instead
+    @Deprecated
     public TrackStorage() {
         this(SoundCloudApplication.instance.getContentResolver(),
                 new TrackDAO(SoundCloudApplication.instance.getContentResolver()),
