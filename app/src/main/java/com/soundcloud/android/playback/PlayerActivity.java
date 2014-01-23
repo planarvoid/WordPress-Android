@@ -5,11 +5,13 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Comment;
@@ -26,7 +28,9 @@ import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.playback.views.TransportBarView;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.service.LocalBinder;
+import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.UriUtils;
+import dagger.ObjectGraph;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,6 +50,7 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 
 import javax.annotation.CheckForNull;
+import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
 public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTrackPageListener, PlayerTrackView.PlayerTrackViewListener {
@@ -64,10 +69,12 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private @CheckForNull
     PlaybackService mPlaybackService;
     private int mPendingPlayPosition = -1;
-    private PlayerTrackPagerAdapter mTrackPagerAdapter;
-    private PlaybackOperations mPlaybackOperations;
     private boolean mIsFirstLoad;
 
+    @Inject
+    PlaybackOperations mPlaybackOperations;
+    @Inject
+    PlayerTrackPagerAdapter mTrackPagerAdapter;
 
     @NotNull
     private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
@@ -87,14 +94,12 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
         setTitle(R.string.title_now_playing);
 
-        mPlaybackOperations = new PlaybackOperations();
+        new DaggerDependencyInjector().fromAppGraphWithModules(new PlaybackModule()).inject(this);
 
         mTrackPager = (PlayerTrackPager) findViewById(R.id.track_view);
         mTrackPager.setPageMarginDrawable(R.drawable.track_view_separator);
         mTrackPager.setPageMargin((int) (5 * getResources().getDisplayMetrics().density));
         mTrackPager.setListener(this);
-
-        mTrackPagerAdapter = new PlayerTrackPagerAdapter();
         mTrackPager.setAdapter(mTrackPagerAdapter);
 
         mTransportBar = (TransportBarView) findViewById(R.id.transport_bar);

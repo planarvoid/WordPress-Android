@@ -7,7 +7,6 @@ import dagger.Module;
 import dagger.Provides;
 
 import android.accounts.AccountManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -41,11 +40,6 @@ public class ApplicationModule {
     @Provides
     public AccountManager provideAccountManager(){
         return AccountManager.get(mApplication);
-    }
-
-    @Provides
-    public ContentResolver provideContentResolver(){
-        return mApplication.getContentResolver();
     }
 
     @Provides

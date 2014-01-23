@@ -1,5 +1,6 @@
 package com.soundcloud.android.storage;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.rx.ScSchedulers;
 import dagger.Module;
 import dagger.Provides;
@@ -8,7 +9,6 @@ import rx.Scheduler;
 import android.content.ContentResolver;
 
 import javax.inject.Named;
-import javax.inject.Singleton;
 
 @Module(library = true, complete = false)
 public class StorageModule {
@@ -20,15 +20,7 @@ public class StorageModule {
     }
 
     @Provides
-    @Singleton
-    public UserDAO provideUserDAO(ContentResolver contentResolver){
-        return new UserDAO(contentResolver);
+    public ContentResolver provideContentResolver(SoundCloudApplication application) {
+        return application.getContentResolver();
     }
-
-    @Provides
-    @Singleton
-    public TrackDAO provideTrackDAO(ContentResolver contentResolver){
-        return new TrackDAO(contentResolver);
-    }
-
 }
