@@ -33,7 +33,8 @@ public class PlayableInfoAndEngagementsControllerTest {
     public void setup() {
         LayoutInflater inflater = (LayoutInflater) DefaultTestRunner.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         rootView = (ViewGroup) inflater.inflate(R.layout.player_action_bar, null);
-        controller = new PlayableInfoAndEngagementsController(rootView, mock(PlayerTrackView.PlayerTrackViewListener.class), Screen.PLAYER_MAIN);
+        controller = new PlayableInfoAndEngagementsController(rootView, mock(PlayerTrackView.PlayerTrackViewListener.class),
+                Screen.PLAYER_MAIN.get());
     }
 
     @Test

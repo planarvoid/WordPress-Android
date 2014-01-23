@@ -35,12 +35,15 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
 
     private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
 
-    public PlayerTrackPagerAdapter() {
-        this(new TrackOperations());
+    private String mOriginScreen;
+
+    public PlayerTrackPagerAdapter(String originScreen) {
+        this(new TrackOperations(), originScreen);
     }
 
-    public PlayerTrackPagerAdapter(TrackOperations trackOperations) {
+    public PlayerTrackPagerAdapter(TrackOperations trackOperations, String originScreen) {
         mTrackOperations = trackOperations;
+        mOriginScreen = originScreen;
     }
 
     public Collection<PlayerTrackView> getPlayerTrackViews() {
@@ -140,7 +143,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
         } else {
             playQueuePosition = mPlayQueue.getPositionOfTrackId(id);
             queueView.showTrack(fromActivity(playerActivity, mTrackOperations.loadCompleteTrack(id)),
-                    playQueuePosition, mCommentingPosition == playQueuePosition);
+                    playQueuePosition, mCommentingPosition == playQueuePosition, mOriginScreen);
         }
         mQueueViewsByPosition.forcePut(queueView, playQueuePosition);
         return convertView;
@@ -190,7 +193,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
                 playerQueueView.showEmptyViewWithState(mPlayQueue.getAppendState());
             } else {
                 playerQueueView.showTrack(mTrackOperations.loadCompleteTrack(id).observeOn(AndroidSchedulers.mainThread()),
-                        position, mCommentingPosition == position);
+                        position, mCommentingPosition == position, mOriginScreen);
             }
         }
     }

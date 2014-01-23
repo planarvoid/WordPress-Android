@@ -49,6 +49,7 @@ import javax.annotation.CheckForNull;
 import java.lang.ref.WeakReference;
 
 public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTrackPageListener, PlayerTrackView.PlayerTrackViewListener {
+    public static final String ORIGIN_SCREEN_EXTRA = "screen";
     public static final int REFRESH_DELAY = 1000;
 
     private static final String STATE_PAGER_QUEUE_POSITION = "pager_queue_position";
@@ -67,7 +68,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private PlayerTrackPagerAdapter mTrackPagerAdapter;
     private PlaybackOperations mPlaybackOperations;
     private boolean mIsFirstLoad;
-    private Screen mOriginScreen;
 
     @NotNull
     private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
@@ -94,7 +94,9 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         mTrackPager.setPageMargin((int) (5 * getResources().getDisplayMetrics().density));
         mTrackPager.setListener(this);
 
-        mTrackPagerAdapter = new PlayerTrackPagerAdapter();
+        String originScreen = getIntent().getExtras().getString(ORIGIN_SCREEN_EXTRA, Screen.UNKNOWN.get());
+
+        mTrackPagerAdapter = new PlayerTrackPagerAdapter(originScreen);
         mTrackPager.setAdapter(mTrackPagerAdapter);
 
         mTransportBar = (TransportBarView) findViewById(R.id.transport_bar);
@@ -103,14 +105,13 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         mTransportBar.setOnPauseListener(mPauseListener);
         mTransportBar.setOnCommentListener(mCommentListener);
 
-        mOriginScreen = Screen.fromIntent(getIntent(), Screen.UNKNOWN);
 
         // only exists in tablet layouts
         LinearLayout mPlayerInfoLayout = (LinearLayout) findViewById(R.id.player_info_view);
         if (mPlayerInfoLayout != null){
             mTrackDetailsView = (PlayerTrackDetailsLayout) mPlayerInfoLayout.findViewById(R.id.player_track_details);
             mPlayableInfoAndEngagementsController = new PlayableInfoAndEngagementsController(mPlayerInfoLayout, this,
-                    mOriginScreen);
+                    originScreen);
         }
 
         mIsFirstLoad = bundle == null;

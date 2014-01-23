@@ -8,7 +8,6 @@ import static com.soundcloud.android.playback.service.PlaybackService.Actions.RE
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.views.PlayableBar;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.UIEvent;
@@ -40,12 +39,12 @@ public class PlayableInfoAndEngagementsController {
     private PlayableBar mTrackInfoBar;
 
     private Playable mPlayable;
-    private Screen mHostScreen;
+    private String mOriginScreen;
 
     public PlayableInfoAndEngagementsController(View rootView, final PlayerTrackView.PlayerTrackViewListener mListener,
-                                                Screen hostScreen) {
+                                                String originScreen) {
         mRootView = rootView;
-        mHostScreen = hostScreen;
+        mOriginScreen = originScreen;
         mToggleLike = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         mToggleRepost = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
         mShareButton = (ImageButton) rootView.findViewById(R.id.btn_share);
@@ -60,7 +59,7 @@ public class PlayableInfoAndEngagementsController {
                         intent.setData(mPlayable.toUri());
                         view.getContext().startService(intent);
                         EventBus.UI.publish(UIEvent.fromToggleLike(mToggleLike.isChecked(),
-                                mHostScreen.get(), mPlayable));
+                                mOriginScreen, mPlayable));
                     }
                 }
             });
@@ -76,7 +75,7 @@ public class PlayableInfoAndEngagementsController {
                         intent.setData(mPlayable.toUri());
                         view.getContext().startService(intent);
                         EventBus.UI.publish(UIEvent.fromToggleRepost(mToggleRepost.isChecked(),
-                                mHostScreen.get(), mPlayable));
+                                mOriginScreen, mPlayable));
                     }
                 }
             });
@@ -87,7 +86,7 @@ public class PlayableInfoAndEngagementsController {
                 @Override
                 public void onClick(View v) {
                     if (mPlayable != null) {
-                        EventBus.UI.publish(UIEvent.fromShare(mHostScreen.get(), mPlayable));
+                        EventBus.UI.publish(UIEvent.fromShare(mOriginScreen, mPlayable));
                         Intent shareIntent = mPlayable.getShareIntent();
                         if (shareIntent != null) {
                             mRootView.getContext().startActivity(shareIntent);
@@ -142,6 +141,10 @@ public class PlayableInfoAndEngagementsController {
         if (mTrackInfoBar != null){
             mTrackInfoBar.setTrack(playable);
         }
+    }
+
+    public void setOriginScreen(String screen) {
+        mOriginScreen = screen;
     }
 
     public void update(ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,

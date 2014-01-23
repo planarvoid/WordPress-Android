@@ -71,7 +71,7 @@ public class PlayerTrackView extends FrameLayout implements
         ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         mWaveformController = (WaveformControllerLayout) findViewById(R.id.waveform_controller);
         mWaveformController.setListener(mListener);
-        mInfoAndEngagements = new PlayableInfoAndEngagementsController(this, mListener, Screen.PLAYER_MAIN);
+        mInfoAndEngagements = new PlayableInfoAndEngagementsController(this, mListener, Screen.UNKNOWN.get());
     }
 
     // TODO, this is currently true all the time
@@ -90,6 +90,10 @@ public class PlayerTrackView extends FrameLayout implements
                 setTrackInternal(args, true);
             }
         });
+    }
+
+    public void setOriginScreen(String screen) {
+        mInfoAndEngagements.setOriginScreen(screen);
     }
 
     @Override

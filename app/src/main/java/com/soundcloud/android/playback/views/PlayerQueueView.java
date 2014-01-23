@@ -22,12 +22,13 @@ public class PlayerQueueView extends FrameLayout {
         super(context);
     }
 
-    public void showTrack(Observable<Track> trackObservable, int queuePosition, boolean inCommentingMode) {
+    public void showTrack(Observable<Track> trackObservable, int queuePosition, boolean inCommentingMode, String originScreen) {
         // TODO, replace these with viewStubs
         showTrackView();
         mTrackView.setPlayQueueItem(trackObservable, queuePosition);
         mTrackView.setCommentMode(inCommentingMode);
         mTrackView.setOnScreen(true);
+        mTrackView.setOriginScreen(originScreen);
     }
 
     public void showEmptyViewWithState(PlaybackOperations.AppendState appendState) {

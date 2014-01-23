@@ -134,7 +134,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
             }
         });
 
-        mActionButtons = new PlayableInfoAndEngagementsController(mPlaylistBar, null, Screen.fromIntent(getIntent()));
+        mActionButtons = new PlayableInfoAndEngagementsController(mPlaylistBar, null, Screen.fromIntent(getIntent()).get());
 
         if (savedInstanceState == null) {
             mFragment = PlaylistTracksFragment.create(getIntent().getData(), Screen.fromIntent(getIntent()));
