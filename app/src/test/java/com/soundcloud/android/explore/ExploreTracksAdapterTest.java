@@ -93,7 +93,7 @@ public class ExploreTracksAdapterTest {
         return viewHolder;
     }
 
-    @Module(complete = false, includes = { ExploreTracksFragmentModule.class }, injects = {ExploreTracksAdapterTest.class}, overrides = true)
+    @Module(complete = false, includes = ExploreModule.class, injects = ExploreTracksAdapterTest.class, overrides = true)
     public class TestModule {
         @Singleton
         @Provides

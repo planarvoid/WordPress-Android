@@ -8,7 +8,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.UserOperations;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.associations.LikesListFragment;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
@@ -24,9 +23,7 @@ import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.rx.RxModule;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.provider.Content;
 import dagger.ObjectGraph;
 import net.hockeyapp.android.UpdateManager;
@@ -59,8 +56,6 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private int mLastSelection = NO_SELECTION;
 
     @Inject
-    CompositeSubscription mSubscription;
-    @Inject
     ApplicationProperties mApplicationProperties;
     @Inject
     SoundCloudApplication application;
@@ -73,6 +68,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     private final DependencyInjector mDependencyInjector;
     private ObjectGraph mObjectGraph;
+
+    private CompositeSubscription mSubscription;
 
     @SuppressWarnings("unused")
     public MainActivity() {
@@ -87,12 +84,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-        mObjectGraph = mDependencyInjector.fromAppGraphWithModules(
-                new ExploreModule(),
-                new StorageModule(),
-                new RxModule(),
-                new ApiModule()
-        );
+        mObjectGraph = mDependencyInjector.fromAppGraphWithModules(new ExploreModule());
         mObjectGraph.inject(this);
         mNavigationFragment = findNavigationFragment();
         mNavigationFragment.initState(savedInstanceState);
@@ -111,6 +103,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
 
+        mSubscription = new CompositeSubscription();
         mSubscription.add(EventBus.CURRENT_USER_CHANGED.subscribe(new CurrentUserChangedObserver()));
     }
 

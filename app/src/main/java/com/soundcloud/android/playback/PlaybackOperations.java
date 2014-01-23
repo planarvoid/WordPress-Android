@@ -51,6 +51,8 @@ public class PlaybackOperations {
     private ScModelManager mModelManager;
     private TrackStorage mTrackStorage;
 
+    // Use @Inject instead
+    @Deprecated
     public PlaybackOperations() {
         this(SoundCloudApplication.sModelManager, new TrackStorage());
     }
