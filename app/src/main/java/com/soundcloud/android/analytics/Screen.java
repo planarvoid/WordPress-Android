@@ -13,6 +13,8 @@ import java.util.Map;
 
 public enum Screen {
 
+    UNKNOWN("unknown"),
+
     // auth
     TOUR("tour:main"),
     AUTH_LOG_IN("auth:log_in_prompt"),

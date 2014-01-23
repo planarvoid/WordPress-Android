@@ -65,7 +65,7 @@ public class PlaybackOperations {
      * Single play, the tracklist will be of length 1
      */
     public void playTrack(Context context, Track track, Screen screen) {
-        playFromIdList(context, Lists.newArrayList(track.getId()), 0, track, new PlaySessionSource(screen));
+        playFromIdList(context, Lists.newArrayList(track.getId()), 0, track, new PlaySessionSource(screen), screen);
     }
 
     /**
@@ -74,15 +74,13 @@ public class PlaybackOperations {
     public void playExploreTrack(Context context, Track track, String exploreTag, String screenTag) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screenTag);
         playSessionSource.setExploreVersion(exploreTag);
-        playTrack(context, track, playSessionSource);
+        playTrack(context, track, playSessionSource, Screen.fromScreenTag(screenTag));
     }
 
 
-    private void playTrack(Context context, Track track, PlaySessionSource playSessionSource) {
-        playFromIdList(context, Lists.newArrayList(track.getId()), 0, track, playSessionSource);
+    private void playTrack(Context context, Track track, PlaySessionSource playSessionSource, Screen screen) {
+        playFromIdList(context, Lists.newArrayList(track.getId()), 0, track, playSessionSource, screen);
     }
-
-
 
     /**
      * From a uri with an initial track to show while loading the full playlist from the DB.
@@ -91,7 +89,7 @@ public class PlaybackOperations {
     public void playFromPlaylist(Context context, Playlist playlist, int startPosition, Track initialTrack, Screen screen) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen.get());
         playSessionSource.setPlaylist(playlist);
-        playFromUri(context, playlist.toUri(), startPosition, initialTrack, playSessionSource);
+        playFromUri(context, playlist.toUri(), startPosition, initialTrack, playSessionSource, screen);
     }
 
     public void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri uri, Screen screen) {
@@ -106,9 +104,9 @@ public class PlaybackOperations {
             final int adjustedPosition = Collections2.filter(data.subList(0, position), PLAYABLE_HOLDER_PREDICATE).size();
 
             if (uri != null){
-                playFromUri(context, uri, position, (Track) playable, playSessionSource);
+                playFromUri(context, uri, position, (Track) playable, playSessionSource, screen);
             } else {
-                playFromIdList(context, getPlayableIdsFromModels(data), adjustedPosition, (Track) playable, playSessionSource);
+                playFromIdList(context, getPlayableIdsFromModels(data), adjustedPosition, (Track) playable, playSessionSource, screen);
             }
 
         } else if (playable instanceof Playlist) {
@@ -132,7 +130,7 @@ public class PlaybackOperations {
         List<Long> shuffled = Lists.newArrayList(ids);
         Collections.shuffle(shuffled);
         context.startService(getPlayIntent(shuffled, 0, new PlaySessionSource(screen)));
-        gotoPlayer(context, shuffled.get(0));
+        gotoPlayer(context, shuffled.get(0), screen);
     }
 
     private ArrayList<Long> getPlayableIdsFromModels(List<? extends ScModel> data) {
@@ -146,8 +144,8 @@ public class PlaybackOperations {
         return Lists.newArrayList(trackIds);
     }
 
-    private void playFromUri(final Context context, Uri uri, final int startPosition, final Track initialTrack, final PlaySessionSource playSessionSource){
-        cacheAndGoToPlayer(context, initialTrack);
+    private void playFromUri(final Context context, Uri uri, final int startPosition, final Track initialTrack, final PlaySessionSource playSessionSource, Screen screen) {
+        cacheAndGoToPlayer(context, initialTrack, screen);
 
         if (isNotCurrentlyPlaying(initialTrack)) {
             mTrackStorage.getTrackIdsForUriAsync(uri).subscribe(new DefaultObserver<List<Long>>() {
@@ -161,8 +159,8 @@ public class PlaybackOperations {
         }
     }
 
-    private void playFromIdList(Context context, List<Long> idList, int startPosition, Track initialTrack, PlaySessionSource playSessionSource){
-        cacheAndGoToPlayer(context, initialTrack);
+    private void playFromIdList(Context context, List<Long> idList, int startPosition, Track initialTrack, PlaySessionSource playSessionSource, Screen screen) {
+        cacheAndGoToPlayer(context, initialTrack, screen);
 
         if (isNotCurrentlyPlaying(initialTrack)) {
             final int adjustedPosition = getDeduplicatedIdList(idList, startPosition);
@@ -171,16 +169,17 @@ public class PlaybackOperations {
         }
     }
 
-    private void cacheAndGoToPlayer(Context context, Track initialTrack) {
+    private void cacheAndGoToPlayer(Context context, Track initialTrack, Screen screen) {
         mModelManager.cache(initialTrack);
-        gotoPlayer(context, initialTrack.getId());
+        gotoPlayer(context, initialTrack.getId(), screen);
     }
 
-    private void gotoPlayer(Context context, long initialTrackId) {
-        // intent for player activity
-        context.startActivity(new Intent(Actions.PLAYER)
+    private void gotoPlayer(Context context, long initialTrackId, Screen screen) {
+        Intent playerActivityIntent = new Intent(Actions.PLAYER)
                 .putExtra(Track.EXTRA_ID, initialTrackId)
-                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        screen.addToIntent(playerActivityIntent);
+        context.startActivity(playerActivityIntent);
     }
 
     private boolean isNotCurrentlyPlaying(Track track){

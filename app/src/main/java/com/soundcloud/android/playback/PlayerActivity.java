@@ -67,7 +67,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private PlayerTrackPagerAdapter mTrackPagerAdapter;
     private PlaybackOperations mPlaybackOperations;
     private boolean mIsFirstLoad;
-
+    private Screen mOriginScreen;
 
     @NotNull
     private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
@@ -103,12 +103,14 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         mTransportBar.setOnPauseListener(mPauseListener);
         mTransportBar.setOnCommentListener(mCommentListener);
 
+        mOriginScreen = Screen.fromIntent(getIntent(), Screen.UNKNOWN);
+
         // only exists in tablet layouts
         LinearLayout mPlayerInfoLayout = (LinearLayout) findViewById(R.id.player_info_view);
         if (mPlayerInfoLayout != null){
             mTrackDetailsView = (PlayerTrackDetailsLayout) mPlayerInfoLayout.findViewById(R.id.player_track_details);
             mPlayableInfoAndEngagementsController = new PlayableInfoAndEngagementsController(mPlayerInfoLayout, this,
-                    Screen.PLAYER_MAIN);
+                    mOriginScreen);
         }
 
         mIsFirstLoad = bundle == null;
