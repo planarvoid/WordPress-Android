@@ -5,7 +5,6 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -28,9 +27,7 @@ import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.playback.views.TransportBarView;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.service.LocalBinder;
-import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.UriUtils;
-import dagger.ObjectGraph;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,6 +41,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
@@ -102,9 +100,11 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         mTrackPager.setPageMargin((int) (5 * getResources().getDisplayMetrics().density));
         mTrackPager.setListener(this);
 
-        String originScreen = getIntent().getExtras().getString(ORIGIN_SCREEN_EXTRA, Screen.UNKNOWN.get());
+        String originScreen = getIntent().getStringExtra(ORIGIN_SCREEN_EXTRA);
+        if (TextUtils.isEmpty(originScreen)) {
+            originScreen = Screen.UNKNOWN.get();
+        }
         mTrackPagerAdapter.setOriginScreen(originScreen);
-
         mTrackPager.setAdapter(mTrackPagerAdapter);
 
         mTransportBar = (TransportBarView) findViewById(R.id.transport_bar);
