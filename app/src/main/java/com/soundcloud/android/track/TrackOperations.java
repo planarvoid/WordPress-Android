@@ -3,11 +3,9 @@ package com.soundcloud.android.track;
 import static rx.android.observables.AndroidObservable.fromActivity;
 
 import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
-import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -31,10 +29,6 @@ public class TrackOperations {
     private final ScModelManager mModelManager;
     private final TrackStorage mTrackStorage;
     private final RxHttpClient mRxHttpClient;
-
-    public TrackOperations() {
-        this(SoundCloudApplication.sModelManager, new TrackStorage(), new SoundCloudRxHttpClient());
-    }
 
     @Inject
     public TrackOperations(ScModelManager modelManager, TrackStorage trackStorage, RxHttpClient rxHttpClient) {
