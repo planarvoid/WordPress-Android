@@ -19,6 +19,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
+import javax.inject.Inject;
 import java.util.Collection;
 
 public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
@@ -32,10 +33,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
 
     private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
 
-    public PlayerTrackPagerAdapter() {
-        this(new TrackOperations());
-    }
-
+    @Inject
     public PlayerTrackPagerAdapter(TrackOperations trackOperations) {
         mTrackOperations = trackOperations;
     }
