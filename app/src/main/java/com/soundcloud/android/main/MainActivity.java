@@ -59,7 +59,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     private final DependencyInjector mDependencyInjector;
 
-    private CompositeSubscription mSubscription;
+    private CompositeSubscription mSubscription = new CompositeSubscription();
 
     @SuppressWarnings("unused")
     public MainActivity() {
@@ -80,12 +80,10 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         mNavigationFragment = findNavigationFragment();
         mNavigationFragment.initState(savedInstanceState);
 
-
         if (savedInstanceState != null) {
             mLastTitle = savedInstanceState.getCharSequence(EXTRA_ACTIONBAR_TITLE);
         } else {
             mLastTitle = getTitle();
-
             if (mAccountOperations.soundCloudAccountExists()) {
                 handleLoggedInUser(mApplicationProperties);
             }
@@ -93,8 +91,6 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
-
-        mSubscription = new CompositeSubscription();
         mSubscription.add(EventBus.CURRENT_USER_CHANGED.subscribe(new CurrentUserChangedObserver()));
     }
 
