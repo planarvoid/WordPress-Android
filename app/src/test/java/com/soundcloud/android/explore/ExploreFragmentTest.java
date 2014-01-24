@@ -26,13 +26,11 @@ import android.content.res.Resources;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
-import javax.inject.Inject;
-
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreFragmentTest {
 
 
-    @Module(injects = ExploreFragmentTest.class)
+    @Module(injects = ExploreFragment.class, library = true)
     public class TestModule {
         @Provides
         public Resources provideResources() {
@@ -49,16 +47,14 @@ public class ExploreFragmentTest {
     @Mock
     private Observer observer;
 
-    @Inject
     ExploreFragment mExploreFragment;
 
     @Before
     public void setUp() throws Exception {
-        MockInjector.create(new TestModule()).inject(this);
-
         when(mockLayout.findViewById(R.id.pager)).thenReturn(mockViewPager);
         when(mockLayout.findViewById(R.id.indicator)).thenReturn(mockIndicator);
 
+        mExploreFragment = new ExploreFragment(MockInjector.createInjector(new TestModule()));
         mExploreFragment.onCreate(null);
     }
 

@@ -4,8 +4,6 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.dagger.DependencyInjector;
 import dagger.ObjectGraph;
 
-import android.support.v4.app.Fragment;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -17,11 +15,6 @@ public class MockInjector implements DependencyInjector{
         List<Object> graphModules = (modules == null || modules.length == 0) ?
                 Collections.emptyList() : Lists.newArrayList(modules);
         objectGraph = ObjectGraph.create(modules);
-    }
-
-    @Override
-    public void inject(Fragment target) {
-        objectGraph.inject(target);
     }
 
     @Override
