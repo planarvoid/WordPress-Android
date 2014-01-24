@@ -1,9 +1,10 @@
 $ 77
-  % v 2.7.5
-  _ 2014-1-22
+  % v 2.7.6
+  _ 2014-1-24
   ! Shuffle your likes!
     * Listen to your favorite tracks at random directly from the Likes page.
     * Removed unnecessary system permission
+    & Fixed some stability issues
     - improved on image caching
     - Added a host of localytics tracking
     - Added some proper up button functionality to player
