@@ -79,7 +79,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDependencyInjector.inject(this);
+        mDependencyInjector.fromAppGraphWithModules(new ExploreModule()).inject(this);
         mObserver = new ExploreTracksObserver();
 
         mSuggestedTracksObservable = buildSuggestedTracksObservable();

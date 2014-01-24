@@ -12,12 +12,10 @@ import com.soundcloud.android.associations.LikesListFragment;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
-import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
-import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
@@ -25,7 +23,6 @@ import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.provider.Content;
-import dagger.ObjectGraph;
 import net.hockeyapp.android.UpdateManager;
 import rx.subscriptions.CompositeSubscription;
 
@@ -37,10 +34,8 @@ import android.support.v7.app.ActionBar;
 import android.view.Menu;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
-public class MainActivity extends ScActivity implements NavigationFragment.NavigationCallbacks,
-        ObjectGraphProvider {
+public class MainActivity extends ScActivity implements NavigationFragment.NavigationCallbacks {
 
     public static final String EXTRA_ONBOARDING_USERS_RESULT = "onboarding_users_result";
 
@@ -58,16 +53,11 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     @Inject
     ApplicationProperties mApplicationProperties;
     @Inject
-    SoundCloudApplication application;
+    SoundCloudApplication mApplication;
     @Inject
     UserOperations mUserOperations;
-    @Inject
-    Provider<ExploreFragment> mExploreFragmentProvider;
-    @Inject
-    Provider<LikesListFragment> mLikesListFragmentProvider;
 
     private final DependencyInjector mDependencyInjector;
-    private ObjectGraph mObjectGraph;
 
     private CompositeSubscription mSubscription;
 
@@ -84,8 +74,9 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-        mObjectGraph = mDependencyInjector.fromAppGraphWithModules(new ExploreModule());
-        mObjectGraph.inject(this);
+
+        mDependencyInjector.fromAppGraphWithModules(new MainModule()).inject(this);
+
         mNavigationFragment = findNavigationFragment();
         mNavigationFragment.initState(savedInstanceState);
 
@@ -116,7 +107,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     private void handleLoggedInUser(ApplicationProperties appProperties) {
         boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
-        User currentUser = application.getLoggedInUser();
+        User currentUser = mApplication.getLoggedInUser();
         if (!justAuthenticated && mAccountOperations.shouldCheckForConfirmedEmailAddress(currentUser)) {
             mSubscription.add(fromActivity(this, mUserOperations.refreshCurrentUser()).subscribe(new UserObserver()));
         }
@@ -191,12 +182,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     protected void onDestroy() {
         UpdateManager.unregister();
         mSubscription.unsubscribe();
-        mObjectGraph = null;
         super.onDestroy();
-    }
-
-    public ObjectGraph getObjectGraph() {
-        return mObjectGraph;
     }
 
     @Override
@@ -265,7 +251,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private void displayLikes() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(LIKES_FRAGMENT_TAG);
         if (fragment == null) {
-            fragment = mLikesListFragmentProvider.get();
+            fragment = new LikesListFragment();
             attachFragment(fragment, LIKES_FRAGMENT_TAG, R.string.side_menu_likes);
         }
     }
@@ -273,7 +259,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private void displayExplore() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(EXPLORE_FRAGMENT_TAG);
         if (fragment == null) {
-            fragment = mExploreFragmentProvider.get();
+            fragment = new ExploreFragment();
             attachFragment(fragment, EXPLORE_FRAGMENT_TAG, R.string.side_menu_explore);
         }
     }
@@ -329,7 +315,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     }
 
     private void updateUser(User user) {
-        mNavigationFragment.updateProfileItem(user, SoundCloudApplication.instance.getResources());
+        mNavigationFragment.updateProfileItem(user, mApplication.getResources());
         if (!user.isPrimaryEmailConfirmed()) {
             startActivityForResult(new Intent(this, EmailConfirmationActivity.class)
                     .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
