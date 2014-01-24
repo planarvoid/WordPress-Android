@@ -12,7 +12,7 @@
                 android:layout_width="match_parent"/>
     </FrameLayout>
 
-    <android.support.v4.view.ViewPager
+    <com.soundcloud.android.view.SafeViewPager
             android:id="@+id/pager"
             android:background="@android:color/white"
             android:layout_width="match_parent"

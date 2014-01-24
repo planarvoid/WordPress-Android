@@ -2,11 +2,12 @@ package com.soundcloud.android.onboarding;
 
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
+import com.soundcloud.android.view.SafeViewPager;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class ParallaxPager extends ViewPager {
+public class ParallaxPager extends SafeViewPager {
+
     class ParallaxInfo {
         public final View view;
         public final int page;
