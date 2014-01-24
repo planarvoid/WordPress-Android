@@ -71,7 +71,7 @@
             <com.viewpagerindicator.TitlePageIndicator
                     android:id="@+id/indicator"
                     style="@style/Widget.ScTitlePageIndicator.Large" />
-            <android.support.v4.view.ViewPager
+            <com.soundcloud.android.view.SafeViewPager
                     android:id="@+id/pager"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
