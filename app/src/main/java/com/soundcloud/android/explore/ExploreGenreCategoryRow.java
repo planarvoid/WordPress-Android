@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 public class ExploreGenreCategoryRow extends LinearLayout implements SectionedListRow {
 
     private TextView categoryTitle, sectionHeader;
@@ -27,7 +29,7 @@ public class ExploreGenreCategoryRow extends LinearLayout implements SectionedLi
 
     @Override
     public void showSectionHeaderWithText(String text) {
-        sectionHeader.setText(text.toUpperCase());
+        sectionHeader.setText(text.toUpperCase(Locale.getDefault()));
         sectionHeader.setVisibility(View.VISIBLE);
     }
 

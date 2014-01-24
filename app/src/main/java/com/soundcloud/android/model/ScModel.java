@@ -105,7 +105,7 @@ public class ScModel implements Parcelable, Identifiable {
 
     @Override
     public int hashCode() {
-        return new Long(getId()).hashCode();
+        return Long.valueOf(getId()).hashCode();
     }
 
     @Override

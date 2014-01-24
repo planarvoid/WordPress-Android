@@ -203,7 +203,8 @@ public class ScTextUtils {
     }
 
     public static boolean isEmail(CharSequence string) {
-        return !TextUtils.isEmpty(string) && EMAIL_ADDRESS_PATTERN.matcher(string.toString().toLowerCase()).matches();
+        return !TextUtils.isEmpty(string) && EMAIL_ADDRESS_PATTERN.matcher(string.toString()
+                .toLowerCase(Locale.US)).matches();
     }
 
     public static String getLocation(String city, String country) {
