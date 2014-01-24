@@ -12,6 +12,7 @@ import rx.Observable;
 import rx.android.RxFragmentObserver;
 import rx.subscriptions.CompositeSubscription;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import android.widget.AdapterView;
 
 import java.util.Set;
 
+@SuppressLint("ValidFragment")
 public class SuggestedUsersCategoryFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     private SuggestedUsersAdapter mAdapter;

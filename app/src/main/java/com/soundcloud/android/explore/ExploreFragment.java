@@ -7,6 +7,7 @@ import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.events.EventBus;
 import com.viewpagerindicator.TabPageIndicator;
 
+import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
+@SuppressLint("ValidFragment")
 public class ExploreFragment extends Fragment {
 
     @Inject
