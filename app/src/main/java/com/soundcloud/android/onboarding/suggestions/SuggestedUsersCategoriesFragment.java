@@ -16,6 +16,7 @@ import rx.Observer;
 import rx.Subscription;
 import rx.android.concurrency.AndroidSchedulers;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+@SuppressLint("ValidFragment")
 public class SuggestedUsersCategoriesFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     public final static String SHOW_FACEBOOK = "SHOW_FACEBOOK";

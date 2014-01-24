@@ -68,16 +68,6 @@
         <ignore path="src/main/java/com/soundcloud/android/main/WebViewActivity.java"/>
     </issue>
 
-    <issue id="ValidFragment">
-        <!-- allow non-default constructors for test dependency injection -->
-        <ignore path="src/main/java/com/soundcloud/android/onboarding/suggestions/SuggestedUsersFragment.java"/>
-        <ignore path="src/main/java/com/soundcloud/android/onboarding/suggestions/SuggestedUsersCategoriesFragment.java"/>
-        <ignore path="src/main/java/com/soundcloud/android/onboarding/suggestions/SuggestedUsersCategoryFragment.java"/>
-        <ignore path="src/main/java/com/soundcloud/android/onboarding/suggestions/OnboardSuggestedUsersSyncFragment.java"/>
-        <ignore path="src/main/java/com/soundcloud/android/explore/ExploreTracksFragment.java"/>
-        <ignore path="src/main/java/com/soundcloud/android/explore/ExploreTracksCategoriesFragment.java"/>
-    </issue>
-
     <issue id="MergeRootFrame">
         <!-- Tour layouts can't be merged -->
         <ignore path="res/layout/tour_buttons.xml"/>
