@@ -55,4 +55,11 @@
         <attr name="movement" format="dimension" />
         <attr name="focalPoint" format="float" />
     </declare-styleable>
+
+    <declare-styleable name="OptimisedImageView">
+        <attr name="showGradient" format="boolean" />
+        <attr name="gradientStart" format="float" />
+        <attr name="gradientStartColor" format="reference|color" />
+        <attr name="gradientEndColor" format="reference|color" />
+    </declare-styleable>
 </resources>
