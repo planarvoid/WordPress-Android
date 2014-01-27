@@ -19,7 +19,6 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.service.PlaybackState;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.AddCommentDialog;
 import com.soundcloud.android.playback.views.PlayableInfoAndEngagementsController;
@@ -287,7 +286,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     protected void onDestroy() {
         mTrackPagerAdapter.onDestroy();
         if (mPlayableInfoAndEngagementsController != null) {
-            mPlayableInfoAndEngagementsController.onActivityDestroy();
+            mPlayableInfoAndEngagementsController.onDestroy();
         }
         super.onDestroy();
     }

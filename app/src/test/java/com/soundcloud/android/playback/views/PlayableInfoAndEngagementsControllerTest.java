@@ -56,7 +56,7 @@ public class PlayableInfoAndEngagementsControllerTest {
 
     @After
     public void tearDown() throws Exception {
-        controller.onActivityDestroy();
+        controller.onDestroy();
     }
 
     @Test
@@ -253,7 +253,7 @@ public class PlayableInfoAndEngagementsControllerTest {
 
         likeButton.performClick();
 
-        controller.onActivityDestroy();
+        controller.onDestroy();
 
         verify(subscription).unsubscribe();
     }

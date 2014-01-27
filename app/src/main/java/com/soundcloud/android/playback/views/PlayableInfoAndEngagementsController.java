@@ -146,7 +146,7 @@ public class PlayableInfoAndEngagementsController {
         }));
     }
 
-    public void onActivityDestroy() {
+    public void onDestroy() {
         mSubscription.unsubscribe();
     }
 

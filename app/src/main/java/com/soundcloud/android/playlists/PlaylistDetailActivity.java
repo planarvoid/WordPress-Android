@@ -105,7 +105,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mPlaybackStatusListener);
-        mActionButtons.onActivityDestroy();
+        mActionButtons.onDestroy();
     }
 
     private void handleIntent(@Nullable Bundle savedInstanceState, boolean setupViews) {

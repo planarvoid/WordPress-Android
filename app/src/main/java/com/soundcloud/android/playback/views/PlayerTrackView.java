@@ -189,6 +189,7 @@ public class PlayerTrackView extends FrameLayout implements
     public void onDestroy() {
         clear();
         mWaveformController.onDestroy();
+        mInfoAndEngagements.onDestroy();
     }
 
     public WaveformControllerLayout getWaveformController() {
