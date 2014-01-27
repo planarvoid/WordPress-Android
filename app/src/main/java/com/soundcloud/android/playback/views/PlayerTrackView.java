@@ -9,15 +9,16 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
+import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.playback.PlayerActivity;
-import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.service.PlaybackState;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
@@ -39,7 +40,6 @@ import java.util.List;
 public class PlayerTrackView extends FrameLayout implements
         LoadCommentsTask.LoadCommentsListener, WaveformControllerLayout.WaveformListener {
 
-    @NotNull
     protected Track mTrack;
     protected boolean mOnScreen;
     protected WaveformControllerLayout mWaveformController;
@@ -49,9 +49,10 @@ public class PlayerTrackView extends FrameLayout implements
     private boolean mIsCommenting;
     private long mDuration;
 
-    private PublicCloudAPI oldCloudApi;
+    private PublicApi mPublicApi;
     @NotNull
     protected PlayerTrackViewListener mListener;
+    private PlaybackStateProvider mPlaybackStateProvider;
     private PlayableInfoAndEngagementsController mInfoAndEngagements;
     private Subscription mTrackSubscription = Subscriptions.empty();
 
@@ -66,12 +67,17 @@ public class PlayerTrackView extends FrameLayout implements
         View.inflate(context,R.layout.player_track, this);
 
         mListener = (PlayerTrackViewListener) context;// NO!!!
-        oldCloudApi = new PublicApi(context.getApplicationContext());
+        mPublicApi = new PublicApi(context.getApplicationContext());
+        mPlaybackStateProvider = new PlaybackStateProvider();
 
         ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         mWaveformController = (WaveformControllerLayout) findViewById(R.id.waveform_controller);
         mWaveformController.setListener(mListener);
-        mInfoAndEngagements = new PlayableInfoAndEngagementsController(this, mListener, Screen.PLAYER_MAIN);
+
+        SoundAssociationOperations soundAssocOps = new SoundAssociationOperations(
+                new SoundAssociationStorage(), new SoundCloudRxHttpClient(),
+                SoundCloudApplication.sModelManager);
+        mInfoAndEngagements = new PlayableInfoAndEngagementsController(this, mListener, soundAssocOps, Screen.PLAYER_MAIN);
     }
 
     // TODO, this is currently true all the time
@@ -124,16 +130,16 @@ public class PlayerTrackView extends FrameLayout implements
         }
 
         mInfoAndEngagements.setTrack(track);
-        if (mQueuePosition == PlaybackService.getPlayPosition()){
-            setProgress(PlaybackService.getCurrentProgress(), PlaybackService.getLoadingPercent(),
-                    Consts.SdkSwitches.useSmoothProgress && PlaybackService.getPlaybackState() == PlaybackState.PLAYING);
+        if (mQueuePosition == mPlaybackStateProvider.getPlayPosition()) {
+            setProgress(mPlaybackStateProvider.getPlayProgress(), mPlaybackStateProvider.getLoadingPercent(),
+                    Consts.SdkSwitches.useSmoothProgress && mPlaybackStateProvider.isPlaying());
         }
     }
 
     private void refreshComments() {
         if (mTrack != null){
             if (AndroidUtils.isTaskFinished(mTrack.load_comments_task)) {
-                mTrack.load_comments_task = new LoadCommentsTask(oldCloudApi);
+                mTrack.load_comments_task = new LoadCommentsTask(mPublicApi);
             }
             mTrack.load_comments_task.addListener(this);
             if (AndroidUtils.isTaskPending(mTrack.load_comments_task)) {
@@ -183,6 +189,7 @@ public class PlayerTrackView extends FrameLayout implements
     public void onDestroy() {
         clear();
         mWaveformController.onDestroy();
+        mInfoAndEngagements.onDestroy();
     }
 
     public WaveformControllerLayout getWaveformController() {
@@ -241,14 +248,6 @@ public class PlayerTrackView extends FrameLayout implements
             } else {
                 mWaveformController.setPlaybackStatus(false, intent.getLongExtra(BroadcastExtras.POSITION, 0));
             }
-
-        } else if (Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED.equals(action)) {
-            if (mTrack.getId() == intent.getLongExtra(BroadcastExtras.ID, -1)) {
-                mTrack.user_like = intent.getBooleanExtra(BroadcastExtras.IS_LIKE, false);
-                mTrack.user_repost = intent.getBooleanExtra(BroadcastExtras.IS_REPOST, false);
-                mInfoAndEngagements.setTrack(mTrack);
-            }
-
         } else if (Playable.COMMENTS_UPDATED.equals(action)) {
             if (mTrack.getId() == intent.getLongExtra(BroadcastExtras.ID, -1)) {
                 onCommentsChanged();
@@ -290,9 +289,6 @@ public class PlayerTrackView extends FrameLayout implements
     }
 
     protected void onTrackInfoChanged() {
-    }
-
-    protected void onAssociationsChanged() {
     }
 
     private void onUnplayable(Intent intent) {

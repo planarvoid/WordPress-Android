@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
 import org.jetbrains.annotations.Nullable;
@@ -71,7 +72,6 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     protected @Nullable
     CommentPanelLayout mCurrentCommentPanel;
 
-    protected Comment mAddComment;
     protected Comment mLastAutoComment;
 
     private int mWaveformErrorCount, mDuration;
@@ -89,7 +89,6 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     protected static final int UI_CLEAR_SEEK = 6;
     // used by landscape
     protected static final int UI_SHOW_CURRENT_COMMENT = 7;
-    protected static final int UI_TOGGLE_COMMENTS = 8;
 
     static final int TOUCH_MODE_NONE = 0;
     static final int TOUCH_MODE_SEEK_DRAG = 1;
@@ -695,7 +694,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
             mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
             queueUnique(UI_UPDATE_COMMENT_POSITION);
 
-        } else if (input.view == mPlayerTouchBar && PlaybackService.isSeekable()) {
+        } else if (input.view == mPlayerTouchBar && new PlaybackStateProvider().isSeekable()) {
             mode = TOUCH_MODE_SEEK_DRAG;
             mLastAutoComment = null; //reset auto comment in case they seek backward
             mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();

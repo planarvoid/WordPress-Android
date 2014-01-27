@@ -11,8 +11,7 @@ import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.service.PlaybackState;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -34,23 +33,23 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     private LocalyticsSession mLocalyticsSession;
     private LocalyticsUIEventHandler mLocalyticsUIEventHandler;
     private LocalyticsOnboardingEventHandler mLocalyticsOnboardingEventHandler;
-    private PlaybackServiceStateWrapper mPlaybackStateWrapper;
+    private PlaybackStateProvider mPlaybackStateWrapper;
 
     public LocalyticsAnalyticsProvider(Context context, AnalyticsProperties analyticsProperties, long currentUserId) {
         this(new LocalyticsSession(context.getApplicationContext(), analyticsProperties.getLocalyticsAppKey()),
-                new PlaybackServiceStateWrapper(), currentUserId);
+                new PlaybackStateProvider(), currentUserId);
     }
 
     @VisibleForTesting
     protected LocalyticsAnalyticsProvider(LocalyticsSession localyticsSession,
-                                          PlaybackServiceStateWrapper playbackStateWrapper, long currentUserId) {
+                                          PlaybackStateProvider playbackStateWrapper, long currentUserId) {
         this(localyticsSession, playbackStateWrapper);
         localyticsSession.setCustomerId(getCustomerId(currentUserId));
     }
 
     @VisibleForTesting
     protected LocalyticsAnalyticsProvider(LocalyticsSession localyticsSession,
-                                          PlaybackServiceStateWrapper playbackStateWrapper) {
+                                          PlaybackStateProvider playbackStateWrapper) {
         mLocalyticsSession = localyticsSession;
         mLocalyticsUIEventHandler = new LocalyticsUIEventHandler(mLocalyticsSession);
         mLocalyticsOnboardingEventHandler = new LocalyticsOnboardingEventHandler(mLocalyticsSession);
@@ -171,7 +170,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
      */
     private void closeSessionForActivity() {
         ACTIVITY_SESSION_OPEN.set(false);
-        if (mPlaybackStateWrapper.isPlayerPlaying()) {
+        if (mPlaybackStateWrapper.isSupposedToBePlaying()) {
             Log.d(TAG, "Didn't close analytics session; playback service still alive and well!");
         } else {
             closeSession();
@@ -251,15 +250,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
                 return "playback_error";
             default:
                 throw new IllegalArgumentException("Unexpected stop reason : " + eventData.getStopReason());
-        }
-    }
-
-    //To make testing easier
-    @VisibleForTesting
-    static class PlaybackServiceStateWrapper {
-        public boolean isPlayerPlaying() {
-            PlaybackState playbackPlaybackState = PlaybackService.getPlaybackState();
-            return playbackPlaybackState.isSupposedToBePlaying();
         }
     }
 }

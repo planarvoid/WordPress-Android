@@ -2,6 +2,7 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.service.PlaybackService.PlayExtras;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,7 +18,9 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -39,7 +42,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class PlaybackOperationsTest {
 
     private PlaybackOperations playbackOperations;
@@ -58,10 +61,12 @@ public class PlaybackOperationsTest {
     private Playlist playlist;
     @Mock
     private PlaybackService playbackService;
+    @Mock
+    private PlaybackStateProvider playbackStateProvider;
 
     @Before
     public void setUp() throws Exception {
-        playbackOperations = new PlaybackOperations(modelManager, trackStorage);
+        playbackOperations = new PlaybackOperations(modelManager, trackStorage, playbackStateProvider);
         track = TestHelper.getModelFactory().createModel(Track.class);
     }
 
@@ -87,7 +92,9 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playFromUriShouldOpenPlayerActivityWithInitialTrackId() {
-        playbackOperations = new PlaybackOperations(modelManager, new TrackStorage());
+        final Observable<List<Long>> trackIdList = Observable.<List<Long>>just(Lists.newArrayList(track.getId()));
+        when(trackStorage.getTrackIdsForUriAsync(any(Uri.class))).thenReturn(trackIdList);
+
         playbackOperations.playFromPlaylist(Robolectric.application, playlist, 0, track, Screen.YOUR_LIKES);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -99,11 +106,13 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playFromUriShouldStartPlaybackServiceWithPlayQueueFromTracksCollection() throws CreateModelException {
+    public void playFromUriShouldStartPlaybackServiceWithPlayQueueFromPlaylist() throws CreateModelException {
         List<Track> tracks = TestHelper.createTracks(3);
         Playlist playlist = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        playbackOperations = new PlaybackOperations(modelManager, new TrackStorage().<TrackStorage>subscribeOn(Schedulers.immediate()));
+        final ArrayList<Long> trackIds = Lists.newArrayList(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
+        when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(trackIds));
+
         playbackOperations.playFromPlaylist(Robolectric.application, playlist, 1, tracks.get(1), ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -115,7 +124,6 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playFromIdsShuffledShouldStartPlayerWithGivenTrackIdList() {
-        playbackOperations = new PlaybackOperations(modelManager, new TrackStorage());
         final ArrayList<Long> idsOrig = Lists.newArrayList(1L, 2L, 3L);
         playbackOperations.playFromIdListShuffled(Robolectric.application, idsOrig, Screen.YOUR_LIKES);
 

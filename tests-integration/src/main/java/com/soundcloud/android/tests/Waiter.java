@@ -9,6 +9,7 @@ import com.soundcloud.android.R.id;
 import com.soundcloud.android.main.NavigationDrawerFragment;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackState;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.Log;
 
 import java.sql.Timestamp;
@@ -86,10 +87,11 @@ public class Waiter {
     }
 
     public boolean waitForPlayerPlaying() {
+        final PlaybackStateProvider playbackState = new PlaybackStateProvider();
         Condition condition = new Condition() {
             @Override
             public boolean isSatisfied() {
-                return (PlaybackService.getPlaybackState() == PlaybackState.PLAYING);
+                return playbackState.isPlaying();
             }
         };
         return solo.waitForCondition(condition, this.NETWORK_TIMEOUT);

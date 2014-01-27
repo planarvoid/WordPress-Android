@@ -64,6 +64,10 @@ public class APIResponse {
         return mResponseHeaders.get(key);
     }
 
+    public int getStatusCode() {
+        return mStatusCode;
+    }
+
     public String getResponseBody() {
         return mResponseBody;
     }

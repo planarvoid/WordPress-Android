@@ -5,6 +5,7 @@ import rx.Observer;
 import rx.Subscription;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.subjects.PublishSubject;
+import rx.util.functions.Action1;
 
 /**
  * A simple event bus based on RxJava. Add new events as enum constants. Use this event bus for non-critical events
@@ -20,10 +21,11 @@ public enum EventBus {
     ACTIVITY_LIFECYCLE(ActivityLifeCycleEvent.class),
     PLAYER_LIFECYCLE(PlayerLifeCycleEvent.class),
     CURRENT_USER_CHANGED(CurrentUserChangedEvent.class),
+    PLAYABLE_CHANGED(PlayableChangedEvent.class),
     SCREEN_ENTERED(String.class),
     PLAYBACK(PlaybackEvent.class),
     UI(UIEvent.class),
-    ONBOARDING(OnboardingEvent.class);
+    ONBOARDING(OnboardingEvent.class),;
 
     public final PublishSubject QUEUE = PublishSubject.create();
 
@@ -43,6 +45,12 @@ public enum EventBus {
         return QUEUE.observeOn(AndroidSchedulers.mainThread()).subscribe(observer);
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> Subscription subscribe(Action1<T> onNext) {
+        Log.d(this, "subscribing to queue " + name());
+        return QUEUE.observeOn(AndroidSchedulers.mainThread()).subscribe(onNext);
+    }
+
     /**
      * Subscribes to this event and receives notifications on the current thread. This variant should be preferred
      * by components that want to consume events on a background thread.
@@ -55,7 +63,7 @@ public enum EventBus {
     @SuppressWarnings("unchecked")
     public void publish(Object eventData) {
         Log.d(this, "publishing event: queue = " + name() + "; data = " + eventData);
-        if (!eventData.getClass().isAssignableFrom(eventDataType)) {
+        if (!eventDataType.isAssignableFrom(eventData.getClass())) {
             throw new IllegalArgumentException("Cannot publish event data of type " +
                     eventData.getClass().getCanonicalName() +
                     "; expected " + eventDataType.getCanonicalName());

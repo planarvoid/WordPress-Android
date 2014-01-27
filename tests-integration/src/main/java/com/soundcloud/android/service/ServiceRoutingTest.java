@@ -26,8 +26,6 @@ public class ServiceRoutingTest extends InstrumentationTestCase {
                 PlaybackService.Actions.PREVIOUS_ACTION,
                 PlaybackService.Actions.RESET_ALL,
                 PlaybackService.Actions.STOP_ACTION,
-                PlaybackService.Actions.ADD_LIKE_ACTION,
-                PlaybackService.Actions.REMOVE_LIKE_ACTION,
         }) {
             ComponentName name = getInstrumentation().getTargetContext().startService(new Intent(action));
             assertNotNull("action "+action+" not resolved", name);

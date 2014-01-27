@@ -2,7 +2,6 @@ package com.soundcloud.android.analytics.localytics;
 
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider.PlaybackServiceStateWrapper;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,6 +11,7 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -30,7 +30,7 @@ public class LocalyticsAnalyticsProviderSessionHandlingTest {
     @Mock
     private LocalyticsSession localyticsSession;
     @Mock
-    private PlaybackServiceStateWrapper playbackWrapper;
+    private PlaybackStateProvider playbackWrapper;
 
     @Before
     public void setUp() throws Exception {
@@ -63,7 +63,7 @@ public class LocalyticsAnalyticsProviderSessionHandlingTest {
 
     @Test
     public void shouldCallCloseSessionWhenActivityPausedAndPlayerNotPlaying(){
-        when(playbackWrapper.isPlayerPlaying()).thenReturn(false);
+        when(playbackWrapper.isSupposedToBePlaying()).thenReturn(false);
 
         localyticsProvider.handleActivityLifeCycleEvent(ActivityLifeCycleEvent.forOnPause(Activity.class));
 
@@ -73,7 +73,7 @@ public class LocalyticsAnalyticsProviderSessionHandlingTest {
 
     @Test
     public void shouldNotCallCloseSessionIfActivityIsPausedAndPlayerIsPlaying(){
-        when(playbackWrapper.isPlayerPlaying()).thenReturn(true);
+        when(playbackWrapper.isSupposedToBePlaying()).thenReturn(true);
 
         localyticsProvider.handleActivityLifeCycleEvent(ActivityLifeCycleEvent.forOnPause(Activity.class));
 

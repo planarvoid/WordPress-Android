@@ -1,22 +1,25 @@
 package com.soundcloud.android.playback.views;
 
-import static com.soundcloud.android.playback.service.PlaybackService.Actions.ADD_LIKE_ACTION;
-import static com.soundcloud.android.playback.service.PlaybackService.Actions.ADD_REPOST_ACTION;
-import static com.soundcloud.android.playback.service.PlaybackService.Actions.REMOVE_LIKE_ACTION;
-import static com.soundcloud.android.playback.service.PlaybackService.Actions.REMOVE_REPOST_ACTION;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.collections.views.PlayableBar;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
+import rx.android.concurrency.AndroidSchedulers;
+import rx.subscriptions.CompositeSubscription;
+import rx.util.functions.Action1;
 
 import android.content.Context;
 import android.content.Intent;
@@ -42,8 +45,11 @@ public class PlayableInfoAndEngagementsController {
     private Playable mPlayable;
     private Screen mHostScreen;
 
-    public PlayableInfoAndEngagementsController(View rootView, final PlayerTrackView.PlayerTrackViewListener mListener,
-                                                Screen hostScreen) {
+    private CompositeSubscription mSubscription = new CompositeSubscription();
+
+    public PlayableInfoAndEngagementsController(
+            View rootView, final @Nullable PlayerTrackView.PlayerTrackViewListener mListener,
+            final SoundAssociationOperations soundAssocOperations, Screen hostScreen) {
         mRootView = rootView;
         mHostScreen = hostScreen;
         mToggleLike = (ToggleButton) rootView.findViewById(R.id.toggle_like);
@@ -55,12 +61,15 @@ public class PlayableInfoAndEngagementsController {
                 @Override
                 public void onClick(View view) {
                     if (mPlayable != null) {
-                        String action = mToggleLike.isChecked() ? ADD_LIKE_ACTION : REMOVE_LIKE_ACTION;
-                        Intent intent = new Intent(action);
-                        intent.setData(mPlayable.toUri());
-                        view.getContext().startService(intent);
                         EventBus.UI.publish(UIEvent.fromToggleLike(mToggleLike.isChecked(),
                                 mHostScreen.get(), mPlayable));
+
+                        mToggleLike.setEnabled(false);
+                        mSubscription.add(
+                                soundAssocOperations.toggleLike(mToggleLike.isChecked(), mPlayable)
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(new ResetToggleButton(mToggleLike))
+                        );
                     }
                 }
             });
@@ -71,12 +80,15 @@ public class PlayableInfoAndEngagementsController {
                 @Override
                 public void onClick(View view) {
                     if (mPlayable != null) {
-                        String action = mToggleRepost.isChecked() ? ADD_REPOST_ACTION : REMOVE_REPOST_ACTION;
-                        Intent intent = new Intent(action);
-                        intent.setData(mPlayable.toUri());
-                        view.getContext().startService(intent);
                         EventBus.UI.publish(UIEvent.fromToggleRepost(mToggleRepost.isChecked(),
                                 mHostScreen.get(), mPlayable));
+
+                        mToggleRepost.setEnabled(false);
+                        mSubscription.add(
+                                soundAssocOperations.toggleRepost(mToggleRepost.isChecked(), mPlayable)
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(new ResetToggleButton(mToggleRepost))
+                        );
                     }
                 }
             });
@@ -121,10 +133,27 @@ public class PlayableInfoAndEngagementsController {
                 }
             });
         }
+
+        // make sure we pick up changes to the current playable that come via the event bus
+        mSubscription.add(EventBus.PLAYABLE_CHANGED.subscribe(new Action1<PlayableChangedEvent>() {
+            @Override
+            public void call(PlayableChangedEvent event) {
+                if (mPlayable != null && mPlayable.getId() == event.getPlayable().getId()) {
+                    setLikes((int) event.getPlayable().likes_count, event.getPlayable().user_like);
+                    setReposts((int) event.getPlayable().reposts_count, event.getPlayable().user_repost);
+                }
+            }
+        }));
+    }
+
+    public void onDestroy() {
+        mSubscription.unsubscribe();
     }
 
     public void setTrack(@NotNull Playable playable) {
+        Log.d("SoundAssociations", "playable changed! " + playable.getId());
         mPlayable = playable;
+
         if (mToggleLike != null) {
             setLikes((int) mPlayable.likes_count, mPlayable.user_like);
         }
@@ -146,8 +175,11 @@ public class PlayableInfoAndEngagementsController {
 
     public void update(ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
                        int checkedStringId) {
-        button.setTextOn(labelForCount(count));
-        button.setTextOff(labelForCount(count));
+        Log.d(SoundAssociationOperations.TAG, Thread.currentThread().getName() +  ": update button state: count = " + count + "; checked = " + checked);
+        button.setEnabled(true);
+        final String buttonLabel = labelForCount(count);
+        button.setTextOn(buttonLabel);
+        button.setTextOff(buttonLabel);
         button.setChecked(checked);
         button.invalidate();
 
@@ -202,4 +234,18 @@ public class PlayableInfoAndEngagementsController {
                 R.string.accessibility_stats_user_reposted);
     }
 
+    private static final class ResetToggleButton extends DefaultObserver<SoundAssociation> {
+        private final ToggleButton mToggleButton;
+
+        private ResetToggleButton(ToggleButton toggleButton) {
+            mToggleButton = toggleButton;
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            mToggleButton.setChecked(!mToggleButton.isChecked());
+            mToggleButton.setEnabled(true);
+            super.onError(e);
+        }
+    }
 }

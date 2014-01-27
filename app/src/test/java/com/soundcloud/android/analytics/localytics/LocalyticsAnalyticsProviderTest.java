@@ -1,7 +1,6 @@
 package com.soundcloud.android.analytics.localytics;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider.PlaybackServiceStateWrapper;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -13,6 +12,7 @@ import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -34,7 +34,7 @@ public class LocalyticsAnalyticsProviderTest {
     @Mock
     private LocalyticsSession localyticsSession;
     @Mock
-    private PlaybackServiceStateWrapper playbackServiceStateWrapper;
+    private PlaybackStateProvider playbackServiceStateWrapper;
     @Captor
     private ArgumentCaptor<Map<String, String>> stopEventAttributes;
 
