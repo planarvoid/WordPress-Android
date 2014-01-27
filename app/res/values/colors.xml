@@ -65,6 +65,10 @@
     <color name="tour_overlay">#CC000000</color>
     <color name="signup_separator">#999999</color>
 
+    <color name="image_gradient_start">#5f000000</color>
+    <color name="image_gradient_end_explore">#9f000000</color>
+    <color name="image_gradient_end_profile">#aa000000</color>
+
     <!-- For settings framework -->
     <color name="darker_gray">#aaa</color>
 
