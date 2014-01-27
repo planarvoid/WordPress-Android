@@ -48,60 +48,109 @@ public class SoundAssociationStorage extends ScheduledOperations {
     }
 
     /**
-     * Persists user-likes-this information to the database. This method expects that the given instance already has
-     * the up-to-date likes count set, and will in return ensure that both a {@link SoundAssociation} record will be
-     * created, as well as the new likes count being updated on the {@link com.soundcloud.android.storage.provider.DBHelper.Sounds}
-     * table.
+     * Persists user-likes-this information to the database. This methods ensure that both a {@link SoundAssociation}
+     * record will be created, as well as the likes counter cache on the playable to be updated and persisted.
      */
     public SoundAssociation addLike(Playable playable) {
+        playable.user_like = true;
+        playable.likes_count = Math.max(1, playable.likes_count + 1);
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
         SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
         mLikesDAO.create(like);
         return like;
     }
 
-    /**
-     * Persists user-unlikes-this information to the database. This method expects that the given instance already has
-     * the up-to-date likes count set, and will in return ensure that both the {@link SoundAssociation} record will be
-     * removed, as well as the new likes count being updated on the {@link com.soundcloud.android.storage.provider.DBHelper.Sounds}
-     * table.
-     */
-    public SoundAssociation removeLike(Playable playable) {
-        SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
-        SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
-        mLikesDAO.delete(like);
-        if (playable instanceof Track) {
-            new TrackDAO(mResolver).update((Track) playable);
-        } else {
-            new PlaylistDAO(mResolver).update((Playlist) playable);
-        }
-        return like;
+    public Observable<SoundAssociation> addLikeAsync(final Playable playable) {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<SoundAssociation>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super SoundAssociation> observer) {
+                observer.onNext(addLike(playable));
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
     }
 
     /**
-     * Persists user-reposted-this information to the database. This method expects that the given instance already has
-     * the up-to-date reposts count set, and will in return ensure that both a {@link SoundAssociation} record will be
-     * created, as well as the new reposts count being updated on the {@link com.soundcloud.android.storage.provider.DBHelper.Sounds}
-     * table.
+     * Persists user-unlikes-this information to the database. This methods ensure that both the {@link SoundAssociation}
+     * record will be removed, as well as the likes counter cache on the playable to be updated and persisted.
+     */
+    public SoundAssociation removeLike(Playable playable) {
+        playable.user_like = false;
+        playable.likes_count = Math.max(0, playable.likes_count - 1);
+        SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
+        SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
+        mLikesDAO.delete(like);
+        updatePlayable(playable);
+        return like;
+    }
+
+    public Observable<SoundAssociation> removeLikeAsync(final Playable playable) {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<SoundAssociation>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super SoundAssociation> observer) {
+                observer.onNext(removeLike(playable));
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
+    }
+
+    /**
+     * Persists user-reposted-this information to the database. This methods ensure that both a {@link SoundAssociation}
+     * record will be created, as well as the reposts counter cache on the playable to be updated and persisted.
      */
     public SoundAssociation addRepost(Playable playable) {
+        playable.user_repost = true;
+        playable.reposts_count = Math.max(1, playable.reposts_count + 1);
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_REPOST : SoundAssociation.Type.PLAYLIST_REPOST;
         SoundAssociation repost = new SoundAssociation(playable, new Date(), assocType);
         mRepostsDAO.create(repost);
         return repost;
     }
 
+    public Observable<SoundAssociation> addRepostAsync(final Playable playable) {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<SoundAssociation>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super SoundAssociation> observer) {
+                observer.onNext(addRepost(playable));
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
+    }
+
     /**
-     * Persists user-unreposted-this information to the database. This method expects that the given instance already has
-     * the up-to-date reposts count set, and will in return ensure that both the {@link SoundAssociation} record will be
-     * removed, as well as the new reposts count being updated on the {@link com.soundcloud.android.storage.provider.DBHelper.Sounds}
-     * table.
+     * Persists user-unreposted-this information to the database. This methods ensure that both the {@link SoundAssociation}
+     * record will be removed, as well as the reposts counter cache on the playable to be updated and persisted.
      */
     public SoundAssociation removeRepost(Playable playable) {
+        playable.user_repost = false;
+        playable.reposts_count = Math.max(0, playable.reposts_count - 1);
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_REPOST : SoundAssociation.Type.PLAYLIST_REPOST;
         SoundAssociation repost = new SoundAssociation(playable, new Date(), assocType);
         mRepostsDAO.delete(repost);
+        updatePlayable(playable);
         return repost;
+    }
+
+    public Observable<SoundAssociation> removeRepostAsync(final Playable playable) {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<SoundAssociation>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super SoundAssociation> observer) {
+                observer.onNext(removeRepost(playable));
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
+    }
+
+    private void updatePlayable(Playable playable) {
+        if (playable instanceof Track) {
+            new TrackDAO(mResolver).update((Track) playable);
+        } else {
+            new PlaylistDAO(mResolver).update((Playlist) playable);
+        }
     }
 
     public SoundAssociation addCreation(final Track track) {

@@ -2,25 +2,22 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.playback.views.WidgetPlaybackRemoteViews;
+import com.soundcloud.android.utils.Log;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 public class PlayerAppWidgetProvider extends AppWidgetProvider {
-    private static final String TAG = "PlayerWidget";
-    private long mCurrentTrackId = -1;
+    public static final String TAG = "PlayerWidget";
 
-    static final ComponentName THIS_APPWIDGET =
-            new ComponentName("com.soundcloud.android",
-                    "com.soundcloud.android.playback.service.PlayerAppWidgetProvider");
+    private static final ComponentName THIS_APPWIDGET = new ComponentName("com.soundcloud.android",
+            PlayerAppWidgetProvider.class.getCanonicalName());
 
     private static PlayerAppWidgetProvider sInstance;
 
@@ -33,25 +30,21 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        updateWidget(context, appWidgetIds);
+        Log.d(TAG, "onUpdate");
 
-        // Send broadcast intent to any running CloudPlaybackService so it can
+        // initialize to empty view state
+        pushUpdate(context, new WidgetPlaybackRemoteViews(context), appWidgetIds);
+
+        // Send broadcast intent to any running PlaybackService so it can
         // wrap around with an immediate update.
-
         Intent updateIntent = new Intent(Broadcasts.UPDATE_WIDGET_ACTION);
         updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
         updateIntent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
         context.sendBroadcast(updateIntent);
     }
 
-    private void updateWidget(Context context, int[] appWidgetIds) {
-        final WidgetPlaybackRemoteViews views = new WidgetPlaybackRemoteViews(context.getPackageName());
-        // initialize controls
-        views.linkButtonsWidget(context, -1, -1, false);
-        pushUpdate(context, appWidgetIds, views);
-    }
-
-    private void pushUpdate(Context context, int[] appWidgetIds, RemoteViews views) {
+    private void pushUpdate(Context context, RemoteViews views, int[] appWidgetIds) {
+        Log.d(TAG, "Push update");
         // Update specific list of appWidgetIds if given, otherwise default to all
         final AppWidgetManager gm = AppWidgetManager.getInstance(context);
         if (appWidgetIds != null && appWidgetIds.length > 0) {
@@ -61,58 +54,38 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
         }
     }
 
+
     private boolean hasInstances(Context context) {
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(THIS_APPWIDGET);
         return (appWidgetIds.length > 0);
     }
 
-    public void notifyChange(Context context, Intent intent) {
+    public void performUpdate(Context context, Intent intent) {
+        Log.d(TAG, "performUpdate; intent = " + intent);
         String action = intent.getAction();
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "notify change " + intent);
         if (hasInstances(context)) {
             if (action.equals(Broadcasts.META_CHANGED) ||
                     action.equals(Broadcasts.PLAYBACK_COMPLETE) ||
                     action.equals(Broadcasts.PLAYSTATE_CHANGED) ||
                     action.equals(Broadcasts.BUFFERING) ||
                     action.equals(Broadcasts.BUFFERING_COMPLETE) ||
-                    action.equals(Broadcasts.PLAYBACK_ERROR) ||
-                    action.equals(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED)
-                            && intent.getLongExtra(PlaybackService.BroadcastExtras.ID, -1) == mCurrentTrackId) {
+                    action.equals(Broadcasts.PLAYBACK_ERROR)) {
 
-                performUpdate(context, new int[0], intent);
+                final WidgetPlaybackRemoteViews.Args args = new WidgetPlaybackRemoteViews.Args(context, intent);
+                pushUpdate(context, new WidgetPlaybackRemoteViews(args), new int[0]);
 
-            } else if (action.equals(Broadcasts.RESET_ALL)){
-                final WidgetPlaybackRemoteViews views = new WidgetPlaybackRemoteViews(context.getPackageName());
-                views.setPlaybackStatus(false);
-                views.setCurrentTrackTitle(context.getString(R.string.widget_touch_to_open));
-                views.setCurrentUsername(null);
-                pushUpdate(context, new int[0], views);
+            } else if (action.equals(Broadcasts.RESET_ALL)) {
+                pushUpdate(context, new WidgetPlaybackRemoteViews(context), new int[0]);
             }
         }
     }
 
-    /* package */  void performUpdate(Context context, int[] appWidgetIds, Intent intent) {
-        // TODO, move to ScModelManager to get data
-        final WidgetPlaybackRemoteViews views = new WidgetPlaybackRemoteViews(context.getPackageName());
-        views.setPlaybackStatus(intent.getBooleanExtra(PlaybackService.BroadcastExtras.IS_SUPPOSED_TO_BE_PLAYING, false));
-
-        final long trackId = intent.getLongExtra(PlaybackService.BroadcastExtras.ID, -1);
-        final long userId = intent.getLongExtra(PlaybackService.BroadcastExtras.USER_ID, -1);
-        if (trackId != -1) {
-            final boolean isLike = intent.getBooleanExtra(PlaybackService.BroadcastExtras.IS_LIKE, false);
-            views.setImageViewResource(R.id.btn_like, isLike
-                    ? R.drawable.ic_widget_favorited_states : R.drawable.ic_widget_like_states);
-
-            if (mCurrentTrackId != trackId) {
-                mCurrentTrackId = trackId;
-                views.setCurrentTrackTitle(intent.getStringExtra(PlaybackService.BroadcastExtras.TITLE));
-                views.setCurrentUsername(intent.getStringExtra(PlaybackService.BroadcastExtras.USERNAME));
-            }
-
-            views.linkButtonsWidget(context, trackId, userId, isLike);
-            pushUpdate(context, appWidgetIds, views);
-        }
+    public void performUpdate(Context context, Playable playable, boolean isPlaying) {
+        Log.d(TAG, "performUpdate; playable = " + playable);
+        final WidgetPlaybackRemoteViews.Args args = new WidgetPlaybackRemoteViews.Args(context, playable, isPlaying);
+        pushUpdate(context, new WidgetPlaybackRemoteViews(args), new int[0]);
     }
+
 }
 

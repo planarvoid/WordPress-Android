@@ -1,6 +1,7 @@
 package com.soundcloud.android.robolectric;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.robolectric.shadows.ScShadowParcel;
 import com.soundcloud.android.robolectric.shadows.ShadowV4Fragment;
@@ -8,6 +9,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricConfig;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.runners.model.InitializationError;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import rx.Observer;
 import rx.Subscription;
@@ -36,6 +38,7 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
 
         // until we have a DI framework we have to set this instance to avoid NPEs
         SoundCloudApplication.instance = (SoundCloudApplication) Robolectric.application;
+        SoundCloudApplication.instance.setAccountOperations(Mockito.mock(AccountOperations.class));
     }
 
 

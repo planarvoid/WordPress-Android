@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.behavior.PlayableHolder;
@@ -38,6 +39,8 @@ public class PlayableRow extends PlayableBar implements ListRow {
     protected TextView mReposter;
     protected TextView mTrackCount;
 
+    private final PlaybackStateProvider mPlaybackStateProvider;
+
     // used to build the string for the title text
     private SpannableStringBuilder mSpanBuilder;
     private final ForegroundColorSpan fcs = new ForegroundColorSpan(getResources().getColor(R.color.scOrange));
@@ -54,6 +57,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
         super(context, attributeSet, imageOperations);
         mReposter = (TextView) findViewById(R.id.playable_reposter);
         mTrackCount = (TextView) findViewById(R.id.playable_track_count);
+        mPlaybackStateProvider = new PlaybackStateProvider();
     }
 
     @Override
@@ -132,7 +136,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
 
     @Override
     protected void setTitle() {
-        if (mPlayableHolder.getPlayable().getId() == PlaybackService.getCurrentTrackId()) {
+        if (mPlayableHolder.getPlayable().getId() == mPlaybackStateProvider.getCurrentTrackId()) {
             if (mSpanBuilder == null) mSpanBuilder = new SpannableStringBuilder();
 
             mSpanBuilder.clear();

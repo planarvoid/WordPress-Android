@@ -12,8 +12,10 @@ import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 
 import android.net.Uri;
 
@@ -97,6 +99,14 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
 
         public static <ResourceType> RequestBuilder<ResourceType> post(String uri) {
             return new RequestBuilder<ResourceType>(uri, HttpPost.METHOD_NAME);
+        }
+
+        public static <ResourceType> RequestBuilder<ResourceType> put(String uri) {
+            return new RequestBuilder<ResourceType>(uri, HttpPut.METHOD_NAME);
+        }
+
+        public static <ResourceType> RequestBuilder<ResourceType> delete(String uri) {
+            return new RequestBuilder<ResourceType>(uri, HttpDelete.METHOD_NAME);
         }
 
         public APIRequest<ResourceType> build(){

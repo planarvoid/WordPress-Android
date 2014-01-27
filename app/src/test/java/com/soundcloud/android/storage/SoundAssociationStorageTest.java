@@ -39,28 +39,117 @@ public class SoundAssociationStorageTest {
     @Test
     public void shouldStoreLikeAndUpdateLikesCount() {
         Track track = new Track(1);
-        expect(track.likes_count).not.toBe(1L);
+        track.likes_count = 0;
+        track.user_like = false;
+        expect(Content.ME_LIKES).toHaveCount(0);
 
-        track.likes_count = 1;
         storage.addLike(track);
 
         expect(Content.ME_LIKES).toHaveCount(1);
-        expect(TestHelper.reload(track).likes_count).toBe(1L);
+        final Track storedTrack = TestHelper.reload(track);
+        expect(storedTrack.likes_count).toBe(1L);
+        expect(storedTrack.user_like).toBeTrue();
+    }
+
+    @Test
+    public void shouldStoreLikeAndUpdateLikesCountForUninitializedTrack() {
+        Track track = new Track(1);
+        expect(Content.ME_LIKES).toHaveCount(0);
+
+        storage.addLike(track);
+
+        expect(Content.ME_LIKES).toHaveCount(1);
+        final Track storedTrack = TestHelper.reload(track);
+        expect(storedTrack.likes_count).toBe(1L);
+        expect(storedTrack.user_like).toBeTrue();
     }
 
     @Test
     public void shouldRemoveLikeAndUpdateLikesCount() {
         Track track = new Track(1);
         track.likes_count = 1;
+        track.user_like = true;
         TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_LIKE);
         expect(Content.ME_LIKES).toHaveCount(1);
-        expect(TestHelper.reload(track).likes_count).toBe(1L);
 
-        track.likes_count = 0;
         storage.removeLike(track);
 
         expect(Content.ME_LIKES).toHaveCount(0);
-        expect(TestHelper.reload(track).likes_count).toBe(0L);
+        final Track storedTrack = TestHelper.reload(track);
+        expect(storedTrack.likes_count).toBe(0L);
+        expect(storedTrack.user_like).toBeFalse();
+    }
+
+    @Test
+    public void shouldRemoveLikeAndUpdateLikesCountForUninitializedTrack() {
+        Track track = new Track(1);
+        TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_LIKE);
+        expect(Content.ME_LIKES).toHaveCount(1);
+
+        storage.removeLike(track);
+
+        expect(Content.ME_LIKES).toHaveCount(0);
+        final Track storedTrack = TestHelper.reload(track);
+        expect(storedTrack.likes_count).toBe(0L);
+        expect(storedTrack.user_like).toBeFalse();
+    }
+
+    @Test
+    public void shouldStoreRepostAndUpdateRepostsCount() {
+        Track track = new Track(1);
+        track.reposts_count = 0;
+        track.user_repost = true;
+        expect(Content.ME_REPOSTS).toHaveCount(0);
+
+        storage.addRepost(track);
+
+        expect(Content.ME_REPOSTS).toHaveCount(1);
+        final Track storedTrack = TestHelper.reload(track);
+        expect(storedTrack.reposts_count).toBe(1L);
+        expect(storedTrack.user_repost).toBeTrue();
+    }
+
+    @Test
+    public void shouldStoreRepostAndUpdateRepostsCountForUninitializedTrack() {
+        Track track = new Track(1);
+        expect(Content.ME_REPOSTS).toHaveCount(0);
+
+        storage.addRepost(track);
+
+        expect(Content.ME_REPOSTS).toHaveCount(1);
+        final Track storedTrack = TestHelper.reload(track);
+        expect(storedTrack.reposts_count).toBe(1L);
+        expect(storedTrack.user_repost).toBeTrue();
+    }
+
+    @Test
+    public void shouldRemoveRepostAndUpdateLikesCount() {
+        Track track = new Track(1);
+        track.reposts_count = 1;
+        track.user_repost = true;
+        TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_REPOST);
+        expect(Content.ME_REPOSTS).toHaveCount(1);
+
+        storage.removeRepost(track);
+
+        expect(Content.ME_REPOSTS).toHaveCount(0);
+        final Track storedTrack = TestHelper.reload(track);
+        expect(storedTrack.reposts_count).toBe(0L);
+        expect(storedTrack.user_repost).toBeFalse();
+    }
+
+    @Test
+    public void shouldRemoveRepostAndUpdateLikesCountForUninitializedTrack() {
+        Track track = new Track(1);
+        TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_REPOST);
+        expect(Content.ME_REPOSTS).toHaveCount(1);
+
+        storage.removeRepost(track);
+
+        expect(Content.ME_REPOSTS).toHaveCount(0);
+        final Track storedTrack = TestHelper.reload(track);
+        expect(storedTrack.reposts_count).toBe(0L);
+        expect(storedTrack.user_repost).toBeFalse();
     }
 
     @Test

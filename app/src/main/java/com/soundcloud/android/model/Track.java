@@ -576,6 +576,7 @@ public class Track extends Playable implements PlayableHolder {
         return t;
     }
 
+    @Deprecated
     public static Track nullableTrackfromIntent(Intent intent) {
         if (intent == null) throw new IllegalArgumentException("intent is null");
         Track t = intent.getParcelableExtra(EXTRA);

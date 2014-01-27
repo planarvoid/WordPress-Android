@@ -445,6 +445,12 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".playback.service.PlayerWidgetController$PlayerWidgetReceiver">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.widgetLike"/>
+            </intent-filter>
+        </receiver>
+
 
         <!-- headphone + remoteclient control -->
         <receiver android:name=".playback.service.RemoteControlReceiver">

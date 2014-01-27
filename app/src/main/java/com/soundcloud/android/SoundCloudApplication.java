@@ -26,6 +26,7 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.playback.service.PlayerWidgetController;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -158,6 +159,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         setupAnalytics(sharedPreferences, appProperties);
 
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
+        PlayerWidgetController.getInstance(this).subscribe();
     }
 
     private void setupAnalytics(SharedPreferences sharedPreferences, ApplicationProperties appProperties) {
@@ -276,6 +278,12 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     public static long getUserIdFromContext(Context c){
         SoundCloudApplication app = fromContext(c);
         return app == null ? -1 : app.getCurrentUserId();
+    }
+
+    // keep this until we've sorted out RL2, since some tests rely on the getUserId stuff which in turn requires
+    // a valid AccountOps instance
+    public void setAccountOperations(AccountOperations operations) {
+        mAccountOperations = operations;
     }
 
     @TargetApi(9)
