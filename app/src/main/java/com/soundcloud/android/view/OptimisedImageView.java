@@ -93,7 +93,7 @@ public class OptimisedImageView extends ImageView {
     }
 
     private void generateGradient(int top, int bottom) {
-        // We have to allocate the shader in shader in onLayout since it depends on the View height
+        // We have to allocate the shader in onLayout since it depends on the View height
         final int startY = top + (int) ((bottom - top) * mGradientStart);
         final LinearGradient shader = new LinearGradient(0, startY, 0, bottom, mGradientColors, GRADIENT_POSITIONS,
                 Shader.TileMode.CLAMP);
