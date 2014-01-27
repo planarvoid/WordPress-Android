@@ -8,4 +8,13 @@
     <style name="Widget.ScFixedTabPageIndicator" parent="Widget.ScTabPageIndicator">
         <item name="tabWeight">.33</item>
     </style>
+
+    <style name="BigProfileImage">
+        <item name="android:background">@drawable/placeholder_cells</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="showGradient">true</item>
+        <item name="gradientStart">.7</item>
+        <item name="gradientStartColor">#5f000000</item>
+        <item name="gradientEndColor">#aa000000</item>
+    </style>
 </resources>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:sc="http://schemas.android.com/apk/res-auto"
               android:baselineAligned="false"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
@@ -13,12 +12,7 @@
         <com.soundcloud.android.view.OptimisedImageView android:id="@+id/user_image"
                                                              android:layout_width="match_parent"
                                                              android:layout_height="match_parent"
-                                                             android:background="@drawable/placeholder_cells"
-                                                             android:scaleType="centerCrop"
-                                                             sc:showGradient="true"
-                                                             sc:gradientStart=".7"
-                                                             sc:gradientStartColor="#5f000000"
-                                                             sc:gradientEndColor="#aa000000" />
+                                                             style="@style/BigProfileImage" />
 
         <View android:id="@+id/suggested_user_selector"
               android:layout_width="match_parent"
