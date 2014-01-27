@@ -1358,6 +1358,10 @@
         <item name="dominantMeasurement">width</item>
         <item name="aspectRatio">.55</item>
         <item name="aspectRatioEnabled">true</item>
+        <item name="showGradient">true</item>
+        <item name="gradientStart">.5</item>
+        <item name="gradientStartColor">#5f000000</item>
+        <item name="gradientEndColor">#9f000000</item>
     </style>
     <style name="ExploreGridItemImageView" parent="ExploreGridItemImageViewBase">
         <item name="movement">-15dp</item>

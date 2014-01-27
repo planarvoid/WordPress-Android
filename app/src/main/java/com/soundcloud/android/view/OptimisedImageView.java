@@ -1,6 +1,9 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.R;
+
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
@@ -15,15 +18,37 @@ import android.widget.ImageView;
 
 public class OptimisedImageView extends ImageView {
 
-    private Paint mPaint = new Paint();
+    private static final float GRADIENT_TOP = .6f;
+    private static final float GRADIENT_BOTTOM = 1f;
+
+    private static final boolean DEFAULT_SHOW_GRADIENT = false;
+    private static final float DEFAULT_GRADIENT_START = .7f;
+    private static final int DEFAULT_GRADIENT_START_COLOR = 0x5f000000;
+    private static final int DEFAULT_GRADIENT_END_COLOR = 0xaa000000;
+
+    private boolean mShowGradient;
+    private float mGradientStart;
+    private int mGradientStartColor;
+    private int mGradientEndColor;
+    private Paint mGradientPaint;
 
     private boolean mIgnoreNextRequestLayout;
-    private boolean mShowGradient;
-
-    private double mGradientStart = .7;
 
     public OptimisedImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        initAttributes(context, attrs);
+        if (mShowGradient) {
+            mGradientPaint = new Paint();
+        }
+    }
+
+    private void initAttributes(Context context, AttributeSet attrs) {
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.OptimisedImageView);
+        mShowGradient = a.getBoolean(R.styleable.OptimisedImageView_showGradient, DEFAULT_SHOW_GRADIENT);
+        mGradientStart = a.getFloat(R.styleable.OptimisedImageView_gradientStart, DEFAULT_GRADIENT_START);
+        mGradientStartColor = a.getColor(R.styleable.OptimisedImageView_gradientStartColor, DEFAULT_GRADIENT_START_COLOR);
+        mGradientEndColor = a.getColor(R.styleable.OptimisedImageView_gradientEndColor, DEFAULT_GRADIENT_END_COLOR);
+        a.recycle();
     }
 
     @Override
@@ -59,12 +84,12 @@ public class OptimisedImageView extends ImageView {
     }
 
     private void generateGradient(int top, int bottom) {
-        final int[] colors = new int[]{Color.TRANSPARENT, 0x5F000000, 0xAA000000};
-        final float[] positions = new float[]{0, .6F, 1};
+        final int[] colors = new int[]{Color.TRANSPARENT, mGradientStartColor, mGradientEndColor};
+        final float[] positions = new float[]{0, GRADIENT_TOP, GRADIENT_BOTTOM};
 
         final int startY = top + (int) ((bottom - top) * mGradientStart);
         final LinearGradient shader = new LinearGradient(0, startY, 0, bottom, colors, positions, Shader.TileMode.CLAMP);
-        mPaint.setShader(shader);
+        mGradientPaint.setShader(shader);
     }
 
     @Override
@@ -82,7 +107,7 @@ public class OptimisedImageView extends ImageView {
         r.right = clipBounds.right;
         r.top = (int) ((clipBounds.bottom - clipBounds.top) * mGradientStart + clipBounds.top);
         r.bottom = clipBounds.bottom;
-        canvas.drawRect(r, mPaint);
+        canvas.drawRect(r, mGradientPaint);
     }
 
     @Override
