@@ -2,6 +2,7 @@ package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -18,8 +19,7 @@ import android.widget.ImageView;
 
 public class OptimisedImageView extends ImageView {
 
-    private static final float GRADIENT_TOP = .6f;
-    private static final float GRADIENT_BOTTOM = 1f;
+    private static final float[] GRADIENT_POSITIONS = {0, .6f, .1f};
 
     private static final boolean DEFAULT_SHOW_GRADIENT = false;
     private static final float DEFAULT_GRADIENT_START = .7f;
@@ -30,7 +30,9 @@ public class OptimisedImageView extends ImageView {
     private float mGradientStart;
     private int mGradientStartColor;
     private int mGradientEndColor;
+
     private Paint mGradientPaint;
+    private int[] mGradientColors;
 
     private boolean mIgnoreNextRequestLayout;
 
@@ -39,6 +41,7 @@ public class OptimisedImageView extends ImageView {
         initAttributes(context, attrs);
         if (mShowGradient) {
             mGradientPaint = new Paint();
+            mGradientColors = new int[] {Color.TRANSPARENT, mGradientStartColor, mGradientEndColor};
         }
     }
 
@@ -71,10 +74,10 @@ public class OptimisedImageView extends ImageView {
             }
         }
 
-        // Finally, call up to super
         super.setImageDrawable(newDrawable);
     }
 
+    @SuppressLint("DrawAllocation")
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
@@ -84,11 +87,10 @@ public class OptimisedImageView extends ImageView {
     }
 
     private void generateGradient(int top, int bottom) {
-        final int[] colors = new int[]{Color.TRANSPARENT, mGradientStartColor, mGradientEndColor};
-        final float[] positions = new float[]{0, GRADIENT_TOP, GRADIENT_BOTTOM};
-
+        // We have to allocate the shader in shader in onLayout since it depends on the View height
         final int startY = top + (int) ((bottom - top) * mGradientStart);
-        final LinearGradient shader = new LinearGradient(0, startY, 0, bottom, colors, positions, Shader.TileMode.CLAMP);
+        final LinearGradient shader = new LinearGradient(0, startY, 0, bottom, mGradientColors, GRADIENT_POSITIONS,
+                Shader.TileMode.CLAMP);
         mGradientPaint.setShader(shader);
     }
 
