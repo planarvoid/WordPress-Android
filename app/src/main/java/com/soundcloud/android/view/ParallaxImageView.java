@@ -14,7 +14,6 @@ import android.util.AttributeSet;
  */
 public class ParallaxImageView extends AspectRatioImageView {
 
-
     private float mFocalPoint;
     private int mMovement;
     private int mParallaxOffset;
