@@ -186,12 +186,8 @@ public class NowPlayingProgressBar extends ProgressBar {
         startRefreshing();
     }
 
-    public void pause(){
-        stopRefreshing();
-    }
-
     public void destroy(){
-        pause();
+        stopRefreshing();
         mWaveformMask = null;
     }
 

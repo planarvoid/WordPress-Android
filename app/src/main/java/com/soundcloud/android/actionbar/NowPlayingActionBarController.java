@@ -62,6 +62,12 @@ public class NowPlayingActionBarController extends ActionBarController {
     }
 
     @Override
+    public void onDestroy() {
+        mNowPlaying.destroy();
+        super.onDestroy();
+    }
+
+    @Override
     protected void setActionBarDefaultOptions(ActionBar actionBar) {
         super.setActionBarDefaultOptions(actionBar);
         actionBar.setDisplayShowCustomEnabled(true);
