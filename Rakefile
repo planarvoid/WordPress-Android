@@ -564,6 +564,10 @@ class Mvn
   def execute
     puts "Executing: #{@command}"
     system @command
-    raise "An error has occured while executing command #{@command}" unless $?.success?
+    if !$?.success?
+      system "adb pull /sdcard/Robotium-Screenshots"
+      system "adb shell rm -R /sdcard/Robotium-Screenshots"
+      raise "An error has occured while executing command #{@command}"
+    end
   end
 end
