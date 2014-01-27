@@ -19,7 +19,7 @@ import android.widget.ImageView;
 
 public class OptimisedImageView extends ImageView {
 
-    private static final float[] GRADIENT_POSITIONS = {0, .6f, .1f};
+    private static final float[] GRADIENT_POSITIONS = {0, .6f, 1f};
 
     private static final boolean DEFAULT_SHOW_GRADIENT = false;
     private static final float DEFAULT_GRADIENT_START = .7f;
@@ -32,6 +32,7 @@ public class OptimisedImageView extends ImageView {
     private int mGradientEndColor;
 
     private Paint mGradientPaint;
+    private Rect mGradientRect;
     private int[] mGradientColors;
 
     private boolean mIgnoreNextRequestLayout;
@@ -40,8 +41,7 @@ public class OptimisedImageView extends ImageView {
         super(context, attrs);
         initAttributes(context, attrs);
         if (mShowGradient) {
-            mGradientPaint = new Paint();
-            mGradientColors = new int[] {Color.TRANSPARENT, mGradientStartColor, mGradientEndColor};
+            initGradientDrawAllocations();
         }
     }
 
@@ -52,6 +52,12 @@ public class OptimisedImageView extends ImageView {
         mGradientStartColor = a.getColor(R.styleable.OptimisedImageView_gradientStartColor, DEFAULT_GRADIENT_START_COLOR);
         mGradientEndColor = a.getColor(R.styleable.OptimisedImageView_gradientEndColor, DEFAULT_GRADIENT_END_COLOR);
         a.recycle();
+    }
+
+    private void initGradientDrawAllocations() {
+        mGradientPaint = new Paint();
+        mGradientRect = new Rect();
+        mGradientColors = new int[] {Color.TRANSPARENT, mGradientStartColor, mGradientEndColor};
     }
 
     @Override
@@ -103,13 +109,10 @@ public class OptimisedImageView extends ImageView {
     }
 
     private void drawGradient(Canvas canvas) {
-        final Rect clipBounds = canvas.getClipBounds();
-        Rect r = new Rect();
-        r.left = clipBounds.left;
-        r.right = clipBounds.right;
-        r.top = (int) ((clipBounds.bottom - clipBounds.top) * mGradientStart + clipBounds.top);
-        r.bottom = clipBounds.bottom;
-        canvas.drawRect(r, mGradientPaint);
+        canvas.getClipBounds(mGradientRect);
+        int clipBoundsTop = mGradientRect.top;
+        mGradientRect.top = (int) ((mGradientRect.bottom - clipBoundsTop) * mGradientStart + clipBoundsTop);
+        canvas.drawRect(mGradientRect, mGradientPaint);
     }
 
     @Override
