@@ -1,16 +1,17 @@
 package com.soundcloud.android.playback.service;
 
+import com.soundcloud.android.analytics.OriginProvider;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 
-public class PlaybackStateProvider {
+public class PlaybackStateProvider implements OriginProvider {
 
     @Inject
-    public PlaybackStateProvider() {
-    }
+    public PlaybackStateProvider() {}
 
     @Nullable
     public Track getCurrentTrack() {
@@ -61,6 +62,12 @@ public class PlaybackStateProvider {
     public boolean isSupposedToBePlaying() {
         final PlaybackService instance = PlaybackService.instance;
         return getPlaybackState(instance).isSupposedToBePlaying();
+    }
+
+    @Override
+    public String getScreenTag() {
+        final PlaybackService instance = PlaybackService.instance;
+        return instance == null ? Screen.UNKNOWN.get() : instance.getPlayQueueOriginScreen();
     }
 
     private PlaybackState getPlaybackState(@Nullable PlaybackService instance) {

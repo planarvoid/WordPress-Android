@@ -135,7 +135,7 @@ public class PlaybackOperations {
         List<Long> shuffled = Lists.newArrayList(ids);
         Collections.shuffle(shuffled);
         context.startService(getPlayIntent(shuffled, 0, new PlaySessionSource(screen)));
-        gotoPlayer(context, shuffled.get(0), screen.get());
+        gotoPlayer(context, shuffled.get(0));
     }
 
     private ArrayList<Long> getPlayableIdsFromModels(List<? extends ScModel> data) {
@@ -151,7 +151,7 @@ public class PlaybackOperations {
 
     private void playFromUri(final Context context, Uri uri, final int startPosition, final Track initialTrack,
                              final PlaySessionSource playSessionSource) {
-        cacheAndGoToPlayer(context, initialTrack, playSessionSource.getOriginScreen());
+        cacheAndGoToPlayer(context, initialTrack);
 
         if (isNotCurrentlyPlaying(initialTrack)) {
             mTrackStorage.getTrackIdsForUriAsync(uri).subscribe(new DefaultObserver<List<Long>>() {
@@ -166,7 +166,7 @@ public class PlaybackOperations {
     }
 
     private void playFromIdList(Context context, List<Long> idList, int startPosition, Track initialTrack, PlaySessionSource playSessionSource) {
-        cacheAndGoToPlayer(context, initialTrack, playSessionSource.getOriginScreen());
+        cacheAndGoToPlayer(context, initialTrack);
 
         if (isNotCurrentlyPlaying(initialTrack)) {
             final int adjustedPosition = getDeduplicatedIdList(idList, startPosition);
@@ -175,16 +175,15 @@ public class PlaybackOperations {
         }
     }
 
-    private void cacheAndGoToPlayer(Context context, Track initialTrack, String screenTag) {
+    private void cacheAndGoToPlayer(Context context, Track initialTrack) {
         mModelManager.cache(initialTrack);
-        gotoPlayer(context, initialTrack.getId(), screenTag);
+        gotoPlayer(context, initialTrack.getId());
     }
 
-    private void gotoPlayer(Context context, long initialTrackId, String screenTag) {
+    private void gotoPlayer(Context context, long initialTrackId) {
         Intent playerActivityIntent = new Intent(Actions.PLAYER)
                 .putExtra(Track.EXTRA_ID, initialTrackId)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        playerActivityIntent.putExtra(PlayerActivity.ORIGIN_SCREEN_EXTRA, screenTag);
         context.startActivity(playerActivityIntent);
     }
 

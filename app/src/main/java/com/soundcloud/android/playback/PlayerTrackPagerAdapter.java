@@ -6,10 +6,11 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.HashBiMap;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.collections.BasePagerAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlayQueueView;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.PlayerQueueView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.track.TrackOperations;
@@ -34,16 +35,12 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
 
     private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
 
-    private String mOriginScreen;
+    private PlaybackStateProvider mPlaybackState;
 
     @Inject
-    public PlayerTrackPagerAdapter(TrackOperations trackOperations) {
+    public PlayerTrackPagerAdapter(TrackOperations trackOperations, PlaybackStateProvider stateProvider) {
         mTrackOperations = trackOperations;
-        mOriginScreen = Screen.UNKNOWN.get();
-    }
-
-    public void setOriginScreen(String screen) {
-        mOriginScreen = screen;
+        mPlaybackState = stateProvider;
     }
 
     public Collection<PlayerTrackView> getPlayerTrackViews() {
@@ -143,7 +140,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
         } else {
             playQueuePosition = mPlayQueue.getPositionOfTrackId(id);
             queueView.showTrack(mTrackOperations.loadCompleteTrack(playerActivity, id),
-                    playQueuePosition, mCommentingPosition == playQueuePosition, mOriginScreen);
+                    playQueuePosition, mCommentingPosition == playQueuePosition, mPlaybackState);
         }
         mQueueViewsByPosition.forcePut(queueView, playQueuePosition);
         return convertView;
@@ -193,7 +190,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
                 playerQueueView.showEmptyViewWithState(mPlayQueue.getAppendState());
             } else {
                 playerQueueView.showTrack(mTrackOperations.loadCompleteTrack(playerActivity, id),
-                        position, mCommentingPosition == position, mOriginScreen);
+                        position, mCommentingPosition == position, mPlaybackState);
             }
         }
     }

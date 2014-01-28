@@ -3,6 +3,8 @@ package com.soundcloud.android.playback.views;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.OriginProvider;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.collections.views.PlayableBar;
 import com.soundcloud.android.events.EventBus;
@@ -42,20 +44,25 @@ public class PlayableInfoAndEngagementsController {
     private PlayableBar mTrackInfoBar;
 
     private Playable mPlayable;
-    private String mOriginScreen;
+    private OriginProvider mOriginProvider;
 
     private CompositeSubscription mSubscription = new CompositeSubscription();
 
     public PlayableInfoAndEngagementsController(View rootView,
                                                 final @Nullable PlayerTrackView.PlayerTrackViewListener mListener,
                                                 final SoundAssociationOperations soundAssocOperations,
-                                                String originScreen) {
+                                                @Nullable OriginProvider originProvider) {
 
         mRootView = rootView;
-        mOriginScreen = originScreen;
         mToggleLike = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         mToggleRepost = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
         mShareButton = (ImageButton) rootView.findViewById(R.id.btn_share);
+
+       if (originProvider == null) {
+           setUnknownOrigin();
+       } else {
+           mOriginProvider = originProvider;
+       }
 
         if (mToggleLike != null) {
             mToggleLike.setOnClickListener(new View.OnClickListener() {
@@ -63,7 +70,7 @@ public class PlayableInfoAndEngagementsController {
                 public void onClick(View view) {
                     if (mPlayable != null) {
                         EventBus.UI.publish(UIEvent.fromToggleLike(mToggleLike.isChecked(),
-                                mOriginScreen, mPlayable));
+                                mOriginProvider.getScreenTag(), mPlayable));
 
                         mToggleLike.setEnabled(false);
                         mSubscription.add(
@@ -82,7 +89,7 @@ public class PlayableInfoAndEngagementsController {
                 public void onClick(View view) {
                     if (mPlayable != null) {
                         EventBus.UI.publish(UIEvent.fromToggleRepost(mToggleRepost.isChecked(),
-                            mOriginScreen, mPlayable));
+                            mOriginProvider.getScreenTag(), mPlayable));
 
                         mToggleRepost.setEnabled(false);
                         mSubscription.add(
@@ -100,7 +107,7 @@ public class PlayableInfoAndEngagementsController {
                 @Override
                 public void onClick(View v) {
                     if (mPlayable != null) {
-                        EventBus.UI.publish(UIEvent.fromShare(mOriginScreen, mPlayable));
+                        EventBus.UI.publish(UIEvent.fromShare(mOriginProvider.getScreenTag(), mPlayable));
                         Intent shareIntent = mPlayable.getShareIntent();
                         if (shareIntent != null) {
                             mRootView.getContext().startActivity(shareIntent);
@@ -147,6 +154,15 @@ public class PlayableInfoAndEngagementsController {
         }));
     }
 
+    private void setUnknownOrigin() {
+        mOriginProvider = new OriginProvider() {
+            @Override
+            public String getScreenTag() {
+                return Screen.UNKNOWN.get();
+            }
+        };
+    }
+
     public void onDestroy() {
         mSubscription.unsubscribe();
     }
@@ -174,8 +190,8 @@ public class PlayableInfoAndEngagementsController {
         }
     }
 
-    public void setOriginScreen(String screen) {
-        mOriginScreen = screen;
+    public void setOriginProvider(OriginProvider originProvider) {
+        mOriginProvider = originProvider;
     }
 
     public void update(ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,

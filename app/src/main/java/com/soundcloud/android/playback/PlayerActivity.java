@@ -53,7 +53,7 @@ import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
 public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTrackPageListener, PlayerTrackView.PlayerTrackViewListener {
-    public static final String ORIGIN_SCREEN_EXTRA = "screen";
+
     public static final int REFRESH_DELAY = 1000;
 
     private static final String STATE_PAGER_QUEUE_POSITION = "pager_queue_position";
@@ -105,11 +105,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         mTrackPager.setPageMargin((int) (5 * getResources().getDisplayMetrics().density));
         mTrackPager.setListener(this);
 
-        String originScreen = getIntent().getStringExtra(ORIGIN_SCREEN_EXTRA);
-        if (TextUtils.isEmpty(originScreen)) {
-            originScreen = Screen.UNKNOWN.get();
-        }
-        mTrackPagerAdapter.setOriginScreen(originScreen);
         mTrackPager.setAdapter(mTrackPagerAdapter);
 
         mTransportBar = (TransportBarView) findViewById(R.id.transport_bar);
@@ -124,7 +119,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         if (mPlayerInfoLayout != null){
             mTrackDetailsView = (PlayerTrackDetailsLayout) mPlayerInfoLayout.findViewById(R.id.player_track_details);
             mPlayableInfoAndEngagementsController = new PlayableInfoAndEngagementsController(
-                    mPlayerInfoLayout, this, mSoundAssocicationOps, originScreen);
+                    mPlayerInfoLayout, this, mSoundAssocicationOps, mPlaybackStateProvider);
         }
 
         mIsFirstLoad = bundle == null;

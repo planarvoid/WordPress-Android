@@ -5,15 +5,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlayQueueView;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.PlayerQueueView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -31,7 +31,6 @@ import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.view.ViewGroup;
 
-
 @RunWith(SoundCloudTestRunner.class)
 public class PlayerTrackPagerAdapterTest {
 
@@ -42,12 +41,14 @@ public class PlayerTrackPagerAdapterTest {
     @Mock
     private TrackOperations trackOperations;
     @Mock
+    private PlaybackStateProvider stateProvider;
+    @Mock
     private PlayQueueView playQueue;
 
     @Before
     public void setUp() throws Exception {
         // TODO remove the override when we move to Robolectric 2
-        adapter = new PlayerTrackPagerAdapter(trackOperations) {
+        adapter = new PlayerTrackPagerAdapter(trackOperations, stateProvider) {
             @Override
             protected PlayerQueueView createPlayerQueueView(Context context) {
                 return playerQueueView;
@@ -102,7 +103,7 @@ public class PlayerTrackPagerAdapterTest {
     @Test
     public void shouldCreateNewPlayerTrackViewFromPlayQueueItem() {
         expect((PlayerQueueView) adapter.getView(123L, null, mock(ViewGroup.class))).toBe(playerQueueView);
-        verify(playerQueueView).showTrack(any(Observable.class), anyInt(), anyBoolean(), anyString());
+        verify(playerQueueView).showTrack(any(Observable.class), anyInt(), anyBoolean(), any(OriginProvider.class));
     }
 
     @Test
@@ -110,7 +111,7 @@ public class PlayerTrackPagerAdapterTest {
         final PlayerQueueView convertView = mock(PlayerQueueView.class);
 
         expect((PlayerQueueView) adapter.getView(123L, convertView, mock(ViewGroup.class))).toBe(convertView);
-        verify(convertView).showTrack(any(Observable.class), anyInt(), anyBoolean(), anyString());
+        verify(convertView).showTrack(any(Observable.class), anyInt(), anyBoolean(), any(OriginProvider.class));
     }
 
     @Test
@@ -220,7 +221,7 @@ public class PlayerTrackPagerAdapterTest {
 
         adapter.setPlayQueueIfChanged(new PlayQueueView(Lists.newArrayList(1L, 2L), 0, PlaybackOperations.AppendState.IDLE));
         adapter.reloadEmptyView(Mockito.mock(Activity.class));
-        verify(playerQueueView2).showTrack(any(rx.Observable.class), anyInt(), anyBoolean(), anyString());
+        verify(playerQueueView2).showTrack(any(rx.Observable.class), anyInt(), anyBoolean(), any(OriginProvider.class));
     }
 
     @Test
