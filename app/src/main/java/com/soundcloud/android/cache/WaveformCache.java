@@ -8,10 +8,11 @@ import android.support.v4.util.LruCache;
 
 public final class WaveformCache {
 
+    public static final int MAX_CACHE_SIZE = 20;
     private static WaveformCache sInstance;
 
-    private android.support.v4.util.LruCache<Track, WaveformData> mCache
-            = new LruCache<Track, WaveformData>(128);
+    private android.support.v4.util.LruCache<Long, WaveformData> mCache
+            = new LruCache<Long, WaveformData>(MAX_CACHE_SIZE);
 
     private WaveformCache() {
     }
@@ -24,7 +25,7 @@ public final class WaveformCache {
     }
 
     public WaveformData getData(final Track track, final WaveformCallback callback) {
-        WaveformData data = mCache.get(track);
+        WaveformData data = mCache.get(track.getId());
         if (data != null) {
             callback.onWaveformDataLoaded(track, data, true);
             return data;
@@ -33,7 +34,7 @@ public final class WaveformCache {
                 @Override
                 protected void onPostExecute(WaveformData waveformData) {
                     if (waveformData != null) {
-                        mCache.put(track, waveformData);
+                        mCache.put(track.getId(), waveformData);
                         callback.onWaveformDataLoaded(track, waveformData, false);
                     } else {
                         callback.onWaveformError(track);
