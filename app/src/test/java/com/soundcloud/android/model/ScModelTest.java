@@ -32,6 +32,12 @@ public class ScModelTest {
     }
 
     @Test
+    public void shouldUpdateIdWhenSettingUrn() {
+        model.setUrn("soundcloud:users:2");
+        expect(model.getId()).toBe(2L);
+    }
+
+    @Test
     public void shouldReturnIdNotSetIfNoUrnSet() {
         expect((int) new SuggestedUser().getId()).toEqual(ScModel.NOT_SET);
     }

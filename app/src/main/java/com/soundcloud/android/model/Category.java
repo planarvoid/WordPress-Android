@@ -49,10 +49,6 @@ public class Category extends ScModel {
         mDisplayType = DisplayType.values()[parcel.readInt()];
     }
 
-    public Category(String urn) {
-        super(urn);
-    }
-
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);

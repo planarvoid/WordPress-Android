@@ -200,10 +200,10 @@ public class SearchSuggestionsTest {
         SearchSuggestions suggestions = TestHelper.readJson(SearchSuggestions.class,
                 "/com/soundcloud/android/model/suggest_mixed.json");
 
-        expect(suggestions.suggestions.get(0).getClientUri()).toEqual(new ClientUri("soundcloud:users:2097360"));
-        expect(suggestions.suggestions.get(1).getClientUri()).toEqual(new ClientUri("soundcloud:tracks:196380"));
-        expect(suggestions.suggestions.get(2).getClientUri()).toEqual(new ClientUri("soundcloud:tracks:196381"));
-        expect(suggestions.suggestions.get(3).getClientUri()).toEqual(new ClientUri("soundcloud:playlists:324731"));
+        expect(suggestions.suggestions.get(0).getClientUri()).toEqual(Urn.parse("soundcloud:users:2097360"));
+        expect(suggestions.suggestions.get(1).getClientUri()).toEqual(Urn.parse("soundcloud:tracks:196380"));
+        expect(suggestions.suggestions.get(2).getClientUri()).toEqual(Urn.parse("soundcloud:tracks:196381"));
+        expect(suggestions.suggestions.get(3).getClientUri()).toEqual(Urn.parse("soundcloud:playlists:324731"));
     }
 
     @Test

@@ -23,7 +23,7 @@ public class ScModel implements Parcelable, Identifiable {
     public static final int NOT_SET = -1;
 
     private long mID = NOT_SET;
-    protected ClientUri mURN;
+    protected String mURN;
 
     public ScModel() {
     }
@@ -33,17 +33,15 @@ public class ScModel implements Parcelable, Identifiable {
     }
 
     public ScModel(String urn) {
-        this(ClientUri.fromUri(urn));
-    }
-
-    public ScModel(ClientUri urn) {
-        setUrn(urn);
+        mURN = urn;
+        setId(idFromUrn());
     }
 
     public ScModel(Parcel parcel) {
-        String urn = parcel.readString();
-        if (urn != null) {
-            mURN = ClientUri.fromUri(urn);
+        mID = parcel.readLong();
+        byte hasUrn = parcel.readByte();
+        if (hasUrn == 1) {
+            mURN = parcel.readString();
         }
     }
 
@@ -60,7 +58,11 @@ public class ScModel implements Parcelable, Identifiable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(mURN != null ? mURN.toString() : null);
+        dest.writeLong(mID);
+        dest.writeByte((byte) (mURN == null ? 0 : 1));
+        if (mURN != null) {
+            dest.writeString(mURN);
+        }
     }
 
     @JsonIgnore
@@ -79,26 +81,19 @@ public class ScModel implements Parcelable, Identifiable {
     }
 
     @JsonIgnore
-    public ClientUri getUrn() {
+    public String getUrn() {
         return mURN;
     }
 
     @JsonProperty
     public final void setUrn(String urn) {
-        setUrn(ClientUri.fromUri(urn));
-    }
-
-    @JsonIgnore
-    public final void setUrn(ClientUri urn) {
-        this.mURN = urn;
-        if (mURN != null) {
-            this.setId(mURN.numericId);
-        }
+        mURN = urn;
+        mID = idFromUrn();
     }
 
     private long idFromUrn() {
         if (mURN != null) {
-            return mURN.numericId;
+            return Urn.parse(mURN).numericId;
         }
         return NOT_SET;
     }

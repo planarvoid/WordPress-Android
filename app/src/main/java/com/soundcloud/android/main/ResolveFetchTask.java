@@ -2,7 +2,7 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.ClientUri;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.utils.HttpUtils;
@@ -119,7 +119,7 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
     }
 
     private ScResource resolveLocally(Uri uri) {
-        if (uri != null && ClientUri.SCHEME.equalsIgnoreCase(uri.getScheme())) {
+        if (uri != null && Urn.SCHEME.equalsIgnoreCase(uri.getScheme())) {
             final String specific = uri.getSchemeSpecificPart();
             final String[] components = specific.split(":", 2);
             if (components != null && components.length == 2) {
@@ -129,11 +129,11 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
                 if (type != null && id != null) {
                     try {
                         long _id = Long.parseLong(id);
-                        if (ClientUri.TRACKS_TYPE.equalsIgnoreCase(type) || ClientUri.SOUNDS_TYPE.equalsIgnoreCase(type)) {
+                        if (Urn.TRACKS_TYPE.equalsIgnoreCase(type) || Urn.SOUNDS_TYPE.equalsIgnoreCase(type)) {
                             return SoundCloudApplication.sModelManager.getTrack(_id);
-                        } else if (ClientUri.PLAYLISTS_TYPE.equalsIgnoreCase(type)) {
+                        } else if (Urn.PLAYLISTS_TYPE.equalsIgnoreCase(type)) {
                             return SoundCloudApplication.sModelManager.getPlaylist(_id);
-                        } else if (ClientUri.USERS_TYPE.equalsIgnoreCase(type)) {
+                        } else if (Urn.USERS_TYPE.equalsIgnoreCase(type)) {
                             return SoundCloudApplication.sModelManager.getUser(_id);
                         }
                     } catch (NumberFormatException ignored) {

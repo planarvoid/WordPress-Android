@@ -25,7 +25,7 @@ public class CategoryTest {
 
     @Before
     public void before() {
-        mCategory = new Category("soundcloud:categories:123");
+        mCategory = new Category();
         mAllSuggestedUsers = new SuggestedUser[]{new SuggestedUser("soundcloud:users:1"),
                 new SuggestedUser("soundcloud:users:2"),
                 new SuggestedUser("soundcloud:users:3")};

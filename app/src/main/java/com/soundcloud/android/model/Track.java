@@ -11,7 +11,6 @@ import com.google.common.base.Objects;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.api.http.json.Views;
 import com.soundcloud.android.model.behavior.PlayableHolder;
@@ -23,7 +22,6 @@ import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.tasks.FetchTrackTask;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -135,9 +133,7 @@ public class Track extends Playable implements PlayableHolder {
     @Override
     public void setId(long id) {
         super.setId(id);
-        if (mURN == null){
-            setUrn(ClientUri.fromTrack(id));
-        }
+        mURN = Urn.forTrack(id).toString();
     }
 
     public List<String> humanTags() {

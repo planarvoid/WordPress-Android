@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -13,14 +14,28 @@ import org.junit.runner.RunWith;
 import android.content.ContentValues;
 import android.os.Parcel;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class UserTest {
 
     @Test
-    public void setIdShouldSetURNIfNull() throws Exception {
+    public void shouldConstructUserFromId() {
+        User u = new User(1L);
+        expect(u.getUrn()).toEqual("soundcloud:users:1");
+        expect(u.getId()).toEqual(1L);
+    }
+
+    @Test
+    public void setIdShouldUpdateUrn() throws Exception {
         User u = new User();
         u.setId(1000L);
-        expect(u.getUrn()).toEqual(new ClientUri("soundcloud:users:1000"));
+        expect(u.getUrn()).toEqual("soundcloud:users:1000");
+    }
+
+    @Test
+    public void setUrnShouldUpdateId() throws Exception {
+        User u = new User();
+        u.setUrn("soundcloud:users:1000");
+        expect(u.getId()).toEqual(1000L);
     }
 
     @Test

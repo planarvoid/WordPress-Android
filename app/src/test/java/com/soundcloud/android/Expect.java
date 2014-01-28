@@ -64,7 +64,7 @@ public class Expect {
         return wrapped(ContentMatcher.class, actual);
     }
 
-    public static <T extends Uri, M extends UriMatcher<T, M>> UriMatcher<T, ?> expect(T actual) {
+    public static <T extends Uri, M extends UriMatcher<T, M>> UriMatcher<T, ?> expect(@Nullable T actual) {
         return wrapped(UriMatcher.class, actual);
     }
 

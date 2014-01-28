@@ -85,9 +85,7 @@ public class User extends ScResource implements UserHolder {
     @Override
     public void setId(long id) {
         super.setId(id);
-        if (mURN == null) {
-            setUrn(ClientUri.fromUser(id));
-        }
+        mURN = Urn.forUser(id).toString();
     }
 
     public User(SuggestedUser suggestedUser){
@@ -355,10 +353,10 @@ public class User extends ScResource implements UserHolder {
     }
 
     public void refreshListAvatarUri(Context context) {
-        if (hasAvatarUrl()){
+        if (hasAvatarUrl()) {
             _list_avatar_uri = shouldLoadIcon() ? ImageSize.formatUriForList(context, avatar_url) : null;
-        } else {
-            final ClientUri urn = getUrn();
+        } else if (mURN != null) {
+            final Urn urn = Urn.parse(mURN);
             _list_avatar_uri =  urn == null ? null : urn.imageUri(ImageSize.getListItemImageSize(context)).toString();
         }
     }

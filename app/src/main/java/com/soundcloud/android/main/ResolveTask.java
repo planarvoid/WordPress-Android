@@ -1,7 +1,7 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.model.ClientUri;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.api.AsyncApiTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Env;
@@ -72,14 +72,14 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, Uri> {
         }
     }
 
-    protected void onUrlError() {
+    private void onUrlError() {
         ResolveListener listener = mListener != null ? mListener.get() : null;
         if (listener != null) {
             listener.onUrlError();
         }
     }
 
-    protected void onUrlResolved(Uri url, @Nullable String action) {
+    private void onUrlResolved(Uri url, @Nullable String action) {
         ResolveListener listener = mListener != null ? mListener.get() : null;
         if (listener != null) {
             listener.onUrlResolved(url, action);
@@ -91,28 +91,17 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, Uri> {
         void onUrlError();
     }
 
-    public static Uri resolveSoundCloudURI(Uri uri, Env env, ResolveListener listener) {
-        Uri resolved = resolveSoundCloudURI(uri, env);
-        if (listener != null) {
-            if (resolved != null) {
-                listener.onUrlResolved(resolved, uri.getFragment());
-            } else {
-                listener.onUrlError();
-            }
-        }
-        return resolved;
-    }
-
-    public static Uri resolveSoundCloudURI(Uri uri, Env env) {
-        ClientUri curi = ClientUri.fromUri(uri);
-        if (curi != null) {
+    @Nullable
+    protected static Uri resolveSoundCloudURI(Uri uri, Env env) {
+        try {
+            Urn curi = Urn.parse(uri.toString());
             return new Uri.Builder()
                     .scheme(env.sslResourceHost.getSchemeName())
                     .authority(env.sslResourceHost.getHostName())
                     // handle api vs uri difference in tracks/sounds
-                    .appendPath(curi.type.equalsIgnoreCase(ClientUri.SOUNDS_TYPE) ? ClientUri.TRACKS_TYPE : curi.type)
+                    .appendPath(curi.type.equalsIgnoreCase(Urn.SOUNDS_TYPE) ? Urn.TRACKS_TYPE : curi.type)
                     .appendPath(curi.id).build();
-        } else {
+        } catch (IllegalArgumentException e) {
             return null;
         }
     }

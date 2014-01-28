@@ -20,12 +20,12 @@ public class TrackSummaryTest {
                 getClass().getResourceAsStream("suggested_track.json"), TrackSummary.class);
 
 
-        expect(trackSummary.getUrn()).toEqual(ClientUri.fromUri("soundcloud:sounds:105834033"));
+        expect(trackSummary.getUrn()).toEqual("soundcloud:sounds:105834033");
         expect(trackSummary.getTitle()).toEqual("[Sketch] - Beloved");
         expect(trackSummary.getGenre()).toEqual("Piano");
         expect(trackSummary.getUser().getUsername()).toEqual("georgegao");
         expect(trackSummary.getUser().getAvatarUrl()).toEqual("http://i1.sndcdn.com/avatars-000018614344-2p78eh-large.jpg?f34f187");
-        expect(trackSummary.getUser().getUrn()).toEqual(ClientUri.fromUri("soundcloud:users:106815"));
+        expect(trackSummary.getUser().getUrn()).toEqual("soundcloud:users:106815");
         expect(trackSummary.isCommentable()).toBeTrue();
         expect(trackSummary.getStreamUrl()).toEqual("http://media.soundcloud.com/stream/whVhoRw2gpUh");
         expect(trackSummary.getWaveformUrl()).toEqual("https://wis.sndcdn.com/whVhoRw2gpUh.png");

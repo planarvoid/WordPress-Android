@@ -209,8 +209,8 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
             return getClientUri().contentProviderUri().toString();
         }
 
-        public ClientUri getClientUri() {
-            return new ClientUri("soundcloud:" + kind + "s:" + id);
+        public Urn getClientUri() {
+            return Urn.parse(Urn.SCHEME + ":" + kind + "s:" + id);
         }
 
         @Override

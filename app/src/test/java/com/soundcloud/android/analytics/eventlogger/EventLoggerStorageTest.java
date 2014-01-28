@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.PlaybackEvent;
-import com.soundcloud.android.model.ClientUri;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -67,10 +67,10 @@ public class EventLoggerStorageTest {
 
         ContentValues values = valuesArgumentCaptor.getValue();
         expect(values.get(EventLoggerDbHelper.TrackingEvents.ACTION)).toEqual(EventLoggerParams.Action.PLAY);
-        expect(values.get(EventLoggerDbHelper.TrackingEvents.SOUND_URN)).toEqual(ClientUri.forTrack(track.getId()).toString());
+        expect(values.get(EventLoggerDbHelper.TrackingEvents.SOUND_URN)).toEqual(Urn.forTrack(track.getId()).toString());
         expect(values.get(EventLoggerDbHelper.TrackingEvents.TIMESTAMP)).toEqual(playbackEvent.getTimeStamp());
         expect(values.get(EventLoggerDbHelper.TrackingEvents.SOUND_DURATION)).toEqual(track.duration);
-        expect(values.get(EventLoggerDbHelper.TrackingEvents.USER_URN)).toEqual(ClientUri.forUser(playbackEvent.getUserId()).toString());
+        expect(values.get(EventLoggerDbHelper.TrackingEvents.USER_URN)).toEqual(Urn.forUser(playbackEvent.getUserId()).toString());
         expect(values.get(EventLoggerDbHelper.TrackingEvents.SOURCE_INFO)).toEqual(trackingParams1);
     }
 

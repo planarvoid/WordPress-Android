@@ -2,14 +2,11 @@ package com.soundcloud.android.main;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
-import static org.junit.Assert.fail;
 
-import com.soundcloud.android.main.ResolveTask;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.api.Env;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
-
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.message.BasicHeader;
 import org.junit.Test;
@@ -95,23 +92,5 @@ public class ResolveTaskTest {
 
         expect(ResolveTask.resolveSoundCloudURI(
                 Uri.parse("foobar:blaz"), Env.LIVE)).toBeNull();
-    }
-
-    @Test
-    public void shouldResolveWithAction() throws Exception {
-        final Uri[] uri = {null};
-        final String[] action = {null};
-        ResolveTask.ResolveListener listener = new ResolveTask.ResolveListener() {
-            @Override public void onUrlResolved(Uri _uri, String _action) {
-                uri[0] = _uri;
-                action[0] = _action;
-            }
-            @Override public void onUrlError() {
-                fail("error");
-            }
-        };
-        ResolveTask.resolveSoundCloudURI(Uri.parse("soundcloud:users:1234#show"), Env.LIVE, listener);
-        expect(uri[0]).toEqual(Uri.parse("https://api.soundcloud.com/users/1234"));
-        expect(action[0]).toEqual("show");
     }
 }

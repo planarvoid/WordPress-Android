@@ -2,11 +2,10 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.storage.provider.DBHelper;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.playback.streaming.StreamItem;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.provider.DBHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -18,14 +17,28 @@ import android.text.TextUtils;
 import java.io.IOException;
 import java.util.Date;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class TrackTest {
 
     @Test
-    public void setIdShouldSetURNIfNull() throws Exception {
+    public void shouldConstructTrackFromId() {
+        Track t = new Track(1L);
+        expect(t.getUrn()).toEqual("soundcloud:sounds:1");
+        expect(t.getId()).toEqual(1L);
+    }
+
+    @Test
+    public void setIdShouldUpdateUrn() throws Exception {
         Track t = new Track();
         t.setId(1000L);
-        expect(t.getUrn()).toEqual(new ClientUri("soundcloud:sounds:1000"));
+        expect(t.getUrn()).toEqual("soundcloud:sounds:1000");
+    }
+
+    @Test
+    public void setUrnShouldUpdateId() throws Exception {
+        Track t = new Track();
+        t.setUrn("soundcloud:sounds:1000");
+        expect(t.getId()).toEqual(1000L);
     }
 
     @Test

@@ -42,7 +42,7 @@ public class CategoryGroupTest {
     @Test
     public void shouldImplementEqualsOnKey() {
         CategoryGroup categoryGroup = new CategoryGroup(KEY);
-        categoryGroup.setCategories(Lists.newArrayList(new Category("urn1")));
+        categoryGroup.setCategories(Lists.newArrayList(new Category()));
         expect(mCategoryGroup).toEqual(categoryGroup);
     }
 

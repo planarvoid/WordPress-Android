@@ -5,7 +5,7 @@ import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
-import com.soundcloud.android.model.ClientUri;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.RelatedTracksCollection;
@@ -98,9 +98,9 @@ public class PlayQueueOperations {
     }
 
     public Observable<RelatedTracksCollection> getRelatedTracks(long trackId) {
-        final ClientUri clientUri = ClientUri.fromTrack(trackId);
-        if (clientUri != null){
-            final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), clientUri.toEncodedString());
+        final Urn urn = Urn.forTrack(trackId);
+        if (urn != null){
+            final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), urn.toEncodedString());
             final APIRequest<RelatedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<RelatedTracksCollection>get(endpoint)
                     .forPrivateAPI(1)
                     .forResource(TypeToken.of(RelatedTracksCollection.class)).build();

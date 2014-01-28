@@ -15,7 +15,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.model.ClientUri;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playlist;
@@ -187,7 +187,7 @@ public class PlayQueueOperationsTest {
         verify(rxHttpClient).fetchModels(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getMethod()).toEqual("GET");
         expect(argumentCaptor.getValue().getUriPath()).toEqual(String.format(APIEndpoints.RELATED_TRACKS.path(),
-                ClientUri.fromTrack(123L).toString()));
+                Urn.forTrack(123L).toString()));
     }
 
     @Test

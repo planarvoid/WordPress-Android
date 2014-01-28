@@ -5,19 +5,17 @@ import com.soundcloud.android.api.http.HttpProperties;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.image.ImageSize;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import android.content.Intent;
 import android.net.Uri;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 /**
- * Models a SoundCloud client uri
- * @see <a href="https://soundcloudnet-main.pbworks.com/w/page/53336406/Client%20URL%20Scheme">Client URL Scheme</a>
+ * Models a SoundCloud URN
+ * see http://eng-doc.int.s-cloud.net/guidelines/urns/
  */
-public class ClientUri {
+public class Urn {
 
     public static final String SCHEME = "soundcloud";
     public static final String SOUNDS_TYPE = "sounds";
@@ -31,11 +29,27 @@ public class ClientUri {
     public final long numericId;
     private HttpProperties httpProperties;
 
-    public ClientUri(String uri) {
+    @NotNull
+    public static Urn parse(String uri) {
+        return new Urn(uri);
+    }
+
+    @NotNull
+    public static Urn forTrack(long id) {
+        return new Urn(SCHEME + ":" + SOUNDS_TYPE + ":" + id);
+    }
+
+    @NotNull
+    public static Urn forUser(long id) {
+        final long normalizedId = Math.max(0, id); // to account for anonymous users
+        return new Urn(SCHEME + ":" + USERS_TYPE + ":" + normalizedId);
+    }
+
+    private Urn(@NotNull String uri) {
         this(Uri.parse(uri));
     }
 
-    public ClientUri(@NotNull Uri uri) {
+    private Urn(@NotNull Uri uri) {
         if (!SCHEME.equalsIgnoreCase(uri.getScheme())) {
             throw new IllegalArgumentException("not a soundcloud uri");
         }
@@ -58,11 +72,7 @@ public class ClientUri {
     }
 
     private static String fixType(String type){
-        return type.replace("//","");
-    }
-
-    public Intent getViewIntent() {
-        return new Intent(Intent.ACTION_VIEW).setData(uri);
+        return type.replace("//", "");
     }
 
     public boolean isSound() {
@@ -90,37 +100,6 @@ public class ClientUri {
                 .appendQueryParameter("client_id", httpProperties.getClientId());
     }
 
-    public static @Nullable ClientUri fromUri(@NotNull String uri) {
-        return fromUri(Uri.parse(uri));
-    }
-
-    public static @Nullable ClientUri fromUri(Uri uri) {
-        try {
-            return new ClientUri(uri);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    @Nullable
-    public static ClientUri fromTrack(long id) {
-        return fromUri(forTrack(id));
-    }
-
-    @Nullable
-    public static ClientUri fromUser(long id) {
-        return fromUri(forUser(id));
-    }
-
-    public static Uri forTrack(long id) {
-        return Uri.parse("soundcloud:sounds:"+id);
-    }
-
-    // use 0 for an anonymous or not-set user by default
-    public static Uri forUser(long id) {
-        return Uri.parse("soundcloud:users:" + Math.max(0, id));
-    }
-
     @Override
     public String toString() {
         return uri.toString();
@@ -141,8 +120,8 @@ public class ClientUri {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ClientUri clientUri = (ClientUri) o;
-        return uri.equals(clientUri.uri);
+        Urn urn = (Urn) o;
+        return uri.equals(urn.uri);
     }
 
     @Override
