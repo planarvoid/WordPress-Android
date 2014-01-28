@@ -1,15 +1,12 @@
 package com.soundcloud.android.creators.record;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Environment;
-import android.os.SystemClock;
-import android.preference.PreferenceManager;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
-import android.widget.ToggleButton;
+import static com.soundcloud.android.creators.record.RecordActivity.CreateState.EDIT;
+import static com.soundcloud.android.creators.record.RecordActivity.CreateState.EDIT_PLAYBACK;
+import static com.soundcloud.android.creators.record.RecordActivity.CreateState.IDLE_PLAYBACK;
+import static com.soundcloud.android.creators.record.RecordActivity.CreateState.IDLE_RECORD;
+import static com.soundcloud.android.creators.record.RecordActivity.CreateState.PLAYBACK;
+import static com.soundcloud.android.creators.record.RecordActivity.CreateState.RECORD;
+
 import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.creators.record.reader.VorbisReader;
@@ -27,6 +24,17 @@ import com.soundcloud.api.Env;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Environment;
+import android.os.SystemClock;
+import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+import android.widget.ToggleButton;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -34,13 +42,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static com.soundcloud.android.creators.record.RecordActivity.CreateState.EDIT;
-import static com.soundcloud.android.creators.record.RecordActivity.CreateState.EDIT_PLAYBACK;
-import static com.soundcloud.android.creators.record.RecordActivity.CreateState.IDLE_PLAYBACK;
-import static com.soundcloud.android.creators.record.RecordActivity.CreateState.IDLE_RECORD;
-import static com.soundcloud.android.creators.record.RecordActivity.CreateState.PLAYBACK;
-import static com.soundcloud.android.creators.record.RecordActivity.CreateState.RECORD;
 
 public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordActivity> {
     // longer recordings on emulator

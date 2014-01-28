@@ -1,11 +1,7 @@
 package com.soundcloud.android.screens.explore;
 
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.view.View;
-import android.widget.GridView;
-import android.widget.ListView;
-import android.widget.TextView;
+import static junit.framework.Assert.assertEquals;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -19,9 +15,14 @@ import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.tests.Han;
 import com.viewpagerindicator.FixedWeightTabPageIndicator;
 
-import java.util.List;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.view.View;
+import android.widget.GridView;
+import android.widget.ListView;
+import android.widget.TextView;
 
-import static junit.framework.Assert.assertEquals;
+import java.util.List;
 
 public class ExploreScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;

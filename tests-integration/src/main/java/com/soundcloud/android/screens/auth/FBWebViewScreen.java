@@ -1,13 +1,14 @@
 package com.soundcloud.android.screens.auth;
 
-import android.webkit.WebView;
+import static junit.framework.Assert.assertNotNull;
+
 import com.jayway.android.robotium.solo.By;
 import com.soundcloud.android.onboarding.auth.FacebookWebFlowActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
 
-import static junit.framework.Assert.assertNotNull;
+import android.webkit.WebView;
 
 public class FBWebViewScreen {
     public Han solo;

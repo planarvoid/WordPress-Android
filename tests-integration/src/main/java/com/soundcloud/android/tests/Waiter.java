@@ -1,16 +1,15 @@
 package com.soundcloud.android.tests;
 
-import android.view.View;
-import android.webkit.WebView;
-import android.widget.ListAdapter;
 import com.jayway.android.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.R.id;
 import com.soundcloud.android.main.NavigationDrawerFragment;
-import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.service.PlaybackState;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.Log;
+
+import android.view.View;
+import android.webkit.WebView;
+import android.widget.ListAdapter;
 
 import java.sql.Timestamp;
 
