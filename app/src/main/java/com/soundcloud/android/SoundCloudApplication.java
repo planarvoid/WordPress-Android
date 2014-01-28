@@ -172,9 +172,10 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
             @Override
             public void uncaughtException(Thread thread, Throwable e) {
                 if (e instanceof OutOfMemoryError) {
-                    e = new OutOfMemoryError("OOM Trend");
+                    crashlyticsHandler.uncaughtException(thread, new OutOfMemoryError("OOM Trend"));
+                } else {
+                    crashlyticsHandler.uncaughtException(thread, e);
                 }
-                crashlyticsHandler.uncaughtException(thread, e);
             }
         });
     }
