@@ -1,6 +1,7 @@
 package com.soundcloud.android.associations;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.model.Playable;
@@ -70,7 +71,17 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
 
     @Override
     protected Playable getPlayableFromIntent(Intent intent) {
-        return Track.fromIntent(intent);
+        // I inlined this lookup from a method I removed from the Track class, since I wanted to get rid of
+        // the dependency to ScModelManager in Track.java
+        if (intent == null) throw new IllegalArgumentException("intent is null");
+        Track track = intent.getParcelableExtra(Track.EXTRA);
+        if (track == null) {
+            track = SoundCloudApplication.sModelManager.getTrack(intent.getLongExtra(Track.EXTRA_ID, 0));
+        }
+        if (track == null) {
+            throw new IllegalArgumentException("Could not obtain track from intent " + intent);
+        }
+        return track;
     }
 
     @Override

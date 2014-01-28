@@ -162,37 +162,6 @@ public class TrackTest {
     }
 
     @Test
-    public void shouldGetTrackFromIntentParcelable() throws Exception {
-        Track t  = new Track();
-        t.setId(0);
-        t.permalink = "permalink";
-        Intent i = new Intent();
-        i.putExtra("track", t);
-        expect(Track.fromIntent(i)).toEqual(t);
-    }
-
-    @Test
-    public void shouldGetTrackFromIntentTrackCache() throws Exception {
-        Track t  = new Track();
-        t.setId(0);
-        t.permalink = "permalink";
-        Intent i = new Intent();
-        i.putExtra("track_id", t.getId());
-        SoundCloudApplication.sModelManager.cache(t);
-        expect(Track.fromIntent(i)).toEqual(t);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionIfNoIntentPassed() throws Exception {
-        Track.fromIntent(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionIfEmptyIntentPassed() throws Exception {
-        Track.fromIntent(new Intent());
-    }
-
-    @Test
     public void shouldGetArtworkUrl() throws Exception {
         expect(new Track().getArtwork()).toBeNull();
 

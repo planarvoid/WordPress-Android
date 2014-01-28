@@ -37,7 +37,6 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.FloatMath;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -566,27 +565,6 @@ public class Track extends Playable implements PlayableHolder {
     public String userTrackPermalink() {
         if (permalink == null) return null;
         return (user != null ? TextUtils.isEmpty(user.permalink) ? "" : user.permalink+"/" : "") + permalink;
-    }
-
-    public static Track fromIntent(Intent intent) {
-        Track t = nullableTrackfromIntent(intent);
-        if (t == null) {
-            throw new IllegalArgumentException("Could not obtain track from intent " + intent);
-        }
-        return t;
-    }
-
-    @Deprecated
-    public static Track nullableTrackfromIntent(Intent intent) {
-        if (intent == null) throw new IllegalArgumentException("intent is null");
-        Track t = intent.getParcelableExtra(EXTRA);
-        if (t == null) {
-            t = SoundCloudApplication.sModelManager.getTrack(intent.getLongExtra(EXTRA_ID, 0));
-            if (t == null) {
-                Log.e(TAG, "Could not obtain track from intent " + intent);
-            }
-        }
-        return t;
     }
 
     public static enum State {
