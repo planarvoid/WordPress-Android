@@ -105,6 +105,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
         if (ApplicationProperties.shouldReportCrashes()) {
             Crashlytics.start(this);
+            setupOOMInterception();
         }
 
         IOUtils.checkState(this);
@@ -160,6 +161,22 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
         PlayerWidgetController.getInstance(this).subscribe();
+    }
+
+    /*
+     * This must be called AFTER Crashlytics has been initialised
+     */
+    private void setupOOMInterception() {
+        final Thread.UncaughtExceptionHandler crashlyticsHandler = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable e) {
+                if (e instanceof OutOfMemoryError) {
+                    e = new OutOfMemoryError("OOM Trend");
+                }
+                crashlyticsHandler.uncaughtException(thread, e);
+            }
+        });
     }
 
     private void setupAnalytics(SharedPreferences sharedPreferences, ApplicationProperties appProperties) {
