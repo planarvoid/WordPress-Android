@@ -2,7 +2,7 @@ package com.soundcloud.android.creators.record;
 
 import static com.soundcloud.android.creators.record.RecordActivity.CreateState.IDLE_PLAYBACK;
 
-import com.jayway.android.robotium.solo.Solo;
+import com.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.tests.SlowTest;

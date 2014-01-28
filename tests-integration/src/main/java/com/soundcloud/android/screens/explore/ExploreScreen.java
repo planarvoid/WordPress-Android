@@ -5,7 +5,7 @@ import static junit.framework.Assert.assertEquals;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.jayway.android.robotium.solo.Condition;
+import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.TrackSummary;

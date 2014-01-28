@@ -5,9 +5,9 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
-import com.jayway.android.robotium.solo.By;
-import com.jayway.android.robotium.solo.Condition;
-import com.jayway.android.robotium.solo.Solo;
+import com.robotium.solo.By;
+import com.robotium.solo.Condition;
+import com.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.R.id;
 import com.soundcloud.android.main.NavigationDrawerFragment;

@@ -7,7 +7,7 @@ import static com.soundcloud.android.creators.record.RecordActivity.CreateState.
 import static com.soundcloud.android.creators.record.RecordActivity.CreateState.PLAYBACK;
 import static com.soundcloud.android.creators.record.RecordActivity.CreateState.RECORD;
 
-import com.jayway.android.robotium.solo.Solo;
+import com.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.creators.record.reader.VorbisReader;
 import com.soundcloud.android.creators.upload.LocationPickerActivity;

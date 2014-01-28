@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests;
 
-import com.jayway.android.robotium.solo.Condition;
+import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.R.id;
 import com.soundcloud.android.main.NavigationDrawerFragment;
