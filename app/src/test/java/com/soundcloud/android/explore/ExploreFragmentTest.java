@@ -59,13 +59,6 @@ public class ExploreFragmentTest {
     }
 
     @Test
-    public void shouldNullOutPagerAdapterWhenDestroyingViewsToPreventContextLeaks() {
-        mExploreFragment.onViewCreated(mockLayout, null);
-        mExploreFragment.onDestroyView();
-        verify(mockViewPager).setAdapter(null);
-    }
-
-    @Test
     public void shouldAddListenerToViewPagerForTrackingScreenEvents(){
         when(mockLayout.findViewById(R.id.indicator)).thenReturn(mockIndicator);
         mExploreFragment.onViewCreated(mockLayout, null);
