@@ -69,7 +69,7 @@ public class ExploreFragment extends Fragment {
     public void onDestroyView() {
         // it's important to reset the adapter here. since otherwise this will leak a Context reference through
         // the dataset observer Android registers internally (and we're retaining the adapter instance)
-        mPager.setAdapter(null);
+        mPager = null;
         super.onDestroyView();
     }
 
