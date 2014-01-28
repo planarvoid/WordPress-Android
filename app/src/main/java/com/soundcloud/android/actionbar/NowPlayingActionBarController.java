@@ -1,11 +1,11 @@
 package com.soundcloud.android.actionbar;
 
 import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
-import static com.soundcloud.android.playback.service.PlaybackService.getCurrentTrackId;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.BroadcastReceiver;
@@ -20,6 +20,7 @@ public class NowPlayingActionBarController extends ActionBarController {
 
     private NowPlayingProgressBar mNowPlaying;
     private View mNowPlayingHolder;
+    private PlaybackStateProvider mPlaybackStateProvider = new PlaybackStateProvider();
 
     private boolean mListening;
 
@@ -53,11 +54,17 @@ public class NowPlayingActionBarController extends ActionBarController {
         mNowPlaying.resume();
         startListening();
 
-        if (getCurrentTrackId() < 0) {
+        if (mPlaybackStateProvider.getCurrentTrackId() < 0) {
             mNowPlayingHolder.setVisibility(View.GONE);
         } else {
             mNowPlayingHolder.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        mNowPlaying.destroy();
+        super.onDestroy();
     }
 
     @Override

@@ -4,16 +4,19 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.associations.SoundAssociationOperations;
+import com.soundcloud.android.collections.views.PlayableBar;
+import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.playback.views.PlayableInfoAndEngagementsController;
-import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.collections.views.PlayableBar;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.image.ImageSize;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
+import com.soundcloud.android.playback.views.PlayableInfoAndEngagementsController;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.FullImageDialog;
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +30,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import javax.inject.Inject;
+
 public class PlaylistDetailActivity extends ScActivity implements Playlist.OnChangeListener {
 
     public static final String EXTRA_SCROLL_TO_PLAYING_TRACK = "scroll_to_playing_track";
@@ -35,7 +40,14 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     private PlayableBar mPlaylistBar;
     private PlayableInfoAndEngagementsController mActionButtons;
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
+    @Inject
+    ScModelManager mModelManager;
+    @Inject
+    ImageOperations mImageOperations;
+    @Inject
+    SoundAssociationOperations mSoundAssocOps;
+    @Inject
+    PlaybackStateProvider mPlaybackStateProvider;
 
     private PlaylistTracksFragment mFragment;
 
@@ -68,6 +80,8 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        new DaggerDependencyInjector().fromAppGraphWithModules(new PlaylistsModule()).inject(this);
+
         setTitle(R.string.activity_title_playlist);
         setContentView(R.layout.playlist_activity);
 
@@ -91,10 +105,11 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mPlaybackStatusListener);
+        mActionButtons.onDestroy();
     }
 
     private void handleIntent(@Nullable Bundle savedInstanceState, boolean setupViews) {
-        final Playlist playlist = SoundCloudApplication.sModelManager.getPlaylist(getIntent().getData());
+        final Playlist playlist = mModelManager.getPlaylist(getIntent().getData());
         if (playlist != null) {
             boolean playlistChanged = setPlaylist(playlist);
 
@@ -105,7 +120,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
             if (playlistChanged) refresh();
 
             if (getIntent().getBooleanExtra(EXTRA_SCROLL_TO_PLAYING_TRACK, false)) {
-                mFragment.scrollToPosition(PlaybackService.getPlayPosition());
+                mFragment.scrollToPosition(mPlaybackStateProvider.getPlayPosition());
             }
         } else {
             Toast.makeText(this, R.string.playlist_removed, Toast.LENGTH_SHORT).show();
@@ -134,7 +149,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
             }
         });
 
-        mActionButtons = new PlayableInfoAndEngagementsController(mPlaylistBar, null, Screen.fromIntent(getIntent()).get());
+        mActionButtons = new PlayableInfoAndEngagementsController(mPlaylistBar, null, mSoundAssocOps, Screen.fromIntent(getIntent()).get());
 
         if (savedInstanceState == null) {
             mFragment = PlaylistTracksFragment.create(getIntent().getData(), Screen.fromIntent(getIntent()));
@@ -164,7 +179,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     @Override
     protected void onStart() {
         super.onStart();
-        if (mPlaylist != null){
+        if (mPlaylist != null) {
             mPlaylist.startObservingChanges(getContentResolver(), this);
         }
     }
@@ -179,7 +194,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
 
     @Override
     public void onPlaylistChanged() {
-        if (mPlaylist.removed){
+        if (mPlaylist.removed) {
             showToast(R.string.playlist_removed);
             finish();
         } else {

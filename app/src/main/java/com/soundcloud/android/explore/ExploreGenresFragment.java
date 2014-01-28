@@ -66,7 +66,7 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDependencyInjector.inject(this);
+        mDependencyInjector.fromAppGraphWithModules(new ExploreModule()).inject(this);
         mGenresObservable = buildObservable(mObservableFactory.create(this));
         mSubscription = loadCategories();
     }

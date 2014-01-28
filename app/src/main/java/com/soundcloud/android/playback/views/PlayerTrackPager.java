@@ -1,13 +1,13 @@
 package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.playback.PlayerTrackPagerAdapter;
+import com.soundcloud.android.view.SafeViewPager;
 
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 
-public class PlayerTrackPager extends ViewPager {
+public class PlayerTrackPager extends SafeViewPager {
 
     private PageChangeListener mPageChangeListener;
 

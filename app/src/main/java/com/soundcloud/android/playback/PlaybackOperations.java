@@ -18,6 +18,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.TrackStorage;
@@ -50,17 +51,19 @@ public class PlaybackOperations {
 
     private ScModelManager mModelManager;
     private TrackStorage mTrackStorage;
+    private PlaybackStateProvider mPlaybackStateProvider;
 
     // Use @Inject instead
     @Deprecated
     public PlaybackOperations() {
-        this(SoundCloudApplication.sModelManager, new TrackStorage());
+        this(SoundCloudApplication.sModelManager, new TrackStorage(), new PlaybackStateProvider());
     }
 
     @Inject
-    public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage) {
+    public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage, PlaybackStateProvider playbackStateProvider) {
         mModelManager = modelManager;
         mTrackStorage = trackStorage;
+        mPlaybackStateProvider = playbackStateProvider;
     }
 
     /**
@@ -186,7 +189,7 @@ public class PlaybackOperations {
     }
 
     private boolean isNotCurrentlyPlaying(Track track){
-        return (PlaybackService.getCurrentTrackId() != track.getId());
+        return mPlaybackStateProvider.getCurrentTrackId() != track.getId();
     }
 
     public Intent getPlayIntent(final List<Long> trackList, int startPosition,

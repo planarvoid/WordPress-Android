@@ -2,9 +2,12 @@ package com.soundcloud.android.explore;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.dagger.DaggerDependencyInjector;
+import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.events.EventBus;
 import com.viewpagerindicator.TabPageIndicator;
 
+import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,9 +18,8 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
+@SuppressLint("ValidFragment")
 public class ExploreFragment extends Fragment {
-
-    private ViewPager mPager;
 
     @Inject
     Resources mResources;
@@ -26,14 +28,22 @@ public class ExploreFragment extends Fragment {
     ExplorePagerAdapterFactory mExplorePagerAdapterFactory;
 
     private ExplorePagerAdapter mExplorePagerAdapter;
+    private ViewPager mPager;
+    private DependencyInjector mInjector;
 
     public ExploreFragment() {
+        this(new DaggerDependencyInjector());
+    }
+
+    public ExploreFragment(DependencyInjector injector){
+        mInjector = injector;
         setRetainInstance(true);
     }
 
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
+        mInjector.fromAppGraphWithModules(new ExploreModule()).inject(this);
         mExplorePagerAdapter = mExplorePagerAdapterFactory.create(this.getChildFragmentManager());
     }
 

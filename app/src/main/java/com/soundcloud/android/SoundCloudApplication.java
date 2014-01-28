@@ -26,6 +26,7 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.playback.service.PlayerWidgetController;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -104,6 +105,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
         if (ApplicationProperties.shouldReportCrashes()) {
             Crashlytics.start(this);
+            setupOOMInterception();
         }
 
         IOUtils.checkState(this);
@@ -158,6 +160,24 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         setupAnalytics(sharedPreferences, appProperties);
 
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
+        PlayerWidgetController.getInstance(this).subscribe();
+    }
+
+    /*
+     * This must be called AFTER Crashlytics has been initialised
+     */
+    private void setupOOMInterception() {
+        final Thread.UncaughtExceptionHandler crashlyticsHandler = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable e) {
+                if (e instanceof OutOfMemoryError) {
+                    crashlyticsHandler.uncaughtException(thread, new OutOfMemoryError("OOM Trend"));
+                } else {
+                    crashlyticsHandler.uncaughtException(thread, e);
+                }
+            }
+        });
     }
 
     private void setupAnalytics(SharedPreferences sharedPreferences, ApplicationProperties appProperties) {
@@ -276,6 +296,12 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     public static long getUserIdFromContext(Context c){
         SoundCloudApplication app = fromContext(c);
         return app == null ? -1 : app.getCurrentUserId();
+    }
+
+    // keep this until we've sorted out RL2, since some tests rely on the getUserId stuff which in turn requires
+    // a valid AccountOps instance
+    public void setAccountOperations(AccountOperations operations) {
+        mAccountOperations = operations;
     }
 
     @TargetApi(9)

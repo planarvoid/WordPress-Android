@@ -17,7 +17,6 @@ import com.soundcloud.android.blueprints.TrackStatsBlueprint;
 import com.soundcloud.android.blueprints.TrackSummaryBlueprint;
 import com.soundcloud.android.blueprints.UserBlueprint;
 import com.soundcloud.android.blueprints.UserSummaryBlueprint;
-import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
@@ -59,7 +58,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.provider.Settings;
 
 import java.io.File;
 import java.io.IOException;
@@ -145,10 +143,6 @@ public class TestHelper {
                 new TestHttpResponse(200, resourceAsBytes(klazz, resource)));
     }
 
-    public static void addResponseRule(String uri, int status) {
-        Robolectric.addHttpResponseRule(uri, new TestHttpResponse(status, ""));
-    }
-
     public static void addPendingIOException(String path) {
         if (path != null && path.startsWith("/")) {
             path = path.substring(1, path.length());
@@ -230,11 +224,6 @@ public class TestHelper {
         Robolectric.shadowOf(cm).setBackgroundDataSetting(enabled);
     }
 
-    public static void enableFlightmode(boolean enabled) {
-        Settings.System.putInt(Robolectric.application.getContentResolver(),
-                Settings.System.AIRPLANE_MODE_ON, enabled ? 1 : 0);
-    }
-
     public static void addIdResponse(String url, int... ids) {
         StringBuilder sb = new StringBuilder();
         sb.append("{ \"collection\": [");
@@ -273,7 +262,7 @@ public class TestHelper {
     }
 
     public static <T extends Persisted & Identifiable> Uri insertWithDependencies(Uri contentUri, T resource) {
-        ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
+        ContentResolver resolver = Robolectric.application.getContentResolver();
         final BulkInsertMap dependencies = new BulkInsertMap();
         resource.putDependencyValues(dependencies);
         dependencies.insert(resolver);
@@ -301,7 +290,7 @@ public class TestHelper {
         String where = DBHelper.UserAssociationView._ID + " = ? AND " +
                 DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = ?";
 
-        ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
+        ContentResolver resolver = Robolectric.application.getContentResolver();
         Cursor cursor = resolver.query(contentUri, null, where,
                 new String[]{String.valueOf(targetUserId), String.valueOf(Content.match(contentUri).collectionType)},
                 null);
@@ -314,7 +303,7 @@ public class TestHelper {
         for (T m : items) {
             m.putFullContentValues(map);
         }
-        return map.insert(DefaultTestRunner.application.getContentResolver());
+        return map.insert(Robolectric.application.getContentResolver());
     }
 
     public static int bulkInsert(ScResource... items) {
@@ -329,7 +318,7 @@ public class TestHelper {
             resource.putDependencyValues(map);
             items.add(resource.buildContentValues());
         }
-        ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
+        ContentResolver resolver = Robolectric.application.getContentResolver();
         map.insert(resolver); // dependencies
         return resolver.bulkInsert(uri, items.toArray(new ContentValues[items.size()]));
     }
@@ -359,7 +348,7 @@ public class TestHelper {
 
     private static int bulkInsertToUserAssociations(List<? extends ScResource> resources, Uri collectionUri,
                                                     Date addedAt, Date removedAt, String token) {
-        SoundCloudApplication application = DefaultTestRunner.application;
+        SoundCloudApplication application = (SoundCloudApplication) Robolectric.application;
         final long userId = SoundCloudApplication.getUserId();
 
         BulkInsertMap map = new BulkInsertMap();
@@ -390,7 +379,7 @@ public class TestHelper {
             cv[i].put(DBHelper.UserAssociations.TARGET_ID, i);
             cv[i].put(DBHelper.UserAssociations.OWNER_ID, userId);
         }
-        ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
+        ContentResolver resolver = Robolectric.application.getContentResolver();
         return resolver.bulkInsert(collectionUri, cv);
     }
 

@@ -14,6 +14,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -22,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+@SuppressLint("ValidFragment")
 public class OnboardSuggestedUsersSyncFragment extends Fragment {
 
     private FollowingOperations mFollowingOperations;

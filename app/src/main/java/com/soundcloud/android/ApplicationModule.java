@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import dagger.Module;
 import dagger.Provides;
 
@@ -65,5 +66,10 @@ public class ApplicationModule {
     @Provides
     public ImageOperations provideImageOperations() {
         return ImageOperations.newInstance();
+    }
+
+    @Provides
+    public PlayerAppWidgetProvider provideAppWidgetProvider() {
+        return PlayerAppWidgetProvider.getInstance();
     }
 }

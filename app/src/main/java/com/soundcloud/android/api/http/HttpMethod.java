@@ -12,9 +12,21 @@ enum HttpMethod {
             return wrapper.get(request);
         }
     },
-    POST(){
+    POST() {
         public HttpResponse execute(ApiWrapper wrapper, Request request) throws IOException {
             return wrapper.post(request);
+        }
+    },
+
+    PUT() {
+        public HttpResponse execute(ApiWrapper wrapper, Request request) throws IOException {
+            return wrapper.put(request);
+        }
+    },
+
+    DELETE() {
+        public HttpResponse execute(ApiWrapper wrapper, Request request) throws IOException {
+            return wrapper.delete(request);
         }
     };
 

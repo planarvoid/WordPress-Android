@@ -4,7 +4,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-    <com.soundcloud.android.explore.SuggestedTrackImageView android:id="@+id/suggested_track_image"
+    <com.soundcloud.android.view.ParallaxImageView android:id="@+id/suggested_track_image"
                                                                  android:src="@drawable/placeholder_cells"
                                                                  sc:focalPoint=".45"
                                                                  style="@style/ExploreGridItemImageView"/>

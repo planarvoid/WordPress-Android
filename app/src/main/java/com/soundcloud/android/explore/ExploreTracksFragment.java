@@ -23,6 +23,7 @@ import rx.android.observables.AndroidObservable;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -33,6 +34,7 @@ import android.widget.GridView;
 
 import javax.inject.Inject;
 
+@SuppressLint("ValidFragment")
 public class ExploreTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
         EmptyViewAware, PullToRefreshBase.OnRefreshListener<GridView> {
 
@@ -79,7 +81,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDependencyInjector.inject(this);
+        mDependencyInjector.fromAppGraphWithModules(new ExploreModule()).inject(this);
         mObserver = new ExploreTracksObserver();
 
         mSuggestedTracksObservable = buildSuggestedTracksObservable();

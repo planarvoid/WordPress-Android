@@ -9,11 +9,10 @@
     <RelativeLayout android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
-        <com.soundcloud.android.explore.UserBrowserImageView android:id="@+id/user_image"
+        <com.soundcloud.android.view.OptimisedImageView android:id="@+id/user_image"
                                                              android:layout_width="match_parent"
                                                              android:layout_height="match_parent"
-                                                             android:background="@drawable/placeholder_cells"
-                                                             android:scaleType="centerCrop" />
+                                                             style="@style/BigProfileImage" />
 
         <View android:id="@+id/suggested_user_selector"
               android:layout_width="match_parent"
@@ -71,7 +70,7 @@
             <com.viewpagerindicator.TitlePageIndicator
                     android:id="@+id/indicator"
                     style="@style/Widget.ScTitlePageIndicator.Large" />
-            <android.support.v4.view.ViewPager
+            <com.soundcloud.android.view.SafeViewPager
                     android:id="@+id/pager"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"

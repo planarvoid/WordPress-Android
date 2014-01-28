@@ -5,45 +5,27 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 import static com.soundcloud.android.playback.service.PlaybackService.PlayExtras;
 
 import com.google.common.primitives.Longs;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.associations.AssociationManager;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.Log;
-import org.jetbrains.annotations.NotNull;
 
-import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.net.Uri;
 
 import java.util.List;
 
 class PlaybackReceiver extends BroadcastReceiver {
 
     private PlaybackService mPlaybackService;
-    private AssociationManager mAssociationManager;
-    private AudioManager mAudioManager;
     private final AccountOperations mAccountOperations;
     private final PlayQueueManager mPlayQueueManager;
 
-    public PlaybackReceiver(PlaybackService playbackService, AssociationManager associationManager,
-                            AudioManager audioManager, PlayQueueManager playQueueManager) {
-        this(playbackService, associationManager, audioManager, new AccountOperations(playbackService), playQueueManager);
-    }
-
-    public PlaybackReceiver(PlaybackService playbackService, AssociationManager associationManager,
-                            AudioManager audioManager, AccountOperations accountOperations, PlayQueueManager playQueueManager) {
+    public PlaybackReceiver(PlaybackService playbackService, AccountOperations accountOperations, PlayQueueManager playQueueManager) {
         this.mPlaybackService = playbackService;
-        this.mAssociationManager = associationManager;
-        this.mAudioManager = audioManager;
         this.mAccountOperations = accountOperations;
         mPlayQueueManager = playQueueManager;
     }
-
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -69,20 +51,8 @@ class PlaybackReceiver extends BroadcastReceiver {
             } else if (Actions.PAUSE_ACTION.equals(action)) {
                 mPlaybackService.pause();
             } else if (Broadcasts.UPDATE_WIDGET_ACTION.equals(action)) {
-                // Someone asked us to executeRefreshTask a set of specific widgets,
-                // probably because they were just added.
-                final int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-                final PlayerAppWidgetProvider appWidgetProvider = mPlaybackService.getAppWidgetProvider();
-                appWidgetProvider.performUpdate(context, appWidgetIds, new Intent(Broadcasts.PLAYSTATE_CHANGED));
-
-            } else if (Actions.ADD_LIKE_ACTION.equals(action)) {
-                setLikeStatus(intent.getData(), true);
-            } else if (Actions.REMOVE_LIKE_ACTION.equals(action)) {
-                setLikeStatus(intent.getData(), false);
-            } else if (Actions.ADD_REPOST_ACTION.equals(action)) {
-                setRepostStatus(intent.getData(), true);
-            } else if (Actions.REMOVE_REPOST_ACTION.equals(action)) {
-                setRepostStatus(intent.getData(), false);
+                // a widget was just added. Fake a playstate changed so it gets updated
+                mPlaybackService.notifyChange(Broadcasts.PLAYSTATE_CHANGED);
             } else if (Actions.PLAY_ACTION.equals(action)) {
                 handlePlayAction(intent);
 
@@ -110,16 +80,6 @@ class PlaybackReceiver extends BroadcastReceiver {
         } else {
             Log.e(PlaybackService.TAG, "Aborting playback service action, no soundcloud account(" + intent + ")");
         }
-    }
-
-    public void setLikeStatus(@NotNull Uri playableUri, boolean like) {
-        Playable playable = (Playable) SoundCloudApplication.sModelManager.getModel(playableUri);
-        mAssociationManager.setLike(playable, like);
-    }
-
-    public void setRepostStatus(@NotNull Uri playableUri, boolean repost) {
-        Playable playable = (Playable) SoundCloudApplication.sModelManager.getModel(playableUri);
-        mAssociationManager.setRepost(playable, repost);
     }
 
     private void handlePlayAction(Intent intent) {

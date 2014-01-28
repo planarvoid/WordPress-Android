@@ -6,6 +6,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.collections.ScListView;
+import com.soundcloud.android.dagger.DaggerDependencyInjector;
+import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -33,11 +35,22 @@ public class LikesListFragment extends ScListFragment {
     SoundAssociationOperations mSoundAssociationOperations;
 
     private ViewGroup mHeaderView;
-
+    private final DependencyInjector mInjector;
     private Subscription mFetchIdsSubscription = Subscriptions.empty();
 
     public LikesListFragment() {
+        this(new DaggerDependencyInjector());
+    }
+
+    public LikesListFragment(DependencyInjector injector) {
+        mInjector = injector;
         setArguments(createArguments(Content.ME_LIKES.uri, R.string.side_menu_likes, Screen.SIDE_MENU_LIKES));
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mInjector.fromAppGraphWithModules(new LikesModule()).inject(this);
     }
 
     @Override

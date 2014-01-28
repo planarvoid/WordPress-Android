@@ -8,6 +8,7 @@ import com.soundcloud.android.cache.WaveformCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.WaveformControllerLayout;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,28 +63,31 @@ public class NowPlayingProgressBar extends ProgressBar {
     private WaveformControllerLayout.WaveformState mWaveformState;
     private int mWaveformErrorCount;
     private WaveformData mWaveformData;
+    private PlaybackStateProvider mPlaybackStateProvider;
 
     private final Handler mHandler = new RefreshHandler(this);
 
     @SuppressWarnings("UnusedDeclaration")
     public NowPlayingProgressBar(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public NowPlayingProgressBar(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public NowPlayingProgressBar(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init(context);
+        init();
     }
 
-    private void init(final Context context) {
+    private void init() {
+        mPlaybackStateProvider = new PlaybackStateProvider();
+
         PorterDuffXfermode sourceIn = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
 
         mTopOrange = new Paint();
@@ -122,20 +126,20 @@ public class NowPlayingProgressBar extends ProgressBar {
     private void startRefreshing() {
         if (mTrack != null && mTrack.duration > 0 && getWidth() > 0){
             mRefreshDelay = mTrack.duration / getWidth();
-            setProgress((int) PlaybackService.getCurrentProgress());
-            if (PlaybackService.getPlaybackState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
+            setProgress((int) mPlaybackStateProvider.getPlayProgress());
+            if (mPlaybackStateProvider.isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
         }
     }
 
     private void setCurrentTrack() {
-        final Track currentTrack = PlaybackService.getCurrentTrack();
+        final Track currentTrack = mPlaybackStateProvider.getCurrentTrack();
         if (mTrack != currentTrack || mWaveformState == WaveformControllerLayout.WaveformState.ERROR) {
 
             if (mTrack != currentTrack) mWaveformErrorCount = 0;
 
             mTrack = currentTrack;
             setMax(mTrack == null ? 0 : mTrack.duration);
-            setProgress((int) PlaybackService.getCurrentProgress());
+            setProgress((int) mPlaybackStateProvider.getPlayProgress());
 
             if (mTrack == null || !mTrack.hasWaveform() || mWaveformErrorCount > 3) {
                 setDefaultWaveform();
@@ -182,12 +186,8 @@ public class NowPlayingProgressBar extends ProgressBar {
         startRefreshing();
     }
 
-    public void pause(){
-        stopRefreshing();
-    }
-
     public void destroy(){
-        pause();
+        stopRefreshing();
         mWaveformMask = null;
     }
 
@@ -262,7 +262,7 @@ public class NowPlayingProgressBar extends ProgressBar {
               }
 
             } else if (action.equals(Broadcasts.SEEK_COMPLETE) || action.equals(Broadcasts.SEEKING)) {
-                if (PlaybackService.getPlaybackState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
+                if (mPlaybackStateProvider.isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
             }
         }
     };
@@ -323,7 +323,7 @@ public class NowPlayingProgressBar extends ProgressBar {
             if (nowPlaying != null && nowPlaying.mTrack != null) {
                 switch (msg.what) {
                     case REFRESH:
-                        nowPlaying.setProgress((int) PlaybackService.getCurrentProgress());
+                        nowPlaying.setProgress((int) nowPlaying.mPlaybackStateProvider.getPlayProgress());
                         nowPlaying.queueNextRefresh(nowPlaying.mRefreshDelay);
                 }
             }

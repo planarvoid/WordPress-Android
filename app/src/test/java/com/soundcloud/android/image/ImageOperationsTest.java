@@ -82,6 +82,20 @@ public class ImageOperationsTest {
     }
 
     @Test
+    public void shouldAcceptNullImageUrl() throws Exception {
+        imageOperations.load(null, imageListener);
+        verify(imageLoader).loadImage(isNull(String.class), imageListenerUILAdapterCaptor.capture());
+        verifyCapturedListener();
+    }
+
+    @Test
+    public void shouldNotAdjustUrlIfDoesNotMatch() throws Exception {
+        imageOperations.load("does_not_match_url", imageListener);
+        verify(imageLoader).loadImage(eq("does_not_match_url"), imageListenerUILAdapterCaptor.capture());
+        verifyCapturedListener();
+    }
+
+    @Test
     public void displayShouldCallDisplayWithAdjustedUrlAndImageViewAware() throws Exception {
         imageOperations.display(URL, imageView);
         verify(imageLoader).displayImage(eq(ADJUSTED_URL), imageViewAwareArgumentCaptor.capture());

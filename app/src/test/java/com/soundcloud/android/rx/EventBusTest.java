@@ -4,6 +4,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,9 +44,16 @@ public class EventBusTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldRaiseExceptionWhenTryingToPublishUnsupportedEventData() {
+    public void shouldRaiseExceptionWhenTryingToPublishEventDataOfIncompatibleType() {
         EventBus.SCREEN_ENTERED.subscribe(observer);
         EventBus.SCREEN_ENTERED.publish(1);
+    }
+
+    @Test
+    public void shouldNotRaiseExceptionWhenTryingToPublishSubtypesOfDeclaredEventType() {
+        EventBus.UI.subscribe(observer);
+        UIEvent event = UIEvent.fromToggleLike(true, "screen", new Track());
+        EventBus.UI.publish(event);
     }
 
     @Test(expected = IllegalArgumentException.class)
