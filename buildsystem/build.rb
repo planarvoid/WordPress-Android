@@ -15,6 +15,10 @@ module Build
     @version ||= pom_version.to_version
   end
 
+  def version_code=(code)
+    @version_code = code
+  end
+
   def version_code
     @version_code = manifest.root.attribute('versionCode').to_s
   end
