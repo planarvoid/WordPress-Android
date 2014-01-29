@@ -28,7 +28,7 @@ import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
-import rx.android.concurrency.AndroidSchedulers;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.util.functions.Func1;
 
 import android.app.Activity;

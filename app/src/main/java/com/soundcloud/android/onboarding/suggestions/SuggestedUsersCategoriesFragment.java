@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
-import rx.android.concurrency.AndroidSchedulers;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;

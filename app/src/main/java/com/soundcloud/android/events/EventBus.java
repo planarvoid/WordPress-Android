@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import com.soundcloud.android.utils.Log;
 import rx.Observer;
 import rx.Subscription;
-import rx.android.concurrency.AndroidSchedulers;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.PublishSubject;
 import rx.util.functions.Action1;
 

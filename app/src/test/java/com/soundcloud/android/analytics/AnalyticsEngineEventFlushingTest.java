@@ -112,6 +112,7 @@ public class AnalyticsEngineEventFlushingTest {
         flushAction.getValue().call(); // finishes the first flush
 
         EventBus.SCREEN_ENTERED.publish("screen2");
+        EventBus.SCREEN_ENTERED.publish("screen3");
         inOrder.verify(scheduler).schedule(any(Action0.class), anyLong(), any(TimeUnit.class));
     }
 

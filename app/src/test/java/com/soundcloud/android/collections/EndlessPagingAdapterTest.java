@@ -19,7 +19,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.OperationPaged;
-import rx.android.concurrency.AndroidSchedulers;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 

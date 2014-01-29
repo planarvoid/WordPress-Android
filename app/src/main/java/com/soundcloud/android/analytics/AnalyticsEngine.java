@@ -13,10 +13,10 @@ import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.Log;
 import rx.Scheduler;
-import rx.Subscription;
-import rx.android.concurrency.AndroidSchedulers;
-import rx.subscriptions.BooleanSubscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
+import rx.subscriptions.SerialSubscription;
+import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action0;
 
 import android.content.SharedPreferences;
@@ -39,7 +39,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private final AnalyticsProperties mAnalyticsProperties;
 
     private CompositeSubscription mEventsSubscription;
-    private BooleanSubscription mFlushSubscription;
+    private SerialSubscription mFlushSubscription = new SerialSubscription();
     private Scheduler mScheduler;
 
     // will be called by the Rx scheduler after a given delay, as long as events come in
@@ -51,6 +51,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
                 analyticsProvider.flush();
             }
             mFlushSubscription.unsubscribe();
+            mFlushSubscription = new SerialSubscription();
         }
     };
 
@@ -96,24 +97,16 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
 
     @VisibleForTesting
     void unsubscribeFromEvents() {
-        Log.d(this, "Unsubscribing from events");
         if (mEventsSubscription != null) {
+            Log.d(this, "Unsubscribing from events");
             mEventsSubscription.unsubscribe();
         }
     }
 
     private void scheduleFlush() {
-        if (mFlushSubscription == null || mFlushSubscription.isUnsubscribed()) {
+        if (mFlushSubscription.get() == Subscriptions.empty()) {
             Log.d(this, "Scheduling flush in " + FLUSH_DELAY_SECONDS + " secs");
-            final Subscription subscription = mScheduler.schedule(mFlushAction, FLUSH_DELAY_SECONDS, TimeUnit.SECONDS);
-            // FIXME: Clunky. Replace with a mutable SerialSubscription once we update RxJava to 0.16.+
-            mFlushSubscription = new BooleanSubscription() {
-                @Override
-                public void unsubscribe() {
-                    subscription.unsubscribe();
-                    super.unsubscribe();
-                }
-            };
+            mFlushSubscription.set(mScheduler.schedule(mFlushAction, FLUSH_DELAY_SECONDS, TimeUnit.SECONDS));
         } else {
             Log.d(this, "Ignoring flush event; already scheduled");
         }

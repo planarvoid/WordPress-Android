@@ -16,7 +16,7 @@ import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.model.UserHolder;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.sync.SyncInitiator;
-import rx.android.concurrency.AndroidSchedulers;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
 import android.database.Cursor;

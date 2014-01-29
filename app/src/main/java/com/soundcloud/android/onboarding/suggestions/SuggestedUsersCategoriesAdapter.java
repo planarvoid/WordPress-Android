@@ -11,7 +11,7 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.collections.SingleLineCollectionTextView;
 import rx.Observable;
-import rx.android.concurrency.AndroidSchedulers;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
 import android.content.res.Resources;

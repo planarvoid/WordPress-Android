@@ -11,14 +11,13 @@ import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.runners.model.InitializationError;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import rx.Observer;
 import rx.Subscription;
 import rx.subjects.PublishSubject;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SoundCloudTestRunner extends RobolectricTestRunner {
 
@@ -56,15 +55,22 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
             PublishSubject queue = bus.QUEUE;
             Class<? extends PublishSubject> clazz = queue.getClass();
             try {
-                Field stateField = clazz.getDeclaredField("state");
-                stateField.setAccessible(true);
-                Object subjectState = stateField.get(queue);
-                Class<?> subjectStateClass = subjectState.getClass();
-                Field observersField = subjectStateClass.getDeclaredField("observers");
-                observersField.setAccessible(true);
-                Map<Subscription, Observer> observers = (Map<Subscription, Observer>) observersField.get(subjectState);
+                Field subscriptionManagerField = clazz.getDeclaredField("subscriptionManager");
+                subscriptionManagerField.setAccessible(true);
+                Object subscriptionManager = subscriptionManagerField.get(queue);
 
-                for (Subscription s : observers.keySet()) {
+                Field stateField = subscriptionManager.getClass().getDeclaredField("state");
+                stateField.setAccessible(true);
+                AtomicReference subjectStateRef = (AtomicReference) stateField.get(subscriptionManager);
+                Object subjectState = subjectStateRef.get();
+
+                Class<?> subjectStateClass = subjectState.getClass();
+                Field subscriptionsField = subjectStateClass.getDeclaredField("subscriptions");
+                subscriptionsField.setAccessible(true);
+
+                Subscription[] subscriptions = (Subscription[]) subscriptionsField.get(subjectState);
+
+                for (Subscription s : subscriptions) {
                     System.err.println("Force unsubscribing from event queue " + bus.name() + "; forgot to call unsubscribe?");
                     s.unsubscribe();
                 }

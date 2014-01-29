@@ -10,7 +10,7 @@ import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import rx.android.concurrency.AndroidSchedulers;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

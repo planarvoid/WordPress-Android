@@ -6,7 +6,7 @@ import com.soundcloud.android.R;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.OperationPaged;
-import rx.android.concurrency.AndroidSchedulers;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.os.Parcelable;
