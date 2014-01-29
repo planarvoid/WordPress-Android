@@ -4,7 +4,7 @@ release:
       build: &defaults_build
         phase: install
         project: app
-        tests: true
+        tests: false
         proguard: true
         profiles:
           - sign

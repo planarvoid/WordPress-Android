@@ -20,7 +20,7 @@ module Build
   end
 
   def version_code
-    @version_code = manifest.root.attribute('versionCode').to_s
+    @version_code ||= manifest.root.attribute('versionCode').to_s
   end
 
   def package_name
