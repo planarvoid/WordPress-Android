@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.google.common.primitives.Ints;
 import com.soundcloud.android.cache.ModelCache;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
@@ -13,16 +14,36 @@ import android.net.Uri;
 
 @Deprecated
 public class ScModelManager {
+    private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1024 * 1024; // Available mem in bytes
+    private static final int LOW_MEM_REFERENCE = 16 * 1024 * 1024; // In bytes, used as a reference for calculations
     private static final int DEFAULT_CACHE_CAPACITY = 100;
 
     private ContentResolver mResolver;
 
-    private ModelCache<Track> mTrackCache = new ModelCache<Track>(DEFAULT_CACHE_CAPACITY * 4);
-    private ModelCache<User> mUserCache = new ModelCache<User>(DEFAULT_CACHE_CAPACITY * 2);
-    private ModelCache<Playlist> mPlaylistCache = new ModelCache<Playlist>(DEFAULT_CACHE_CAPACITY);
+    private final ModelCache<Track> mTrackCache;
+    private final ModelCache<User> mUserCache;
+    private final ModelCache<Playlist> mPlaylistCache;
 
 
     public ScModelManager(Context c) {
+        final long availableMemory = Runtime.getRuntime().maxMemory();
+        final int trackCapacity;
+        final int userCapacity;
+        final int playlistCapacity;
+        if(availableMemory < LOW_MEM_DEVICE_THRESHOLD) {
+            trackCapacity = Ints.saturatedCast((availableMemory * 10) / LOW_MEM_REFERENCE);
+            userCapacity = Ints.saturatedCast((availableMemory * 20) / LOW_MEM_REFERENCE);
+            playlistCapacity = Ints.saturatedCast((availableMemory * 10) / LOW_MEM_REFERENCE);
+        } else {
+            trackCapacity =  DEFAULT_CACHE_CAPACITY * 4;
+            userCapacity = DEFAULT_CACHE_CAPACITY * 2;
+            playlistCapacity = DEFAULT_CACHE_CAPACITY;
+        }
+
+        mTrackCache = new ModelCache<Track>(trackCapacity);
+        mUserCache = new ModelCache<User>(userCapacity);
+        mPlaylistCache = new ModelCache<Playlist>(playlistCapacity);
+
         mResolver = c.getContentResolver();
     }
 
