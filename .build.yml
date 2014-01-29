@@ -1,0 +1,75 @@
+release:
+  mvn: &defaults_mvn
+    tasks: &defaults_tasks
+      build: &defaults_build
+        phase: install
+        project: app
+        tests: true
+        proguard: true
+        profiles:
+          - sign
+          - soundcloud
+          - release
+      unittest: &defaults_unittests
+        phase: test
+        project: app
+        tests: true
+        profiles:
+          - sign
+          - release
+          - phone-test
+      phone_test:
+        phase: install
+        project: tests-integration
+        tests: true
+        profiles:
+          - sign
+          - debug
+          - phone-test
+  hockey:
+    enabled: false
+debug:
+  mvn:
+    <<: *defaults_mvn
+    tasks:
+      <<: *defaults_tasks
+      build:
+        <<: *defaults_build
+        phase: install
+        tests: false
+        profiles:
+          - debug
+          - sign
+          - update-android-manifest
+      unittests:
+        <<: *defaults_unittests
+        profiles:
+          - debug
+      phone_test:
+        phase: install
+        project: tests-integration
+        tests: true
+        profiles:
+          - sign
+          - debug
+          - phone-test
+  hockey:
+    enabled: true
+    app_id: b81f0193d361b59e2e37d7f1c0aff017
+    api_token: a46e02930bb94d2a92f7591576baac70
+beta:
+  mvn:
+    <<: *defaults_mvn
+    tasks:
+      build:
+        <<: *defaults_build
+        tests: false
+        profiles:
+          - beta
+          - sign
+          - soundcloud
+          - update-android-manifest
+  hockey:
+    enabled: true
+    app_id: 31bb3a437ee0cd325e994283fb8e7da3
+    api_token: ef31e73570804365acba701c47568c9d
