@@ -45,12 +45,12 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
     public void afterTest(Method method) {
         super.afterTest(method);
 
-        resetEventBusSubscriptions();
+        resetEventBusSubscriptions(method);
     }
 
     // hacky, but we need to ensure that forgetting to unsubscribe from an event queue does not interfere with other
     // tests due to stale observers still receiving messages and having knock-on effects.
-    private void resetEventBusSubscriptions() {
+    private void resetEventBusSubscriptions(Method method) {
         for (EventBus bus : EventBus.values()) {
             PublishSubject queue = bus.QUEUE;
             Class<? extends PublishSubject> clazz = queue.getClass();
@@ -70,6 +70,11 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
 
                 Subscription[] subscriptions = (Subscription[]) subscriptionsField.get(subjectState);
 
+                // TODO: once we remove DefaultTestRunner, we should fail any test that forgets to unsubscribe!
+//                if (subscriptions.length > 0) {
+//                    Assert.fail("Test '" + method.getName() + "' has leaked subscriptions to " + bus.name() + " event queue;\n" +
+//                        "Make sure you call `unsubscribe` after each test method!");
+//                }
                 for (Subscription s : subscriptions) {
                     System.err.println("Force unsubscribing from event queue " + bus.name() + "; forgot to call unsubscribe?");
                     s.unsubscribe();

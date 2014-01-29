@@ -7,6 +7,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -19,9 +20,16 @@ public class EventBusTest {
     @Mock
     private Observer<String> observer;
 
+    private Subscription eventSubscription;
+
+    @After
+    public void tearDown() throws Exception {
+        eventSubscription.unsubscribe();
+    }
+
     @Test
     public void shouldPublishEventToRegisteredObserver() {
-        EventBus.SCREEN_ENTERED.subscribe(observer);
+        eventSubscription = EventBus.SCREEN_ENTERED.subscribe(observer);
 
         EventBus.SCREEN_ENTERED.publish("one");
         EventBus.SCREEN_ENTERED.publish("two");
@@ -32,10 +40,10 @@ public class EventBusTest {
 
     @Test
     public void shouldNotPublishEventIfObserverHasUnsubscribed() {
-        Subscription subscription = EventBus.SCREEN_ENTERED.subscribe(observer);
+        eventSubscription = EventBus.SCREEN_ENTERED.subscribe(observer);
 
         EventBus.SCREEN_ENTERED.publish("one");
-        subscription.unsubscribe();
+        eventSubscription.unsubscribe();
 
         EventBus.SCREEN_ENTERED.publish("two");
 
@@ -45,20 +53,20 @@ public class EventBusTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRaiseExceptionWhenTryingToPublishEventDataOfIncompatibleType() {
-        EventBus.SCREEN_ENTERED.subscribe(observer);
+        eventSubscription = EventBus.SCREEN_ENTERED.subscribe(observer);
         EventBus.SCREEN_ENTERED.publish(1);
     }
 
     @Test
     public void shouldNotRaiseExceptionWhenTryingToPublishSubtypesOfDeclaredEventType() {
-        EventBus.UI.subscribe(observer);
+        eventSubscription = EventBus.UI.subscribe(observer);
         UIEvent event = UIEvent.fromToggleLike(true, "screen", new Track());
         EventBus.UI.publish(event);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRaiseExceptionWhenTryingToPublishVoidToEventWithDataType() {
-        EventBus.SCREEN_ENTERED.subscribe(observer);
+        eventSubscription = EventBus.SCREEN_ENTERED.subscribe(observer);
         EventBus.SCREEN_ENTERED.publish();
     }
 }

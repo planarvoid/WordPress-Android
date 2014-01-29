@@ -3,6 +3,7 @@ package com.soundcloud.android.analytics;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -25,14 +26,19 @@ import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Scheduler;
+import rx.subscriptions.Subscriptions;
+import rx.util.functions.Action0;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+
+import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AnalyticsEngineTrackingTest {
@@ -48,6 +54,11 @@ public class AnalyticsEngineTrackingTest {
     private AnalyticsProvider analyticsProviderTwo;
     @Mock
     private Scheduler scheduler;
+
+    @Before
+    public void setUp() throws Exception {
+        when(scheduler.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(Subscriptions.empty());
+    }
 
     @After
     public void tearDown() {

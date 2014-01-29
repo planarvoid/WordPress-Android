@@ -21,6 +21,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +56,11 @@ public class AnalyticsEngineEventFlushingTest {
     @Before
     public void setUp() throws Exception {
         when(scheduler.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(subscription);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        analyticsEngine.unsubscribeFromEvents();
     }
 
     @Test

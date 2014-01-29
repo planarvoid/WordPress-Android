@@ -8,6 +8,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +33,11 @@ public class PlayerWidgetControllerTest {
         when(context.getApplicationContext()).thenReturn(context);
         controller = new PlayerWidgetController(context, playbackStateProvider, widgetProvider);
         controller.subscribe();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        controller.unsubscribe();
     }
 
     @Test

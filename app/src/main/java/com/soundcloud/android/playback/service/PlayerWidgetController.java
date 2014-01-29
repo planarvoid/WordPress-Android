@@ -10,7 +10,9 @@ import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.DefaultObserver;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.subscriptions.Subscriptions;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -26,6 +28,8 @@ import javax.inject.Inject;
  */
 public class PlayerWidgetController {
 
+    private static PlayerWidgetController instance;
+
     @Inject
     Context mContext;
     @Inject
@@ -35,7 +39,7 @@ public class PlayerWidgetController {
     @Inject
     SoundAssociationOperations mSoundAssocicationOps;
 
-    private static PlayerWidgetController instance;
+    private Subscription eventSubscription = Subscriptions.empty();
 
     public static PlayerWidgetController getInstance(Context context) {
         if (instance == null) {
@@ -57,7 +61,12 @@ public class PlayerWidgetController {
     }
 
     public void subscribe() {
-        EventBus.PLAYABLE_CHANGED.subscribe(new PlayableChangedObserver());
+        eventSubscription = EventBus.PLAYABLE_CHANGED.subscribe(new PlayableChangedObserver());
+    }
+
+    @VisibleForTesting
+    void unsubscribe() {
+        eventSubscription.unsubscribe();
     }
 
     private void handleWidgetLikeAction(Intent intent) {

@@ -4,7 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.soundcloud.android.api.http.PublicApiWrapper;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class AsyncApiTaskTest {
     private List<String> parse(String input) throws IOException {
         ObjectReader reader = PublicApiWrapper.buildObjectMapper().reader();

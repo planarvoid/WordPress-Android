@@ -31,6 +31,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -46,6 +47,8 @@ public class PlayableInfoAndEngagementsControllerTest {
     @Mock
     private SoundAssociationOperations soundAssocOps;
 
+    private Subscription eventSubscription = Subscriptions.empty();
+
     @Before
     public void setup() {
         LayoutInflater inflater = (LayoutInflater) Robolectric.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -57,6 +60,7 @@ public class PlayableInfoAndEngagementsControllerTest {
     @After
     public void tearDown() throws Exception {
         controller.onDestroy();
+        eventSubscription.unsubscribe();
     }
 
     @Test
@@ -74,7 +78,7 @@ public class PlayableInfoAndEngagementsControllerTest {
         controller.setTrack(new Track(1L));
 
         Observer<UIEvent> eventObserver = mock(Observer.class);
-        EventBus.UI.subscribe(eventObserver);
+        eventSubscription = EventBus.UI.subscribe(eventObserver);
 
         when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class)))
                 .thenReturn(Observable.just(new SoundAssociation(new Track())));
@@ -91,7 +95,7 @@ public class PlayableInfoAndEngagementsControllerTest {
         controller.setTrack(new Track(1L));
 
         Observer<UIEvent> eventObserver = mock(Observer.class);
-        EventBus.UI.subscribe(eventObserver);
+        eventSubscription = EventBus.UI.subscribe(eventObserver);
 
         when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class)))
                 .thenReturn(Observable.just(new SoundAssociation(new Track())));
@@ -110,7 +114,7 @@ public class PlayableInfoAndEngagementsControllerTest {
         controller.setTrack(new Track(1L));
 
         Observer<UIEvent> eventObserver = mock(Observer.class);
-        EventBus.UI.subscribe(eventObserver);
+        eventSubscription = EventBus.UI.subscribe(eventObserver);
 
         when(soundAssocOps.toggleRepost(anyBoolean(), any(Playable.class)))
                 .thenReturn(Observable.just(new SoundAssociation(new Track())));
@@ -127,7 +131,7 @@ public class PlayableInfoAndEngagementsControllerTest {
         controller.setTrack(new Track(1L));
 
         Observer<UIEvent> eventObserver = mock(Observer.class);
-        EventBus.UI.subscribe(eventObserver);
+        eventSubscription = EventBus.UI.subscribe(eventObserver);
 
         when(soundAssocOps.toggleRepost(anyBoolean(), any(Playable.class)))
                 .thenReturn(Observable.just(new SoundAssociation(new Track())));
@@ -147,7 +151,7 @@ public class PlayableInfoAndEngagementsControllerTest {
         controller.setTrack(new Track(1L));
 
         Observer<UIEvent> eventObserver = mock(Observer.class);
-        EventBus.UI.subscribe(eventObserver);
+        eventSubscription = EventBus.UI.subscribe(eventObserver);
 
         rootView.findViewById(R.id.btn_share).performClick();
 
@@ -160,7 +164,7 @@ public class PlayableInfoAndEngagementsControllerTest {
     @Test
     public void shouldNotPublishUIEventWhenTrackIsNull() {
         Observer<UIEvent> eventObserver = mock(Observer.class);
-        EventBus.UI.subscribe(eventObserver);
+        eventSubscription = EventBus.UI.subscribe(eventObserver);
 
         rootView.findViewById(R.id.btn_share).performClick();
 
