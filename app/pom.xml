@@ -329,7 +329,7 @@
         <dependency>
             <groupId>com.netflix.rxjava</groupId>
             <artifactId>rxjava-android</artifactId>
-            <version>0.16.2.63ea4df</version>
+            <version>0.16.2.be62073</version>
         </dependency>
         <dependency>
             <groupId>com.netflix.rxjava</groupId>
