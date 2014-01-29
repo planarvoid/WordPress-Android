@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -22,12 +23,14 @@ public class PlayerQueueView extends FrameLayout {
         super(context);
     }
 
-    public void showTrack(Observable<Track> trackObservable, int queuePosition, boolean inCommentingMode) {
+    public void showTrack(Observable<Track> trackObservable, int queuePosition, boolean inCommentingMode,
+                          OriginProvider originProvider) {
         // TODO, replace these with viewStubs
         showTrackView();
         mTrackView.setPlayQueueItem(trackObservable, queuePosition);
         mTrackView.setCommentMode(inCommentingMode);
         mTrackView.setOnScreen(true);
+        mTrackView.setOriginScreen(originProvider);
     }
 
     public void showEmptyViewWithState(PlaybackOperations.AppendState appendState) {

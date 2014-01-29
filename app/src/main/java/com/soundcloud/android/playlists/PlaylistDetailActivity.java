@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.collections.views.PlayableBar;
@@ -149,7 +150,12 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
             }
         });
 
-        mActionButtons = new PlayableInfoAndEngagementsController(mPlaylistBar, null, mSoundAssocOps, Screen.PLAYLIST_DETAILS);
+        mActionButtons = new PlayableInfoAndEngagementsController(mPlaylistBar, null, mSoundAssocOps, new OriginProvider() {
+            @Override
+            public String getScreenTag() {
+                return Screen.fromIntent(getIntent()).get();
+            }
+        });
 
         if (savedInstanceState == null) {
             mFragment = PlaylistTracksFragment.create(getIntent().getData(), Screen.fromIntent(getIntent()));

@@ -7,7 +7,7 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.associations.SoundAssociationOperations;
@@ -77,7 +77,7 @@ public class PlayerTrackView extends FrameLayout implements
         SoundAssociationOperations soundAssocOps = new SoundAssociationOperations(
                 new SoundAssociationStorage(), new SoundCloudRxHttpClient(),
                 SoundCloudApplication.sModelManager);
-        mInfoAndEngagements = new PlayableInfoAndEngagementsController(this, mListener, soundAssocOps, Screen.PLAYER_MAIN);
+        mInfoAndEngagements = new PlayableInfoAndEngagementsController(this, mListener, soundAssocOps, null);
     }
 
     // TODO, this is currently true all the time
@@ -96,6 +96,10 @@ public class PlayerTrackView extends FrameLayout implements
                 setTrackInternal(args, true);
             }
         });
+    }
+
+    public void setOriginScreen(OriginProvider originProvider) {
+        mInfoAndEngagements.setOriginProvider(originProvider);
     }
 
     @Override

@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventBus;
@@ -54,7 +55,7 @@ public class PlayableInfoAndEngagementsControllerTest {
         LayoutInflater inflater = (LayoutInflater) Robolectric.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         rootView = (ViewGroup) inflater.inflate(R.layout.player_action_bar, null);
         controller = new PlayableInfoAndEngagementsController(rootView, mock(PlayerTrackView.PlayerTrackViewListener.class),
-                soundAssocOps, Screen.PLAYER_MAIN);
+                soundAssocOps, null);
     }
 
     @After
@@ -87,7 +88,7 @@ public class PlayableInfoAndEngagementsControllerTest {
         ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
         verify(eventObserver).onNext(uiEvent.capture());
         expect(uiEvent.getValue().getKind()).toBe(UIEvent.LIKE);
-        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
+        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
 
     @Test
@@ -106,7 +107,7 @@ public class PlayableInfoAndEngagementsControllerTest {
         ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
         verify(eventObserver).onNext(uiEvent.capture());
         expect(uiEvent.getValue().getKind()).toBe(UIEvent.UNLIKE);
-        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
+        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
 
     @Test
@@ -123,7 +124,7 @@ public class PlayableInfoAndEngagementsControllerTest {
         ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
         verify(eventObserver).onNext(uiEvent.capture());
         expect(uiEvent.getValue().getKind()).toBe(UIEvent.REPOST);
-        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
+        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
 
     @Test
@@ -142,7 +143,7 @@ public class PlayableInfoAndEngagementsControllerTest {
         ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
         verify(eventObserver).onNext(uiEvent.capture());
         expect(uiEvent.getValue().getKind()).toBe(UIEvent.UNREPOST);
-        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
+        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
 
 
@@ -158,7 +159,7 @@ public class PlayableInfoAndEngagementsControllerTest {
         ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
         verify(eventObserver).onNext(uiEvent.capture());
         expect(uiEvent.getValue().getKind()).toBe(UIEvent.SHARE);
-        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
+        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
 
     @Test
@@ -303,4 +304,27 @@ public class PlayableInfoAndEngagementsControllerTest {
         expect(likeButton.isChecked()).toBeFalse();
         expect(repostButton.isChecked()).toBeFalse();
     }
+
+    @Test
+    public void shouldGetContextFromOriginProvider() {
+        OriginProvider originProvider = new OriginProvider() {
+            @Override
+            public String getScreenTag() {
+                return Screen.PLAYER_MAIN.get();
+            }
+        };
+
+        controller.setOriginProvider(originProvider);
+        controller.setTrack(new Track(1L));
+
+        Observer<UIEvent> eventObserver = mock(Observer.class);
+        EventBus.UI.subscribe(eventObserver);
+
+        rootView.findViewById(R.id.btn_share).performClick();
+
+        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
+        verify(eventObserver).onNext(uiEvent.capture());
+        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
+    }
+
 }

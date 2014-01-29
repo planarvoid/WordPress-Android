@@ -87,8 +87,6 @@ public class PlaybackOperations {
         playFromIdList(context, Lists.newArrayList(track.getId()), 0, track, playSessionSource);
     }
 
-
-
     /**
      * From a uri with an initial track to show while loading the full playlist from the DB.
      * Used in {@link com.soundcloud.android.playlists.PlaylistTracksFragment}
@@ -151,7 +149,8 @@ public class PlaybackOperations {
         return Lists.newArrayList(trackIds);
     }
 
-    private void playFromUri(final Context context, Uri uri, final int startPosition, final Track initialTrack, final PlaySessionSource playSessionSource){
+    private void playFromUri(final Context context, Uri uri, final int startPosition, final Track initialTrack,
+                             final PlaySessionSource playSessionSource) {
         cacheAndGoToPlayer(context, initialTrack);
 
         if (isNotCurrentlyPlaying(initialTrack)) {
@@ -166,7 +165,7 @@ public class PlaybackOperations {
         }
     }
 
-    private void playFromIdList(Context context, List<Long> idList, int startPosition, Track initialTrack, PlaySessionSource playSessionSource){
+    private void playFromIdList(Context context, List<Long> idList, int startPosition, Track initialTrack, PlaySessionSource playSessionSource) {
         cacheAndGoToPlayer(context, initialTrack);
 
         if (isNotCurrentlyPlaying(initialTrack)) {
@@ -182,10 +181,10 @@ public class PlaybackOperations {
     }
 
     private void gotoPlayer(Context context, long initialTrackId) {
-        // intent for player activity
-        context.startActivity(new Intent(Actions.PLAYER)
+        Intent playerActivityIntent = new Intent(Actions.PLAYER)
                 .putExtra(Track.EXTRA_ID, initialTrackId)
-                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        context.startActivity(playerActivityIntent);
     }
 
     private boolean isNotCurrentlyPlaying(Track track){
