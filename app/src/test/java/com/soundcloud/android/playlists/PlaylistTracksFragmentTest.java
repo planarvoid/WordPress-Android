@@ -30,7 +30,7 @@ public class PlaylistTracksFragmentTest {
 
 
     private PlaylistTracksFragment fragment;
-    private Playlist playlist = new Playlist();
+    private Playlist playlist = new Playlist(1L);
 
     @Mock
     private PlaybackOperations playbackOperations;
@@ -73,7 +73,6 @@ public class PlaylistTracksFragmentTest {
 
     @Test
     public void shouldSyncPlaylistIfPlaylistIsRemote() throws Exception {
-        playlist.setId(1L);
         when(syncStateManager.fromContent(playlist.toUri())).thenReturn(new LocalCollection(playlist.toUri()));
 
         fragment.onCreate(null);
