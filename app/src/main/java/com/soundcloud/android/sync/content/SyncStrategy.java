@@ -1,20 +1,20 @@
 package com.soundcloud.android.sync.content;
 
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import rx.concurrency.Schedulers;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
-import com.soundcloud.android.utils.Log;
 
 import java.io.IOException;
 
@@ -30,7 +30,7 @@ public abstract class SyncStrategy {
         mApi = new PublicApi(context);
         mResolver = resolver;
         mContext = context;
-        mSyncStateManager = new SyncStateManager(Schedulers.immediate(), resolver);
+        mSyncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
     }
 
     @NotNull

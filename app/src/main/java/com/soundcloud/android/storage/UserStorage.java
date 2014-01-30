@@ -19,17 +19,15 @@ import javax.inject.Named;
 public class UserStorage extends ScheduledOperations implements Storage<User> {
     private UserDAO mUserDAO;
 
+    @Deprecated // use @Inject instead
     public UserStorage() {
-        super(ScSchedulers.STORAGE_SCHEDULER);
-        ContentResolver resolver = SoundCloudApplication.instance.getContentResolver();
-        mUserDAO = new UserDAO(resolver);
+        this(new UserDAO(SoundCloudApplication.instance.getContentResolver()));
     }
 
     @Inject
-    public UserStorage(@Named("StorageScheduler") Scheduler scheduler, UserDAO userDAO){
-        super(scheduler);
+    public UserStorage(UserDAO userDAO) {
+        super(ScSchedulers.STORAGE_SCHEDULER);
         mUserDAO = userDAO;
-
     }
 
     @Override

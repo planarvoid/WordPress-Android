@@ -5,9 +5,10 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.addCannedResponse;
 
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.LocalCollectionDAO;
+import com.soundcloud.android.storage.provider.Content;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
 import org.junit.Before;
@@ -36,7 +37,7 @@ public class ApiSyncServiceTest {
 
     @Before public void before() {
         resolver = Robolectric.application.getContentResolver();
-        syncStateManager = new SyncStateManager(resolver);
+        syncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
         TestHelper.setUserId(USER_ID);
     }
 

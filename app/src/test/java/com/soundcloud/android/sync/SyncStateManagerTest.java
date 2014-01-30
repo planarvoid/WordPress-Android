@@ -7,11 +7,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.LocalCollectionDAO;
+import com.soundcloud.android.storage.provider.Content;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +31,7 @@ public class SyncStateManagerTest {
     @Before public void before() {
         MockitoAnnotations.initMocks(this);
         resolver = DefaultTestRunner.application.getContentResolver();
-        syncStateManager = new SyncStateManager(resolver);
+        syncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
     }
 
     @Test

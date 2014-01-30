@@ -1,11 +1,11 @@
 package com.soundcloud.android.sync;
 
-import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.storage.LocalCollectionDAO;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +27,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -40,18 +42,17 @@ public class SyncStateManager extends ScheduledOperations {
 
     private final Map<Long, ContentObserver> mContentObservers;
 
+    @Deprecated // use @Inject instead
     public SyncStateManager(Context context) {
-        this(context.getApplicationContext().getContentResolver());
+        this(context.getApplicationContext().getContentResolver(),
+                new LocalCollectionDAO(context.getApplicationContext().getContentResolver()));
     }
 
-    public SyncStateManager(ContentResolver resolver) {
-        this(ScSchedulers.STORAGE_SCHEDULER, resolver);
-    }
-
-    public SyncStateManager(Scheduler scheduler, ContentResolver resolver) {
-        super(scheduler);
+    @Inject
+    public SyncStateManager(ContentResolver resolver, LocalCollectionDAO dao) {
+        super(ScSchedulers.STORAGE_SCHEDULER);
         mResolver = resolver;
-        mLocalCollectionDao = new LocalCollectionDAO(mResolver);
+        mLocalCollectionDao = dao;
         mContentObservers = new HashMap<Long, ContentObserver>();
     }
 
@@ -152,11 +153,6 @@ public class SyncStateManager extends ScheduledOperations {
         } else {
             return -1;
         }
-    }
-
-    public String getExtraFromUri(Uri contentUri) {
-        LocalCollection lc = mLocalCollectionDao.fromContentUri(contentUri, false);
-        return lc == null ? null : lc.extra;
     }
 
     public long getLastSyncAttempt(Uri contentUri) {

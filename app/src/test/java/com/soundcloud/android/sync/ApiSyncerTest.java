@@ -4,10 +4,8 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
 import static com.soundcloud.android.robolectric.TestHelper.assertResolverNotified;
 
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.storage.ActivitiesStorage;
-import com.soundcloud.android.storage.PlaylistStorage;
+import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.SoundAssociation;
@@ -17,9 +15,12 @@ import com.soundcloud.android.model.activities.Activity;
 import com.soundcloud.android.model.activities.PlaylistActivity;
 import com.soundcloud.android.model.activities.TrackActivity;
 import com.soundcloud.android.model.activities.TrackSharingActivity;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.storage.LocalCollectionDAO;
+import com.soundcloud.android.storage.PlaylistStorage;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.api.CloudAPI;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -50,7 +51,7 @@ public class ApiSyncerTest {
     public void before() {
         TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        syncStateManager = new SyncStateManager(resolver);
+        syncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
         activitiesStorage = new ActivitiesStorage();
         playlistStorage = new PlaylistStorage();
         startTime = System.currentTimeMillis();

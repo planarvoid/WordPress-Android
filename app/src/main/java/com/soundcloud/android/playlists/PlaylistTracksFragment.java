@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListView;
+import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
@@ -18,6 +19,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyListView;
 import org.jetbrains.annotations.Nullable;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -36,6 +38,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import javax.inject.Inject;
+
+@SuppressLint("ValidFragment")
 public class PlaylistTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
         LoaderManager.LoaderCallbacks<Cursor>, PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener {
 
@@ -55,9 +60,24 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
-    private SyncStateManager mSyncStateManager;
-    private PlaybackOperations mPlaybackOperations;
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
+    @Inject
+    SyncStateManager mSyncStateManager;
+    @Inject
+    PlaybackOperations mPlaybackOperations;
+    @Inject
+    ImageOperations mImageOperations;
+
+    public PlaylistTracksFragment() {
+        new DaggerDependencyInjector().fromAppGraphWithModules(new PlaylistsModule()).inject(this);
+    }
+
+    @Inject
+    public PlaylistTracksFragment(PlaybackOperations playbackOperations, ImageOperations imageOperations,
+                                  SyncStateManager syncStateManager) {
+        mPlaybackOperations = playbackOperations;
+        mImageOperations = imageOperations;
+        mSyncStateManager = syncStateManager;
+    }
 
     public static PlaylistTracksFragment create(Uri playlistUri, Screen originScreen) {
         Bundle args = new Bundle();
@@ -75,13 +95,11 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
         mPlaylist = Playlist.fromBundle(getArguments());
         mLocalCollection = getLocalCollection();
-        mPlaybackOperations = new PlaybackOperations();
 
         if (mLocalCollection == null) {
             Toast.makeText(getActivity(), R.string.playlist_removed, Toast.LENGTH_SHORT).show();
             getActivity().finish();
         } else {
-            mSyncStateManager = new SyncStateManager(getActivity());
             mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext(), mImageOperations);
             getLoaderManager().initLoader(TRACK_LIST_LOADER, null, this);
             mDetachableReceiver.setReceiver(this);

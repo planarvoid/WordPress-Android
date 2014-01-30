@@ -4,9 +4,12 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.sync.SyncStateManager;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +29,12 @@ public class PlaylistTracksFragmentTest {
     private PlaylistTracksFragment fragment;
 
     @Mock
+    private PlaybackOperations playbackOperations;
+    @Mock
+    private ImageOperations imageOperations;
+    @Mock
+    private SyncStateManager syncStateManager;
+    @Mock
     private FragmentActivity activity;
     @Mock
     private Playlist playlist;
@@ -34,7 +43,7 @@ public class PlaylistTracksFragmentTest {
 
     @Before
     public void setUp() throws Exception {
-        fragment = new PlaylistTracksFragment();
+        fragment = new PlaylistTracksFragment(playbackOperations, imageOperations, syncStateManager);
         when(activity.getApplicationContext()).thenReturn(Robolectric.application);
         when(activity.getContentResolver()).thenReturn(Robolectric.application.getContentResolver());
         Robolectric.shadowOf(fragment).setActivity(activity);

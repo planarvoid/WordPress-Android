@@ -2,9 +2,9 @@ package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class SyncContentTest {
     @Before
     public void before() {
         resolver = Robolectric.application.getContentResolver();
-        syncStateManager = new SyncStateManager(resolver);
+        syncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
 
         SyncContent.setAllSyncEnabledPrefs(Robolectric.application,true);
     }
