@@ -6,15 +6,12 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
 import rx.Observer;
-import rx.Scheduler;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
-import android.content.ContentResolver;
 import android.net.Uri;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 public class UserStorage extends ScheduledOperations implements Storage<User> {
     private UserDAO mUserDAO;
