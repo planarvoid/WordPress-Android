@@ -1,6 +1,7 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,11 +54,28 @@ public class PlaylistStorageTest {
     public void shouldLoadExistingPlaylist() throws Exception {
         Playlist playlist = new Playlist(1L);
         when(playlistDAO.queryById(1L)).thenReturn(playlist);
+        when(modelManager.cache(playlist)).thenReturn(playlist);
 
         Playlist loadedPlaylist = storage.loadPlaylist(1L);
 
         expect(loadedPlaylist).not.toBeNull();
         expect(loadedPlaylist).toEqual(playlist);
+        expect(loadedPlaylist.getTrackCount()).toEqual(0);
+        expect(loadedPlaylist.tracks).toNumber(0);
+    }
+
+    @Test
+    public void shouldLoadExistingPlaylistWithTracks() throws NotFoundException {
+        Playlist playlist = new Playlist(1L);
+        when(playlistDAO.queryById(1L)).thenReturn(playlist);
+        when(modelManager.cache(playlist)).thenReturn(playlist);
+        when(trackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forQuery("1"))).thenReturn(Arrays.asList(new Track()));
+
+        Playlist loadedPlaylist = storage.loadPlaylistWithTracks(1L);
+        expect(loadedPlaylist).not.toBeNull();
+        expect(loadedPlaylist).toEqual(playlist);
+        expect(loadedPlaylist.getTrackCount()).toEqual(1);
+        expect(loadedPlaylist.tracks).toNumber(1);
     }
 
     @Test

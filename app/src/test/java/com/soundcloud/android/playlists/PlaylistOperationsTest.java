@@ -95,11 +95,11 @@ public class PlaylistOperationsTest {
 
     @Test
     public void shouldReturnPlaylistFromStorageIfNotCached() {
-        when(playlistStorage.loadPlaylistAsync(anyLong())).thenReturn(Observable.from(playlist));
+        when(playlistStorage.loadPlaylistWithTracksAsync(anyLong())).thenReturn(Observable.from(playlist));
 
         playlistOperations.loadPlaylist(1).subscribe(observer);
 
-        verify(playlistStorage).loadPlaylistAsync(1L);
+        verify(playlistStorage).loadPlaylistWithTracksAsync(1L);
         verify(observer).onNext(playlist);
     }
 }

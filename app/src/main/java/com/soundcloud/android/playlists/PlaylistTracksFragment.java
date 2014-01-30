@@ -148,13 +148,13 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onStart() {
         super.onStart();
         // observe changes to the local collection to update the last updated timestamp
-        mSyncStateManager.addChangeListener(mLocalCollection, this);
+        //mSyncStateManager.addChangeListener(mLocalCollection, this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        mSyncStateManager.removeChangeListener(mLocalCollection);
+        //mSyncStateManager.removeChangeListener(mLocalCollection);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.soundcloud.android.storage;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.activities.Activity;
@@ -32,18 +33,24 @@ import java.util.Set;
 public class PlaylistStorage extends ScheduledOperations implements Storage<Playlist> {
     private final ContentResolver mResolver;
     private final PlaylistDAO mPlaylistDAO;
+    private final TrackDAO mTrackDAO;
+    private final ScModelManager mModelManager;
 
     @Deprecated
     public PlaylistStorage() {
         this(SoundCloudApplication.instance.getContentResolver(),
-                new PlaylistDAO(SoundCloudApplication.instance.getContentResolver()));
+                new PlaylistDAO(SoundCloudApplication.instance.getContentResolver()),
+                new TrackDAO(SoundCloudApplication.instance.getContentResolver()),
+                SoundCloudApplication.sModelManager);
     }
 
     @Inject
-    public PlaylistStorage(ContentResolver resolver, PlaylistDAO playlistDao) {
+    public PlaylistStorage(ContentResolver resolver, PlaylistDAO playlistDAO, TrackDAO trackDAO, ScModelManager modelManager) {
         super(ScSchedulers.STORAGE_SCHEDULER);
         mResolver = resolver;
-        mPlaylistDAO = playlistDao;
+        mPlaylistDAO = playlistDAO;
+        mTrackDAO = trackDAO;
+        mModelManager = modelManager;
     }
 
     public Playlist loadPlaylist(long playlistId) throws NotFoundException {
@@ -51,7 +58,7 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         if (playlist == null) {
             throw new NotFoundException(playlistId);
         } else {
-            return playlist;
+            return mModelManager.cache(playlist);
         }
     }
 
@@ -61,6 +68,27 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
             public Subscription onSubscribe(Observer<? super Playlist> observer) {
                 try {
                     observer.onNext(loadPlaylist(playlistId));
+                    observer.onCompleted();
+                } catch (NotFoundException e) {
+                    observer.onError(e);
+                }
+                return Subscriptions.empty();
+            }
+        }));
+    }
+
+    public Playlist loadPlaylistWithTracks(long playlistId) throws NotFoundException {
+        final Playlist playlist = loadPlaylist(playlistId);
+        playlist.tracks = loadTracksForPlaylist(playlist);
+        return playlist;
+    }
+
+    public Observable<Playlist> loadPlaylistWithTracksAsync(final long playlistId) {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Playlist>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super Playlist> observer) {
+                try {
+                    observer.onNext(loadPlaylistWithTracks(playlistId));
                     observer.onCompleted();
                 } catch (NotFoundException e) {
                     observer.onError(e);
@@ -103,7 +131,7 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     public Observable<Playlist> createNewUserPlaylistAsync(User user, String title, boolean isPrivate, long... trackIds) {
         ArrayList<Track> tracks = new ArrayList<Track>(trackIds.length);
         for (long trackId : trackIds){
-            Track track = SoundCloudApplication.sModelManager.getCachedTrack(trackId);
+            Track track = mModelManager.getCachedTrack(trackId);
             tracks.add(track == null ? new Track(trackId) : track);
         }
 
@@ -132,10 +160,10 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
      * Remove a playlist and all associations such as likes, reposts or sharings from the database.
      */
     public void removePlaylist(Uri playlistUri) {
-        Playlist p = SoundCloudApplication.sModelManager.getPlaylist(playlistUri);
+        Playlist p = mModelManager.getPlaylist(playlistUri);
         if (p != null) {
             p.removed = true;
-            SoundCloudApplication.sModelManager.removeFromCache(p.toUri());
+            mModelManager.removeFromCache(p.toUri());
         }
         long playlistId = UriUtils.getLastSegmentAsLong(playlistUri);
 
@@ -180,13 +208,12 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         if (itemsCursor != null) {
             List<Playlist> playlists = new ArrayList<Playlist>(itemsCursor.getCount());
             while (itemsCursor.moveToNext()) {
-                playlists.add(SoundCloudApplication.sModelManager.getCachedPlaylistFromCursor(itemsCursor));
+                playlists.add(mModelManager.getCachedPlaylistFromCursor(itemsCursor));
             }
             itemsCursor.close();
 
-            final TrackDAO trackDAO = new TrackDAO(mResolver);
-            for (Playlist p : playlists){
-                p.tracks = trackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forId(p.getId()));
+            for (Playlist p : playlists) {
+                p.tracks = loadTracksForPlaylist(p);
             }
             return playlists;
 
@@ -195,6 +222,9 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         }
     }
 
+    private List<Track> loadTracksForPlaylist(Playlist playlist) {
+        return mTrackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forId(playlist.getId()));
+    }
 
     public @Nullable Set<Uri> getPlaylistsDueForSync() {
         Cursor c = mResolver.query(Content.PLAYLIST_ALL_TRACKS.uri, new String[]{DBHelper.PlaylistTracks.PLAYLIST_ID},
