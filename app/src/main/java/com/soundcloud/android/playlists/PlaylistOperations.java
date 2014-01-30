@@ -56,12 +56,7 @@ public class PlaylistOperations {
     }
 
     public Observable<Playlist> loadPlaylist(long playlistId) {
-        final Playlist playlist = mModelManager.getPlaylist(playlistId);
-        if (playlist != null && playlist.getTrackCount() == playlist.tracks.size()) {
-            return Observable.from(playlist);
-        } else {
-            return mPlaylistStorage.loadPlaylistWithTracksAsync(playlistId);
-        }
+        return mPlaylistStorage.loadPlaylistWithTracksAsync(playlistId);
     }
 
     private Func1<Playlist, Observable<SoundAssociation>> handlePlaylistStored() {

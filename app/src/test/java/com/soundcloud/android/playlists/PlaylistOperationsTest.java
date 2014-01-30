@@ -3,7 +3,6 @@ package com.soundcloud.android.playlists;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
@@ -84,17 +83,7 @@ public class PlaylistOperationsTest {
     }
 
     @Test
-    public void shouldReturnPlaylistFromCacheIfFound() {
-        when(modelManager.getPlaylist(1L)).thenReturn(playlist);
-
-        playlistOperations.loadPlaylist(1).subscribe(observer);
-
-        verify(observer).onNext(playlist);
-        verifyZeroInteractions(playlistStorage);
-    }
-
-    @Test
-    public void shouldReturnPlaylistFromStorageIfNotCached() {
+    public void shouldLoadFullPlaylistFromStorage() {
         when(playlistStorage.loadPlaylistWithTracksAsync(anyLong())).thenReturn(Observable.from(playlist));
 
         playlistOperations.loadPlaylist(1).subscribe(observer);
