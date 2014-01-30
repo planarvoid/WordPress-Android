@@ -1,151 +1,162 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.provider.DBHelper;
+import com.xtremelabs.robolectric.tester.android.database.SimpleTestCursor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class PlaylistStorageTest {
-    Playlist playlist;
-    PlaylistStorage storage;
+    private PlaylistStorage storage;
+
+    @Mock
+    private PlaylistDAO playlistDAO;
+    @Mock
+    private TrackDAO trackDAO;
+    @Mock
+    private ContentResolver resolver;
+    @Mock
+    private ScModelManager modelManager;
 
     @Before
     public void before() throws IOException {
-        storage = new PlaylistStorage();
-        playlist = TestHelper.readResource("/com/soundcloud/android/sync/playlist.json");
-        expect(playlist).not.toBeNull();
+        storage = new PlaylistStorage(resolver, playlistDAO, trackDAO, modelManager);
     }
 
     @Test
     public void shouldLoadExistingPlaylist() throws Exception {
-        TestHelper.insert(playlist);
+        Playlist playlist = new Playlist(1L);
+        when(playlistDAO.queryById(1L)).thenReturn(playlist);
 
-        playlist = storage.loadPlaylist(2524386L);
+        Playlist loadedPlaylist = storage.loadPlaylist(1L);
 
-        expect(playlist).not.toBeNull();
-        expect(playlist.getId()).toEqual(2524386L);
+        expect(loadedPlaylist).not.toBeNull();
+        expect(loadedPlaylist).toEqual(playlist);
     }
 
     @Test
-    public void shouldCreatePlaylistWithTracks() throws Exception {
-        expect(playlist.user.username).toEqual("Natalie");
-        expect(playlist.tracks.size()).toEqual(41);
+    public void shouldStorePlaylist() throws Exception {
+        Playlist playlist = new Playlist(1L);
+        playlist.tracks = Lists.newArrayList(new Track(1L));
 
-        playlist = storage.storeAsync(playlist).toBlockingObservable().last();
-        expect(playlist.getId()).toEqual(2524386L);
-        expect(Content.TRACKS).toHaveCount(41);
-        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(41);
+        storage.store(playlist);
+
+        verify(playlistDAO).create(playlist);
     }
 
     @Test
     public void shouldGetPlaylistsCreatedByUser() {
-        final List<Track> tracks = createTracks(2);
-        TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
+        Playlist playlist = new Playlist(1L);
+        Track track = new Track();
+
+        Cursor cursor = new FakeCursor(1);
+        when(resolver.query(Content.PLAYLISTS.uri, null, DBHelper.SoundView._ID + " < 0", null, DBHelper.SoundView._ID + " DESC")).thenReturn(cursor);
+        when(modelManager.getCachedPlaylistFromCursor(cursor)).thenReturn(playlist);
+        when(trackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forId(playlist.getId()))).thenReturn(Arrays.asList(track));
 
         List<Playlist> playlists = storage.getLocalPlaylists();
-        expect(playlists.size()).toBe(1);
-        expect(playlists.get(0).tracks).toContainExactly(tracks.get(0), tracks.get(1));
+        expect(playlists).toContainExactly(playlist);
+        expect(playlist.tracks).toContainExactly(track);
     }
 
     @Test
     public void shouldAddTrackToPlaylist() throws Exception {
-        expect(playlist.tracks.size()).toEqual(41);
-        TestHelper.insertWithDependencies(playlist);
-        List<Track> tracks = createTracks(2);
-        TestHelper.bulkInsert(tracks);
+        Playlist playlist = new Playlist(1L);
+        Track track = new Track();
+        expect(playlist.getTrackCount()).toBe(0);
 
-        for (Track track : tracks){
-            storage.addTrackToPlaylist(playlist, track.getId());
-        }
+        storage.addTrackToPlaylist(playlist, track.getId());
 
-        Playlist p2 = TestHelper.loadPlaylist(playlist.getId());
+        ArgumentCaptor<ContentValues> cv = ArgumentCaptor.forClass(ContentValues.class);
+        verify(resolver).insert(eq(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.getId()))), cv.capture());
 
-        expect(p2).not.toBeNull();
-        expect(p2.tracks.size()).toEqual(43);
-        expect(p2.tracks.get(41).getId()).toEqual(tracks.get(0).getId()); // check ordering
-        expect(p2.tracks.get(42).getId()).toEqual(tracks.get(1).getId()); // check ordering
+        expect(playlist.getTrackCount()).toBe(1);
+        expect(cv.getValue().getAsLong(DBHelper.PlaylistTracks.PLAYLIST_ID)).toBe(playlist.getId());
+        expect(cv.getValue().getAsLong(DBHelper.PlaylistTracks.TRACK_ID)).toBe(track.getId());
+        expect(cv.getValue().getAsLong(DBHelper.PlaylistTracks.ADDED_AT)).toBeGreaterThan(0L);
+        expect(cv.getValue().getAsLong(DBHelper.PlaylistTracks.POSITION)).toBe(1L);
     }
 
     @Test
     public void shouldSyncChangesToExistingPlaylists() throws Exception {
-        final Playlist playlist = new Playlist(12345);
-        expect(storage.addTrackToPlaylist(playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
-        // local unpushed playlists (those with a negative timestamp) are not part of this sync step
-        expect(storage.addTrackToPlaylist(new Playlist(-34243), 10696200, System.currentTimeMillis())).not.toBeNull();
+        Cursor cursor = new FakeCursor(new Object[][] {{1L}});
+
+        when(resolver.query(Content.PLAYLIST_ALL_TRACKS.uri, new String[]{DBHelper.PlaylistTracks.PLAYLIST_ID},
+                DBHelper.PlaylistTracks.ADDED_AT + " IS NOT NULL AND "
+                        + DBHelper.PlaylistTracks.PLAYLIST_ID + " > 0", null, null)).thenReturn(cursor);
 
         Set<Uri> urisToSync = storage.getPlaylistsDueForSync();
         expect(urisToSync.size()).toEqual(1);
-        expect(urisToSync.contains(Content.PLAYLIST.forId(playlist.getId()))).toBeTrue();
-    }
-
-    @Test
-    public void shouldSyncMultiplePlaylists() throws Exception {
-        final Playlist playlist1 = new Playlist(12345);
-        final Playlist playlist2 = new Playlist(544321);
-
-        expect(storage.addTrackToPlaylist(playlist1, 10696200, System.currentTimeMillis())).not.toBeNull();
-        expect(storage.addTrackToPlaylist(playlist2, 10696200, System.currentTimeMillis())).not.toBeNull();
-
-        Set<Uri> urisToSync = storage.getPlaylistsDueForSync();
-        expect(urisToSync.size()).toEqual(2);
-        expect(urisToSync.contains(Content.PLAYLIST.forId(playlist1.getId()))).toBeTrue();
-        expect(urisToSync.contains(Content.PLAYLIST.forId(playlist2.getId()))).toBeTrue();
+        expect(urisToSync.contains(Content.PLAYLIST.forId(1L))).toBeTrue();
     }
 
     //TODO: this does not yet test purging of playlist activity records
     @Test
     public void shouldRemovePlaylistAndAllDependentResources() {
-        TestHelper.insertWithDependencies(playlist);
-        TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_LIKE);
-        TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_REPOST);
-        TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST);
-
-        expect(Content.TRACKS).toHaveCount(41);
-        expect(Content.PLAYLISTS).toHaveCount(1);
-        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(41);
-        expect(Content.ME_LIKES).toHaveCount(1);
-        expect(Content.ME_REPOSTS).toHaveCount(1);
-        expect(Content.ME_PLAYLISTS).toHaveCount(1);
+        Playlist playlist = new Playlist(1L);
 
         storage.removePlaylist(playlist.toUri());
 
-        expect(Content.TRACKS).toHaveCount(41); // referenced tracks should NOT be removed
-        expect(Content.PLAYLISTS).toHaveCount(0);
-        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(0);
-        expect(Content.ME_LIKES).toHaveCount(0);
-        expect(Content.ME_REPOSTS).toHaveCount(0);
-        expect(Content.ME_PLAYLISTS).toHaveCount(0);
+        verify(resolver).delete(Content.PLAYLIST.forQuery("1"), null, null);
+        verify(resolver).delete(Content.PLAYLIST_TRACKS.forQuery("1"), null, null);
+
+        // delete from collections
+        String where = DBHelper.CollectionItems.ITEM_ID + " = 1 AND "
+                + DBHelper.CollectionItems.RESOURCE_TYPE + " = " + Playable.DB_TYPE_PLAYLIST;
+
+        verify(resolver).delete(Content.ME_PLAYLISTS.uri, where, null);
+        verify(resolver).delete(Content.ME_SOUNDS.uri, where, null);
+        verify(resolver).delete(Content.ME_LIKES.uri, where, null);
+
+        // delete from activities
+        where = DBHelper.Activities.SOUND_ID + " = 1 AND " +
+                DBHelper.ActivityView.TYPE + " IN ( " + Activity.getDbPlaylistTypesForQuery() + " ) ";
+        verify(resolver).delete(Content.ME_ALL_ACTIVITIES.uri, where, null);
     }
 
-    private static List<Track> createTracks(int n) {
-        List<Track> items = new ArrayList<Track>(n);
+    private final class FakeCursor extends SimpleTestCursor {
 
-        for (int i=0; i<n; i++) {
-            User user = new User();
-            user.permalink = "u"+i;
-            user.setId(i);
+        private int count;
 
-            Track track = new Track();
-            track.setId(i);
-            track.user = user;
-            items.add(track);
+        private FakeCursor(int count) {
+            this.count = count;
+            setResults(new Object[count][]);
         }
-        return items;
+
+        private FakeCursor(Object[][] fakeResults) {
+            this.count = fakeResults.length;
+            setResults(fakeResults);
+        }
+
+        @Override
+        public int getCount() {
+            return count;
+        }
     }
 }
