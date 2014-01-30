@@ -47,9 +47,8 @@ import javax.inject.Inject;
 
 @SuppressLint("ValidFragment")
 public class PlaylistTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
-        LoaderManager.LoaderCallbacks<Cursor>, PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener {
+        PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener {
 
-    private static final int TRACK_LIST_LOADER = 1;
     private Playlist mPlaylist;
     private TextView mInfoHeaderText;
 
@@ -101,6 +100,14 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mLocalCollection = getLocalCollection();
+        mAdapter = new PlaylistTracksAdapter(mImageOperations);
+        mDetachableReceiver.setReceiver(PlaylistTracksFragment.this);
+
+        loadPlaylist();
+    }
+
+    private void loadPlaylist() {
         final Uri playlistUri = getArguments().getParcelable(Playlist.EXTRA_URI);
         fromFragment(this, mPlaylistOperations.loadPlaylist(UriUtils.getLastSegmentAsLong(playlistUri)))
                 .subscribe(new PlaylistObserver());
@@ -148,13 +155,13 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onStart() {
         super.onStart();
         // observe changes to the local collection to update the last updated timestamp
-        //mSyncStateManager.addChangeListener(mLocalCollection, this);
+        mSyncStateManager.addChangeListener(mLocalCollection, this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        //mSyncStateManager.removeChangeListener(mLocalCollection);
+        mSyncStateManager.removeChangeListener(mLocalCollection);
     }
 
     @Override
@@ -163,34 +170,6 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         final Track track = SoundCloudApplication.sModelManager.getTrack(id);
         mPlaybackOperations.playFromPlaylist(getActivity(), mPlaylist, startPosition, track,
                 Screen.fromBundle(getArguments()));
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getActivity(), Content.PLAYLIST_TRACKS.forQuery(String.valueOf(mPlaylist.getId())),
-                null, null, null, null);
-    }
-
-    // fires when the loader has finished reading playlist tracks from the local DB
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mAdapter.swapCursor(data);
-
-        setHeaderInfo();
-
-        boolean syncing = syncIfNecessary();
-        boolean isIdle = mLocalCollection != null && mLocalCollection.isIdle() && !syncing;
-        setListShown(!mAdapter.isEmpty() || isIdle);
-
-        if (mScrollToPos != -1 && mListView != null) {
-            scrollToPosition(mScrollToPos);
-            mScrollToPos = -1;
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mAdapter.swapCursor(null);
     }
 
     @Override
@@ -227,13 +206,13 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void refresh() {
         if (isAdded()) {
             mLocalCollection = getLocalCollection();
-            getLoaderManager().restartLoader(TRACK_LIST_LOADER, null, this);
+            loadPlaylist();
         }
     }
 
     @Nullable
     private LocalCollection getLocalCollection() {
-        return mPlaylist == null ? null : mSyncStateManager.fromContent(mPlaylist.toUri());
+        return mSyncStateManager.fromContent(getArguments().<Uri>getParcelable(Playlist.EXTRA_URI));
     }
 
     public void scrollToPosition(int position) {
@@ -282,20 +261,31 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         return mAdapter;
     }
 
+    private void updateTracksAdapter(Playlist playlist) {
+        mAdapter.clear();
+        for (Track track : playlist.tracks) {
+            mAdapter.addItem(track);
+        }
+        mAdapter.notifyDataSetChanged();
+    }
+
     private final class PlaylistObserver extends DefaultObserver<Playlist> {
         @Override
         public void onNext(Playlist playlist) {
             mPlaylist = playlist;
 
-            mLocalCollection = getLocalCollection();
+            updateTracksAdapter(playlist);
 
-            if (mLocalCollection == null) {
-                Toast.makeText(getActivity(), R.string.playlist_removed, Toast.LENGTH_SHORT).show();
-                getActivity().finish();
-            } else {
-                mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext(), mImageOperations);
-                getLoaderManager().initLoader(TRACK_LIST_LOADER, null, PlaylistTracksFragment.this);
-                mDetachableReceiver.setReceiver(PlaylistTracksFragment.this);
+            setHeaderInfo();
+
+            // TODO: move syncing logic out of the fragment
+            boolean syncing = syncIfNecessary();
+            boolean isIdle = mLocalCollection != null && mLocalCollection.isIdle() && !syncing;
+            setListShown(!mAdapter.isEmpty() || isIdle);
+
+            if (mScrollToPos != -1 && mListView != null) {
+                scrollToPosition(mScrollToPos);
+                mScrollToPos = -1;
             }
 
         }
