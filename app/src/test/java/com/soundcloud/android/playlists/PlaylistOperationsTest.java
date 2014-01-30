@@ -1,11 +1,14 @@
 package com.soundcloud.android.playlists;
 
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -35,6 +38,8 @@ public class PlaylistOperationsTest {
     @Mock
     private SyncStateManager syncStateManager;
     @Mock
+    private ScModelManager modelManager;
+    @Mock
     private AccountOperations accountOperations;
     @Mock
     private Account account;
@@ -44,7 +49,7 @@ public class PlaylistOperationsTest {
     @Before
     public void setup() {
         playlistOperations = new PlaylistOperations(playlistStorage, soundAssociationStorage,
-                syncStateManager, accountOperations);
+                syncStateManager, accountOperations, modelManager);
         playlist = new Playlist(123L);
 
         Observable<Playlist> storageObservable = Observable.from(playlist);
@@ -78,4 +83,23 @@ public class PlaylistOperationsTest {
         verify(observer).onNext(playlist);
     }
 
+    @Test
+    public void shouldReturnPlaylistFromCacheIfFound() {
+        when(modelManager.getPlaylist(1L)).thenReturn(playlist);
+
+        playlistOperations.loadPlaylist(1).subscribe(observer);
+
+        verify(observer).onNext(playlist);
+        verifyZeroInteractions(playlistStorage);
+    }
+
+    @Test
+    public void shouldReturnPlaylistFromStorageIfNotCached() {
+        when(playlistStorage.loadPlaylistAsync(anyLong())).thenReturn(Observable.from(playlist));
+
+        playlistOperations.loadPlaylist(1).subscribe(observer);
+
+        verify(playlistStorage).loadPlaylistAsync(1L);
+        verify(observer).onNext(playlist);
+    }
 }

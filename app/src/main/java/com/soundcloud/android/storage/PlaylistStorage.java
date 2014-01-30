@@ -22,6 +22,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,10 +33,17 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     private final ContentResolver mResolver;
     private final PlaylistDAO mPlaylistDAO;
 
+    @Deprecated
     public PlaylistStorage() {
+        this(SoundCloudApplication.instance.getContentResolver(),
+                new PlaylistDAO(SoundCloudApplication.instance.getContentResolver()));
+    }
+
+    @Inject
+    public PlaylistStorage(ContentResolver resolver, PlaylistDAO playlistDao) {
         super(ScSchedulers.STORAGE_SCHEDULER);
-        mResolver = SoundCloudApplication.instance.getContentResolver();
-        mPlaylistDAO = new PlaylistDAO(mResolver);
+        mResolver = resolver;
+        mPlaylistDAO = playlistDao;
     }
 
     public Playlist loadPlaylist(long playlistId) throws NotFoundException {

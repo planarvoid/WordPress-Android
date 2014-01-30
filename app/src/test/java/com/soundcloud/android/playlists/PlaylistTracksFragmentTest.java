@@ -1,10 +1,12 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.storage.provider.Content;
@@ -16,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import rx.Observable;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -27,39 +30,38 @@ public class PlaylistTracksFragmentTest {
 
 
     private PlaylistTracksFragment fragment;
+    private Playlist playlist = new Playlist();
 
     @Mock
     private PlaybackOperations playbackOperations;
+    @Mock
+    private PlaylistOperations playlistOperations;
     @Mock
     private ImageOperations imageOperations;
     @Mock
     private SyncStateManager syncStateManager;
     @Mock
     private FragmentActivity activity;
-    @Mock
-    private Playlist playlist;
-    @Mock
-    private Bundle bundle;
 
     @Before
     public void setUp() throws Exception {
-        fragment = new PlaylistTracksFragment(playbackOperations, imageOperations, syncStateManager);
+        fragment = new PlaylistTracksFragment(playbackOperations, playlistOperations, imageOperations, syncStateManager);
         when(activity.getApplicationContext()).thenReturn(Robolectric.application);
         when(activity.getContentResolver()).thenReturn(Robolectric.application.getContentResolver());
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
 
-        when(bundle.containsKey(Playlist.EXTRA)).thenReturn(true);
-        when(bundle.getParcelable(Playlist.EXTRA)).thenReturn(playlist);
+        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
 
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(Playlist.EXTRA_URI, playlist.toUri());
+        fragment.setArguments(bundle);
     }
 
     @Test
     public void shouldSyncMyPlaylistsIfPlaylistIsLocal() throws Exception {
-        when(playlist.isLocal()).thenReturn(true);
-        when(playlist.toUri()).thenReturn(Uri.parse("fake/uri"));
+        playlist.setId(-1);
 
-        fragment.setArguments(bundle);
         fragment.onCreate(null);
         fragment.onRefresh(null);
 
@@ -71,18 +73,15 @@ public class PlaylistTracksFragmentTest {
 
     @Test
     public void shouldSyncPlaylistIfPlaylistIsRemote() throws Exception {
-        when(playlist.isLocal()).thenReturn(false);
+        playlist.setId(1L);
+        when(syncStateManager.fromContent(playlist.toUri())).thenReturn(new LocalCollection(playlist.toUri()));
 
-        final Uri uri = Uri.parse("fake/uri");
-        when(playlist.toUri()).thenReturn(uri);
-
-        fragment.setArguments(bundle);
         fragment.onCreate(null);
         fragment.onRefresh(null);
 
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(activity).startService(captor.capture());
-        expect(captor.getValue().getData()).toEqual(uri);
+        expect(captor.getValue().getData()).toEqual(playlist.toUri());
 
     }
 }

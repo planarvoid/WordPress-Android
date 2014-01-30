@@ -1,5 +1,7 @@
 package com.soundcloud.android.playlists;
 
+import static rx.android.observables.AndroidObservable.fromFragment;
+
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -11,11 +13,13 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.EmptyListView;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,6 +29,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
@@ -63,6 +68,8 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     @Inject
     SyncStateManager mSyncStateManager;
     @Inject
+    PlaylistOperations mPlaylistOperations;
+    @Inject
     PlaybackOperations mPlaybackOperations;
     @Inject
     ImageOperations mImageOperations;
@@ -72,9 +79,10 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     @Inject
-    public PlaylistTracksFragment(PlaybackOperations playbackOperations, ImageOperations imageOperations,
-                                  SyncStateManager syncStateManager) {
+    public PlaylistTracksFragment(PlaybackOperations playbackOperations, PlaylistOperations playlistOperations,
+                                  ImageOperations imageOperations, SyncStateManager syncStateManager) {
         mPlaybackOperations = playbackOperations;
+        mPlaylistOperations = playlistOperations;
         mImageOperations = imageOperations;
         mSyncStateManager = syncStateManager;
     }
@@ -93,17 +101,9 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mPlaylist = Playlist.fromBundle(getArguments());
-        mLocalCollection = getLocalCollection();
-
-        if (mLocalCollection == null) {
-            Toast.makeText(getActivity(), R.string.playlist_removed, Toast.LENGTH_SHORT).show();
-            getActivity().finish();
-        } else {
-            mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext(), mImageOperations);
-            getLoaderManager().initLoader(TRACK_LIST_LOADER, null, this);
-            mDetachableReceiver.setReceiver(this);
-        }
+        final Uri playlistUri = getArguments().getParcelable(Playlist.EXTRA_URI);
+        fromFragment(this, mPlaylistOperations.loadPlaylist(UriUtils.getLastSegmentAsLong(playlistUri)))
+                .subscribe(new PlaylistObserver());
     }
 
     @Override
@@ -233,7 +233,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     @Nullable
     private LocalCollection getLocalCollection() {
-        return mPlaylist == null ? null : new SyncStateManager(getActivity()).fromContent(mPlaylist.toUri());
+        return mPlaylist == null ? null : mSyncStateManager.fromContent(mPlaylist.toUri());
     }
 
     public void scrollToPosition(int position) {
@@ -280,5 +280,24 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     public PlaylistTracksAdapter getAdapter() {
         return mAdapter;
+    }
+
+    private final class PlaylistObserver extends DefaultObserver<Playlist> {
+        @Override
+        public void onNext(Playlist playlist) {
+            mPlaylist = playlist;
+
+            mLocalCollection = getLocalCollection();
+
+            if (mLocalCollection == null) {
+                Toast.makeText(getActivity(), R.string.playlist_removed, Toast.LENGTH_SHORT).show();
+                getActivity().finish();
+            } else {
+                mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext(), mImageOperations);
+                getLoaderManager().initLoader(TRACK_LIST_LOADER, null, PlaylistTracksFragment.this);
+                mDetachableReceiver.setReceiver(PlaylistTracksFragment.this);
+            }
+
+        }
     }
 }

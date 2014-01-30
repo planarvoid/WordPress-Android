@@ -1,10 +1,9 @@
 package com.soundcloud.android.playlists;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.PlaylistStorage;
@@ -21,37 +20,48 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Bundle;
 
+import javax.inject.Inject;
+
 public class PlaylistOperations {
 
     private final PlaylistStorage mPlaylistStorage;
     private final SoundAssociationStorage mSoundAssocStorage;
     private final SyncStateManager mSyncStateManager;
     private final AccountOperations mAccountOperations;
+    private final ScModelManager mModelManager;
 
+    @Deprecated
     public PlaylistOperations(Context context) {
         this(new PlaylistStorage(), new SoundAssociationStorage(),
-                new SyncStateManager(context), new AccountOperations(context));
+                new SyncStateManager(context), new AccountOperations(context), SoundCloudApplication.sModelManager);
     }
 
-    @VisibleForTesting
-    PlaylistOperations(PlaylistStorage playlistStorage, SoundAssociationStorage soundAssocStorage,
-                              SyncStateManager syncStateManager, AccountOperations accountOperations) {
+    @Inject
+    public PlaylistOperations(PlaylistStorage playlistStorage, SoundAssociationStorage soundAssocStorage,
+                       SyncStateManager syncStateManager, AccountOperations accountOperations,
+                       ScModelManager modelManager) {
         this.mPlaylistStorage = playlistStorage;
         this.mSoundAssocStorage = soundAssocStorage;
         this.mSyncStateManager = syncStateManager;
         this.mAccountOperations = accountOperations;
+        this.mModelManager = modelManager;
     }
 
     public Observable<Playlist> createNewPlaylist(
             User currentUser, String title, boolean isPrivate, long firstTrackId) {
         // insert the new playlist into the database
         return mPlaylistStorage.createNewUserPlaylistAsync(currentUser, title, isPrivate, firstTrackId)
-                .mapMany(handlePlaylistStored())
-                .mapMany(handlePlaylistCreationStored());
+                .mergeMap(handlePlaylistStored())
+                .mergeMap(handlePlaylistCreationStored());
     }
 
     public Observable<Playlist> loadPlaylist(long playlistId) {
-        return mPlaylistStorage.loadPlaylistAsync(playlistId);
+        final Playlist playlist = mModelManager.getPlaylist(playlistId);
+        if (playlist != null) {
+            return Observable.from(playlist);
+        } else {
+            return mPlaylistStorage.loadPlaylistAsync(playlistId);
+        }
     }
 
     private Func1<Playlist, Observable<SoundAssociation>> handlePlaylistStored() {
@@ -72,7 +82,7 @@ public class PlaylistOperations {
                 // force to stale so we know to update the playlists next time it is viewed
                 mSyncStateManager.forceToStale(Content.ME_PLAYLISTS);
                 ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, new Bundle());
-                return Observable.just((Playlist) soundAssociation.getPlayable());
+                return Observable.from((Playlist) soundAssociation.getPlayable());
             }
         };
     }
