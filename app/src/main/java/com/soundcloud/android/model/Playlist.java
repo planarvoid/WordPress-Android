@@ -1,21 +1,16 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.api.http.json.Views;
 import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
-import com.soundcloud.api.Params;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,10 +26,8 @@ import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -199,6 +192,9 @@ public class Playlist extends Playable {
         return Content.PLAYLISTS.forQuery(String.valueOf(getId()));
     }
 
+    public List<Track> getTracks() {
+        return tracks;
+    }
 
     @Override
     public int getTypeId() {
@@ -224,45 +220,6 @@ public class Playlist extends Playable {
 
     public boolean isLocal() {
         return getId() < 0;
-    }
-
-    @JsonRootName("playlist")
-    public static class ApiCreateObject{
-
-        @JsonView(Views.Full.class) String title;
-        @JsonView(Views.Full.class) String sharing;
-        @JsonView(Views.Full.class) public List<ScModel> tracks;
-        public ApiCreateObject(Playlist p) {
-
-            this.title = p.title;
-            this.sharing =  p.sharing == Sharing.PRIVATE ? Params.Track.PRIVATE : Params.Track.PUBLIC;
-
-            // convert to ScModel as we only want to serialize the id
-            this.tracks = new ArrayList<ScModel>();
-            for (Track t : p.tracks) {
-                tracks.add(new ScModel(t.getId()));
-            }
-        }
-
-        public String toJson() throws JsonProcessingException {
-            return new ObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, true).writeValueAsString(this);
-        }
-    }
-
-    @JsonRootName("playlist")
-    public static class ApiUpdateObject {
-        @JsonView(Views.Full.class) List<ScModel> tracks;
-
-        public ApiUpdateObject(Collection<Long> toAdd) {
-            this.tracks = new ArrayList<ScModel>(toAdd.size());
-            for (Long id : toAdd){
-                this.tracks.add(new ScModel(id));
-            }
-        }
-
-        public String toJson() throws IOException {
-            return new ObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, true).writeValueAsString(this);
-        }
     }
 
     @Override

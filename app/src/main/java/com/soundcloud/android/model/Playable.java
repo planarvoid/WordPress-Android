@@ -432,6 +432,11 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         }
     }
 
+    @NotNull
+    public Sharing getSharing() {
+        return sharing;
+    }
+
     protected static boolean isTrackCursor(Cursor cursor){
         return cursor.getInt(cursor.getColumnIndex(DBHelper.Sounds._TYPE)) == DB_TYPE_TRACK;
     }

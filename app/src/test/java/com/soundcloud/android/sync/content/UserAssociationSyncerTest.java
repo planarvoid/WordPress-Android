@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersOperations;
 import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.api.http.APIResponse;
@@ -61,6 +62,8 @@ public class UserAssociationSyncerTest {
     @Mock
     private SuggestedUsersOperations suggestedUsersOperations;
     @Mock
+    private AccountOperations accountOperations;
+    @Mock
     private UserAssociation userAssociation;
     @Mock
     private User user;
@@ -76,17 +79,17 @@ public class UserAssociationSyncerTest {
 
     @Before
     public void before() {
-        TestHelper.setUserId(USER_ID);
-
+        TestHelper.setUserId(133201L);
         userAssociationSyncer = new UserAssociationSyncer(Robolectric.application,
-                resolver, userAssociationStorage, followingOperations);
+                resolver, userAssociationStorage, followingOperations, accountOperations);
         when(userAssociation.getUser()).thenReturn(user);
         when(userAssociation.getLocalSyncState()).thenReturn(UserAssociation.LocalState.NONE);
+        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
     }
 
     @Test
     public void shouldNotSyncWithNoLoggedInUser() throws Exception {
-        TestHelper.setUserId(0);
+        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
         ApiSyncResult result = sync(Content.ME_FOLLOWERS.uri);
         expect(result.success).toBeFalse();
     }
@@ -331,7 +334,7 @@ public class UserAssociationSyncerTest {
 
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {
         addPendingHttpResponse(ApiSyncServiceTest.class, fixtures);
-        UserAssociationSyncer syncer = new UserAssociationSyncer(Robolectric.application);
+        UserAssociationSyncer syncer = new UserAssociationSyncer(Robolectric.application, accountOperations);
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }
 

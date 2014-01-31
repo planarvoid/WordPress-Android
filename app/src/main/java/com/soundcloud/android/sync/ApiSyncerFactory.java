@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync;
 
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.content.PlaylistSyncer;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.sync.content.UserAssociationSyncer;
 
@@ -15,6 +16,10 @@ public class ApiSyncerFactory {
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
                 return new UserAssociationSyncer(context);
+
+            case ME_PLAYLISTS:
+            case PLAYLIST:
+                return new PlaylistSyncer(context, context.getContentResolver());
 
             default:
                 return new ApiSyncer(context, context.getContentResolver());

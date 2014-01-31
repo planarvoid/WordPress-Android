@@ -154,6 +154,11 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
     }
 
     @NotNull
+    public List<Long> queryIdsByUri(Uri contentUri) {
+        return new QueryBuilder(contentUri).queryIds();
+    }
+
+    @NotNull
     protected List<T> queryAllByUri(Uri contentUri) {
         return new QueryBuilder(contentUri).queryAll();
     }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.storage;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
@@ -237,6 +238,28 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
             }
             c.close();
             return uris;
+        }
+        return null;
+    }
+
+    public @Nullable List<Long> getPlaylistTrackIds(long playlistId) {
+        return mTrackDAO.queryIdsByUri(Content.PLAYLIST_TRACKS.forId(playlistId));
+    }
+
+    public List<Long> getUnpushedTracksForPlaylist(long playlistId) {
+        Cursor cursor = mResolver.query(
+                Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId)),
+                new String[]{DBHelper.PlaylistTracksView._ID},
+                DBHelper.PlaylistTracksView.PLAYLIST_ADDED_AT + " IS NOT NULL", null,
+                DBHelper.PlaylistTracksView.PLAYLIST_ADDED_AT + " ASC");
+
+        if (cursor != null) {
+            List<Long> ids = Lists.newArrayList();
+            while (cursor.moveToNext()) {
+                ids.add(cursor.getLong(0));
+            }
+            cursor.close();
+            return ids;
         }
         return null;
     }

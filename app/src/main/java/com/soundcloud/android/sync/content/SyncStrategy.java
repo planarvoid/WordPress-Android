@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync.content;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.model.CollectionHolder;
@@ -25,12 +26,23 @@ public abstract class SyncStrategy {
     protected final ContentResolver mResolver;
     protected final Context mContext;
     protected final SyncStateManager mSyncStateManager;
+    private final AccountOperations mAccountOperations;
 
     protected SyncStrategy(Context context, ContentResolver resolver) {
-        mApi = new PublicApi(context);
-        mResolver = resolver;
+        this(context, resolver, new PublicApi(context), new SyncStateManager(resolver, new LocalCollectionDAO(resolver)), new AccountOperations(context));
+    }
+
+    protected SyncStrategy(Context context, ContentResolver resolver, AccountOperations accountOperations){
+        this(context, resolver, new PublicApi(context), new SyncStateManager(resolver, new LocalCollectionDAO(resolver)), accountOperations);
+    }
+
+    protected SyncStrategy(Context context, ContentResolver resolver, PublicCloudAPI api, SyncStateManager syncStateManager,
+                           AccountOperations accountOperations){
         mContext = context;
-        mSyncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
+        mApi = api;
+        mResolver = resolver;
+        mSyncStateManager = syncStateManager;
+        mAccountOperations = accountOperations;
     }
 
     @NotNull
@@ -41,7 +53,7 @@ public abstract class SyncStrategy {
     }
 
     protected boolean isLoggedIn(){
-        return SoundCloudApplication.getUserId() > 0;
+        return mAccountOperations.soundCloudAccountExists();
     }
 
     public static class IdHolder extends CollectionHolder<Long> {

@@ -180,25 +180,6 @@ public class ApiSyncerTest {
     }
 
     @Test
-    public void shouldSyncPlaylists() throws Exception {
-        TestHelper.addResourceResponse(getClass(), "/me/playlists?representation=compact&limit=200&linked_partitioning=1", "me_playlists_compact.json");
-        TestHelper.addResourceResponse(getClass(), "/playlists/3250812/tracks", "playlist_3250812_tracks.json");
-        TestHelper.addResourceResponse(getClass(), "/playlists/3250804/tracks", "playlist_3250804_tracks.json");
-
-        ApiSyncResult result = sync(Content.ME_PLAYLISTS.uri);
-        expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(startTime);
-
-        expect(Content.TRACKS).toHaveCount(7);
-        expect(Content.PLAYLISTS).toHaveCount(3);
-        expect(Content.ME_PLAYLISTS).toHaveCount(3);
-
-        expect(Content.PLAYLIST_TRACKS.forQuery("3250812")).toHaveCount(4);
-        expect(Content.PLAYLIST_TRACKS.forQuery("3250804")).toHaveCount(4);
-        expect(Content.PLAYLIST_TRACKS.forQuery("4042968")).toHaveCount(0); // this one is too big for the sync (101 sounds)
-    }
-
-    @Test
     public void shouldSyncSoundsAndLikes() throws Exception {
         ApiSyncResult result = syncMeSounds();
         expect(result.success).toBeTrue();
@@ -247,75 +228,9 @@ public class ApiSyncerTest {
         expect(Content.ME_CONNECTIONS).toHaveCount(3);
     }
 
-    @Test
-    public void shouldPushNewPlaylist() throws Exception {
-        syncMeSounds();
-
-        Playlist playlist = TestHelper.readResource("/com/soundcloud/android/sync/playlist.json");
-        TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
-
-        Playlist p = TestHelper.createNewUserPlaylist(playlist.user, false, playlist.tracks);
-        TestHelper.insertAsSoundAssociation(p, SoundAssociation.Type.PLAYLIST);
-
-        expect(Content.ME_SOUNDS).toHaveCount(51);
-        expect(Content.COLLECTIONS).toHaveCount(0);
-        expect(new ApiSyncer(Robolectric.application, resolver).pushLocalPlaylists()).toBe(1);
-        expect(SoundCloudApplication.sModelManager.getPlaylist(p.toUri())).toBeNull();
-        expect(Content.ME_SOUNDS).toHaveCount(51);
-        expect(Content.COLLECTIONS).toHaveCount(1);
-
-        expect(syncStateManager.fromContent(playlist.toUri()).shouldAutoRefresh()).toBeFalse();
-    }
-
     private ApiSyncResult syncMeSounds() throws IOException {
         TestHelper.addResourceResponse(getClass(), "/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
         return sync(Content.ME_SOUNDS.uri);
-    }
-
-    @Test
-    public void shouldSyncAPlaylist() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
-        ApiSyncResult result = sync(Content.PLAYLIST.forId(2524386l));
-        expect(result.success).toBe(true);
-        expect(result.synced_at).toBeGreaterThan(startTime);
-        expect(result.change).toEqual(ApiSyncResult.CHANGED);
-        expect(Content.PLAYLISTS).toHaveCount(1);
-
-        Playlist playlist = TestHelper.loadPlaylist(2524386);
-
-        expect(playlist.title).toEqual("fall into fall");
-        expect(playlist.getTrackCount()).toEqual(41);
-        expect(playlist.tracks).not.toBeNull();
-
-        final Track track = playlist.tracks.get(10);
-        expect(track.title).toEqual("Mozart Parties - Where Has Everybody Gone (Regal Safari Remix)");
-        expect(track.user).not.toBeNull();
-        expect(track.user.username).toEqual("Regal Safari");
-    }
-
-    @Test
-    public void shouldSyncPlaylistWithAdditions() throws Exception {
-
-        TestHelper.addPendingHttpResponse(getClass(), "tracks.json");
-        ApiSyncResult result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));
-        expect(result.success).toBe(true);
-
-        final Playlist playlist = new Playlist(2524386);
-
-        expect(playlistStorage.addTrackToPlaylist(playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
-        expect(playlistStorage.addTrackToPlaylist(playlist, 10853436, System.currentTimeMillis() + 100)).not.toBeNull();
-
-        TestHelper.addPendingHttpResponse(getClass(), "playlist.json", "playlist_added.json");
-
-        result = sync(Content.PLAYLIST.forId(10696200));
-        expect(result.success).toBe(true);
-        expect(result.synced_at).toBeGreaterThan(startTime);
-        expect(result.change).toEqual(ApiSyncResult.CHANGED);
-        expect(Content.TRACKS).toHaveCount(44);
-
-        Playlist p = TestHelper.loadPlaylist(playlist.getId());
-        expect(p.tracks.size()).toBe(43);
-        expect(p.tracks.get(1).title).toEqual("recording on thursday afternoon");
     }
 
     @Test

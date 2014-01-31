@@ -6,6 +6,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.storage.CollectionStorage;
@@ -50,15 +51,20 @@ public class UserAssociationSyncer extends SyncStrategy {
     private int mBulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
 
     public UserAssociationSyncer(Context context) {
-        super(context, context.getContentResolver());
+        this(context, new AccountOperations(context));
+    }
+
+    @VisibleForTesting
+    protected UserAssociationSyncer(Context context, AccountOperations accountOperations) {
+        super(context, context.getContentResolver(), accountOperations);
         Scheduler scheduler = Schedulers.currentThread();
         init(new UserAssociationStorage(scheduler, context.getContentResolver()), new FollowingOperations(scheduler));
     }
 
     @VisibleForTesting
     protected UserAssociationSyncer(Context context, ContentResolver resolver, UserAssociationStorage userAssociationStorage,
-                                    FollowingOperations followingOperations) {
-        super(context, resolver);
+                                    FollowingOperations followingOperations, AccountOperations accountOperations) {
+        super(context, resolver, accountOperations);
         init(userAssociationStorage, followingOperations);
     }
 

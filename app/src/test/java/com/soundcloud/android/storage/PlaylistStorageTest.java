@@ -1,7 +1,6 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,6 +27,7 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -157,6 +157,26 @@ public class PlaylistStorageTest {
                 DBHelper.ActivityView.TYPE + " IN ( " + Activity.getDbPlaylistTypesForQuery() + " ) ";
         verify(resolver).delete(Content.ME_ALL_ACTIVITIES.uri, where, null);
     }
+
+    @Test
+    public void shouldLoadPlaylistTrackIds() throws Exception {
+        final ArrayList<Long> idList = Lists.newArrayList(55724706L, 36831713L, 55104293L);
+        when(trackDAO.queryIdsByUri(Content.PLAYLIST_TRACKS.forId(1L))).thenReturn(idList);
+        expect(storage.getPlaylistTrackIds(1L)).toEqual(idList);
+    }
+
+    @Test
+    public void shouldReturnUnpushedTracksForPlaylist() throws Exception {
+        Cursor cursor = new FakeCursor(new Object[][] {{2L}, {3L}});
+
+        when(resolver.query(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(1L)),
+                new String[]{DBHelper.PlaylistTracksView._ID},
+                DBHelper.PlaylistTracksView.PLAYLIST_ADDED_AT + " IS NOT NULL", null,
+                DBHelper.PlaylistTracksView.PLAYLIST_ADDED_AT + " ASC")).thenReturn(cursor);
+
+        expect(storage.getUnpushedTracksForPlaylist(1L)).toEqual(Lists.newArrayList( 2L, 3L));
+    }
+
 
     private final class FakeCursor extends SimpleTestCursor {
 
