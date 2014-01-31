@@ -1,5 +1,6 @@
 package com.soundcloud.android.storage;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
@@ -224,7 +225,14 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     }
 
     private List<Track> loadTracksForPlaylist(Playlist playlist) {
-        return mTrackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forId(playlist.getId()));
+        final List<Track> tracks = mTrackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forId(playlist.getId()));
+        // make sure we loops database records through the cache
+        return Lists.transform(tracks, new Function<Track, Track>() {
+            @Override
+            public Track apply(Track input) {
+                return mModelManager.cache(input);
+            }
+        });
     }
 
     public @Nullable Set<Uri> getPlaylistsDueForSync() {

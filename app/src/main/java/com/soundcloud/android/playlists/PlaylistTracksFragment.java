@@ -4,7 +4,6 @@ import static rx.android.observables.AndroidObservable.fromFragment;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListView;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
@@ -25,23 +24,17 @@ import org.jetbrains.annotations.Nullable;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -166,9 +159,9 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final int startPosition = position - mListView.getRefreshableView().getHeaderViewsCount();
-        final Track track = SoundCloudApplication.sModelManager.getTrack(id);
-        mPlaybackOperations.playFromPlaylist(getActivity(), mPlaylist, startPosition, track,
+        final int trackPosition = position - mListView.getRefreshableView().getHeaderViewsCount();
+        final Track initialTrack = mAdapter.getItem(trackPosition);
+        mPlaybackOperations.playFromPlaylist(getActivity(), mPlaylist, trackPosition, initialTrack,
                 Screen.fromBundle(getArguments()));
     }
 

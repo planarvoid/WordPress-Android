@@ -79,6 +79,20 @@ public class PlaylistStorageTest {
     }
 
     @Test
+    public void shouldCachePlaylistTracksAfterLoading() throws NotFoundException {
+        Playlist playlist = new Playlist(1L);
+        when(playlistDAO.queryById(1L)).thenReturn(playlist);
+        when(modelManager.cache(playlist)).thenReturn(playlist);
+        final Track track = new Track();
+        when(trackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forQuery("1"))).thenReturn(Arrays.asList(track));
+
+        Playlist loadedPlaylist = storage.loadPlaylistWithTracks(1L);
+        loadedPlaylist.getTracks().get(0); // access the first track should trigger the cache
+
+        verify(modelManager).cache(track);
+    }
+
+    @Test
     public void shouldStorePlaylist() throws Exception {
         Playlist playlist = new Playlist(1L);
         playlist.tracks = Lists.newArrayList(new Track(1L));
@@ -96,6 +110,7 @@ public class PlaylistStorageTest {
         Cursor cursor = new FakeCursor(1);
         when(resolver.query(Content.PLAYLISTS.uri, null, DBHelper.SoundView._ID + " < 0", null, DBHelper.SoundView._ID + " DESC")).thenReturn(cursor);
         when(modelManager.getCachedPlaylistFromCursor(cursor)).thenReturn(playlist);
+        when(modelManager.cache(track)).thenReturn(track);
         when(trackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forId(playlist.getId()))).thenReturn(Arrays.asList(track));
 
         List<Playlist> playlists = storage.getLocalPlaylists();
