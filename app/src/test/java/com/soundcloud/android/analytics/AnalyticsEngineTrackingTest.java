@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics;
 
 
+import static com.soundcloud.android.events.EventBus2.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
@@ -19,7 +20,7 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventBus2;
-import com.soundcloud.android.events.EventQueues;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -63,7 +64,7 @@ public class AnalyticsEngineTrackingTest {
 
     @Before
     public void setUp() throws Exception {
-        when(eventBus.subscribe(anyString(), any(Observer.class))).thenReturn(Subscriptions.empty());
+        when(eventBus.subscribe(any(QueueDescriptor.class), any(Observer.class))).thenReturn(Subscriptions.empty());
         when(scheduler.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(Subscriptions.empty());
     }
 
@@ -214,7 +215,7 @@ public class AnalyticsEngineTrackingTest {
         PlaybackEvent playbackEvent = PlaybackEvent.forPlay(mock(Track.class), 0, Mockito.mock(TrackSourceInfo.class));
 
         ArgumentCaptor<Observer> observer = ArgumentCaptor.forClass(Observer.class);
-        verify(eventBus).subscribe(eq(EventQueues.PLAYBACK), observer.capture());
+        verify(eventBus).subscribe(eq(EventQueue.PLAYBACK), observer.capture());
 
         observer.getValue().onNext(playbackEvent);
 
@@ -258,7 +259,7 @@ public class AnalyticsEngineTrackingTest {
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleOnboardingEvent(any(OnboardingEvent.class));
 
         ArgumentCaptor<Observer> observer = ArgumentCaptor.forClass(Observer.class);
-        verify(eventBus).subscribe(eq(EventQueues.PLAYBACK), observer.capture());
+        verify(eventBus).subscribe(eq(EventQueue.PLAYBACK), observer.capture());
         observer.getValue().onNext(PlaybackEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
         verify(analyticsProviderTwo).handlePlaybackEvent(any(PlaybackEvent.class));
 

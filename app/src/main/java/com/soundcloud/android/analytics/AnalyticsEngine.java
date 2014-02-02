@@ -7,7 +7,7 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventBus2;
-import com.soundcloud.android.events.EventQueues;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -90,7 +90,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         if (mAnalyticsProperties.isAnalyticsAvailable() && analyticsEnabled) {
             Log.d(this, "Subscribing to events");
             mEventsSubscription = new CompositeSubscription();
-            mEventsSubscription.add(mEventBus.subscribe(EventQueues.PLAYBACK, new PlaybackEventObserver()));
+            mEventsSubscription.add(mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackEventObserver()));
             mEventsSubscription.add(EventBus.UI.subscribe(new UIEventObserver()));
             mEventsSubscription.add(EventBus.ONBOARDING.subscribe(new OnboardingEventObserver()));
             mEventsSubscription.add(EventBus.ACTIVITY_LIFECYCLE.subscribe(new ActivityEventObserver()));

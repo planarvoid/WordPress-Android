@@ -20,7 +20,7 @@ import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventBus2;
-import com.soundcloud.android.events.EventQueues;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.migrations.MigrationEngine;
 import com.soundcloud.android.model.ContentStats;
@@ -92,7 +92,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         instance = this;
 
         mEventBus = new EventBus2();
-        mEventBus.registerQueue(EventQueues.PLAYBACK);
+        mEventBus.registerQueue(EventQueue.PLAYBACK);
 
         mObjectGraph = ObjectGraph.create(new ApplicationModule(this));
 

@@ -10,26 +10,32 @@ import android.util.SparseArray;
 
 public class EventBus2 {
 
-    public interface Queue<T> {
-        String name();
-        Subscription subscribe(Observer<? super T> observer);
-        void publish(T event);
-        Observable<T> transform();
+    @SuppressWarnings("unused") // we keep the type variable to enforce type checking
+    public static final class QueueDescriptor<T> {
+        public final String name;
+
+        private QueueDescriptor(String name) {
+            this.name = name;
+        }
+
+        public int id() {
+            return name.hashCode();
+        }
+
+        public static <T> QueueDescriptor<T> create(String name) {
+            return new QueueDescriptor<T>(name);
+        }
     }
 
-    private class SubjectQueue<T> implements Queue<T> {
+    public interface Queue<T> {
+        public abstract Subscription subscribe(Observer<? super T> observer);
+        public abstract void publish(T event);
+        public abstract Observable<T> transform();
+    }
 
-        private final String mName;
+    private static class SubjectQueue<T> implements Queue<T> {
+
         private final PublishSubject<T> mSubject = PublishSubject.create();
-
-        private SubjectQueue(String name) {
-            mName = name;
-        }
-
-        @Override
-        public String name() {
-            return mName;
-        }
 
         @Override
         public Subscription subscribe(Observer<? super T> observer) {
@@ -49,19 +55,20 @@ public class EventBus2 {
 
     private SparseArray<Queue<?>> mQueues = new SparseArray<Queue<?>>();
 
-    public <T> Queue<T> queue(String name) {
-        return (Queue<T>) mQueues.get(name.hashCode());
+    @SuppressWarnings("unchecked")
+    public <T> Queue<T> queue(QueueDescriptor<T> queue) {
+        return (Queue<T>) mQueues.get(queue.id());
     }
 
-    public <T> void registerQueue(String name) {
-        mQueues.put(name.hashCode(), new SubjectQueue<T>(name));
+    public <T> void registerQueue(QueueDescriptor<T> qd) {
+        mQueues.put(qd.id(), new SubjectQueue<T>());
     }
 
-    public <T> Subscription subscribe(String queueName, Observer<T> observer) {
-        return this.<T>queue(queueName).subscribe(observer);
+    public <T> Subscription subscribe(QueueDescriptor<T> qd, Observer<T> observer) {
+        return this.<T>queue(qd).subscribe(observer);
     }
 
-    public <T> void publish(String queueName, T event) {
-        this.<T>queue(queueName).publish(event);
+    public <T> void publish(QueueDescriptor<T> qd, T event) {
+        this.<T>queue(qd).publish(event);
     }
 }

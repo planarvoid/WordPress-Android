@@ -1,10 +1,10 @@
 package com.soundcloud.android.analytics;
 
 
+import static com.soundcloud.android.events.EventBus2.QueueDescriptor;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -17,7 +17,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventBus2;
-import com.soundcloud.android.events.EventQueues;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Track;
@@ -62,7 +62,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Before
     public void setUp() throws Exception {
-        when(eventBus.subscribe(anyString(), any(Observer.class))).thenReturn(Subscriptions.empty());
+        when(eventBus.subscribe(any(QueueDescriptor.class), any(Observer.class))).thenReturn(Subscriptions.empty());
         when(scheduler.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(subscription);
     }
 
@@ -179,7 +179,7 @@ public class AnalyticsEngineEventFlushingTest {
         initialiseAnalyticsEngine();
 
         ArgumentCaptor<Observer> observer = ArgumentCaptor.forClass(Observer.class);
-        verify(eventBus).subscribe(eq(EventQueues.PLAYBACK), observer.capture());
+        verify(eventBus).subscribe(eq(EventQueue.PLAYBACK), observer.capture());
 
         observer.getValue().onNext(PlaybackEvent.forPlay(new Track(), 1L, mock(TrackSourceInfo.class)));
 
