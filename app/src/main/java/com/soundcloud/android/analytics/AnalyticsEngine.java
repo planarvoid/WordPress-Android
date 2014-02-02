@@ -6,6 +6,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueues;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -35,6 +37,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     @VisibleForTesting
     static final long FLUSH_DELAY_SECONDS = 120L;
 
+    private final EventBus2 mEventBus;
     private final Collection<AnalyticsProvider> mAnalyticsProviders;
     private final AnalyticsProperties mAnalyticsProperties;
 
@@ -55,15 +58,16 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     };
 
-    public AnalyticsEngine(SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
+    public AnalyticsEngine(EventBus2 eventBus, SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
             List<AnalyticsProvider> analyticsProviders) {
-        this(sharedPreferences, analyticsProperties, AndroidSchedulers.mainThread(), analyticsProviders);
+        this(eventBus, sharedPreferences, analyticsProperties, AndroidSchedulers.mainThread(), analyticsProviders);
     }
 
     @VisibleForTesting
-    protected AnalyticsEngine(SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
+    protected AnalyticsEngine(EventBus2 eventBus, SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
                               Scheduler scheduler, List<AnalyticsProvider> analyticsProviders) {
         Log.d(this, "Creating analytics engine");
+        mEventBus = eventBus;
         mAnalyticsProviders = Lists.newArrayList(analyticsProviders);
         mAnalyticsProperties = analyticsProperties;
         mScheduler = scheduler;
@@ -86,7 +90,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         if (mAnalyticsProperties.isAnalyticsAvailable() && analyticsEnabled) {
             Log.d(this, "Subscribing to events");
             mEventsSubscription = new CompositeSubscription();
-            mEventsSubscription.add(EventBus.PLAYBACK.subscribe(new PlaybackEventObserver()));
+            mEventsSubscription.add(mEventBus.subscribe(EventQueues.PLAYBACK, new PlaybackEventObserver()));
             mEventsSubscription.add(EventBus.UI.subscribe(new UIEventObserver()));
             mEventsSubscription.add(EventBus.ONBOARDING.subscribe(new OnboardingEventObserver()));
             mEventsSubscription.add(EventBus.ACTIVITY_LIFECYCLE.subscribe(new ActivityEventObserver()));

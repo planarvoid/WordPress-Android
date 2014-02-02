@@ -18,6 +18,8 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueues;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -29,8 +31,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import rx.Observer;
 import rx.Scheduler;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action0;
@@ -54,9 +58,12 @@ public class AnalyticsEngineTrackingTest {
     private AnalyticsProvider analyticsProviderTwo;
     @Mock
     private Scheduler scheduler;
+    @Mock
+    private EventBus2 eventBus;
 
     @Before
     public void setUp() throws Exception {
+        when(eventBus.subscribe(anyString(), any(Observer.class))).thenReturn(Subscriptions.empty());
         when(scheduler.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(Subscriptions.empty());
     }
 
@@ -205,7 +212,11 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         PlaybackEvent playbackEvent = PlaybackEvent.forPlay(mock(Track.class), 0, Mockito.mock(TrackSourceInfo.class));
-        EventBus.PLAYBACK.publish(playbackEvent);
+
+        ArgumentCaptor<Observer> observer = ArgumentCaptor.forClass(Observer.class);
+        verify(eventBus).subscribe(eq(EventQueues.PLAYBACK), observer.capture());
+
+        observer.getValue().onNext(playbackEvent);
 
         verify(analyticsProviderOne, times(1)).handlePlaybackEvent(playbackEvent);
         verify(analyticsProviderTwo, times(1)).handlePlaybackEvent(playbackEvent);
@@ -246,14 +257,17 @@ public class AnalyticsEngineTrackingTest {
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleUIEvent(any(UIEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleOnboardingEvent(any(OnboardingEvent.class));
 
+        ArgumentCaptor<Observer> observer = ArgumentCaptor.forClass(Observer.class);
+        verify(eventBus).subscribe(eq(EventQueues.PLAYBACK), observer.capture());
+        observer.getValue().onNext(PlaybackEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
+        verify(analyticsProviderTwo).handlePlaybackEvent(any(PlaybackEvent.class));
+
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        EventBus.PLAYBACK.publish(PlaybackEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
         EventBus.SCREEN_ENTERED.publish("screen");
         EventBus.UI.publish(UIEvent.fromToggleFollow(true, "screen", 0));
         EventBus.ONBOARDING.publish(OnboardingEvent.authComplete());
 
         verify(analyticsProviderTwo).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
-        verify(analyticsProviderTwo).handlePlaybackEvent(any(PlaybackEvent.class));
         verify(analyticsProviderTwo).handleScreenEvent(anyString());
         verify(analyticsProviderTwo).handleUIEvent(any(UIEvent.class));
         verify(analyticsProviderTwo).handleOnboardingEvent(any(OnboardingEvent.class));
@@ -270,7 +284,7 @@ public class AnalyticsEngineTrackingTest {
     }
 
     private void initialiseAnalyticsEngine() {
-        analyticsEngine = new AnalyticsEngine(sharedPreferences, analyticsProperties, scheduler,
+        analyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, analyticsProperties, scheduler,
                 Lists.newArrayList(analyticsProviderOne, analyticsProviderTwo));
     }
 

@@ -19,6 +19,8 @@ import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueues;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.migrations.MigrationEngine;
 import com.soundcloud.android.model.ContentStats;
@@ -69,6 +71,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     private User mLoggedInUser;
     private AccountOperations mAccountOperations;
     private AnalyticsEngine mAnalyticsEngine;
+    private EventBus2 mEventBus;
 
     private ObjectGraph mObjectGraph;
 
@@ -87,6 +90,9 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
         sModelManager = new ScModelManager(this);
         instance = this;
+
+        mEventBus = new EventBus2();
+        mEventBus.registerQueue(EventQueues.PLAYBACK);
 
         mObjectGraph = ObjectGraph.create(new ApplicationModule(this));
 
@@ -194,8 +200,12 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         } else {
            analyticsProviders = Collections.emptyList();
         }
-        mAnalyticsEngine = new AnalyticsEngine(sharedPreferences, analyticsProperties, analyticsProviders);
+        mAnalyticsEngine = new AnalyticsEngine(mEventBus, sharedPreferences, analyticsProperties, analyticsProviders);
         Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && appProperties.isDebugBuild();
+    }
+
+    public EventBus2 getEventBus() {
+        return mEventBus;
     }
 
     public ObjectGraph getObjectGraph() {

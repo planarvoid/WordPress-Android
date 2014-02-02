@@ -23,7 +23,6 @@ public enum EventBus {
     CURRENT_USER_CHANGED(CurrentUserChangedEvent.class),
     PLAYABLE_CHANGED(PlayableChangedEvent.class),
     SCREEN_ENTERED(String.class),
-    PLAYBACK(PlaybackEvent.class),
     UI(UIEvent.class),
     ONBOARDING(OnboardingEvent.class),;
 

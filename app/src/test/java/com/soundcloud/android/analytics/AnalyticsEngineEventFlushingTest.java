@@ -4,6 +4,7 @@ package com.soundcloud.android.analytics;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -15,6 +16,8 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueues;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Track;
@@ -28,8 +31,10 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action0;
 
 import android.app.Activity;
@@ -52,9 +57,12 @@ public class AnalyticsEngineEventFlushingTest {
     private Scheduler scheduler;
     @Mock
     private Subscription subscription;
+    @Mock
+    private EventBus2 eventBus;
 
     @Before
     public void setUp() throws Exception {
+        when(eventBus.subscribe(anyString(), any(Observer.class))).thenReturn(Subscriptions.empty());
         when(scheduler.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(subscription);
     }
 
@@ -170,7 +178,10 @@ public class AnalyticsEngineEventFlushingTest {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
-        EventBus.PLAYBACK.publish(PlaybackEvent.forPlay(new Track(), 1L, mock(TrackSourceInfo.class)));
+        ArgumentCaptor<Observer> observer = ArgumentCaptor.forClass(Observer.class);
+        verify(eventBus).subscribe(eq(EventQueues.PLAYBACK), observer.capture());
+
+        observer.getValue().onNext(PlaybackEvent.forPlay(new Track(), 1L, mock(TrackSourceInfo.class)));
 
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
@@ -196,7 +207,7 @@ public class AnalyticsEngineEventFlushingTest {
     }
 
     private void initialiseAnalyticsEngine() {
-        analyticsEngine = new AnalyticsEngine(sharedPreferences, analyticsProperties, scheduler,
+        analyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, analyticsProperties, scheduler,
                 Lists.newArrayList(analyticsProviderOne, analyticsProviderTwo));
     }
 

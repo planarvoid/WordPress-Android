@@ -1,10 +1,14 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueues;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -14,8 +18,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import rx.Observer;
-import rx.Subscription;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaybackEventSourceTest {
@@ -28,21 +30,20 @@ public class PlaybackEventSourceTest {
     @Mock
     private TrackSourceInfo trackSourceInfo;
     @Mock
-    private Observer<PlaybackEvent> observer;
+    private EventBus2 eventBus;
 
     @Before
     public void setUp() throws Exception {
         track = TestHelper.getModelFactory().createModel(Track.class);
-        playbackEventSource = new PlaybackEventSource();
+        playbackEventSource = new PlaybackEventSource(eventBus);
     }
 
     @Test
     public void trackPlayEventPublishesPlaybackEventWithPlaybackEventData() throws Exception {
-        Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
         playbackEventSource.publishPlayEvent(track, trackSourceInfo, USER_ID);
 
         ArgumentCaptor<PlaybackEvent> captor = ArgumentCaptor.forClass(PlaybackEvent.class);
-        verify(observer).onNext(captor.capture());
+        verify(eventBus).publish(eq(EventQueues.PLAYBACK), captor.capture());
 
         PlaybackEvent playbackEvent = captor.getValue();
         expect(playbackEvent.getTrack()).toBe(track);
@@ -50,80 +51,73 @@ public class PlaybackEventSourceTest {
         expect(playbackEvent.isPlayEvent()).toBeTrue();
         expect(playbackEvent.getUserId()).toBe(USER_ID);
         expect(playbackEvent.getTimeStamp()).toBeGreaterThan(0L);
-
-        subscription.unsubscribe();
     }
 
     @Test
     public void trackStopEventDoesNothingWhenCallingStopAfterNoPlayEvent() throws Exception {
-        Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
         playbackEventSource.publishStopEvent(track, trackSourceInfo, USER_ID, 0);
-        verifyZeroInteractions(observer);
-        subscription.unsubscribe();
+        verifyZeroInteractions(eventBus);
     }
 
     @Test
     public void trackStopEventPublishesPlaybackEventWithPlaybackEventDataAfterInitialPlayEvent() throws Exception {
         playbackEventSource.publishPlayEvent(track, trackSourceInfo, USER_ID);
-        Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
         playbackEventSource.publishStopEvent(track, trackSourceInfo, USER_ID, PlaybackEvent.STOP_REASON_BUFFERING);
 
         ArgumentCaptor<PlaybackEvent> captor = ArgumentCaptor.forClass(PlaybackEvent.class);
-        verify(observer).onNext(captor.capture());
+        verify(eventBus, times(2)).publish(eq(EventQueues.PLAYBACK), captor.capture());
 
-        PlaybackEvent playbackEvent = captor.getValue();
-        expect(playbackEvent.getTrack()).toBe(track);
-        expect(playbackEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
-        expect(playbackEvent.isStopEvent()).toBeTrue();
-        expect(playbackEvent.getUserId()).toBe(USER_ID);
-        expect(playbackEvent.getTimeStamp()).toBeGreaterThan(0L);
-        expect(playbackEvent.getStopReason()).toEqual(PlaybackEvent.STOP_REASON_BUFFERING);
-
-        subscription.unsubscribe();
+        PlaybackEvent stopEvent = captor.getAllValues().get(1);
+        expect(stopEvent.getTrack()).toBe(track);
+        expect(stopEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
+        expect(stopEvent.isStopEvent()).toBeTrue();
+        expect(stopEvent.getUserId()).toBe(USER_ID);
+        expect(stopEvent.getTimeStamp()).toBeGreaterThan(0L);
+        expect(stopEvent.getStopReason()).toEqual(PlaybackEvent.STOP_REASON_BUFFERING);
     }
 
     @Test
     public void trackStopEventDoesNothingWhenCallingStopAfterPlayEventConsumed() throws Exception {
         playbackEventSource.publishPlayEvent(track, trackSourceInfo, USER_ID);
         playbackEventSource.publishStopEvent(track, trackSourceInfo, USER_ID, 0);
-        Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
+        ArgumentCaptor<PlaybackEvent> captor = ArgumentCaptor.forClass(PlaybackEvent.class);
+        verify(eventBus, times(2)).publish(eq(EventQueues.PLAYBACK), captor.capture());
+
         playbackEventSource.publishStopEvent(track, trackSourceInfo, USER_ID, 0);
-        verifyZeroInteractions(observer);
-        subscription.unsubscribe();
+        verifyNoMoreInteractions(eventBus);
     }
 
     @Test
     public void trackPlayEventShouldSkipNullTracks() {
-        Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
         playbackEventSource.publishPlayEvent(null, trackSourceInfo, USER_ID);
-        verifyZeroInteractions(observer);
-        subscription.unsubscribe();
+        verifyZeroInteractions(eventBus);
     }
 
     @Test
     public void trackPlayEventShouldSkipNullSourceInfo() {
-        Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
         playbackEventSource.publishPlayEvent(track, null, USER_ID);
-        verifyZeroInteractions(observer);
-        subscription.unsubscribe();
+        verifyZeroInteractions(eventBus);
     }
 
     @Test
     public void trackStopEventShouldSkipNullTracks() {
         playbackEventSource.publishPlayEvent(track, trackSourceInfo, USER_ID);
-        Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
         playbackEventSource.publishStopEvent(null, trackSourceInfo, USER_ID, 0);
-        verifyZeroInteractions(observer);
-        subscription.unsubscribe();
+
+        ArgumentCaptor<PlaybackEvent> captor = ArgumentCaptor.forClass(PlaybackEvent.class);
+        verify(eventBus).publish(eq(EventQueues.PLAYBACK), captor.capture());
+        expect(captor.getValue().isPlayEvent()).toBeTrue();
+        verifyNoMoreInteractions(eventBus);
     }
 
     @Test
     public void trackStopEventShouldSkipNullSourceInfo() {
         playbackEventSource.publishPlayEvent(track, trackSourceInfo, USER_ID);
-        Subscription subscription = EventBus.PLAYBACK.subscribe(observer);
         playbackEventSource.publishStopEvent(track, null, USER_ID, 0);
-        verifyZeroInteractions(observer);
-        subscription.unsubscribe();
+        ArgumentCaptor<PlaybackEvent> captor = ArgumentCaptor.forClass(PlaybackEvent.class);
+        verify(eventBus).publish(eq(EventQueues.PLAYBACK), captor.capture());
+        expect(captor.getValue().isPlayEvent()).toBeTrue();
+        verifyNoMoreInteractions(eventBus);
     }
 
 }

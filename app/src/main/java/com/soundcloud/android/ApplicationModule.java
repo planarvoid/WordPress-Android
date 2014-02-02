@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.analytics.AnalyticsEngine;
+import com.soundcloud.android.events.EventBus2;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
@@ -71,5 +72,10 @@ public class ApplicationModule {
     @Provides
     public PlayerAppWidgetProvider provideAppWidgetProvider() {
         return PlayerAppWidgetProvider.getInstance();
+    }
+
+    @Provides
+    public EventBus2 provideEventBus() {
+        return mApplication.getEventBus();
     }
 }
