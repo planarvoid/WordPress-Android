@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.nostra13.universalimageloader.utils.L;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
@@ -90,6 +91,20 @@ public class PlaylistStorageTest {
         loadedPlaylist.getTracks().get(0); // access the first track should trigger the cache
 
         verify(modelManager).cache(track);
+    }
+
+    @Test
+    public void playlistTracklistShouldBeMutableAfterLoading() throws NotFoundException {
+        Playlist playlist = new Playlist(1L);
+        final Track track = new Track(123L);
+
+        when(playlistDAO.queryById(1L)).thenReturn(playlist);
+        when(modelManager.cache(track)).thenReturn(track);
+        when(modelManager.cache(playlist)).thenReturn(playlist);
+        when(trackDAO.queryAllByUri(eq(Content.PLAYLIST_TRACKS.forId(1L)))).thenReturn(Arrays.asList(track));
+
+        Playlist loadedPlaylist = storage.loadPlaylistWithTracks(1L);
+        expect(loadedPlaylist.getTracks().set(0, new Track(456L))).toBe(track);
     }
 
     @Test
