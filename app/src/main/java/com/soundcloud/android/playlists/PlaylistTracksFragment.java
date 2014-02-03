@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static rx.android.observables.AndroidObservable.fromFragment;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
@@ -70,7 +71,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         new DaggerDependencyInjector().fromAppGraphWithModules(new PlaylistsModule()).inject(this);
     }
 
-    @Inject
+    @VisibleForTesting
     public PlaylistTracksFragment(PlaybackOperations playbackOperations, PlaylistOperations playlistOperations,
                                   ImageOperations imageOperations, SyncStateManager syncStateManager) {
         mPlaybackOperations = playbackOperations;
