@@ -3,6 +3,7 @@ package com.soundcloud.android.robolectric;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.refEq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +31,17 @@ public class EventMonitor {
         ArgumentCaptor<Observer> eventObserver = ArgumentCaptor.forClass(Observer.class);
         verify(eventBus).subscribe(refEq(queue), eventObserver.capture());
         this.captor = eventObserver;
+        return this;
+    }
+
+    public <EventType> EventType verifyEventOn(EventBus2.QueueDescriptor<EventType> queue) {
+        ArgumentCaptor<EventType> eventObserver = ArgumentCaptor.forClass(queue.eventType);
+        verify(eventBus).publish(refEq(queue), eventObserver.capture());
+        return eventObserver.getValue();
+    }
+
+    public <EventType> EventMonitor verifyNoEventsOn(EventBus2.QueueDescriptor<EventType> queue) {
+        verify(eventBus, never()).publish(refEq(queue), any(queue.eventType));
         return this;
     }
 

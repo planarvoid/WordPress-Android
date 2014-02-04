@@ -6,7 +6,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.SoundAssociationOperations;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventBus2;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
@@ -163,7 +162,7 @@ public class PlayableController {
             @Override
             public void onClick(View view) {
                 if (mPlayable != null) {
-                    EventBus.UI.publish(UIEvent.fromToggleLike(mToggleLike.isChecked(),
+                    mEventBus.publish(EventQueue.UI, UIEvent.fromToggleLike(mToggleLike.isChecked(),
                             mOriginProvider.getScreenTag(), mPlayable));
 
                     mToggleLike.setEnabled(false);
@@ -184,7 +183,7 @@ public class PlayableController {
             @Override
             public void onClick(View view) {
                 if (mPlayable != null) {
-                    EventBus.UI.publish(UIEvent.fromToggleRepost(mToggleRepost.isChecked(),
+                    mEventBus.publish(EventQueue.UI, UIEvent.fromToggleRepost(mToggleRepost.isChecked(),
                             mOriginProvider.getScreenTag(), mPlayable));
 
                     mToggleRepost.setEnabled(false);
@@ -205,7 +204,7 @@ public class PlayableController {
             @Override
             public void onClick(View v) {
                 if (mPlayable != null) {
-                    EventBus.UI.publish(UIEvent.fromShare(mOriginProvider.getScreenTag(), mPlayable));
+                    mEventBus.publish(EventQueue.UI, UIEvent.fromShare(mOriginProvider.getScreenTag(), mPlayable));
                     Intent shareIntent = mPlayable.getShareIntent();
                     if (shareIntent != null) {
                         mContext.startActivity(shareIntent);
