@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.collections.views.PlayableBar;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
@@ -29,9 +30,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 
@@ -42,6 +41,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     private Playlist mPlaylist;
     private PlayableBar mPlaylistBar;
     private PlayableController mPlayableController;
+    private EngagementsController mEngagementsController;
 
     @Inject
     ScModelManager mModelManager;
@@ -88,13 +88,15 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         setTitle(R.string.activity_title_playlist);
         setContentView(R.layout.playlist_activity);
 
-        mPlayableController = new PlayableController(this, mSoundAssocOps, new OriginProvider() {
+        mPlayableController = new PlayableController(this);
+
+        mEngagementsController = new EngagementsController(this, findViewById(R.id.playlist_action_bar), mSoundAssocOps, new OriginProvider() {
             @Override
             public String getScreenTag() {
                 return Screen.fromIntent(getIntent()).get();
             }
         });
-        mPlayableController.startListeningForChanges();
+        mEngagementsController.startListeningForChanges();
 
         handleIntent(savedInstanceState, true);
 
@@ -116,7 +118,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mPlaybackStatusListener);
-        mPlayableController.stopListeningForChanges();
+        mEngagementsController.stopListeningForChanges();
     }
 
     private void handleIntent(@Nullable Bundle savedInstanceState, boolean setupViews) {
@@ -160,10 +162,6 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
             }
         });
 
-        mPlayableController.setLikeButton((ToggleButton) findViewById(R.id.toggle_like))
-                .setRepostButton((ToggleButton) findViewById(R.id.toggle_repost))
-                .setShareButton((ImageButton) findViewById(R.id.btn_share));
-
         if (savedInstanceState == null) {
             mFragment = PlaylistTracksFragment.create(getIntent().getData(), Screen.fromIntent(getIntent()));
             getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, mFragment, TRACKS_FRAGMENT_TAG).commit();
@@ -196,7 +194,6 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         if (mPlaylist != null) {
             mPlaylist.startObservingChanges(getContentResolver(), this);
         }
-        mPlayableController.startListeningForChanges();
     }
 
     @Override
@@ -205,7 +202,6 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         if (mPlaylist != null) {
             mPlaylist.stopObservingChanges(getContentResolver(), this);
         }
-        mPlayableController.stopListeningForChanges();
     }
 
     @Override

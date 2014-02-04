@@ -1,4 +1,4 @@
-package com.soundcloud.android.playback.views;
+package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.rx.RxTestHelper.mockObservable;
@@ -14,7 +14,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -37,13 +36,12 @@ import rx.subscriptions.Subscriptions;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlayableControllerTest {
+public class EngagementsControllerTest {
 
-    private PlayableController controller;
+    private EngagementsController controller;
     private ViewGroup rootView;
 
     @Mock
@@ -58,10 +56,7 @@ public class PlayableControllerTest {
     public void setup() {
         LayoutInflater inflater = (LayoutInflater) Robolectric.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         rootView = (ViewGroup) inflater.inflate(R.layout.player_action_bar, null);
-        controller = new PlayableController(context, soundAssocOps, null);
-        controller.setLikeButton((ToggleButton) rootView.findViewById(R.id.toggle_like));
-        controller.setRepostButton((ToggleButton) rootView.findViewById(R.id.toggle_repost));
-        controller.setShareButton((ImageButton) rootView.findViewById(R.id.btn_share));
+        controller = new EngagementsController(context, rootView, soundAssocOps, null);
     }
 
     @After

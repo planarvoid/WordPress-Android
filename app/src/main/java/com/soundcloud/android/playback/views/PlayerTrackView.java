@@ -10,6 +10,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
+import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.collections.views.PlayableBar;
 import com.soundcloud.android.image.ImageSize;
@@ -35,17 +36,15 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import java.util.List;
 
 @SuppressWarnings("deprecation")
 public class PlayerTrackView extends FrameLayout implements
-        LoadCommentsTask.LoadCommentsListener, WaveformControllerLayout.WaveformListener, PlayableController.AddToPlaylistListener {
+        LoadCommentsTask.LoadCommentsListener, WaveformControllerLayout.WaveformListener, EngagementsController.AddToPlaylistListener {
 
     protected Track mTrack;
     protected boolean mOnScreen;
@@ -60,8 +59,11 @@ public class PlayerTrackView extends FrameLayout implements
     @NotNull
     protected PlayerTrackViewListener mListener;
     private PlaybackStateProvider mPlaybackStateProvider;
-    private PlayableController mPlayableController;
+
     private Subscription mTrackSubscription = Subscriptions.empty();
+
+    private PlayableController mPlayableController;
+    private EngagementsController mEngagementsController;
 
     public interface PlayerTrackViewListener extends WaveformControllerLayout.WaveformListener {
         void onAddToPlaylist(Track track);
@@ -85,7 +87,8 @@ public class PlayerTrackView extends FrameLayout implements
                 new SoundAssociationStorage(), new SoundCloudRxHttpClient(),
                 SoundCloudApplication.sModelManager);
 
-        mPlayableController = new PlayableController(context, soundAssocOps, null);
+        mPlayableController = new PlayableController(context);
+        mEngagementsController = new EngagementsController(context, this, soundAssocOps, null, this);
 
         final PlayableBar trackInfoBar = (PlayableBar) findViewById(R.id.playable_bar);
         if (trackInfoBar != null){
@@ -101,24 +104,19 @@ public class PlayerTrackView extends FrameLayout implements
                     .setAvatarView((ImageView) trackInfoBar.findViewById(R.id.icon), ImageSize.getListItemImageSize(context), R.drawable.avatar_badge)
                     .setStatsView((StatsView) findViewById(R.id.stats), false)
                     .setCreatedAtView((TextView) findViewById(R.id.playable_created_at))
-                    .setPrivacyIndicatorView((TextView) findViewById(R.id.playable_private_indicator))
-                    .setLikeButton((ToggleButton) findViewById(R.id.toggle_like))
-                    .setRepostButton((ToggleButton) findViewById(R.id.toggle_repost))
-                    .setAddToPlaylistButton(findViewById(R.id.btn_addToPlaylist), this)
-                    .setShareButton((ImageButton) findViewById(R.id.btn_share));
-            ;
+                    .setPrivacyIndicatorView((TextView) findViewById(R.id.playable_private_indicator));
         }
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        mPlayableController.startListeningForChanges();
+        mEngagementsController.startListeningForChanges();
     }
 
     @Override
     protected void onDetachedFromWindow() {
-        mPlayableController.stopListeningForChanges();
+        mEngagementsController.stopListeningForChanges();
         super.onAttachedToWindow();
     }
 
@@ -147,7 +145,7 @@ public class PlayerTrackView extends FrameLayout implements
     }
 
     public void setOriginScreen(OriginProvider originProvider) {
-        mPlayableController.setOriginProvider(originProvider);
+        mEngagementsController.setOriginProvider(originProvider);
     }
 
     @Override
