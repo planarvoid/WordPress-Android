@@ -8,7 +8,8 @@ import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.collections.ScListView;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.observers.DefaultObserver;
@@ -29,8 +30,9 @@ import java.util.List;
 public class LikesListFragment extends ScListFragment {
 
     @Inject
+    EventBus2 mEventBus;
+    @Inject
     PlaybackOperations mPlaybackOperations;
-
     @Inject
     SoundAssociationOperations mSoundAssociationOperations;
 
@@ -109,7 +111,7 @@ public class LikesListFragment extends ScListFragment {
             @Override
             public void onClick(View v) {
                 mPlaybackOperations.playFromIdListShuffled(getActivity(), likedTrackIds, Screen.SIDE_MENU_LIKES);
-                EventBus.UI.publish(UIEvent.fromShuffleMyLikes());
+                mEventBus.publish(EventQueue.UI, UIEvent.fromShuffleMyLikes());
             }
         });
     }

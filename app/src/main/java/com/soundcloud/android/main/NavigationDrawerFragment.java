@@ -1,10 +1,13 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import org.jetbrains.annotations.Nullable;
 
+import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -22,6 +25,13 @@ public class NavigationDrawerFragment extends NavigationFragment {
     private ActionBarDrawerToggle mDrawerToggle;
 
     private DrawerLayout mDrawerLayout;
+    private EventBus2 mEventBus;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mEventBus = ((SoundCloudApplication) activity.getApplicationContext()).getEventBus();
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -127,7 +137,7 @@ public class NavigationDrawerFragment extends NavigationFragment {
                     return;
                 }
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-                EventBus.UI.publish(UIEvent.fromDrawerOpen());
+                mEventBus.publish(EventQueue.UI, UIEvent.fromDrawerOpen());
             }
         };
 

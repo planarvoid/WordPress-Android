@@ -14,6 +14,8 @@ import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.model.User;
@@ -50,6 +52,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private CharSequence mLastTitle;
     private int mLastSelection = NO_SELECTION;
 
+    @Inject
+    EventBus2 mEventBus;
     @Inject
     ApplicationProperties mApplicationProperties;
     @Inject
@@ -159,16 +163,16 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         final int position = mNavigationFragment.getCurrentSelectedPosition();
         switch (NavigationFragment.NavItem.values()[position]) {
             case STREAM:
-                EventBus.UI.publish(UIEvent.fromStreamNav());
+                mEventBus.publish(EventQueue.UI, UIEvent.fromStreamNav());
                 break;
             case EXPLORE:
-                EventBus.UI.publish(UIEvent.fromExploreNav());
+                mEventBus.publish(EventQueue.UI, UIEvent.fromExploreNav());
                 break;
             case LIKES:
-                EventBus.UI.publish(UIEvent.fromLikesNav());
+                mEventBus.publish(EventQueue.UI, UIEvent.fromLikesNav());
                 break;
             case PLAYLISTS:
-                EventBus.UI.publish(UIEvent.fromPlaylistsNav());
+                mEventBus.publish(EventQueue.UI, UIEvent.fromPlaylistsNav());
             default:
                 break;
         }
@@ -195,7 +199,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
             case PROFILE:
                 displayProfile();
                 // This click is tracked separately since profile item is never selected
-                EventBus.UI.publish(UIEvent.fromProfileNav());
+                mEventBus.publish(EventQueue.UI, UIEvent.fromProfileNav());
                 return;
             case STREAM:
                 displayStream();
