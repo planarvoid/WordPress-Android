@@ -3,12 +3,13 @@ package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.associations.AddCommentTask;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.associations.AddCommentTask;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import eu.inmite.android.lib.dialogs.BaseDialogFragment;
@@ -42,6 +43,7 @@ public class AddCommentDialog extends BaseDialogFragment {
     @Override
     protected Builder build(Builder initialBuilder) {
         final Comment comment = getArguments().getParcelable(EXTRA_COMMENT);
+        final EventBus2 eventBus = ((SoundCloudApplication) getActivity().getApplication()).getEventBus();
 
         final View dialogView = View.inflate(getActivity(), R.layout.add_new_comment_dialog_view, null);
 
@@ -51,7 +53,7 @@ public class AddCommentDialog extends BaseDialogFragment {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE && applyTextAndUpload(comment, input.getText().toString())){
-                    handleCommentAdded(comment);
+                    handleCommentAdded(comment, eventBus);
                     return true;
                 }
                 return false;
@@ -68,16 +70,16 @@ public class AddCommentDialog extends BaseDialogFragment {
             @Override
             public void onClick(View v) {
                 if (applyTextAndUpload(comment, input.getText().toString())){
-                    handleCommentAdded(comment);
+                    handleCommentAdded(comment, eventBus);
                 }
             }
         });
         return initialBuilder;
     }
 
-    private void handleCommentAdded(Comment comment) {
+    private void handleCommentAdded(Comment comment, EventBus2 eventBus) {
         final String screenTag = getArguments().getString(EXTRA_ORIGIN_SCREEN);
-        EventBus.UI.publish(UIEvent.fromComment(screenTag, comment.track_id));
+        eventBus.publish(EventQueue.UI, UIEvent.fromComment(screenTag, comment.track_id));
         dismiss();
     }
 

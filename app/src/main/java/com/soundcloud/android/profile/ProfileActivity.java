@@ -15,6 +15,8 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
@@ -67,6 +69,7 @@ public class ProfileActivity extends ScActivity implements
 
     /* package */ @Nullable User mUser;
 
+    private EventBus2 mEventBus;
     private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     private TextView mUsername, mFullName, mFollowerCount, mFollowerMessage, mTrackCount, mLocation;
@@ -102,6 +105,7 @@ public class ProfileActivity extends ScActivity implements
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.profile_activity);
+        mEventBus = ((SoundCloudApplication) getApplication()).getEventBus();
         mOldCloudAPI = new PublicApi(this);
         mFollowingOperations = new FollowingOperations();
         mAccountOperations = new AccountOperations(this);
@@ -168,7 +172,7 @@ public class ProfileActivity extends ScActivity implements
                     @Override
                     public void onClick(View v) {
                         toggleFollowing(mUser);
-                        EventBus.UI.publish(UIEvent.fromToggleFollow(mToggleFollow.isChecked(),
+                        mEventBus.publish(EventQueue.UI, UIEvent.fromToggleFollow(mToggleFollow.isChecked(),
                                 Screen.USER_HEADER.get(), mUser.getId()));
                     }
                 });
