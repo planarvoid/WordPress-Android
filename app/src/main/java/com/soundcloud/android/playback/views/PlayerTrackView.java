@@ -12,7 +12,6 @@ import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.associations.SoundAssociationOperations;
-import com.soundcloud.android.collections.views.PlayableBar;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
@@ -24,7 +23,6 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.Subscription;
@@ -91,21 +89,17 @@ public class PlayerTrackView extends FrameLayout implements
         mPlayableController = new PlayableController(context);
         mEngagementsController = new EngagementsController(context, this, application.getEventBus(), soundAssocOps, null, this);
 
-        final PlayableBar trackInfoBar = (PlayableBar) findViewById(R.id.playable_bar);
+        final View trackInfoBar = findViewById(R.id.playable_bar);
         if (trackInfoBar != null){
-            trackInfoBar.addTextShadows();
             trackInfoBar.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     ProfileActivity.startFromPlayable(context, getTrack());
                 }
             });
 
-            mPlayableController.setTitleView((TextView) findViewById(R.id.playable_title))
-                    .setUsernameView((TextView) findViewById(R.id.playable_user))
+            mPlayableController.setPlayableRowView(this)
                     .setAvatarView((ImageView) trackInfoBar.findViewById(R.id.icon), ImageSize.getListItemImageSize(context), R.drawable.avatar_badge)
-                    .setStatsView((StatsView) findViewById(R.id.stats), false)
-                    .setCreatedAtView((TextView) findViewById(R.id.playable_created_at))
-                    .setPrivacyIndicatorView((TextView) findViewById(R.id.playable_private_indicator));
+                    .addTextShadowForGrayBg();
         }
     }
 

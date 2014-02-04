@@ -2,17 +2,19 @@ package com.soundcloud.android.associations;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.activities.Activity;
-import com.soundcloud.android.collections.views.PlayableBar;
+import com.soundcloud.android.playback.views.PlayableController;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 
 public abstract class PlayableInteractionActivity extends ScActivity {
 
@@ -20,7 +22,6 @@ public abstract class PlayableInteractionActivity extends ScActivity {
 
     protected Activity.Type mInteraction;
     protected Playable mPlayable;
-    protected PlayableBar mPlayableInfoBar;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -34,8 +35,11 @@ public abstract class PlayableInteractionActivity extends ScActivity {
         mInteraction = (Activity.Type) getIntent().getSerializableExtra(EXTRA_INTERACTION_TYPE);
         mPlayable = getPlayableFromIntent(getIntent());
 
-        mPlayableInfoBar = ((PlayableBar) findViewById(R.id.playable_bar));
-        mPlayableInfoBar.setTrack(mPlayable);
+        new PlayableController(this)
+                .setPlayableRowView(findViewById(R.id.playable_bar))
+                .setArtwork((ImageView) findViewById(R.id.icon), ImageSize.getListItemImageSize(this), R.drawable.artwork_badge)
+                .setPlayable(mPlayable);
+
 
         if (bundle == null) {
             getSupportFragmentManager().beginTransaction()
@@ -55,10 +59,4 @@ public abstract class PlayableInteractionActivity extends ScActivity {
     protected abstract Uri getContentUri();
 
     protected abstract Playable getPlayableFromIntent(Intent intent);
-
-    @Override
-    public void onDataConnectionChanged(boolean isConnected){
-        super.onDataConnectionChanged(isConnected);
-        if (isConnected) mPlayableInfoBar.onConnected();
-    }
 }

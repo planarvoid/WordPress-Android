@@ -1,12 +1,14 @@
 package com.soundcloud.android.collections.views;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.model.activities.TrackRepostActivity;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
+import com.soundcloud.android.playback.views.PlayableController;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.behavior.PlayableHolder;
@@ -17,6 +19,8 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.collections.ListRow;
+import com.soundcloud.android.view.StatsView;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -32,22 +36,20 @@ import android.view.animation.Transformation;
 import android.widget.TextView;
 
 /**
- * A playable info bar to be used in list views.
+ * A playable row to be used in list views.
  */
-public class PlayableRow extends PlayableBar implements ListRow {
-
-    protected TextView mReposter;
-    protected TextView mTrackCount;
+public class PlayableRow extends IconLayout implements ListRow {
 
     private final PlaybackStateProvider mPlaybackStateProvider;
+    protected PlayableHolder mPlayableHolder;
+    protected TextView mTitle;
+    protected TextView mReposter;
+    protected TextView mTrackCount;
 
     // used to build the string for the title text
     private SpannableStringBuilder mSpanBuilder;
     private final ForegroundColorSpan fcs = new ForegroundColorSpan(getResources().getColor(R.color.scOrange));
-
-    public PlayableRow(Context context, AttributeSet attributeSet) {
-        this(context, attributeSet, ImageOperations.newInstance());
-    }
+    private PlayableController mPlayableController;
 
     public PlayableRow(Context context, ImageOperations imageOperations) {
         this(context, null, imageOperations);
@@ -55,19 +57,99 @@ public class PlayableRow extends PlayableBar implements ListRow {
 
     public PlayableRow(Context context, AttributeSet attributeSet, ImageOperations imageOperations) {
         super(context, attributeSet, imageOperations);
+
+        mPlayableController = new PlayableController(context)
+                .setUsernameView((TextView) findViewById(R.id.playable_user))
+                .setCreatedAtView((TextView) findViewById(R.id.playable_created_at))
+                .setStatsView((StatsView) findViewById(R.id.stats), true)
+                .setPrivacyIndicatorView((TextView) findViewById(R.id.playable_private_indicator));
+
+        mTitle = (TextView) findViewById(R.id.playable_title);
         mReposter = (TextView) findViewById(R.id.playable_reposter);
         mTrackCount = (TextView) findViewById(R.id.playable_track_count);
         mPlaybackStateProvider = new PlaybackStateProvider();
     }
 
-    @Override
-    protected void setViewId() {
-        // rows should not share the same ID
+    /**
+     *  update the displayed track
+     * @param p the playable to display
+     */
+    public void setTrack(@NotNull PlayableHolder p) {
+        mPlayableHolder = p;
+        mPlayableController.setPlayable(mPlayableHolder.getPlayable());
+        loadIcon();
+        setTitle();
     }
 
     @Override
-    protected boolean isListViewRow() {
-        return true;
+    public CharSequence getContentDescription() {
+        Playable playable = mPlayableHolder.getPlayable();
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(playable.getUser().getDisplayName());
+        builder.append(": ");
+        builder.append(playable.title);
+        builder.append(", ");
+
+        if (mPlayableHolder instanceof TrackRepostActivity) {
+            TrackRepostActivity repost = (TrackRepostActivity) mPlayableHolder;
+
+            builder.append(getContext().getResources().getString(R.string.accessibility_infix_reposted_by));
+            builder.append(" ");
+            builder.append(repost.getUser().getDisplayName());
+
+            builder.append(", ");
+            builder.append(getTimeElapsed(getContext().getResources(), repost.created_at.getTime(), true));
+            builder.append(", ");
+        } else {
+            builder.append(getTimeElapsed(getContext().getResources(), playable.created_at.getTime(), true));
+            builder.append(", ");
+        }
+
+
+        // TODO: get rid of the instanceof stuff and have a track specific subclass
+        int playCount = 0;
+        if (playable instanceof Track && (playCount = (int) ((Track) playable).playback_count) > 0) {
+            builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_plays,
+                    playCount,
+                    playCount));
+            builder.append(", ");
+        }
+
+        if (playable.likes_count > 0) {
+            builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_likes,
+                    ((int) playable.likes_count),
+                    ((int) playable.likes_count))
+            );
+            builder.append(", ");
+        }
+
+        if (playable.user_like) {
+            builder.append(getContext().getResources().getString(R.string.accessibility_stats_user_liked));
+            builder.append(", ");
+        }
+
+        if (playable.reposts_count > 0) {
+            builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_reposts,
+                    ((int) playable.reposts_count),
+                    ((int) playable.reposts_count)));
+            builder.append(", ");
+        }
+
+        if (playable.user_repost) {
+            builder.append(getContext().getResources().getString(R.string.accessibility_stats_user_reposted));
+            builder.append(", ");
+        }
+
+        // TODO: get rid of the instanceof stuff and have a track specific subclass
+        int commentCount = 0;
+        if (playable instanceof Track && (commentCount = (int) ((Track) playable).comment_count) > 0) {
+            builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_comments,
+                    commentCount,
+                    commentCount));
+        }
+
+        return builder.toString();
     }
 
     @Override
@@ -79,7 +161,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
     public void display(int position, Parcelable p) {
         checkArgument(p instanceof PlayableHolder, "Not a valid playable holder: " + p);
 
-        super.setTrack((PlayableHolder) p);
+        setTrack((PlayableHolder) p);
 
         Playable playable = mPlayableHolder.getPlayable();
         setupReposter();
@@ -94,6 +176,16 @@ public class PlayableRow extends PlayableBar implements ListRow {
         } else {
             mTrackCount.setVisibility(GONE);
         }
+    }
+
+    @Override
+    protected View addContent(AttributeSet attributeSet) {
+        return inflate(getContext(), R.layout.playable_bar, this);
+    }
+
+    @Override
+    protected int getDefaultArtworkResId() {
+        return R.drawable.artwork_badge;
     }
 
     private void setupProcessingIndicator(Playable playable) {
@@ -134,7 +226,6 @@ public class PlayableRow extends PlayableBar implements ListRow {
         }
     }
 
-    @Override
     protected void setTitle() {
         if (mPlayableHolder.getPlayable().getId() == mPlaybackStateProvider.getCurrentTrackId()) {
             if (mSpanBuilder == null) mSpanBuilder = new SpannableStringBuilder();
@@ -150,11 +241,10 @@ public class PlayableRow extends PlayableBar implements ListRow {
             mTitle.setText(mSpanBuilder);
 
         } else {
-            super.setTitle();
+            mTitle.setText(mPlayableHolder.getPlayable().getTitle());
         }
     }
 
-    /** List specific functions **/
     @Override
     public String getIconRemoteUri() {
         return mPlayableHolder.getPlayable() == null ? null : mPlayableHolder.getPlayable().getListArtworkUrl(getContext());

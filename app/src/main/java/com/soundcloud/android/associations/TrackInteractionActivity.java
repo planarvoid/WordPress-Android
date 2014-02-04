@@ -37,7 +37,7 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
         }
 
         mPlaybackOperations = new PlaybackOperations();
-        mPlayableInfoBar.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.playable_bar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // if it comes from a mention, might not have a user

@@ -5,7 +5,9 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,6 +50,15 @@ public class PlayableController {
     public PlayableController(Context context) {
         mContext = context;
         mImageOperations = ImageOperations.newInstance();
+    }
+
+    public PlayableController setPlayableRowView(View view){
+        setTitleView((TextView) view.findViewById(R.id.playable_title));
+        setUsernameView((TextView) view.findViewById(R.id.playable_user));
+        setStatsView((StatsView) view.findViewById(R.id.stats), true);
+        setPrivacyIndicatorView((TextView) view.findViewById(R.id.playable_private_indicator));
+        setCreatedAtView((TextView) view.findViewById(R.id.playable_created_at));
+        return this;
     }
 
     public PlayableController setTitleView(TextView titleView) {
@@ -123,6 +134,12 @@ public class PlayableController {
         }
     }
 
+    public void addTextShadowForGrayBg() {
+        if (mTitleView != null) AndroidUtils.setTextShadowForGrayBg(mTitleView);
+        if (mUsernameView != null) AndroidUtils.setTextShadowForGrayBg(mUsernameView);
+        if (mCreatedAtView != null) AndroidUtils.setTextShadowForGrayBg(mCreatedAtView);
+    }
+
     private void setupPrivateIndicator(Playable playable) {
         if (mPrivateIndicator == null) return;
 
@@ -146,4 +163,5 @@ public class PlayableController {
             mPrivateIndicator.setVisibility(View.GONE);
         }
     }
+
 }

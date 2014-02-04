@@ -2,7 +2,6 @@ package com.soundcloud.android.profile;
 
 import static android.text.TextUtils.isEmpty;
 import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
-import static com.soundcloud.android.utils.AndroidUtils.setTextShadowForGrayBg;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -31,6 +30,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.tasks.FetchUserTask;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.EmptyListViewFactory;
@@ -120,7 +120,7 @@ public class ProfileActivity extends ScActivity implements
         mVrStats = findViewById(R.id.vr_stats);
 
         setTitle(isLoggedInUser() ? R.string.side_menu_you : R.string.side_menu_profile);
-        setTextShadowForGrayBg(mUsername, mFullName, mFollowerCount, mTrackCount);
+        AndroidUtils.setTextShadowForGrayBg(mUsername, mFullName, mFollowerCount, mTrackCount);
 
         mUserImage.setOnClickListener(new View.OnClickListener() {
             @Override

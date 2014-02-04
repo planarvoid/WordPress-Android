@@ -27,7 +27,7 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
             setTitle(R.string.list_header_track_reposters);
         }
 
-        mPlayableInfoBar.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.playable_bar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 PlaylistDetailActivity.start(PlaylistInteractionActivity.this, (Playlist) mPlayable, getCurrentScreen());

@@ -16,40 +16,21 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewStub;
+import android.widget.TextView;
 
 // TODO: Ugly as FUCK. This class overrides practically everything from its super classes.
 // It doesn't even operate on a Playable. Could make nicer by wrapping the Recording in PlayableAdapter.
 public class MyTracklistRow extends PlayableRow {
-    private Drawable mPrivateBgDrawable;
-    private Drawable mVeryPrivateBgDrawable;
-    private final int mTargetIconDimension;
 
     private Recording mRecording;
 
     public MyTracklistRow(Context activity, ImageOperations imageOperations) {
         super(activity, imageOperations);
-        mTargetIconDimension = (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE);
     }
 
     @Override
     protected View addContent(AttributeSet attributeSet) {
         return inflate(getContext(), R.layout.record_list_item_row, this);
-    }
-
-    private Drawable getPrivateBgDrawable(){
-          if (mPrivateBgDrawable == null) {
-              mPrivateBgDrawable = getResources().getDrawable(R.drawable.round_rect_gray);
-              mPrivateBgDrawable.setBounds(0, 0, mPrivateBgDrawable.getIntrinsicWidth(), mPrivateBgDrawable.getIntrinsicHeight());
-          }
-        return mPrivateBgDrawable;
-    }
-
-    private Drawable getVeryPrivateBgDrawable(){
-          if (mVeryPrivateBgDrawable == null) {
-              mVeryPrivateBgDrawable = getResources().getDrawable(R.drawable.round_rect_orange);
-              mVeryPrivateBgDrawable.setBounds(0, 0, mVeryPrivateBgDrawable.getIntrinsicWidth(), mVeryPrivateBgDrawable.getIntrinsicHeight());
-          }
-        return mVeryPrivateBgDrawable;
     }
 
     @Override
@@ -71,30 +52,11 @@ public class MyTracklistRow extends PlayableRow {
         mRecording = ((Recording) p);
         setTitle();
 
-        if (!mRecording.is_private) {
-            mPrivateIndicator.setVisibility(GONE);
-        } else {
-            if (!TextUtils.isEmpty(mRecording.getRecipientUsername())){
-                mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
-                mPrivateIndicator.setText(mRecording.getRecipientUsername());
-            } else {
-                final int sharedToCount = TextUtils.isEmpty(mRecording.shared_emails) ? 0
-                        : mRecording.shared_emails.split(",").length;
-                if (sharedToCount < 8){
-                    mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
-                } else {
-                    mPrivateIndicator.setBackgroundDrawable(getPrivateBgDrawable());
-                }
-                mPrivateIndicator.setText(sharedToCount > 0 ? (sharedToCount == 1 ?
-                            getContext().getString(R.string.tracklist_item_shared_with_1_person) :
-                            getContext().getString(R.string.tracklist_item_shared_with_x_people, sharedToCount))
-                        : getContext().getString(R.string.tracklist_item_shared_with_you));
-            }
-            mPrivateIndicator.setVisibility(VISIBLE);
-        }
+        final TextView createdAt = (TextView) findViewById(R.id.playable_created_at);
+        createdAt.setTextColor(getContext().getResources().getColor(R.color.listTxtRecSecondary));
+        createdAt.setText(mRecording.getStatus(getContext().getResources()));
 
-        mCreatedAt.setTextColor(getContext().getResources().getColor(R.color.listTxtRecSecondary));
-        mCreatedAt.setText(mRecording.getStatus(getContext().getResources()));
+        findViewById(R.id.playable_private_indicator).setVisibility(mRecording.is_private ? VISIBLE : GONE);
 
         loadIcon(mRecording);
 

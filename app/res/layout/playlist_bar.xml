@@ -3,6 +3,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/playerControlBackground"
+                android:id="@+id/playable_bar"
                 style="@style/ListItemContainer">
 
     <ImageView style="@style/PlayableIcon.Playlist"
