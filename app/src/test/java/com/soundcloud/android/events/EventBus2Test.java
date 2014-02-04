@@ -17,8 +17,7 @@ import rx.util.functions.Func1;
 @RunWith(SoundCloudTestRunner.class)
 public class EventBus2Test {
 
-    private static final QueueDescriptor<String> TEST_QUEUE_1 = QueueDescriptor.create("test_queue_1");
-    private static final QueueDescriptor<String> TEST_QUEUE_2 = QueueDescriptor.create("test_queue_2");
+    private static final QueueDescriptor<String> TEST_QUEUE = QueueDescriptor.create("test_queue_1");
 
     private EventBus2 eventBus = new EventBus2();
 
@@ -28,20 +27,15 @@ public class EventBus2Test {
     private Observer<String> observer2;
 
     @Test
-    public void shouldRegisterNewEventQueues() {
-        eventBus.registerQueue(TEST_QUEUE_1);
-        eventBus.registerQueue(TEST_QUEUE_2);
-        expect(eventBus.queue(TEST_QUEUE_1)).not.toBeNull();
-        expect(eventBus.queue(TEST_QUEUE_2)).not.toBeNull();
+    public void shouldLazilyCreateEventQueuesWhenFirstAccessingThem() {
+        expect(eventBus.queue(TEST_QUEUE)).not.toBeNull();
     }
 
     @Test
     public void shouldPublishEventsToSubscribers() {
-        eventBus.registerQueue(TEST_QUEUE_1);
-
-        eventBus.subscribe(TEST_QUEUE_1, observer1);
-        eventBus.subscribe(TEST_QUEUE_1, observer2);
-        eventBus.publish(TEST_QUEUE_1, "hello!");
+        eventBus.subscribe(TEST_QUEUE, observer1);
+        eventBus.subscribe(TEST_QUEUE, observer2);
+        eventBus.publish(TEST_QUEUE, "hello!");
 
         verify(observer1).onNext("hello!");
         verify(observer2).onNext("hello!");
@@ -49,15 +43,13 @@ public class EventBus2Test {
 
     @Test
     public void shouldNotPublishEventsToSubscribersAfterUnsubscribing() {
-        eventBus.registerQueue(TEST_QUEUE_1);
+        final Subscription subscription = eventBus.subscribe(TEST_QUEUE, observer1);
+        eventBus.subscribe(TEST_QUEUE, observer2);
 
-        final Subscription subscription = eventBus.subscribe(TEST_QUEUE_1, observer1);
-        eventBus.subscribe(TEST_QUEUE_1, observer2);
-
-        eventBus.publish(TEST_QUEUE_1, "hello!");
+        eventBus.publish(TEST_QUEUE, "hello!");
         subscription.unsubscribe();
 
-        eventBus.publish(TEST_QUEUE_1, "world!");
+        eventBus.publish(TEST_QUEUE, "world!");
 
         verify(observer1).onNext("hello!");
         verifyNoMoreInteractions(observer1);
@@ -67,18 +59,17 @@ public class EventBus2Test {
 
     @Test
     public void shouldAllowEventDataTransformation() {
-        eventBus.registerQueue(TEST_QUEUE_1);
         Observer<Integer> intObserver = mock(Observer.class);
 
-        eventBus.subscribe(TEST_QUEUE_1, observer1);
-        eventBus.<String>queue(TEST_QUEUE_1).transform().map(new Func1<String, Integer>() {
+        eventBus.subscribe(TEST_QUEUE, observer1);
+        eventBus.<String>queue(TEST_QUEUE).transform().map(new Func1<String, Integer>() {
             @Override
             public Integer call(String s) {
                 return Integer.parseInt(s);
             }
         }).subscribe(intObserver);
 
-        eventBus.publish(TEST_QUEUE_1, "1");
+        eventBus.publish(TEST_QUEUE, "1");
 
         verify(observer1).onNext("1");
         verify(intObserver).onNext(1);

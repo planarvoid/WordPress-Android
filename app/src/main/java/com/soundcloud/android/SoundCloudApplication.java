@@ -92,8 +92,6 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         instance = this;
 
         mEventBus = new EventBus2();
-        mEventBus.registerQueue(EventQueue.PLAYBACK);
-
         mObjectGraph = ObjectGraph.create(new ApplicationModule(this));
 
         new MigrationEngine(this).migrate();

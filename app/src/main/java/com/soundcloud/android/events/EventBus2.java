@@ -56,12 +56,14 @@ public class EventBus2 {
     private SparseArray<Queue<?>> mQueues = new SparseArray<Queue<?>>();
 
     @SuppressWarnings("unchecked")
-    public <T> Queue<T> queue(QueueDescriptor<T> queue) {
-        return (Queue<T>) mQueues.get(queue.id());
-    }
-
-    public <T> void registerQueue(QueueDescriptor<T> qd) {
-        mQueues.put(qd.id(), new SubjectQueue<T>());
+    public <T> Queue<T> queue(QueueDescriptor<T> qd) {
+        final int queueId = qd.id();
+        Queue<T> queue = (Queue<T>) mQueues.get(queueId);
+        if (queue == null) {
+            queue = new SubjectQueue<T>();
+            mQueues.put(queueId, queue);
+        }
+        return queue;
     }
 
     public <T> Subscription subscribe(QueueDescriptor<T> qd, Observer<T> observer) {
