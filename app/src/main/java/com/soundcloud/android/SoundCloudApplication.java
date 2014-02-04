@@ -91,7 +91,6 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         sModelManager = new ScModelManager(this);
         instance = this;
 
-        mEventBus = new EventBus2();
         mObjectGraph = ObjectGraph.create(new ApplicationModule(this));
 
         new MigrationEngine(this).migrate();
@@ -198,11 +197,14 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         } else {
            analyticsProviders = Collections.emptyList();
         }
-        mAnalyticsEngine = new AnalyticsEngine(mEventBus, sharedPreferences, analyticsProperties, analyticsProviders);
+        mAnalyticsEngine = new AnalyticsEngine(getEventBus(), sharedPreferences, analyticsProperties, analyticsProviders);
         Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && appProperties.isDebugBuild();
     }
 
     public EventBus2 getEventBus() {
+        if (mEventBus == null) {
+            mEventBus = new EventBus2();
+        }
         return mEventBus;
     }
 
