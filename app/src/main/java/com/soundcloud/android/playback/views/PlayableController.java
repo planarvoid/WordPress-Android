@@ -103,8 +103,8 @@ public class PlayableController {
             @Override
             public void call(PlayableChangedEvent event) {
                 if (mPlayable != null && mPlayable.getId() == event.getPlayable().getId()) {
-                    setLikes((int) event.getPlayable().likes_count, event.getPlayable().user_like);
-                    setReposts((int) event.getPlayable().reposts_count, event.getPlayable().user_repost);
+                    updateLikeButton((int) event.getPlayable().likes_count, event.getPlayable().user_like);
+                    updateRepostButton((int) event.getPlayable().reposts_count, event.getPlayable().user_repost);
                 }
             }
         }));
@@ -258,11 +258,11 @@ public class PlayableController {
         }
 
         if (mToggleLike != null) {
-            setLikes((int) mPlayable.likes_count, mPlayable.user_like);
+            updateLikeButton((int) mPlayable.likes_count, mPlayable.user_like);
         }
 
         if (mToggleRepost != null) {
-            setReposts((int) mPlayable.reposts_count, mPlayable.user_repost);
+            updateRepostButton((int) mPlayable.reposts_count, mPlayable.user_repost);
         }
 
         boolean showRepost = mPlayable.isPublic() && mPlayable.getUserId() != SoundCloudApplication.getUserId();
@@ -279,10 +279,28 @@ public class PlayableController {
         mOriginProvider = originProvider;
     }
 
-    private void update(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
-                        int checkedStringId) {
-        if (button == null) return;
 
+    private void updateLikeButton(int count, boolean userLiked) {
+        updateToggleButton(mToggleLike,
+                R.string.accessibility_like_action,
+                R.plurals.accessibility_stats_likes,
+                count,
+                userLiked,
+                R.string.accessibility_stats_user_liked);
+    }
+
+    private void updateRepostButton(int count, boolean userReposted) {
+        updateToggleButton(mToggleRepost,
+                R.string.accessibility_repost_action,
+                R.plurals.accessibility_stats_reposts,
+                count,
+                userReposted,
+                R.string.accessibility_stats_user_reposted);
+    }
+
+    private void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
+                                    int checkedStringId) {
+        if (button == null) return;
         Log.d(SoundAssociationOperations.TAG, Thread.currentThread().getName() + ": update button state: count = " + count + "; checked = " + checked);
         button.setEnabled(true);
         final String buttonLabel = labelForCount(count);
@@ -346,24 +364,6 @@ public class PlayableController {
         } else {
             mPrivateIndicator.setVisibility(View.GONE);
         }
-    }
-
-    private void setLikes(int count, boolean userLiked) {
-        update(mToggleLike,
-                R.string.accessibility_like_action,
-                R.plurals.accessibility_stats_likes,
-                count,
-                userLiked,
-                R.string.accessibility_stats_user_liked);
-    }
-
-    private void setReposts(int count, boolean userReposted) {
-        update(mToggleRepost,
-                R.string.accessibility_repost_action,
-                R.plurals.accessibility_stats_reposts,
-                count,
-                userReposted,
-                R.string.accessibility_stats_user_reposted);
     }
 
     private static final class ResetToggleButton extends DefaultObserver<SoundAssociation> {
