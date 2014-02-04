@@ -7,6 +7,8 @@ import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImageOperations;
@@ -67,6 +69,7 @@ public class PlayableController {
     private int mAvatarPlaceholderResId;
 
     private final SoundAssociationOperations mSoundAssociationOps;
+    private final EventBus2 mEventBus;
 
     private Playable mPlayable;
     private OriginProvider mOriginProvider;
@@ -75,10 +78,11 @@ public class PlayableController {
     private ImageOperations mImageOperations;
 
     public PlayableController(Context context,
+                              EventBus2 eventBus,
                               SoundAssociationOperations soundAssocOperations,
                               @Nullable OriginProvider originProvider) {
-
         mContext = context;
+        mEventBus = eventBus;
         mSoundAssociationOps = soundAssocOperations;
         mImageOperations = ImageOperations.newInstance();
         mOriginProvider = fromNullableProvider(originProvider);
@@ -99,7 +103,7 @@ public class PlayableController {
 
     public void startListeningForChanges() {
         // make sure we pick up changes to the current playable that come via the event bus
-        mSubscription.add(EventBus.PLAYABLE_CHANGED.subscribe(new Action1<PlayableChangedEvent>() {
+        mSubscription.add(mEventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new Action1<PlayableChangedEvent>() {
             @Override
             public void call(PlayableChangedEvent event) {
                 if (mPlayable != null && mPlayable.getId() == event.getPlayable().getId()) {

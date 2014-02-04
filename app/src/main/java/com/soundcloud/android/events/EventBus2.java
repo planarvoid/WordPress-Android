@@ -5,6 +5,7 @@ import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.PublishSubject;
+import rx.util.functions.Action1;
 
 import android.util.SparseArray;
 
@@ -29,6 +30,7 @@ public class EventBus2 {
 
     public interface Queue<T> {
         public abstract Subscription subscribe(Observer<? super T> observer);
+        public abstract Subscription subscribe(Action1<? super T> onNext);
         public abstract void publish(T event);
         public abstract Observable<T> transform();
     }
@@ -40,6 +42,11 @@ public class EventBus2 {
         @Override
         public Subscription subscribe(Observer<? super T> observer) {
             return mSubject.observeOn(AndroidSchedulers.mainThread()).subscribe(observer);
+        }
+
+        @Override
+        public Subscription subscribe(Action1<? super T> onNext) {
+            return mSubject.observeOn(AndroidSchedulers.mainThread()).subscribe(onNext);
         }
 
         @Override
@@ -68,6 +75,10 @@ public class EventBus2 {
 
     public <T> Subscription subscribe(QueueDescriptor<T> qd, Observer<T> observer) {
         return this.<T>queue(qd).subscribe(observer);
+    }
+
+    public <T> Subscription subscribe(QueueDescriptor<T> qd, Action1<T> onNext) {
+        return this.<T>queue(qd).subscribe(onNext);
     }
 
     public <T> void publish(QueueDescriptor<T> qd, T event) {

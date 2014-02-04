@@ -88,7 +88,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         setTitle(R.string.activity_title_playlist);
         setContentView(R.layout.playlist_activity);
 
-        mPlayableController = new PlayableController(this, mSoundAssocOps, new OriginProvider() {
+        mPlayableController = new PlayableController(this, getApp().getEventBus(), mSoundAssocOps, new OriginProvider() {
             @Override
             public String getScreenTag() {
                 return Screen.fromIntent(getIntent()).get();

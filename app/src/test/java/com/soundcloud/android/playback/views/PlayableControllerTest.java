@@ -16,11 +16,14 @@ import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.robolectric.EventExpectation;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
@@ -48,9 +51,10 @@ public class PlayableControllerTest {
 
     @Mock
     private SoundAssociationOperations soundAssocOps;
-
     @Mock
     private Context context;
+    @Mock
+    private EventBus2 eventBus;
 
     private Subscription eventSubscription = Subscriptions.empty();
 
@@ -58,7 +62,7 @@ public class PlayableControllerTest {
     public void setup() {
         LayoutInflater inflater = (LayoutInflater) Robolectric.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         rootView = (ViewGroup) inflater.inflate(R.layout.player_action_bar, null);
-        controller = new PlayableController(context, soundAssocOps, null);
+        controller = new PlayableController(context, eventBus, soundAssocOps, null);
         controller.setLikeButton((ToggleButton) rootView.findViewById(R.id.toggle_like));
         controller.setRepostButton((ToggleButton) rootView.findViewById(R.id.toggle_repost));
         controller.setShareButton((ImageButton) rootView.findViewById(R.id.btn_share));
@@ -285,10 +289,11 @@ public class PlayableControllerTest {
         likedTrack.user_like = true;
         likedTrack.user_repost = true;
 
+        EventExpectation eventExpectation = EventExpectation.on(eventBus).withQueue(EventQueue.PLAYABLE_CHANGED);
         controller.startListeningForChanges();
+        eventExpectation.verifyActionSubscribed();
 
-        EventBus.PLAYABLE_CHANGED.publish(PlayableChangedEvent.create(likedTrack));
-
+        eventExpectation.publish(PlayableChangedEvent.create(likedTrack));
         expect(likeButton.isChecked()).toBeTrue();
         expect(repostButton.isChecked()).toBeTrue();
     }
@@ -307,8 +312,11 @@ public class PlayableControllerTest {
         likedTrack.user_like = true;
         likedTrack.user_repost = true;
 
-        EventBus.PLAYABLE_CHANGED.publish(PlayableChangedEvent.create(likedTrack));
+        EventExpectation eventExpectation = EventExpectation.on(eventBus).withQueue(EventQueue.PLAYABLE_CHANGED);
+        controller.startListeningForChanges();
+        eventExpectation.verifyActionSubscribed();
 
+        eventExpectation.publish(PlayableChangedEvent.create(likedTrack));
         expect(likeButton.isChecked()).toBeFalse();
         expect(repostButton.isChecked()).toBeFalse();
     }

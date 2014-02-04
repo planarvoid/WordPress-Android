@@ -124,7 +124,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         if (mPlayerInfoLayout != null){
             mTrackDetailsView = (PlayerTrackDetailsLayout) mPlayerInfoLayout.findViewById(R.id.player_track_details);
             mPlayableController = new PlayableController(
-                    this, mSoundAssocicationOps, mPlaybackStateProvider);
+                    this, getApp().getEventBus(), mSoundAssocicationOps, mPlaybackStateProvider);
 
             mPlayableController.setTitleView((TextView) findViewById(R.id.playable_title))
                     .setUsernameView((TextView) findViewById(R.id.playable_user))

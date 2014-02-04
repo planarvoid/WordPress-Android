@@ -3,6 +3,7 @@ package com.soundcloud.android.associations;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -13,7 +14,8 @@ import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
@@ -23,15 +25,12 @@ import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.SoundAssociationStorage;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +40,8 @@ public class SoundAssociationOperationsTest {
 
     private SoundAssociationOperations operations;
 
+    @Mock
+    private EventBus2 eventBus;
     @Mock
     private SoundAssociationStorage storage;
     @Mock
@@ -52,16 +53,9 @@ public class SoundAssociationOperationsTest {
     @Mock
     private APIResponse response;
 
-    private Subscription eventSubscription = Subscriptions.empty();
-
     @Before
     public void setUp() throws Exception {
-        operations = new SoundAssociationOperations(storage, httpClient, modelManager);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        eventSubscription.unsubscribe();
+        operations = new SoundAssociationOperations(eventBus, storage, httpClient, modelManager);
     }
 
     @Test
@@ -93,9 +87,6 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void likingATrackShouldPublishPlayableChangedEvent() throws Exception {
-        Observer<PlayableChangedEvent> eventObserver = mock(Observer.class);
-        eventSubscription = EventBus.PLAYABLE_CHANGED.subscribe(eventObserver);
-
         final Track track = new Track(1L);
         final SoundAssociation trackLike = new SoundAssociation(track);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/track_likes/1"))))
@@ -104,20 +95,17 @@ public class SoundAssociationOperationsTest {
 
         operations.like(track).subscribe(observer);
 
-        verify(eventObserver).onNext(any(PlayableChangedEvent.class));
+        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
     }
 
     @Test
     public void whenLikingATrackFailsItShouldNotPublishChangeEvent() throws Exception {
-        Observer<PlayableChangedEvent> eventObserver = mock(Observer.class);
-        eventSubscription = EventBus.PLAYABLE_CHANGED.subscribe(eventObserver);
-
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
 
         operations.like(new Track(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
-        verify(eventObserver, never()).onNext(any(PlayableChangedEvent.class));
+        verify(eventBus, never()).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
     }
 
     @Test
@@ -136,9 +124,6 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void unlikingATrackShouldPublishChangeEvent() throws Exception {
-        Observer<PlayableChangedEvent> eventObserver = mock(Observer.class);
-        eventSubscription = EventBus.PLAYABLE_CHANGED.subscribe(eventObserver);
-
         final Track track = new Track(1L);
         final SoundAssociation trackUnlike = new SoundAssociation(track);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_likes/1"))))
@@ -147,20 +132,17 @@ public class SoundAssociationOperationsTest {
 
         operations.unlike(track).subscribe(observer);
 
-        verify(eventObserver).onNext(any(PlayableChangedEvent.class));
+        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
     }
 
     @Test
     public void whenUnlikingATrackFailsItShouldNotPublishChangeEvent() throws Exception {
-        Observer<PlayableChangedEvent> eventObserver = mock(Observer.class);
-        eventSubscription = EventBus.PLAYABLE_CHANGED.subscribe(eventObserver);
-
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
 
         operations.unlike(new Track(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
-        verify(eventObserver, never()).onNext(any(PlayableChangedEvent.class));
+        verify(eventBus, never()).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
     }
 
     @Test
@@ -226,9 +208,6 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void repostingATrackShouldPublishChangeEvent() throws Exception {
-        Observer<PlayableChangedEvent> eventObserver = mock(Observer.class);
-        eventSubscription = EventBus.PLAYABLE_CHANGED.subscribe(eventObserver);
-
         final Track track = new Track(1L);
         final SoundAssociation repost = new SoundAssociation(track);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/track_reposts/1"))))
@@ -237,20 +216,17 @@ public class SoundAssociationOperationsTest {
 
         operations.repost(track).subscribe(observer);
 
-        verify(eventObserver).onNext(any(PlayableChangedEvent.class));
+        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
     }
 
     @Test
     public void whenRepostingATrackFailsItShouldNotPublishChangeEvent() throws Exception {
-        Observer<PlayableChangedEvent> eventObserver = mock(Observer.class);
-        eventSubscription = EventBus.PLAYABLE_CHANGED.subscribe(eventObserver);
-
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
 
         operations.repost(new Track(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
-        verify(eventObserver, never()).onNext(any(PlayableChangedEvent.class));
+        verify(eventBus, never()).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
     }
 
     @Test
@@ -269,9 +245,6 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void unrepostingATrackShouldPublishChangeEvent() throws Exception {
-        Observer<PlayableChangedEvent> eventObserver = mock(Observer.class);
-        eventSubscription = EventBus.PLAYABLE_CHANGED.subscribe(eventObserver);
-
         final Track track = new Track(1L);
         final SoundAssociation unrepost = new SoundAssociation(track);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_reposts/1"))))
@@ -280,20 +253,17 @@ public class SoundAssociationOperationsTest {
 
         operations.unrepost(track).subscribe(observer);
 
-        verify(eventObserver).onNext(any(PlayableChangedEvent.class));
+        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
     }
 
     @Test
     public void whenUnrepostingATrackFailsItShouldNotPublishChangeEvent() throws Exception {
-        Observer<PlayableChangedEvent> eventObserver = mock(Observer.class);
-        eventSubscription = EventBus.PLAYABLE_CHANGED.subscribe(eventObserver);
-
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
 
         operations.unrepost(new Track(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
-        verify(eventObserver, never()).onNext(any(PlayableChangedEvent.class));
+        verify(eventBus, never()).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
     }
 
     @Test

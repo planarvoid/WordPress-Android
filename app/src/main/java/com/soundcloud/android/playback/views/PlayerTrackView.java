@@ -81,11 +81,12 @@ public class PlayerTrackView extends FrameLayout implements
         mWaveformController = (WaveformControllerLayout) findViewById(R.id.waveform_controller);
         mWaveformController.setListener(mListener);
 
+        SoundCloudApplication application = (SoundCloudApplication) context.getApplicationContext();
         SoundAssociationOperations soundAssocOps = new SoundAssociationOperations(
-                new SoundAssociationStorage(), new SoundCloudRxHttpClient(),
+                application.getEventBus(), new SoundAssociationStorage(), new SoundCloudRxHttpClient(),
                 SoundCloudApplication.sModelManager);
 
-        mPlayableController = new PlayableController(context, soundAssocOps, null);
+        mPlayableController = new PlayableController(context, application.getEventBus(), soundAssocOps, null);
 
         final PlayableBar trackInfoBar = (PlayableBar) findViewById(R.id.playable_bar);
         if (trackInfoBar != null){
