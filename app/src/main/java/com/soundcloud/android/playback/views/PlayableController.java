@@ -66,7 +66,7 @@ public class PlayableController {
     private int mArtworkPlaceholderResId;
     private int mAvatarPlaceholderResId;
 
-    private SoundAssociationOperations mSoundAssociationOps;
+    private final SoundAssociationOperations mSoundAssociationOps;
 
     private Playable mPlayable;
     private OriginProvider mOriginProvider;
@@ -75,17 +75,25 @@ public class PlayableController {
     private ImageOperations mImageOperations;
 
     public PlayableController(Context context,
-                              final SoundAssociationOperations soundAssocOperations,
+                              SoundAssociationOperations soundAssocOperations,
                               @Nullable OriginProvider originProvider) {
 
         mContext = context;
         mSoundAssociationOps = soundAssocOperations;
         mImageOperations = ImageOperations.newInstance();
+        mOriginProvider = fromNullableProvider(originProvider);
+    }
 
-        if (originProvider == null) {
-            setUnknownOrigin();
+    private OriginProvider fromNullableProvider(@Nullable OriginProvider originProvider) {
+        if (originProvider != null) {
+            return originProvider;
         } else {
-            mOriginProvider = originProvider;
+            return new OriginProvider() {
+                @Override
+                public String getScreenTag() {
+                    return Screen.UNKNOWN.get();
+                }
+            };
         }
     }
 
@@ -106,7 +114,7 @@ public class PlayableController {
         mSubscription.unsubscribe();
     }
 
-    public PlayableController setTitleView(TextView titleView){
+    public PlayableController setTitleView(TextView titleView) {
         mTitleView = titleView;
         return this;
     }
@@ -217,28 +225,19 @@ public class PlayableController {
         return this;
     }
 
-    private void setUnknownOrigin() {
-        mOriginProvider = new OriginProvider() {
-            @Override
-            public String getScreenTag() {
-                return Screen.UNKNOWN.get();
-            }
-        };
-    }
-
     public void setPlayable(@NotNull Playable playable) {
         Log.d("SoundAssociations", "playable changed! " + playable.getId());
         mPlayable = playable;
 
-        if (mTitleView != null){
+        if (mTitleView != null) {
             mTitleView.setText(mPlayable.getTitle());
         }
 
-        if (mUsernameView != null){
+        if (mUsernameView != null) {
             mUsernameView.setText(mPlayable.getUsername());
         }
 
-        if (mArtworkView != null){
+        if (mArtworkView != null) {
             mImageOperations.displayPlaceholder(mArtworkSize.formatUri(mPlayable.getArtwork()), mArtworkView, mArtworkPlaceholderResId);
         }
 
@@ -280,8 +279,10 @@ public class PlayableController {
         mOriginProvider = originProvider;
     }
 
-    public void update(ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
-                       int checkedStringId) {
+    private void update(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
+                        int checkedStringId) {
+        if (button == null) return;
+
         Log.d(SoundAssociationOperations.TAG, Thread.currentThread().getName() + ": update button state: count = " + count + "; checked = " + checked);
         button.setEnabled(true);
         final String buttonLabel = labelForCount(count);
@@ -324,6 +325,8 @@ public class PlayableController {
     }
 
     private void setupPrivateIndicator(Playable playable) {
+        if (mPrivateIndicator == null) return;
+
         if (playable.isPrivate()) {
             if (playable.shared_to_count <= 0) {
                 mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange);
@@ -346,25 +349,21 @@ public class PlayableController {
     }
 
     private void setLikes(int count, boolean userLiked) {
-        if (mToggleLike != null){
-            update(mToggleLike,
-                            R.string.accessibility_like_action,
-                            R.plurals.accessibility_stats_likes,
-                            count,
-                            userLiked,
-                            R.string.accessibility_stats_user_liked);
-        }
+        update(mToggleLike,
+                R.string.accessibility_like_action,
+                R.plurals.accessibility_stats_likes,
+                count,
+                userLiked,
+                R.string.accessibility_stats_user_liked);
     }
 
     private void setReposts(int count, boolean userReposted) {
-        if (mToggleRepost != null){
-            update(mToggleRepost,
-                    R.string.accessibility_repost_action,
-                    R.plurals.accessibility_stats_reposts,
-                    count,
-                    userReposted,
-                    R.string.accessibility_stats_user_reposted);
-        }
+        update(mToggleRepost,
+                R.string.accessibility_repost_action,
+                R.plurals.accessibility_stats_reposts,
+                count,
+                userReposted,
+                R.string.accessibility_stats_user_reposted);
     }
 
     private static final class ResetToggleButton extends DefaultObserver<SoundAssociation> {
