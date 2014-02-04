@@ -29,7 +29,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 
@@ -39,7 +41,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     private static final String TRACKS_FRAGMENT_TAG = "tracks_fragment";
     private Playlist mPlaylist;
     private PlayableBar mPlaylistBar;
-    private PlayableController mActionButtons;
+    private PlayableController mPlayableController;
 
     @Inject
     ScModelManager mModelManager;
@@ -86,6 +88,14 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         setTitle(R.string.activity_title_playlist);
         setContentView(R.layout.playlist_activity);
 
+        mPlayableController = new PlayableController(this, mSoundAssocOps, new OriginProvider() {
+            @Override
+            public String getScreenTag() {
+                return Screen.fromIntent(getIntent()).get();
+            }
+        });
+        mPlayableController.startListeningForChanges();
+
         handleIntent(savedInstanceState, true);
 
         // listen for playback changes, so that we can update the now-playing indicator
@@ -106,7 +116,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mPlaybackStatusListener);
-        mActionButtons.stopListeningForChanges();
+        mPlayableController.stopListeningForChanges();
     }
 
     private void handleIntent(@Nullable Bundle savedInstanceState, boolean setupViews) {
@@ -150,12 +160,9 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
             }
         });
 
-        mActionButtons = new PlayableController(this, mSoundAssocOps, new OriginProvider() {
-            @Override
-            public String getScreenTag() {
-                return Screen.fromIntent(getIntent()).get();
-            }
-        });
+        mPlayableController.setLikeButton((ToggleButton) findViewById(R.id.toggle_like))
+                .setRepostButton((ToggleButton) findViewById(R.id.toggle_repost))
+                .setShareButton((ImageButton) findViewById(R.id.btn_share));
 
         if (savedInstanceState == null) {
             mFragment = PlaylistTracksFragment.create(getIntent().getData(), Screen.fromIntent(getIntent()));
@@ -165,12 +172,13 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         }
     }
 
-    private boolean setPlaylist(@Nullable Playlist playlist) {
+    private boolean setPlaylist(@NotNull Playlist playlist) {
         boolean changed = playlist != mPlaylist;
         if (mPlaylist != null && changed) {
             mPlaylist.stopObservingChanges(getContentResolver(), this);
         }
         mPlaylist = playlist;
+        mPlayableController.setPlayable(playlist);
         return changed;
     }
 
@@ -188,7 +196,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         if (mPlaylist != null) {
             mPlaylist.startObservingChanges(getContentResolver(), this);
         }
-        mActionButtons.startListeningForChanges();
+        mPlayableController.startListeningForChanges();
     }
 
     @Override
@@ -197,7 +205,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         if (mPlaylist != null) {
             mPlaylist.stopObservingChanges(getContentResolver(), this);
         }
-        mActionButtons.stopListeningForChanges();
+        mPlayableController.stopListeningForChanges();
     }
 
     @Override
@@ -213,6 +221,6 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     private void refresh() {
         mFragment.refresh();
         mPlaylistBar.setTrack(mPlaylist);
-        mActionButtons.setPlayable(mPlaylist);
+        mPlayableController.setPlayable(mPlaylist);
     }
 }
