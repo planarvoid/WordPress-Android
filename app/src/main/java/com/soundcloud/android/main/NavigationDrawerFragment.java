@@ -30,7 +30,7 @@ public class NavigationDrawerFragment extends NavigationFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mEventBus = ((SoundCloudApplication) activity.getApplicationContext()).getEventBus();
+        mEventBus = ((SoundCloudApplication) activity.getApplication()).getEventBus();
     }
 
     @Override
