@@ -226,7 +226,8 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         UIEvent uiEvent = UIEvent.fromToggleFollow(true, "screen", 0);
-        EventBus.UI.publish(uiEvent);
+        eventMonitor.verifySubscribedTo(EventQueue.UI);
+        eventMonitor.publish(uiEvent);
 
         verify(analyticsProviderOne, times(1)).handleUIEvent(uiEvent);
         verify(analyticsProviderTwo, times(1)).handleUIEvent(uiEvent);
@@ -257,13 +258,15 @@ public class AnalyticsEngineTrackingTest {
 
         eventMonitor.verifySubscribedTo(EventQueue.PLAYBACK);
         eventMonitor.publish(PlaybackEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
-        verify(analyticsProviderTwo).handlePlaybackEvent(any(PlaybackEvent.class));
+
+        eventMonitor.verifySubscribedTo(EventQueue.UI);
+        eventMonitor.publish(UIEvent.fromToggleFollow(true, "screen", 0));
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
         EventBus.SCREEN_ENTERED.publish("screen");
-        EventBus.UI.publish(UIEvent.fromToggleFollow(true, "screen", 0));
         EventBus.ONBOARDING.publish(OnboardingEvent.authComplete());
 
+        verify(analyticsProviderTwo).handlePlaybackEvent(any(PlaybackEvent.class));
         verify(analyticsProviderTwo).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
         verify(analyticsProviderTwo).handleScreenEvent(anyString());
         verify(analyticsProviderTwo).handleUIEvent(any(UIEvent.class));

@@ -188,7 +188,7 @@ public class AnalyticsEngineEventFlushingTest {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
-        EventBus.UI.publish(UIEvent.fromComment("screen", 1L));
+        eventMonitor.verifySubscribedTo(EventQueue.UI).publish(UIEvent.fromComment("screen", 1L));
 
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
