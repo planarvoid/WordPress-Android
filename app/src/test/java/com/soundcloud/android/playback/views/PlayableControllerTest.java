@@ -63,7 +63,6 @@ public class PlayableControllerTest {
 
         eventMonitor = EventMonitor.on(eventBus);
         controller.startListeningForChanges();
-        eventMonitor.verifySubscribedTo(EventQueue.PLAYABLE_CHANGED);
     }
 
     @After
@@ -262,7 +261,7 @@ public class PlayableControllerTest {
         likedTrack.user_like = true;
         likedTrack.user_repost = true;
 
-        eventMonitor.publish(PlayableChangedEvent.create(likedTrack));
+        eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.create(likedTrack));
         expect(likeButton.isChecked()).toBeTrue();
         expect(repostButton.isChecked()).toBeTrue();
     }
@@ -281,7 +280,7 @@ public class PlayableControllerTest {
         likedTrack.user_like = true;
         likedTrack.user_repost = true;
 
-        eventMonitor.publish(PlayableChangedEvent.create(likedTrack));
+        eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.create(likedTrack));
         expect(likeButton.isChecked()).toBeFalse();
         expect(repostButton.isChecked()).toBeFalse();
     }

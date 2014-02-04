@@ -213,8 +213,7 @@ public class AnalyticsEngineTrackingTest {
 
         PlaybackEvent playbackEvent = PlaybackEvent.forPlay(mock(Track.class), 0, Mockito.mock(TrackSourceInfo.class));
 
-        eventMonitor.verifySubscribedTo(EventQueue.PLAYBACK);
-        eventMonitor.publish(playbackEvent);
+        eventMonitor.publish(EventQueue.PLAYBACK, playbackEvent);
 
         verify(analyticsProviderOne, times(1)).handlePlaybackEvent(playbackEvent);
         verify(analyticsProviderTwo, times(1)).handlePlaybackEvent(playbackEvent);
@@ -226,8 +225,7 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         UIEvent uiEvent = UIEvent.fromToggleFollow(true, "screen", 0);
-        eventMonitor.verifySubscribedTo(EventQueue.UI);
-        eventMonitor.publish(uiEvent);
+        eventMonitor.publish(EventQueue.UI, uiEvent);
 
         verify(analyticsProviderOne, times(1)).handleUIEvent(uiEvent);
         verify(analyticsProviderTwo, times(1)).handleUIEvent(uiEvent);
@@ -256,11 +254,8 @@ public class AnalyticsEngineTrackingTest {
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleUIEvent(any(UIEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleOnboardingEvent(any(OnboardingEvent.class));
 
-        eventMonitor.verifySubscribedTo(EventQueue.PLAYBACK);
-        eventMonitor.publish(PlaybackEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
-
-        eventMonitor.verifySubscribedTo(EventQueue.UI);
-        eventMonitor.publish(UIEvent.fromToggleFollow(true, "screen", 0));
+        eventMonitor.publish(EventQueue.PLAYBACK, PlaybackEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
+        eventMonitor.publish(EventQueue.UI, UIEvent.fromToggleFollow(true, "screen", 0));
 
         EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
         EventBus.SCREEN_ENTERED.publish("screen");

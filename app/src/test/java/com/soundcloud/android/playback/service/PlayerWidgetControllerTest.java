@@ -21,6 +21,7 @@ import android.content.Context;
 public class PlayerWidgetControllerTest {
 
     private PlayerWidgetController controller;
+    private EventMonitor eventMonitor;
 
     @Mock
     private Context context;
@@ -35,6 +36,7 @@ public class PlayerWidgetControllerTest {
     public void setUp() throws Exception {
         when(context.getApplicationContext()).thenReturn(context);
         controller = new PlayerWidgetController(context, playbackStateProvider, widgetProvider, eventBus);
+        eventMonitor = EventMonitor.on(eventBus);
     }
 
     @Test
@@ -43,11 +45,9 @@ public class PlayerWidgetControllerTest {
         when(playbackStateProvider.getCurrentTrackId()).thenReturn(currentTrack.getId());
         PlayableChangedEvent event = PlayableChangedEvent.create(currentTrack);
 
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         controller.subscribe();
-        eventMonitor.verifySubscribedTo(EventQueue.PLAYABLE_CHANGED);
 
-        eventMonitor.publish(event);
+        eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, event);
         verify(widgetProvider).performUpdate(context, currentTrack, false);
     }
 
@@ -57,11 +57,9 @@ public class PlayerWidgetControllerTest {
         when(playbackStateProvider.getCurrentTrackId()).thenReturn(2L);
         PlayableChangedEvent event = PlayableChangedEvent.create(currentTrack);
 
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         controller.subscribe();
-        eventMonitor.verifySubscribedTo(EventQueue.PLAYABLE_CHANGED);
 
-        eventMonitor.publish(event);
+        eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, event);
         verifyZeroInteractions(widgetProvider);
     }
 }

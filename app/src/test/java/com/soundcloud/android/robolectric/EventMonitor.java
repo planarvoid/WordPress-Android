@@ -45,10 +45,12 @@ public class EventMonitor {
         return this;
     }
 
-    public void publish(Object event) {
-        expect(captor).not.toBeNull();
+    public <EventType> void publish(EventBus2.QueueDescriptor<EventType> queue, EventType event) {
+        verifySubscribedTo(queue);
+
         Object observer = captor.getValue();
         expect(observer).not.toBeNull();
+
         if (observer instanceof Action1) {
             ((Action1) observer).call(event);
         } else if (observer instanceof Observer) {

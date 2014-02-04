@@ -178,8 +178,7 @@ public class AnalyticsEngineEventFlushingTest {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
-        eventMonitor.verifySubscribedTo(EventQueue.PLAYBACK);
-        eventMonitor.publish(PlaybackEvent.forPlay(new Track(), 1L, mock(TrackSourceInfo.class)));
+        eventMonitor.publish(EventQueue.PLAYBACK, PlaybackEvent.forPlay(new Track(), 1L, mock(TrackSourceInfo.class)));
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
@@ -188,7 +187,7 @@ public class AnalyticsEngineEventFlushingTest {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
-        eventMonitor.verifySubscribedTo(EventQueue.UI).publish(UIEvent.fromComment("screen", 1L));
+        eventMonitor.publish(EventQueue.UI, UIEvent.fromComment("screen", 1L));
 
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
