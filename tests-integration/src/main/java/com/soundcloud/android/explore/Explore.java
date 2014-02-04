@@ -1,13 +1,13 @@
 package com.soundcloud.android.explore;
 
+import static com.soundcloud.android.tests.TestUser.testUser;
+
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Waiter;
-
-import static com.soundcloud.android.tests.TestUser.testUser;
 
 public class Explore extends ActivityTestCase<MainActivity> {
     private Waiter waiter;
@@ -81,7 +81,7 @@ public class Explore extends ActivityTestCase<MainActivity> {
     public void testGenresAreDisplayedByDefault() {
         waiter.waitForListContentAndRetryIfLoadingFailed();
         assertEquals("Genres are displayed by default", "GENRES", exploreScreen.currentTabTitle());
-        assertEquals("Invalid number of genres found", 25, exploreScreen.getNumberOfItemsInGenresTab());
+        assertEquals("Invalid number of genres found", 51, exploreScreen.getNumberOfItemsInGenresTab());
     }
 
     private ExploreScreen openExploreFromMenu() {
