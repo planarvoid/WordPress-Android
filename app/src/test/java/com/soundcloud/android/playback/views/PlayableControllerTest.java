@@ -23,7 +23,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.robolectric.EventExpectation;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
@@ -289,11 +289,11 @@ public class PlayableControllerTest {
         likedTrack.user_like = true;
         likedTrack.user_repost = true;
 
-        EventExpectation eventExpectation = EventExpectation.on(eventBus).withQueue(EventQueue.PLAYABLE_CHANGED);
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         controller.startListeningForChanges();
-        eventExpectation.verifyActionSubscribed();
+        eventMonitor.verifySubscribedTo(EventQueue.PLAYABLE_CHANGED);
 
-        eventExpectation.publish(PlayableChangedEvent.create(likedTrack));
+        eventMonitor.publish(PlayableChangedEvent.create(likedTrack));
         expect(likeButton.isChecked()).toBeTrue();
         expect(repostButton.isChecked()).toBeTrue();
     }
@@ -312,11 +312,11 @@ public class PlayableControllerTest {
         likedTrack.user_like = true;
         likedTrack.user_repost = true;
 
-        EventExpectation eventExpectation = EventExpectation.on(eventBus).withQueue(EventQueue.PLAYABLE_CHANGED);
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         controller.startListeningForChanges();
-        eventExpectation.verifyActionSubscribed();
+        eventMonitor.verifySubscribedTo(EventQueue.PLAYABLE_CHANGED);
 
-        eventExpectation.publish(PlayableChangedEvent.create(likedTrack));
+        eventMonitor.publish(PlayableChangedEvent.create(likedTrack));
         expect(likeButton.isChecked()).toBeFalse();
         expect(repostButton.isChecked()).toBeFalse();
     }

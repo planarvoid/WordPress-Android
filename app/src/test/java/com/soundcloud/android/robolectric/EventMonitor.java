@@ -12,35 +12,21 @@ import rx.Observer;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action1;
 
-public class EventExpectation {
+public class EventMonitor {
 
     private EventBus2 eventBus;
-    private EventBus2.QueueDescriptor queue;
     private ArgumentCaptor captor;
 
-    public static EventExpectation on(EventBus2 eventBus) {
-        return new EventExpectation(eventBus);
+    public static EventMonitor on(EventBus2 eventBus) {
+        return new EventMonitor(eventBus);
     }
 
-    private EventExpectation(EventBus2 eventBus) {
+    private EventMonitor(EventBus2 eventBus) {
         this.eventBus = eventBus;
-        when(eventBus.subscribe(any(EventBus2.QueueDescriptor.class), any(Action1.class))).thenReturn(Subscriptions.empty());
         when(eventBus.subscribe(any(EventBus2.QueueDescriptor.class), any(Observer.class))).thenReturn(Subscriptions.empty());
     }
 
-    public EventExpectation withQueue(EventBus2.QueueDescriptor queue) {
-        this.queue = queue;
-        return this;
-    }
-
-    public EventExpectation verifyActionSubscribed() {
-        ArgumentCaptor<Action1> eventObserver = ArgumentCaptor.forClass(Action1.class);
-        verify(eventBus).subscribe(refEq(queue), eventObserver.capture());
-        this.captor = eventObserver;
-        return this;
-    }
-
-    public EventExpectation verifyObserverSubscribed() {
+    public EventMonitor verifySubscribedTo(EventBus2.QueueDescriptor queue) {
         ArgumentCaptor<Observer> eventObserver = ArgumentCaptor.forClass(Observer.class);
         verify(eventBus).subscribe(refEq(queue), eventObserver.capture());
         this.captor = eventObserver;

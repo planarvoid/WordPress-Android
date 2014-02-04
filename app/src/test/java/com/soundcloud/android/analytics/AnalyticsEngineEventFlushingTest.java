@@ -1,7 +1,6 @@
 package com.soundcloud.android.analytics;
 
 
-import static com.soundcloud.android.events.EventBus2.QueueDescriptor;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
@@ -23,6 +22,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.After;
 import org.junit.Before;
@@ -31,10 +31,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action0;
 
 import android.app.Activity;
@@ -45,6 +43,8 @@ import java.util.concurrent.TimeUnit;
 @RunWith(SoundCloudTestRunner.class)
 public class AnalyticsEngineEventFlushingTest {
     private AnalyticsEngine analyticsEngine;
+    private EventMonitor eventMonitor;
+
     @Mock
     private AnalyticsProperties analyticsProperties;
     @Mock
@@ -62,7 +62,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Before
     public void setUp() throws Exception {
-        when(eventBus.subscribe(any(QueueDescriptor.class), any(Observer.class))).thenReturn(Subscriptions.empty());
+        eventMonitor = EventMonitor.on(eventBus);
         when(scheduler.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(subscription);
     }
 
@@ -178,11 +178,8 @@ public class AnalyticsEngineEventFlushingTest {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
-        ArgumentCaptor<Observer> observer = ArgumentCaptor.forClass(Observer.class);
-        verify(eventBus).subscribe(eq(EventQueue.PLAYBACK), observer.capture());
-
-        observer.getValue().onNext(PlaybackEvent.forPlay(new Track(), 1L, mock(TrackSourceInfo.class)));
-
+        eventMonitor.verifySubscribedTo(EventQueue.PLAYBACK);
+        eventMonitor.publish(PlaybackEvent.forPlay(new Track(), 1L, mock(TrackSourceInfo.class)));
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 

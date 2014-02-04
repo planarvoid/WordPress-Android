@@ -23,7 +23,6 @@ import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
-import rx.util.functions.Action1;
 
 import android.content.Context;
 import android.content.Intent;
@@ -103,9 +102,9 @@ public class PlayableController {
 
     public void startListeningForChanges() {
         // make sure we pick up changes to the current playable that come via the event bus
-        mSubscription.add(mEventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new Action1<PlayableChangedEvent>() {
+        mSubscription.add(mEventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new DefaultObserver<PlayableChangedEvent>() {
             @Override
-            public void call(PlayableChangedEvent event) {
+            public void onNext(PlayableChangedEvent event) {
                 if (mPlayable != null && mPlayable.getId() == event.getPlayable().getId()) {
                     updateLikeButton((int) event.getPlayable().likes_count, event.getPlayable().user_like);
                     updateRepostButton((int) event.getPlayable().reposts_count, event.getPlayable().user_repost);
