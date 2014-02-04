@@ -14,7 +14,7 @@
                                                     android:id="@+id/toggle_repost"
                                                     android:layout_marginLeft="10dp"/>
     <ImageButton style="@style/PlayerAction.Button.AddToSet"
-                 android:id="@+id/btn_addToSet"
+                 android:id="@+id/btn_addToPlaylist"
                  android:layout_marginLeft="10dp"
                  android:layout_marginRight="10dp"/>
 

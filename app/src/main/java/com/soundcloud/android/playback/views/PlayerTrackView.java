@@ -11,15 +11,19 @@ import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.associations.SoundAssociationOperations;
+import com.soundcloud.android.collections.views.PlayableBar;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.Subscription;
@@ -31,14 +35,17 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import java.util.List;
 
 @SuppressWarnings("deprecation")
 public class PlayerTrackView extends FrameLayout implements
-        LoadCommentsTask.LoadCommentsListener, WaveformControllerLayout.WaveformListener {
+        LoadCommentsTask.LoadCommentsListener, WaveformControllerLayout.WaveformListener, PlayableController.AddToPlaylistListener {
 
     protected Track mTrack;
     protected boolean mOnScreen;
@@ -53,7 +60,7 @@ public class PlayerTrackView extends FrameLayout implements
     @NotNull
     protected PlayerTrackViewListener mListener;
     private PlaybackStateProvider mPlaybackStateProvider;
-    private PlayableInfoAndEngagementsController mInfoAndEngagements;
+    private PlayableController mPlayableController;
     private Subscription mTrackSubscription = Subscriptions.empty();
 
     public interface PlayerTrackViewListener extends WaveformControllerLayout.WaveformListener {
@@ -61,7 +68,7 @@ public class PlayerTrackView extends FrameLayout implements
         void onCloseCommentMode();
     }
 
-    public PlayerTrackView(Context context, AttributeSet attrs) {
+    public PlayerTrackView(final Context context, AttributeSet attrs) {
         super(context, attrs);
 
         View.inflate(context,R.layout.player_track, this);
@@ -77,7 +84,48 @@ public class PlayerTrackView extends FrameLayout implements
         SoundAssociationOperations soundAssocOps = new SoundAssociationOperations(
                 new SoundAssociationStorage(), new SoundCloudRxHttpClient(),
                 SoundCloudApplication.sModelManager);
-        mInfoAndEngagements = new PlayableInfoAndEngagementsController(this, mListener, soundAssocOps, null);
+
+        mPlayableController = new PlayableController(context, soundAssocOps, null);
+
+        final PlayableBar trackInfoBar = (PlayableBar) findViewById(R.id.playable_bar);
+        if (trackInfoBar != null){
+            trackInfoBar.addTextShadows();
+            trackInfoBar.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    ProfileActivity.startFromPlayable(context, getTrack());
+                }
+            });
+
+            mPlayableController.setTitleView((TextView) findViewById(R.id.playable_title))
+                    .setUsernameView((TextView) findViewById(R.id.playable_user))
+                    .setAvatarView((ImageView) trackInfoBar.findViewById(R.id.icon), ImageSize.getListItemImageSize(context), R.drawable.avatar_badge)
+                    .setStatsView((StatsView) findViewById(R.id.stats), false)
+                    .setCreatedAtView((TextView) findViewById(R.id.playable_created_at))
+                    .setPrivacyIndicatorView((TextView) findViewById(R.id.playable_private_indicator))
+                    .setLikeButton((ToggleButton) findViewById(R.id.toggle_like))
+                    .setRepostButton((ToggleButton) findViewById(R.id.toggle_repost))
+                    .setAddToPlaylistButton(findViewById(R.id.btn_addToPlaylist), this)
+                    .setShareButton((ImageButton) findViewById(R.id.btn_share));
+            ;
+        }
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mPlayableController.startListeningForChanges();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        mPlayableController.stopListeningForChanges();
+        super.onAttachedToWindow();
+    }
+
+    @Override
+    public void onAddToPlaylist(Track track) {
+        // just forward to player. This will be nicer after the player refactor
+        mListener.onAddToPlaylist(track);
     }
 
     // TODO, this is currently true all the time
@@ -99,7 +147,7 @@ public class PlayerTrackView extends FrameLayout implements
     }
 
     public void setOriginScreen(OriginProvider originProvider) {
-        mInfoAndEngagements.setOriginProvider(originProvider);
+        mPlayableController.setOriginProvider(originProvider);
     }
 
     @Override
@@ -133,7 +181,7 @@ public class PlayerTrackView extends FrameLayout implements
             refreshComments();
         }
 
-        mInfoAndEngagements.setTrack(track);
+        mPlayableController.setPlayable(track);
         if (mQueuePosition == mPlaybackStateProvider.getPlayPosition()) {
             setProgress(mPlaybackStateProvider.getPlayProgress(), mPlaybackStateProvider.getLoadingPercent(),
                     Consts.SdkSwitches.useSmoothProgress && mPlaybackStateProvider.isPlaying());
@@ -193,7 +241,6 @@ public class PlayerTrackView extends FrameLayout implements
     public void onDestroy() {
         clear();
         mWaveformController.onDestroy();
-        mInfoAndEngagements.onDestroy();
     }
 
     public WaveformControllerLayout getWaveformController() {

@@ -13,6 +13,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
@@ -21,7 +22,7 @@ import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.AddCommentDialog;
-import com.soundcloud.android.playback.views.PlayableInfoAndEngagementsController;
+import com.soundcloud.android.playback.views.PlayableController;
 import com.soundcloud.android.playback.views.PlayerTrackDetailsLayout;
 import com.soundcloud.android.playback.views.PlayerTrackPager;
 import com.soundcloud.android.playback.views.PlayerTrackView;
@@ -29,6 +30,7 @@ import com.soundcloud.android.playback.views.TransportBarView;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.utils.UriUtils;
+import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,13 +47,17 @@ import android.os.Message;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import javax.annotation.CheckForNull;
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
-public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTrackPageListener, PlayerTrackView.PlayerTrackViewListener {
+public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTrackPageListener, PlayerTrackView.PlayerTrackViewListener, PlayableController.AddToPlaylistListener {
 
     public static final int REFRESH_DELAY = 1000;
 
@@ -82,7 +88,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     @NotNull
     private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
     private PlayerTrackDetailsLayout mTrackDetailsView;
-    private PlayableInfoAndEngagementsController mPlayableInfoAndEngagementsController;
+    private PlayableController mPlayableController;
 
     public interface PlayerError {
         int PLAYBACK_ERROR    = 0;
@@ -117,8 +123,22 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         LinearLayout mPlayerInfoLayout = (LinearLayout) findViewById(R.id.player_info_view);
         if (mPlayerInfoLayout != null){
             mTrackDetailsView = (PlayerTrackDetailsLayout) mPlayerInfoLayout.findViewById(R.id.player_track_details);
-            mPlayableInfoAndEngagementsController = new PlayableInfoAndEngagementsController(
-                    mPlayerInfoLayout, this, mSoundAssocicationOps, mPlaybackStateProvider);
+            mPlayableController = new PlayableController(
+                    this, mSoundAssocicationOps, mPlaybackStateProvider);
+
+            mPlayableController.setTitleView((TextView) findViewById(R.id.playable_title))
+                    .setUsernameView((TextView) findViewById(R.id.playable_user))
+                    .setAvatarView((ImageView) findViewById(R.id.icon), ImageSize.getListItemImageSize(this), R.drawable.avatar_badge)
+                    .setStatsView((StatsView) findViewById(R.id.stats), false)
+                    .setCreatedAtView((TextView) findViewById(R.id.playable_created_at))
+                    .setPrivacyIndicatorView((TextView) findViewById(R.id.playable_private_indicator))
+                    .setLikeButton((ToggleButton) findViewById(R.id.toggle_like))
+                    .setRepostButton((ToggleButton) findViewById(R.id.toggle_repost))
+                    .setAddToPlaylistButton(findViewById(R.id.btn_addToPlaylist), this)
+                    .setShareButton((ImageButton) findViewById(R.id.btn_share));
+
+            mPlayableController.startListeningForChanges();
+
         }
 
         mIsFirstLoad = bundle == null;
@@ -288,8 +308,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     @Override
     protected void onDestroy() {
         mTrackPagerAdapter.onDestroy();
-        if (mPlayableInfoAndEngagementsController != null) {
-            mPlayableInfoAndEngagementsController.onDestroy();
+        if (mPlayableController != null) {
+            mPlayableController.stopListeningForChanges();
         }
         super.onDestroy();
     }
@@ -389,8 +409,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                     mTrackDetailsView.setTrack(track);
                 }
             }
-            if (mPlayableInfoAndEngagementsController != null) {
-                mPlayableInfoAndEngagementsController.setTrack(track);
+            if (mPlayableController != null) {
+                mPlayableController.setPlayable(track);
             }
         }
     }

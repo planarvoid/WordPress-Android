@@ -6,7 +6,7 @@
                                                     android:id="@+id/toggle_repost"
                                                     android:layout_toRightOf="@id/toggle_like"/>
 
-    <ImageButton android:id="@+id/btn_addToSet"
+    <ImageButton android:id="@+id/btn_addToPlaylist"
                  style="@style/PlayerAction.Button.AddToSet"
                  android:layout_marginLeft="5dp"
                  android:layout_toRightOf="@id/toggle_repost"/>

@@ -16,7 +16,7 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
-import com.soundcloud.android.playback.views.PlayableInfoAndEngagementsController;
+import com.soundcloud.android.playback.views.PlayableController;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.FullImageDialog;
@@ -39,7 +39,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     private static final String TRACKS_FRAGMENT_TAG = "tracks_fragment";
     private Playlist mPlaylist;
     private PlayableBar mPlaylistBar;
-    private PlayableInfoAndEngagementsController mActionButtons;
+    private PlayableController mActionButtons;
 
     @Inject
     ScModelManager mModelManager;
@@ -106,7 +106,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mPlaybackStatusListener);
-        mActionButtons.onDestroy();
+        mActionButtons.stopListeningForChanges();
     }
 
     private void handleIntent(@Nullable Bundle savedInstanceState, boolean setupViews) {
@@ -150,7 +150,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
             }
         });
 
-        mActionButtons = new PlayableInfoAndEngagementsController(mPlaylistBar, null, mSoundAssocOps, new OriginProvider() {
+        mActionButtons = new PlayableController(this, mSoundAssocOps, new OriginProvider() {
             @Override
             public String getScreenTag() {
                 return Screen.fromIntent(getIntent()).get();
@@ -188,6 +188,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         if (mPlaylist != null) {
             mPlaylist.startObservingChanges(getContentResolver(), this);
         }
+        mActionButtons.startListeningForChanges();
     }
 
     @Override
@@ -196,6 +197,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         if (mPlaylist != null) {
             mPlaylist.stopObservingChanges(getContentResolver(), this);
         }
+        mActionButtons.stopListeningForChanges();
     }
 
     @Override
@@ -211,6 +213,6 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     private void refresh() {
         mFragment.refresh();
         mPlaylistBar.setTrack(mPlaylist);
-        mActionButtons.setTrack(mPlaylist);
+        mActionButtons.setPlayable(mPlaylist);
     }
 }

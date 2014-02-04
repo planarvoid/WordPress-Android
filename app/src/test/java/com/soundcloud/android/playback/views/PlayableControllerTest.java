@@ -37,16 +37,20 @@ import rx.subscriptions.Subscriptions;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlayableInfoAndEngagementsControllerTest {
+public class PlayableControllerTest {
 
-    private PlayableInfoAndEngagementsController controller;
+    private PlayableController controller;
     private ViewGroup rootView;
 
     @Mock
     private SoundAssociationOperations soundAssocOps;
+
+    @Mock
+    private Context context;
 
     private Subscription eventSubscription = Subscriptions.empty();
 
@@ -54,13 +58,15 @@ public class PlayableInfoAndEngagementsControllerTest {
     public void setup() {
         LayoutInflater inflater = (LayoutInflater) Robolectric.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         rootView = (ViewGroup) inflater.inflate(R.layout.player_action_bar, null);
-        controller = new PlayableInfoAndEngagementsController(rootView, mock(PlayerTrackView.PlayerTrackViewListener.class),
-                soundAssocOps, null);
+        controller = new PlayableController(context, soundAssocOps, null);
+        controller.setLikeButton((ToggleButton) rootView.findViewById(R.id.toggle_like));
+        controller.setRepostButton((ToggleButton) rootView.findViewById(R.id.toggle_repost));
+        controller.setShareButton((ImageButton) rootView.findViewById(R.id.btn_share));
     }
 
     @After
     public void tearDown() throws Exception {
-        controller.onDestroy();
+        controller.stopListeningForChanges();
         eventSubscription.unsubscribe();
     }
 
@@ -76,7 +82,7 @@ public class PlayableInfoAndEngagementsControllerTest {
 
     @Test
     public void shouldPublishUIEventWhenLikingPlayable() {
-        controller.setTrack(new Track(1L));
+        controller.setPlayable(new Track(1L));
 
         Observer<UIEvent> eventObserver = mock(Observer.class);
         eventSubscription = EventBus.UI.subscribe(eventObserver);
@@ -93,7 +99,7 @@ public class PlayableInfoAndEngagementsControllerTest {
 
     @Test
     public void shouldPublishUIEventWhenUnlikingPlayable() {
-        controller.setTrack(new Track(1L));
+        controller.setPlayable(new Track(1L));
 
         Observer<UIEvent> eventObserver = mock(Observer.class);
         eventSubscription = EventBus.UI.subscribe(eventObserver);
@@ -112,7 +118,7 @@ public class PlayableInfoAndEngagementsControllerTest {
 
     @Test
     public void shouldPublishUIEventWhenRepostingPlayable() {
-        controller.setTrack(new Track(1L));
+        controller.setPlayable(new Track(1L));
 
         Observer<UIEvent> eventObserver = mock(Observer.class);
         eventSubscription = EventBus.UI.subscribe(eventObserver);
@@ -129,7 +135,7 @@ public class PlayableInfoAndEngagementsControllerTest {
 
     @Test
     public void shouldPublishUIEventWhenUnrepostingPlayable() {
-        controller.setTrack(new Track(1L));
+        controller.setPlayable(new Track(1L));
 
         Observer<UIEvent> eventObserver = mock(Observer.class);
         eventSubscription = EventBus.UI.subscribe(eventObserver);
@@ -149,7 +155,7 @@ public class PlayableInfoAndEngagementsControllerTest {
 
     @Test
     public void shouldPublishUIEventWhenSharingPlayable() {
-        controller.setTrack(new Track(1L));
+        controller.setPlayable(new Track(1L));
 
         Observer<UIEvent> eventObserver = mock(Observer.class);
         eventSubscription = EventBus.UI.subscribe(eventObserver);
@@ -175,7 +181,7 @@ public class PlayableInfoAndEngagementsControllerTest {
     @Test
     public void shouldLikeTrackWhenCheckingLikeButton() {
         Track track = new Track();
-        controller.setTrack(track);
+        controller.setPlayable(track);
 
         ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         expect(likeButton.isChecked()).toBeFalse();
@@ -193,7 +199,7 @@ public class PlayableInfoAndEngagementsControllerTest {
     @Test
     public void shouldResetLikeButtonToPreviousStateWhenLikingFails() {
         Track track = new Track();
-        controller.setTrack(track);
+        controller.setPlayable(track);
 
         ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         expect(likeButton.isChecked()).toBeFalse();
@@ -211,7 +217,7 @@ public class PlayableInfoAndEngagementsControllerTest {
     @Test
     public void shouldRepostTrackWhenCheckingRepostButton() {
         Track track = new Track();
-        controller.setTrack(track);
+        controller.setPlayable(track);
 
         ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
         expect(repostButton.isChecked()).toBeFalse();
@@ -229,7 +235,7 @@ public class PlayableInfoAndEngagementsControllerTest {
     @Test
     public void shouldResetRepostButtonToPreviousStateWhenRepostingFails() {
         Track track = new Track();
-        controller.setTrack(track);
+        controller.setPlayable(track);
 
         ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
         expect(repostButton.isChecked()).toBeFalse();
@@ -247,7 +253,7 @@ public class PlayableInfoAndEngagementsControllerTest {
     @Test
     public void shouldUnsubscribeFromOngoingSubscriptionsWhenActivityDestroyed() {
         Track track = new Track();
-        controller.setTrack(track);
+        controller.setPlayable(track);
 
         ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         expect(likeButton.isChecked()).toBeFalse();
@@ -258,7 +264,7 @@ public class PlayableInfoAndEngagementsControllerTest {
 
         likeButton.performClick();
 
-        controller.onDestroy();
+        controller.stopListeningForChanges();
 
         verify(subscription).unsubscribe();
     }
@@ -268,7 +274,7 @@ public class PlayableInfoAndEngagementsControllerTest {
         Track track = new Track(1L);
         track.user_like = false;
         track.user_repost = false;
-        controller.setTrack(track);
+        controller.setPlayable(track);
 
         ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         expect(likeButton.isChecked()).toBeFalse();
@@ -279,6 +285,8 @@ public class PlayableInfoAndEngagementsControllerTest {
         likedTrack.user_like = true;
         likedTrack.user_repost = true;
 
+        controller.startListeningForChanges();
+
         EventBus.PLAYABLE_CHANGED.publish(PlayableChangedEvent.create(likedTrack));
 
         expect(likeButton.isChecked()).toBeTrue();
@@ -288,7 +296,7 @@ public class PlayableInfoAndEngagementsControllerTest {
     @Test
     public void shouldNotUpdateLikeOrRepostButtonStateForOtherPlayables() {
         Track track = new Track(1L);
-        controller.setTrack(track);
+        controller.setPlayable(track);
 
         ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         expect(likeButton.isChecked()).toBeFalse();
@@ -315,7 +323,7 @@ public class PlayableInfoAndEngagementsControllerTest {
         };
 
         controller.setOriginProvider(originProvider);
-        controller.setTrack(new Track(1L));
+        controller.setPlayable(new Track(1L));
 
         Observer<UIEvent> eventObserver = mock(Observer.class);
         EventBus.UI.subscribe(eventObserver);
