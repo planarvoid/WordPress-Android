@@ -16,7 +16,7 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
-import com.soundcloud.android.playback.views.PlayableController;
+import com.soundcloud.android.playback.views.PlayablePresenter;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.FullImageDialog;
@@ -39,7 +39,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     public static final String EXTRA_SCROLL_TO_PLAYING_TRACK = "scroll_to_playing_track";
     private static final String TRACKS_FRAGMENT_TAG = "tracks_fragment";
     private Playlist mPlaylist;
-    private PlayableController mPlayableController;
+    private PlayablePresenter mPlayablePresenter;
     private EngagementsController mEngagementsController;
 
     @Inject
@@ -87,10 +87,10 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         setTitle(R.string.activity_title_playlist);
         setContentView(R.layout.playlist_activity);
 
-        mPlayableController = new PlayableController(this);
-        mPlayableController.setPlayableRowView(findViewById(R.id.playable_bar))
+        mPlayablePresenter = new PlayablePresenter(this);
+        mPlayablePresenter.setPlayableRowView(findViewById(R.id.playable_bar))
             .setArtwork((ImageView) findViewById(R.id.icon), ImageSize.getListItemImageSize(this), R.drawable.artwork_badge);
-        mPlayableController.addTextShadowForGrayBg();
+        mPlayablePresenter.addTextShadowForGrayBg();
 
 
         mEngagementsController = new EngagementsController(this, findViewById(R.id.playlist_action_bar),
@@ -180,7 +180,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
             mPlaylist.stopObservingChanges(getContentResolver(), this);
         }
         mPlaylist = playlist;
-        mPlayableController.setPlayable(playlist);
+        mPlayablePresenter.setPlayable(playlist);
         mEngagementsController.setPlayable(playlist);
         return changed;
     }
@@ -221,6 +221,6 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
 
     private void refresh() {
         mFragment.refresh();
-        mPlayableController.setPlayable(mPlaylist);
+        mPlayablePresenter.setPlayable(mPlaylist);
     }
 }

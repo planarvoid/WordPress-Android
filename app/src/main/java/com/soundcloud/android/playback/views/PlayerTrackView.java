@@ -60,7 +60,7 @@ public class PlayerTrackView extends FrameLayout implements
 
     private Subscription mTrackSubscription = Subscriptions.empty();
 
-    private PlayableController mPlayableController;
+    private PlayablePresenter mPlayablePresenter;
     private EngagementsController mEngagementsController;
 
     public interface PlayerTrackViewListener extends WaveformControllerLayout.WaveformListener {
@@ -86,7 +86,7 @@ public class PlayerTrackView extends FrameLayout implements
                 application.getEventBus(), new SoundAssociationStorage(), new SoundCloudRxHttpClient(),
                 SoundCloudApplication.sModelManager);
 
-        mPlayableController = new PlayableController(context);
+        mPlayablePresenter = new PlayablePresenter(context);
         mEngagementsController = new EngagementsController(context, this, application.getEventBus(), soundAssocOps, null, this);
 
         final View trackInfoBar = findViewById(R.id.playable_bar);
@@ -97,7 +97,7 @@ public class PlayerTrackView extends FrameLayout implements
                 }
             });
 
-            mPlayableController.setPlayableRowView(this)
+            mPlayablePresenter.setPlayableRowView(this)
                     .setAvatarView((ImageView) trackInfoBar.findViewById(R.id.icon), ImageSize.getListItemImageSize(context), R.drawable.avatar_badge)
                     .addTextShadowForGrayBg();
         }
@@ -174,7 +174,7 @@ public class PlayerTrackView extends FrameLayout implements
             refreshComments();
         }
 
-        mPlayableController.setPlayable(track);
+        mPlayablePresenter.setPlayable(track);
         mEngagementsController.setPlayable(track);
 
         if (mQueuePosition == mPlaybackStateProvider.getPlayPosition()) {

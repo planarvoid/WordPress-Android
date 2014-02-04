@@ -7,7 +7,6 @@ import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,7 +17,7 @@ import android.widget.TextView;
 
 import javax.annotation.Nullable;
 
-public class PlayableController {
+public class PlayablePresenter {
 
     private final Context mContext;
     @Nullable
@@ -47,12 +46,12 @@ public class PlayableController {
     private Playable mPlayable;
     private ImageOperations mImageOperations;
 
-    public PlayableController(Context context) {
+    public PlayablePresenter(Context context) {
         mContext = context;
         mImageOperations = ImageOperations.newInstance();
     }
 
-    public PlayableController setPlayableRowView(View view){
+    public PlayablePresenter setPlayableRowView(View view){
         setTitleView((TextView) view.findViewById(R.id.playable_title));
         setUsernameView((TextView) view.findViewById(R.id.playable_user));
         setStatsView((StatsView) view.findViewById(R.id.stats), true);
@@ -61,42 +60,42 @@ public class PlayableController {
         return this;
     }
 
-    public PlayableController setTitleView(TextView titleView) {
+    public PlayablePresenter setTitleView(TextView titleView) {
         mTitleView = titleView;
         return this;
     }
 
-    public PlayableController setUsernameView(TextView usernameView) {
+    public PlayablePresenter setUsernameView(TextView usernameView) {
         mUsernameView = usernameView;
         return this;
     }
 
-    public PlayableController setArtwork(ImageView artworkView, ImageSize artworkSize, int placeholderResId) {
+    public PlayablePresenter setArtwork(ImageView artworkView, ImageSize artworkSize, int placeholderResId) {
         mArtworkView = artworkView;
         mArtworkSize = artworkSize;
         mArtworkPlaceholderResId = placeholderResId;
         return this;
     }
 
-    public PlayableController setAvatarView(ImageView avatarView, ImageSize avatarSize, int placeholderResId) {
+    public PlayablePresenter setAvatarView(ImageView avatarView, ImageSize avatarSize, int placeholderResId) {
         mAvatarView = avatarView;
         mAvatarSize = avatarSize;
         mAvatarPlaceholderResId = placeholderResId;
         return this;
     }
 
-    public PlayableController setStatsView(StatsView statsView, boolean showFullStats) {
+    public PlayablePresenter setStatsView(StatsView statsView, boolean showFullStats) {
         mStatsView = statsView;
         mShowFullStats = showFullStats;
         return this;
     }
 
-    public PlayableController setPrivacyIndicatorView(TextView privacyIndicator) {
+    public PlayablePresenter setPrivacyIndicatorView(TextView privacyIndicator) {
         mPrivateIndicator = privacyIndicator;
         return this;
     }
 
-    public PlayableController setCreatedAtView(TextView createdAtView) {
+    public PlayablePresenter setCreatedAtView(TextView createdAtView) {
         mCreatedAtView = createdAtView;
         return this;
     }

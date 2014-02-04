@@ -8,7 +8,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.activities.TrackRepostActivity;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
-import com.soundcloud.android.playback.views.PlayableController;
+import com.soundcloud.android.playback.views.PlayablePresenter;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.behavior.PlayableHolder;
@@ -49,7 +49,7 @@ public class PlayableRow extends IconLayout implements ListRow {
     // used to build the string for the title text
     private SpannableStringBuilder mSpanBuilder;
     private final ForegroundColorSpan fcs = new ForegroundColorSpan(getResources().getColor(R.color.scOrange));
-    private PlayableController mPlayableController;
+    private PlayablePresenter mPlayablePresenter;
 
     public PlayableRow(Context context, ImageOperations imageOperations) {
         this(context, null, imageOperations);
@@ -58,7 +58,7 @@ public class PlayableRow extends IconLayout implements ListRow {
     public PlayableRow(Context context, AttributeSet attributeSet, ImageOperations imageOperations) {
         super(context, attributeSet, imageOperations);
 
-        mPlayableController = new PlayableController(context)
+        mPlayablePresenter = new PlayablePresenter(context)
                 .setUsernameView((TextView) findViewById(R.id.playable_user))
                 .setCreatedAtView((TextView) findViewById(R.id.playable_created_at))
                 .setStatsView((StatsView) findViewById(R.id.stats), true)
@@ -76,7 +76,7 @@ public class PlayableRow extends IconLayout implements ListRow {
      */
     public void setTrack(@NotNull PlayableHolder p) {
         mPlayableHolder = p;
-        mPlayableController.setPlayable(mPlayableHolder.getPlayable());
+        mPlayablePresenter.setPlayable(mPlayableHolder.getPlayable());
         loadIcon();
         setTitle();
     }

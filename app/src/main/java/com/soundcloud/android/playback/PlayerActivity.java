@@ -23,7 +23,7 @@ import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.AddCommentDialog;
-import com.soundcloud.android.playback.views.PlayableController;
+import com.soundcloud.android.playback.views.PlayablePresenter;
 import com.soundcloud.android.playback.views.PlayerTrackDetailsLayout;
 import com.soundcloud.android.playback.views.PlayerTrackPager;
 import com.soundcloud.android.playback.views.PlayerTrackView;
@@ -87,7 +87,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     @NotNull
     private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
     private PlayerTrackDetailsLayout mTrackDetailsView;
-    private PlayableController mPlayableController;
+    private PlayablePresenter mPlayablePresenter;
     private EngagementsController mEngagementsController;
 
     public interface PlayerError {
@@ -123,9 +123,9 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         LinearLayout mPlayerInfoLayout = (LinearLayout) findViewById(R.id.player_info_view);
         if (mPlayerInfoLayout != null){
             mTrackDetailsView = (PlayerTrackDetailsLayout) mPlayerInfoLayout.findViewById(R.id.player_track_details);
-            mPlayableController = new PlayableController(this);
+            mPlayablePresenter = new PlayablePresenter(this);
 
-            mPlayableController.setTitleView((TextView) findViewById(R.id.playable_title))
+            mPlayablePresenter.setTitleView((TextView) findViewById(R.id.playable_title))
                     .setUsernameView((TextView) findViewById(R.id.playable_user))
                     .setAvatarView((ImageView) findViewById(R.id.icon), ImageSize.getListItemImageSize(this), R.drawable.avatar_badge)
                     .setStatsView((StatsView) findViewById(R.id.stats), false)
@@ -406,8 +406,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                     mTrackDetailsView.setTrack(track);
                 }
             }
-            if (mPlayableController != null) {
-                mPlayableController.setPlayable(track);
+            if (mPlayablePresenter != null) {
+                mPlayablePresenter.setPlayable(track);
                 mEngagementsController.setPlayable(track);
             }
         }
