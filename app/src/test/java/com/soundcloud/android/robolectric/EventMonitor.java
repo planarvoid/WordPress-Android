@@ -3,6 +3,8 @@ package com.soundcloud.android.robolectric;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.refEq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,13 +12,14 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EventBus2;
 import org.mockito.ArgumentCaptor;
 import rx.Observer;
-import rx.subscriptions.Subscriptions;
+import rx.Subscription;
 import rx.util.functions.Action1;
 
 public class EventMonitor {
 
     private EventBus2 eventBus;
     private ArgumentCaptor captor;
+    private Subscription subscription;
 
     public static EventMonitor on(EventBus2 eventBus) {
         return new EventMonitor(eventBus);
@@ -24,13 +27,29 @@ public class EventMonitor {
 
     private EventMonitor(EventBus2 eventBus) {
         this.eventBus = eventBus;
-        when(eventBus.subscribe(any(EventBus2.QueueDescriptor.class), any(Observer.class))).thenReturn(Subscriptions.empty());
+        withSubscription(mock(Subscription.class));
+    }
+
+    public EventMonitor withSubscription(Subscription subscription) {
+        this.subscription = subscription;
+        when(eventBus.subscribe(any(EventBus2.QueueDescriptor.class), any(Observer.class))).thenReturn(subscription);
+        return this;
     }
 
     public EventMonitor verifySubscribedTo(EventBus2.QueueDescriptor queue) {
         ArgumentCaptor<Observer> eventObserver = ArgumentCaptor.forClass(Observer.class);
         verify(eventBus).subscribe(refEq(queue), eventObserver.capture());
         this.captor = eventObserver;
+        return this;
+    }
+
+    public EventMonitor verifyNotSubscribedTo(EventBus2.QueueDescriptor queue) {
+        verify(eventBus, never()).subscribe(refEq(queue), any(Observer.class));
+        return this;
+    }
+
+    public EventMonitor verifyUnsubscribed() {
+        verify(subscription, atLeastOnce()).unsubscribe();
         return this;
     }
 

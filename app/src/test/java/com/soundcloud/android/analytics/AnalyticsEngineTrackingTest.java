@@ -35,6 +35,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Scheduler;
+import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action0;
 
@@ -60,10 +61,12 @@ public class AnalyticsEngineTrackingTest {
     private Scheduler scheduler;
     @Mock
     private EventBus2 eventBus;
+    @Mock
+    private Subscription eventSubscription;
 
     @Before
     public void setUp() throws Exception {
-        eventMonitor = EventMonitor.on(eventBus);
+        eventMonitor = EventMonitor.on(eventBus).withSubscription(eventSubscription);
         when(scheduler.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(Subscriptions.empty());
     }
 
@@ -79,8 +82,7 @@ public class AnalyticsEngineTrackingTest {
 
         initialiseAnalyticsEngine();
 
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-
+        eventMonitor.verifyNotSubscribedTo(EventQueue.ACTIVITY_LIFE_CYCLE);
         verifyZeroInteractions(analyticsProviderOne);
         verifyZeroInteractions(analyticsProviderTwo);
     }
@@ -91,8 +93,7 @@ public class AnalyticsEngineTrackingTest {
 
         initialiseAnalyticsEngine();
 
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-
+        eventMonitor.verifyNotSubscribedTo(EventQueue.ACTIVITY_LIFE_CYCLE);
         verifyZeroInteractions(analyticsProviderOne);
         verifyZeroInteractions(analyticsProviderTwo);
     }
@@ -103,20 +104,17 @@ public class AnalyticsEngineTrackingTest {
 
         initialiseAnalyticsEngine();
         // send the first event; should arrive
-        final ActivityLifeCycleEvent event1 = ActivityLifeCycleEvent.forOnCreate(Activity.class);
-        EventBus.ACTIVITY_LIFECYCLE.publish(event1);
+        final ActivityLifeCycleEvent event = ActivityLifeCycleEvent.forOnCreate(Activity.class);
+        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, event);
 
         when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(false);
         analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingsActivity.ANALYTICS_ENABLED);
 
         // send the second event; should NOT arrive
-        final ActivityLifeCycleEvent event2 = ActivityLifeCycleEvent.forOnCreate(Activity.class);
-        EventBus.ACTIVITY_LIFECYCLE.publish(event2);
+        eventMonitor.verifyUnsubscribed();
 
-        verify(analyticsProviderOne).handleActivityLifeCycleEvent(event1);
-        verify(analyticsProviderTwo).handleActivityLifeCycleEvent(event1);
-        verify(analyticsProviderOne, never()).handleActivityLifeCycleEvent(event2);
-        verify(analyticsProviderTwo, never()).handleActivityLifeCycleEvent(event2);
+        verify(analyticsProviderOne).handleActivityLifeCycleEvent(event);
+        verify(analyticsProviderTwo).handleActivityLifeCycleEvent(event);
     }
 
     @Test
@@ -126,14 +124,16 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
         // send the first event; should not arrive
         final ActivityLifeCycleEvent event1 = ActivityLifeCycleEvent.forOnCreate(Activity.class);
-        EventBus.ACTIVITY_LIFECYCLE.publish(event1);
+        eventMonitor.verifyNotSubscribedTo(EventQueue.ACTIVITY_LIFE_CYCLE);
 
         when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(true);
         analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingsActivity.ANALYTICS_ENABLED);
 
+        eventMonitor.verifySubscribedTo(EventQueue.ACTIVITY_LIFE_CYCLE);
+
         // send the second event; should arrive
         final ActivityLifeCycleEvent event2 = ActivityLifeCycleEvent.forOnCreate(Activity.class);
-        EventBus.ACTIVITY_LIFECYCLE.publish(event2);
+        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, event2);
 
         verify(analyticsProviderOne, never()).handleActivityLifeCycleEvent(event1);
         verify(analyticsProviderTwo, never()).handleActivityLifeCycleEvent(event1);
@@ -147,18 +147,6 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         verify(sharedPreferences).registerOnSharedPreferenceChangeListener(analyticsEngine);
-    }
-
-    @Test
-    public void shouldNotSubscribeMultipleTimesToEventsWhenSharedPreferencesChangeAndAnalyticsAlreadyEnabled() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
-        analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingsActivity.ANALYTICS_ENABLED);
-
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-
-        verify(analyticsProviderOne, times(1)).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
     }
 
     @Test
@@ -189,7 +177,7 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         final ActivityLifeCycleEvent event = ActivityLifeCycleEvent.forOnCreate(Activity.class);
-        EventBus.ACTIVITY_LIFECYCLE.publish(event);
+        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, event);
 
         verify(analyticsProviderOne, times(1)).handleActivityLifeCycleEvent(event);
         verify(analyticsProviderTwo, times(1)).handleActivityLifeCycleEvent(event);
@@ -257,7 +245,7 @@ public class AnalyticsEngineTrackingTest {
         eventMonitor.publish(EventQueue.PLAYBACK, PlaybackEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
         eventMonitor.publish(EventQueue.UI, UIEvent.fromToggleFollow(true, "screen", 0));
 
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         EventBus.SCREEN_ENTERED.publish("screen");
         EventBus.ONBOARDING.publish(OnboardingEvent.authComplete());
 
