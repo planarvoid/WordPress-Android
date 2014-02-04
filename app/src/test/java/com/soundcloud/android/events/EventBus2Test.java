@@ -17,7 +17,7 @@ import rx.util.functions.Func1;
 @RunWith(SoundCloudTestRunner.class)
 public class EventBus2Test {
 
-    private static final QueueDescriptor<String> TEST_QUEUE = QueueDescriptor.create("test_queue_1");
+    private static final QueueDescriptor<String> TEST_QUEUE = QueueDescriptor.create("test_queue_1", String.class);
 
     private EventBus2 eventBus = new EventBus2();
 

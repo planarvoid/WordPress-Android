@@ -90,7 +90,8 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
 
         mPlayableController = new PlayableController(this);
 
-        mEngagementsController = new EngagementsController(this, findViewById(R.id.playlist_action_bar), mSoundAssocOps, new OriginProvider() {
+        mEngagementsController = new EngagementsController(this, findViewById(R.id.playlist_action_bar),
+                getApp().getEventBus(), mSoundAssocOps, new OriginProvider() {
             @Override
             public String getScreenTag() {
                 return Screen.fromIntent(getIntent()).get();
@@ -177,6 +178,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         }
         mPlaylist = playlist;
         mPlayableController.setPlayable(playlist);
+        mEngagementsController.setPlayable(playlist);
         return changed;
     }
 

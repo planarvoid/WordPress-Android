@@ -4,11 +4,14 @@ package com.soundcloud.android.collections.views;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ListRow;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.User;
@@ -34,15 +37,16 @@ public class UserlistRow extends IconLayout implements ListRow {
     private TextView mTracks;
     private TextView mFollowers;
     private View mVrStats;
-    private RelativeLayout mFollowBtnHolder;
     private ToggleButton mFollowBtn;
     private AccountOperations mAccountOperations;
     private FollowingOperations mFollowingOperations;
     private Screen mOriginScreen;
 
+    private EventBus2 mEventBus;
 
     public UserlistRow(Context context, Screen originScreen, ImageOperations imageOperations) {
         super(context, imageOperations);
+        mEventBus = ((SoundCloudApplication) context.getApplicationContext()).getEventBus();
         mOriginScreen = originScreen;
         mFollowingOperations = new FollowingOperations();
         mAccountOperations = new AccountOperations(context);
@@ -57,14 +61,14 @@ public class UserlistRow extends IconLayout implements ListRow {
             mFollowBtn.setFocusable(false);
             mFollowBtn.setClickable(false);
 
-            mFollowBtnHolder = (RelativeLayout) findViewById(R.id.toggleFollowingHolder);
+            RelativeLayout mFollowBtnHolder = (RelativeLayout) findViewById(R.id.toggleFollowingHolder);
             mFollowBtnHolder.setFocusable(false);
             mFollowBtnHolder.setDescendantFocusability(FOCUS_BLOCK_DESCENDANTS);
-            mFollowBtnHolder.setOnClickListener(new View.OnClickListener(){
+            mFollowBtnHolder.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     toggleFollowing(mUser);
-                    EventBus.UI.publish(UIEvent.fromToggleFollow(!mFollowBtn.isChecked(),
+                    mEventBus.publish(EventQueue.UI, UIEvent.fromToggleFollow(!mFollowBtn.isChecked(),
                             mOriginScreen.get(), mUser.getId()));
                 }
             });

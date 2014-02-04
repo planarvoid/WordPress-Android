@@ -1,7 +1,6 @@
 package com.soundcloud.android.analytics;
 
 
-import static com.soundcloud.android.events.EventBus2.QueueDescriptor;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
@@ -10,7 +9,6 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
@@ -23,6 +21,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.After;
 import org.junit.Before;
@@ -31,10 +30,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action0;
 
 import android.app.Activity;
@@ -45,6 +42,8 @@ import java.util.concurrent.TimeUnit;
 @RunWith(SoundCloudTestRunner.class)
 public class AnalyticsEngineEventFlushingTest {
     private AnalyticsEngine analyticsEngine;
+    private EventMonitor eventMonitor;
+
     @Mock
     private AnalyticsProperties analyticsProperties;
     @Mock
@@ -62,8 +61,13 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Before
     public void setUp() throws Exception {
-        when(eventBus.subscribe(any(QueueDescriptor.class), any(Observer.class))).thenReturn(Subscriptions.empty());
+        eventMonitor = EventMonitor.on(eventBus);
         when(scheduler.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(subscription);
+
+        when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
+        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(true);
+        analyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, analyticsProperties, scheduler,
+                Lists.newArrayList(analyticsProviderOne, analyticsProviderTwo));
     }
 
     @After
@@ -73,10 +77,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldScheduleToFlushEventDataOnFirstTrackingEvent() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         EventBus.SCREEN_ENTERED.publish("screen");
 
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
@@ -84,10 +85,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void flushActionShouldCallFlushOnAllProviders() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         EventBus.SCREEN_ENTERED.publish("screen");
 
         ArgumentCaptor<Action0> flushAction = ArgumentCaptor.forClass(Action0.class);
@@ -99,10 +97,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void successfulFlushShouldResetSubscription() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         EventBus.SCREEN_ENTERED.publish("screen");
 
         ArgumentCaptor<Action0> flushAction = ArgumentCaptor.forClass(Action0.class);
@@ -113,10 +108,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldRescheduleFlushForTrackingEventAfterPreviousFlushFinished() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         EventBus.SCREEN_ENTERED.publish("screen1");
 
         InOrder inOrder = inOrder(scheduler, scheduler);
@@ -132,10 +124,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldNotScheduleFlushIfFlushIsAlreadyScheduled() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         EventBus.SCREEN_ENTERED.publish("screen1");
         EventBus.SCREEN_ENTERED.publish("screen2");
 
@@ -143,72 +132,29 @@ public class AnalyticsEngineEventFlushingTest {
     }
 
     @Test
-    public void shouldNotFlushIfAnalyticsDisabled() {
-        setAnalyticsDisabledViaSettings();
-        initialiseAnalyticsEngine();
-
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        EventBus.SCREEN_ENTERED.publish("screen");
-
-        verifyZeroInteractions(analyticsProviderOne, analyticsProviderTwo);
-    }
-
-    @Test
     public void shouldScheduleFlushesFromOpenSessionEvents() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
 
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromCloseSessionEvents() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(Activity.class));
+        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
 
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromPlaybackEvents() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
-        ArgumentCaptor<Observer> observer = ArgumentCaptor.forClass(Observer.class);
-        verify(eventBus).subscribe(eq(EventQueue.PLAYBACK), observer.capture());
-
-        observer.getValue().onNext(PlaybackEvent.forPlay(new Track(), 1L, mock(TrackSourceInfo.class)));
-
+        eventMonitor.publish(EventQueue.PLAYBACK, PlaybackEvent.forPlay(new Track(), 1L, mock(TrackSourceInfo.class)));
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromUIEvents() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
-        EventBus.UI.publish(UIEvent.fromComment("screen", 1L));
+        eventMonitor.publish(EventQueue.UI, UIEvent.fromComment("screen", 1L));
 
         verify(scheduler).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
-
-    private void setAnalyticsDisabledViaSettings() {
-        when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
-        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(false);
-    }
-
-    private void setAnalyticsEnabledViaSettings() {
-        when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
-        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(true);
-    }
-
-    private void initialiseAnalyticsEngine() {
-        analyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, analyticsProperties, scheduler,
-                Lists.newArrayList(analyticsProviderOne, analyticsProviderTwo));
-    }
-
 }

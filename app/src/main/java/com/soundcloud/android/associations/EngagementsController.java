@@ -5,7 +5,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playable;
@@ -17,7 +18,6 @@ import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
-import rx.util.functions.Action1;
 
 import android.content.Context;
 import android.content.Intent;
@@ -44,6 +44,7 @@ public class EngagementsController {
     private Playable mPlayable;
     private final SoundAssociationOperations mSoundAssociationOps;
     private OriginProvider mOriginProvider;
+    private final EventBus2 mEventBus;
 
     private CompositeSubscription mSubscription = new CompositeSubscription();
 
@@ -51,17 +52,18 @@ public class EngagementsController {
         void onAddToPlaylist(Track track);
     }
 
-    public EngagementsController(Context context, View rootView,
+    public EngagementsController(Context context, View rootView, EventBus2 eventBus,
                                  SoundAssociationOperations soundAssocOperations,
                                  @Nullable OriginProvider originProvider) {
-        this(context, rootView, soundAssocOperations, originProvider, null);
+        this(context, rootView, eventBus, soundAssocOperations, originProvider, null);
     }
 
-    public EngagementsController(Context context, View rootView,
+    public EngagementsController(Context context, View rootView, EventBus2 eventBus,
                                  SoundAssociationOperations soundAssocOperations,
                                  @Nullable OriginProvider originProvider, final AddToPlaylistListener listener) {
 
         mContext = context;
+        mEventBus = eventBus;
         mSoundAssociationOps = soundAssocOperations;
         OriginProvider result;
         result = originProvider != null ? originProvider : new OriginProvider() {
@@ -78,7 +80,7 @@ public class EngagementsController {
                 @Override
                 public void onClick(View view) {
                     if (mPlayable != null) {
-                        EventBus.UI.publish(UIEvent.fromToggleLike(mToggleLike.isChecked(),
+                        mEventBus.publish(EventQueue.UI, UIEvent.fromToggleLike(mToggleLike.isChecked(),
                                 mOriginProvider.getScreenTag(), mPlayable));
 
                         mToggleLike.setEnabled(false);
@@ -98,7 +100,7 @@ public class EngagementsController {
                 @Override
                 public void onClick(View view) {
                     if (mPlayable != null) {
-                        EventBus.UI.publish(UIEvent.fromToggleRepost(mToggleRepost.isChecked(),
+                        mEventBus.publish(EventQueue.UI, UIEvent.fromToggleRepost(mToggleRepost.isChecked(),
                                 mOriginProvider.getScreenTag(), mPlayable));
 
                         mToggleRepost.setEnabled(false);
@@ -118,7 +120,7 @@ public class EngagementsController {
                 @Override
                 public void onClick(View v) {
                     if (mPlayable != null) {
-                        EventBus.UI.publish(UIEvent.fromShare(mOriginProvider.getScreenTag(), mPlayable));
+                        mEventBus.publish(EventQueue.UI, UIEvent.fromShare(mOriginProvider.getScreenTag(), mPlayable));
                         Intent shareIntent = mPlayable.getShareIntent();
                         if (shareIntent != null) {
                             mContext.startActivity(shareIntent);
@@ -143,9 +145,9 @@ public class EngagementsController {
 
     public void startListeningForChanges() {
         // make sure we pick up changes to the current playable that come via the event bus
-        mSubscription.add(EventBus.PLAYABLE_CHANGED.subscribe(new Action1<PlayableChangedEvent>() {
+        mSubscription.add(mEventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new DefaultObserver<PlayableChangedEvent>() {
             @Override
-            public void call(PlayableChangedEvent event) {
+            public void onNext(PlayableChangedEvent event) {
                 if (mPlayable != null && mPlayable.getId() == event.getPlayable().getId()) {
                     updateLikeButton((int) event.getPlayable().likes_count, event.getPlayable().user_like);
                     updateRepostButton((int) event.getPlayable().reposts_count, event.getPlayable().user_repost);

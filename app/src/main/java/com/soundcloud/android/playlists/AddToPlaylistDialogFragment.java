@@ -3,9 +3,12 @@ package com.soundcloud.android.playlists;
 import static rx.android.observables.AndroidObservable.fromFragment;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
@@ -17,6 +20,7 @@ import com.soundcloud.android.storage.provider.Table;
 import com.soundcloud.android.utils.ScTextUtils;
 import eu.inmite.android.lib.dialogs.BaseDialogFragment;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -50,6 +54,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
 
     private MyPlaylistsAdapter mAdapter;
     private PlaylistOperations mPlaylistOperations;
+    private EventBus2 mEventBus;
 
     public static AddToPlaylistDialogFragment from(Track track, String originScreen) {
         Bundle b = new Bundle();
@@ -63,6 +68,12 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
     }
 
     public AddToPlaylistDialogFragment() {
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mEventBus = ((SoundCloudApplication) activity.getApplication()).getEventBus();
     }
 
     @Override
@@ -111,7 +122,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
                 playlistId, trackId)).subscribe(new TrackAddedObserver());
 
         final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
-        EventBus.UI.publish(UIEvent.fromAddToPlaylist(originScreen, false, trackId));
+        mEventBus.publish(EventQueue.UI, UIEvent.fromAddToPlaylist(originScreen, false, trackId));
     }
 
     @Override

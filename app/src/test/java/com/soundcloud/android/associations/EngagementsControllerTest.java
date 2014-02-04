@@ -7,31 +7,29 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.Observer;
 import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -43,26 +41,27 @@ public class EngagementsControllerTest {
 
     private EngagementsController controller;
     private ViewGroup rootView;
+    private EventMonitor eventMonitor;
 
     @Mock
     private SoundAssociationOperations soundAssocOps;
-
     @Mock
     private Context context;
-
-    private Subscription eventSubscription = Subscriptions.empty();
+    @Mock
+    private EventBus2 eventBus;
 
     @Before
     public void setup() {
         LayoutInflater inflater = (LayoutInflater) Robolectric.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         rootView = (ViewGroup) inflater.inflate(R.layout.player_action_bar, null);
-        controller = new EngagementsController(context, rootView, soundAssocOps, null);
+        controller = new EngagementsController(context, rootView, eventBus, soundAssocOps, null);
+        eventMonitor = EventMonitor.on(eventBus);
+        controller.startListeningForChanges();
     }
 
     @After
     public void tearDown() throws Exception {
         controller.stopListeningForChanges();
-        eventSubscription.unsubscribe();
     }
 
     @Test
@@ -79,25 +78,18 @@ public class EngagementsControllerTest {
     public void shouldPublishUIEventWhenLikingPlayable() {
         controller.setPlayable(new Track(1L));
 
-        Observer<UIEvent> eventObserver = mock(Observer.class);
-        eventSubscription = EventBus.UI.subscribe(eventObserver);
-
         when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class)))
                 .thenReturn(Observable.just(new SoundAssociation(new Track())));
         rootView.findViewById(R.id.toggle_like).performClick();
 
-        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(uiEvent.capture());
-        expect(uiEvent.getValue().getKind()).toBe(UIEvent.LIKE);
-        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
+        UIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.UI);
+        expect(uiEvent.getKind()).toBe(UIEvent.LIKE);
+        expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
 
     @Test
     public void shouldPublishUIEventWhenUnlikingPlayable() {
         controller.setPlayable(new Track(1L));
-
-        Observer<UIEvent> eventObserver = mock(Observer.class);
-        eventSubscription = EventBus.UI.subscribe(eventObserver);
 
         when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class)))
                 .thenReturn(Observable.just(new SoundAssociation(new Track())));
@@ -105,35 +97,27 @@ public class EngagementsControllerTest {
         likeToggle.setChecked(true);
         likeToggle.performClick();
 
-        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(uiEvent.capture());
-        expect(uiEvent.getValue().getKind()).toBe(UIEvent.UNLIKE);
-        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
+        UIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.UI);
+        expect(uiEvent.getKind()).toBe(UIEvent.UNLIKE);
+        expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
 
     @Test
     public void shouldPublishUIEventWhenRepostingPlayable() {
         controller.setPlayable(new Track(1L));
 
-        Observer<UIEvent> eventObserver = mock(Observer.class);
-        eventSubscription = EventBus.UI.subscribe(eventObserver);
-
         when(soundAssocOps.toggleRepost(anyBoolean(), any(Playable.class)))
                 .thenReturn(Observable.just(new SoundAssociation(new Track())));
         rootView.findViewById(R.id.toggle_repost).performClick();
 
-        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(uiEvent.capture());
-        expect(uiEvent.getValue().getKind()).toBe(UIEvent.REPOST);
-        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
+        UIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.UI);
+        expect(uiEvent.getKind()).toBe(UIEvent.REPOST);
+        expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
 
     @Test
     public void shouldPublishUIEventWhenUnrepostingPlayable() {
         controller.setPlayable(new Track(1L));
-
-        Observer<UIEvent> eventObserver = mock(Observer.class);
-        eventSubscription = EventBus.UI.subscribe(eventObserver);
 
         when(soundAssocOps.toggleRepost(anyBoolean(), any(Playable.class)))
                 .thenReturn(Observable.just(new SoundAssociation(new Track())));
@@ -141,10 +125,9 @@ public class EngagementsControllerTest {
         repostToggle.setChecked(true);
         repostToggle.performClick();
 
-        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(uiEvent.capture());
-        expect(uiEvent.getValue().getKind()).toBe(UIEvent.UNREPOST);
-        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
+        UIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.UI);
+        expect(uiEvent.getKind()).toBe(UIEvent.UNREPOST);
+        expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
 
 
@@ -152,25 +135,17 @@ public class EngagementsControllerTest {
     public void shouldPublishUIEventWhenSharingPlayable() {
         controller.setPlayable(new Track(1L));
 
-        Observer<UIEvent> eventObserver = mock(Observer.class);
-        eventSubscription = EventBus.UI.subscribe(eventObserver);
-
         rootView.findViewById(R.id.btn_share).performClick();
 
-        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(uiEvent.capture());
-        expect(uiEvent.getValue().getKind()).toBe(UIEvent.SHARE);
-        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
+        UIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.UI);
+        expect(uiEvent.getKind()).toBe(UIEvent.SHARE);
+        expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
 
     @Test
     public void shouldNotPublishUIEventWhenTrackIsNull() {
-        Observer<UIEvent> eventObserver = mock(Observer.class);
-        eventSubscription = EventBus.UI.subscribe(eventObserver);
-
         rootView.findViewById(R.id.btn_share).performClick();
-
-        verify(eventObserver, never()).onNext(any(UIEvent.class));
+        eventMonitor.verifyNoEventsOn(EventQueue.UI);
     }
 
     @Test
@@ -280,10 +255,7 @@ public class EngagementsControllerTest {
         likedTrack.user_like = true;
         likedTrack.user_repost = true;
 
-        controller.startListeningForChanges();
-
-        EventBus.PLAYABLE_CHANGED.publish(PlayableChangedEvent.create(likedTrack));
-
+        eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.create(likedTrack));
         expect(likeButton.isChecked()).toBeTrue();
         expect(repostButton.isChecked()).toBeTrue();
     }
@@ -302,8 +274,7 @@ public class EngagementsControllerTest {
         likedTrack.user_like = true;
         likedTrack.user_repost = true;
 
-        EventBus.PLAYABLE_CHANGED.publish(PlayableChangedEvent.create(likedTrack));
-
+        eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.create(likedTrack));
         expect(likeButton.isChecked()).toBeFalse();
         expect(repostButton.isChecked()).toBeFalse();
     }
@@ -320,14 +291,10 @@ public class EngagementsControllerTest {
         controller.setOriginProvider(originProvider);
         controller.setPlayable(new Track(1L));
 
-        Observer<UIEvent> eventObserver = mock(Observer.class);
-        EventBus.UI.subscribe(eventObserver);
-
         rootView.findViewById(R.id.btn_share).performClick();
 
-        ArgumentCaptor<UIEvent> uiEvent = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventObserver).onNext(uiEvent.capture());
-        expect(uiEvent.getValue().getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
+        UIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.UI);
+        expect(uiEvent.getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
     }
 
 }

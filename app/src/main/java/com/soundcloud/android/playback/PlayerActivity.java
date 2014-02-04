@@ -132,7 +132,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                     .setCreatedAtView((TextView) findViewById(R.id.playable_created_at))
                     .setPrivacyIndicatorView((TextView) findViewById(R.id.playable_private_indicator));
 
-            mEngagementsController = new EngagementsController(this, mPlayerInfoLayout,  mSoundAssocicationOps, mPlaybackStateProvider, this);
+            mEngagementsController = new EngagementsController(this, mPlayerInfoLayout,  getApp().getEventBus(),
+                    mSoundAssocicationOps, mPlaybackStateProvider, this);
             mEngagementsController.startListeningForChanges();
 
         }
@@ -407,6 +408,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             }
             if (mPlayableController != null) {
                 mPlayableController.setPlayable(track);
+                mEngagementsController.setPlayable(track);
             }
         }
     }

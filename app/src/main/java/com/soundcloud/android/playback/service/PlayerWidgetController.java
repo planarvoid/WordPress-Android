@@ -5,7 +5,8 @@ import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.associations.SoundAssociationOperations;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -38,6 +39,8 @@ public class PlayerWidgetController {
     PlayerAppWidgetProvider mWidgetProvider;
     @Inject
     SoundAssociationOperations mSoundAssocicationOps;
+    @Inject
+    EventBus2 mEventBus;
 
     private Subscription eventSubscription = Subscriptions.empty();
 
@@ -49,10 +52,12 @@ public class PlayerWidgetController {
     }
 
     @VisibleForTesting
-    PlayerWidgetController(Context context, PlaybackStateProvider playbackStateProvider, PlayerAppWidgetProvider provider) {
+    PlayerWidgetController(Context context, PlaybackStateProvider playbackStateProvider, PlayerAppWidgetProvider provider,
+                           EventBus2 eventBus) {
         mContext = context;
         mPlaybackStateProvider = playbackStateProvider;
         mWidgetProvider = provider;
+        mEventBus = eventBus;
     }
 
     private PlayerWidgetController(Context context) {
@@ -61,7 +66,7 @@ public class PlayerWidgetController {
     }
 
     public void subscribe() {
-        eventSubscription = EventBus.PLAYABLE_CHANGED.subscribe(new PlayableChangedObserver());
+        eventSubscription = mEventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new PlayableChangedObserver());
     }
 
     @VisibleForTesting

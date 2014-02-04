@@ -13,17 +13,19 @@ public class EventBus2 {
     @SuppressWarnings("unused") // we keep the type variable to enforce type checking
     public static final class QueueDescriptor<T> {
         public final String name;
+        public final Class<T> eventType;
 
-        private QueueDescriptor(String name) {
+        private QueueDescriptor(String name, Class<T> eventType) {
             this.name = name;
+            this.eventType = eventType;
         }
 
         public int id() {
             return name.hashCode();
         }
 
-        public static <T> QueueDescriptor<T> create(String name) {
-            return new QueueDescriptor<T>(name);
+        public static <T> QueueDescriptor<T> create(String name, Class<T> eventType) {
+            return new QueueDescriptor<T>(name, eventType);
         }
     }
 

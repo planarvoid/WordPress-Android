@@ -7,6 +7,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.EventBus2;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -16,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,6 +36,8 @@ public class NavigationDrawerFragmentTest {
     ActionBar actionBar;
     @Mock
     View view;
+    @Mock
+    EventBus2 eventBus;
 
     @Before
     public void setUp() throws Exception {
@@ -41,6 +46,11 @@ public class NavigationDrawerFragmentTest {
         Robolectric.shadowOf(fragment).setView(view);
         when(activity.findViewById(R.id.drawer_layout)).thenReturn(drawerLayout);
         when(activity.getSupportActionBar()).thenReturn(actionBar);
+
+        SoundCloudApplication application = mock(SoundCloudApplication.class);
+        when(application.getEventBus()).thenReturn(eventBus);
+        when(activity.getApplication()).thenReturn(application);
+
         fragment.onAttach(activity);
         fragment.onActivityCreated(null);
     }

@@ -83,12 +83,13 @@ public class PlayerTrackView extends FrameLayout implements
         mWaveformController = (WaveformControllerLayout) findViewById(R.id.waveform_controller);
         mWaveformController.setListener(mListener);
 
+        SoundCloudApplication application = (SoundCloudApplication) context.getApplicationContext();
         SoundAssociationOperations soundAssocOps = new SoundAssociationOperations(
-                new SoundAssociationStorage(), new SoundCloudRxHttpClient(),
+                application.getEventBus(), new SoundAssociationStorage(), new SoundCloudRxHttpClient(),
                 SoundCloudApplication.sModelManager);
 
         mPlayableController = new PlayableController(context);
-        mEngagementsController = new EngagementsController(context, this, soundAssocOps, null, this);
+        mEngagementsController = new EngagementsController(context, this, application.getEventBus(), soundAssocOps, null, this);
 
         final PlayableBar trackInfoBar = (PlayableBar) findViewById(R.id.playable_bar);
         if (trackInfoBar != null){
@@ -180,6 +181,8 @@ public class PlayerTrackView extends FrameLayout implements
         }
 
         mPlayableController.setPlayable(track);
+        mEngagementsController.setPlayable(track);
+
         if (mQueuePosition == mPlaybackStateProvider.getPlayPosition()) {
             setProgress(mPlaybackStateProvider.getPlayProgress(), mPlaybackStateProvider.getLoadingPercent(),
                     Consts.SdkSwitches.useSmoothProgress && mPlaybackStateProvider.isPlaying());
