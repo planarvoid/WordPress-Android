@@ -1,13 +1,5 @@
 package com.soundcloud.android.search;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.Search;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.view.ClearText;
-
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +14,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.model.Search;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.view.ClearText;
 
 import java.util.Locale;
 
@@ -156,16 +155,16 @@ public class SearchActivity extends ScActivity {
         final int position = mSpinner.getSelectedItemPosition();
         switch (position) {
             case SPINNER_POS_ALL:
-                EventBus.SCREEN_ENTERED.publish(Screen.SEARCH_EVERYTHING.get());
+                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_EVERYTHING.get());
                 break;
             case SPINNER_POS_SOUNDS:
-                EventBus.SCREEN_ENTERED.publish(Screen.SEARCH_TRACKS.get());
+                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_TRACKS.get());
                 break;
             case SPINNER_POS_PLAYLISTS:
-                EventBus.SCREEN_ENTERED.publish(Screen.SEARCH_PLAYLISTS.get());
+                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_PLAYLISTS.get());
                 break;
             case SPINNER_POS_USERS:
-                EventBus.SCREEN_ENTERED.publish(Screen.SEARCH_USERS.get());
+                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_USERS.get());
                 break;
             default:
                 throw new IllegalStateException("Unexpected search filter with position " + position);

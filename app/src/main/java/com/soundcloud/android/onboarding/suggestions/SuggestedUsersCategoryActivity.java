@@ -1,16 +1,15 @@
 package com.soundcloud.android.onboarding.suggestions;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.actionbar.ActionBarController;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.Category;
-import com.soundcloud.android.associations.FollowingOperations;
-
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.soundcloud.android.R;
+import com.soundcloud.android.actionbar.ActionBarController;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.model.Category;
 
 public class SuggestedUsersCategoryActivity extends ScActivity {
 
@@ -43,9 +42,9 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
         super.onResume();
         if (shouldTrackScreen()) {
             if (mCategory.isFacebookCategory()) {
-                EventBus.SCREEN_ENTERED.publish(Screen.ONBOARDING_FACEBOOK.get());
+                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.ONBOARDING_FACEBOOK.get());
             } else {
-                EventBus.SCREEN_ENTERED.publish(Screen.ONBOARDING_GENRE.get());
+                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.ONBOARDING_GENRE.get());
             }
         }
     }

@@ -1,25 +1,5 @@
 package com.soundcloud.android.creators.upload;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
-
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.storage.RecordingStorage;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.ApiSyncService;
-import com.soundcloud.android.utils.images.ImageUtils;
-import com.soundcloud.android.view.ButtonBar;
-import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
-
 import android.content.Intent;
 import android.database.DataSetObserver;
 import android.net.Uri;
@@ -29,14 +9,29 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.ViewFlipper;
+import android.widget.*;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.storage.RecordingStorage;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.utils.images.ImageUtils;
+import com.soundcloud.android.view.ButtonBar;
+import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
 
 public class UploadActivity extends ScActivity implements ISimpleDialogListener {
 
@@ -184,7 +179,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
             mConnectionList.getAdapter().loadIfNecessary(this);
         }
         if (shouldTrackScreen()) {
-            EventBus.SCREEN_ENTERED.publish(Screen.RECORD_UPLOAD.get());
+            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.RECORD_UPLOAD.get());
         }
     }
 

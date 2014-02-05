@@ -1,18 +1,17 @@
 package com.soundcloud.android.preferences;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.storage.provider.ScContentProvider;
-import com.soundcloud.android.sync.SyncConfig;
-
 import android.accounts.Account;
 import android.content.ContentResolver;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
+import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.storage.provider.ScContentProvider;
+import com.soundcloud.android.sync.SyncConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +59,7 @@ public class NotificationSettingsActivity extends ScSettingsActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            EventBus.SCREEN_ENTERED.publish(Screen.SETTINGS_NOTIFICATIONS.get());
+            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SETTINGS_NOTIFICATIONS.get());
         }
     }
 

@@ -1,5 +1,13 @@
 package com.soundcloud.android.playlists;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -8,7 +16,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.main.ScActivity;
@@ -22,15 +30,6 @@ import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.FullImageDialog;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -114,7 +113,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            EventBus.SCREEN_ENTERED.publish(Screen.PLAYLIST_DETAILS.get());
+            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYLIST_DETAILS.get());
         }
     }
 

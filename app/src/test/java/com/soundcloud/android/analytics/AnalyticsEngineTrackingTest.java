@@ -1,34 +1,15 @@
 package com.soundcloud.android.analytics;
 
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
+import android.app.Activity;
+import android.content.SharedPreferences;
 import com.google.common.collect.Lists;
-import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.EventBus2;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OnboardingEvent;
-import com.soundcloud.android.events.PlaybackEvent;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.*;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,10 +20,14 @@ import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action0;
 
-import android.app.Activity;
-import android.content.SharedPreferences;
-
 import java.util.concurrent.TimeUnit;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AnalyticsEngineTrackingTest {
@@ -68,11 +53,6 @@ public class AnalyticsEngineTrackingTest {
     public void setUp() throws Exception {
         eventMonitor = EventMonitor.on(eventBus).withSubscription(eventSubscription);
         when(scheduler.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(Subscriptions.empty());
-    }
-
-    @After
-    public void tearDown() {
-        analyticsEngine.unsubscribeFromEvents();
     }
 
     @Test
@@ -188,7 +168,7 @@ public class AnalyticsEngineTrackingTest {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
-        EventBus.SCREEN_ENTERED.publish("screen");
+        eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen");
 
         verify(analyticsProviderOne, times(1)).handleScreenEvent(eq("screen"));
         verify(analyticsProviderTwo, times(1)).handleScreenEvent(eq("screen"));
@@ -244,9 +224,8 @@ public class AnalyticsEngineTrackingTest {
 
         eventMonitor.publish(EventQueue.PLAYBACK, PlaybackEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
         eventMonitor.publish(EventQueue.UI, UIEvent.fromToggleFollow(true, "screen", 0));
-
         eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        EventBus.SCREEN_ENTERED.publish("screen");
+        eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen");
         EventBus.ONBOARDING.publish(OnboardingEvent.authComplete());
 
         verify(analyticsProviderTwo).handlePlaybackEvent(any(PlaybackEvent.class));

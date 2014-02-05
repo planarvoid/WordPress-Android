@@ -60,10 +60,10 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     private Subscription mUserEventSubscription = Subscriptions.empty();
 
     private ImageOperations mImageOperations = ImageOperations.newInstance();
-    private EventBus2 mEventBus;
 
     protected AccountOperations mAccountOperations;
     protected PublicCloudAPI mPublicCloudAPI;
+    protected EventBus2 mEventBus;
 
     @Nullable
     protected ActionBarController mActionBarController;

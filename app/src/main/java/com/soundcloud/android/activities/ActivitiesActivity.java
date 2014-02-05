@@ -1,12 +1,11 @@
 package com.soundcloud.android.activities;
 
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.collections.ScListFragment;
-import com.soundcloud.android.storage.provider.Content;
-
 import android.os.Bundle;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.collections.ScListFragment;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.storage.provider.Content;
 
 public class ActivitiesActivity extends ScActivity {
 
@@ -24,7 +23,7 @@ public class ActivitiesActivity extends ScActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            EventBus.SCREEN_ENTERED.publish(Screen.ACTIVITIES.get());
+            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.ACTIVITIES.get());
         }
     }
 

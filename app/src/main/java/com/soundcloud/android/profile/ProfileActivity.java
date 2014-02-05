@@ -69,7 +69,6 @@ public class ProfileActivity extends ScActivity implements
 
     /* package */ @Nullable User mUser;
 
-    private EventBus2 mEventBus;
     private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     private TextView mUsername, mFullName, mFollowerCount, mFollowerMessage, mTrackCount, mLocation;
@@ -105,7 +104,6 @@ public class ProfileActivity extends ScActivity implements
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.profile_activity);
-        mEventBus = ((SoundCloudApplication) getApplication()).getEventBus();
         mOldCloudAPI = new PublicApi(this);
         mFollowingOperations = new FollowingOperations();
         mAccountOperations = new AccountOperations(this);
@@ -244,7 +242,7 @@ public class ProfileActivity extends ScActivity implements
     @Override
     public void onPageSelected(int position) {
         Tab currentTab = Tab.values()[position];
-        EventBus.SCREEN_ENTERED.publish(isLoggedInUser() ? currentTab.youScreen.get() : currentTab.userScreen.get());
+        mEventBus.publish(EventQueue.SCREEN_ENTERED, isLoggedInUser() ? currentTab.youScreen.get() : currentTab.userScreen.get());
     }
 
     @Override

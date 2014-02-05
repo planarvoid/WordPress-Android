@@ -1,45 +1,5 @@
 package com.soundcloud.android.onboarding;
 
-import static com.soundcloud.android.Consts.RequestCodes;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.utils.AnimUtils.hideView;
-import static com.soundcloud.android.utils.AnimUtils.showView;
-import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
-
-import com.google.android.gms.auth.GoogleAuthUtil;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.OnboardingEvent;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.onboarding.auth.AbstractLoginActivity;
-import com.soundcloud.android.onboarding.auth.AcceptTermsLayout;
-import com.soundcloud.android.onboarding.auth.AddUserInfoTaskFragment;
-import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
-import com.soundcloud.android.onboarding.auth.FacebookSwitcherActivity;
-import com.soundcloud.android.onboarding.auth.GooglePlusSignInTaskFragment;
-import com.soundcloud.android.onboarding.auth.LoginLayout;
-import com.soundcloud.android.onboarding.auth.LoginTaskFragment;
-import com.soundcloud.android.onboarding.auth.RecoverActivity;
-import com.soundcloud.android.onboarding.auth.SignUpLayout;
-import com.soundcloud.android.onboarding.auth.SignupLog;
-import com.soundcloud.android.onboarding.auth.SignupTaskFragment;
-import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.onboarding.auth.UserDetailsLayout;
-import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
-import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
-import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.storage.UserStorage;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.images.ImageUtils;
-import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
-import net.hockeyapp.android.UpdateManager;
-import org.jetbrains.annotations.Nullable;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -60,11 +20,39 @@ import android.view.animation.Animation;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.onboarding.auth.*;
+import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
+import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
+import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
+import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
+import net.hockeyapp.android.UpdateManager;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.soundcloud.android.Consts.RequestCodes;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.AnimUtils.hideView;
+import static com.soundcloud.android.utils.AnimUtils.showView;
+import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 public class OnboardActivity extends AbstractLoginActivity implements ISimpleDialogListener, LoginLayout.LoginHandler, SignUpLayout.SignUpHandler, UserDetailsLayout.UserDetailsHandler, AcceptTermsLayout.AcceptTermsHandler {
 
@@ -108,11 +96,14 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     private PublicCloudAPI mOldCloudAPI;
     private ApplicationProperties mApplicationProperties;
+    private EventBus2 mEventBus;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
         setContentView(R.layout.start);
+
+        mEventBus = SoundCloudApplication.fromContext(this).getEventBus();
         mOldCloudAPI = new PublicApi(this);
         overridePendingTransition(0, 0);
 
@@ -183,7 +174,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             @Override
             public void onClick(View v) {
                 setState(StartState.LOGIN);
-                EventBus.SCREEN_ENTERED.publish(Screen.AUTH_LOG_IN.get());
+                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_LOG_IN.get());
                 EventBus.ONBOARDING.publish(OnboardingEvent.logInPrompt());
             }
         });
@@ -191,7 +182,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         findViewById(R.id.signup_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EventBus.SCREEN_ENTERED.publish(Screen.AUTH_SIGN_UP.get());
+                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_SIGN_UP.get());
                 EventBus.ONBOARDING.publish(OnboardingEvent.signUpPrompt());
 
                 if (!mApplicationProperties.isDevBuildRunningOnDalvik() && SignupLog.shouldThrottleSignup()) {
@@ -272,7 +263,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     }
 
     private void trackTourScreen() {
-        EventBus.SCREEN_ENTERED.publish(Screen.TOUR.get());
+        mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.TOUR.get());
     }
 
     private LoginLayout getLogin() {
@@ -601,7 +592,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             SignupLog.writeNewSignupAsync();
             mUser = user;
             setState(StartState.SIGN_UP_DETAILS);
-            EventBus.SCREEN_ENTERED.publish(Screen.AUTH_USER_DETAILS.get());
+            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_USER_DETAILS.get());
             EventBus.ONBOARDING.publish(OnboardingEvent.authComplete());
         } else {
             super.onAuthTaskComplete(user, via, wasApiSignupTask);
@@ -627,7 +618,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private void proposeTermsOfUse(SignupVia signupVia, Bundle params){
         getAcceptTerms().setSignupParams(signupVia, params);
         setState(StartState.ACCEPT_TERMS);
-        EventBus.SCREEN_ENTERED.publish(Screen.AUTH_TERMS.get());
+        mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_TERMS.get());
     }
 
     private SoundCloudApplication getApp() {

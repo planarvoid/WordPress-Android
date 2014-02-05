@@ -13,7 +13,8 @@ public abstract class ScSettingsActivity extends PreferenceActivity {
 
     private boolean mOnCreateCalled;
     private boolean mIsConfigurationChange;
-    private EventBus2 mEventBus;
+
+    protected EventBus2 mEventBus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

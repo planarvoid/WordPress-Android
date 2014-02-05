@@ -1,18 +1,5 @@
 package com.soundcloud.android.actionbar;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.activities.ActivitiesActivity;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.associations.WhoToFollowActivity;
-import com.soundcloud.android.creators.record.RecordActivity;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.preferences.SettingsActivity;
-import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.Log;
-import org.jetbrains.annotations.NotNull;
-
 import android.app.Activity;
 import android.app.SearchManager;
 import android.app.SearchableInfo;
@@ -28,6 +15,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activities.ActivitiesActivity;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.associations.WhoToFollowActivity;
+import com.soundcloud.android.creators.record.RecordActivity;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.preferences.SettingsActivity;
+import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.utils.Log;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 
@@ -201,7 +201,8 @@ public class ActionBarController {
         mInSearchMode = !mInSearchMode;
         mOwner.getActivity().supportInvalidateOptionsMenu();
         if (mInSearchMode) {
-            EventBus.SCREEN_ENTERED.publish(Screen.SEARCH_SUGGESTIONS.get());
+            SoundCloudApplication.fromContext(mActivity).getEventBus().publish(
+                    EventQueue.SCREEN_ENTERED, Screen.SEARCH_SUGGESTIONS.get());
         }
     }
 

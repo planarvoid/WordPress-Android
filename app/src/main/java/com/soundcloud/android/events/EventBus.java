@@ -20,7 +20,6 @@ public enum EventBus {
 
     PLAYER_LIFECYCLE(PlayerLifeCycleEvent.class),
     CURRENT_USER_CHANGED(CurrentUserChangedEvent.class),
-    SCREEN_ENTERED(String.class),
     ONBOARDING(OnboardingEvent.class),;
 
     public final PublishSubject QUEUE = PublishSubject.create();

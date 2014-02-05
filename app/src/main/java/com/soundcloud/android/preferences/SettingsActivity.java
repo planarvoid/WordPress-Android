@@ -22,16 +22,12 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.ChangeLog;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.SharedPreferencesUtils;
+import com.soundcloud.android.utils.*;
 
 import java.io.File;
 
@@ -97,7 +93,7 @@ public class SettingsActivity extends ScSettingsActivity {
         findPreference(CHANGE_LOG).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        EventBus.SCREEN_ENTERED.publish(Screen.SETTINGS_CHANGE_LOG.get());
+                        mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SETTINGS_CHANGE_LOG.get());
                         cl.getDialog(true).show();
                         return true;
                     }
@@ -251,7 +247,7 @@ public class SettingsActivity extends ScSettingsActivity {
         updateClearCacheTitles();
         super.onResume();
         if (shouldTrackScreen()) {
-            EventBus.SCREEN_ENTERED.publish(Screen.SETTINGS_MAIN.get());
+            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SETTINGS_MAIN.get());
         }
     }
 

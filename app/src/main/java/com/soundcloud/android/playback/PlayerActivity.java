@@ -1,8 +1,17 @@
 
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
-
+import android.content.*;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -14,6 +23,7 @@ import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Comment;
@@ -22,12 +32,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
-import com.soundcloud.android.playback.views.AddCommentDialog;
-import com.soundcloud.android.playback.views.PlayablePresenter;
-import com.soundcloud.android.playback.views.PlayerTrackDetailsLayout;
-import com.soundcloud.android.playback.views.PlayerTrackPager;
-import com.soundcloud.android.playback.views.PlayerTrackView;
-import com.soundcloud.android.playback.views.TransportBarView;
+import com.soundcloud.android.playback.views.*;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.utils.UriUtils;
@@ -35,26 +40,11 @@ import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
 import javax.annotation.CheckForNull;
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
+
+import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
 
 public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTrackPageListener, PlayerTrackView.PlayerTrackViewListener, EngagementsController.AddToPlaylistListener {
 
@@ -151,7 +141,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         if (shouldTrackScreen()) {
             // we track whatever sound gets played first here, and then every subsequent sound through the view pager,
             // to accommodate for lazy loading of sounds
-            EventBus.SCREEN_ENTERED.publish(Screen.PLAYER_MAIN.get());
+            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYER_MAIN.get());
         }
     }
 
@@ -186,7 +176,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 && (mChangeTrackFast || mPlaybackStateProvider.isSupposedToBePlaying()) // responding to transport click or already playing
                 ) {
             sendTrackChangeOnDelay();
-            EventBus.SCREEN_ENTERED.publish(Screen.PLAYER_MAIN.get());
+            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYER_MAIN.get());
         }
         mChangeTrackFast = false;
         mTransportBar.setIsCommenting(mTrackPager.getCurrentItem() == mTrackPagerAdapter.getCommentingPosition());

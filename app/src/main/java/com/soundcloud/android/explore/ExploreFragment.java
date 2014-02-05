@@ -1,12 +1,5 @@
 package com.soundcloud.android.explore;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.dagger.DaggerDependencyInjector;
-import com.soundcloud.android.dagger.DependencyInjector;
-import com.soundcloud.android.events.EventBus;
-import com.viewpagerindicator.TabPageIndicator;
-
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -15,6 +8,13 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.dagger.DaggerDependencyInjector;
+import com.soundcloud.android.dagger.DependencyInjector;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
+import com.viewpagerindicator.TabPageIndicator;
 
 import javax.inject.Inject;
 
@@ -22,8 +22,9 @@ import javax.inject.Inject;
 public class ExploreFragment extends Fragment {
 
     @Inject
+    EventBus2 mEventBus;
+    @Inject
     Resources mResources;
-
     @Inject
     ExplorePagerAdapterFactory mExplorePagerAdapterFactory;
 
@@ -62,7 +63,7 @@ public class ExploreFragment extends Fragment {
 
         TabPageIndicator mIndicator = (TabPageIndicator) view.findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
-        mIndicator.setOnPageChangeListener(new ExplorePagerScreenListener());
+        mIndicator.setOnPageChangeListener(new ExplorePagerScreenListener(mEventBus));
     }
 
     @Override
@@ -74,6 +75,12 @@ public class ExploreFragment extends Fragment {
     }
 
     protected static class ExplorePagerScreenListener implements ViewPager.OnPageChangeListener {
+        private final EventBus2 mEventBus;
+
+        public ExplorePagerScreenListener(EventBus2 eventBus) {
+            mEventBus = eventBus;
+        }
+
         @Override
         public void onPageScrolled(int i, float v, int i2) {}
 
@@ -81,13 +88,13 @@ public class ExploreFragment extends Fragment {
         public void onPageSelected(int pageSelected) {
             switch (pageSelected) {
                 case ExplorePagerAdapter.TAB_GENRES:
-                    EventBus.SCREEN_ENTERED.publish(Screen.EXPLORE_GENRES.get());
+                    mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.EXPLORE_GENRES.get());
                     break;
                 case ExplorePagerAdapter.TAB_TRENDING_MUSIC:
-                    EventBus.SCREEN_ENTERED.publish(Screen.EXPLORE_TRENDING_MUSIC.get());
+                    mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.EXPLORE_TRENDING_MUSIC.get());
                     break;
                 case ExplorePagerAdapter.TAB_TRENDING_AUDIO:
-                    EventBus.SCREEN_ENTERED.publish(Screen.EXPLORE_TRENDING_AUDIO.get());
+                    mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.EXPLORE_TRENDING_AUDIO.get());
                     break;
                 default:
                     throw new IllegalArgumentException("Did not recognise page in pager to publish screen event");

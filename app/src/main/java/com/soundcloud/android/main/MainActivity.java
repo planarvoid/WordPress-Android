@@ -53,8 +53,6 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private int mLastSelection = NO_SELECTION;
 
     @Inject
-    EventBus2 mEventBus;
-    @Inject
     ApplicationProperties mApplicationProperties;
     @Inject
     SoundCloudApplication mApplication;
@@ -142,18 +140,18 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         final int position = mNavigationFragment.getCurrentSelectedPosition();
         switch (NavigationFragment.NavItem.values()[position]) {
             case STREAM:
-                EventBus.SCREEN_ENTERED.publish(Screen.SIDE_MENU_STREAM.get());
+                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_STREAM.get());
                 break;
             case EXPLORE:
                 // Publish event for default page in the explore fragment
                 // Doesn't fire in onPageSelected() due to https://code.google.com/p/android/issues/detail?id=27526
-                EventBus.SCREEN_ENTERED.publish(Screen.EXPLORE_GENRES.get());
+                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.EXPLORE_GENRES.get());
                 break;
             case LIKES:
-                EventBus.SCREEN_ENTERED.publish(Screen.SIDE_MENU_LIKES.get());
+                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_LIKES.get());
                 break;
             case PLAYLISTS:
-                EventBus.SCREEN_ENTERED.publish(Screen.SIDE_MENU_PLAYLISTS.get());
+                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_PLAYLISTS.get());
             default:
                 break; // the remaining content fragments are tracked individually
         }

@@ -13,10 +13,13 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import dagger.Module;
@@ -53,20 +56,17 @@ public class ExploreGenresFragmentTest {
     @Mock
     private AndroidObservableFactory factory;
     @Mock
-    private Observer<String> screenTrackingObserver;
-    @Mock
     private ExploreGenre exploreGenre;
-    @Mock
-    private Observable observable;
     @Mock
     private ListView listView;
     @Mock
-    ImageOperations imageOperations;
-    private MockInjector dependencyInjector;
+    private ImageOperations imageOperations;
+    @Mock
+    private EventBus2 eventBus;
 
     @Before
     public void setUp() throws Exception {
-        dependencyInjector = new MockInjector(new TestModule(factory));
+        MockInjector dependencyInjector = new MockInjector(new TestModule(factory));
         fragment = new ExploreGenresFragment(dependencyInjector);
         Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
     }
@@ -143,13 +143,14 @@ public class ExploreGenresFragmentTest {
         ExploreGenresSections categories = createSectionsFrom(electronicCategory, comedyCategory);
         addCategoriesToFragment(categories);
 
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
         fragment.onCreate(null);
-        Subscription subscription = EventBus.SCREEN_ENTERED.subscribe(screenTrackingObserver);
         when(listView.getTag()).thenReturn("screentag");
         fragment.onItemClick(listView, listView, 0,0);
-        verify(screenTrackingObserver).onNext("screentag");
-        verifyNoMoreInteractions(screenTrackingObserver);
-        subscription.unsubscribe();
+
+        final String screenTag = eventMonitor.verifyEventOn(EventQueue.SCREEN_ENTERED);
+        expect(screenTag).toEqual("screentag");
     }
 
     private void addCategoriesToFragment(ExploreGenresSections categories) {
@@ -217,6 +218,11 @@ public class ExploreGenresFragmentTest {
         @Provides
         ImageOperations provideImageOperations() {
             return imageOperations;
+        }
+
+        @Provides
+        EventBus2 provideEventBus() {
+            return eventBus;
         }
     }
 

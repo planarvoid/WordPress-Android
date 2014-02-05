@@ -13,4 +13,7 @@ public interface EventQueue {
 
     final QueueDescriptor<ActivityLifeCycleEvent> ACTIVITY_LIFE_CYCLE =
             QueueDescriptor.create("activity_life_cycle", ActivityLifeCycleEvent.class);
+
+    final QueueDescriptor<String> SCREEN_ENTERED =
+            QueueDescriptor.create("screen", String.class);
 }

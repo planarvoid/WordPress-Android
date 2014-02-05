@@ -1,15 +1,22 @@
 package com.soundcloud.android.explore;
 
-import static com.soundcloud.android.explore.ExploreGenresAdapter.AUDIO_SECTION;
-import static com.soundcloud.android.explore.ExploreGenresAdapter.MUSIC_SECTION;
-
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;
@@ -22,23 +29,19 @@ import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
-
 import javax.inject.Inject;
+
+import static com.soundcloud.android.explore.ExploreGenresAdapter.AUDIO_SECTION;
+import static com.soundcloud.android.explore.ExploreGenresAdapter.MUSIC_SECTION;
 
 @SuppressLint("ValidFragment")
 public class ExploreGenresFragment extends Fragment implements AdapterView.OnItemClickListener, EmptyViewAware {
 
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus;
+
+    @Inject
+    EventBus2 mEventBus;
 
     @Inject
     AndroidObservableFactory mObservableFactory;
@@ -86,7 +89,7 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
         int adjustedPosition = position - ((ListView) parent).getHeaderViewsCount();
         ExploreGenre category = mGenresAdapter.getItem(adjustedPosition);
 
-        EventBus.SCREEN_ENTERED.publish(view.getTag());
+        mEventBus.publish(EventQueue.SCREEN_ENTERED, (String) view.getTag());
 
         intent.putExtra(ExploreGenre.EXPLORE_GENRE_EXTRA, category);
         intent.putExtra(ExploreTracksFragment.SCREEN_TAG_EXTRA, view.getTag().toString());

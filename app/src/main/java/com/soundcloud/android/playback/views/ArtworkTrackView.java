@@ -1,15 +1,5 @@
 package com.soundcloud.android.playback.views;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.PlayerArtworkLoadListener;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.utils.AnimUtils;
-import org.jetbrains.annotations.NotNull;
-
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +14,17 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.PlayerArtworkLoadListener;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.utils.AnimUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.SoftReference;
 
@@ -41,8 +42,12 @@ public class ArtworkTrackView extends PlayerTrackView {
     private ViewFlipper mTrackFlipper;
     private PlayerTrackDetailsLayout mTrackDetailsView;
 
+    private EventBus2 mEventBus;
+
     public ArtworkTrackView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        mEventBus = SoundCloudApplication.fromContext(context).getEventBus();
 
         mArtwork = (ImageView) findViewById(R.id.artwork);
         mArtworkHolder = (FrameLayout) mArtwork.getParent();
@@ -158,7 +163,7 @@ public class ArtworkTrackView extends PlayerTrackView {
             trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
             trackFlipper.showNext();
 
-            EventBus.SCREEN_ENTERED.publish(Screen.PLAYER_INFO.get());
+            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYER_INFO.get());
 
         } else if (!showDetails && trackFlipper.getDisplayedChild() == 1){
             trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
