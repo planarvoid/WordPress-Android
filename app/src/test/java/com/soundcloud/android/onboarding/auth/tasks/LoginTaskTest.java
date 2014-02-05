@@ -3,16 +3,17 @@ package com.soundcloud.android.onboarding.auth.tasks;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.UserStorage;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -27,7 +28,7 @@ import android.os.Bundle;
 
 import java.io.IOException;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class LoginTaskTest {
     private LoginTask loginTask;
     @Mock private SoundCloudApplication application;
@@ -40,7 +41,7 @@ public class LoginTaskTest {
 
     @Before
     public void setUp() throws IOException {
-        initMocks(this);
+        when(application.getEventBus()).thenReturn(mock(EventBus2.class));
         loginTask = new LoginTask(application, tokenInformationGenerator, fetchUserTask, userStorage);
     }
 

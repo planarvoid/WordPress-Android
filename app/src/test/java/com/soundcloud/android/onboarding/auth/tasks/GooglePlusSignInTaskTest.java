@@ -6,21 +6,22 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.stub;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.UserStorage;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
@@ -34,7 +35,7 @@ import android.os.Bundle;
 
 import java.io.IOException;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class GooglePlusSignInTaskTest {
     private static final String ACCOUNT_NAME = "account name";
     private static final String SCOPE = "lulwatscope";
@@ -52,7 +53,7 @@ public class GooglePlusSignInTaskTest {
 
     @Before
     public void setUp() {
-        initMocks(this);
+        when(app.getEventBus()).thenReturn(mock(EventBus2.class));
         task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, fetchUserTask, userStorage, accountOperations);
 
         stub(tokenInformationGenerator.getGrantBundle(anyString(),anyString())).toReturn(bundle);

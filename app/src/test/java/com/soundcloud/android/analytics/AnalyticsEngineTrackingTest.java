@@ -17,7 +17,6 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventBus2;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
@@ -219,7 +218,7 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         OnboardingEvent onboardingEvent = OnboardingEvent.authComplete();
-        EventBus.ONBOARDING.publish(onboardingEvent);
+        eventMonitor.publish(EventQueue.ONBOARDING, onboardingEvent);
 
         verify(analyticsProviderOne, times(1)).handleOnboardingEvent(onboardingEvent);
         verify(analyticsProviderTwo, times(1)).handleOnboardingEvent(onboardingEvent);
@@ -240,7 +239,7 @@ public class AnalyticsEngineTrackingTest {
         eventMonitor.publish(EventQueue.UI, UIEvent.fromToggleFollow(true, "screen", 0));
         eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen");
-        EventBus.ONBOARDING.publish(OnboardingEvent.authComplete());
+        eventMonitor.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
 
         verify(analyticsProviderTwo).handlePlaybackEvent(any(PlaybackEvent.class));
         verify(analyticsProviderTwo).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));

@@ -4,9 +4,6 @@ import static rx.android.observables.AndroidObservable.fromFragment;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventBus2;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;

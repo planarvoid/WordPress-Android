@@ -13,8 +13,6 @@ import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.creators.record.SoundRecorder;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.EventBus2;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImageOperations;

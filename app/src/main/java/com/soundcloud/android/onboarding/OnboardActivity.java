@@ -27,7 +27,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventBus2;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
@@ -175,7 +174,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             public void onClick(View v) {
                 setState(StartState.LOGIN);
                 mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_LOG_IN.get());
-                EventBus.ONBOARDING.publish(OnboardingEvent.logInPrompt());
+                mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.logInPrompt());
             }
         });
 
@@ -183,7 +182,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             @Override
             public void onClick(View v) {
                 mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_SIGN_UP.get());
-                EventBus.ONBOARDING.publish(OnboardingEvent.signUpPrompt());
+                mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.signUpPrompt());
 
                 if (!mApplicationProperties.isDevBuildRunningOnDalvik() && SignupLog.shouldThrottleSignup()) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.soundcloud.com")));
@@ -320,7 +319,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     @Override
     public void onLogin(String email, String password) {
         LoginTaskFragment.create(email, password).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
-        EventBus.ONBOARDING.publish(OnboardingEvent.nativeAuthEvent());
+        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.nativeAuthEvent());
     }
 
     @Override
@@ -332,7 +331,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     @Override
     public void onSignUp(final String email, final String password) {
         proposeTermsOfUse(SignupVia.API, SignupTaskFragment.getParams(email, password));
-        EventBus.ONBOARDING.publish(OnboardingEvent.nativeAuthEvent());
+        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.nativeAuthEvent());
     }
 
     @Override
@@ -354,7 +353,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         }
 
         AddUserInfoTaskFragment.create(mUser,avatarFile).show(getSupportFragmentManager(), "add_user_task");
-        EventBus.ONBOARDING.publish(OnboardingEvent.savedUserInfo(username, avatarFile));
+        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.savedUserInfo(username, avatarFile));
     }
 
     @Override
@@ -371,7 +370,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
                 onAuthTaskComplete(mUser, SignupVia.API, false);
             }
         }.execute();
-        EventBus.ONBOARDING.publish(OnboardingEvent.skippedUserInfo());
+        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.skippedUserInfo());
     }
 
     @Override
@@ -524,13 +523,13 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             });
             builder.show();
         }
-        EventBus.ONBOARDING.publish(OnboardingEvent.googleAuthEvent());
+        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.googleAuthEvent());
     }
 
     @Override
     public void onFacebookAuth() {
         proposeTermsOfUse(SignupVia.FACEBOOK_SSO, null);
-        EventBus.ONBOARDING.publish(OnboardingEvent.facebookAuthEvent());
+        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.facebookAuthEvent());
     }
 
     @Override
@@ -575,7 +574,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         }
 
         hideView(this, getAcceptTerms(), true);
-        EventBus.ONBOARDING.publish(OnboardingEvent.termsAccepted());
+        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.termsAccepted());
 
     }
 
@@ -583,7 +582,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     public void onRejectTerms() {
         setState(StartState.TOUR);
         trackTourScreen();
-        EventBus.ONBOARDING.publish(OnboardingEvent.termsRejected());
+        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.termsRejected());
     }
 
     @Override
@@ -593,7 +592,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             mUser = user;
             setState(StartState.SIGN_UP_DETAILS);
             mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_USER_DETAILS.get());
-            EventBus.ONBOARDING.publish(OnboardingEvent.authComplete());
+            mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
         } else {
             super.onAuthTaskComplete(user, via, wasApiSignupTask);
         }

@@ -3,7 +3,6 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventBus2;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.storage.ActivitiesStorage;

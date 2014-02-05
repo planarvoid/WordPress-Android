@@ -10,12 +10,9 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;

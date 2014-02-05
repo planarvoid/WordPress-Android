@@ -22,4 +22,7 @@ public interface EventQueue {
 
     final QueueDescriptor<CurrentUserChangedEvent> CURRENT_USER_CHANGED =
             QueueDescriptor.create("current_user_changed", CurrentUserChangedEvent.class);
+
+    final QueueDescriptor<OnboardingEvent> ONBOARDING =
+            QueueDescriptor.create("onboarding", OnboardingEvent.class);
 }
