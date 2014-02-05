@@ -20,12 +20,26 @@ public class EventBus {
             this.eventType = eventType;
         }
 
-        public int id() {
+        public static <T> QueueDescriptor<T> create(String name, Class<T> eventType) {
+            return new QueueDescriptor<T>(name, eventType);
+        }
+
+        public static <T extends Event> QueueDescriptor<T> create(Class<T> eventType) {
+            return new QueueDescriptor<T>(eventType.getSimpleName(), eventType);
+        }
+
+        int id() {
             return name.hashCode();
         }
 
-        public static <T> QueueDescriptor<T> create(String name, Class<T> eventType) {
-            return new QueueDescriptor<T>(name, eventType);
+        @Override
+        public int hashCode() {
+            return id();
+        }
+
+        @Override
+        public boolean equals(Object that) {
+            return (that != null && that instanceof QueueDescriptor && ((QueueDescriptor) that).id() == this.id());
         }
     }
 

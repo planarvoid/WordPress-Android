@@ -27,6 +27,31 @@ public class EventBusTest {
     private Observer<String> observer2;
 
     @Test
+    public void shouldCreateUniqueQueueDescriptorsBasedOnQueueName() {
+        EventBus.QueueDescriptor qd1 = EventBus.QueueDescriptor.create("one", String.class);
+        EventBus.QueueDescriptor qd2 = EventBus.QueueDescriptor.create("one", String.class);
+        EventBus.QueueDescriptor qd3 = EventBus.QueueDescriptor.create("two", String.class);
+
+        expect(qd1).toEqual(qd2);
+        expect(qd1.hashCode()).toEqual(qd2.hashCode());
+        expect(qd1.hashCode()).not.toEqual(qd3.hashCode());
+        expect(qd1).not.toEqual(qd3);
+    }
+
+    @Test
+    public void shouldDeriveQueueNameWhenEventTypeIsCustomType() {
+        class CustomEvent implements Event {
+
+            @Override
+            public int getKind() {
+                return 0;
+            }
+        }
+        EventBus.QueueDescriptor qd = EventBus.QueueDescriptor.create(CustomEvent.class);
+        expect(qd.name).toEqual("CustomEvent");
+    }
+
+    @Test
     public void shouldLazilyCreateEventQueuesWhenFirstAccessingThem() {
         expect(eventBus.queue(TEST_QUEUE)).not.toBeNull();
     }
@@ -62,7 +87,7 @@ public class EventBusTest {
         Observer<Integer> intObserver = mock(Observer.class);
 
         eventBus.subscribe(TEST_QUEUE, observer1);
-        eventBus.<String>queue(TEST_QUEUE).transform().map(new Func1<String, Integer>() {
+        eventBus.queue(TEST_QUEUE).transform().map(new Func1<String, Integer>() {
             @Override
             public Integer call(String s) {
                 return Integer.parseInt(s);
