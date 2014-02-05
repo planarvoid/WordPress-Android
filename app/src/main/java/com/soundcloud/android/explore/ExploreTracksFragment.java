@@ -191,12 +191,13 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
      * TODO: REPLACE ME
      * Turn this into an RX operator if possible
      */
-    private final class PullToRefreshObserver implements Observer<Page<SuggestedTracksCollection>> {
+    private final class PullToRefreshObserver extends ListFragmentObserver<Page<SuggestedTracksCollection>> {
 
         private final ConnectableObservable<Page<SuggestedTracksCollection>> mNewObservable;
         private Page<SuggestedTracksCollection> mRefreshedPage;
 
         public PullToRefreshObserver(ConnectableObservable<Page<SuggestedTracksCollection>> newObservable) {
+            super(ExploreTracksFragment.this);
             mNewObservable = newObservable;
         }
 
@@ -212,6 +213,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
         @Override
         public void onError(Throwable error) {
+            super.onError(error);
             hidePullToRefreshView();
         }
 
