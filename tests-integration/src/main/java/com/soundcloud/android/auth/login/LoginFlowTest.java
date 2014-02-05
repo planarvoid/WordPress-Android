@@ -1,7 +1,11 @@
 package com.soundcloud.android.auth.login;
 
 
-import android.webkit.WebView;
+import static com.soundcloud.android.tests.TestUser.GPlusAccount;
+import static com.soundcloud.android.tests.TestUser.noGPlusAccount;
+import static com.soundcloud.android.tests.TestUser.scAccount;
+import static com.soundcloud.android.tests.TestUser.scTestAccount;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.auth.LoginTestCase;
 import com.soundcloud.android.onboarding.OnboardActivity;
@@ -14,10 +18,7 @@ import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.Waiter;
 
-import static com.soundcloud.android.tests.TestUser.GPlusAccount;
-import static com.soundcloud.android.tests.TestUser.noGPlusAccount;
-import static com.soundcloud.android.tests.TestUser.scAccount;
-import static com.soundcloud.android.tests.TestUser.scTestAccount;
+import android.webkit.WebView;
 
 /*
  * As a User
@@ -49,6 +50,7 @@ public class LoginFlowTest extends LoginTestCase {
         loginScreen = homeScreen.clickLogInButton();
         loginScreen.loginAs(scTestAccount.getUsername(), scTestAccount.getPassword());
         //TODO: MainScreen.menu().getUsername();
+        menuScreen.open();
         assertEquals(scTestAccount.getUsername(), menuScreen.getUserName());
     }
 
