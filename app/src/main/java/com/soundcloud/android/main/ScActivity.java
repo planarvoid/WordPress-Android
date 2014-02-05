@@ -1,30 +1,5 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.actionbar.ActionBarController;
-import com.soundcloud.android.actionbar.NowPlayingActionBarController;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.preferences.SettingsActivity;
-import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
-import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.NetworkConnectivityListener;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -41,6 +16,28 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.actionbar.ActionBarController;
+import com.soundcloud.android.actionbar.NowPlayingActionBarController;
+import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.events.*;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.preferences.SettingsActivity;
+import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
+import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.NetworkConnectivityListener;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import java.lang.ref.WeakReference;
 
@@ -63,6 +60,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     private Subscription mUserEventSubscription = Subscriptions.empty();
 
     private ImageOperations mImageOperations = ImageOperations.newInstance();
+    private EventBus2 mEventBus;
 
     protected AccountOperations mAccountOperations;
     protected PublicCloudAPI mPublicCloudAPI;
@@ -74,9 +72,11 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(this.getClass()));
 
         setContentView();
+
+        mEventBus = SoundCloudApplication.fromContext(this).getEventBus();
+        mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
 
         mAccountOperations = new AccountOperations(this);
         mPublicCloudAPI = new PublicApi(this);
@@ -85,6 +85,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         mUnauthoriedRequestReceiver = new UnauthorisedRequestReceiver(getApplicationContext(), getSupportFragmentManager());
         // Volume mode should always be music in this app
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
         mUserEventSubscription = EventBus.CURRENT_USER_CHANGED.subscribe(mUserEventObserver);
         if (getSupportActionBar() != null) {
             mActionBarController = createActionBarController();
@@ -156,7 +157,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     @Override
     protected void onResume() {
         super.onResume();
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnResume(this.getClass()));
+        mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this.getClass()));
 
         //Ensures that ImageLoader will be resumed if the preceding activity was killed during scrolling
         mImageOperations.resume();
@@ -177,7 +178,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     @Override
     protected void onPause() {
         super.onPause();
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(this.getClass()));
+        mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
 
         safeUnregisterReceiver(mUnauthoriedRequestReceiver);
         mIsForeground = false;

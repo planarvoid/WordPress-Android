@@ -18,7 +18,6 @@ import rx.util.functions.Action1;
  */
 public enum EventBus {
 
-    ACTIVITY_LIFECYCLE(ActivityLifeCycleEvent.class),
     PLAYER_LIFECYCLE(PlayerLifeCycleEvent.class),
     CURRENT_USER_CHANGED(CurrentUserChangedEvent.class),
     SCREEN_ENTERED(String.class),

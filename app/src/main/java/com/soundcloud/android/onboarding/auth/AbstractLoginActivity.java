@@ -1,16 +1,6 @@
 package com.soundcloud.android.onboarding.auth;
 
 
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoriesFragment;
-import com.soundcloud.android.model.User;
-
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
@@ -19,6 +9,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoriesFragment;
 
 public abstract class AbstractLoginActivity extends FragmentActivity implements AuthTaskFragment.OnAuthResultListener {
     protected static final String LOGIN_DIALOG_TAG = "login_dialog";
@@ -29,11 +30,13 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
      */
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse;
     private Bundle mResultBundle;
+    private EventBus2 mEventBus;
 
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnCreate(this.getClass()));
+        mEventBus = SoundCloudApplication.fromContext(this).getEventBus();
+        mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
 
         mAccountAuthenticatorResponse = getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
         if (mAccountAuthenticatorResponse != null) {
@@ -44,13 +47,13 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
     @Override
     protected void onResume() {
         super.onResume();
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnResume(this.getClass()));
+        mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this.getClass()));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        EventBus.ACTIVITY_LIFECYCLE.publish(ActivityLifeCycleEvent.forOnPause(this.getClass()));
+        mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
     }
 
     public void finish() {
