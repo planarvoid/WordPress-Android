@@ -9,7 +9,8 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ImageOperations;
@@ -113,6 +114,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private PlaybackState mPlaybackState = PlaybackState.STOPPED;
 
+    @Inject
+    EventBus2 mEventBus;
     @Inject
     PlayQueueManager mPlayQueueManager;
     @Inject
@@ -234,7 +237,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         unregisterReceiver(mPlaybackReceiver);
         unregisterReceiver(mNoisyReceiver);
         if (mProxy != null && mProxy.isRunning()) mProxy.stop();
-        EventBus.PLAYER_LIFECYCLE.publish(PlayerLifeCycleEvent.forDestroyed());
+        mEventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
         super.onDestroy();
     }
 
@@ -708,7 +711,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private void gotoIdleState(PlaybackState newPlaybackState) {
         if (!newPlaybackState.isInIdleState()) throw new IllegalArgumentException(newPlaybackState + " is not a valid idle state");
-        EventBus.PLAYER_LIFECYCLE.publish(PlayerLifeCycleEvent.forIdle());
+        mEventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forIdle());
         mPlaybackState = newPlaybackState;
         mPlayerHandler.removeMessages(FADE_OUT);
         mPlayerHandler.removeMessages(FADE_IN);

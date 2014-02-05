@@ -1,14 +1,11 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.PlaybackEvent;
-import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.After;
@@ -88,16 +85,6 @@ public class EventLoggerTest {
         eventLogger.stop();
 
         verify(finishMessage).sendToTarget();
-    }
-
-    @Test
-    public void shouldNotStopOnOtherPlayerLifeCycleEvents() throws Exception {
-        // send event to start handler
-        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent)).thenReturn(message);
-        eventLogger.trackEvent(playbackEvent);
-
-        EventBus.PLAYER_LIFECYCLE.publish(PlayerLifeCycleEvent.forIdle());
-        verify(finishMessage, never()).sendToTarget();
     }
 
     @Test
