@@ -19,4 +19,7 @@ public interface EventQueue {
 
     final QueueDescriptor<String> SCREEN_ENTERED =
             QueueDescriptor.create("screen", String.class);
+
+    final QueueDescriptor<CurrentUserChangedEvent> CURRENT_USER_CHANGED =
+            QueueDescriptor.create("current_user_changed", CurrentUserChangedEvent.class);
 }

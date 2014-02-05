@@ -8,13 +8,11 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.exception.OperationFailedException;
@@ -22,9 +20,11 @@ import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
@@ -36,7 +36,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observer;
-import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
 import android.accounts.Account;
@@ -85,12 +84,13 @@ public class AccountRemovalFunctionTest {
     private UserAssociationStorage userAssociationStorage;
     @Mock
     private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
+    @Mock
+    private EventBus2 eventBus;
 
 
     @Before
     public void setup(){
-        initMocks(this);
-        function = new AccountRemovalFunction(soundCloudAccount, context, accountManager, syncStateManager,
+        function = new AccountRemovalFunction(eventBus, soundCloudAccount, context, accountManager, syncStateManager,
                 collectionStorage, activitiesStorage, userAssociationStorage, soundRecorder, c2DMReceiver, unauthorisedRequestRegistry);
 
         when(accountManager.removeAccount(soundCloudAccount,null,null)).thenReturn(future);
@@ -198,15 +198,12 @@ public class AccountRemovalFunctionTest {
     @Test
     public void shouldPublishUserRemovalIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(true);
-        Observer<CurrentUserChangedEvent> userEventObserver = mock(Observer.class);
-        Subscription subscription = EventBus.CURRENT_USER_CHANGED.subscribe(userEventObserver);
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
         function.onSubscribe(observer);
 
-        ArgumentCaptor<CurrentUserChangedEvent> capturedUserEvent = ArgumentCaptor.forClass(CurrentUserChangedEvent.class);
-        verify(userEventObserver).onNext(capturedUserEvent.capture());
-        assertEquals(capturedUserEvent.getValue().getKind(), CurrentUserChangedEvent.USER_REMOVED);
-
-        subscription.unsubscribe();
+        CurrentUserChangedEvent event = eventMonitor.verifyEventOn(EventQueue.CURRENT_USER_CHANGED);
+        assertEquals(event.getKind(), CurrentUserChangedEvent.USER_REMOVED);
     }
 
     @Test

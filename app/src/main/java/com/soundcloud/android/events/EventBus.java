@@ -18,7 +18,6 @@ import rx.util.functions.Action1;
  */
 public enum EventBus {
 
-    CURRENT_USER_CHANGED(CurrentUserChangedEvent.class),
     ONBOARDING(OnboardingEvent.class),;
 
     public final PublishSubject QUEUE = PublishSubject.create();

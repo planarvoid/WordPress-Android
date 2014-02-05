@@ -1,10 +1,28 @@
 package com.soundcloud.android.analytics;
 
 
-import android.app.Activity;
-import android.content.SharedPreferences;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
 import com.google.common.collect.Lists;
-import com.soundcloud.android.events.*;
+import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
@@ -20,14 +38,10 @@ import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action0;
 
-import java.util.concurrent.TimeUnit;
+import android.app.Activity;
+import android.content.SharedPreferences;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AnalyticsEngineTrackingTest {
@@ -145,7 +159,7 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         final CurrentUserChangedEvent event = CurrentUserChangedEvent.forLogout();
-        EventBus.CURRENT_USER_CHANGED.publish(event);
+        eventMonitor.publish(EventQueue.CURRENT_USER_CHANGED, event);
 
         verify(analyticsProviderOne, times(1)).handleCurrentUserChangedEvent(event);
         verify(analyticsProviderTwo, times(1)).handleCurrentUserChangedEvent(event);

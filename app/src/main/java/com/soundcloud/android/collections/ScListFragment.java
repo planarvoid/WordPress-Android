@@ -5,6 +5,7 @@ import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.analytics.Screen;
@@ -19,6 +20,8 @@ import com.soundcloud.android.collections.tasks.CollectionTask;
 import com.soundcloud.android.collections.tasks.ReturnData;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.ContentStats;
@@ -113,6 +116,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private Subscription mUserEventSubscription = Subscriptions.empty();
 
     private ImageOperations mImageOperations = ImageOperations.newInstance();
+    private EventBus2 mEventBus;
 
     public static ScListFragment newInstance(Content content, Screen screen) {
         return newInstance(content.uri, screen);
@@ -170,6 +174,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        mEventBus = SoundCloudApplication.fromContext(getActivity()).getEventBus();
         publicApi = new PublicApi(getActivity());
         mKeepGoing = true;
         setupListAdapter();
@@ -241,7 +246,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         playbackFilter.addAction(Broadcasts.PLAYSTATE_CHANGED);
         getActivity().registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
-        mUserEventSubscription = EventBus.CURRENT_USER_CHANGED.subscribe(mUserEventObserver);
+        mUserEventSubscription = mEventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, mUserEventObserver);
 
         if (mContent.shouldListenForPlaylistChanges()) {
             listenForPlaylistChanges();

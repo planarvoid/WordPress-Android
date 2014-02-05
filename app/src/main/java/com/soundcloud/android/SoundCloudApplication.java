@@ -75,12 +75,14 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
     private ObjectGraph mObjectGraph;
 
+    // DO NOT REMOVE, Android needs a default constructor.
     public SoundCloudApplication() {
-        // DO NOT REMOVE, Android needs a default constructor.
+        mEventBus = new EventBus2();
     }
 
     @VisibleForTesting
-    SoundCloudApplication(AccountOperations accountOperations) {
+    SoundCloudApplication(EventBus2 eventBus, AccountOperations accountOperations) {
+        mEventBus = eventBus;
         mAccountOperations = accountOperations;
     }
 
@@ -197,14 +199,11 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         } else {
            analyticsProviders = Collections.emptyList();
         }
-        mAnalyticsEngine = new AnalyticsEngine(getEventBus(), sharedPreferences, analyticsProperties, analyticsProviders);
+        mAnalyticsEngine = new AnalyticsEngine(mEventBus, sharedPreferences, analyticsProperties, analyticsProviders);
         Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && appProperties.isDebugBuild();
     }
 
     public EventBus2 getEventBus() {
-        if (mEventBus == null) {
-            mEventBus = new EventBus2();
-        }
         return mEventBus;
     }
 
@@ -241,7 +240,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         if (account != null) {
             mLoggedInUser = user;
 
-            EventBus.CURRENT_USER_CHANGED.publish(CurrentUserChangedEvent.forUserUpdated(user));
+            mEventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(user));
 
             // move this when we can't guarantee we will only have 1 account active at a time
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);

@@ -6,6 +6,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.creators.record.WavHeader;
+import com.soundcloud.android.events.EventBus2;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.api.Token;
 
@@ -29,7 +30,7 @@ public class TestApplication extends SoundCloudApplication {
     }
 
     private TestApplication(Token token) {
-        super(mock(AccountOperations.class));
+        super(mock(EventBus2.class), mock(AccountOperations.class));
         this.token = token;
     }
 

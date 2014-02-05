@@ -4,6 +4,8 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.ConnectionDAO;
@@ -55,12 +57,14 @@ public class ApiSyncer extends SyncStrategy {
 
     private final SoundAssociationStorage mSoundAssociationStorage;
     private final UserStorage mUserStorage;
+    private final EventBus2 mEventBus;
 
     public ApiSyncer(Context context, ContentResolver resolver) {
         super(context, resolver);
         mActivitiesStorage = new ActivitiesStorage();
         mSoundAssociationStorage = new SoundAssociationStorage();
         mUserStorage = new UserStorage();
+        mEventBus = SoundCloudApplication.fromContext(context).getEventBus();
     }
 
     @NotNull
@@ -78,7 +82,7 @@ public class ApiSyncer extends SyncStrategy {
                     if (result.success) {
                         mResolver.notifyChange(Content.ME.uri, null);
                         User loggedInUser = SoundCloudApplication.fromContext(mContext).getLoggedInUser();
-                        EventBus.CURRENT_USER_CHANGED.publish(CurrentUserChangedEvent.forUserUpdated(loggedInUser));
+                        mEventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(loggedInUser));
                     }
                     PreferenceManager.getDefaultSharedPreferences(mContext)
                             .edit()

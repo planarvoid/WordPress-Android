@@ -12,7 +12,8 @@ import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
@@ -29,6 +30,7 @@ import android.content.Context;
 import android.content.Intent;
 
 class AccountRemovalFunction implements OnSubscribeFunc<Void> {
+    private final EventBus2 mEventBus;
     private final Context mContext;
     private final Account mSoundCloudAccount;
     private final CollectionStorage mCollectionStorage;
@@ -41,14 +43,18 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
     private final UnauthorisedRequestRegistry mUnauthorisedRequestRegistry;
 
     public AccountRemovalFunction(Account soundCloudAccount, AccountManager accountManager, Context context) {
-        this(soundCloudAccount, context, accountManager, new SyncStateManager(context), new CollectionStorage(context), new ActivitiesStorage(context),
-                new UserAssociationStorage(context), SoundRecorder.getInstance(context), new C2DMReceiver(), UnauthorisedRequestRegistry.getInstance(context));
+        this(SoundCloudApplication.fromContext(context).getEventBus(),
+                soundCloudAccount, context, accountManager, new SyncStateManager(context), new CollectionStorage(context),
+                new ActivitiesStorage(context), new UserAssociationStorage(context), SoundRecorder.getInstance(context),
+                new C2DMReceiver(), UnauthorisedRequestRegistry.getInstance(context));
     }
 
     @VisibleForTesting
-    protected AccountRemovalFunction(Account soundCloudAccount, Context context, AccountManager accountManager, SyncStateManager syncStateManager,
+    protected AccountRemovalFunction(EventBus2 eventBus, Account soundCloudAccount, Context context,
+                                     AccountManager accountManager, SyncStateManager syncStateManager,
                            CollectionStorage collectionStorage, ActivitiesStorage activitiesStorage, UserAssociationStorage userAssociationStorage,
                            SoundRecorder soundRecorder, C2DMReceiver c2DMReceiver, UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
+        mEventBus = eventBus;
         mSoundCloudAccount = soundCloudAccount;
         mContext = context;
         mAccountManager = accountManager;
@@ -95,7 +101,7 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
 
         FBToken.clear(mContext);
 
-        EventBus.CURRENT_USER_CHANGED.publish(CurrentUserChangedEvent.forLogout());
+        mEventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
         mContext.sendBroadcast(new Intent(PlaybackService.Actions.RESET_ALL));
 
 
