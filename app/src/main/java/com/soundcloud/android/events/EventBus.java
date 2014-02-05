@@ -10,7 +10,6 @@ import android.util.SparseArray;
 
 public class EventBus {
 
-    @SuppressWarnings("unused") // we keep the type variable to enforce type checking
     public static final class QueueDescriptor<T> {
         public final String name;
         public final Class<T> eventType;
