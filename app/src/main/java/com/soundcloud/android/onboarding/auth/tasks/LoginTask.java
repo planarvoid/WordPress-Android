@@ -47,7 +47,7 @@ public class LoginTask extends AuthTask {
         SoundCloudApplication app = getSoundCloudApplication();
 
         try {
-            Token token = tokenUtils.getToken(tokenUtils.configureDefaultScopeExtra(data));
+            Token token = tokenUtils.getToken(data);
             Log.d("LoginTask[Token](" + token + ")");
 
             final User user = fetchUserTask.resolve(Request.to(Endpoints.MY_DETAILS));
