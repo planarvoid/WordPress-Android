@@ -302,6 +302,29 @@ public class Han  {
         return null;
     }
 
+    public View waitForViewId(int viewId, int timeout, boolean failIfNotFound) {
+        long endTime = SystemClock.uptimeMillis() + timeout;
+        while (SystemClock.uptimeMillis() < endTime) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignored) {}
+
+            Activity activity = getCurrentActivity();
+            if (activity != null) {
+                View view = activity.findViewById(viewId);
+                if (view != null) {
+                    return view;
+                }
+            }
+        }
+
+        if (failIfNotFound) {
+            fail("timeout waiting for view "+viewId);
+        }
+
+        return null;
+    }
+
 
     public void enterText(int index, String text) {
         solo.enterText(index, text);

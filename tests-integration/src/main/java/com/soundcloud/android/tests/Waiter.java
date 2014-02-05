@@ -59,7 +59,7 @@ public class Waiter {
     }
 
     public boolean waitForListContentAndRetryIfLoadingFailed() {
-        View progress = solo.waitForViewId(R.id.empty_view_progress, TIMEOUT);
+        View progress = solo.waitForViewId(R.id.empty_view_progress, TIMEOUT, false);
         if (progress != null){
             return waitForListContent();
         } else {
