@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -48,7 +48,7 @@ public class EngagementsControllerTest {
     @Mock
     private Context context;
     @Mock
-    private EventBus2 eventBus;
+    private EventBus eventBus;
 
     @Before
     public void setup() {

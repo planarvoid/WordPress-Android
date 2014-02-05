@@ -14,7 +14,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.User;
@@ -30,7 +30,7 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
      */
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse;
     private Bundle mResultBundle;
-    private EventBus2 mEventBus;
+    private EventBus mEventBus;
 
     @Override
     protected void onCreate(Bundle icicle) {

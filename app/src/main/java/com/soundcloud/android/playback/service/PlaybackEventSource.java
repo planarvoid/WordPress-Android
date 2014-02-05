@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.service;
 
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.model.Track;
@@ -10,11 +10,11 @@ import javax.inject.Inject;
 
 public class PlaybackEventSource {
 
-    private final EventBus2 mEventBus;
+    private final EventBus mEventBus;
     private PlaybackEvent mLastPlayEventData;
 
     @Inject
-    public PlaybackEventSource(EventBus2 eventBus) {
+    public PlaybackEventSource(EventBus eventBus) {
         mEventBus = eventBus;
     }
 

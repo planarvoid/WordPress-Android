@@ -27,7 +27,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.model.User;
@@ -95,7 +95,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     private PublicCloudAPI mOldCloudAPI;
     private ApplicationProperties mApplicationProperties;
-    private EventBus2 mEventBus;
+    private EventBus mEventBus;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);

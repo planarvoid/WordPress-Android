@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
@@ -58,7 +58,7 @@ public class AnalyticsEngineTrackingTest {
     @Mock
     private Scheduler scheduler;
     @Mock
-    private EventBus2 eventBus;
+    private EventBus eventBus;
     @Mock
     private Subscription eventSubscription;
 

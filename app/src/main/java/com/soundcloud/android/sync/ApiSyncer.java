@@ -3,7 +3,7 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
@@ -56,7 +56,7 @@ public class ApiSyncer extends SyncStrategy {
 
     private final SoundAssociationStorage mSoundAssociationStorage;
     private final UserStorage mUserStorage;
-    private final EventBus2 mEventBus;
+    private final EventBus mEventBus;
 
     public ApiSyncer(Context context, ContentResolver resolver) {
         super(context, resolver);

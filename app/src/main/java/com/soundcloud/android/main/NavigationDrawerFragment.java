@@ -2,7 +2,7 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +25,7 @@ public class NavigationDrawerFragment extends NavigationFragment {
     private ActionBarDrawerToggle mDrawerToggle;
 
     private DrawerLayout mDrawerLayout;
-    private EventBus2 mEventBus;
+    private EventBus mEventBus;
 
     @Override
     public void onAttach(Activity activity) {

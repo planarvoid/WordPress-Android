@@ -9,7 +9,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ListRow;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImageOperations;
@@ -41,7 +41,7 @@ public class UserlistRow extends IconLayout implements ListRow {
     private FollowingOperations mFollowingOperations;
     private Screen mOriginScreen;
 
-    private EventBus2 mEventBus;
+    private EventBus mEventBus;
 
     public UserlistRow(Context context, Screen originScreen, ImageOperations imageOperations) {
         super(context, imageOperations);

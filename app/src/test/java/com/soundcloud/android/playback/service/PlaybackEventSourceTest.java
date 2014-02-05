@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.model.Track;
@@ -30,7 +30,7 @@ public class PlaybackEventSourceTest {
     @Mock
     private TrackSourceInfo trackSourceInfo;
     @Mock
-    private EventBus2 eventBus;
+    private EventBus eventBus;
 
     @Before
     public void setUp() throws Exception {

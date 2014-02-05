@@ -18,7 +18,7 @@ import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.migrations.MigrationEngine;
@@ -70,17 +70,17 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     private User mLoggedInUser;
     private AccountOperations mAccountOperations;
     private AnalyticsEngine mAnalyticsEngine;
-    private EventBus2 mEventBus;
+    private EventBus mEventBus;
 
     private ObjectGraph mObjectGraph;
 
     // DO NOT REMOVE, Android needs a default constructor.
     public SoundCloudApplication() {
-        mEventBus = new EventBus2();
+        mEventBus = new EventBus();
     }
 
     @VisibleForTesting
-    SoundCloudApplication(EventBus2 eventBus, AccountOperations accountOperations) {
+    SoundCloudApplication(EventBus eventBus, AccountOperations accountOperations) {
         mEventBus = eventBus;
         mAccountOperations = accountOperations;
     }
@@ -202,7 +202,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && appProperties.isDebugBuild();
     }
 
-    public EventBus2 getEventBus() {
+    public EventBus getEventBus() {
         return mEventBus;
     }
 

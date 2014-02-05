@@ -11,7 +11,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.injection.MockInjector;
@@ -59,7 +59,7 @@ public class ExploreGenresFragmentTest {
     @Mock
     private ImageOperations imageOperations;
     @Mock
-    private EventBus2 eventBus;
+    private EventBus eventBus;
 
     @Before
     public void setUp() throws Exception {
@@ -218,7 +218,7 @@ public class ExploreGenresFragmentTest {
         }
 
         @Provides
-        EventBus2 provideEventBus() {
+        EventBus provideEventBus() {
             return eventBus;
         }
     }

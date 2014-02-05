@@ -11,7 +11,7 @@ import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -67,7 +67,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
     protected AccountOperations mAccountOperations;
     protected PublicCloudAPI mPublicCloudAPI;
-    protected EventBus2 mEventBus;
+    protected EventBus mEventBus;
 
     @Nullable
     protected ActionBarController mActionBarController;

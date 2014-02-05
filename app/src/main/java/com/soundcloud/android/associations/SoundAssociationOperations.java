@@ -7,7 +7,7 @@ import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Playable;
@@ -34,14 +34,14 @@ public class SoundAssociationOperations {
 
     public static final String TAG = "SoundAssociations";
 
-    private final EventBus2 mEventBus;
+    private final EventBus mEventBus;
     private final SoundAssociationStorage mSoundAssocStorage;
     private final RxHttpClient mHttpClient;
     private final ScModelManager mModelManager;
 
     @Inject
     public SoundAssociationOperations(
-            EventBus2 eventBus,
+            EventBus eventBus,
             SoundAssociationStorage soundAssocStorage,
             RxHttpClient httpClient,
             ScModelManager modelManager) {

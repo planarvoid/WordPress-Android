@@ -14,7 +14,7 @@ import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Playable;
@@ -41,7 +41,7 @@ public class SoundAssociationOperationsTest {
     private SoundAssociationOperations operations;
 
     @Mock
-    private EventBus2 eventBus;
+    private EventBus eventBus;
     @Mock
     private SoundAssociationStorage storage;
     @Mock

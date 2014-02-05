@@ -5,7 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
@@ -32,7 +32,7 @@ import java.io.File;
 public class SoundCloudApplicationTest {
 
     @Mock
-    private EventBus2 eventBus;
+    private EventBus eventBus;
     @Mock
     private AccountOperations accountOperations;
 

@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.events.EventBus2.QueueDescriptor;
+import static com.soundcloud.android.events.EventBus.QueueDescriptor;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -15,11 +15,11 @@ import rx.Subscription;
 import rx.util.functions.Func1;
 
 @RunWith(SoundCloudTestRunner.class)
-public class EventBus2Test {
+public class EventBusTest {
 
     private static final QueueDescriptor<String> TEST_QUEUE = QueueDescriptor.create("test_queue_1", String.class);
 
-    private EventBus2 eventBus = new EventBus2();
+    private EventBus eventBus = new EventBus();
 
     @Mock
     private Observer<String> observer1;

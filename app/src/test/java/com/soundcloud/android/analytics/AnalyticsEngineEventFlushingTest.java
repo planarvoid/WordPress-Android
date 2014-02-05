@@ -47,7 +47,7 @@ public class AnalyticsEngineEventFlushingTest {
     @Mock
     private Subscription flushSubscription;
     @Mock
-    private EventBus2 eventBus;
+    private EventBus eventBus;
 
     @Before
     public void setUp() throws Exception {

@@ -8,7 +8,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -37,7 +37,7 @@ public class NavigationDrawerFragmentTest {
     @Mock
     View view;
     @Mock
-    EventBus2 eventBus;
+    EventBus eventBus;
 
     @Before
     public void setUp() throws Exception {

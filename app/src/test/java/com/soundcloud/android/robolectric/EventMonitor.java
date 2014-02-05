@@ -9,7 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import org.mockito.ArgumentCaptor;
 import rx.Observer;
 import rx.Subscription;
@@ -17,33 +17,33 @@ import rx.util.functions.Action1;
 
 public class EventMonitor {
 
-    private EventBus2 eventBus;
+    private EventBus eventBus;
     private ArgumentCaptor captor;
     private Subscription subscription;
 
-    public static EventMonitor on(EventBus2 eventBus) {
+    public static EventMonitor on(EventBus eventBus) {
         return new EventMonitor(eventBus);
     }
 
-    private EventMonitor(EventBus2 eventBus) {
+    private EventMonitor(EventBus eventBus) {
         this.eventBus = eventBus;
         withSubscription(mock(Subscription.class));
     }
 
     public EventMonitor withSubscription(Subscription subscription) {
         this.subscription = subscription;
-        when(eventBus.subscribe(any(EventBus2.QueueDescriptor.class), any(Observer.class))).thenReturn(subscription);
+        when(eventBus.subscribe(any(EventBus.QueueDescriptor.class), any(Observer.class))).thenReturn(subscription);
         return this;
     }
 
-    public EventMonitor verifySubscribedTo(EventBus2.QueueDescriptor queue) {
+    public EventMonitor verifySubscribedTo(EventBus.QueueDescriptor queue) {
         ArgumentCaptor<Observer> eventObserver = ArgumentCaptor.forClass(Observer.class);
         verify(eventBus).subscribe(refEq(queue), eventObserver.capture());
         this.captor = eventObserver;
         return this;
     }
 
-    public EventMonitor verifyNotSubscribedTo(EventBus2.QueueDescriptor queue) {
+    public EventMonitor verifyNotSubscribedTo(EventBus.QueueDescriptor queue) {
         verify(eventBus, never()).subscribe(refEq(queue), any(Observer.class));
         return this;
     }
@@ -53,18 +53,18 @@ public class EventMonitor {
         return this;
     }
 
-    public <EventType> EventType verifyEventOn(EventBus2.QueueDescriptor<EventType> queue) {
+    public <EventType> EventType verifyEventOn(EventBus.QueueDescriptor<EventType> queue) {
         ArgumentCaptor<EventType> eventObserver = ArgumentCaptor.forClass(queue.eventType);
         verify(eventBus).publish(refEq(queue), eventObserver.capture());
         return eventObserver.getValue();
     }
 
-    public <EventType> EventMonitor verifyNoEventsOn(EventBus2.QueueDescriptor<EventType> queue) {
+    public <EventType> EventMonitor verifyNoEventsOn(EventBus.QueueDescriptor<EventType> queue) {
         verify(eventBus, never()).publish(refEq(queue), any(queue.eventType));
         return this;
     }
 
-    public <EventType> void publish(EventBus2.QueueDescriptor<EventType> queue, EventType event) {
+    public <EventType> void publish(EventBus.QueueDescriptor<EventType> queue, EventType event) {
         verifySubscribedTo(queue);
 
         Object observer = captor.getValue();

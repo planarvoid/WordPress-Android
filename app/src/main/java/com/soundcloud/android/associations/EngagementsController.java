@@ -5,7 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -44,7 +44,7 @@ public class EngagementsController {
     private Playable mPlayable;
     private final SoundAssociationOperations mSoundAssociationOps;
     private OriginProvider mOriginProvider;
-    private final EventBus2 mEventBus;
+    private final EventBus mEventBus;
 
     private CompositeSubscription mSubscription = new CompositeSubscription();
 
@@ -52,13 +52,13 @@ public class EngagementsController {
         void onAddToPlaylist(Track track);
     }
 
-    public EngagementsController(Context context, View rootView, EventBus2 eventBus,
+    public EngagementsController(Context context, View rootView, EventBus eventBus,
                                  SoundAssociationOperations soundAssocOperations,
                                  @Nullable OriginProvider originProvider) {
         this(context, rootView, eventBus, soundAssocOperations, originProvider, null);
     }
 
-    public EngagementsController(Context context, View rootView, EventBus2 eventBus,
+    public EngagementsController(Context context, View rootView, EventBus eventBus,
                                  SoundAssociationOperations soundAssocOperations,
                                  @Nullable OriginProvider originProvider, final AddToPlaylistListener listener) {
 

@@ -4,7 +4,7 @@ import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.User;
@@ -24,7 +24,7 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
     private static final String KEY_ORIGIN_SCREEN = "ORIGIN_SCREEN";
     private static final String KEY_TRACK_ID = "TRACK_ID";
 
-    private EventBus2 mEventBus;
+    private EventBus mEventBus;
     private ApplicationProperties mApplicationProperties;
 
     public static CreatePlaylistDialogFragment from(long trackId, String originScreen) {

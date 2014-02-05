@@ -9,7 +9,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -115,7 +115,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private PlaybackState mPlaybackState = PlaybackState.STOPPED;
 
     @Inject
-    EventBus2 mEventBus;
+    EventBus mEventBus;
     @Inject
     PlayQueueManager mPlayQueueManager;
     @Inject

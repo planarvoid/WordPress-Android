@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
@@ -41,7 +41,7 @@ public class LoginTaskTest {
 
     @Before
     public void setUp() throws IOException {
-        when(application.getEventBus()).thenReturn(mock(EventBus2.class));
+        when(application.getEventBus()).thenReturn(mock(EventBus.class));
         loginTask = new LoginTask(application, tokenInformationGenerator, fetchUserTask, userStorage);
     }
 

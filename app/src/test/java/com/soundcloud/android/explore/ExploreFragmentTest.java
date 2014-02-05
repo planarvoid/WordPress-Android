@@ -5,7 +5,7 @@ import android.content.res.Resources;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.robolectric.EventMonitor;
@@ -37,7 +37,7 @@ public class ExploreFragmentTest {
         }
 
         @Provides
-        public EventBus2 provideEventBus() {
+        public EventBus provideEventBus() {
             return eventBus;
         }
     }
@@ -49,7 +49,7 @@ public class ExploreFragmentTest {
     @Mock
     private ViewPager mockViewPager;
     @Mock
-    private EventBus2 eventBus;
+    private EventBus eventBus;
 
     private ExploreFragment mExploreFragment;
     private EventMonitor eventMonitor;

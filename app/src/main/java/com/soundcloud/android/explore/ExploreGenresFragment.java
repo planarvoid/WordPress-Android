@@ -15,7 +15,7 @@ import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ExploreGenre;
@@ -41,7 +41,7 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
     private int mEmptyViewStatus;
 
     @Inject
-    EventBus2 mEventBus;
+    EventBus mEventBus;
 
     @Inject
     AndroidObservableFactory mObservableFactory;

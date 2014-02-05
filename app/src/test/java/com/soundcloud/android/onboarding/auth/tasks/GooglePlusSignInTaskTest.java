@@ -16,7 +16,7 @@ import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
@@ -53,7 +53,7 @@ public class GooglePlusSignInTaskTest {
 
     @Before
     public void setUp() {
-        when(app.getEventBus()).thenReturn(mock(EventBus2.class));
+        when(app.getEventBus()).thenReturn(mock(EventBus.class));
         task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, fetchUserTask, userStorage, accountOperations);
 
         stub(tokenInformationGenerator.getGrantBundle(anyString(),anyString())).toReturn(bundle);

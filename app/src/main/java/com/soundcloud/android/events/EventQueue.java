@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import static com.soundcloud.android.events.EventBus2.QueueDescriptor;
+import static com.soundcloud.android.events.EventBus.QueueDescriptor;
 
 public interface EventQueue {
     final QueueDescriptor<PlaybackEvent> PLAYBACK =

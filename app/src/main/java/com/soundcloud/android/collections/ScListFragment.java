@@ -19,7 +19,7 @@ import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.CollectionTask;
 import com.soundcloud.android.collections.tasks.ReturnData;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
@@ -115,7 +115,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private Subscription mUserEventSubscription = Subscriptions.empty();
 
     private ImageOperations mImageOperations = ImageOperations.newInstance();
-    private EventBus2 mEventBus;
+    private EventBus mEventBus;
 
     public static ScListFragment newInstance(Content content, Screen screen) {
         return newInstance(content.uri, screen);

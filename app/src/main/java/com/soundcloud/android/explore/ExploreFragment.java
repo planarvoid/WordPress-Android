@@ -12,7 +12,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.viewpagerindicator.TabPageIndicator;
 
@@ -22,7 +22,7 @@ import javax.inject.Inject;
 public class ExploreFragment extends Fragment {
 
     @Inject
-    EventBus2 mEventBus;
+    EventBus mEventBus;
     @Inject
     Resources mResources;
     @Inject
@@ -75,9 +75,9 @@ public class ExploreFragment extends Fragment {
     }
 
     protected static class ExplorePagerScreenListener implements ViewPager.OnPageChangeListener {
-        private final EventBus2 mEventBus;
+        private final EventBus mEventBus;
 
-        public ExplorePagerScreenListener(EventBus2 eventBus) {
+        public ExplorePagerScreenListener(EventBus eventBus) {
             mEventBus = eventBus;
         }
 

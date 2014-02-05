@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
@@ -36,7 +36,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     @VisibleForTesting
     static final long FLUSH_DELAY_SECONDS = 120L;
 
-    private final EventBus2 mEventBus;
+    private final EventBus mEventBus;
     private final Collection<AnalyticsProvider> mAnalyticsProviders;
     private final AnalyticsProperties mAnalyticsProperties;
 
@@ -57,13 +57,13 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     };
 
-    public AnalyticsEngine(EventBus2 eventBus, SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
+    public AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
             List<AnalyticsProvider> analyticsProviders) {
         this(eventBus, sharedPreferences, analyticsProperties, AndroidSchedulers.mainThread(), analyticsProviders);
     }
 
     @VisibleForTesting
-    protected AnalyticsEngine(EventBus2 eventBus, SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
+    protected AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
                               Scheduler scheduler, List<AnalyticsProvider> analyticsProviders) {
         Log.d(this, "Creating analytics engine");
         mEventBus = eventBus;

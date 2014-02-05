@@ -8,7 +8,7 @@ import rx.subjects.PublishSubject;
 
 import android.util.SparseArray;
 
-public class EventBus2 {
+public class EventBus {
 
     @SuppressWarnings("unused") // we keep the type variable to enforce type checking
     public static final class QueueDescriptor<T> {
@@ -69,10 +69,10 @@ public class EventBus2 {
     }
 
     public <T> Subscription subscribe(QueueDescriptor<T> qd, Observer<T> observer) {
-        return this.<T>queue(qd).subscribe(observer);
+        return this.queue(qd).subscribe(observer);
     }
 
     public <T> void publish(QueueDescriptor<T> qd, T event) {
-        this.<T>queue(qd).publish(event);
+        this.queue(qd).publish(event);
     }
 }

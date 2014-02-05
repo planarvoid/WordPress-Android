@@ -20,7 +20,7 @@ import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -85,7 +85,7 @@ public class AccountRemovalFunctionTest {
     @Mock
     private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     @Mock
-    private EventBus2 eventBus;
+    private EventBus eventBus;
 
 
     @Before

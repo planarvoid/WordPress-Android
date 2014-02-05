@@ -12,7 +12,7 @@ import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.storage.ActivitiesStorage;
@@ -30,7 +30,7 @@ import android.content.Context;
 import android.content.Intent;
 
 class AccountRemovalFunction implements OnSubscribeFunc<Void> {
-    private final EventBus2 mEventBus;
+    private final EventBus mEventBus;
     private final Context mContext;
     private final Account mSoundCloudAccount;
     private final CollectionStorage mCollectionStorage;
@@ -50,7 +50,7 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
     }
 
     @VisibleForTesting
-    protected AccountRemovalFunction(EventBus2 eventBus, Account soundCloudAccount, Context context,
+    protected AccountRemovalFunction(EventBus eventBus, Account soundCloudAccount, Context context,
                                      AccountManager accountManager, SyncStateManager syncStateManager,
                            CollectionStorage collectionStorage, ActivitiesStorage activitiesStorage, UserAssociationStorage userAssociationStorage,
                            SoundRecorder soundRecorder, C2DMReceiver c2DMReceiver, UnauthorisedRequestRegistry unauthorisedRequestRegistry) {

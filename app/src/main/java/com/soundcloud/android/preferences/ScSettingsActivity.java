@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 
 public abstract class ScSettingsActivity extends PreferenceActivity {
@@ -14,7 +14,7 @@ public abstract class ScSettingsActivity extends PreferenceActivity {
     private boolean mOnCreateCalled;
     private boolean mIsConfigurationChange;
 
-    protected EventBus2 mEventBus;
+    protected EventBus mEventBus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

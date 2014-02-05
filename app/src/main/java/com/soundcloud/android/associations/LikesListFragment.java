@@ -8,7 +8,7 @@ import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.collections.ScListView;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -30,7 +30,7 @@ import java.util.List;
 public class LikesListFragment extends ScListFragment {
 
     @Inject
-    EventBus2 mEventBus;
+    EventBus mEventBus;
     @Inject
     PlaybackOperations mPlaybackOperations;
     @Inject

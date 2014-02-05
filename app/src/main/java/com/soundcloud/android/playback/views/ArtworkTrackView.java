@@ -17,7 +17,7 @@ import android.widget.ViewFlipper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus2;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.PlayerArtworkLoadListener;
@@ -42,7 +42,7 @@ public class ArtworkTrackView extends PlayerTrackView {
     private ViewFlipper mTrackFlipper;
     private PlayerTrackDetailsLayout mTrackDetailsView;
 
-    private EventBus2 mEventBus;
+    private EventBus mEventBus;
 
     public ArtworkTrackView(Context context, AttributeSet attrs) {
         super(context, attrs);
