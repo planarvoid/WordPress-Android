@@ -1,35 +1,23 @@
 package com.soundcloud.android.actionbar;
 
-import android.app.Activity;
-import android.app.SearchManager;
-import android.app.SearchableInfo;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.support.v4.internal.view.SupportMenuItem;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.SearchView;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.preferences.SettingsActivity;
-import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.search.CombinedSearchActivity;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Field;
+import android.app.Activity;
+import android.content.Intent;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class ActionBarController {
     @NotNull
@@ -37,191 +25,69 @@ public class ActionBarController {
     @NotNull
     protected Activity mActivity;
 
-    private SuggestionsAdapter mSuggestionsAdapter;
-    private final PublicCloudAPI mPublicCloudAPI;
-    private boolean mInSearchMode;
-
-    private SearchView mSearchView;
-
     public interface ActionBarOwner {
-
         @NotNull
-        public ActionBarActivity getActivity();
-        public int getMenuResourceId();
-        public void restoreActionBar();
+        ActionBarActivity getActivity();
+        int getMenuResourceId();
+        void restoreActionBar();
     }
 
-    public ActionBarController(@NotNull ActionBarOwner owner, PublicCloudAPI publicCloudAPI) {
+    public ActionBarController(@NotNull ActionBarOwner owner) {
         mOwner = owner;
         mActivity = owner.getActivity();
-        mPublicCloudAPI = publicCloudAPI;
     }
 
     public void onResume() {
-        /** nop for now, used by {@link NowPlayingActionBarController#onResume()} ()} **/
+        /** nop, used by {@link NowPlayingActionBarController#onResume()} ()} **/
     }
 
     public void onPause() {
-        /** nop for now, used by {@link NowPlayingActionBarController#onPause()} ()} **/
+        /** nop, used by {@link NowPlayingActionBarController#onPause()} ()} **/
     }
 
     public void onDestroy() {
-        // suggestions adapter has to stop handler thread
-        if (mSuggestionsAdapter != null) mSuggestionsAdapter.onDestroy();
+        /** nop, used by {@link SearchActionBarController#onDestroy()} ()} **/
     }
 
     /**
      * This must be passed through by the activity in order to configure based on search state
-     *
-     * @param menu
      */
     public void onCreateOptionsMenu(Menu menu) {
         ActionBar actionBar = mOwner.getActivity().getSupportActionBar();
-        if (mInSearchMode) {
-            configureToSearchState(menu, actionBar);
-
-        } else {
-            setActionBarDefaultOptions(actionBar);
-            final int menuResourceId = mOwner.getMenuResourceId();
-            if (menuResourceId > 0) mOwner.getActivity().getMenuInflater().inflate(menuResourceId, menu);
-        }
+        setActionBarDefaultOptions(actionBar);
+        final int menuResourceId = mOwner.getMenuResourceId();
+        if (menuResourceId > 0) mOwner.getActivity().getMenuInflater().inflate(menuResourceId, menu);
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
+        final EventBus eventBus = SoundCloudApplication.fromContext(mActivity).getEventBus();
         switch (item.getItemId()) {
-            case R.id.action_enter_search:
-                toggleSearchMode();
+            case R.id.action_search:
+                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_SUGGESTIONS.get());
+                startActivity(CombinedSearchActivity.class);
                 return true;
-
             case R.id.action_settings:
-                mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), SettingsActivity.class));
+                startActivity(SettingsActivity.class);
                 return true;
-
             case R.id.action_record:
-                mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), RecordActivity.class));
+                startActivity(RecordActivity.class);
                 return true;
-
             case R.id.action_who_to_follow:
-                mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), WhoToFollowActivity.class));
+                startActivity(WhoToFollowActivity.class);
                 return true;
-
             case R.id.action_activity:
-                mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), ActivitiesActivity.class));
+                startActivity(ActivitiesActivity.class);
                 return true;
-
             default:
                 return false;
         }
     }
 
-    private void configureToSearchState(Menu menu, ActionBar actionBar) {
-        actionBar.setDisplayShowCustomEnabled(false);
-        mOwner.getActivity().getMenuInflater().inflate(R.menu.search, menu);
-
-        SearchManager searchManager = (SearchManager) mActivity.getSystemService(Context.SEARCH_SERVICE);
-        final SearchableInfo searchableInfo = searchManager.getSearchableInfo(mActivity.getComponentName());
-
-        SupportMenuItem searchItem = (SupportMenuItem) menu.findItem(R.id.action_search);
-        mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        mSearchView.setSearchableInfo(searchableInfo);
-        mSearchView.setIconified(false);
-
-        mSuggestionsAdapter = new SuggestionsAdapter(mActivity, mPublicCloudAPI);
-        mSearchView.setSuggestionsAdapter(mSuggestionsAdapter);
-        mSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                closeSearch();
-                return false;
-            }
-        });
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                mActivity.startActivity(new Intent(Intent.ACTION_VIEW)
-                        .setData(Content.SEARCH_ITEM.forQuery(s)));
-                // clear focus as a workaround for https://code.google.com/p/android/issues/detail?id=24599
-                mSearchView.clearFocus();
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-                return false;
-            }
-        });
-
-        mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                // we have to check against the current search field because we
-                // may have old search views still providing focus changes
-                if (!hasFocus && mSearchView == v) {
-                    closeSearch();
-                }
-            }
-        });
-        mSearchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-            @Override
-            public boolean onSuggestionSelect(int position) {
-                return false;
-            }
-
-            @Override
-            public boolean onSuggestionClick(int position) {
-                mSearchView.clearFocus();
-                mSearchView.setQuery("", false);
-                mSearchView.setIconified(true);
-
-                final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
-                final Intent intent = new Intent(Intent.ACTION_VIEW);
-                Screen.SEARCH_SUGGESTIONS.addToIntent(intent);
-                mActivity.startActivity(intent.setData(itemUri));
-                return true;
-            }
-        });
-
-        styleSearchView(mSearchView);
+    private void startActivity(Class target) {
+        mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), target));
     }
 
     protected void setActionBarDefaultOptions(ActionBar actionBar) {
         mOwner.restoreActionBar();
-    }
-
-    private void closeSearch(){
-        if (mInSearchMode){
-            if (mSearchView != null){
-                mSearchView.setOnQueryTextFocusChangeListener(null);
-            }
-            toggleSearchMode();
-        }
-    }
-
-    private void toggleSearchMode() {
-        mInSearchMode = !mInSearchMode;
-        mOwner.getActivity().supportInvalidateOptionsMenu();
-        if (mInSearchMode) {
-            SoundCloudApplication.fromContext(mActivity).getEventBus().publish(
-                    EventQueue.SCREEN_ENTERED, Screen.SEARCH_SUGGESTIONS.get());
-        }
-    }
-
-    private void styleSearchView(SearchView searchView) {
-        try {
-            Field searchField = SearchView.class.getDeclaredField("mSearchButton");
-            searchField.setAccessible(true);
-            ImageView searchBtn = (ImageView) searchField.get(searchView);
-            searchBtn.setBackgroundResource(R.drawable.item_background_dark);
-
-            searchField = SearchView.class.getDeclaredField("mCloseButton");
-            searchField.setAccessible(true);
-            ImageView closeButton = (ImageView) searchField.get(searchView);
-            closeButton.setBackgroundResource(R.drawable.item_background_dark);
-
-        } catch (NoSuchFieldException e) {
-            Log.e(getClass().getSimpleName(), e.getMessage(), e);
-        } catch (IllegalAccessException e) {
-            Log.e(getClass().getSimpleName(), e.getMessage(), e);
-        }
     }
 }

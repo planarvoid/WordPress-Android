@@ -50,7 +50,7 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     }
 
     protected ActionBarController createActionBarController() {
-        return new ActionBarController(this, mPublicCloudAPI);
+        return new ActionBarController(this);
     }
 
     @Override

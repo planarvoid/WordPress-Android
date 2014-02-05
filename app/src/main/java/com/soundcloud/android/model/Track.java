@@ -9,16 +9,15 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.storage.ResolverHelper;
+import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.http.json.Views;
-import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.android.playback.LoadCommentsTask;
+import com.soundcloud.android.playback.streaming.StreamItem;
+import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
-import com.soundcloud.android.playback.streaming.StreamItem;
-import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.tasks.FetchTrackTask;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -47,7 +46,7 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends Playable implements PlayableHolder {
+public class Track extends Playable {
     public static final String EXTRA = "track";
     public static final String EXTRA_ID = "track_id";
 

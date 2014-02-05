@@ -261,7 +261,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     @Override
     protected ActionBarController createActionBarController() {
-        return new ActionBarController(this, mPublicCloudAPI);
+        return new ActionBarController(this);
     }
 
     @Override

@@ -4,7 +4,6 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,8 +23,8 @@ public class NowPlayingActionBarController extends ActionBarController {
 
     private boolean mListening;
 
-    public NowPlayingActionBarController(@NotNull ActionBarOwner owner, PublicCloudAPI publicCloudAPI) {
-        super(owner, publicCloudAPI);
+    public NowPlayingActionBarController(@NotNull ActionBarOwner owner) {
+        super(owner);
 
         View customView = View.inflate(mActivity, R.layout.action_bar_now_playing_custom_view, null);
         mOwner.getActivity().getSupportActionBar().setCustomView(customView, new ActionBar.LayoutParams(Gravity.RIGHT));

@@ -127,7 +127,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     }
 
     protected ActionBarController createActionBarController() {
-        return new NowPlayingActionBarController(this, mPublicCloudAPI);
+        return new NowPlayingActionBarController(this);
     }
 
     public void restoreActionBar() {
@@ -310,6 +310,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         return true;
     }
 
+    @Override
     public int getMenuResourceId() {
         return R.menu.main;
     }

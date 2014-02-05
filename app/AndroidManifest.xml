@@ -153,6 +153,9 @@
             </intent-filter>
         </activity>
 
+        <activity android:label="@string/title_search" android:name=".search.CombinedSearchActivity">
+            <!-- TODO Migrate intent filters to new search experience -->
+        </activity>
 
         <activity android:name=".explore.ExploreTracksCategoryActivity"/>
 

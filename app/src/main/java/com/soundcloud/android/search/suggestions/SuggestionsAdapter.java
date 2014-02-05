@@ -143,6 +143,10 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         }
     }
 
+    public boolean isSearchItem(int position) {
+        return position == 0;
+    }
+
     @Override
     public int getViewTypeCount() {
         return 3;

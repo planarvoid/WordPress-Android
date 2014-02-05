@@ -1,5 +1,7 @@
 package com.soundcloud.android.utils;
 
+import android.content.Context;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -7,6 +9,10 @@ import java.util.Iterator;
 import java.util.Stack;
 
 public class ViewUtils {
+
+    public static int dpToPx(Context context, int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
+    }
 
     public static Iterable<View> childViewsOf(final ViewGroup viewGroup) {
         return new Iterable<View>() {

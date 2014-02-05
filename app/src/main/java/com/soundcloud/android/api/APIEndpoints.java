@@ -18,7 +18,8 @@ public enum APIEndpoints {
     MY_TRACK_REPOSTS("/e1/me/track_reposts"),
     MY_PLAYLIST_LIKES("/e1/me/playlist_likes"),
     MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts"),
-    BULK_FOLLOW_USERS("/me/suggested/users");
+    BULK_FOLLOW_USERS("/me/suggested/users"),
+    SEARCH_ALL("/search");
 
     private String path;
 

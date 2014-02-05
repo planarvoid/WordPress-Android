@@ -6,7 +6,7 @@ import com.soundcloud.android.main.ScActivity;
 public abstract class SuggestedUsersBaseActivity extends ScActivity {
 
     protected ActionBarController createActionBarController() {
-        return new ActionBarController(this, mPublicCloudAPI);
+        return new ActionBarController(this);
     }
 
 }

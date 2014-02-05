@@ -8,6 +8,7 @@ import com.soundcloud.android.search.SearchByTagActivity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.activities.Activity;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.FlowLayout;
 import org.jetbrains.annotations.Nullable;
 
@@ -199,7 +200,9 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
 
         mLastTags = new TagsHolder(track);
         TextView txt;
-        FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(10, 10);
+
+        int padding = ViewUtils.dpToPx(getContext(), 10);
+        FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(padding, padding);
 
         mTrackTags.removeAllViews();
 
