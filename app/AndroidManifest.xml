@@ -115,10 +115,6 @@
                 <action android:name="android.intent.action.SEARCH"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.SEARCH"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
@@ -155,6 +151,10 @@
 
         <activity android:label="@string/title_search" android:name=".search.CombinedSearchActivity">
             <!-- TODO Migrate intent filters to new search experience -->
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.SEARCH"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
 
         <activity android:name=".explore.ExploreTracksCategoryActivity"/>
