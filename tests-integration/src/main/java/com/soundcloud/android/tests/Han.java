@@ -126,6 +126,19 @@ public class Han  {
         return (T) activity;
     }
 
+    public void clickOnActionBarHomeButton() {
+        try {
+            solo.getCurrentActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    solo.clickOnActionBarHomeButton();
+                }
+            });
+        } catch (Throwable throwable) {
+            throw new RuntimeException("Could not click on action bar home button on UI Thread", throwable);
+        }
+    }
+
     public void clickOnActionBarItem(int itemId) {
         solo.clickOnActionBarItem(itemId);
     }
@@ -407,19 +420,6 @@ public class Han  {
 
     public boolean waitForCondition(Condition condition, int timeout) {
         return solo.waitForCondition(condition, timeout);
-    }
-
-    public void clickOnActionBarHomeButton() {
-        try {
-            solo.getCurrentActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    solo.clickOnActionBarHomeButton();
-                }
-            });
-        } catch (Throwable throwable) {
-            throw new RuntimeException("Could not click on action bar home button on UI Thread", throwable);
-        }
     }
 
     public void scrollToItem(int item) {
