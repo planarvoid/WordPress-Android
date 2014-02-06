@@ -1,5 +1,17 @@
 package com.soundcloud.android.tests;
 
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+
+import com.jayway.android.robotium.solo.By;
+import com.jayway.android.robotium.solo.Condition;
+import com.jayway.android.robotium.solo.Solo;
+import com.soundcloud.android.R;
+import com.soundcloud.android.R.id;
+import com.soundcloud.android.main.NavigationDrawerFragment;
+
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.SystemClock;
@@ -11,22 +23,11 @@ import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
-import com.jayway.android.robotium.solo.By;
-import com.jayway.android.robotium.solo.Condition;
-import com.jayway.android.robotium.solo.Solo;
-import com.soundcloud.android.R;
-import com.soundcloud.android.R.id;
-import com.soundcloud.android.main.NavigationDrawerFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 
 /**
  * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
@@ -71,6 +72,10 @@ public class Han  {
 
     public void clickOnText(String text) {
         solo.clickOnText(text);
+    }
+
+    public void clickOnText(String text, boolean scroll) {
+        solo.clickOnText(text, 1, true);
     }
 
     public void clickOnView(int resId) {

@@ -1,13 +1,13 @@
 package com.soundcloud.android.explore;
 
+import static com.soundcloud.android.tests.TestUser.testUser;
+
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Waiter;
-
-import static com.soundcloud.android.tests.TestUser.testUser;
 
 public class Explore extends ActivityTestCase<MainActivity> {
     private Waiter waiter;
@@ -50,8 +50,6 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
     public void testTrendingAudioIsDisplayedUsingSwiping() {
         exploreScreen.swipeLeft();
-        assertEquals("Current tab should be TRENDING MUSIC", "TRENDING MUSIC", exploreScreen.currentTabTitle());
-        exploreScreen.swipeLeft();
         waiter.waitForListContentAndRetryIfLoadingFailed();
         assertEquals("Current tab should be TRENDING AUDIO", "TRENDING AUDIO", exploreScreen.currentTabTitle());
         assertEquals("Invalid number of genres found", 15, exploreScreen.getItemsOnTrendingAudioList());
@@ -78,10 +76,9 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
     }
 
-    public void testGenresAreDisplayedByDefault() {
+    public void testMusicIsDisplayedByDefault() {
         waiter.waitForListContentAndRetryIfLoadingFailed();
-        assertEquals("Genres are displayed by default", "GENRES", exploreScreen.currentTabTitle());
-        assertEquals("Invalid number of genres found", 22, exploreScreen.getNumberOfItemsInGenresTab());
+        assertEquals("Music is displayed by default", "TRENDING MUSIC", exploreScreen.currentTabTitle());
     }
 
     private ExploreScreen openExploreFromMenu() {
