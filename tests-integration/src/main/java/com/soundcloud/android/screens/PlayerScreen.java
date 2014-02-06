@@ -11,6 +11,8 @@ public class PlayerScreen extends Screen {
 
     public PlayerScreen(Han solo) {
         super(solo);
+        waiter.waitForActivity(ACTIVITY);
+        waiter.waitForElement(CONTENT_ROOT);
     }
 
     @Override

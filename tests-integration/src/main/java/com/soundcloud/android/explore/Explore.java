@@ -59,11 +59,13 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
     public void testTrendingAudioIsDisplayedWhenTouchingTab() {
         exploreScreen.touchTrendingAudioTab();
-        assertEquals("Invalid number of genres found", 15, exploreScreen.getItemsOnTrendingAudioList());
+        waiter.waitForListContentAndRetryIfLoadingFailed();
+        assertEquals("Invalid number of tracks found", 15, exploreScreen.getItemsOnTrendingAudioList());
     }
 
     public void testTrendingAudioPullToRefresh() {
         exploreScreen.touchTrendingAudioTab();
+        waiter.waitForListContentAndRetryIfLoadingFailed();
         assertEquals("Invalid number of trending audio items", 15, exploreScreen.getItemsOnTrendingAudioList());
 
         exploreScreen.pullToRefresh();

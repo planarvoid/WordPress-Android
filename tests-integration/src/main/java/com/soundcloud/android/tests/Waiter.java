@@ -1,7 +1,6 @@
 package com.soundcloud.android.tests;
 
 import com.robotium.solo.Condition;
-import com.soundcloud.android.R;
 import com.soundcloud.android.R.id;
 import com.soundcloud.android.main.NavigationDrawerFragment;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
@@ -19,6 +18,7 @@ public class Waiter {
     public Han solo;
     public final int TIMEOUT = 10 * 1000;
     public final int NETWORK_TIMEOUT = 120 * 1000;
+    private final int ELEMENT_TIMEOUT = 2 * 1000;
 
     public Waiter(Han driver) {
         solo = driver;
@@ -49,9 +49,9 @@ public class Waiter {
         return solo.waitForCondition(new Condition() {
             @Override
             public boolean isSatisfied() {
-                final View view = solo.getView(id.empty_view_progress);
-                final boolean result = (view == null || !view.isShown());
-                java.util.Date date= new java.util.Date();
+                final View view = solo.waitForViewId(id.empty_view_progress, ELEMENT_TIMEOUT, false);
+                final boolean result = (view == null || view.getVisibility() != View.VISIBLE);
+                java.util.Date date = new java.util.Date();
                 Log.i(TAG, String.format("[ %s ] Spinner view found: %b", new Timestamp(date.getTime()), !result ));
                 return result;
             }
@@ -59,21 +59,18 @@ public class Waiter {
     }
 
     public boolean waitForListContentAndRetryIfLoadingFailed() {
-        View progress = solo.waitForViewId(R.id.empty_view_progress, TIMEOUT, false);
-        if (progress != null){
-            return waitForListContent();
-        } else {
-            retryIfFailed();
-            return false;
-        }
+        waitForListContent();
+        return retryIfFailed();
     }
 
     //TODO: We should have an error screen class defined
-    private void retryIfFailed() {
-        if(solo.searchText("Retry", 0, false)){
+    private boolean retryIfFailed() {
+        View retryButton = solo.waitForViewId(id.btn_retry, ELEMENT_TIMEOUT, false);
+        if(retryButton != null){
             solo.clickOnButtonResId(id.btn_retry);
             waitForListContent();
         }
+        return retryButton != null;
     }
 
     public boolean waitForItemCountToIncrease(final ListAdapter adapter, final int currentSize) {
