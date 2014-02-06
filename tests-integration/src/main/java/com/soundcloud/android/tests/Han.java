@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -176,6 +177,12 @@ public class Han  {
 
     public String getString(int resId, Object... args) {
         return solo.getCurrentActivity().getString(resId, args);
+    }
+
+    public ListView getCurrentListView(){
+        solo.waitForView(ListView.class);
+        final ArrayList<ListView> currentListViews = solo.getCurrentViews(ListView.class);
+        return currentListViews == null || currentListViews.isEmpty() ? null : currentListViews.get(0);
     }
 
     public GridView getCurrentGridView(){
