@@ -50,7 +50,7 @@ public class Waiter {
             @Override
             public boolean isSatisfied() {
                 final View view = solo.waitForViewId(id.empty_view_progress, ELEMENT_TIMEOUT, false);
-                final boolean result = (view == null || view.getVisibility() != View.VISIBLE);
+                final boolean result = (view == null || !view.isShown());
                 java.util.Date date = new java.util.Date();
                 Log.i(TAG, String.format("[ %s ] Spinner view found: %b", new Timestamp(date.getTime()), !result ));
                 return result;

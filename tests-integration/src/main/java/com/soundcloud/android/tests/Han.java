@@ -380,9 +380,8 @@ public class Han  {
         return solo.isToggleButtonChecked(text);
     }
 
-
-
     public boolean scrollListToTop(int index) {
+        solo.waitForView(ListView.class);
         return solo.scrollListToTop(index);
     }
 
