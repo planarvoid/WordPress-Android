@@ -10,6 +10,7 @@ public class SearchPlaylistTagsScreen extends Screen {
 
     public SearchPlaylistTagsScreen(Han solo) {
         super(solo);
+        waiter.waitForActivity(getActivity());
     }
 
     @Override
