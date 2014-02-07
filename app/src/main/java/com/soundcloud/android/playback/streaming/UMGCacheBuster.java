@@ -11,7 +11,7 @@ import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
-import rx.schedulers.Schedulers;
+import rx.concurrency.Schedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
