@@ -32,7 +32,6 @@ public final class Consts {
     public static final int COLLECTION_PAGE_SIZE      = 50;
     public static final int MAX_COMMENTS_TO_LOAD      = 50;
 
-    public static final String SECRET_CODE_ACTION = "android.provider.Telephony.SECRET_CODE";
     public static final String AUDIO_BECOMING_NOISY = "android.media.AUDIO_BECOMING_NOISY";
 
 
@@ -121,7 +120,5 @@ public final class Consts {
         String LAST_EMAIL_CONFIRMATION_REMINDER     = "confirmation_last_reminded";
 
         String DEV_HTTP_PROXY                       = "dev.http.proxy";
-        String DEV_ALARM_CLOCK_ENABLED              = "dev.alarmClock.enabled";
-        String DEV_ALARM_CLOCK_URI                  = "dev.alarmClock.uri";
     }
 }

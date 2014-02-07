@@ -21,7 +21,8 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.migrations.MigrationEngine;
+import com.soundcloud.android.startup.StartupTaskExecutor;
+import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
@@ -95,6 +96,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         mObjectGraph = ObjectGraph.create(new ApplicationModule(this));
 
         new MigrationEngine(this).migrate();
+        new StartupTaskExecutor().executeTasks();
 
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 

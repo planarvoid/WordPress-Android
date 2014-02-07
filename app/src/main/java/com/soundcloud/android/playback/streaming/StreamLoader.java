@@ -62,11 +62,13 @@ public class StreamLoader {
     static final int LOW_PRIO = 0;
     static final int HI_PRIO = 1;
     private PublicCloudAPI mOldCloudAPI;
+    private UMGCacheBuster umgCacheBuster;
 
     public StreamLoader(Context context, final StreamStorage storage) {
         mContext = context;
         mStorage = storage;
         mOldCloudAPI = new PublicApi(mContext);
+        umgCacheBuster = new UMGCacheBuster(storage);
         mResultThread = new HandlerThread("streaming-result");
         mResultThread.start();
 
@@ -124,8 +126,7 @@ public class StreamLoader {
     }
 
     public StreamFuture getDataForUrl(String url, Range range) throws IOException {
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
-            Log.d(LOG_TAG, "Get data for url " + url + " " + range);
+         umgCacheBuster.bustIt(url);
 
         final StreamItem item = mStorage.getMetadata(url);
 
