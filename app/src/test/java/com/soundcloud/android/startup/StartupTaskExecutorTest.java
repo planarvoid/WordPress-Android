@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observer;
-import rx.schedulers.Schedulers;
+import rx.concurrency.Schedulers;
 
 @RunWith(SoundCloudTestRunner.class)
 public class StartupTaskExecutorTest {

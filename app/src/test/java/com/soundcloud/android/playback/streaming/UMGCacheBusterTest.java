@@ -14,7 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observer;
-import rx.schedulers.Schedulers;
+import rx.concurrency.Schedulers;
 
 import android.content.Context;
 import android.content.SharedPreferences;
