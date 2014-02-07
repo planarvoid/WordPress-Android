@@ -1,4 +1,4 @@
-package com.soundcloud.android.migrations;
+package com.soundcloud.android.startup.migrations;
 
 import static android.content.SharedPreferences.Editor;
 import static com.google.common.collect.Lists.newArrayList;

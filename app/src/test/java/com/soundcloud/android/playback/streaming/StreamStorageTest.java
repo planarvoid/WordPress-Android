@@ -94,29 +94,6 @@ public class StreamStorageTest {
     }
 
     @Test
-    public void shouldCalculateFileMetrics() throws Exception {
-        ShadowStatFs.registerStats(baseDir, 100, 100, 100);
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(DefaultTestRunner.application);
-        Editor editor = sharedPreferences.edit();
-
-        editor.putInt(SettingsActivity.STREAM_CACHE_SIZE, 0);
-        editor.commit();
-
-        expect(storage.calculateUsableSpace()).toBe(0L);
-
-        editor.putInt(SettingsActivity.STREAM_CACHE_SIZE, 33);
-        editor.commit();
-
-        expect(storage.calculateUsableSpace()).toEqual(ShadowStatFs.BLOCK_SIZE * 33L);
-
-        editor.putInt(SettingsActivity.STREAM_CACHE_SIZE, 100);
-        editor.commit();
-
-        expect(storage.calculateUsableSpace()).toEqual(ShadowStatFs.BLOCK_SIZE * 100L);
-    }
-
-    @Test
     public void shouldTestIncompleteSequentialWriting() throws Exception {
         setupChunkArray();
 

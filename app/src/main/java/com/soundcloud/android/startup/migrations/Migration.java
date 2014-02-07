@@ -1,4 +1,4 @@
-package com.soundcloud.android.migrations;
+package com.soundcloud.android.startup.migrations;
 
 
 import java.util.Comparator;
