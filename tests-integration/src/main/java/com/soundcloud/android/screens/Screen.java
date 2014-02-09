@@ -19,6 +19,8 @@ public abstract class Screen {
         this.solo = solo;
         this.waiter = new Waiter(solo);
         this.actionBar = new ActionBarElement(solo);
+        waiter.waitForActivity(getActivity());
+        waiter.waitForElement(CONTENT_ROOT);
     }
 
     public void pullToRefresh() {

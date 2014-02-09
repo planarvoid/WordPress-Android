@@ -58,9 +58,10 @@ public class SuggestedUsersScreen extends Screen {
         clickOnCategoryElement(visibleIndex, R.id.btn_user_bucket_select_all);
     }
 
-    public void clickCategory(int visibleIndex) {
+    public SuggestedUsersCategoryScreen clickCategory(int visibleIndex) {
         clickOnCategoryElement(visibleIndex, android.R.id.text1);
         solo.waitForActivity(SuggestedUsersCategoryActivity.class);
+        return new SuggestedUsersCategoryScreen(solo);
     }
 
     public SuggestedUsersCategoryScreen goToFacebook() {
@@ -74,8 +75,6 @@ public class SuggestedUsersScreen extends Screen {
     }
 
     private View getCategoryRow(int index) {
-        // wait for list items
-        solo.waitForViewId(R.id.btn_user_bucket_select_all, 5000);
         return ((ViewGroup) solo.getView(android.R.id.list)).getChildAt(index);
     }
 

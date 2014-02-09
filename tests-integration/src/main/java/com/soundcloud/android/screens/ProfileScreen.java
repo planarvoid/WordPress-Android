@@ -1,18 +1,18 @@
 package com.soundcloud.android.screens;
 
-import android.view.View;
-import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.utils.Log;
+
+import android.view.View;
+import android.widget.TextView;
 
 public class ProfileScreen extends Screen {
     private static Class ACTIVITY = ProfileActivity.class;
 
     public ProfileScreen(Han solo) {
         super(solo);
-        waitForActivity();
+        waiter.waitForElement(followButton());
     }
 
     private View followButton() {
@@ -47,11 +47,4 @@ public class ProfileScreen extends Screen {
         TextView location = (TextView) solo.getView(id);
         return location.getText().toString();
     }
-
-    protected void waitForActivity() {
-        //Todo: wait for element
-        waiter.waitForElement(followButton());
-        waiter.waitForActivity(ACTIVITY);
-    }
-
 }

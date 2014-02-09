@@ -9,10 +9,4 @@ public class MyProfileScreen extends ProfileScreen {
     public MyProfileScreen(Han solo) {
         super(solo);
     }
-
-    @Override
-    protected void waitForActivity() {
-        waiter.waitForActivity(ACTIVITY);
-    }
-
 }

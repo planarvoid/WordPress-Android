@@ -8,7 +8,6 @@ public class SettingsScreen extends Screen {
 
     public SettingsScreen(Han solo) {
         super(solo);
-        waiter.waitForActivity(ACTIVITY);
     }
 
     @Override

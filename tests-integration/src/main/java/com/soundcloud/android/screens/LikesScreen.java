@@ -15,5 +15,4 @@ public class LikesScreen extends Screen {
         return ACTIVITY;
     }
 
-
 }

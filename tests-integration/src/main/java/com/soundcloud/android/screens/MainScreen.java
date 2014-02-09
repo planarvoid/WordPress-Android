@@ -1,6 +1,5 @@
 package com.soundcloud.android.screens;
 
-import android.R.id;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.Han;
@@ -12,8 +11,6 @@ public class MainScreen extends Screen {
 
     public MainScreen(Han solo) {
         super(solo);
-        waiter.waitForActivity(ACTIVITY);
-        waiter.waitForElement(id.content);
         menuScreen = new MenuScreen(solo);
     }
 
