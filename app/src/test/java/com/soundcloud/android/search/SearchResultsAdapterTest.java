@@ -2,21 +2,19 @@ package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.analytics.Screen;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.collections.views.UserlistRow;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -25,16 +23,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.view.ViewGroup;
+
 
 @RunWith(SoundCloudTestRunner.class)
 public class SearchResultsAdapterTest {
 
-    SearchResultsAdapter adapter;
+    private SearchResultsAdapter adapter;
 
-    Context context;
+    private Context context;
 
     @Mock
     ImageOperations imageOperations;
@@ -44,6 +41,19 @@ public class SearchResultsAdapterTest {
     public void setUp() throws Exception {
         context = Robolectric.application.getApplicationContext();
         adapter = new SearchResultsAdapter(imageOperations);
+    }
+
+    @Test
+    public void shouldAddItemsToAdapterOnNext() {
+        ScResource resource1 = mock(ScResource.class);
+        ScResource resource2 = mock(ScResource.class);
+        SearchResultsCollection results = new SearchResultsCollection();
+        results.setCollection(Lists.newArrayList(resource1, resource2));
+
+        adapter.onNext(results);
+
+        assertEquals(adapter.getItem(0), resource1);
+        assertEquals(adapter.getItem(1), resource2);
     }
 
     @Test
@@ -77,4 +87,5 @@ public class SearchResultsAdapterTest {
         adapter.bindItemView(0, view);
         verify(view).display(0, user);
     }
+
 }
