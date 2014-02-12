@@ -4,38 +4,31 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ItemAdapter;
 import com.soundcloud.android.collections.ListRow;
-import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.collections.views.PlayableRow;
 import com.soundcloud.android.collections.views.UserlistRow;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.profile.ProfileActivity;
 import rx.Observer;
 
-import android.content.Context;
-import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 
 public class SearchResultsAdapter extends ItemAdapter<ScResource> implements Observer<SearchResultsCollection> {
 
-    private static final int TYPE_PLAYABLE = 0;
-    private static final int TYPE_USER = 1;
+    public static final int TYPE_PLAYABLE = 0;
+    public static final int TYPE_USER = 1;
 
     private final ImageOperations mImageOperations;
 
-    private final PlaybackOperations mPlaybackOperations;
-
     @Inject
-    public SearchResultsAdapter(ImageOperations imageOperations, PlaybackOperations playbackOperations) {
+    public SearchResultsAdapter(ImageOperations imageOperations) {
         super(Consts.COLLECTION_PAGE_SIZE);
         mImageOperations = imageOperations;
-        mPlaybackOperations = playbackOperations;
     }
 
     @Override
@@ -80,13 +73,8 @@ public class SearchResultsAdapter extends ItemAdapter<ScResource> implements Obs
         return 2;
     }
 
-    public void handleClick(Context context, int position) {
-        int type = getItemViewType(position);
-        if (type == TYPE_PLAYABLE) {
-            mPlaybackOperations.playFromAdapter(context, mItems, position, null, Screen.SEARCH_EVERYTHING);
-        } else if (type == TYPE_USER) {
-            context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, getItem(position)));
-        }
+    public ArrayList<ScResource> getItems() {
+        return mItems;
     }
 
 }

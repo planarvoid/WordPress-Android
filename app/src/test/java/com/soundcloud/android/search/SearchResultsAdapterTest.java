@@ -39,13 +39,11 @@ public class SearchResultsAdapterTest {
     @Mock
     ImageOperations imageOperations;
 
-    @Mock
-    PlaybackOperations playbackOperations;
 
     @Before
     public void setUp() throws Exception {
         context = Robolectric.application.getApplicationContext();
-        adapter = new SearchResultsAdapter(imageOperations, playbackOperations);
+        adapter = new SearchResultsAdapter(imageOperations);
     }
 
     @Test
@@ -78,26 +76,5 @@ public class SearchResultsAdapterTest {
 
         adapter.bindItemView(0, view);
         verify(view).display(0, user);
-    }
-
-    @Test
-    public void shouldHandlePlayableItemClick() throws Exception {
-        Track track = mock(Track.class);
-        adapter.addItem(track);
-
-        adapter.handleClick(context, 0);
-
-        verify(playbackOperations).playFromAdapter(eq(context), anyList(), eq(0), isNull(Uri.class), eq(Screen.SEARCH_EVERYTHING));
-    }
-
-    @Test
-    public void shouldHandleUserItemClick() throws Exception {
-        User user = mock(User.class);
-        adapter.addItem(user);
-
-        Context mockContext = mock(Context.class);
-        adapter.handleClick(mockContext, 0);
-
-        verify(mockContext).startActivity(any(Intent.class));
     }
 }
