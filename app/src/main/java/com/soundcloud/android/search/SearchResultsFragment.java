@@ -27,7 +27,7 @@ import android.widget.AdapterView;
 
 import javax.inject.Inject;
 
-public class SearchResultsFragment extends ListFragment implements EmptyViewAware {
+public class SearchResultsFragment extends ListFragment implements EmptyViewAware, AdapterView.OnItemClickListener {
 
     public static final String TAG = "search_results";
 
@@ -87,7 +87,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        getListView().setOnItemClickListener(mSearchResultsClickListener);
+        getListView().setOnItemClickListener(this);
 
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setStatus(mEmptyViewStatus);
@@ -114,6 +114,17 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         }
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        int type = mAdapter.getItemViewType(position);
+        Context context = getActivity();
+        if (type == SearchResultsAdapter.TYPE_PLAYABLE) {
+            mPlaybackOperations.playFromAdapter(context, mAdapter.getItems(), position, null, Screen.SEARCH_EVERYTHING);
+        } else if (type == SearchResultsAdapter.TYPE_USER) {
+            context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, mAdapter.getItem(position)));
+        }
+    }
+
     private ConnectableObservable<SearchResultsCollection> buildSearchResultsObservable() {
         final String query = getArguments().getString(KEY_QUERY);
         return AndroidObservable.fromFragment(this, mSearchOperations.getSearchResults(query)).replay();
@@ -128,18 +139,4 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         observable.subscribe(loadingStateObserver);
         mSubscription = observable.connect();
     }
-
-    @VisibleForTesting
-    AdapterView.OnItemClickListener mSearchResultsClickListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            int type = mAdapter.getItemViewType(position);
-            Context context = getActivity();
-            if (type == SearchResultsAdapter.TYPE_PLAYABLE) {
-                mPlaybackOperations.playFromAdapter(context, mAdapter.getItems(), position, null, Screen.SEARCH_EVERYTHING);
-            } else if (type == SearchResultsAdapter.TYPE_USER) {
-                context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, mAdapter.getItem(position)));
-            }
-        }
-    };
 }

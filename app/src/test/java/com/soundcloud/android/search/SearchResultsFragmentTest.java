@@ -60,7 +60,7 @@ public class SearchResultsFragmentTest {
         Track track = mock(Track.class);
         adapter.addItem(track);
 
-        fragment.mSearchResultsClickListener.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
+        fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         verify(playbackOperations).playFromAdapter(any(Context.class), anyList(), eq(0), isNull(Uri.class), eq(Screen.SEARCH_EVERYTHING));
     }
