@@ -281,4 +281,8 @@ public class ScTextUtils {
     public static String formatNumberWithCommas(long number){
         return DECIMAL_FORMAT.format(number);
     }
+
+    public static String formatTabTitle(Resources res, int resourceId) {
+        return res.getString(resourceId).toUpperCase(Locale.getDefault());
+    }
 }

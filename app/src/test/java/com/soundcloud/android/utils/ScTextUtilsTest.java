@@ -2,6 +2,7 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
@@ -192,6 +193,12 @@ public class ScTextUtilsTest {
         expect(ScTextUtils.formatFollowersMessage(r, 0)).toEqual("Followed by 0 people");
         expect(ScTextUtils.formatFollowersMessage(r, 1)).toEqual("Followed by 1 person");
         expect(ScTextUtils.formatFollowersMessage(r, 100001)).toEqual("Followed by 100,001 people");
+    }
+
+    @Test
+    public void shouldFormatTabTitleAsAllCaps() {
+        Resources r = Robolectric.application.getResources();
+        expect(ScTextUtils.formatTabTitle(r, R.string.search_type_tracks)).toEqual("TRACKS");
     }
 
     private void expectEmailValid(String string){
