@@ -3,8 +3,10 @@ package com.soundcloud.android.search;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
+import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.model.SearchResultsCollection;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
@@ -13,15 +15,17 @@ import rx.android.observables.AndroidObservable;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 
 import javax.inject.Inject;
 
-public class SearchResultsFragment extends ListFragment implements EmptyViewAware {
+public class SearchResultsFragment extends ListFragment implements EmptyViewAware, AdapterView.OnItemClickListener {
 
     public static final String TAG = "search_results";
 
@@ -77,6 +81,8 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        getListView().setOnItemClickListener(this);
+
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setStatus(mEmptyViewStatus);
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
@@ -100,6 +106,11 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         if (mEmptyListView != null) {
             mEmptyListView.setStatus(status);
         }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        mAdapter.handleClick(getActivity(), position);
     }
 
     private ConnectableObservable<SearchResultsCollection> buildSearchResultsObservable() {

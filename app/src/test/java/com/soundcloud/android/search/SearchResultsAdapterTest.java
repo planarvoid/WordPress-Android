@@ -11,6 +11,7 @@ import com.soundcloud.android.collections.views.UserlistRow;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -28,9 +29,12 @@ public class SearchResultsAdapterTest {
     @Mock
     ImageOperations imageOperations;
 
+    @Mock
+    PlaybackOperations playbackOperations;
+
     @Before
     public void setUp() throws Exception {
-        adapter = new SearchResultsAdapter(imageOperations);
+        adapter = new SearchResultsAdapter(imageOperations, playbackOperations);
     }
 
     @Test
