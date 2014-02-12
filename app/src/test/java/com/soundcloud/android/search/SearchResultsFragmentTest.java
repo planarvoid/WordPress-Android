@@ -1,5 +1,8 @@
 package com.soundcloud.android.search;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -10,8 +13,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.View;
+import android.widget.AdapterView;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SearchResultsFragmentTest {
@@ -39,5 +45,11 @@ public class SearchResultsFragmentTest {
         fragment.onCreate(null);
 
         verify(searchOperations).getSearchResults("a query");
+    }
+
+    @Test
+    public void shouldHandleItemClickViaAdapter() throws Exception {
+        fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
+        verify(adapter).handleClick(any(Context.class), anyInt());
     }
 }
