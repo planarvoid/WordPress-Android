@@ -182,4 +182,10 @@
 
     <string name="shuffle">shuffle</string>
 
+    <!-- Search -->
+    <string name="search_type_all">All</string>
+    <string name="search_type_tracks">Tracks</string>
+    <string name="search_type_playlists">Playlists</string>
+    <string name="search_type_people">People</string>
+
 </resources>

@@ -60,7 +60,7 @@ public class CombinedSearchActivity extends ScActivity {
     private SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {
         @Override
         public void performSearch(String query) {
-            replaceContent(SearchResultsFragment.newInstance(query), SearchResultsFragment.TAG);
+            replaceContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
         }
 
         @Override
