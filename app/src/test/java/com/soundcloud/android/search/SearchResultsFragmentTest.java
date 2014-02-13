@@ -45,14 +45,51 @@ public class SearchResultsFragmentTest {
     }
 
     @Test
-    public void shouldGetSearchResultsOnCreate() throws Exception {
+    public void shouldGetSearchAllResultsForQueryTypeAllOnCreate() throws Exception {
         Bundle arguments = new Bundle();
         arguments.putString("query", "a query");
+        arguments.putInt("type", 0);
         fragment.setArguments(arguments);
 
         fragment.onCreate(null);
 
-        verify(searchOperations).getSearchResults("a query");
+        verify(searchOperations).getSearchResultsAll("a query");
+    }
+
+    @Test
+    public void shouldGetSearchAllResultsForQueryTypeTracksOnCreate() throws Exception {
+        Bundle arguments = new Bundle();
+        arguments.putString("query", "a query");
+        arguments.putInt("type", 1);
+        fragment.setArguments(arguments);
+
+        fragment.onCreate(null);
+
+        verify(searchOperations).getSearchResultsTracks("a query");
+    }
+
+    @Test
+    public void shouldGetSearchAllResultsForQueryTypePlaylistsOnCreate() throws Exception {
+        Bundle arguments = new Bundle();
+        arguments.putString("query", "a query");
+        arguments.putInt("type", 2);
+        fragment.setArguments(arguments);
+
+        fragment.onCreate(null);
+
+        verify(searchOperations).getSearchResultsPlaylists("a query");
+    }
+
+    @Test
+    public void shouldGetSearchAllResultsForQueryTypePeopleOnCreate() throws Exception {
+        Bundle arguments = new Bundle();
+        arguments.putString("query", "a query");
+        arguments.putInt("type", 3);
+        fragment.setArguments(arguments);
+
+        fragment.onCreate(null);
+
+        verify(searchOperations).getSearchResultsPeople("a query");
     }
 
     @Test

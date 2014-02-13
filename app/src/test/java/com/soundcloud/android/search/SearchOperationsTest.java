@@ -45,15 +45,39 @@ public class SearchOperationsTest {
     @Test
     public void shouldMakeGETRequestToSearchAllEndpoint() throws Exception {
         when(soundCloudRxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
-        searchOperations.getSearchResults("any query").subscribe(observer);
+        searchOperations.getSearchResultsAll("any query").subscribe(observer);
 
         verify(soundCloudRxHttpClient).fetchModels(argThat(isPublicApiRequestTo("GET", APIEndpoints.SEARCH_ALL.path())));
     }
 
     @Test
+    public void shouldMakeGETRequestToSearchTracksEndpoint() throws Exception {
+        when(soundCloudRxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
+        searchOperations.getSearchResultsTracks("any query").subscribe(observer);
+
+        verify(soundCloudRxHttpClient).fetchModels(argThat(isPublicApiRequestTo("GET", APIEndpoints.SEARCH_TRACKS.path())));
+    }
+
+    @Test
+    public void shouldMakeGETRequestToSearchPlaylistsEndpoint() throws Exception {
+        when(soundCloudRxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
+        searchOperations.getSearchResultsPlaylists("any query").subscribe(observer);
+
+        verify(soundCloudRxHttpClient).fetchModels(argThat(isPublicApiRequestTo("GET", APIEndpoints.SEARCH_PLAYLISTS.path())));
+    }
+
+    @Test
+    public void shouldMakeGETRequestToSearchPeopleEndpoint() throws Exception {
+        when(soundCloudRxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
+        searchOperations.getSearchResultsPeople("any query").subscribe(observer);
+
+        verify(soundCloudRxHttpClient).fetchModels(argThat(isPublicApiRequestTo("GET", APIEndpoints.SEARCH_PEOPLE.path())));
+    }
+
+    @Test
     public void shouldMakeRequestToSearchAllWithCorrectQuery() throws Exception {
         when(soundCloudRxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
-        searchOperations.getSearchResults("the query").subscribe(observer);
+        searchOperations.getSearchResultsAll("the query").subscribe(observer);
 
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
@@ -64,7 +88,7 @@ public class SearchOperationsTest {
     @Test
     public void shouldMakeRequestToSearchAllWithPageSize() throws Exception {
         when(soundCloudRxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
-        searchOperations.getSearchResults("blah").subscribe(observer);
+        searchOperations.getSearchResultsAll("blah").subscribe(observer);
 
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
@@ -74,7 +98,7 @@ public class SearchOperationsTest {
     }
 
     @Test
-    public void shouldFilterUnknownResources() throws Exception {
+    public void shouldFilterUnknownResourcesForSearchAll() throws Exception {
         ScResource track = new Track();
         ScResource playlist = new Playlist();
         ScResource user = new User();
@@ -84,10 +108,12 @@ public class SearchOperationsTest {
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
         when(soundCloudRxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
 
-        searchOperations.getSearchResults("any query").subscribe(observer);
+        searchOperations.getSearchResultsAll("any query").subscribe(observer);
 
         ArgumentCaptor<SearchResultsCollection> captor = ArgumentCaptor.forClass(SearchResultsCollection.class);
         verify(observer).onNext(captor.capture());
         expect(captor.getValue()).toContainInOrder(track, playlist, user);
     }
+
+
 }

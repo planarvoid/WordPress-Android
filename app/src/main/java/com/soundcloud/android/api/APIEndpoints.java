@@ -19,7 +19,10 @@ public enum APIEndpoints {
     MY_PLAYLIST_LIKES("/e1/me/playlist_likes"),
     MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts"),
     BULK_FOLLOW_USERS("/me/suggested/users"),
-    SEARCH_ALL("/search");
+    SEARCH_ALL("/search"),
+    SEARCH_TRACKS("/search/sounds"),
+    SEARCH_PLAYLISTS("/search/sets"),
+    SEARCH_PEOPLE("/search/people");
 
     private String path;
 

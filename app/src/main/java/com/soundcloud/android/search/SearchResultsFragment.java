@@ -11,6 +11,7 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
+import rx.Observable;
 import rx.Subscription;
 import rx.android.observables.AndroidObservable;
 import rx.observables.ConnectableObservable;
@@ -134,7 +135,20 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
     private ConnectableObservable<SearchResultsCollection> buildSearchResultsObservable() {
         final String query = getArguments().getString(KEY_QUERY);
-        return AndroidObservable.fromFragment(this, mSearchOperations.getSearchResults(query)).replay();
+        final int type = getArguments().getInt(KEY_TYPE);
+
+        switch (type) {
+            case TYPE_ALL:
+                return AndroidObservable.fromFragment(this, mSearchOperations.getSearchResultsAll(query)).replay();
+            case TYPE_TRACKS:
+                return AndroidObservable.fromFragment(this, mSearchOperations.getSearchResultsTracks(query)).replay();
+            case TYPE_PLAYLISTS:
+                return AndroidObservable.fromFragment(this, mSearchOperations.getSearchResultsPlaylists(query)).replay();
+            case TYPE_PEOPLE:
+                return AndroidObservable.fromFragment(this, mSearchOperations.getSearchResultsPeople(query)).replay();
+            default:
+                throw new IllegalArgumentException("Query type not valid");
+        }
     }
 
     private void loadSearchResults(ConnectableObservable<SearchResultsCollection> observable) {

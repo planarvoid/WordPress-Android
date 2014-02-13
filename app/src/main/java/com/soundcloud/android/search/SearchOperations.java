@@ -39,8 +39,24 @@ public class SearchOperations {
         mRxHttpClient = rxHttpClient;
     }
 
-    public Observable<SearchResultsCollection> getSearchResults(String query) {
-        APIRequest<SearchResultsCollection> request = SoundCloudAPIRequest.RequestBuilder.<SearchResultsCollection>get(APIEndpoints.SEARCH_ALL.path())
+    public Observable<SearchResultsCollection> getSearchResultsAll(String query) {
+        return getSearchResults(query, APIEndpoints.SEARCH_ALL);
+    }
+
+    public Observable<SearchResultsCollection> getSearchResultsTracks(String query) {
+        return getSearchResults(query, APIEndpoints.SEARCH_TRACKS);
+    }
+
+    public Observable<SearchResultsCollection> getSearchResultsPlaylists(String query) {
+        return getSearchResults(query, APIEndpoints.SEARCH_PLAYLISTS);
+    }
+
+    public Observable<SearchResultsCollection> getSearchResultsPeople(String query) {
+        return getSearchResults(query, APIEndpoints.SEARCH_PEOPLE);
+    }
+
+    private Observable<SearchResultsCollection> getSearchResults(String query, APIEndpoints apiEndpoint) {
+        APIRequest<SearchResultsCollection> request = SoundCloudAPIRequest.RequestBuilder.<SearchResultsCollection>get(apiEndpoint.path())
                 .addQueryParameters("q", query)
                 .addQueryParameters("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE))
                 .forPublicAPI()
