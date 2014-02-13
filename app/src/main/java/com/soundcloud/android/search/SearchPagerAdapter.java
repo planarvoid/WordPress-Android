@@ -16,23 +16,25 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     protected static final int TAB_PEOPLE = 3;
 
     private final Resources mResources;
+    private final String mQuery;
 
-    public SearchPagerAdapter(Resources resources, FragmentManager fm) {
+    public SearchPagerAdapter(Resources resources, FragmentManager fm, String query) {
         super(fm);
         mResources = resources;
+        mQuery = query;
     }
 
     @Override
     public Fragment getItem(int position) {
         switch(position) {
             case TAB_ALL:
-                return SearchResultsFragment.newInstance("blah");
+                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_ALL, mQuery);
             case TAB_TRACKS:
-                return SearchResultsFragment.newInstance("blah");
+                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_TRACKS, mQuery);
             case TAB_PLAYLISTS:
-                return SearchResultsFragment.newInstance("blah");
+                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_PLAYLISTS, mQuery);
             case TAB_PEOPLE:
-                return SearchResultsFragment.newInstance("blah");
+                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_PEOPLE, mQuery);
         }
         throw new IllegalArgumentException("Unexpected position for getItem " + position);
     }

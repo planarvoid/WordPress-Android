@@ -28,6 +28,10 @@ public class TabbedSearchFragment extends Fragment {
         return fragment;
     }
 
+    public TabbedSearchFragment() {
+        setRetainInstance(true);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.tabbed_search_fragment, container, false);
@@ -37,7 +41,8 @@ public class TabbedSearchFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mSearchPagerAdapter = new SearchPagerAdapter(getResources(), this.getChildFragmentManager());
+        String query = getArguments().getString(KEY_QUERY);
+        mSearchPagerAdapter = new SearchPagerAdapter(getResources(), this.getChildFragmentManager(), query);
 
         mPager = (ViewPager) view.findViewById(R.id.pager);
         mPager.setAdapter(mSearchPagerAdapter);

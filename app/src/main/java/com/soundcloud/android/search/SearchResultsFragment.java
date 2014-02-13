@@ -31,7 +31,13 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
     public static final String TAG = "search_results";
 
-    private final static String KEY_QUERY = "query";
+    public static final int TYPE_ALL = 0;
+    public static final int TYPE_TRACKS = 1;
+    public static final int TYPE_PLAYLISTS = 2;
+    public static final int TYPE_PEOPLE = 3;
+
+    private static final String KEY_QUERY = "query";
+    private static final String KEY_TYPE = "type";
 
     @Inject
     SearchOperations mSearchOperations;
@@ -47,10 +53,11 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
-    public static SearchResultsFragment newInstance(String query) {
+    public static SearchResultsFragment newInstance(int type, String query) {
         SearchResultsFragment fragment = new SearchResultsFragment();
 
         Bundle bundle = new Bundle();
+        bundle.putInt(KEY_TYPE, type);
         bundle.putString(KEY_QUERY, query);
         fragment.setArguments(bundle);
         return fragment;
