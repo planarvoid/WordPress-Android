@@ -11,7 +11,6 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
-import rx.Observable;
 import rx.Subscription;
 import rx.android.observables.AndroidObservable;
 import rx.observables.ConnectableObservable;
@@ -49,6 +48,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     @Inject
     SearchResultsAdapter mAdapter;
 
+    private int mSearchType;
     private Subscription mSubscription = Subscriptions.empty();
 
     private EmptyListView mEmptyListView;
@@ -80,6 +80,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mSearchType = getArguments().getInt(KEY_TYPE);
         setListAdapter(mAdapter);
 
         ConnectableObservable<SearchResultsCollection> searchResultsObservable = buildSearchResultsObservable();
@@ -127,17 +128,30 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         int type = mAdapter.getItemViewType(position);
         Context context = getActivity();
         if (type == SearchResultsAdapter.TYPE_PLAYABLE) {
-            mPlaybackOperations.playFromAdapter(context, mAdapter.getItems(), position, null, Screen.SEARCH_EVERYTHING);
+            mPlaybackOperations.playFromAdapter(context, mAdapter.getItems(), position, null, getTrackingScreen());
         } else if (type == SearchResultsAdapter.TYPE_USER) {
             context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, mAdapter.getItem(position)));
         }
     }
 
+    private Screen getTrackingScreen() {
+        switch(mSearchType) {
+            case TYPE_ALL:
+                return Screen.SEARCH_EVERYTHING;
+            case TYPE_TRACKS:
+                return Screen.SEARCH_TRACKS;
+            case TYPE_PLAYLISTS:
+                return Screen.SEARCH_PLAYLISTS;
+            case TYPE_PEOPLE:
+                return Screen.SEARCH_USERS;
+            default:
+                throw new IllegalArgumentException("Query type not valid");
+        }
+    }
+
     private ConnectableObservable<SearchResultsCollection> buildSearchResultsObservable() {
         final String query = getArguments().getString(KEY_QUERY);
-        final int type = getArguments().getInt(KEY_TYPE);
-
-        switch (type) {
+        switch (mSearchType) {
             case TYPE_ALL:
                 return AndroidObservable.fromFragment(this, mSearchOperations.getSearchResultsAll(query)).replay();
             case TYPE_TRACKS:

@@ -115,5 +115,4 @@ public class SearchOperationsTest {
         expect(captor.getValue()).toContainInOrder(track, playlist, user);
     }
 
-
 }
