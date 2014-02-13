@@ -1,8 +1,14 @@
 package com.soundcloud.android.search;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.dagger.DaggerDependencyInjector;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
 import com.viewpagerindicator.TabPageIndicator;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -10,11 +16,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import javax.inject.Inject;
+
 public class TabbedSearchFragment extends Fragment {
 
     public static final String TAG = "tabbed_search";
 
     private final static String KEY_QUERY = "query";
+
+    @Inject
+    EventBus mEventBus;
+    @Inject
+    Resources mResources;
 
     private SearchPagerAdapter mSearchPagerAdapter;
     private ViewPager mPager;
@@ -30,6 +43,13 @@ public class TabbedSearchFragment extends Fragment {
 
     public TabbedSearchFragment() {
         setRetainInstance(true);
+        new DaggerDependencyInjector().fromAppGraphWithModules(new SearchModule()).inject(this);
+    }
+
+    @VisibleForTesting
+    TabbedSearchFragment(EventBus eventBus, Resources resources) {
+        mEventBus = eventBus;
+        mResources = resources;
     }
 
     @Override
@@ -41,16 +61,57 @@ public class TabbedSearchFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        if (savedInstanceState == null) {
+            // Workaround for onPageSelected not being triggered on creation
+            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_EVERYTHING.get());
+        }
+
         String query = getArguments().getString(KEY_QUERY);
-        mSearchPagerAdapter = new SearchPagerAdapter(getResources(), this.getChildFragmentManager(), query);
+        mSearchPagerAdapter = new SearchPagerAdapter(mResources, this.getChildFragmentManager(), query);
 
         mPager = (ViewPager) view.findViewById(R.id.pager);
         mPager.setAdapter(mSearchPagerAdapter);
         mPager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
-        mPager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
+        mPager.setPageMargin(mResources.getDimensionPixelOffset(R.dimen.view_pager_divider_width));
         mPager.setOffscreenPageLimit(2);
 
-        TabPageIndicator mIndicator = (TabPageIndicator) view.findViewById(R.id.indicator);
-        mIndicator.setViewPager(mPager);
+        TabPageIndicator indicator = (TabPageIndicator) view.findViewById(R.id.indicator);
+        indicator.setViewPager(mPager);
+        indicator.setOnPageChangeListener(new SearchPagerScreenListener(mEventBus));
     }
+
+    protected static class SearchPagerScreenListener implements ViewPager.OnPageChangeListener {
+        private final EventBus mEventBus;
+
+        public SearchPagerScreenListener(EventBus eventBus) {
+            mEventBus = eventBus;
+        }
+
+        @Override
+        public void onPageScrolled(int i, float v, int i2) {}
+
+        @Override
+        public void onPageSelected(int pageSelected) {
+            switch (pageSelected) {
+                case SearchPagerAdapter.TAB_ALL:
+                    mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_EVERYTHING.get());
+                    break;
+                case SearchPagerAdapter.TAB_TRACKS:
+                    mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_TRACKS.get());
+                    break;
+                case SearchPagerAdapter.TAB_PLAYLISTS:
+                    mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_PLAYLISTS.get());
+                    break;
+                case SearchPagerAdapter.TAB_PEOPLE:
+                    mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_USERS.get());
+                    break;
+                default:
+                    throw new IllegalArgumentException("Did not recognise page in pager to publish screen event");
+            }
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int i) {}
+    }
+
 }
