@@ -103,6 +103,20 @@ public class SearchResultsFragmentTest {
     }
 
     @Test
+    public void shouldSendSearchEverythingTrackingScreenOnItemClick() throws Exception {
+        Track track = mock(Track.class);
+        adapter.addItem(track);
+        Bundle arguments = new Bundle();
+        arguments.putInt("type", 0);
+        fragment.setArguments(arguments);
+
+        fragment.onCreate(null);
+        fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
+
+        verify(playbackOperations).playFromAdapter(any(Context.class), anyList(), eq(0), isNull(Uri.class), eq(Screen.SEARCH_EVERYTHING));
+    }
+
+    @Test
     public void shouldSendSearchTracksTrackingScreenOnItemClick() throws Exception {
         Track track = mock(Track.class);
         adapter.addItem(track);
@@ -114,6 +128,20 @@ public class SearchResultsFragmentTest {
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         verify(playbackOperations).playFromAdapter(any(Context.class), anyList(), eq(0), isNull(Uri.class), eq(Screen.SEARCH_TRACKS));
+    }
+
+    @Test
+    public void shouldSendSearchPlaylistsTrackingScreenOnItemClick() throws Exception {
+        Track track = mock(Track.class);
+        adapter.addItem(track);
+        Bundle arguments = new Bundle();
+        arguments.putInt("type", 2);
+        fragment.setArguments(arguments);
+
+        fragment.onCreate(null);
+        fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
+
+        verify(playbackOperations).playFromAdapter(any(Context.class), anyList(), eq(0), isNull(Uri.class), eq(Screen.SEARCH_PLAYLISTS));
     }
 
 }
