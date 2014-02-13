@@ -120,6 +120,12 @@
         <item name="android:textAppearance">@style/TextAppearance.ScTabPageIndicator</item>
         <item name="android:fadingEdge">horizontal</item>
         <item name="android:fadingEdgeLength">8dp</item>
+        <item name="android:padding">0px</item>
+    </style>
+
+    <style name="Widget.ScSearchTabIndicator" parent="Widget.ScTabPageIndicatorBase">
+        <item name="tabWeight">.248</item> <!-- Weight doesn't take account of dividers. Should be 0.25 -->
+        <item name="android:padding">0px</item>
     </style>
 
     <!-- overridden in v11 -->
@@ -128,7 +134,6 @@
     <style name="Widget.ScFixedTabPageIndicator" parent="Widget.ScTabPageIndicator">
         <item name="tabWeight">.5</item>
     </style>
-
 
     <style name="Widget.ScTitlePageIndicator">
         <item name="android:background">@drawable/action_bar_background</item>
