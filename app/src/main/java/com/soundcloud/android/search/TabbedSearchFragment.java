@@ -53,6 +53,13 @@ public class TabbedSearchFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Workaround for onPageSelected not being triggered on creation
+        mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_EVERYTHING.get());
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.tabbed_search_fragment, container, false);
     }
@@ -60,11 +67,6 @@ public class TabbedSearchFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        if (savedInstanceState == null) {
-            // Workaround for onPageSelected not being triggered on creation
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_EVERYTHING.get());
-        }
 
         String query = getArguments().getString(KEY_QUERY);
         mSearchPagerAdapter = new SearchPagerAdapter(mResources, this.getChildFragmentManager(), query);
