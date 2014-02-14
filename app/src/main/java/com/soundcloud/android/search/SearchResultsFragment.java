@@ -16,6 +16,7 @@ import rx.android.observables.AndroidObservable;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import android.widget.AdapterView;
 
 import javax.inject.Inject;
 
+@SuppressLint("ValidFragment")
 public class SearchResultsFragment extends ListFragment implements EmptyViewAware, AdapterView.OnItemClickListener {
 
     public static final String TAG = "search_results";
