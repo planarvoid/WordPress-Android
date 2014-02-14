@@ -94,8 +94,7 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldStartPlaybackWhenClickingPlayableRow() throws Exception {
-        Track track = mock(Track.class);
-        adapter.addItem(track);
+        adapter.addItem(new Track());
 
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 

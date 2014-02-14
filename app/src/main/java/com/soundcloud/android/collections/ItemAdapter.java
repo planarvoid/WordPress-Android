@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A better version of Android's ArrayAdapter. It also works on ArrayLists internally, but does not hold references
@@ -38,6 +39,10 @@ public abstract class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter 
     @Override
     public ItemT getItem(int location) {
         return mItems.get(location);
+    }
+
+    public List<ItemT> getItems() {
+        return mItems;
     }
 
     public void addItem(ItemT item) {

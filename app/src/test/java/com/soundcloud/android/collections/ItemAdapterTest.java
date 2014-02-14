@@ -17,6 +17,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ItemAdapterTest {
@@ -45,6 +46,18 @@ public class ItemAdapterTest {
         Track item = new Track();
         adapter.addItem(item);
         expect(adapter.getItem(0)).toBe(item);
+    }
+
+    @Test
+    public void shouldGetItems() {
+        adapter.addItem(new Track(1));
+        adapter.addItem(new Track(2));
+
+        List<Track> items = adapter.getItems();
+
+        expect(items.size()).toEqual(2);
+        expect(items.get(0)).toEqual(new Track(1));
+        expect(items.get(1)).toEqual(new Track(2));
     }
 
     @Test

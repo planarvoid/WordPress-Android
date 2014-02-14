@@ -25,7 +25,6 @@ import org.mockito.Mock;
 import android.content.Context;
 import android.view.ViewGroup;
 
-
 @RunWith(SoundCloudTestRunner.class)
 public class SearchResultsAdapterTest {
 
@@ -36,7 +35,6 @@ public class SearchResultsAdapterTest {
     @Mock
     ImageOperations imageOperations;
 
-
     @Before
     public void setUp() throws Exception {
         context = Robolectric.application.getApplicationContext();
@@ -45,15 +43,15 @@ public class SearchResultsAdapterTest {
 
     @Test
     public void shouldAddItemsToAdapterOnNext() {
-        ScResource resource1 = mock(ScResource.class);
-        ScResource resource2 = mock(ScResource.class);
+        ScResource resource1 = new Track(1);
+        ScResource resource2 = new Track(2);
         SearchResultsCollection results = new SearchResultsCollection();
         results.setCollection(Lists.newArrayList(resource1, resource2));
 
         adapter.onNext(results);
 
-        assertEquals(adapter.getItem(0), resource1);
-        assertEquals(adapter.getItem(1), resource2);
+        expect(adapter.getItem(0)).toEqual(resource1);
+        expect(adapter.getItem(1)).toEqual(resource2);
     }
 
     @Test
@@ -70,9 +68,8 @@ public class SearchResultsAdapterTest {
     @Test
     public void shouldDifferentiateItemViewTypes() {
         User user = mock(User.class);
-        Track track = mock(Track.class);
         adapter.addItem(user);
-        adapter.addItem(track);
+        adapter.addItem(new Track());
 
         expect(adapter.getItemViewType(0)).toEqual(1);
         expect(adapter.getItemViewType(1)).toEqual(0);
