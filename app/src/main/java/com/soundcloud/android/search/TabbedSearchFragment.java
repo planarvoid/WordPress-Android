@@ -8,6 +8,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.viewpagerindicator.TabPageIndicator;
 
+import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,6 +19,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
+@SuppressLint("ValidFragment")
 public class TabbedSearchFragment extends Fragment {
 
     public static final String TAG = "tabbed_search";
