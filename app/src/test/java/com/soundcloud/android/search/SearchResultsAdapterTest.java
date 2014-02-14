@@ -70,9 +70,8 @@ public class SearchResultsAdapterTest {
     @Test
     public void shouldDifferentiateItemViewTypes() {
         User user = mock(User.class);
-        Track track = mock(Track.class);
         adapter.addItem(user);
-        adapter.addItem(track);
+        adapter.addItem(new Track());
 
         expect(adapter.getItemViewType(0)).toEqual(1);
         expect(adapter.getItemViewType(1)).toEqual(0);
