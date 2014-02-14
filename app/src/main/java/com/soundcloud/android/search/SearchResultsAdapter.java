@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 
 public class SearchResultsAdapter extends ItemAdapter<ScResource> implements Observer<SearchResultsCollection> {
 
@@ -71,10 +70,6 @@ public class SearchResultsAdapter extends ItemAdapter<ScResource> implements Obs
     @Override
     public int getViewTypeCount() {
         return 2;
-    }
-
-    public ArrayList<ScResource> getItems() {
-        return mItems;
     }
 
 }
