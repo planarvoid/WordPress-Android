@@ -316,7 +316,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
     @TargetApi(9)
     private static void setupStrictMode() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.FROYO) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     //.detectDiskReads()
                     //.detectDiskWrites()
