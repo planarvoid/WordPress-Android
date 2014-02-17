@@ -16,6 +16,8 @@
 
 /*
  * Based on: http://developer.android.com/samples/SlidingTabsBasic/project.html
+ *
+ * Modified to provide fixed width tabs, set defaults and remove unnecessary features.
  */
 
 package com.soundcloud.android.view;
@@ -50,6 +52,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
     private static final int TAB_VIEW_TEXT_COLOR = 0xFF666666;
 
     private int mTitleOffset;
+    private int mTabWidth;
 
     private ViewPager mViewPager;
     private ViewPager.OnPageChangeListener mViewPagerPageChangeListener;
@@ -104,11 +107,27 @@ public class SlidingTabLayout extends HorizontalScrollView {
         }
     }
 
+    @Override
+    public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int tabCount = mTabStrip.getChildCount();
+        if (tabCount > 0) {
+            mTabWidth = MeasureSpec.getSize(widthMeasureSpec) / mTabStrip.getChildCount();
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
     /**
      * Create a default view to be used for tabs.
      */
     protected TextView createDefaultTabView(Context context) {
-        TextView textView = new TextView(context);
+        TextView textView = new TextView(context) {
+            @Override
+            protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+                int tabWidth = mTabWidth == 0 ? widthMeasureSpec : mTabWidth;
+                super.onMeasure(MeasureSpec.makeMeasureSpec(tabWidth, MeasureSpec.EXACTLY),
+                        heightMeasureSpec);
+            }
+        };
         textView.setGravity(Gravity.CENTER);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, TAB_VIEW_TEXT_SIZE_SP);
         textView.setTextColor(TAB_VIEW_TEXT_COLOR);
