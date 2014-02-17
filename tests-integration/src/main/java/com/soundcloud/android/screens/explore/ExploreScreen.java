@@ -13,7 +13,7 @@ import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.tests.Han;
-import com.viewpagerindicator.FixedWeightTabPageIndicator;
+import com.soundcloud.android.view.SlidingTabLayout;
 
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -28,8 +28,8 @@ public class ExploreScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
 
     private static final String GENRES_TAB_TEXT = "GENRES";
-    private static final String TRENDING_AUDIO_TAB_TEXT = "TRENDING AUDIO";
-    private static final String TRENDING_MUSIC_TAB_TEXT = "TRENDING MUSIC";
+    private static final String TRENDING_AUDIO_TAB_TEXT = "AUDIO";
+    private static final String TRENDING_MUSIC_TAB_TEXT = "MUSIC";
     private static final Predicate<TextView> TITLE_TEXT_VIEW_PREDICATE = new Predicate<TextView>() {
         @Override
         public boolean apply(TextView input) {
@@ -106,7 +106,7 @@ public class ExploreScreen extends Screen {
     }
 
     private boolean touchTab(String tabText) {
-        FixedWeightTabPageIndicator tabIndicator = (FixedWeightTabPageIndicator)solo.getView(R.id.indicator);
+        SlidingTabLayout tabIndicator = (SlidingTabLayout) solo.getView(R.id.indicator);
         List<View> touchableViews = tabIndicator.getChildAt(0).getTouchables();
         for(View view : touchableViews){
             if(((TextView)view).getText().equals(tabText)){
