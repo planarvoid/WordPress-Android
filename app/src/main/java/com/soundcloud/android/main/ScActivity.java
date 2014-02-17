@@ -363,7 +363,9 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     private final DefaultObserver<CurrentUserChangedEvent> mUserEventObserver = new DefaultObserver<CurrentUserChangedEvent>() {
         @Override
         public void onNext(CurrentUserChangedEvent args) {
-            finish();
+            if (args.getKind() == CurrentUserChangedEvent.USER_REMOVED) {
+                finish();
+            }
         }
     };
 

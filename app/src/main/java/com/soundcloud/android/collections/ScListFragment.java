@@ -813,8 +813,10 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private final DefaultObserver<CurrentUserChangedEvent> mUserEventObserver = new DefaultObserver<CurrentUserChangedEvent>() {
         @Override
         public void onNext(CurrentUserChangedEvent args) {
-            stopObservingChanges();
-            stopListening();
+            if (args.getKind() == CurrentUserChangedEvent.USER_REMOVED) {
+                stopObservingChanges();
+                stopListening();
+            }
         }
     };
 
