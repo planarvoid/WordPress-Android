@@ -49,9 +49,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     public ScBaseAdapter(Uri uri) {
         mContent = Content.match(uri);
         mContentUri = uri;
-
-
-
     }
 
     public int getItemCount() {

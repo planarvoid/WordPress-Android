@@ -3,8 +3,11 @@ package com.soundcloud.android.search;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.model.SearchResultsCollection;
+import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
@@ -13,15 +16,18 @@ import rx.android.observables.AndroidObservable;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 
 import javax.inject.Inject;
 
-public class SearchResultsFragment extends ListFragment implements EmptyViewAware {
+public class SearchResultsFragment extends ListFragment implements EmptyViewAware, AdapterView.OnItemClickListener {
 
     public static final String TAG = "search_results";
 
@@ -29,6 +35,9 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
     @Inject
     SearchOperations mSearchOperations;
+
+    @Inject
+    PlaybackOperations mPlaybackOperations;
 
     @Inject
     SearchResultsAdapter mAdapter;
@@ -53,8 +62,9 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     }
 
     @VisibleForTesting
-    SearchResultsFragment(SearchOperations searchOperations, SearchResultsAdapter adapter) {
+    SearchResultsFragment(SearchOperations searchOperations, PlaybackOperations playbackOperations, SearchResultsAdapter adapter) {
         mSearchOperations = searchOperations;
+        mPlaybackOperations = playbackOperations;
         mAdapter = adapter;
     }
 
@@ -76,6 +86,8 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        getListView().setOnItemClickListener(this);
 
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setStatus(mEmptyViewStatus);
@@ -99,6 +111,17 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         mEmptyViewStatus = status;
         if (mEmptyListView != null) {
             mEmptyListView.setStatus(status);
+        }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        int type = mAdapter.getItemViewType(position);
+        Context context = getActivity();
+        if (type == SearchResultsAdapter.TYPE_PLAYABLE) {
+            mPlaybackOperations.playFromAdapter(context, mAdapter.getItems(), position, null, Screen.SEARCH_EVERYTHING);
+        } else if (type == SearchResultsAdapter.TYPE_USER) {
+            context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, mAdapter.getItem(position)));
         }
     }
 
