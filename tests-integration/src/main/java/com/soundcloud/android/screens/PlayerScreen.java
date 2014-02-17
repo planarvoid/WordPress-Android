@@ -1,13 +1,13 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.tests.Han;
 
 import android.widget.TextView;
 
 public class PlayerScreen extends Screen {
-    private static final Class ACTIVITY = MainActivity.class;
+    private static final Class ACTIVITY = PlayerActivity.class;
 
     public PlayerScreen(Han solo) {
         super(solo);

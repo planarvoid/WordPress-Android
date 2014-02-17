@@ -56,8 +56,7 @@ public class SearchResultsAdapterTest {
 
     @Test
     public void shouldCreateUserItemView() throws Exception {
-        User user = mock(User.class);
-        adapter.addItem(user);
+        adapter.addItem(new User());
 
         ViewGroup parent = mock(ViewGroup.class);
         when(parent.getContext()).thenReturn(context);
@@ -67,8 +66,7 @@ public class SearchResultsAdapterTest {
 
     @Test
     public void shouldDifferentiateItemViewTypes() {
-        User user = mock(User.class);
-        adapter.addItem(user);
+        adapter.addItem(new User());
         adapter.addItem(new Track());
 
         expect(adapter.getItemViewType(0)).toEqual(1);
@@ -78,7 +76,7 @@ public class SearchResultsAdapterTest {
     @Test
     public void shouldBindItemView() throws Exception {
         UserlistRow view = mock(UserlistRow.class);
-        User user = mock(User.class);
+        User user = new User();
         adapter.addItem(user);
 
         adapter.bindItemView(0, view);

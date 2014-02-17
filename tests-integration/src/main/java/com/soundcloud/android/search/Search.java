@@ -5,6 +5,9 @@ import static com.soundcloud.android.tests.TestUser.testUser;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MainScreen;
+import com.soundcloud.android.screens.PlayerScreen;
+import com.soundcloud.android.screens.PlaylistScreen;
+import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.search.SearchPlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 import com.soundcloud.android.tests.AccountAssistant;
@@ -63,6 +66,27 @@ public class Search extends ActivityTestCase<MainActivity> {
 
     public void testClearingSearchFieldReturnsToDisplayingTags() {
         // To be implemented
+    }
+
+    public void testTappingTrackOpensPlayer() {
+        SearchPlaylistTagsScreen playlistTagsScreen = mainScreen.actionBar().clickSearchButton();
+        SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("track");
+        PlayerScreen playerScreen = resultsScreen.clickFirstTrackItem();
+        assertEquals("Player screen should be visible", true, playerScreen.isVisible());
+    }
+
+    public void testTappingPlaylistOpensPlaylistDetails() {
+        SearchPlaylistTagsScreen playlistTagsScreen = mainScreen.actionBar().clickSearchButton();
+        SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("track playlist");
+        PlaylistScreen playlistScreen = resultsScreen.clickFirstPlaylistItem();
+        assertEquals("Playlist screen should be visible", true, playlistScreen.isVisible());
+    }
+
+    public void testTappingUserOpensProfile() {
+        SearchPlaylistTagsScreen playlistTagsScreen = mainScreen.actionBar().clickSearchButton();
+        SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("skrillex");
+        ProfileScreen profileScreen = resultsScreen.clickFirstUserItem();
+        assertEquals("Profile screen should be visible", true, profileScreen.isVisible());
     }
 
 }

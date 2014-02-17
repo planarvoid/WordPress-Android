@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -159,6 +160,16 @@ public class PlayQueueManagerTest {
         when(playQueue.isEmpty()).thenReturn(false);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expect(playQueueManager.shouldReloadQueue()).toBeFalse();
+    }
+
+    @Test
+    public void reloadedPlayQueueIsNotSavedWhenSet(){
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
+        when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
+        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
+        when(playQueue.isEmpty()).thenReturn(false);
+        playQueueManager.loadPlayQueue();
+        verify(playQueueOperations, never()).saveQueue(any(PlayQueue.class), any(PlaySessionSource.class), anyLong());
     }
 
     @Test

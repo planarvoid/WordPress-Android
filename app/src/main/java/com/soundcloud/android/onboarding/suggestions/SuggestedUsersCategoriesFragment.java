@@ -94,10 +94,6 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
             public void onAction() {
                 refresh();
             }
-
-            @Override
-            public void onSecondaryAction() {
-            }
         });
 
         mListView = (ListView) view.findViewById(android.R.id.list);

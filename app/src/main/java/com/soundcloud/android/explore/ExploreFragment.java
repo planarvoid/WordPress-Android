@@ -64,6 +64,10 @@ public class ExploreFragment extends Fragment {
         SlidingTabLayout tabIndicator = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
         tabIndicator.setViewPager(mPager);
         tabIndicator.setOnPageChangeListener(new ExplorePagerScreenListener(mEventBus));
+
+        if (savedInstanceState == null) {
+            mPager.setCurrentItem(1);
+        }
     }
 
     @Override

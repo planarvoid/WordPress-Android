@@ -1013,11 +1013,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "DelayedStopHandler: stopping service");
                 }
-
-                if (playbackState != PlaybackState.STOPPED) {
-                    service.saveQueue();
-                }
-
                 service.stopSelf(service.mServiceStartId);
             }
         }
@@ -1236,8 +1231,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                         // play before seek to prevent ANR
                         play();
                         seek(mResumeInfo.getTime(), true);
-                        mResumeInfo = null;
-
 
                     // normal play, unless first start (autopause=true)
                     } else {
@@ -1255,6 +1248,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 } else {
                     stop();
                 }
+                mResumeInfo = null;
             }
         }
     };

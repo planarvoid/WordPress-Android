@@ -5,34 +5,38 @@
               android:orientation="vertical"
               android:gravity="center">
 
-    <ImageView android:layout_height="0dp"
+    <View android:layout_width="fill_parent"
+          android:layout_height="0dp"
+          android:layout_weight="1"/>
+
+    <ImageView android:id="@+id/img_1"
                android:layout_width="fill_parent"
+               android:layout_height="0dp"
                android:layout_weight="1"
-               android:id="@+id/img_1"
-               android:layout_marginTop="5dp"
-               android:scaleType="centerInside"/>
+               style="@style/ErrorMessage.EmptyCollection.Image"/>
 
-    <LinearLayout style="@style/emptyCollectionContentHolder">
+    <TextView android:id="@+id/txt_message"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_weight="0"
+              android:text="@string/tour_finish_message"
+              style="@style/ErrorMessage.EmptyCollection"/>
 
-        <TextView android:gravity="center_horizontal"
-                  android:id="@+id/txt_message"
-                  android:text="@string/tour_finish_message"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  style="@style/ErrorMessage.EmptyCollection"/>
+    <TextView android:id="@+id/txt_link"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:layout_weight="0"
+              android:visibility="gone"
+              style="@style/ErrorMessage.EmptyCollection.Link"/>
 
-        <Button android:layout_width="wrap_content"
-                android:visibility="gone"
-                android:id="@+id/btn_action"
-                android:layout_height="wrap_content"
-                style="@style/EmptyCollectionButton"/>
+    <Button android:id="@+id/btn_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:visibility="gone"
+            style="@style/EmptyCollectionButton"/>
 
-        <TextView android:id="@+id/txt_link"
-                  android:visibility="gone"
-                  android:gravity="center_horizontal"
-                  android:layout_width="fill_parent"
-                  android:layout_height="wrap_content"
-                  style="@style/ErrorMessage.EmptyCollection.Link"/>
-
-    </LinearLayout>
+    <View android:layout_width="fill_parent"
+          android:layout_height="0dp"
+          android:layout_weight="1"/>
 </LinearLayout>

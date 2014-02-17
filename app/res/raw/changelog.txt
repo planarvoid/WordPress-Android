@@ -1,10 +1,22 @@
+$ 81
+  % v 2.7.8
+  _ 2014-2-17
+  ! Maintenance
+    * Added new empty state views
+    * Fixed a progress reporting bug
+    * Fixed some authentication issues occuring after sign up
+    - aggregated OOM errors
+    - fixed 0 progress bug
+    - Removed caching per UMG
+    - Fixed SafeViewPager usages
+
 $ 80
   % v 2.7.6
   _ 2014-1-24
   ! Shuffle your likes!
     * Listen to your favorite tracks at random directly from the Likes page.
     * Removed unnecessary system permission
-    & Fixed some stability issues
+    * Fixed some stability issues
     - improved on image caching
     - Added a host of localytics tracking
     - Added some proper up button functionality to player
