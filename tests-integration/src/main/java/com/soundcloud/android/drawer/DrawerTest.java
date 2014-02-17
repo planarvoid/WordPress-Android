@@ -58,7 +58,7 @@ public class DrawerTest extends ActivityTestCase<LauncherActivity> {
     public void testDrawerShowsPlaylists() {
         menuScreen.open();
         PlaylistScreen playlistScreen = menuScreen.clickPlaylist();
-        assertEquals("Should go to Likes screen", true, playlistScreen.isVisible());
+        assertEquals("Should go to Playlists screen", true, playlistScreen.isVisible());
     }
 }
 
