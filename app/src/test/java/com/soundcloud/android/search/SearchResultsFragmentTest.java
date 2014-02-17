@@ -73,14 +73,11 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldGetSearchAllResultsForQueryTypePeopleOnCreate() throws Exception {
-        Bundle arguments = new Bundle();
-        arguments.putString("query", "a query");
-        arguments.putInt("type", 3);
-        fragment.setArguments(arguments);
+        fragment.setArguments(buildSearchArgs("skrillex", 3));
 
         fragment.onCreate(null);
 
-        verify(searchOperations).getSearchResultsPeople("a query");
+        verify(searchOperations).getSearchResultsPeople("skrillex");
     }
 
     @Test
