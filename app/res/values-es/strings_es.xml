@@ -212,7 +212,6 @@
   <string name="list_empty_user_followers_message">Aún no tiene ningún seguidor. ¡Pero puede hacer que esto cambie! La mejor manera de que le sigan es compartir sus sonidos.</string>
   <string name="list_empty_user_following_action">Encontrar gente a la que seguir</string>
   <string name="list_empty_user_following_message">¡Por cierto! ¡SoundCloud es mucho más divertido si sigue a gente! Encuentre gente interesante a la que seguir para oír sus últimos sonidos.</string>
-  <string name="list_empty_user_likes_action">Encuentre a gente con fantásticos sonidos.</string>
   <string name="list_empty_user_likes_message">No le gusta ningún sonido todavía. Haga clic en el pequeño botón del corazón para mostrar afecto al sonido de otros.\n\n ¿No le gusta ninguno de estos sonidos? ¡Inténtelo en sugerencia de personas para obtener más sonidos!</string>
   <string name="list_empty_user_sounds_message">¡Vale! Ha llegado el momento de crear algunos sonidos. \n\n ¡Cree una nota, un mensaje o una melodía y compártala con el mundo!</string>
   <string name="list_header_track_comments">Comentarios sobre este sonido</string>
