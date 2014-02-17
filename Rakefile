@@ -256,7 +256,7 @@ end
 namespace :test do
     desc "Run unit tests"
     task :unit do
-      Mvn.install.projects('app').
+      Mvn.test.projects('app').
         with_profiles('debug').
         skip_proguard.
       execute()

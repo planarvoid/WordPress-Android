@@ -58,7 +58,7 @@ public class PlaybackReceiverTest {
     @Before
     public void setup() {
         SoundCloudApplication.sModelManager.clear();
-        playbackReceiver = new PlaybackReceiver(playbackService, associationManager, audioManager, accountOperations, playQueueManager);
+        playbackReceiver = new PlaybackReceiver(playbackService, associationManager, accountOperations, playQueueManager);
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(playbackService.getAppWidgetProvider()).thenReturn(playerAppWidgetProvider);
         when(playbackService.getPlayQueueOriginScreen()).thenReturn("screen_tag");

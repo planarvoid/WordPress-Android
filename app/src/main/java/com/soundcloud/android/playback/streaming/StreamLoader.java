@@ -73,7 +73,7 @@ public class StreamLoader {
         mResultThread.start();
 
         final Looper resultLooper = mResultThread.getLooper();
-        mResultHandler = new ResultHandler(this, resultLooper);
+        mResultHandler = new ResultHandler(this, resultLooper, umgCacheBuster);
 
         // setup connectivity listening
         mConnHandler = new ConnectivityHandler(this, resultLooper);
@@ -317,11 +317,12 @@ public class StreamLoader {
 
     private static final class ResultHandler extends Handler {
 
-        private WeakReference<StreamLoader> mLoaderRef;
-
-        private ResultHandler(StreamLoader loader, Looper looper) {
+        private final WeakReference<StreamLoader> mLoaderRef;
+        private final UMGCacheBuster umgCacheBuster;
+        private ResultHandler(StreamLoader loader, Looper looper, UMGCacheBuster umgCacheBuster) {
             super(looper);
             this.mLoaderRef = new WeakReference<StreamLoader>(loader);
+            this.umgCacheBuster = umgCacheBuster;
         }
 
         @Override
@@ -334,9 +335,13 @@ public class StreamLoader {
             if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                 Log.d(LOG_TAG, "result of message:" + msg.obj);
             }
+            StreamItemTask task = (StreamItemTask)msg.obj;
 
-            if (msg.obj instanceof HeadTask) {
-                HeadTask t = (HeadTask) msg.obj;
+            if(!umgCacheBuster.getLastUrl().equals(task.item.streamItemUrl())){
+                return;
+            }
+            if (task instanceof HeadTask) {
+                HeadTask t = (HeadTask)task;
                 loader.mHeadTasks.remove(t.item);
                 if (t.item.isAvailable()) {
                     loader.mStorage.storeMetadata(t.item);
@@ -354,22 +359,22 @@ public class StreamLoader {
                         }
                     }
                 }
-            } else if (msg.obj instanceof DataTask) {
-                DataTask t = (DataTask) msg.obj;
+            } else if (task instanceof DataTask) {
+                DataTask dataTask = (DataTask) task;
                 if (msg.peekData() == null || !msg.getData().getBoolean(DataTask.SUCCESS_KEY)) {
                     // some failure, re-add item to queue, will be retried next time
-                    loader.mHighPriorityQ.addItem(t.item, t.chunkRange.toIndex());
+                    loader.mHighPriorityQ.addItem(dataTask.item, dataTask.chunkRange.toIndex());
                 } else {
                     // for responsiveness, try to fulfill callbacks directly before storing buffer
                     for (Iterator<StreamFuture> it = loader.mPlayerCallbacks.iterator(); it.hasNext(); ) {
                         StreamFuture cb = it.next();
-                        if (cb.item.equals(t.item) && cb.byteRange.equals(t.byteRange)) {
-                            cb.setByteBuffer(t.buffer.asReadOnlyBuffer());
+                        if (cb.item.equals(dataTask.item) && cb.byteRange.equals(dataTask.byteRange)) {
+                            cb.setByteBuffer(dataTask.buffer.asReadOnlyBuffer());
                             it.remove();
                         }
                     }
                     try {
-                        loader.mStorage.storeData(t.item.streamItemUrl(), t.buffer, t.chunkRange.start);
+                        loader.mStorage.storeData(dataTask.item.streamItemUrl(), dataTask.buffer, dataTask.chunkRange.start);
                         loader.fulfillPlayerCallbacks();
                     } catch (IOException e) {
                         Log.e(LOG_TAG, "exception storing data", e);
