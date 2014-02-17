@@ -8,8 +8,8 @@
                  android:background="@color/playerControlBackground">
         <com.soundcloud.android.view.SlidingTabLayout
                 android:id="@+id/sliding_tabs"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"/>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
     </FrameLayout>
 
     <com.soundcloud.android.view.SafeViewPager
