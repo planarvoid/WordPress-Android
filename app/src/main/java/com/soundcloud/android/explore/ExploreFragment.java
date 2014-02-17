@@ -14,7 +14,7 @@ import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.viewpagerindicator.TabPageIndicator;
+import com.soundcloud.android.view.SlidingTabLayout;
 
 import javax.inject.Inject;
 
@@ -61,9 +61,9 @@ public class ExploreFragment extends Fragment {
         mPager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         mPager.setPageMargin(mResources.getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        TabPageIndicator mIndicator = (TabPageIndicator) view.findViewById(R.id.indicator);
-        mIndicator.setViewPager(mPager);
-        mIndicator.setOnPageChangeListener(new ExplorePagerScreenListener(mEventBus));
+        SlidingTabLayout tabIndicator = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
+        tabIndicator.setViewPager(mPager);
+        tabIndicator.setOnPageChangeListener(new ExplorePagerScreenListener(mEventBus));
     }
 
     @Override

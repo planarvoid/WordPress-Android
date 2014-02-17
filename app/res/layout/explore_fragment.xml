@@ -6,8 +6,8 @@
     <FrameLayout android:layout_height="wrap_content"
                  android:layout_width="match_parent"
                  android:background="@color/playerControlBackground">
-        <com.viewpagerindicator.FixedWeightTabPageIndicator
-                android:id="@+id/indicator"
+        <com.soundcloud.android.view.SlidingTabLayout
+                android:id="@+id/sliding_tabs"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"/>
     </FrameLayout>

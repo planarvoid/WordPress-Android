@@ -79,9 +79,9 @@ public class TabbedSearchFragment extends Fragment {
         mPager.setPageMargin(mResources.getDimensionPixelOffset(R.dimen.view_pager_divider_width));
         mPager.setOffscreenPageLimit(2);
 
-        SlidingTabLayout mSlidingTabLayout = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
-        mSlidingTabLayout.setViewPager(mPager);
-        mSlidingTabLayout.setOnPageChangeListener(new SearchPagerScreenListener(mEventBus));
+        SlidingTabLayout tabIndicator = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
+        tabIndicator.setViewPager(mPager);
+        tabIndicator.setOnPageChangeListener(new SearchPagerScreenListener(mEventBus));
     }
 
     protected static class SearchPagerScreenListener implements ViewPager.OnPageChangeListener {
