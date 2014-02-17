@@ -6,7 +6,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.viewpagerindicator.TabPageIndicator;
+import com.soundcloud.android.view.SlidingTabLayout;
 
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
@@ -79,9 +79,9 @@ public class TabbedSearchFragment extends Fragment {
         mPager.setPageMargin(mResources.getDimensionPixelOffset(R.dimen.view_pager_divider_width));
         mPager.setOffscreenPageLimit(2);
 
-        TabPageIndicator indicator = (TabPageIndicator) view.findViewById(R.id.indicator);
-        indicator.setViewPager(mPager);
-        indicator.setOnPageChangeListener(new SearchPagerScreenListener(mEventBus));
+        SlidingTabLayout mSlidingTabLayout = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
+        mSlidingTabLayout.setViewPager(mPager);
+        mSlidingTabLayout.setOnPageChangeListener(new SearchPagerScreenListener(mEventBus));
     }
 
     protected static class SearchPagerScreenListener implements ViewPager.OnPageChangeListener {

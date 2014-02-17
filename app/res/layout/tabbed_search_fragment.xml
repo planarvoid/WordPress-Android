@@ -5,8 +5,8 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <com.viewpagerindicator.FixedWeightTabPageIndicator
-        android:id="@+id/indicator"
+    <com.soundcloud.android.view.SlidingTabLayout
+        android:id="@+id/sliding_tabs"
         style="@style/Widget.ScSearchTabIndicator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
