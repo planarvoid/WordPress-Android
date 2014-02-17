@@ -12,7 +12,6 @@ import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -23,8 +22,6 @@ import android.widget.ImageView;
 import java.lang.reflect.Field;
 
 public class SearchActionBarController extends ActionBarController {
-
-    private static final String STATE_QUERY = "query";
 
     private SuggestionsAdapter mSuggestionsAdapter;
 
@@ -141,15 +138,15 @@ public class SearchActionBarController extends ActionBarController {
         }
     }
 
-    public void initState(Bundle bundle) {
-        if (bundle != null) {
-            mSearchView.setQuery(bundle.getString(STATE_QUERY), false);
-        } else {
-            mSearchView.requestFocus();
-        }
+    public void setQuery(String query) {
+        mSearchView.setQuery(query, false);
     }
 
-    public void storeState(Bundle bundle) {
-        bundle.putString(STATE_QUERY, mSearchView.getQuery().toString());
+    public String getQuery() {
+        return mSearchView.getQuery().toString();
+    }
+
+    public void requestSearchFieldFocus() {
+        mSearchView.requestFocus();
     }
 }

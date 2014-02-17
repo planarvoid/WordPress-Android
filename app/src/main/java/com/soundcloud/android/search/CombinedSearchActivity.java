@@ -11,9 +11,11 @@ import android.view.Menu;
 
 public class CombinedSearchActivity extends ScActivity {
 
+    private static final String STATE_QUERY = "query";
+
     private SearchActionBarController mActionBarController;
 
-    private Bundle mInstanceStateBundle;
+    private String mSavedQuery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,21 +24,26 @@ public class CombinedSearchActivity extends ScActivity {
 
         if (savedInstanceState == null) {
             replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
+        } else {
+            mSavedQuery = savedInstanceState.getString(STATE_QUERY);
         }
-
-        mInstanceStateBundle = savedInstanceState;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        mActionBarController.initState(mInstanceStateBundle);
+        if (isConfigurationChange()) {
+            mActionBarController.setQuery(mSavedQuery);
+        } else {
+            mActionBarController.requestSearchFieldFocus();
+        }
+
         return true;
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        mActionBarController.storeState(outState);
+        outState.putString(STATE_QUERY, mActionBarController.getQuery());
         super.onSaveInstanceState(outState);
     }
 
