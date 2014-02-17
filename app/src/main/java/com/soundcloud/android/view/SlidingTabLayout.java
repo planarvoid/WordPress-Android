@@ -46,7 +46,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
     private static final int TITLE_OFFSET_DIPS = 24;
     private static final int LAYOUT_BACKGROUND = 0xFFF2F2F2;
-    private static final int TAB_VIEW_PADDING_DIPS = 16;
+    private static final int TAB_VIEW_PADDING_DIPS = 15;
     private static final int TAB_BACKGROUND = R.drawable.list_selector_gray;
     private static final int TAB_TEXT_APPEARANCE = R.style.TextAppearance_TabText;
 
