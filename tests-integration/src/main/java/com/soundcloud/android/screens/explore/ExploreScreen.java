@@ -106,7 +106,7 @@ public class ExploreScreen extends Screen {
     }
 
     private boolean touchTab(String tabText) {
-        SlidingTabLayout tabIndicator = (SlidingTabLayout) solo.getView(R.id.indicator);
+        SlidingTabLayout tabIndicator = (SlidingTabLayout) solo.getView(R.id.sliding_tabs);
         List<View> touchableViews = tabIndicator.getChildAt(0).getTouchables();
         for(View view : touchableViews){
             if(((TextView)view).getText().equals(tabText)){
