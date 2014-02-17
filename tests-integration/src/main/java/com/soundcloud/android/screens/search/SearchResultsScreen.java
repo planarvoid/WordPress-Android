@@ -25,19 +25,19 @@ public class SearchResultsScreen extends Screen {
     }
 
     public PlayerScreen clickFirstTrackItem() {
-        View itemView = getFirstItemOfClass(Track.class);
+        View itemView = getFirstItemByClass(Track.class);
         solo.clickOnView(itemView);
         return new PlayerScreen(solo);
     }
 
     public PlaylistScreen clickFirstPlaylistItem() {
-        View itemView = getFirstItemOfClass(Playlist.class);
+        View itemView = getFirstItemByClass(Playlist.class);
         solo.clickOnView(itemView);
         return new PlaylistScreen(solo);
     }
 
     public ProfileScreen clickFirstUserItem() {
-        View itemView = getFirstItemOfClass(User.class);
+        View itemView = getFirstItemByClass(User.class);
         solo.clickOnView(itemView);
         return new ProfileScreen(solo);
     }
@@ -56,7 +56,7 @@ public class SearchResultsScreen extends Screen {
         return solo.getCurrentListView();
     }
 
-    private View getFirstItemOfClass(Class itemClass) {
+    private View getFirstItemByClass(Class itemClass) {
         ListAdapter adapter = solo.getCurrentListView().getAdapter();
         int numberOfItems = adapter.getCount();
         for (int i = 0; i < numberOfItems; i++) {
