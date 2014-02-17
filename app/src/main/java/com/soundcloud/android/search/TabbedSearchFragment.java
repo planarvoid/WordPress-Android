@@ -84,6 +84,13 @@ public class TabbedSearchFragment extends Fragment {
         tabIndicator.setOnPageChangeListener(new SearchPagerScreenListener(mEventBus));
     }
 
+    @Override
+    public void onDestroyView() {
+        // Avoid leaking context through internal dataset observer in adapter
+        mPager = null;
+        super.onDestroyView();
+    }
+
     protected static class SearchPagerScreenListener implements ViewPager.OnPageChangeListener {
         private final EventBus mEventBus;
 
