@@ -45,15 +45,18 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     }
 
     public void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
+        setNewPlayQueueInternal(playQueue, playSessionSource);
+        saveCurrentPosition(0L);
+    }
+
+    private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         stopLoadingOperations();
 
         mPlayQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
         mPlayQueue.setCurrentTrackToUserTriggered();
-
         mPlaySessionSource = playSessionSource;
 
         broadcastPlayQueueChanged();
-        saveCurrentPosition(0L);
     }
 
     public void saveCurrentPosition(long currentTrackProgress) {
@@ -72,7 +75,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
             mPlayQueueSubscription = playQueueObservable.subscribe(new Action1<PlayQueue>() {
                 @Override
                 public void call(PlayQueue playQueue) {
-                    setNewPlayQueue(playQueue, mPlayQueueOperations.getLastStoredPlaySessionSource());
+                    setNewPlayQueueInternal(playQueue, mPlayQueueOperations.getLastStoredPlaySessionSource());
                 }
             });
             // return so player can have the resume information while load is in progress

@@ -1,13 +1,13 @@
 package com.soundcloud.android.explore;
 
+import static com.soundcloud.android.tests.TestUser.testUser;
+
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.explore.ExploreGenreCategoryScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
-
-import static com.soundcloud.android.tests.TestUser.testUser;
 
 public class ExploreGenres extends ActivityTestCase<MainActivity> {
     private MainScreen mainScreen;
@@ -28,13 +28,15 @@ public class ExploreGenres extends ActivityTestCase<MainActivity> {
     }
 
     public void testElectronicMusicCategoryHasContent(){
-        categoryScreen = exploreScreen.clickGenreItem("Electronic");
+        exploreScreen.touchGenresTab();
+        categoryScreen = exploreScreen.clickGenreItem("Ambient");
         waiter.waitForListContentAndRetryIfLoadingFailed();
         assertEquals(15, categoryScreen.getItemsOnList());
     }
 
     public void testElectronicMusicCategoryPullToRefresh(){
-        categoryScreen = exploreScreen.clickGenreItem("Electronic");
+        exploreScreen.touchGenresTab();
+        categoryScreen = exploreScreen.clickGenreItem("Ambient");
         waiter.waitForListContentAndRetryIfLoadingFailed();
         assertEquals(15, categoryScreen.getItemsOnList());
 
@@ -43,7 +45,8 @@ public class ExploreGenres extends ActivityTestCase<MainActivity> {
     }
 
     public void testElectronicMusicCategoryLoadsNextPageOfTracks(){
-        categoryScreen = exploreScreen.clickGenreItem("Electronic");
+        exploreScreen.touchGenresTab();
+        categoryScreen = exploreScreen.clickGenreItem("Ambient");
         waiter.waitForListContentAndRetryIfLoadingFailed();
         assertEquals(15, categoryScreen.getItemsOnList());
 

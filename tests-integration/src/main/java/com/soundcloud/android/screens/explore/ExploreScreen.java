@@ -69,7 +69,7 @@ public class ExploreScreen extends Screen {
     }
 
     public ExploreGenreCategoryScreen clickGenreItem(String genreName) {
-        solo.clickOnText(genreName);
+        solo.clickOnText(genreName, true);
         waiter.waitForListContentAndRetryIfLoadingFailed();
         return new ExploreGenreCategoryScreen(solo);
     }

@@ -64,6 +64,9 @@ public class ExploreFragment extends Fragment {
         TabPageIndicator mIndicator = (TabPageIndicator) view.findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
         mIndicator.setOnPageChangeListener(new ExplorePagerScreenListener(mEventBus));
+        if (savedInstanceState == null) {
+            mIndicator.setCurrentItem(1);
+        }
     }
 
     @Override

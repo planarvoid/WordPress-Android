@@ -3,7 +3,6 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.provider.Content;
 import org.jetbrains.annotations.Nullable;
@@ -21,8 +20,7 @@ public class EmptyListViewFactory {
 
     private int mImage;
     private String mMessageText, mActionText, mSecondaryText;
-    private Intent mPrimaryAction, mSecondaryAction;
-    private boolean mImageClickable;
+    private Intent mAction;
 
     public EmptyListView build(Activity context) {
         EmptyListView view = new EmptyListView(context);
@@ -30,10 +28,7 @@ public class EmptyListViewFactory {
         if (mActionText != null) view.setActionText(mActionText);
         if (mSecondaryText != null) view.setSecondaryText(mSecondaryText);
         if (mImage > 0) view.setImage(mImage);
-        view.setButtonActions(mPrimaryAction, mSecondaryAction);
-        if (mImageClickable) {
-            view.setImageActions(mPrimaryAction, mSecondaryAction);
-        }
+        view.setButtonActions(mAction);
         return view;
     }
 
@@ -41,101 +36,73 @@ public class EmptyListViewFactory {
 
         switch (Content.match(contentUri)) {
             case ME_SOUND_STREAM:
-                mImage = R.drawable.empty_follow;
+                mImage = R.drawable.empty_stream;
                 if (Consts.StringValues.ERROR.equals(contentUri.getQueryParameter(Consts.Keys.ONBOARDING))) {
                     mMessageText = context.getString(R.string.error_onboarding_fail);
                 } else {
                     mMessageText = context.getString(R.string.list_empty_stream_message);
                     mActionText = context.getString(R.string.list_empty_stream_action);
-                    mPrimaryAction = new Intent(Actions.WHO_TO_FOLLOW);
+                    mAction = new Intent(Actions.WHO_TO_FOLLOW);
                 }
                 break;
 
             case ME_ACTIVITIES:
-                if (showRecordingTeaser(context)) {
-                    mMessageText = context.getString(R.string.list_empty_activity_nosounds_message);
-                    mSecondaryText = context.getString(R.string.list_empty_activity_nosounds_secondary);
-                    mActionText = context.getString(R.string.list_empty_activity_nosounds_action);
-                    mImage = R.drawable.empty_rec;
-                    mImageClickable = true;
-                    mPrimaryAction = new Intent(Actions.RECORD);
-                } else {
-                    mMessageText = context.getString(R.string.list_empty_activity_message);
-                    mSecondaryText = context.getString(R.string.list_empty_activity_secondary);
-                    mActionText = context.getString(R.string.list_empty_activity_action);
-                    mImage = R.drawable.empty_share;
-                    mPrimaryAction = new Intent(Actions.YOUR_SOUNDS);
-                }
-                mSecondaryAction = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101"));
+                mImage = R.drawable.empty_activity;
+                mMessageText = context.getString(R.string.list_empty_activity_message);
+                mSecondaryText = context.getString(R.string.list_empty_activity_secondary);
                 break;
 
             // user browser specific
             case ME_SOUNDS:
+                mImage = R.drawable.empty_sounds;
                 mMessageText = context.getString(R.string.list_empty_user_sounds_message);
-                if (shouldShowFullEmptyState(context)) {
-                    mActionText = context.getString(R.string.list_empty_user_sounds_action);
-                    mImage = R.drawable.empty_rec;
-                    mPrimaryAction = new Intent(Actions.RECORD);
-                }
                 break;
 
             case USER_SOUNDS:
+                mImage = R.drawable.empty_sounds;
                 mMessageText = getTextForUser(context, R.string.empty_user_tracks_text, user);
                 break;
 
             case ME_PLAYLISTS:
+                mImage = R.drawable.empty_playlists;
                 mMessageText = context.getString(R.string.list_empty_you_playlists_message);
                 break;
 
             case USER_PLAYLISTS:
+                mImage = R.drawable.empty_playlists;
                 mMessageText = getTextForUser(context, R.string.list_empty_user_playlists_message, user);
                 break;
 
             case ME_LIKES:
                 mMessageText = context.getString(R.string.list_empty_user_likes_message);
-                if (shouldShowFullEmptyState(context)) {
-                    mActionText = context.getString(R.string.list_empty_user_likes_action);
-                    mImage = R.drawable.empty_like;
-                    mPrimaryAction = new Intent(Actions.WHO_TO_FOLLOW);
-                }
+                mImage = R.drawable.empty_like;
                 break;
 
             case USER_LIKES:
+                mImage = R.drawable.empty_like;
                 mMessageText = getTextForUser(context, R.string.empty_user_likes_text, user);
                 break;
 
             case ME_FOLLOWERS:
-                if (showRecordingTeaser(context)) {
-                    mMessageText = context.getString(R.string.list_empty_user_followers_nosounds_message);
-                    if (shouldShowFullEmptyState(context)) {
-                        mActionText = context.getString(R.string.list_empty_user_followers_nosounds_action);
-                        mImage = R.drawable.empty_share;
-                        mPrimaryAction = new Intent(Actions.RECORD);
-                    }
-                } else {
-                    mMessageText = context.getString(R.string.list_empty_user_followers_message);
-                    if (shouldShowFullEmptyState(context)) {
-                        mActionText = context.getString(R.string.list_empty_user_followers_action);
-                        mImage = R.drawable.empty_rec;
-                        mPrimaryAction = new Intent(Actions.YOUR_SOUNDS);
-                    }
-                }
+                mImage = R.drawable.empty_followers;
+                mSecondaryText = context.getString(R.string.list_empty_user_followers_secondary);
+                mMessageText = context.getString(R.string.list_empty_user_followers_message);
                 break;
 
             case USER_FOLLOWERS:
+                mImage = R.drawable.empty_followers;
                 mMessageText = getTextForUser(context, R.string.empty_user_followers_text, user);
                 break;
 
             case ME_FOLLOWINGS:
+                mImage = R.drawable.empty_following;
                 mMessageText = context.getString(R.string.list_empty_user_following_message);
-                if (shouldShowFullEmptyState(context)) {
-                    mActionText = context.getString(R.string.list_empty_user_following_action);
-                    mImage = R.drawable.empty_follow_3row;
-                    mPrimaryAction = new Intent(Actions.WHO_TO_FOLLOW);
-                }
+                mActionText = context.getString(R.string.list_empty_user_following_action);
+                mAction = new Intent(Actions.WHO_TO_FOLLOW);
                 break;
 
             case USER_FOLLOWINGS:
+                mImage = R.drawable.empty_following;
                 mMessageText = getTextForUser(context, R.string.empty_user_followings_text, user);
                 break;
         }
@@ -143,12 +110,18 @@ public class EmptyListViewFactory {
         return this;
     }
 
-    private boolean shouldShowFullEmptyState(Context context) {
-         return context.getResources().getBoolean(R.bool.full_empty_states);
-    }
-
     public EmptyListViewFactory withMessageText(@Nullable String messageText) {
         mMessageText = messageText;
+        return this;
+    }
+
+    public EmptyListViewFactory withSecondaryText(@Nullable String secondaryText) {
+        mSecondaryText = secondaryText;
+        return this;
+    }
+
+    public EmptyListViewFactory withImage(int imageResourceId) {
+        mImage = imageResourceId;
         return this;
     }
 
@@ -156,10 +129,5 @@ public class EmptyListViewFactory {
         return context.getString(userBasedText,
                 user == null || user.username == null ? context.getString(R.string.this_user)
                         : user.username);
-    }
-
-    private boolean showRecordingTeaser(Context context) {
-        User loggedInUser = SoundCloudApplication.fromContext(context).getLoggedInUser();
-        return loggedInUser != null && loggedInUser.track_count <= 0;
     }
 }

@@ -75,6 +75,10 @@ public class Han  {
         solo.clickOnText(text);
     }
 
+    public void clickOnText(String text, boolean scroll) {
+        solo.clickOnText(text, 1, true);
+    }
+
     public void clickOnView(int resId) {
         solo.waitForView(resId);
         clickOnView(solo.getCurrentActivity().findViewById(resId));

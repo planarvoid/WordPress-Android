@@ -50,8 +50,6 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
     public void testTrendingAudioIsDisplayedUsingSwiping() {
         exploreScreen.swipeLeft();
-        assertEquals("Current tab should be TRENDING MUSIC", "TRENDING MUSIC", exploreScreen.currentTabTitle());
-        exploreScreen.swipeLeft();
         waiter.waitForListContentAndRetryIfLoadingFailed();
         assertEquals("Current tab should be TRENDING AUDIO", "TRENDING AUDIO", exploreScreen.currentTabTitle());
         assertEquals("Invalid number of genres found", 15, exploreScreen.getItemsOnTrendingAudioList());
@@ -80,7 +78,7 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
     }
 
-    public void testGenresAreDisplayedByDefault() {
+    public void testMusicIsDisplayedByDefault() {
         waiter.waitForListContentAndRetryIfLoadingFailed();
         assertEquals("Genres are displayed by default", "GENRES", exploreScreen.currentTabTitle());
         assertTrue("Invalid number of genres found", exploreScreen.getNumberOfItemsInGenresTab() > 0);

@@ -36,7 +36,8 @@ public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
     }
 
     public void testPlayingExploreElectronicTrack() {
-        categoryScreen = exploreScreen.clickGenreItem("Electronic");
+        exploreScreen.touchGenresTab();
+        categoryScreen = exploreScreen.clickGenreItem("Ambient");
         String trackName = categoryScreen.getTrackTitle(1);
         playerScreen = categoryScreen.playTrack(1);
         assertEquals(trackName, playerScreen.trackTitle());
