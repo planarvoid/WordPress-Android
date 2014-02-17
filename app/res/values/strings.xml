@@ -107,7 +107,7 @@
     <string name="playlist_removed">This playlist was not found on SoundCloud</string>
 
     <string name="list_empty_user_playlists_message">%1$s currently has no playlist.</string>
-    <string name="list_empty_you_playlists_message">Create a playlist to share a collection of your favorite sounds.</string>
+    <string name="list_empty_you_playlists_message">Create Playlists to make mixes of your favorite sounds</string>
 
     <string name="dialog_select_google_account">Please select a Google account to Sign in with</string>
     <string name="authentication_login_error_message">We couldn\'t log you in. Please try again.</string>

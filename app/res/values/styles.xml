@@ -1197,6 +1197,12 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
+    <style name="ErrorMessage.EmptyCollection.Image">
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">20dp</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+
     <style name="ErrorMessage.EmptyCollection.Main">
         <item name="android:textSize">24sp</item>
         <item name="android:layout_marginLeft">5dp</item>
@@ -1221,6 +1227,7 @@
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginBottom">10dp</item>
         <item name="android:textSize">12sp</item>
+        <item name="android:gravity">center_horizontal</item>
     </style>
     <style name="EmptyCollectionButton">
         <item name="android:textColor">#ff666666</item>
@@ -1385,10 +1392,6 @@
     <style name="CustomTabPageIndicator" parent="Widget.TabPageIndicator">
         <item name="android:fadingEdge">horizontal</item>
         <item name="android:fadingEdgeLength">8dp</item>
-    </style>
-
-    <style name="emptyCollectionContentHolder" parent="emptyCollectionContentHolderBase">
-        <item name="android:layout_height">wrap_content</item>
     </style>
 
     <style name="emptyCollectionErrorContentHolder" parent="emptyCollectionContentHolderBase">

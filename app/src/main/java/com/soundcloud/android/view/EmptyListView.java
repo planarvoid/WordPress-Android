@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,19 +65,12 @@ public class EmptyListView extends RelativeLayout {
         init(R.layout.empty_list);
     }
 
-    public EmptyListView setButtonActions(@Nullable final Intent primaryAction, @Nullable final Intent secondaryAction) {
+    public EmptyListView setButtonActions(@Nullable final Intent action) {
         setActionListener(new ActionListener() {
             @Override
             public void onAction() {
-                if (primaryAction != null) {
-                    getContext().startActivity(primaryAction);
-                }
-            }
-
-            @Override
-            public void onSecondaryAction() {
-                if (secondaryAction != null) {
-                    getContext().startActivity(secondaryAction);
+                if (action != null) {
+                    getContext().startActivity(action);
                 }
             }
         });
@@ -264,14 +256,6 @@ public class EmptyListView extends RelativeLayout {
             if (secondaryText != null) {
                 mTxtLink.setText(secondaryText);
                 mTxtLink.setVisibility(View.VISIBLE);
-                ScTextUtils.clickify(mTxtLink, mTxtLink.getText().toString(), new ScTextUtils.ClickSpan.OnClickListener() {
-                    @Override
-                    public void onClick() {
-                        if (mButtonActionListener != null) {
-                            mButtonActionListener.onSecondaryAction();
-                        }
-                    }
-                }, true, false);
             } else {
                 mTxtLink.setVisibility(View.GONE);
             }
@@ -286,7 +270,7 @@ public class EmptyListView extends RelativeLayout {
                 mBtnAction.setVisibility(View.VISIBLE);
                 mBtnAction.setText(actionText);
             } else {
-                mBtnAction.setVisibility(View.INVISIBLE);
+                mBtnAction.setVisibility(View.GONE);
             }
         }
         return this;
@@ -297,19 +281,12 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
-    public EmptyListView setImageActions(@Nullable final Intent primaryAction, @Nullable final Intent secondaryAction) {
+    public EmptyListView setImageActions(@Nullable final Intent action) {
         setImageActionListener(new ActionListener() {
             @Override
             public void onAction() {
-                if (primaryAction != null) {
-                    getContext().startActivity(primaryAction);
-                }
-            }
-
-            @Override
-            public void onSecondaryAction() {
-                if (secondaryAction != null) {
-                    getContext().startActivity(secondaryAction);
+                if (action != null) {
+                    getContext().startActivity(action);
                 }
             }
         });
@@ -335,7 +312,6 @@ public class EmptyListView extends RelativeLayout {
 
     public interface ActionListener {
         void onAction();
-        void onSecondaryAction();
     }
 
 }

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <bool name="player_time_show_arrow">false</bool>
-    <bool name="full_empty_states">false</bool>
 </resources>
