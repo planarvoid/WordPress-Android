@@ -6,7 +6,7 @@ import static com.soundcloud.android.tests.TestUser.testUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlayerScreen;
-import com.soundcloud.android.screens.PlaylistScreen;
+import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.search.SearchPlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
@@ -78,7 +78,7 @@ public class Search extends ActivityTestCase<MainActivity> {
     public void testTappingPlaylistOpensPlaylistDetails() {
         SearchPlaylistTagsScreen playlistTagsScreen = mainScreen.actionBar().clickSearchButton();
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("track playlist");
-        PlaylistScreen playlistScreen = resultsScreen.clickFirstPlaylistItem();
+        PlaylistDetailsScreen playlistScreen = resultsScreen.clickFirstPlaylistItem();
         assertEquals("Playlist screen should be visible", true, playlistScreen.isVisible());
     }
 

@@ -6,7 +6,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlayerScreen;
-import com.soundcloud.android.screens.PlaylistScreen;
+import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.search.CombinedSearchActivity;
@@ -30,10 +30,10 @@ public class SearchResultsScreen extends Screen {
         return new PlayerScreen(solo);
     }
 
-    public PlaylistScreen clickFirstPlaylistItem() {
+    public PlaylistDetailsScreen clickFirstPlaylistItem() {
         View itemView = getFirstItemByClass(Playlist.class);
         solo.clickOnView(itemView);
-        return new PlaylistScreen(solo);
+        return new PlaylistDetailsScreen(solo);
     }
 
     public ProfileScreen clickFirstUserItem() {

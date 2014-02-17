@@ -1,12 +1,12 @@
 package com.soundcloud.android.screens;
 
-import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.tests.Han;
 
-public class PlaylistScreen extends Screen {
-    private static final Class ACTIVITY = MainActivity.class;
+public class PlaylistDetailsScreen extends Screen {
+    private static final Class ACTIVITY = PlaylistDetailActivity.class;
 
-    public PlaylistScreen(Han solo) {
+    public PlaylistDetailsScreen(Han solo) {
         super(solo);
         waiter.waitForActivity(ACTIVITY);
     }
