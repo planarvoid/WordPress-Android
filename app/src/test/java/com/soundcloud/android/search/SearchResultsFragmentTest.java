@@ -45,39 +45,30 @@ public class SearchResultsFragmentTest {
     }
 
     @Test
-    public void shouldGetSearchAllResultsForQueryTypeAllOnCreate() throws Exception {
-        Bundle arguments = new Bundle();
-        arguments.putString("query", "a query");
-        arguments.putInt("type", 0);
-        fragment.setArguments(arguments);
+    public void shouldGetAllResultsForAllQueryOnCreate() throws Exception {
+        fragment.setArguments(buildSearchArgs("skrillex", 0));
 
         fragment.onCreate(null);
 
-        verify(searchOperations).getSearchResultsAll("a query");
+        verify(searchOperations).getSearchResultsAll("skrillex");
     }
 
     @Test
-    public void shouldGetSearchAllResultsForQueryTypeTracksOnCreate() throws Exception {
-        Bundle arguments = new Bundle();
-        arguments.putString("query", "a query");
-        arguments.putInt("type", 1);
-        fragment.setArguments(arguments);
+    public void shouldGetTracksResultsForTracksQueryOnCreate() throws Exception {
+        fragment.setArguments(buildSearchArgs("skrillex", 1));
 
         fragment.onCreate(null);
 
-        verify(searchOperations).getSearchResultsTracks("a query");
+        verify(searchOperations).getSearchResultsTracks("skrillex");
     }
 
     @Test
-    public void shouldGetSearchAllResultsForQueryTypePlaylistsOnCreate() throws Exception {
-        Bundle arguments = new Bundle();
-        arguments.putString("query", "a query");
-        arguments.putInt("type", 2);
-        fragment.setArguments(arguments);
+    public void shouldGetPlaylistResultsForPlaylistQueryOnCreate() throws Exception {
+        fragment.setArguments(buildSearchArgs("skrillex", 2));
 
         fragment.onCreate(null);
 
-        verify(searchOperations).getSearchResultsPlaylists("a query");
+        verify(searchOperations).getSearchResultsPlaylists("skrillex");
     }
 
     @Test
@@ -103,11 +94,8 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldSendSearchEverythingTrackingScreenOnItemClick() throws Exception {
-        Track track = mock(Track.class);
-        adapter.addItem(track);
-        Bundle arguments = new Bundle();
-        arguments.putInt("type", 0);
-        fragment.setArguments(arguments);
+        adapter.addItem(new Track());
+        fragment.setArguments(buildSearchArgs("", 0));
 
         fragment.onCreate(null);
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
@@ -117,11 +105,8 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldSendSearchTracksTrackingScreenOnItemClick() throws Exception {
-        Track track = mock(Track.class);
-        adapter.addItem(track);
-        Bundle arguments = new Bundle();
-        arguments.putInt("type", 1);
-        fragment.setArguments(arguments);
+        adapter.addItem(new Track());
+        fragment.setArguments(buildSearchArgs("", 1));
 
         fragment.onCreate(null);
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
@@ -131,16 +116,20 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldSendSearchPlaylistsTrackingScreenOnItemClick() throws Exception {
-        Track track = mock(Track.class);
-        adapter.addItem(track);
-        Bundle arguments = new Bundle();
-        arguments.putInt("type", 2);
-        fragment.setArguments(arguments);
+        adapter.addItem(new Track());
+        fragment.setArguments(buildSearchArgs("", 2));
 
         fragment.onCreate(null);
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         verify(playbackOperations).playFromAdapter(any(Context.class), anyList(), eq(0), isNull(Uri.class), eq(Screen.SEARCH_PLAYLISTS));
+    }
+
+    private Bundle buildSearchArgs(String query, int type) {
+        Bundle arguments = new Bundle();
+        arguments.putString("query", query);
+        arguments.putInt("type", type);
+        return arguments;
     }
 
 }
