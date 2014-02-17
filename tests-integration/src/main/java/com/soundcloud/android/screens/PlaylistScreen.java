@@ -8,7 +8,6 @@ public class PlaylistScreen extends Screen {
 
     public PlaylistScreen(Han solo) {
         super(solo);
-        waiter.waitForActivity(ACTIVITY);
     }
 
     @Override
