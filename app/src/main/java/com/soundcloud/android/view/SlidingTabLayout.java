@@ -28,13 +28,14 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.internal.widget.CompatTextView;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.TextView;
+
+import java.util.Locale;
 
 /**
  * To be used with ViewPager to provide a tab indicator component which give constant feedback as to
@@ -130,7 +131,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
      * Create a default view to be used for tabs.
      */
     protected TextView createDefaultTabView(Context context) {
-        CompatTextView textView = new CompatTextView(context) {
+        TextView textView = new TextView(context) {
             @Override
             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
                 int tabWidth = mFixedTabs
@@ -143,7 +144,6 @@ public class SlidingTabLayout extends HorizontalScrollView {
         textView.setBackgroundResource(TAB_BACKGROUND);
         textView.setTextColor(TAB_TEXT_COLOR);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(TAB_TEXT_SIZE));
-        textView.setAllCaps(true);
 
         int vertical = (int) (TAB_PADDING_VERTICAL_DP * getResources().getDisplayMetrics().density);
         int horizontal = mFixedTabs ? 0 : (int) (TAB_PADDING_HORIZONTAL_DP * getResources().getDisplayMetrics().density);
@@ -158,7 +158,8 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
         for (int i = 0; i < adapter.getCount(); i++) {
             TextView tabView = createDefaultTabView(getContext());
-            tabView.setText(adapter.getPageTitle(i));
+            String title = adapter.getPageTitle(i).toString();
+            tabView.setText(title.toUpperCase(Locale.US));
             tabView.setOnClickListener(tabClickListener);
             mTabStrip.addView(tabView);
         }
