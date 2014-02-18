@@ -74,6 +74,6 @@ public class SearchResultsScreen extends Screen {
 
     @Override
     public boolean isVisible() {
-        return waiter.waitForElement(R.id.searchResultsContainer);
+        return waiter.waitForElement(R.id.search_results_container);
     }
 }

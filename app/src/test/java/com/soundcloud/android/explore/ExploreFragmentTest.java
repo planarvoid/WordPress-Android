@@ -10,7 +10,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.viewpagerindicator.TabPageIndicator;
+import com.soundcloud.android.view.SlidingTabLayout;
 import com.xtremelabs.robolectric.Robolectric;
 import dagger.Module;
 import dagger.Provides;
@@ -45,7 +45,7 @@ public class ExploreFragmentTest {
     @Mock
     private View mockLayout;
     @Mock
-    private TabPageIndicator mockIndicator;
+    private SlidingTabLayout mockTabLayout;
     @Mock
     private ViewPager mockViewPager;
     @Mock
@@ -57,7 +57,7 @@ public class ExploreFragmentTest {
     @Before
     public void setUp() throws Exception {
         when(mockLayout.findViewById(R.id.pager)).thenReturn(mockViewPager);
-        when(mockLayout.findViewById(R.id.indicator)).thenReturn(mockIndicator);
+        when(mockLayout.findViewById(R.id.indicator)).thenReturn(mockTabLayout);
 
         eventMonitor = EventMonitor.on(eventBus);
         mExploreFragment = new ExploreFragment(MockInjector.createInjector(new TestModule()));
@@ -66,9 +66,9 @@ public class ExploreFragmentTest {
 
     @Test
     public void shouldAddListenerToViewPagerForTrackingScreenEvents(){
-        when(mockLayout.findViewById(R.id.indicator)).thenReturn(mockIndicator);
+        when(mockLayout.findViewById(R.id.sliding_tabs)).thenReturn(mockTabLayout);
         mExploreFragment.onViewCreated(mockLayout, null);
-        verify(mockIndicator).setOnPageChangeListener(isA(ExplorePagerScreenListener.class));
+        verify(mockTabLayout).setOnPageChangeListener(isA(ExplorePagerScreenListener.class));
     }
 
     @Test

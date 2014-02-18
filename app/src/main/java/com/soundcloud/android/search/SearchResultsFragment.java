@@ -1,6 +1,5 @@
 package com.soundcloud.android.search;
 
-
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
@@ -16,6 +15,8 @@ import rx.android.observables.AndroidObservable;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
+import android.annotation.SuppressLint;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,11 +28,18 @@ import android.widget.AdapterView;
 
 import javax.inject.Inject;
 
+@SuppressLint("ValidFragment")
 public class SearchResultsFragment extends ListFragment implements EmptyViewAware, AdapterView.OnItemClickListener {
 
     public static final String TAG = "search_results";
 
-    private final static String KEY_QUERY = "query";
+    public static final int TYPE_ALL = 0;
+    public static final int TYPE_TRACKS = 1;
+    public static final int TYPE_PLAYLISTS = 2;
+    public static final int TYPE_USERS = 3;
+
+    private static final String KEY_QUERY = "query";
+    private static final String KEY_TYPE = "type";
 
     @Inject
     SearchOperations mSearchOperations;
@@ -42,15 +50,17 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     @Inject
     SearchResultsAdapter mAdapter;
 
+    private int mSearchType;
     private Subscription mSubscription = Subscriptions.empty();
 
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
-    public static SearchResultsFragment newInstance(String query) {
+    public static SearchResultsFragment newInstance(int type, String query) {
         SearchResultsFragment fragment = new SearchResultsFragment();
 
         Bundle bundle = new Bundle();
+        bundle.putInt(KEY_TYPE, type);
         bundle.putString(KEY_QUERY, query);
         fragment.setArguments(bundle);
         return fragment;
@@ -72,6 +82,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mSearchType = getArguments().getInt(KEY_TYPE);
         setListAdapter(mAdapter);
 
         ConnectableObservable<SearchResultsCollection> searchResultsObservable = buildSearchResultsObservable();
@@ -119,15 +130,41 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         int type = mAdapter.getItemViewType(position);
         Context context = getActivity();
         if (type == SearchResultsAdapter.TYPE_PLAYABLE) {
-            mPlaybackOperations.playFromAdapter(context, mAdapter.getItems(), position, null, Screen.SEARCH_EVERYTHING);
+            mPlaybackOperations.playFromAdapter(context, mAdapter.getItems(), position, null, getTrackingScreen());
         } else if (type == SearchResultsAdapter.TYPE_USER) {
             context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, mAdapter.getItem(position)));
         }
     }
 
+    private Screen getTrackingScreen() {
+        switch(mSearchType) {
+            case TYPE_ALL:
+                return Screen.SEARCH_EVERYTHING;
+            case TYPE_TRACKS:
+                return Screen.SEARCH_TRACKS;
+            case TYPE_PLAYLISTS:
+                return Screen.SEARCH_PLAYLISTS;
+            case TYPE_USERS:
+                return Screen.SEARCH_USERS;
+            default:
+                throw new IllegalArgumentException("Query type not valid");
+        }
+    }
+
     private ConnectableObservable<SearchResultsCollection> buildSearchResultsObservable() {
         final String query = getArguments().getString(KEY_QUERY);
-        return AndroidObservable.fromFragment(this, mSearchOperations.getSearchResults(query)).replay();
+        switch (mSearchType) {
+            case TYPE_ALL:
+                return AndroidObservable.fromFragment(this, mSearchOperations.getAllSearchResults(query)).replay();
+            case TYPE_TRACKS:
+                return AndroidObservable.fromFragment(this, mSearchOperations.getTrackSearchResults(query)).replay();
+            case TYPE_PLAYLISTS:
+                return AndroidObservable.fromFragment(this, mSearchOperations.getPlaylistSearchResults(query)).replay();
+            case TYPE_USERS:
+                return AndroidObservable.fromFragment(this, mSearchOperations.getUserSearchResults(query)).replay();
+            default:
+                throw new IllegalArgumentException("Query type not valid");
+        }
     }
 
     private void loadSearchResults(ConnectableObservable<SearchResultsCollection> observable) {

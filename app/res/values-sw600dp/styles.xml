@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Widget.ScFixedTabPageIndicator" parent="Widget.ScTabPageIndicator">
-        <item name="tabWeight">.33</item>
-    </style>
-
     <style name="BigProfileImage">
         <item name="android:background">@drawable/placeholder_cells</item>
         <item name="android:scaleType">centerCrop</item>

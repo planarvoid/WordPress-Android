@@ -281,4 +281,5 @@ public class ScTextUtils {
     public static String formatNumberWithCommas(long number){
         return DECIMAL_FORMAT.format(number);
     }
+
 }

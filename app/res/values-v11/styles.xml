@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Widget.ScTabPageIndicator" parent="Widget.ScTabPageIndicatorBase">
-        <item name="android:showDividers">middle</item>
-    </style>
 
     <style name="Spinner" parent="android:Widget.Holo.Light.Spinner">
         <item name="android:background">@drawable/spinner_background_holo_light</item>

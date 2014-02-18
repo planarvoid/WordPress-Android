@@ -2,7 +2,6 @@ package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
