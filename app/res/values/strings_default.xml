@@ -310,7 +310,6 @@
   <string name="take_new_picture">Take a new picture</string>
   <string name="take_new_picture_error">Could not take picture</string>
   <string name="this_user">This user</string>
-  <string name="tour_finish_message">It\'s really that simple. If you need more help try our &lt;a href="http://soundcloud.com/101"&gt;101s&lt;/a&gt;. Have fun creating and sharing sounds!</string>
   <string name="track">sound</string>
   <string name="track_by">by</string>
   <string name="track_count">number of sounds</string>
