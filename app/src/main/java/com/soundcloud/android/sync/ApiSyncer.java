@@ -93,7 +93,15 @@ public class ApiSyncer extends SyncStrategy {
                     if (result.success) {
                         mResolver.notifyChange(Content.ME.uri, null);
                         User loggedInUser = SoundCloudApplication.fromContext(mContext).getLoggedInUser();
-                        EventBus.CURRENT_USER_CHANGED.publish(CurrentUserChangedEvent.forUserUpdated(loggedInUser));
+
+                        // This issue is fixed on development, and resolves issue #1269 for the 2.7.8 release
+                        // Please remove this try/catch block when merging with development
+                        try {
+                            EventBus.CURRENT_USER_CHANGED.publish(CurrentUserChangedEvent.forUserUpdated(loggedInUser));
+                        } catch (NullPointerException e) {
+                            e.printStackTrace();
+                        }
+
                     }
                     PreferenceManager.getDefaultSharedPreferences(mContext)
                             .edit()
