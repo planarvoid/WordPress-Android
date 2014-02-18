@@ -5,6 +5,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,7 +83,7 @@ class PlayQueue {
     }
 
     public long getCurrentTrackId() {
-        return mPlayQueueItems.get(mPosition).getTrackId();
+        return mPosition < 0 || mPosition >= mPlayQueueItems.size() ? Track.NOT_SET : mPlayQueueItems.get(mPosition).getTrackId();
     }
 
     public boolean isEmpty() {
