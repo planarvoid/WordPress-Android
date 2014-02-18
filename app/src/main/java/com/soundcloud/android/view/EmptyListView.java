@@ -166,7 +166,7 @@ public class EmptyListView extends RelativeLayout {
             mTxtMessage = (TextView) findViewById(R.id.txt_message);
             mTxtLink = (TextView) findViewById(R.id.txt_link);
             mBtnAction = (Button) findViewById(R.id.btn_action);
-            mImage = (ImageView) findViewById(R.id.img_1);
+            mImage = (ImageView) findViewById(R.id.empty_state_image);
             if (mImage != null) {
                 mImage.setOnClickListener(new OnClickListener() {
                     @Override
