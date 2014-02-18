@@ -20,7 +20,7 @@ public class CombinedSearchActivity extends ScActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.combined_search_activity);
+        setContentView(R.layout.container_layout);
 
         if (savedInstanceState == null) {
             replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
@@ -55,7 +55,7 @@ public class CombinedSearchActivity extends ScActivity {
 
     private void replaceContent(Fragment fragment, String tag) {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, fragment, tag)
+                .replace(R.id.holder, fragment, tag)
                 .commit();
     }
 
