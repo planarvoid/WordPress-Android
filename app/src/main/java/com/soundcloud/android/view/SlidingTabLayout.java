@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.internal.widget.CompatTextView;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -46,14 +47,14 @@ import android.widget.TextView;
  */
 public class SlidingTabLayout extends HorizontalScrollView {
 
-    private static final int TITLE_OFFSET_DIPS = 100;
+    private static final int TITLE_OFFSET_DP = 100;
     private static final int LAYOUT_BACKGROUND = 0xFFFFFFFF;
 
-    private static final int TAB_PADDING_VERTICAL = 15;
-    private static final int TAB_PADDING_HORIZONTAL = 30;
+    private static final int TAB_PADDING_VERTICAL_DP = 15;
+    private static final int TAB_PADDING_HORIZONTAL_DP = 30;
     private static final int TAB_BACKGROUND = R.drawable.list_selector_gray;
+    private static final int TAB_TEXT_SIZE = R.dimen.tab_text_size;
     private static final int TAB_TEXT_COLOR = 0xFF666666;
-    private static final int TAB_TEXT_SIZE_SP = 12;
 
     private int mTitleOffset;
     private int mTabWidth;
@@ -78,7 +79,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
         setHorizontalScrollBarEnabled(false);
         setFillViewport(true);
         setBackgroundColor(LAYOUT_BACKGROUND);
-        mTitleOffset = (int) (TITLE_OFFSET_DIPS * getResources().getDisplayMetrics().density);
+        mTitleOffset = (int) (TITLE_OFFSET_DP * getResources().getDisplayMetrics().density);
 
         initAttributes(context, attrs);
 
@@ -129,7 +130,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
      * Create a default view to be used for tabs.
      */
     protected TextView createDefaultTabView(Context context) {
-        TextView textView = new TextView(context) {
+        CompatTextView textView = new CompatTextView(context) {
             @Override
             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
                 int tabWidth = mFixedTabs
@@ -141,10 +142,11 @@ public class SlidingTabLayout extends HorizontalScrollView {
         textView.setGravity(Gravity.CENTER);
         textView.setBackgroundResource(TAB_BACKGROUND);
         textView.setTextColor(TAB_TEXT_COLOR);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, TAB_TEXT_SIZE_SP);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(TAB_TEXT_SIZE));
+        textView.setAllCaps(true);
 
-        int vertical = (int) (TAB_PADDING_VERTICAL * getResources().getDisplayMetrics().density);
-        int horizontal = mFixedTabs ? 0 : (int) (TAB_PADDING_HORIZONTAL * getResources().getDisplayMetrics().density);
+        int vertical = (int) (TAB_PADDING_VERTICAL_DP * getResources().getDisplayMetrics().density);
+        int horizontal = mFixedTabs ? 0 : (int) (TAB_PADDING_HORIZONTAL_DP * getResources().getDisplayMetrics().density);
         textView.setPadding(horizontal, vertical, horizontal, vertical);
 
         return textView;

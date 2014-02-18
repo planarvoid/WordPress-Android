@@ -195,12 +195,6 @@ public class ScTextUtilsTest {
         expect(ScTextUtils.formatFollowersMessage(r, 100001)).toEqual("Followed by 100,001 people");
     }
 
-    @Test
-    public void shouldFormatTabTitleAsAllCaps() {
-        Resources r = Robolectric.application.getResources();
-        expect(ScTextUtils.formatTabTitle(r, R.string.search_type_tracks)).toEqual("TRACKS");
-    }
-
     private void expectEmailValid(String string){
         expect(ScTextUtils.isEmail(string)).toBeTrue();
     }

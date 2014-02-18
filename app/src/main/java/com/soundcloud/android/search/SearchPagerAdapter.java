@@ -1,7 +1,6 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
@@ -43,13 +42,13 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case TAB_ALL:
-                return ScTextUtils.formatTabTitle(mResources, R.string.search_type_all);
+                return mResources.getString(R.string.search_type_all);
             case TAB_TRACKS:
-                return ScTextUtils.formatTabTitle(mResources, R.string.search_type_tracks);
+                return mResources.getString(R.string.search_type_tracks);
             case TAB_PLAYLISTS:
-                return ScTextUtils.formatTabTitle(mResources, R.string.search_type_playlists);
+                return mResources.getString(R.string.search_type_playlists);
             case TAB_PEOPLE:
-                return ScTextUtils.formatTabTitle(mResources, R.string.search_type_people);
+                return mResources.getString(R.string.search_type_people);
         }
         throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
     }

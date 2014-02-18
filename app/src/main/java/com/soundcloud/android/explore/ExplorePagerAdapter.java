@@ -3,14 +3,11 @@ package com.soundcloud.android.explore;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.ExploreGenre;
-import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-
-import java.util.Locale;
 
 public class ExplorePagerAdapter extends FragmentPagerAdapter {
     protected static final int TAB_GENRES = 0;
@@ -51,11 +48,11 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case TAB_GENRES:
-                return ScTextUtils.formatTabTitle(mResources, R.string.explore_genres);
+                return mResources.getString(R.string.explore_genres);
             case TAB_TRENDING_MUSIC:
-                return ScTextUtils.formatTabTitle(mResources, R.string.explore_category_trending_music);
+                return mResources.getString(R.string.explore_category_trending_music);
             case TAB_TRENDING_AUDIO:
-                return ScTextUtils.formatTabTitle(mResources, R.string.explore_category_trending_audio);
+                return mResources.getString(R.string.explore_category_trending_audio);
         }
         throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
     }

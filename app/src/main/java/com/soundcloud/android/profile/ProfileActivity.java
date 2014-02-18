@@ -535,8 +535,7 @@ public class ProfileActivity extends ScActivity implements
 
         @Override
         public CharSequence getPageTitle(int position) {
-            String title = Tab.getTitle(getResources(),position, isLoggedInUser());
-            return title.toUpperCase(Locale.getDefault());
+            return Tab.getTitle(getResources(),position, isLoggedInUser());
         }
     }
 }

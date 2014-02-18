@@ -282,7 +282,4 @@ public class ScTextUtils {
         return DECIMAL_FORMAT.format(number);
     }
 
-    public static String formatTabTitle(Resources res, int resourceId) {
-        return res.getString(resourceId).toUpperCase(Locale.getDefault());
-    }
 }
