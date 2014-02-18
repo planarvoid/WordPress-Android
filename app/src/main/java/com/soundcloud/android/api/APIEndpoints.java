@@ -22,7 +22,7 @@ public enum APIEndpoints {
     SEARCH_ALL("/search"),
     SEARCH_TRACKS("/search/sounds"),
     SEARCH_PLAYLISTS("/search/sets"),
-    SEARCH_PEOPLE("/search/people");
+    SEARCH_USERS("/search/people");
 
     private String path;
 

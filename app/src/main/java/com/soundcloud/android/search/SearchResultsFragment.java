@@ -36,7 +36,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     public static final int TYPE_ALL = 0;
     public static final int TYPE_TRACKS = 1;
     public static final int TYPE_PLAYLISTS = 2;
-    public static final int TYPE_PEOPLE = 3;
+    public static final int TYPE_USERS = 3;
 
     private static final String KEY_QUERY = "query";
     private static final String KEY_TYPE = "type";
@@ -144,7 +144,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
                 return Screen.SEARCH_TRACKS;
             case TYPE_PLAYLISTS:
                 return Screen.SEARCH_PLAYLISTS;
-            case TYPE_PEOPLE:
+            case TYPE_USERS:
                 return Screen.SEARCH_USERS;
             default:
                 throw new IllegalArgumentException("Query type not valid");
@@ -155,13 +155,13 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         final String query = getArguments().getString(KEY_QUERY);
         switch (mSearchType) {
             case TYPE_ALL:
-                return AndroidObservable.fromFragment(this, mSearchOperations.getSearchResultsAll(query)).replay();
+                return AndroidObservable.fromFragment(this, mSearchOperations.getAllSearchResults(query)).replay();
             case TYPE_TRACKS:
-                return AndroidObservable.fromFragment(this, mSearchOperations.getSearchResultsTracks(query)).replay();
+                return AndroidObservable.fromFragment(this, mSearchOperations.getTrackSearchResults(query)).replay();
             case TYPE_PLAYLISTS:
-                return AndroidObservable.fromFragment(this, mSearchOperations.getSearchResultsPlaylists(query)).replay();
-            case TYPE_PEOPLE:
-                return AndroidObservable.fromFragment(this, mSearchOperations.getSearchResultsPeople(query)).replay();
+                return AndroidObservable.fromFragment(this, mSearchOperations.getPlaylistSearchResults(query)).replay();
+            case TYPE_USERS:
+                return AndroidObservable.fromFragment(this, mSearchOperations.getUserSearchResults(query)).replay();
             default:
                 throw new IllegalArgumentException("Query type not valid");
         }

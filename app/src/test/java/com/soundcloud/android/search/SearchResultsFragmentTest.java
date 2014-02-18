@@ -50,7 +50,7 @@ public class SearchResultsFragmentTest {
 
         fragment.onCreate(null);
 
-        verify(searchOperations).getSearchResultsAll("skrillex");
+        verify(searchOperations).getAllSearchResults("skrillex");
     }
 
     @Test
@@ -59,7 +59,7 @@ public class SearchResultsFragmentTest {
 
         fragment.onCreate(null);
 
-        verify(searchOperations).getSearchResultsTracks("skrillex");
+        verify(searchOperations).getTrackSearchResults("skrillex");
     }
 
     @Test
@@ -68,7 +68,7 @@ public class SearchResultsFragmentTest {
 
         fragment.onCreate(null);
 
-        verify(searchOperations).getSearchResultsPlaylists("skrillex");
+        verify(searchOperations).getPlaylistSearchResults("skrillex");
     }
 
     @Test
@@ -77,7 +77,7 @@ public class SearchResultsFragmentTest {
 
         fragment.onCreate(null);
 
-        verify(searchOperations).getSearchResultsPeople("skrillex");
+        verify(searchOperations).getUserSearchResults("skrillex");
     }
 
     @Test

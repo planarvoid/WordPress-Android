@@ -39,20 +39,20 @@ public class SearchOperations {
         mRxHttpClient = rxHttpClient;
     }
 
-    public Observable<SearchResultsCollection> getSearchResultsAll(String query) {
+    public Observable<SearchResultsCollection> getAllSearchResults(String query) {
         return getSearchResults(query, APIEndpoints.SEARCH_ALL);
     }
 
-    public Observable<SearchResultsCollection> getSearchResultsTracks(String query) {
+    public Observable<SearchResultsCollection> getTrackSearchResults(String query) {
         return getSearchResults(query, APIEndpoints.SEARCH_TRACKS);
     }
 
-    public Observable<SearchResultsCollection> getSearchResultsPlaylists(String query) {
+    public Observable<SearchResultsCollection> getPlaylistSearchResults(String query) {
         return getSearchResults(query, APIEndpoints.SEARCH_PLAYLISTS);
     }
 
-    public Observable<SearchResultsCollection> getSearchResultsPeople(String query) {
-        return getSearchResults(query, APIEndpoints.SEARCH_PEOPLE);
+    public Observable<SearchResultsCollection> getUserSearchResults(String query) {
+        return getSearchResults(query, APIEndpoints.SEARCH_USERS);
     }
 
     private Observable<SearchResultsCollection> getSearchResults(String query, APIEndpoints apiEndpoint) {

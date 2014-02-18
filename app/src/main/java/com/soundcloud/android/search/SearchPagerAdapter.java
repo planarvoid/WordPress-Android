@@ -33,7 +33,7 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
             case TAB_PLAYLISTS:
                 return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_PLAYLISTS, mQuery);
             case TAB_PEOPLE:
-                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_PEOPLE, mQuery);
+                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_USERS, mQuery);
         }
         throw new IllegalArgumentException("Unexpected position for getItem " + position);
     }
