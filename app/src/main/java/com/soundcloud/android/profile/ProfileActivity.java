@@ -33,9 +33,9 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.EmptyListViewFactory;
 import com.soundcloud.android.view.FullImageDialog;
+import com.soundcloud.android.view.SlidingTabLayout;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-import com.viewpagerindicator.TitlePageIndicator;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
@@ -58,6 +58,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import java.util.Locale;
+
 public class ProfileActivity extends ScActivity implements
         FollowingOperations.FollowStatusChangedListener,
         ActionBar.OnNavigationListener, FetchModelTask.Listener<User>, ViewPager.OnPageChangeListener {
@@ -76,7 +78,7 @@ public class ProfileActivity extends ScActivity implements
     private UserFragmentAdapter mAdapter;
     private FetchUserTask mLoadUserTask;
     protected ViewPager mPager;
-    protected TitlePageIndicator mIndicator;
+    protected SlidingTabLayout mIndicator;
 
     private UserDetailsFragment mUserDetailsFragment;
     private PublicCloudAPI mOldCloudAPI;
@@ -139,7 +141,7 @@ public class ProfileActivity extends ScActivity implements
         mPager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         mPager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        mIndicator = (TitlePageIndicator) findViewById(R.id.indicator);
+        mIndicator = (SlidingTabLayout) findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
         mIndicator.setOnPageChangeListener(this);
 
@@ -533,7 +535,8 @@ public class ProfileActivity extends ScActivity implements
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return Tab.getTitle(getResources(),position, isLoggedInUser());
+            String title = Tab.getTitle(getResources(),position, isLoggedInUser());
+            return title.toUpperCase(Locale.getDefault());
         }
     }
 }

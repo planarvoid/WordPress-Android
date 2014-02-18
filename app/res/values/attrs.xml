@@ -58,4 +58,8 @@
         <attr name="gradientStartColor" format="reference|color" />
         <attr name="gradientEndColor" format="reference|color" />
     </declare-styleable>
+
+    <declare-styleable name="SlidingTabLayout">
+        <attr name="fixedTabs" format="boolean" />
+    </declare-styleable>
 </resources>

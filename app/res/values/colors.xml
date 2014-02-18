@@ -91,4 +91,6 @@
     <color name="playerTrackDetailsBg">#fff</color>
     <color name="dark_gray_background">#333</color>
 
+    <color name="tab_bar_divider">#dddddd</color>
+
 </resources>

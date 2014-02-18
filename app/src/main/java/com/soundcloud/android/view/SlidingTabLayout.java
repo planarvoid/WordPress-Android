@@ -25,9 +25,11 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.R;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.HorizontalScrollView;
@@ -44,14 +46,18 @@ import android.widget.TextView;
  */
 public class SlidingTabLayout extends HorizontalScrollView {
 
-    private static final int TITLE_OFFSET_DIPS = 24;
-    private static final int LAYOUT_BACKGROUND = 0xFFF2F2F2;
-    private static final int TAB_VIEW_PADDING_DIPS = 15;
+    private static final int TITLE_OFFSET_DIPS = 100;
+    private static final int LAYOUT_BACKGROUND = 0xFFFFFFFF;
+
+    private static final int TAB_PADDING_VERTICAL = 15;
+    private static final int TAB_PADDING_HORIZONTAL = 30;
     private static final int TAB_BACKGROUND = R.drawable.list_selector_gray;
-    private static final int TAB_TEXT_APPEARANCE = R.style.TextAppearance_TabText;
+    private static final int TAB_TEXT_COLOR = 0xFF666666;
+    private static final int TAB_TEXT_SIZE_SP = 12;
 
     private int mTitleOffset;
     private int mTabWidth;
+    private boolean mFixedTabs;
 
     private ViewPager mViewPager;
     private ViewPager.OnPageChangeListener mViewPagerPageChangeListener;
@@ -69,16 +75,21 @@ public class SlidingTabLayout extends HorizontalScrollView {
     public SlidingTabLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        // Disable the Scroll Bar
         setHorizontalScrollBarEnabled(false);
-        // Make sure that the Tab Strips fills this View
         setFillViewport(true);
         setBackgroundColor(LAYOUT_BACKGROUND);
-
         mTitleOffset = (int) (TITLE_OFFSET_DIPS * getResources().getDisplayMetrics().density);
+
+        initAttributes(context, attrs);
 
         mTabStrip = new SlidingTabStrip(context);
         addView(mTabStrip, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+    }
+
+    private void initAttributes(Context context, AttributeSet attrs) {
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SlidingTabLayout);
+        mFixedTabs = a.getBoolean(R.styleable.SlidingTabLayout_fixedTabs, false);
+        a.recycle();
     }
 
     /**
@@ -108,8 +119,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int tabCount = mTabStrip.getChildCount();
-        if (tabCount > 0) {
+        if (mFixedTabs) {
             mTabWidth = MeasureSpec.getSize(widthMeasureSpec) / mTabStrip.getChildCount();
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -122,17 +132,20 @@ public class SlidingTabLayout extends HorizontalScrollView {
         TextView textView = new TextView(context) {
             @Override
             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-                int tabWidth = mTabWidth == 0 ? widthMeasureSpec : mTabWidth;
-                super.onMeasure(MeasureSpec.makeMeasureSpec(tabWidth, MeasureSpec.EXACTLY),
-                        heightMeasureSpec);
+                int tabWidth = mFixedTabs
+                        ? MeasureSpec.makeMeasureSpec(mTabWidth, MeasureSpec.EXACTLY)
+                        : widthMeasureSpec;
+                super.onMeasure(tabWidth, heightMeasureSpec);
             }
         };
         textView.setGravity(Gravity.CENTER);
         textView.setBackgroundResource(TAB_BACKGROUND);
-        textView.setTextAppearance(getContext(), TAB_TEXT_APPEARANCE);
+        textView.setTextColor(TAB_TEXT_COLOR);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, TAB_TEXT_SIZE_SP);
 
-        int padding = (int) (TAB_VIEW_PADDING_DIPS * getResources().getDisplayMetrics().density);
-        textView.setPadding(padding, padding, padding, padding);
+        int vertical = (int) (TAB_PADDING_VERTICAL * getResources().getDisplayMetrics().density);
+        int horizontal = mFixedTabs ? 0 : (int) (TAB_PADDING_HORIZONTAL * getResources().getDisplayMetrics().density);
+        textView.setPadding(horizontal, vertical, horizontal, vertical);
 
         return textView;
     }

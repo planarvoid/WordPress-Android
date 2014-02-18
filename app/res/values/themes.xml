@@ -19,9 +19,6 @@
         <!-- PullToRefresh specific -->
         <item name="ptrAnimationStyle">flip</item>
 
-        <!-- ViewPager -->
-        <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
-
         <item name="sdlDialogStyle">@style/DialogStyleLight</item>
     </style>
 
