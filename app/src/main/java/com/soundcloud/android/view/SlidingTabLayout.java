@@ -157,20 +157,9 @@ public class SlidingTabLayout extends HorizontalScrollView {
         final View.OnClickListener tabClickListener = new TabClickListener();
 
         for (int i = 0; i < adapter.getCount(); i++) {
-            View tabView = null;
-            TextView tabTitleView = null;
-
-            if (tabView == null) {
-                tabView = createDefaultTabView(getContext());
-            }
-
-            if (tabTitleView == null && TextView.class.isInstance(tabView)) {
-                tabTitleView = (TextView) tabView;
-            }
-
-            tabTitleView.setText(adapter.getPageTitle(i));
+            TextView tabView = createDefaultTabView(getContext());
+            tabView.setText(adapter.getPageTitle(i));
             tabView.setOnClickListener(tabClickListener);
-
             mTabStrip.addView(tabView);
         }
     }
