@@ -1,7 +1,7 @@
 package com.soundcloud.android.tests;
 
 import com.robotium.solo.Condition;
-import com.soundcloud.android.R.id;
+import com.soundcloud.android.R;
 import com.soundcloud.android.main.NavigationDrawerFragment;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.Log;
@@ -49,7 +49,7 @@ public class Waiter {
         return solo.waitForCondition(new Condition() {
             @Override
             public boolean isSatisfied() {
-                final View view = solo.waitForViewId(id.empty_view_progress, ELEMENT_TIMEOUT, false);
+                final View view = solo.waitForViewId(R.id.empty_view_progress, ELEMENT_TIMEOUT, false);
                 final boolean result = (view == null || !view.isShown());
                 java.util.Date date = new java.util.Date();
                 Log.i(TAG, String.format("[ %s ] Spinner view found: %b", new Timestamp(date.getTime()), !result ));
@@ -65,9 +65,9 @@ public class Waiter {
 
     //TODO: We should have an error screen class defined
     private boolean retryIfFailed() {
-        View retryButton = solo.waitForViewId(id.btn_retry, ELEMENT_TIMEOUT, false);
+        View retryButton = solo.waitForViewId(R.id.btn_retry, ELEMENT_TIMEOUT, false);
         if(retryButton != null){
-            solo.clickOnButtonResId(id.btn_retry);
+            solo.clickOnButton(R.string.retry);
             waitForListContent();
         }
         return retryButton != null;
