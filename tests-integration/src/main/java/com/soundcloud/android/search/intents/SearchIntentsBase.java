@@ -1,5 +1,6 @@
-package com.soundcloud.android.search;
+package com.soundcloud.android.search.intents;
 
+import com.soundcloud.android.search.CombinedSearchActivity;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Waiter;

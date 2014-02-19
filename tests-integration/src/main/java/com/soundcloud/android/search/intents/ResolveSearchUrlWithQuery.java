@@ -1,18 +1,18 @@
-package com.soundcloud.android.search;
+package com.soundcloud.android.search.intents;
 
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 
-import android.app.SearchManager;
 import android.content.Intent;
+import android.net.Uri;
 
-public class ResolveSearchAction extends SearchIntentsBase {
+public class ResolveSearchUrlWithQuery extends SearchIntentsBase {
 
     @Override
     protected Intent getIntent() {
-        return new Intent(Intent.ACTION_SEARCH).putExtra(SearchManager.QUERY, "skrillex");
+        return new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://soundcloud.com/search/sounds?q=skrillex"));
     }
 
-    public void testSearchActionResolution() {
+    public void testSearchQueryUrlResolution() {
         SearchResultsScreen resultsScreen = new SearchResultsScreen(solo);
         assertEquals("Search results screen should be visible", true, resultsScreen.isVisible());
     }

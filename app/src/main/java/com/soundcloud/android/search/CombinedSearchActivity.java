@@ -93,9 +93,7 @@ public class CombinedSearchActivity extends ScActivity {
         final Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction()) || ACTION_PLAY_FROM_SEARCH.equals(intent.getAction())) {
             showResultsFromIntent(intent.getStringExtra(SearchManager.QUERY));
-        } else if (intent.getData() != null
-                && intent.getData().getHost().equals("soundcloud.com")
-                && ScTextUtils.isNotBlank(intent.getData().getQueryParameter("q"))) {
+        } else if (isInterceptedSearchUrl(intent)) {
             handleDeeplink(intent);
         } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null
                 && !intent.getData().getPath().equals("/search")) {
@@ -103,6 +101,12 @@ public class CombinedSearchActivity extends ScActivity {
         } else {
             replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
         }
+    }
+
+    private boolean isInterceptedSearchUrl(Intent intent) {
+        return intent.getData() != null
+                && intent.getData().getHost().equals("soundcloud.com")
+                && ScTextUtils.isNotBlank(intent.getData().getQueryParameter("q"));
     }
 
     private void handleDeeplink(final Intent intent) {

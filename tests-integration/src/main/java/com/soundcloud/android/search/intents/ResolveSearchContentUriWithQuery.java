@@ -1,4 +1,4 @@
-package com.soundcloud.android.search;
+package com.soundcloud.android.search.intents;
 
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 
@@ -12,7 +12,7 @@ public class ResolveSearchContentUriWithQuery extends SearchIntentsBase {
         return new Intent(Intent.ACTION_VIEW).setData(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/search/skrillex"));
     }
 
-    public void testSearchActionResolution() {
+    public void testSearchContentUriResolution() {
         SearchResultsScreen resultsScreen = new SearchResultsScreen(solo);
         assertEquals("Search results screen should be visible", true, resultsScreen.isVisible());
     }
