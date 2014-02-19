@@ -109,10 +109,14 @@
 
         </activity>
 
-        <activity android:label="@string/title_search" android:name=".search.SearchActivity">
+        <activity android:label="@string/title_search" android:name=".search.CombinedSearchActivity">
             <meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.SEARCH"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -120,12 +124,10 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:mimeType="vnd.soundcloud/search_item"/>
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-
             <intent-filter android:priority="10">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -146,14 +148,6 @@
                 <data android:host="soundcloud.com" android:path="/tracks/search" android:scheme="https"/>
                 <data android:host="soundcloud.com" android:path="/groups/search" android:scheme="http"/>
                 <data android:host="soundcloud.com" android:path="/groups/search" android:scheme="https"/>
-            </intent-filter>
-        </activity>
-
-        <activity android:label="@string/title_search" android:name=".search.CombinedSearchActivity">
-            <!-- TODO Migrate intent filters to new search experience -->
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.SEARCH"/>
-                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
 

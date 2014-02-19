@@ -24,6 +24,7 @@ import com.soundcloud.android.view.ClearText;
 
 import java.util.Locale;
 
+@Deprecated // TODO: Remove before we ship Playlist Discovery
 public class SearchActivity extends ScActivity {
 
     private static final int SPINNER_POS_ALL = 0;
