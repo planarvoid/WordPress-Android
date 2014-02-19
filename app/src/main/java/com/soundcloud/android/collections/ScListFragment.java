@@ -29,7 +29,6 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.playlists.PlaylistChangedReceiver;
 import com.soundcloud.android.profile.MyTracksAdapter;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.search.SearchAdapter;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStateManager;
@@ -362,9 +361,6 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
                 case USER_LIKES:
                 case USER_SOUNDS:
                     mAdapter = new SoundAssociationAdapter(mContentUri, mImageOperations);
-                    break;
-                case SEARCH:
-                    mAdapter = new SearchAdapter(Content.SEARCH.uri, mImageOperations);
                     break;
                 case TRACK_COMMENTS:
                     mAdapter = new CommentAdapter(mContentUri, mImageOperations);
