@@ -151,6 +151,8 @@
             </intent-filter>
         </activity>
 
+        <meta-data android:name="android.app.default_searchable" android:value=".search.CombinedSearchActivity"/>
+
         <activity android:name=".explore.ExploreTracksCategoryActivity"/>
 
         <activity android:label="@string/side_menu_activity" android:name=".activities.ActivitiesActivity">
@@ -477,8 +479,6 @@
                 <action android:name="com.soundcloud.android.trackunavailable"/>
             </intent-filter>
         </receiver>
-
-        <meta-data android:name="android.app.default_searchable" android:value=".activity.landing.ScSearch"/>
 
         <meta-data android:name="com.crashlytics.ApiKey" android:value="c7a43c282bb70278c5a054f9cbef26c9c353cdf2"/>
     </application>
