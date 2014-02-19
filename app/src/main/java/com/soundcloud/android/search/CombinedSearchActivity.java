@@ -16,12 +16,11 @@ import android.view.Menu;
 
 public class CombinedSearchActivity extends ScActivity {
 
-    private static final String PLAY_FROM_SEARCH_ACTION = "android.media.action.MEDIA_PLAY_FROM_SEARCH";
+    private static final String ACTION_PLAY_FROM_SEARCH = "android.media.action.MEDIA_PLAY_FROM_SEARCH";
 
     private static final String STATE_QUERY = "query";
 
     private SearchActionBarController mActionBarController;
-
     private String mQuery;
 
     @Override
@@ -92,17 +91,17 @@ public class CombinedSearchActivity extends ScActivity {
 
     private void handleIntent() {
         final Intent intent = getIntent();
-        if (Intent.ACTION_SEARCH.equals(intent.getAction()) || PLAY_FROM_SEARCH_ACTION.equals(intent.getAction())) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction()) || ACTION_PLAY_FROM_SEARCH.equals(intent.getAction())) {
             showResultsFromIntent(intent.getStringExtra(SearchManager.QUERY));
         } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null
                 && !intent.getData().getPath().equals("/search")) {
-            handleSearchDeeplink(intent);
+            handleDeeplink(intent);
         } else {
             replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
         }
     }
 
-    private void handleSearchDeeplink(final Intent intent) {
+    private void handleDeeplink(final Intent intent) {
         final Content content = Content.match(intent.getData());
         if (content == Content.SEARCH_ITEM) {
             showResultsFromIntent(Uri.decode(intent.getData().getLastPathSegment()));
