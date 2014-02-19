@@ -109,6 +109,8 @@ public class CombinedSearchActivity extends ScActivity {
             // Quick search box - Resolve through normal system
             startActivity(new Intent(Intent.ACTION_VIEW).setData(intent.getData()));
             finish();
+        } else {
+            replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
         }
     }
     
