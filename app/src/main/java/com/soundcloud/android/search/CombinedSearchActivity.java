@@ -93,15 +93,23 @@ public class CombinedSearchActivity extends ScActivity {
         final Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction()) || ACTION_PLAY_FROM_SEARCH.equals(intent.getAction())) {
             showResultsFromIntent(intent.getStringExtra(SearchManager.QUERY));
+        } else if (intent.getData() != null
+                && intent.getData().getHost().equals("soundcloud.com")
+                && ScTextUtils.isNotBlank(intent.getData().getQueryParameter("q"))) {
+            handleDeeplink(intent);
         } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null
                 && !intent.getData().getPath().equals("/search")) {
-            handleDeeplink(intent);
+            handleUri(intent);
         } else {
             replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
         }
     }
 
     private void handleDeeplink(final Intent intent) {
+        showResultsFromIntent(intent.getData().getQueryParameter("q"));
+    }
+
+    private void handleUri(final Intent intent) {
         final Content content = Content.match(intent.getData());
         if (content == Content.SEARCH_ITEM) {
             showResultsFromIntent(Uri.decode(intent.getData().getLastPathSegment()));
@@ -113,7 +121,7 @@ public class CombinedSearchActivity extends ScActivity {
             replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
         }
     }
-    
+
     private void showResultsFromIntent(String query) {
         mQuery = query;
         replaceContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);   
