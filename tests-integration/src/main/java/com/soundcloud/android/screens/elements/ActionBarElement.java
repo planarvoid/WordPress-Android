@@ -44,4 +44,5 @@ public class ActionBarElement {
         solo.sendKey(KeyEvent.KEYCODE_ENTER);
         return new SearchResultsScreen(solo);
     }
+
 }
