@@ -17,7 +17,6 @@ import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioManager;
 import android.net.Uri;
 
 import java.util.List;
@@ -26,20 +25,16 @@ class PlaybackReceiver extends BroadcastReceiver {
 
     private PlaybackService mPlaybackService;
     private AssociationManager mAssociationManager;
-    private AudioManager mAudioManager;
     private final AccountOperations mAccountOperations;
     private final PlayQueueManager mPlayQueueManager;
 
-    public PlaybackReceiver(PlaybackService playbackService, AssociationManager associationManager,
-                            AudioManager audioManager, PlayQueueManager playQueueManager) {
-        this(playbackService, associationManager, audioManager, new AccountOperations(playbackService), playQueueManager);
+    public PlaybackReceiver(PlaybackService playbackService, AssociationManager associationManager, PlayQueueManager playQueueManager) {
+        this(playbackService, associationManager, new AccountOperations(playbackService), playQueueManager);
     }
 
-    public PlaybackReceiver(PlaybackService playbackService, AssociationManager associationManager,
-                            AudioManager audioManager, AccountOperations accountOperations, PlayQueueManager playQueueManager) {
+    public PlaybackReceiver(PlaybackService playbackService, AssociationManager associationManager, AccountOperations accountOperations, PlayQueueManager playQueueManager) {
         this.mPlaybackService = playbackService;
         this.mAssociationManager = associationManager;
-        this.mAudioManager = audioManager;
         this.mAccountOperations = accountOperations;
         mPlayQueueManager = playQueueManager;
     }
@@ -108,7 +103,7 @@ class PlaybackReceiver extends BroadcastReceiver {
                 }
             }
         } else {
-            Log.e(PlaybackService.TAG, "Aborting playback service action, no soundcloud account(" + intent + ")");
+            Log.e(PlaybackService.TAG, "Aborting playback service action, no soundcloud account");
         }
     }
 

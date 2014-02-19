@@ -6,7 +6,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.AssociationManager;
@@ -26,7 +25,6 @@ import com.soundcloud.android.playback.streaming.StreamProxy;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.LocalBinder;
-import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.track.TrackOperations;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -72,7 +70,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     // static convenience accessors
     public static @Nullable Track getCurrentTrack()  { return instance == null ? null : instance.mCurrentTrack; }
-    public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && getPlaybackState().isSupposedToBePlaying(); }
     public static PlayQueueView getPlayQueue() { return instance == null ? PlayQueueView.EMPTY : instance.getPlayQueueView(); }
     public static int getPlayPosition()   { return instance == null ? -1 : instance.getPlayQueueInternal().getPosition(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
@@ -156,7 +153,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     // TODO: this doesn't really belong here. It's only used to PUT likes and reposts, and isn't playback specific.
     /* package */ AssociationManager mAssociationManager;
 
-    private AudioManager mAudioManager;
     private @Nullable Track mCurrentTrack;
     private @Nullable TrackSourceInfo mCurrentTrackSourceInfo;
     private PublicCloudAPI mOldCloudApi;
@@ -220,9 +216,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         new DaggerDependencyInjector().fromAppGraphWithModules(new PlaybackModule()).inject(this);
 
         mAssociationManager = new AssociationManager(this);
-        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mOldCloudApi = new PublicApi(this);
-        mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mAudioManager, mPlayQueueManager);
+        mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mPlayQueueManager);
 
         mCompletionListener = new TrackCompletionListener(this);
 
@@ -254,6 +249,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public void onDestroy() {
+        IOUtils.deleteDir(Consts.EXTERNAL_STREAM_DIRECTORY);
         instance = null;
         stop();
         // make sure there aren't any other messages coming
