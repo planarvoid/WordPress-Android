@@ -5,6 +5,7 @@ import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.SearchActionBarController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.app.SearchManager;
 import android.content.Intent;
@@ -21,7 +22,7 @@ public class CombinedSearchActivity extends ScActivity {
 
     private SearchActionBarController mActionBarController;
 
-    private String mSavedQuery;
+    private String mQuery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +31,8 @@ public class CombinedSearchActivity extends ScActivity {
 
         if (savedInstanceState == null) {
             handleIntent();
-            replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
         } else {
-            mSavedQuery = savedInstanceState.getString(STATE_QUERY);
+            mQuery = savedInstanceState.getString(STATE_QUERY);
         }
     }
 
@@ -46,8 +46,8 @@ public class CombinedSearchActivity extends ScActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        if (isConfigurationChange()) {
-            mActionBarController.setQuery(mSavedQuery);
+        if (isConfigurationChange() || ScTextUtils.isNotBlank(mQuery)) {
+            mActionBarController.setQuery(mQuery);
         } else {
             mActionBarController.requestSearchFieldFocus();
         }
@@ -92,28 +92,30 @@ public class CombinedSearchActivity extends ScActivity {
 
     private void handleIntent() {
         final Intent intent = getIntent();
-        if (intent.getAction().equals(Intent.ACTION_SEARCH) || intent.getAction().equals(PLAY_FROM_SEARCH_ACTION)) {
-            handleSearchActions(intent);
+        if (Intent.ACTION_SEARCH.equals(intent.getAction()) || PLAY_FROM_SEARCH_ACTION.equals(intent.getAction())) {
+            showResultsFromIntent(intent.getStringExtra(SearchManager.QUERY));
         } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null
                 && !intent.getData().getPath().equals("/search")) {
             handleSearchDeeplink(intent);
+        } else {
+            replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
         }
-    }
-
-    private void handleSearchActions(final Intent intent) {
-        String query = intent.getStringExtra(SearchManager.QUERY);
-        replaceContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
     }
 
     private void handleSearchDeeplink(final Intent intent) {
         final Content content = Content.match(intent.getData());
         if (content == Content.SEARCH_ITEM) {
-            final String query = Uri.decode(intent.getData().getLastPathSegment());
-            replaceContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
+            showResultsFromIntent(Uri.decode(intent.getData().getLastPathSegment()));
         } else if (content != Content.UNKNOWN) {
             // Quick search box - Resolve through normal system
             startActivity(new Intent(Intent.ACTION_VIEW).setData(intent.getData()));
+            finish();
         }
+    }
+    
+    private void showResultsFromIntent(String query) {
+        mQuery = query;
+        replaceContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);   
     }
 
 }
