@@ -15,7 +15,6 @@ import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.view.SlidingTabLayout;
 
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.GridView;
@@ -118,13 +117,17 @@ public class ExploreScreen extends Screen {
     }
 
     public String currentTabTitle(){
-        ViewPager viewPager = getViewPager();
-        PagerAdapter pagerAdapter = viewPager.getAdapter();
-        return pagerAdapter.getPageTitle(viewPager.getCurrentItem()).toString();
+        List<View> indicatorItems = getViewPagerIndicator().getChildAt(0).getTouchables();
+        TextView selectedItem = (TextView) indicatorItems.get(getViewPager().getCurrentItem());
+        return selectedItem.getText().toString();
     }
 
     private ViewPager getViewPager() {
         return (ViewPager)solo.getView(R.id.pager);
+    }
+
+    private SlidingTabLayout getViewPagerIndicator() {
+        return (SlidingTabLayout)solo.getView(R.id.sliding_tabs);
     }
 
     public int getNumberOfItemsInGenresTab() {
