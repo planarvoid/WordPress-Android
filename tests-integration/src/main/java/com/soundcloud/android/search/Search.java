@@ -1,6 +1,5 @@
 package com.soundcloud.android.search;
 
-
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlayerScreen;
@@ -55,11 +54,11 @@ public class Search extends ActivityTestCase<MainActivity> {
         assertEquals("Main screen should be visible", true, mainScreen.isVisible());
     }
 
-    public void testTypingSearchFieldPresentsSearchSuggestions() {
+    public void ignore_testTypingSearchFieldPresentsSearchSuggestions() {
         // To be implemented
     }
 
-    public void testClearingSearchFieldReturnsToDisplayingTags() {
+    public void ignore_testClearingSearchFieldReturnsToDisplayingTags() {
         // To be implemented
     }
 

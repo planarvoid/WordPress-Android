@@ -17,6 +17,9 @@ import android.view.Menu;
 public class CombinedSearchActivity extends ScActivity {
 
     private static final String ACTION_PLAY_FROM_SEARCH = "android.media.action.MEDIA_PLAY_FROM_SEARCH";
+    private static final String INTENT_URL_HOST = "soundcloud.com";
+    private static final String INTENT_URL_QUERY_PARAM = "q";
+    private static final String INTENT_URI_SEARCH_PATH = "/search";
 
     private static final String STATE_QUERY = "query";
 
@@ -96,7 +99,7 @@ public class CombinedSearchActivity extends ScActivity {
         } else if (isInterceptedSearchUrl(intent)) {
             handleDeeplink(intent);
         } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null
-                && !intent.getData().getPath().equals("/search")) {
+                && !intent.getData().getPath().equals(INTENT_URI_SEARCH_PATH)) {
             handleUri(intent);
         } else {
             replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
@@ -105,12 +108,12 @@ public class CombinedSearchActivity extends ScActivity {
 
     private boolean isInterceptedSearchUrl(Intent intent) {
         return intent.getData() != null
-                && intent.getData().getHost().equals("soundcloud.com")
-                && ScTextUtils.isNotBlank(intent.getData().getQueryParameter("q"));
+                && intent.getData().getHost().equals(INTENT_URL_HOST)
+                && ScTextUtils.isNotBlank(intent.getData().getQueryParameter(INTENT_URL_QUERY_PARAM));
     }
 
     private void handleDeeplink(final Intent intent) {
-        showResultsFromIntent(intent.getData().getQueryParameter("q"));
+        showResultsFromIntent(intent.getData().getQueryParameter(INTENT_URL_QUERY_PARAM));
     }
 
     private void handleUri(final Intent intent) {
