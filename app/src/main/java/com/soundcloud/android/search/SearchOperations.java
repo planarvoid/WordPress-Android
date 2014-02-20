@@ -1,5 +1,7 @@
 package com.soundcloud.android.search;
 
+import static rx.android.OperationPaged.paged;
+
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.APIEndpoints;
@@ -9,7 +11,10 @@ import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.model.UnknownResource;
+import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.android.OperationPaged;
 import rx.util.functions.Func1;
 
 import javax.inject.Inject;
@@ -28,7 +33,7 @@ public class SearchOperations {
                             filteredList.add(resource);
                         }
                     }
-                    return new SearchResultsCollection(filteredList);
+                    return new SearchResultsCollection(filteredList, unfilteredResult.getNextHref());
                 }
             };
 
@@ -39,29 +44,55 @@ public class SearchOperations {
         mRxHttpClient = rxHttpClient;
     }
 
-    public Observable<SearchResultsCollection> getAllSearchResults(String query) {
-        return getSearchResults(query, APIEndpoints.SEARCH_ALL);
+    public Observable<OperationPaged.Page<SearchResultsCollection>> getAllSearchResults(String query) {
+        return getSearchResults(APIEndpoints.SEARCH_ALL, query);
     }
 
-    public Observable<SearchResultsCollection> getTrackSearchResults(String query) {
-        return getSearchResults(query, APIEndpoints.SEARCH_TRACKS);
+    public Observable<OperationPaged.Page<SearchResultsCollection>> getTrackSearchResults(String query) {
+        return getSearchResults(APIEndpoints.SEARCH_TRACKS, query);
     }
 
-    public Observable<SearchResultsCollection> getPlaylistSearchResults(String query) {
-        return getSearchResults(query, APIEndpoints.SEARCH_PLAYLISTS);
+    public Observable<OperationPaged.Page<SearchResultsCollection>> getPlaylistSearchResults(String query) {
+        return getSearchResults(APIEndpoints.SEARCH_PLAYLISTS, query);
     }
 
-    public Observable<SearchResultsCollection> getUserSearchResults(String query) {
-        return getSearchResults(query, APIEndpoints.SEARCH_USERS);
+    public Observable<OperationPaged.Page<SearchResultsCollection>> getUserSearchResults(String query) {
+        return getSearchResults(APIEndpoints.SEARCH_USERS, query);
     }
 
-    private Observable<SearchResultsCollection> getSearchResults(String query, APIEndpoints apiEndpoint) {
-        APIRequest<SearchResultsCollection> request = SoundCloudAPIRequest.RequestBuilder.<SearchResultsCollection>get(apiEndpoint.path())
-                .addQueryParameters("q", query)
-                .addQueryParameters("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE))
-                .forPublicAPI()
-                .forResource(TypeToken.of(SearchResultsCollection.class)).build();
-
-        return mRxHttpClient.<SearchResultsCollection>fetchModels(request).map(FILTER_UNKOWN_RESOURCES);
+    private Observable<OperationPaged.Page<SearchResultsCollection>> getSearchResults(APIEndpoints apiEndpoint , @Nullable String query) {
+        final SoundCloudAPIRequest.RequestBuilder<SearchResultsCollection> builder = createSearchRequestBuilder(apiEndpoint.path());
+        return getPageObservable(builder.addQueryParameters("q", query).build());
     }
+
+    private Observable<OperationPaged.Page<SearchResultsCollection>> getSearchResults(String nextHref) {
+        final SoundCloudAPIRequest.RequestBuilder<SearchResultsCollection> builder = createSearchRequestBuilder(nextHref);
+        return getPageObservable(builder.build());
+    }
+
+    private SoundCloudAPIRequest.RequestBuilder<SearchResultsCollection> createSearchRequestBuilder(String path) {
+        return SoundCloudAPIRequest.RequestBuilder.<SearchResultsCollection>get(path)
+                    .addQueryParameters("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE))
+                    .forPublicAPI()
+                    .forResource(TypeToken.of(SearchResultsCollection.class));
+    }
+
+    private Observable<OperationPaged.Page<SearchResultsCollection>> getPageObservable(APIRequest<SearchResultsCollection> request) {
+        Observable<SearchResultsCollection> source = mRxHttpClient.<SearchResultsCollection>fetchModels(request).map(FILTER_UNKOWN_RESOURCES);
+        return Observable.create(paged(source, nextPageGenerator));
+    }
+
+    private final SearchResultsNextPageFunction nextPageGenerator = new SearchResultsNextPageFunction() {
+        @Override
+        public Observable<OperationPaged.Page<SearchResultsCollection>> call(SearchResultsCollection searchResultsCollection) {
+            final String nextHref = searchResultsCollection.getNextHref();
+            if (ScTextUtils.isNotBlank(nextHref)) {
+                return getSearchResults(nextHref);
+            } else {
+                return OperationPaged.emptyPageObservable();
+            }
+        }
+    };
+
+    private interface SearchResultsNextPageFunction extends Func1<SearchResultsCollection, Observable<OperationPaged.Page<SearchResultsCollection>>> {}
 }

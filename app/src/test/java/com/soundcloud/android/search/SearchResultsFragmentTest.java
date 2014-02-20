@@ -8,6 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -31,16 +32,16 @@ public class SearchResultsFragmentTest {
 
     @Mock
     SearchOperations searchOperations;
-
     @Mock
     PlaybackOperations playbackOperations;
-
+    @Mock
+    ImageOperations imageOperations;
     @Mock
     SearchResultsAdapter adapter;
 
     @Before
     public void setUp() throws Exception {
-        fragment = new SearchResultsFragment(searchOperations, playbackOperations, adapter);
+        fragment = new SearchResultsFragment(searchOperations, playbackOperations, imageOperations, adapter);
         Robolectric.shadowOf(fragment).setActivity(mock(FragmentActivity.class));
     }
 

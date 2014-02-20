@@ -2,22 +2,20 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.collections.ItemAdapter;
+import com.soundcloud.android.collections.EndlessPagingAdapter;
 import com.soundcloud.android.collections.ListRow;
 import com.soundcloud.android.collections.views.PlayableRow;
 import com.soundcloud.android.collections.views.UserlistRow;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.model.User;
-import rx.Observer;
 
 import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class SearchResultsAdapter extends ItemAdapter<ScResource> implements Observer<SearchResultsCollection> {
+public class SearchResultsAdapter extends EndlessPagingAdapter<ScResource> {
 
     public static final int TYPE_PLAYABLE = 0;
     public static final int TYPE_USER = 1;
@@ -28,20 +26,6 @@ public class SearchResultsAdapter extends ItemAdapter<ScResource> implements Obs
     public SearchResultsAdapter(ImageOperations imageOperations) {
         super(Consts.COLLECTION_PAGE_SIZE);
         mImageOperations = imageOperations;
-    }
-
-    @Override
-    public void onCompleted() {}
-
-    @Override
-    public void onError(Throwable e) {}
-
-    @Override
-    public void onNext(SearchResultsCollection results) {
-        for (ScResource item : results) {
-            addItem(item);
-        }
-        notifyDataSetChanged();
     }
 
     @Override
@@ -64,7 +48,13 @@ public class SearchResultsAdapter extends ItemAdapter<ScResource> implements Obs
 
     @Override
     public int getItemViewType(int position) {
-        return getItem(position) instanceof User ? TYPE_USER : TYPE_PLAYABLE;
+        int itemViewType = super.getItemViewType(position);
+        if (itemViewType == IGNORE_ITEM_VIEW_TYPE){
+            return itemViewType;
+        } else {
+            return getItem(position) instanceof User ? TYPE_USER : TYPE_PLAYABLE;
+        }
+
     }
 
     @Override

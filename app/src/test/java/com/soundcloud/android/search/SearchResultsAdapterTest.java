@@ -20,6 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observable;
+import rx.android.OperationPaged;
 
 import android.content.Context;
 import android.view.ViewGroup;
@@ -44,10 +46,10 @@ public class SearchResultsAdapterTest {
     public void shouldAddItemsToAdapterOnNext() {
         ScResource resource1 = new Track(1);
         ScResource resource2 = new Track(2);
-        SearchResultsCollection results = new SearchResultsCollection();
-        results.setCollection(Lists.newArrayList(resource1, resource2));
+        SearchResultsCollection results = new SearchResultsCollection(Lists.newArrayList(resource1, resource2));
 
-        adapter.onNext(results);
+        final Observable<OperationPaged.Page<Iterable<ScResource>>> empty = Observable.<OperationPaged.Page<Iterable<ScResource>>>empty();
+        adapter.onNext(new OperationPaged.Page<Iterable<ScResource>>(results, empty));
 
         expect(adapter.getItem(0)).toEqual(resource1);
         expect(adapter.getItem(1)).toEqual(resource2);

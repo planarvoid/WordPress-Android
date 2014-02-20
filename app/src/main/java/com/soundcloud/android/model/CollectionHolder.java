@@ -50,6 +50,11 @@ public class CollectionHolder<T> implements Iterable<T> {
         this.collection = Lists.newArrayList(collection);
     }
 
+    public CollectionHolder(List<T> collection, String nextHref){
+        this(Lists.newArrayList(collection));
+        next_href = nextHref;
+    }
+
     /** @noinspection unchecked*/
     @Override
     public Iterator<T> iterator() {

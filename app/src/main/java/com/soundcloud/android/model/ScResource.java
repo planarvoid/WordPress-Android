@@ -10,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;
 
+import java.util.List;
+
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
@@ -98,5 +100,16 @@ public abstract class ScResource
         return null;
     }
 
-    public static class ScResourceHolder<T extends ScResource> extends CollectionHolder<T> {}
+    public static class ScResourceHolder<T extends ScResource> extends CollectionHolder<T> {
+
+        public ScResourceHolder() { }
+
+        public ScResourceHolder(List<T> collection) {
+            super(collection);
+        }
+
+        public ScResourceHolder(List<T> collection, String nextHref) {
+            super(collection, nextHref);
+        }
+    }
 }
