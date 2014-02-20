@@ -4,7 +4,7 @@ import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.tests.Han;
 
 public class SettingsScreen extends Screen {
-    private Class ACTIVITY = SettingsActivity.class;
+    private static final Class ACTIVITY = SettingsActivity.class;
 
     public SettingsScreen(Han solo) {
         super(solo);
