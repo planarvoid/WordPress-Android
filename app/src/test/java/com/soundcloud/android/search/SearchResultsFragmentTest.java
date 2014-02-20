@@ -18,6 +18,7 @@ import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.view.EmptyListView;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +36,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ListView;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SearchResultsFragmentTest {
@@ -139,7 +141,6 @@ public class SearchResultsFragmentTest {
         when(searchOperations.getAllSearchResults(anyString())).
                 thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>error(new Exception()));
 
-        fragment.setArguments(new Bundle());
         createFragment();
         createFragmentView();
 
@@ -148,6 +149,39 @@ public class SearchResultsFragmentTest {
         retryButton.performClick();
 
         verify(searchOperations, times(2)).getAllSearchResults(anyString());
+    }
+
+    @Test
+    public void shouldShowErrorStateScreenOnGetResultsError() throws Exception {
+        when(searchOperations.getAllSearchResults(anyString())).
+                thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>error(new Exception()));
+
+        View layout = mock(View.class);
+        EmptyListView emptyListView = mock(EmptyListView.class);
+        when(layout.findViewById(android.R.id.empty)).thenReturn(emptyListView);
+        when(layout.findViewById(android.R.id.list)).thenReturn(mock(ListView.class));
+
+        createFragment();
+        createFragmentView(layout);
+
+        verify(emptyListView).setStatus(EmptyListView.Status.ERROR);
+    }
+
+    @Test
+    public void shouldShowWaitingStateWhileLoading() throws Exception {
+        // Do not emit items, to simulate an ongoing data fetch
+        when(searchOperations.getAllSearchResults(anyString())).
+                thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>never());
+
+        View layout = mock(View.class);
+        EmptyListView emptyListView = mock(EmptyListView.class);
+        when(layout.findViewById(android.R.id.empty)).thenReturn(emptyListView);
+        when(layout.findViewById(android.R.id.list)).thenReturn(mock(ListView.class));
+
+        createFragment();
+        createFragmentView(layout);
+
+        verify(emptyListView).setStatus(EmptyListView.Status.WAITING);
     }
 
     private Bundle buildSearchArgs(String query, int type) {
@@ -160,12 +194,17 @@ public class SearchResultsFragmentTest {
     // HELPERS
 
     private void createFragment() {
+        fragment.setArguments(new Bundle());
         Robolectric.shadowOf(fragment).setAttached(true);
         fragment.onCreate(null);
     }
 
     private View createFragmentView() {
         View fragmentLayout = fragment.onCreateView(LayoutInflater.from(Robolectric.application), new FrameLayout(Robolectric.application), null);
+        return createFragmentView(fragmentLayout);
+    }
+
+    private View createFragmentView(View fragmentLayout) {
         Robolectric.shadowOf(fragment).setView(fragmentLayout);
         fragment.onViewCreated(fragmentLayout, null);
         return fragmentLayout;
