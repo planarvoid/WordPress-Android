@@ -48,7 +48,7 @@ public class CombinedSearchActivity extends ScActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        if (isConfigurationChange() || ScTextUtils.isNotBlank(mQuery)) {
+        if (ScTextUtils.isNotBlank(mQuery)) {
             mActionBarController.setQuery(mQuery);
         } else {
             mActionBarController.requestSearchFieldFocus();

@@ -1,10 +1,21 @@
 package com.soundcloud.android.search;
 
-import com.google.common.collect.Lists;
-import com.soundcloud.android.R;
-import com.soundcloud.android.utils.ViewUtils;
-import com.soundcloud.android.view.FlowLayout;
+import com.soundcloud.android.model.PlaylistTagsCollection;
+import static rx.android.observables.AndroidObservable.fromFragment;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.R;
+import com.soundcloud.android.dagger.DaggerDependencyInjector;
+import com.soundcloud.android.rx.observers.EmptyViewAware;
+import com.soundcloud.android.rx.observers.ListFragmentObserver;
+import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.FlowLayout;
+import rx.Observable;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -13,19 +24,65 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistTagsFragment extends Fragment {
+@SuppressLint("ValidFragment")
+public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
 
     public static final String TAG = "playlist_tags";
 
-    private static final List<String> TAGS = Lists.newArrayList("#chill", "#study", "#indie rock", "#electronic", "#happy", "#party", "#hip hop", "#mashup", "#relax", "#alternative rock", "#piano", "#country", "#morning", "#love", "#punk", "#rock", "#pop", "#house", "#techno", "#rap", "#world", "#dubstep", "#alternative", "#jazz", "#classical", "#soundtrack", "#deep house", "#metal", "#acoustic", "#reggae", "#indie", "#Drum & Bass", "#folk", "#instrumental", "#experimental", "#Progressive House", "#Tech House", "#Electronica", "#pop rock", "#Dance", "#electro", "#ambient", "#trance", "#R&B", "#hardcore", "#Electro House", "#blues", "#remix", "#EDM", "#Electronic House", "#Electronic Pop", "#funk", "#Indie Pop", "#soul", "#trap", "#minimal", "#Singer/Songwriter", "#bass", "#Progressive Rock", "#Mixtape", "#Podcast", "#Progressive", "#Folk Rock", "#Minimal techno", "#bluegrass", "#classic rock", "#club", "#covers", "#disco", "#heavy metal", "#indie folk", "#indie pop", "#latin", "#live", "#lounge", "#mellow", "#motivation", "#music", "#reggaeton", "#running", "#sad", "#sleep", "#trip hop", "#workout");
+    @Inject
+    SearchOperations mSearchOperations;
+
+    private Observable<PlaylistTagsCollection> mObservable;
+    private Subscription mSubscription = Subscriptions.empty();
+    private EmptyListView mEmptyView;
+    private int mEmptyViewStatus = EmptyListView.Status.WAITING;
+
+    public PlaylistTagsFragment() {
+        new DaggerDependencyInjector().fromAppGraphWithModules(new SearchModule()).inject(this);
+        setRetainInstance(true);
+    }
+
+    @VisibleForTesting
+    PlaylistTagsFragment(SearchOperations searchOperations) {
+        mSearchOperations = searchOperations;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mObservable = fromFragment(this, mSearchOperations.getPlaylistTags()).cache();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.playlist_tags_fragment, container, false);
-        displayTags(inflater, layout, TAGS);
-        return layout;
+        return inflater.inflate(R.layout.playlist_tags_fragment, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mEmptyView = (EmptyListView) view.findViewById(android.R.id.empty);
+        mEmptyView.setVisibility(View.VISIBLE);
+        mEmptyView.setStatus(mEmptyViewStatus);
+
+        mSubscription = mObservable.subscribe(new TagsObserver());
+    }
+
+    @Override
+    public void onDestroy() {
+        mSubscription.unsubscribe();
+        super.onDestroy();
+    }
+
+    @Override
+    public void setEmptyViewStatus(int status) {
+        mEmptyViewStatus = status;
+        if (mEmptyView != null) {
+            mEmptyView.setStatus(status);
+        }
     }
 
     private void displayTags(LayoutInflater inflater, View layout, List<String> tags) {
@@ -42,6 +99,23 @@ public class PlaylistTagsFragment extends Fragment {
                 txt.setText(t);
                 tagFlowLayout.addView(txt, flowLP);
             }
+        }
+    }
+
+    private final class TagsObserver extends ListFragmentObserver<PlaylistTagsCollection> {
+        public TagsObserver() {
+            super(PlaylistTagsFragment.this);
+        }
+
+        @Override
+        public void onNext(PlaylistTagsCollection tags) {
+            displayTags(getLayoutInflater(null), getView(), tags.getCollection());
+        }
+
+        @Override
+        public void onCompleted() {
+            super.onCompleted();
+            mEmptyView.setVisibility(View.GONE);
         }
     }
 }

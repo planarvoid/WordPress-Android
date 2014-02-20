@@ -11,7 +11,6 @@ import java.util.Map;
 public class ModelCollection<T> implements Iterable<T> {
 
     public static final String NEXT_LINK_REL = "next";
-    public static final String SELF_LINK_REL = "self";
 
     private List<T> mCollection = Collections.emptyList();
     private Map<String, Link> mLinks = Collections.emptyMap();
@@ -33,6 +32,10 @@ public class ModelCollection<T> implements Iterable<T> {
         this.mCollection = collection;
     }
 
+    public List<T> getCollection() {
+        return mCollection;
+    }
+
     public Map<String, Link> getLinks() {
         return mLinks;
     }
@@ -44,9 +47,5 @@ public class ModelCollection<T> implements Iterable<T> {
 
     public Optional<Link> getNextLink() {
         return Optional.fromNullable(mLinks.get(NEXT_LINK_REL));
-    }
-
-    public Link getSelfLink() {
-        return mLinks.get(SELF_LINK_REL);
     }
 }

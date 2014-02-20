@@ -1,6 +1,7 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
@@ -14,6 +15,7 @@ import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.PlaylistTagsCollection;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.model.Track;
@@ -41,16 +43,16 @@ public class SearchOperationsTest {
     @Mock
     private RxHttpClient rxHttpClient;
     @Mock
-    private Observer<Page<SearchResultsCollection>> observer;
+    private Observer observer;
 
     @Before
     public void setUp() {
         searchOperations = new SearchOperations(rxHttpClient);
+        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
     }
 
     @Test
     public void shouldMakeGETRequestToSearchAllEndpoint() throws Exception {
-        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(isPublicApiRequestTo("GET", APIEndpoints.SEARCH_ALL.path())));
@@ -58,7 +60,6 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldMakeGETRequestToSearchTracksEndpoint() throws Exception {
-        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
         searchOperations.getTrackSearchResults("any query").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(isPublicApiRequestTo("GET", APIEndpoints.SEARCH_TRACKS.path())));
@@ -66,7 +67,6 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldMakeGETRequestToSearchPlaylistsEndpoint() throws Exception {
-        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
         searchOperations.getPlaylistSearchResults("any query").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(isPublicApiRequestTo("GET", APIEndpoints.SEARCH_PLAYLISTS.path())));
@@ -74,7 +74,6 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldMakeGETRequestToSearchPeopleEndpoint() throws Exception {
-        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
         searchOperations.getUserSearchResults("any query").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(isPublicApiRequestTo("GET", APIEndpoints.SEARCH_USERS.path())));
@@ -82,7 +81,6 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldMakeRequestToSearchAllWithCorrectQuery() throws Exception {
-        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
         searchOperations.getAllSearchResults("the query").subscribe(observer);
 
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
@@ -93,7 +91,6 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldMakeRequestToSearchAllWithPageSize() throws Exception {
-        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
         searchOperations.getAllSearchResults("blah").subscribe(observer);
 
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
@@ -119,6 +116,28 @@ public class SearchOperationsTest {
         ArgumentCaptor<OperationPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
         verify(observer).onNext(captor.capture());
         expect(captor.getValue().getPagedCollection()).toContainInOrder(track, playlist, user);
+    }
+
+    @Test
+    public void shouldMakeGETRequestToPlaylistTagsEndpoint() throws Exception {
+        searchOperations.getPlaylistTags().subscribe(observer);
+
+        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", APIEndpoints.PLAYLIST_DISCOVERY_TAGS.path())));
+    }
+
+    @Test
+    public void shouldMapPlaylistTagsToHaveAPoundSymbol() {
+        PlaylistTagsCollection tags = new PlaylistTagsCollection();
+        tags.setCollection(Arrays.asList("tag1", "tag2", "tag3"));
+        when(rxHttpClient.<PlaylistTagsCollection>fetchModels(any(APIRequest.class))).thenReturn(
+                Observable.<PlaylistTagsCollection>from(tags));
+
+        searchOperations.getPlaylistTags().subscribe(observer);
+
+        ArgumentCaptor<PlaylistTagsCollection> tagsCaptor = ArgumentCaptor.forClass(PlaylistTagsCollection.class);
+        verify(observer).onNext(tagsCaptor.capture());
+
+        expect(tagsCaptor.getValue()).toContainExactly("#tag1", "#tag2", "#tag3");
     }
 
     @Test
@@ -175,6 +194,5 @@ public class SearchOperationsTest {
         ArgumentCaptor<APIRequest> captor = ArgumentCaptor.forClass(APIRequest.class);
         verify(rxHttpClient, times(2)).fetchModels(captor.capture());
         expect(captor.getAllValues().get(1).getUriPath()).toEqual("/next-href.json");
-
     }
 }
