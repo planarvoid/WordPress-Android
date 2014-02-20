@@ -112,4 +112,11 @@ public class Search extends ActivityTestCase<MainActivity> {
         assertEquals("Current tab should be PEOPLE", "PEOPLE", resultsScreen.currentTabTitle());
     }
 
+    public void testAllResultsLoadsNextPage(){
+        SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("dub");
+        int initialItemCount = resultsScreen.getResultItemCount();
+        resultsScreen.scrollToBottomOfTracksListAndLoadMoreItems();
+        assertTrue(initialItemCount < resultsScreen.getResultItemCount());
+    }
+
 }

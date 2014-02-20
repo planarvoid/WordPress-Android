@@ -82,6 +82,11 @@ public class SearchResultsScreen extends Screen {
         waiter.waitForListContentAndRetryIfLoadingFailed();
     }
 
+    public void scrollToBottomOfTracksListAndLoadMoreItems() {
+        solo.scrollToBottom((ListView) viewPager.getCurrentPage(ListView.class));
+        waiter.waitForListContentAndRetryIfLoadingFailed();
+    }
+
     private boolean touchTab(String tabText) {
         List<View> indicatorItems = getViewPagerIndicator().getChildAt(0).getTouchables();
         for(View view : indicatorItems){
