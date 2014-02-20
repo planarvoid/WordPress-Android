@@ -1,14 +1,20 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -17,13 +23,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observable;
+import rx.android.OperationPaged;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.FrameLayout;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SearchResultsFragmentTest {
@@ -123,11 +134,41 @@ public class SearchResultsFragmentTest {
         verify(playbackOperations).playFromAdapter(any(Context.class), anyList(), eq(0), isNull(Uri.class), eq(Screen.SEARCH_PLAYLISTS));
     }
 
+    @Test
+    public void shouldRecreateObservableWhenClickingRetryAfterFailureSoThatWeDontEmitCachedResults() throws Exception {
+        when(searchOperations.getAllSearchResults(anyString())).
+                thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>error(new Exception()));
+
+        fragment.setArguments(new Bundle());
+        createFragment();
+        createFragmentView();
+
+        Button retryButton = (Button) fragment.getView().findViewById(R.id.btn_retry);
+        expect(retryButton).not.toBeNull();
+        retryButton.performClick();
+
+        verify(searchOperations, times(2)).getAllSearchResults(anyString());
+    }
+
     private Bundle buildSearchArgs(String query, int type) {
         Bundle arguments = new Bundle();
         arguments.putString("query", query);
         arguments.putInt("type", type);
         return arguments;
+    }
+
+    // HELPERS
+
+    private void createFragment() {
+        Robolectric.shadowOf(fragment).setAttached(true);
+        fragment.onCreate(null);
+    }
+
+    private View createFragmentView() {
+        View fragmentLayout = fragment.onCreateView(LayoutInflater.from(Robolectric.application), new FrameLayout(Robolectric.application), null);
+        Robolectric.shadowOf(fragment).setView(fragmentLayout);
+        fragment.onViewCreated(fragmentLayout, null);
+        return fragmentLayout;
     }
 
 }
