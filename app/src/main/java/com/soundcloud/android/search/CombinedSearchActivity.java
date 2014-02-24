@@ -88,8 +88,13 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
 
     private SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {
         @Override
-        public void performSearch(String query) {
+        public void performTextSearch(String query) {
             replaceContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
+        }
+
+        @Override
+        public void performTagSearch(String tag) {
+            replaceContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
         }
 
         @Override

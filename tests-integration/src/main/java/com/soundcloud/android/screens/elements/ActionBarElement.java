@@ -4,6 +4,7 @@ package com.soundcloud.android.screens.elements;
 import static junit.framework.Assert.assertEquals;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.screens.PlaylistResultsScreen;
 import com.soundcloud.android.screens.search.SearchPlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 import com.soundcloud.android.tests.Han;
@@ -36,25 +37,35 @@ public class ActionBarElement {
         return new SearchPlaylistTagsScreen(solo);
     }
 
-    public void typeSearchQuery(String query) {
-        KeyCharacterMap keymap = KeyCharacterMap.load(KeyCharacterMap.BUILT_IN_KEYBOARD);
-        for (KeyEvent key : keymap.getEvents(query.toCharArray())) {
-            if(key.getAction() == KeyEvent.ACTION_DOWN) {
-                solo.sendKey(key.getKeyCode());
-            }
-        }
-    }
-
     public SearchResultsScreen doSearch(String query) {
-        typeSearchQuery(query);
+        setSearchQuery(query);
         solo.sendKey(KeyEvent.KEYCODE_ENTER);
         return new SearchResultsScreen(solo);
     }
 
+    public PlaylistResultsScreen doTagSearch(String query) {
+        setSearchQuery(query);
+        solo.sendKey(KeyEvent.KEYCODE_ENTER);
+        return new PlaylistResultsScreen(solo);
+    }
+
     public String getSearchQuery() {
+        return getSearchView().getText().toString();
+    }
+
+    public void setSearchQuery(final String query) {
+        solo.getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getSearchView().setText(query);
+            }
+        });
+    }
+
+    private AutoCompleteTextView getSearchView() {
         List<AutoCompleteTextView> views = solo.getSolo().getCurrentViews(AutoCompleteTextView.class);
         assertEquals("Expected to find just one search view", views.size(), 1);
-        return views.get(0).getText().toString();
+        return views.get(0);
     }
 
 }

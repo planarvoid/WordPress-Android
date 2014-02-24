@@ -54,4 +54,17 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
         PlaylistDetailsScreen detailsScreen = resultsScreen.clickOnPlaylist(0);
         assertEquals("Playlist details screen should be shown", true, detailsScreen.isVisible());
     }
+
+    public void testSearchingWithHashtagQueryShowsPlaylistDiscoveryResults() {
+        PlaylistResultsScreen resultsScreen = playlistTagsScreen.actionBar().doTagSearch("#deep house");
+        assertEquals("Playlist results screen should be visible", true, resultsScreen.isVisible());
+    }
+
+    public void testSearchingHashtagFromSuggestionShortcutShowsPlaylistDiscoveryResults() {
+        playlistTagsScreen.actionBar().setSearchQuery("#deep house");
+        solo.clickInList(0);
+
+        PlaylistResultsScreen resultsScreen = new PlaylistResultsScreen(solo);
+        assertEquals("Playlist results screen should be visible", true, resultsScreen.isVisible());
+    }
 }

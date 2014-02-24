@@ -31,7 +31,8 @@ public class SearchActionBarController extends ActionBarController {
     private final SearchCallback mSearchCallback;
 
     public interface SearchCallback {
-        void performSearch(String query);
+        void performTextSearch(String query);
+        void performTagSearch(String tag);
         void exitSearchMode();
     }
 
@@ -80,8 +81,8 @@ public class SearchActionBarController extends ActionBarController {
 
     private final SearchView.OnQueryTextListener mQueryTextListener = new SearchView.OnQueryTextListener() {
         @Override
-        public boolean onQueryTextSubmit(String s) {
-            mSearchCallback.performSearch(s);
+        public boolean onQueryTextSubmit(String query) {
+            performSearch(query);
             // clear focus as a workaround for https://code.google.com/p/android/issues/detail?id=24599
             mSearchView.clearFocus();
             return true;
@@ -108,7 +109,7 @@ public class SearchActionBarController extends ActionBarController {
             mSearchView.clearFocus();
 
             if (mSuggestionsAdapter.isSearchItem(position)) {
-                mSearchCallback.performSearch(query);
+                performSearch(query);
             } else {
                 final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
                 final Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -118,6 +119,14 @@ public class SearchActionBarController extends ActionBarController {
             return true;
         }
     };
+
+    private void performSearch(final String query) {
+        if (query.startsWith("#")) {
+            mSearchCallback.performTagSearch(query.replaceFirst("#", ""));
+        } else {
+            mSearchCallback.performTextSearch(query);
+        }
+    }
 
     private void styleSearchView(SearchView searchView) {
         try {
