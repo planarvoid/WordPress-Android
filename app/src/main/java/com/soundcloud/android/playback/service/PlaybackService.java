@@ -166,7 +166,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private boolean mServiceInUse;
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
 
-    private static final int IDLE_DELAY = 60*1000;  // interval after which we stop the service when idle
+    private static final int IDLE_DELAY = 180*1000;  // interval after which we stop the service when idle
 
     private boolean mWaitingForSeek;
 
@@ -249,17 +249,22 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public void onDestroy() {
-        IOUtils.deleteDir(Consts.EXTERNAL_STREAM_DIRECTORY);
-        instance = null;
+        // call stop first as it will save the queue/position
         stop();
+
+        // stop proxy before removing the cache
+        if (mProxy != null && mProxy.isRunning()) mProxy.stop();
+        IOUtils.deleteDir(Consts.EXTERNAL_STREAM_DIRECTORY);
+
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mPlayerHandler.removeCallbacksAndMessages(null);
         mFocus.abandonMusicFocus(false);
         unregisterReceiver(mIntentReceiver);
         unregisterReceiver(mNoisyReceiver);
-        if (mProxy != null && mProxy.isRunning()) mProxy.stop();
+
         EventBus.PLAYER_LIFECYCLE.publish(PlayerLifeCycleEvent.forDestroyed());
+        instance = null;
         super.onDestroy();
     }
 
