@@ -100,8 +100,6 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        getListView().setOnItemClickListener(this);
-
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setStatus(mEmptyViewStatus);
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
@@ -110,6 +108,8 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
                 loadSearchResults();
             }
         });
+        getListView().setEmptyView(mEmptyListView);
+        getListView().setOnItemClickListener(this);
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
         getListView().setOnScrollListener(mImageOperations.createScrollPauseListener(false, true, mAdapter));

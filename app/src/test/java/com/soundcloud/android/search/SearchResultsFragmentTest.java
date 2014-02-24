@@ -156,15 +156,11 @@ public class SearchResultsFragmentTest {
         when(searchOperations.getAllSearchResults(anyString())).
                 thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>error(new Exception()));
 
-        View layout = mock(View.class);
-        EmptyListView emptyListView = mock(EmptyListView.class);
-        when(layout.findViewById(android.R.id.empty)).thenReturn(emptyListView);
-        when(layout.findViewById(android.R.id.list)).thenReturn(mock(ListView.class));
-
         createFragment();
-        createFragmentView(layout);
+        createFragmentView();
 
-        verify(emptyListView).setStatus(EmptyListView.Status.ERROR);
+        EmptyListView emptyView = (EmptyListView) fragment.getListView().getEmptyView();
+        expect(emptyView.getStatus()).toEqual(EmptyListView.Status.ERROR);
     }
 
     @Test
@@ -173,15 +169,11 @@ public class SearchResultsFragmentTest {
         when(searchOperations.getAllSearchResults(anyString())).
                 thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>never());
 
-        View layout = mock(View.class);
-        EmptyListView emptyListView = mock(EmptyListView.class);
-        when(layout.findViewById(android.R.id.empty)).thenReturn(emptyListView);
-        when(layout.findViewById(android.R.id.list)).thenReturn(mock(ListView.class));
-
         createFragment();
-        createFragmentView(layout);
+        createFragmentView();
 
-        verify(emptyListView).setStatus(EmptyListView.Status.WAITING);
+        EmptyListView emptyView = (EmptyListView) fragment.getListView().getEmptyView();
+        expect(emptyView.getStatus()).toEqual(EmptyListView.Status.WAITING);
     }
 
     private Bundle buildSearchArgs(String query, int type) {
@@ -200,14 +192,10 @@ public class SearchResultsFragmentTest {
     }
 
     private View createFragmentView() {
-        View fragmentLayout = fragment.onCreateView(LayoutInflater.from(Robolectric.application), new FrameLayout(Robolectric.application), null);
-        return createFragmentView(fragmentLayout);
-    }
-
-    private View createFragmentView(View fragmentLayout) {
-        Robolectric.shadowOf(fragment).setView(fragmentLayout);
-        fragment.onViewCreated(fragmentLayout, null);
-        return fragmentLayout;
+        View layout = fragment.onCreateView(LayoutInflater.from(Robolectric.application), null, null);
+        Robolectric.shadowOf(fragment).setView(layout);
+        fragment.onViewCreated(layout, null);
+        return layout;
     }
 
 }

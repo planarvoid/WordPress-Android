@@ -159,13 +159,10 @@ public class PlaylistResultsFragmentTest {
     }
 
     private View createFragmentView() {
-        return createFragmentView(fragment.onCreateView(LayoutInflater.from(context),
-                new FrameLayout(context), null));
-    }
-
-    private View createFragmentView(View layout) {
+        View layout = fragment.onCreateView(LayoutInflater.from(context), null, null);
         Robolectric.shadowOf(fragment).setView(layout);
         fragment.onViewCreated(layout, null);
         return layout;
     }
+
 }
