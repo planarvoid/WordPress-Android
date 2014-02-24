@@ -10,11 +10,9 @@ import com.soundcloud.android.screens.search.SearchResultsScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
 
-import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.widget.AutoCompleteTextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ActionBarElement {
