@@ -9,7 +9,8 @@ import dagger.Module;
                 CombinedSearchActivity.class,
                 TabbedSearchFragment.class,
                 SearchResultsFragment.class,
-                PlaylistTagsFragment.class
+                PlaylistTagsFragment.class,
+                PlaylistResultsFragment.class
         },
         includes = {ApiModule.class, StorageModule.class}
 )

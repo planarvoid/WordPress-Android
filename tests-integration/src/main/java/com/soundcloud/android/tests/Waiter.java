@@ -58,7 +58,7 @@ public class Waiter {
         }, this.NETWORK_TIMEOUT);
     }
 
-    public boolean waitForListContentAndRetryIfLoadingFailed() {
+    public boolean waitForContentAndRetryIfLoadingFailed() {
         waitForListContent();
         return retryIfFailed();
     }
@@ -136,9 +136,8 @@ public class Waiter {
         solo.waitForText(text, 1, TIMEOUT, false);
     }
 
-    public void waitForFragmentByTag(String fragment_tag) {
-        solo.waitForFragmentByTag(fragment_tag, TIMEOUT);
-
+    public boolean waitForFragmentByTag(String fragment_tag) {
+        return solo.waitForFragmentByTag(fragment_tag, TIMEOUT);
     }
 
     public boolean waitForElement(final View view) {

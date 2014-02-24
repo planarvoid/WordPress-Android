@@ -54,12 +54,12 @@ public class ExploreScreen extends Screen {
 
     public void touchGenresTab() {
         touchTab(GENRES_TAB_TEXT);
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public void touchTrendingMusicTab() {
         touchTab(TRENDING_MUSIC_TAB_TEXT);
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public ExploreGenreCategoryScreen clickElectronicGenre() {
@@ -69,13 +69,13 @@ public class ExploreScreen extends Screen {
 
     public ExploreGenreCategoryScreen clickGenreItem(String genreName) {
         solo.clickOnText(genreName, true);
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return new ExploreGenreCategoryScreen(solo);
     }
 
     public void touchTrendingAudioTab() {
         touchTab(TRENDING_AUDIO_TAB_TEXT);
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public String getTrackTitle(int index) {
@@ -87,7 +87,7 @@ public class ExploreScreen extends Screen {
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
         solo.scrollToBottom((GridView) viewPager.getCurrentPage(GridView.class));
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public PlayerScreen playPopularTrack(int trackNumber) {

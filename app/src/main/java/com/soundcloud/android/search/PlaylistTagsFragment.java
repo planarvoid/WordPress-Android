@@ -1,6 +1,8 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.model.PlaylistTagsCollection;
+
+import static com.google.common.base.Preconditions.checkArgument;
 import static rx.android.observables.AndroidObservable.fromFragment;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -16,6 +18,7 @@ import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -40,6 +43,10 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
     private EmptyListView mEmptyView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
+    public interface TagClickListener {
+        void onTagSelected(String tag);
+    }
+
     public PlaylistTagsFragment() {
         new DaggerDependencyInjector().fromAppGraphWithModules(new SearchModule()).inject(this);
         setRetainInstance(true);
@@ -48,6 +55,12 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
     @VisibleForTesting
     PlaylistTagsFragment(SearchOperations searchOperations) {
         mSearchOperations = searchOperations;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        checkArgument(activity instanceof TagClickListener, "Host activity must be a " + TagClickListener.class);
     }
 
     @Override
@@ -93,11 +106,18 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
         FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(padding, padding);
 
         tagFlowLayout.setVisibility(tags.isEmpty() ? View.GONE : View.VISIBLE);
-        for (final String t : tags) {
-            if (!TextUtils.isEmpty(t)) {
-                TextView txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
-                txt.setText(t);
-                tagFlowLayout.addView(txt, flowLP);
+        for (final String tag : tags) {
+            if (!TextUtils.isEmpty(tag)) {
+                TextView tagView = ((TextView) inflater.inflate(R.layout.tag_text, null));
+                tagView.setText(tag);
+                tagView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        TagClickListener listener = (TagClickListener) getActivity();
+                        listener.onTagSelected(tag);
+                    }
+                });
+                tagFlowLayout.addView(tagView, flowLP);
             }
         }
     }

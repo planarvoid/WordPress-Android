@@ -1,5 +1,16 @@
 package com.soundcloud.android.api;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
+import javax.annotation.Nullable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+
 /**
  * TODO make package visible
  */
@@ -11,6 +22,7 @@ public enum APIEndpoints {
     EXPLORE_TRACKS_POPULAR_AUDIO("/suggestions/tracks/categories/popular+audio"),
     EXPLORE_TRACKS_CATEGORIES("/suggestions/tracks/categories"),
     PLAYLIST_DISCOVERY_TAGS("/suggestions/playlists/tags"),
+    PLAYLIST_DISCOVERY_RESULTS("/suggestions/playlists/tags/%s"),
     RELATED_TRACKS("/tracks/%s/related"),
 
     // public API (DEPRECATED)
@@ -31,7 +43,24 @@ public enum APIEndpoints {
         this.path = path;
     }
 
-    public String path(){
+    public String path() {
         return path;
     }
+
+    public String path(Object... pathParams) {
+        List encodedParams = Lists.transform(Arrays.asList(pathParams), encodingFunction);
+        return String.format(Locale.US, path, encodedParams.toArray());
+    }
+
+    private static final Function<Object, Object> encodingFunction = new Function<Object, Object>() {
+        @Override
+        public Object apply(Object input) {
+            String param = String.valueOf(input);
+            try {
+                return URLEncoder.encode(param, "utf-8");
+            } catch (UnsupportedEncodingException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+    };
 }

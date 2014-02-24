@@ -6,6 +6,7 @@ import com.soundcloud.android.playlists.PlaylistApiCreateObject;
 import com.soundcloud.android.playlists.PlaylistApiUpdateObject;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -84,6 +85,19 @@ public class PlaylistTest {
         PlaylistApiUpdateObject updateObject = new PlaylistApiUpdateObject(toAdd);
         expect(updateObject.toJson())
                 .toEqual("{\"playlist\":{\"tracks\":[{\"id\":61363002},{\"id\":61363003},{\"id\":61363004},{\"id\":61363005},{\"id\":61363006},{\"id\":61363007},{\"id\":61363008},{\"id\":61363009},{\"id\":61363011},{\"id\":61363012},{\"id\":61363013},{\"id\":61363014},{\"id\":61363016},{\"id\":61363017}]}}");
+    }
+
+    @Test
+    public void shouldConvertPlaylistSummaryToPlaylist() throws CreateModelException {
+        PlaylistSummary source = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
+        Playlist playlist = new Playlist(source);
+        expect(playlist.getId()).toEqual(source.getId());
+        expect(playlist.getUrn()).toEqual(source.getUrn());
+        expect(playlist.getTitle()).toEqual(source.getTitle());
+        expect(playlist.tag_list).toEqual("tag1 tag2");
+        expect(playlist.getUsername()).toEqual(source.getUsername());
+        expect(playlist.artwork_url).toEqual(source.getArtworkUrl());
+        expect(playlist.created_at).toEqual(source.getCreatedAt());
     }
 
     private void comparePlaylists(Playlist playlist, Playlist playlist1) {

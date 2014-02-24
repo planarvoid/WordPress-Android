@@ -11,6 +11,7 @@ import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
+import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,6 +26,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -48,6 +50,15 @@ public class Playlist extends Playable {
     @JsonView(Views.Full.class) public List<Track> tracks = new ArrayList<Track>(0);
     @JsonView(Views.Full.class) private int track_count;
     public boolean removed;
+
+    public Playlist(PlaylistSummary playlist) {
+        setUrn(playlist.getUrn());
+        setUser(new User(playlist.getUser()));
+        setTitle(playlist.getTitle());
+        artwork_url = playlist.getArtworkUrl();
+        tag_list = playlist.getTags() == null ? ScTextUtils.EMPTY_STRING : TextUtils.join(" ", playlist.getTags());
+        created_at = playlist.getCreatedAt();
+    }
 
     public interface OnChangeListener { void onPlaylistChanged(); }
 

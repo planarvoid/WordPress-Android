@@ -35,7 +35,7 @@ public class ExploreGenreCategoryScreen extends Screen {
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
         solo.scrollToBottom(tracksList());
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     //TODO: This should be even more generic GV.items()

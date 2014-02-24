@@ -64,22 +64,22 @@ public class SearchResultsScreen extends Screen {
 
     public void touchAllTab() {
         touchTab(ALL_TAB_TEXT);
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public void touchTracksTab() {
         touchTab(TRACKS_TAB_TEXT);
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public void touchPlaylistsTab() {
         touchTab(PLAYLISTS_TAB_TEXT);
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public void touchPeopleTab() {
         touchTab(PEOPLE_TAB_TEXT);
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
@@ -89,8 +89,8 @@ public class SearchResultsScreen extends Screen {
 
     private boolean touchTab(String tabText) {
         List<View> indicatorItems = getViewPagerIndicator().getChildAt(0).getTouchables();
-        for(View view : indicatorItems){
-            if(((TextView)view).getText().equals(tabText)){
+        for (View view : indicatorItems) {
+            if (((TextView) view).getText().equals(tabText)) {
                 solo.performClick(view);
                 return true;
             }
@@ -98,7 +98,7 @@ public class SearchResultsScreen extends Screen {
         return false;
     }
 
-    public String currentTabTitle(){
+    public String currentTabTitle() {
         waiter.waitForItemCountToIncrease(resultsList().getAdapter(), 0);
         List<View> indicatorItems = getViewPagerIndicator().getChildAt(0).getTouchables();
         TextView selectedItem = (TextView) indicatorItems.get(getViewPager().getCurrentItem());
@@ -106,11 +106,11 @@ public class SearchResultsScreen extends Screen {
     }
 
     private ViewPager getViewPager() {
-        return (ViewPager)solo.getView(R.id.pager);
+        return (ViewPager) solo.getView(R.id.pager);
     }
 
     private SlidingTabLayout getViewPagerIndicator() {
-        return (SlidingTabLayout)solo.getView(R.id.sliding_tabs);
+        return (SlidingTabLayout) solo.getView(R.id.sliding_tabs);
     }
 
     public int getResultItemCount() {
@@ -119,7 +119,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     private ListView resultsList() {
-        return (ListView)viewPager.getCurrentPage(ListView.class);
+        return (ListView) viewPager.getCurrentPage(ListView.class);
     }
 
     private View getFirstResultsItemByClass(Class itemClass) {
@@ -141,6 +141,6 @@ public class SearchResultsScreen extends Screen {
 
     @Override
     public boolean isVisible() {
-        return waiter.waitForElement(R.id.search_results_container);
+        return waiter.waitForFragmentByTag("tabbed_search");
     }
 }

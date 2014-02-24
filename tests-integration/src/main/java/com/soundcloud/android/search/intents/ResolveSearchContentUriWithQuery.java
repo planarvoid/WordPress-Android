@@ -15,6 +15,7 @@ public class ResolveSearchContentUriWithQuery extends SearchIntentsBase {
     public void testSearchContentUriResolution() {
         SearchResultsScreen resultsScreen = new SearchResultsScreen(solo);
         assertEquals("Search results screen should be visible", true, resultsScreen.isVisible());
+        assertEquals("Search query should be set", "skrillex", resultsScreen.actionBar().getSearchQuery());
     }
 
 }

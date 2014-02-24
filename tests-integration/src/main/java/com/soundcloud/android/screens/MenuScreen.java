@@ -67,8 +67,8 @@ public class MenuScreen {
         solo.clickOnActionBarHomeButton();
         waiter.waitForDrawerToOpen();
         solo.clickOnText(explore_selector);
-        waiter.waitForViewId(R.id.explore_genres_list);
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForViewId(android.R.id.list);
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public boolean isOpened() {

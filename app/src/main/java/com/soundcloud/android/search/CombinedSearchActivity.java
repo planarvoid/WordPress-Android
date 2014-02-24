@@ -14,7 +14,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Menu;
 
-public class CombinedSearchActivity extends ScActivity {
+public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFragment.TagClickListener {
 
     private static final String ACTION_PLAY_FROM_SEARCH = "android.media.action.MEDIA_PLAY_FROM_SEARCH";
     private static final String INTENT_URL_HOST = "soundcloud.com";
@@ -78,6 +78,12 @@ public class CombinedSearchActivity extends ScActivity {
     @Override
     public int getMenuResourceId() {
         return R.menu.search;
+    }
+
+    @Override
+    public void onTagSelected(String tag) {
+        mActionBarController.setQuery(tag);
+        replaceContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
     }
 
     private SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {

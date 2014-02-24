@@ -93,7 +93,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.search_results_fragment, container, false);
+        return inflater.inflate(R.layout.default_list, container, false);
     }
 
     @Override

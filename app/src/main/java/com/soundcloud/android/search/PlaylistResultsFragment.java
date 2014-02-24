@@ -1,0 +1,132 @@
+package com.soundcloud.android.search;
+
+import static rx.android.OperationPaged.Page;
+import static rx.android.observables.AndroidObservable.fromFragment;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.dagger.DaggerDependencyInjector;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.PlaylistSummary;
+import com.soundcloud.android.model.PlaylistSummaryCollection;
+import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.rx.observers.EmptyViewAware;
+import com.soundcloud.android.rx.observers.ListFragmentObserver;
+import com.soundcloud.android.view.EmptyListView;
+import rx.Subscription;
+import rx.observables.ConnectableObservable;
+import rx.subscriptions.Subscriptions;
+
+import android.os.Bundle;
+import android.support.v4.app.ListFragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+
+import javax.inject.Inject;
+
+public class PlaylistResultsFragment extends ListFragment implements EmptyViewAware,
+        AdapterView.OnItemClickListener {
+
+    public static final String TAG = "playlist_results";
+    static final String KEY_PLAYLIST_TAG = "playlist_tag";
+
+    @Inject
+    SearchOperations mSearchOperations;
+    @Inject
+    ImageOperations mImageOperations;
+    @Inject
+    PlaylistResultsAdapter mAdapter;
+    @Inject
+    ScModelManager mModelManager;
+
+    private EmptyListView mEmptyListView;
+    private int mEmptyViewStatus = EmptyListView.Status.WAITING;
+
+    private Subscription mSubscription = Subscriptions.empty();
+
+    public static PlaylistResultsFragment newInstance(String tag) {
+        PlaylistResultsFragment fragment = new PlaylistResultsFragment();
+        Bundle arguments = new Bundle();
+        arguments.putString(KEY_PLAYLIST_TAG, tag);
+        fragment.setArguments(arguments);
+        return fragment;
+    }
+
+    public PlaylistResultsFragment() {
+        setRetainInstance(true);
+        new DaggerDependencyInjector().fromAppGraphWithModules(new SearchModule()).inject(this);
+    }
+
+    @VisibleForTesting
+    PlaylistResultsFragment(SearchOperations searchOperations, ImageOperations imageOperations,
+                            PlaylistResultsAdapter adapter, ScModelManager modelManager) {
+        mSearchOperations = searchOperations;
+        mImageOperations = imageOperations;
+        mAdapter = adapter;
+        mModelManager = modelManager;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setListAdapter(mAdapter);
+        loadPlaylistResults();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.default_list, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
+        mEmptyListView.setStatus(mEmptyViewStatus);
+        mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
+            @Override
+            public void onEmptyViewRetry() {
+                loadPlaylistResults();
+            }
+        });
+        getListView().setEmptyView(mEmptyListView);
+        getListView().setOnItemClickListener(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        mSubscription.unsubscribe();
+        super.onDestroy();
+    }
+
+    private void loadPlaylistResults() {
+        String playlistTag = getArguments().getString(KEY_PLAYLIST_TAG);
+        ConnectableObservable<Page<PlaylistSummaryCollection>> observable =
+                fromFragment(this, mSearchOperations.getPlaylistDiscoveryResults(playlistTag)).publish();
+
+        setEmptyViewStatus(EmptyListView.Status.WAITING);
+        observable.subscribe(mAdapter);
+        observable.subscribe(new ListFragmentObserver<Page<PlaylistSummaryCollection>>(this));
+        mSubscription = observable.connect();
+    }
+
+    @Override
+    public void setEmptyViewStatus(int status) {
+        mEmptyViewStatus = status;
+        if (mEmptyListView != null) {
+            mEmptyListView.setStatus(status);
+        }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        PlaylistSummary playlist = mAdapter.getItem(position);
+        PlaylistDetailActivity.start(getActivity(), new Playlist(playlist), mModelManager, Screen.UNKNOWN);
+    }
+}

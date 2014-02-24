@@ -1,6 +1,8 @@
 package com.soundcloud.android.screens.elements;
 
 
+import static junit.framework.Assert.assertEquals;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.screens.search.SearchPlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
@@ -9,6 +11,10 @@ import com.soundcloud.android.tests.Waiter;
 
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
+import android.widget.AutoCompleteTextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ActionBarElement {
     protected Han solo;
@@ -43,6 +49,12 @@ public class ActionBarElement {
         typeSearchQuery(query);
         solo.sendKey(KeyEvent.KEYCODE_ENTER);
         return new SearchResultsScreen(solo);
+    }
+
+    public String getSearchQuery() {
+        List<AutoCompleteTextView> views = solo.getSolo().getCurrentViews(AutoCompleteTextView.class);
+        assertEquals("Expected to find just one search view", views.size(), 1);
+        return views.get(0).getText().toString();
     }
 
 }

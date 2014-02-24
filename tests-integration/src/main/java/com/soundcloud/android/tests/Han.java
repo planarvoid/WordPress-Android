@@ -452,8 +452,8 @@ public class Han  {
         solo.sendKey(solo.MENU);
     }
 
-    public void waitForFragmentByTag(String fragment_tag, int timeout) {
-        solo.waitForFragmentByTag(fragment_tag, timeout);
+    public boolean waitForFragmentByTag(String fragment_tag, int timeout) {
+        return solo.waitForFragmentByTag(fragment_tag, timeout);
     }
 
     public void clickInList(int line, int index) {

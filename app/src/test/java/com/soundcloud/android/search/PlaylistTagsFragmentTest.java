@@ -3,11 +3,15 @@ package com.soundcloud.android.search;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.PlaylistTagsCollection;
+
+import static com.soundcloud.android.search.PlaylistTagsFragment.TagClickListener;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -33,7 +37,7 @@ import java.util.Arrays;
 public class PlaylistTagsFragmentTest {
 
     private PlaylistTagsFragment fragment;
-    private FragmentActivity activity = new FragmentActivity();
+    private FragmentActivity activity = new CombinedSearchActivity();
 
     @Mock
     private SearchOperations searchOperations;
@@ -43,6 +47,12 @@ public class PlaylistTagsFragmentTest {
         final PlaylistTagsCollection tags = new PlaylistTagsCollection();
         tags.setCollection(Arrays.asList("one", "two", "three"));
         when(searchOperations.getPlaylistTags()).thenReturn(Observable.<PlaylistTagsCollection>from(tags));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void onAttachShouldThrowIllegalArgumentIfParentActivityIsNotTagClickListener() {
+        fragment = new PlaylistTagsFragment(searchOperations);
+        fragment.onAttach(new FragmentActivity());
     }
 
     @Test
@@ -83,6 +93,19 @@ public class PlaylistTagsFragmentTest {
         fragment.onViewCreated(fragment.getView(), null);
 
         verify(observable, times(1)).subscribe(Matchers.any(Observer.class));
+    }
+
+    @Test
+    public void clickingTagShouldCallTagListenerWithCorrectTag() {
+        createFragment();
+
+        FragmentActivity listener = mock(FragmentActivity.class, withSettings().extraInterfaces(TagClickListener.class));
+        Robolectric.shadowOf(fragment).setActivity(listener);
+
+        ViewGroup tagFlowLayout = (ViewGroup) fragment.getView().findViewById(R.id.tags);
+        tagFlowLayout.getChildAt(0).performClick();
+
+        verify((TagClickListener) listener).onTagSelected("one");
     }
 
     private void createFragment() {

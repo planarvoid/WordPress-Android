@@ -51,20 +51,20 @@ public class Explore extends ActivityTestCase<MainActivity> {
     public void testTrendingAudioIsDisplayedUsingSwiping() {
         exploreScreen.swipeLeft();
 
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
         assertEquals("Current tab should be AUDIO", "AUDIO", exploreScreen.currentTabTitle());
         assertEquals("Invalid number of genres found", 15, exploreScreen.getItemsOnTrendingAudioList());
     }
 
     public void testTrendingAudioIsDisplayedWhenTouchingTab() {
         exploreScreen.touchTrendingAudioTab();
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
         assertEquals("Invalid number of tracks found", 15, exploreScreen.getItemsOnTrendingAudioList());
     }
 
     public void testTrendingAudioPullToRefresh() {
         exploreScreen.touchTrendingAudioTab();
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
         assertEquals("Invalid number of trending audio items", 15, exploreScreen.getItemsOnTrendingAudioList());
 
         exploreScreen.pullToRefresh();
@@ -80,7 +80,7 @@ public class Explore extends ActivityTestCase<MainActivity> {
     }
 
     public void testMusicIsDisplayedByDefault() {
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
         assertEquals("Music tab is displayed by default", "MUSIC", exploreScreen.currentTabTitle());
     }
 

@@ -15,6 +15,8 @@ import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.PlaylistSummary;
+import com.soundcloud.android.model.PlaylistSummaryCollection;
 import com.soundcloud.android.model.PlaylistTagsCollection;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SearchResultsCollection;
@@ -23,6 +25,8 @@ import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.RxTestHelper;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +42,7 @@ import java.util.Arrays;
 @RunWith(SoundCloudTestRunner.class)
 public class SearchOperationsTest {
 
-    SearchOperations searchOperations;
+    private SearchOperations searchOperations;
 
     @Mock
     private RxHttpClient rxHttpClient;
@@ -119,28 +123,6 @@ public class SearchOperationsTest {
     }
 
     @Test
-    public void shouldMakeGETRequestToPlaylistTagsEndpoint() throws Exception {
-        searchOperations.getPlaylistTags().subscribe(observer);
-
-        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", APIEndpoints.PLAYLIST_DISCOVERY_TAGS.path())));
-    }
-
-    @Test
-    public void shouldMapPlaylistTagsToHaveAPoundSymbol() {
-        PlaylistTagsCollection tags = new PlaylistTagsCollection();
-        tags.setCollection(Arrays.asList("tag1", "tag2", "tag3"));
-        when(rxHttpClient.<PlaylistTagsCollection>fetchModels(any(APIRequest.class))).thenReturn(
-                Observable.<PlaylistTagsCollection>from(tags));
-
-        searchOperations.getPlaylistTags().subscribe(observer);
-
-        ArgumentCaptor<PlaylistTagsCollection> tagsCaptor = ArgumentCaptor.forClass(PlaylistTagsCollection.class);
-        verify(observer).onNext(tagsCaptor.capture());
-
-        expect(tagsCaptor.getValue()).toContainExactly("#tag1", "#tag2", "#tag3");
-    }
-
-    @Test
     public void filteredCollectionKeepsNextHref() throws Exception {
         final ArrayList<ScResource> results = Lists.<ScResource>newArrayList(TestHelper.getModelFactory().createModel(Track.class));
         SearchResultsCollection collection = new SearchResultsCollection(results, "next-href");
@@ -194,5 +176,59 @@ public class SearchOperationsTest {
         ArgumentCaptor<APIRequest> captor = ArgumentCaptor.forClass(APIRequest.class);
         verify(rxHttpClient, times(2)).fetchModels(captor.capture());
         expect(captor.getAllValues().get(1).getUriPath()).toEqual("/next-href.json");
+    }
+
+    @Test
+    public void shouldMakeGETRequestToPlaylistTagsEndpoint() throws Exception {
+        searchOperations.getPlaylistTags().subscribe(observer);
+
+        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", APIEndpoints.PLAYLIST_DISCOVERY_TAGS.path())));
+    }
+
+    @Test
+    public void shouldMapPlaylistTagsToHaveAPoundSymbol() {
+        PlaylistTagsCollection tags = new PlaylistTagsCollection();
+        tags.setCollection(Arrays.asList("tag1", "tag2", "tag3"));
+        when(rxHttpClient.<PlaylistTagsCollection>fetchModels(any(APIRequest.class))).thenReturn(
+                Observable.<PlaylistTagsCollection>from(tags));
+
+        searchOperations.getPlaylistTags().subscribe(observer);
+
+        ArgumentCaptor<PlaylistTagsCollection> tagsCaptor = ArgumentCaptor.forClass(PlaylistTagsCollection.class);
+        verify(observer).onNext(tagsCaptor.capture());
+
+        expect(tagsCaptor.getValue()).toContainExactly("#tag1", "#tag2", "#tag3");
+    }
+
+    @Test
+    public void shouldMakeGETRequestToPlaylistDiscoveryEndpoint() {
+        searchOperations.getPlaylistDiscoveryResults("electronic").subscribe(observer);
+
+        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET",
+                APIEndpoints.PLAYLIST_DISCOVERY_RESULTS.path("electronic"))));
+    }
+
+    @Test
+    public void shouldDeliverPlaylistDiscoveryResultsToObserver() throws CreateModelException {
+        PlaylistSummary playlist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
+        PlaylistSummaryCollection collection = new PlaylistSummaryCollection();
+        collection.setCollection(Arrays.asList(playlist));
+        when(rxHttpClient.<PlaylistSummaryCollection>fetchModels(any(APIRequest.class))).thenReturn(
+                Observable.<PlaylistSummaryCollection>from(collection));
+
+        searchOperations.getPlaylistDiscoveryResults("electronic").subscribe(observer);
+
+        ArgumentCaptor<Page> resultCaptor = ArgumentCaptor.forClass(Page.class);
+        verify(observer).onNext(resultCaptor.capture());
+
+        expect(resultCaptor.getValue().getPagedCollection()).toBe(collection);
+    }
+
+    @Test
+    public void shouldStripHashSymbolFromSearchTag() {
+        searchOperations.getPlaylistDiscoveryResults("#electronic").subscribe(observer);
+
+        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET",
+                APIEndpoints.PLAYLIST_DISCOVERY_RESULTS.path("electronic"))));
     }
 }

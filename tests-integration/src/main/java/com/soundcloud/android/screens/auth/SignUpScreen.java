@@ -70,7 +70,7 @@ public class SignUpScreen {
 
     public SuggestedUsersScreen waitForSuggestedUsers() {
         solo.waitForActivity(SuggestedUsersActivity.class);
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return new SuggestedUsersScreen(solo);
     }
 }

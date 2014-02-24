@@ -80,7 +80,7 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.explore_genres_fragment, container, false);
+        return inflater.inflate(R.layout.default_list, container, false);
     }
 
     @Override
@@ -119,7 +119,7 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
     }
 
     private ListView getListView() {
-        return (ListView) getView().findViewById(R.id.explore_genres_list);
+        return (ListView) getView().findViewById(android.R.id.list);
     }
 
     @Override
@@ -130,7 +130,7 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
 
     @Override
     public void onDestroyView() {
-        ((ListView) getView().findViewById(R.id.explore_genres_list)).setAdapter(null);
+        ((ListView) getView().findViewById(android.R.id.list)).setAdapter(null);
         super.onDestroyView();
     }
 

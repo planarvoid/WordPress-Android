@@ -30,14 +30,14 @@ public class ExploreGenres extends ActivityTestCase<MainActivity> {
     public void testElectronicMusicCategoryHasContent(){
         exploreScreen.touchGenresTab();
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
         assertEquals(15, categoryScreen.getItemsOnList());
     }
 
     public void testElectronicMusicCategoryPullToRefresh(){
         exploreScreen.touchGenresTab();
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
         assertEquals(15, categoryScreen.getItemsOnList());
 
         exploreScreen.pullToRefresh();
@@ -47,7 +47,7 @@ public class ExploreGenres extends ActivityTestCase<MainActivity> {
     public void testElectronicMusicCategoryLoadsNextPageOfTracks(){
         exploreScreen.touchGenresTab();
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
         assertEquals(15, categoryScreen.getItemsOnList());
 
         categoryScreen.scrollToBottomOfTracksListAndLoadMoreItems();

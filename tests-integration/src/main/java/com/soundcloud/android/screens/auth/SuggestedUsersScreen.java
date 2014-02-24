@@ -82,7 +82,7 @@ public class SuggestedUsersScreen extends Screen {
     public HomeScreen finish() {
         solo.clickOnActionBarItem(R.id.finish);
         solo.waitForActivity(MainActivity.class, 60000);
-        waiter.waitForListContentAndRetryIfLoadingFailed();
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return new HomeScreen(solo);
     }
 

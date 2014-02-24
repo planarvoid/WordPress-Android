@@ -9,7 +9,6 @@ import com.soundcloud.android.screens.search.SearchPlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
-import com.soundcloud.android.tests.Waiter;
 
 public class Search extends ActivityTestCase<MainActivity> {
 
@@ -25,7 +24,6 @@ public class Search extends ActivityTestCase<MainActivity> {
         AccountAssistant.loginAsDefault(getInstrumentation());
         super.setUp();
 
-        waiter = new Waiter(solo);
         mainScreen = new MainScreen(solo);
         playlistTagsScreen = mainScreen.actionBar().clickSearchButton();
     }
