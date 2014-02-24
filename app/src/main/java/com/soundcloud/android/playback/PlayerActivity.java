@@ -5,7 +5,6 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -28,9 +27,7 @@ import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.playback.views.TransportBarView;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.service.LocalBinder;
-import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.UriUtils;
-import dagger.ObjectGraph;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -676,8 +673,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     private void setPlaybackState() {
         final boolean showPlayState = PlaybackService.getPlaybackState().isSupposedToBePlaying();
+        long next = refreshNow();
         if (showPlayState) {
-            long next = refreshNow();
             queueNextRefresh(next);
         }
         mTransportBar.setPlaybackState(showPlayState);
