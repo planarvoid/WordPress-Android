@@ -1,5 +1,7 @@
 package com.soundcloud.android.search;
 
+import static rx.android.OperationPaged.Page;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -57,6 +59,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
+    private ConnectableObservable<Page<SearchResultsCollection>> mObservable;
 
     public static SearchResultsFragment newInstance(int type, String query) {
         SearchResultsFragment fragment = new SearchResultsFragment();
@@ -88,6 +91,8 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
         mSearchType = getArguments().getInt(KEY_TYPE);
         setListAdapter(mAdapter);
+
+        mObservable = buildSearchResultsObservable();
     }
 
     @Override
@@ -98,13 +103,13 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        loadSearchResults();
 
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setStatus(mEmptyViewStatus);
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
+                mObservable = buildSearchResultsObservable();
                 loadSearchResults();
             }
         });
@@ -113,6 +118,8 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
         getListView().setOnScrollListener(mImageOperations.createScrollPauseListener(false, true, mAdapter));
+
+        loadSearchResults();
     }
 
     @Override
@@ -155,9 +162,9 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         }
     }
 
-    private ConnectableObservable<OperationPaged.Page<SearchResultsCollection>> buildSearchResultsObservable() {
+    private ConnectableObservable<Page<SearchResultsCollection>> buildSearchResultsObservable() {
         final String query = getArguments().getString(KEY_QUERY);
-        Observable<OperationPaged.Page<SearchResultsCollection>> observable;
+        Observable<Page<SearchResultsCollection>> observable;
         switch (mSearchType) {
             case TYPE_ALL:
                 observable = mSearchOperations.getAllSearchResults(query);
@@ -174,18 +181,13 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
             default:
                 throw new IllegalArgumentException("Query type not valid");
         }
-        return AndroidObservable.fromFragment(this, observable.cache()).publish();
+        return AndroidObservable.fromFragment(this, observable).replay();
     }
 
     private void loadSearchResults() {
-        ConnectableObservable<OperationPaged.Page<SearchResultsCollection>> observable =
-                buildSearchResultsObservable();
-        ListFragmentObserver<OperationPaged.Page<SearchResultsCollection>> loadingStateObserver =
-                new ListFragmentObserver<OperationPaged.Page<SearchResultsCollection>>(this);
-
         setEmptyViewStatus(EmptyListView.Status.WAITING);
-        observable.subscribe(mAdapter);
-        observable.subscribe(loadingStateObserver);
-        mSubscription = observable.connect();
+        mObservable.subscribe(mAdapter);
+        mObservable.subscribe(new ListFragmentObserver<Page<SearchResultsCollection>>(this));
+        mSubscription = mObservable.connect();
     }
 }
