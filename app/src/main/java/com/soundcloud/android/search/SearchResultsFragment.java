@@ -88,8 +88,6 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
         mSearchType = getArguments().getInt(KEY_TYPE);
         setListAdapter(mAdapter);
-
-        loadSearchResults();
     }
 
     @Override
@@ -100,6 +98,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        loadSearchResults();
 
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setStatus(mEmptyViewStatus);
@@ -175,7 +174,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
             default:
                 throw new IllegalArgumentException("Query type not valid");
         }
-        return AndroidObservable.fromFragment(this, observable).publish();
+        return AndroidObservable.fromFragment(this, observable.cache()).publish();
     }
 
     private void loadSearchResults() {
