@@ -68,6 +68,10 @@ class ItemQueue implements Iterable<StreamItem> {
         return mItems.size();
     }
 
+    public void clear(){
+        mItems.clear();
+    }
+
     @Override
     public Iterator<StreamItem> iterator() {
         // provide a copy of the data so we can manipulate the queue while iterating over it
