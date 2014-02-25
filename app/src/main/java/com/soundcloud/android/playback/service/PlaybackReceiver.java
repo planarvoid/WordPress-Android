@@ -84,7 +84,7 @@ class PlaybackReceiver extends BroadcastReceiver {
                 }
             }
         } else {
-            Log.e(PlaybackService.TAG, "Aborting playback service action, no soundcloud account(" + intent + ")");
+            Log.e(PlaybackService.TAG, "Aborting playback service action, no soundcloud account");
         }
     }
 

@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.PlayQueueItem;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -158,6 +159,12 @@ public class PlayQueueTest {
         expect(playQueueView).toContainExactly(1L, 2L, 3L);
         expect(playQueueView.getPosition()).toBe(2);
         expect(playQueueView.getAppendState()).toEqual(PlaybackOperations.AppendState.LOADING);
+    }
+
+    @Test
+    public void returnsNotSetIDWithEmptyQueue() throws Exception {
+        expect(PlayQueue.empty().getCurrentTrackId()).toEqual(Long.valueOf(Playable.NOT_SET));
+
     }
 
     private PlayQueue createPlayQueue(List<Long> idList, int startPosition, PlaySessionSource source) {

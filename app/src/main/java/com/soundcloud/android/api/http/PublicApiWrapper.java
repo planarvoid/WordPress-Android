@@ -17,6 +17,7 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -82,8 +83,8 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     private String userAgent;
     private UnauthorisedRequestRegistry mUnauthorisedRequestRegistry;
 
-    public synchronized static PublicApiWrapper getInstance(Context context){
-        if(instance == null){
+    public synchronized static PublicApiWrapper getInstance(Context context) {
+        if (instance == null) {
             instance = new PublicApiWrapper(context.getApplicationContext());
         }
         return instance;
@@ -91,12 +92,13 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
     @Deprecated
     public PublicApiWrapper(Context context) {
-        this(context,  new HttpProperties(context), new AccountOperations(context), new ApplicationProperties(context.getResources()));
+        this(context, new HttpProperties(context), new AccountOperations(context), new ApplicationProperties(context.getResources()));
 
     }
+
     @Deprecated
     protected PublicApiWrapper(Context context, HttpProperties properties, AccountOperations accountOperations,
-                               ApplicationProperties applicationProperties){
+                               ApplicationProperties applicationProperties) {
         this(context, buildObjectMapper(), properties.getClientId(), properties.getClientSecret(),
                 ANDROID_REDIRECT_URI, accountOperations.getSoundCloudToken(), applicationProperties,
                 UnauthorisedRequestRegistry.getInstance(context));
@@ -112,11 +114,12 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
         mContext = context;
         mObjectMapper = mapper;
         setTokenListener(new SoundCloudTokenListener(context));
-        userAgent = "SoundCloud Android ("+ AndroidUtils.getAppVersion(context, "unknown")+")";
+        userAgent = "SoundCloud Android (" + AndroidUtils.getAppVersion(context, "unknown") + ")";
         final IntentFilter filter = new IntentFilter();
         filter.addAction(Actions.CHANGE_PROXY_ACTION);
         context.registerReceiver(new BroadcastReceiver() {
-            @Override public void onReceive(Context context, Intent intent) {
+            @Override
+            public void onReceive(Context context, Intent intent) {
                 final String proxy = intent.getStringExtra(Actions.EXTRA_PROXY);
                 Log.d(TAG, "proxy changed: " + proxy);
                 setProxy(proxy == null ? null : URI.create(proxy));
@@ -154,7 +157,8 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     }
 
     @SuppressWarnings({"PointlessBooleanExpression", "ConstantConditions"})
-    @Override protected SSLSocketFactory getSSLSocketFactory() {
+    @Override
+    protected SSLSocketFactory getSSLSocketFactory() {
         //Why do we do this differentiation? Why not just use the standard one?
         if (mApplicationProperties.isRunningOnDalvik()) {
             // make use of android's implementation
@@ -166,7 +170,8 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
         }
     }
 
-    @Override public ObjectMapper getMapper() {
+    @Override
+    public ObjectMapper getMapper() {
         return mObjectMapper;
     }
 
@@ -186,10 +191,10 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     }
 
     private void recordUnauthorisedRequestIfRequired(HttpResponse response) {
-        if(responseIsUnauthorised(response)){
+        if (responseIsUnauthorised(response)) {
             mUnauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
         } else {
-           mUnauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
+            mUnauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
         }
     }
 
@@ -217,39 +222,61 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
         return sb.toString();
     }
 
-    @Override @SuppressWarnings("unchecked")
+    @Override
+    @SuppressWarnings("unchecked")
     public <T extends ScResource> T read(Request request) throws NotFoundException, IOException {
-        return (T) getMapper().readValue(getInputStream(get(request), request), ScResource.class);
+        InputStream inputStream = getInputStream(get(request), request);
+        try {
+            return (T) getMapper().readValue(inputStream, ScResource.class);
+        } finally {
+            IOUtils.close(inputStream);
+        }
     }
 
-    @Override @SuppressWarnings("unchecked")
+    @Override
+    @SuppressWarnings("unchecked")
     public <T extends ScResource> T update(Request request) throws NotFoundException, IOException {
-        return (T) getMapper().readValue(getInputStream(put(request), request), ScResource.class);
+        InputStream inputStream = getInputStream(put(request), request);
+        try {
+            return (T) getMapper().readValue(inputStream, ScResource.class);
+        } finally {
+            IOUtils.close(inputStream);
+        }
     }
 
-    @Override @SuppressWarnings("unchecked")
+    @Override
+    @SuppressWarnings("unchecked")
     public <T extends ScResource> T create(Request request) throws IOException {
-        return (T) getMapper().readValue(getInputStream(post(request), request), ScResource.class);
+        InputStream inputStream = getInputStream(post(request), request);
+        try {
+            return (T) getMapper().readValue(inputStream, ScResource.class);
+        } finally {
+            IOUtils.close(inputStream);
+        }
     }
 
-    @Override @SuppressWarnings("unchecked")
+    @Override
+    @SuppressWarnings("unchecked")
     @NotNull
     public <T extends ScResource> List<T> readList(Request request) throws IOException {
+        JsonParser parser = null;
+        List<T> result;
         InputStream is = getInputStream(get(request), request);
 
-        JsonParser parser = getMapper().getFactory().createParser(is);
-        JsonToken t = parser.getCurrentToken();
-        if (t == null) {
-            t = parser.nextToken();
-            if (t == null) {
-                throw JsonMappingException.from(parser, "No content to map due to end-of-input");
-            }
-        }
-        List<T> result;
         try {
+            parser = getMapper().getFactory().createParser(is);
+            JsonToken t = parser.getCurrentToken();
+            if (t == null) {
+                t = parser.nextToken();
+                if (t == null) {
+                    throw JsonMappingException.from(parser, "No content to map due to end-of-input");
+                }
+            }
+
+
             if (t == JsonToken.START_ARRAY) {
                 result = getMapper().readValue(parser, getMapper().getTypeFactory().constructCollectionType(List.class, ScResource.class));
-            }  else if (t == JsonToken.START_OBJECT) {
+            } else if (t == JsonToken.START_OBJECT) {
                 result = getMapper().readValue(parser, ScResource.ScResourceHolder.class).collection;
             } else {
                 throw JsonMappingException.from(parser, "Invalid content");
@@ -259,7 +286,9 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
                 result = Collections.emptyList();
             }
         } finally {
-            parser.close();
+            IOUtils.close(parser);
+            //Incase parser creation failed, should fail silently otherwise
+            IOUtils.close(is);
         }
 
         return result;
@@ -284,14 +313,21 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     }
 
     @Override
-    public @NotNull <T, C extends CollectionHolder<T>> List<T> readFullCollection(Request request,
-                                                                                  Class<C> ch) throws IOException {
+    public
+    @NotNull
+    <T, C extends CollectionHolder<T>> List<T> readFullCollection(Request request,
+                                                                  Class<C> ch) throws IOException {
         List<T> objects = new ArrayList<T>();
         C holder = null;
         do {
             Request r = holder == null ? request : Request.to(holder.next_href);
             r = r.with(LINKED_PARTITIONING, "1");
-            holder = getMapper().readValue(getInputStream(get(r), r), ch);
+            InputStream inputStream = getInputStream(get(r), r);
+            try {
+                holder = getMapper().readValue(inputStream, ch);
+            } finally {
+                IOUtils.close(inputStream);
+            }
             if (holder == null) throw new IOException("invalid data");
 
             if (holder.collection != null) {
@@ -303,9 +339,15 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     }
 
 
-    @Override @SuppressWarnings("unchecked")
+    @Override
+    @SuppressWarnings("unchecked")
     public <T extends ScResource> ScResource.ScResourceHolder<T> readCollection(Request req) throws IOException {
-        return getMapper().readValue(getInputStream(get(req), req), ScResource.ScResourceHolder.class);
+        InputStream inputStream = getInputStream(get(req), req);
+        try{
+            return getMapper().readValue(inputStream, ScResource.ScResourceHolder.class);
+        } finally {
+            IOUtils.close(inputStream);
+        }
     }
 
     @Override
@@ -313,7 +355,8 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
         return env;
     }
 
-    @Override public String getUserAgent() {
+    @Override
+    public String getUserAgent() {
         return userAgent == null ? super.getUserAgent() : userAgent;
     }
 
@@ -366,15 +409,15 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
             final SSLContext context = SSLContext.getInstance("TLS");
             return new SSLSocketFactory(null, null, null, null, null, null) {
                 {
-                    context.init(null, new TrustManager[] { new X509TrustManager() {
+                    context.init(null, new TrustManager[]{new X509TrustManager() {
                         @Override
                         public void checkClientTrusted(X509Certificate[] chain, String type) throws CertificateException {
-                            Log.w(TAG, "trusting "+ Arrays.asList(chain));
+                            Log.w(TAG, "trusting " + Arrays.asList(chain));
                         }
 
                         @Override
                         public void checkServerTrusted(X509Certificate[] chain, String type) throws CertificateException {
-                            Log.w(TAG, "trusting "+ Arrays.asList(chain));
+                            Log.w(TAG, "trusting " + Arrays.asList(chain));
                         }
 
                         @Override
@@ -383,10 +426,12 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
                         }
                     }}, null);
                 }
+
                 @Override
                 public Socket createSocket() throws IOException {
                     return context.getSocketFactory().createSocket();
                 }
+
                 @Override
                 public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException {
                     return context.getSocketFactory().createSocket(socket, host, port, autoClose);
@@ -398,7 +443,9 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     }
 
     public static class CloudDateFormat extends StdDateFormat {
-        /** Used by the SoundCloud API */
+        /**
+         * Used by the SoundCloud API
+         */
         private final DateFormat dateFormat;
         // SimpleDateFormat & co are not threadsafe - use thread local instance for static access
         private static ThreadLocal<CloudDateFormat> threadLocal = new ThreadLocal<CloudDateFormat>();

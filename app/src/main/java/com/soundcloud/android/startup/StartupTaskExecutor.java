@@ -3,6 +3,7 @@ package com.soundcloud.android.startup;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.IOUtils;
@@ -11,7 +12,6 @@ import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
-import rx.schedulers.Schedulers;
 import rx.subscriptions.Subscriptions;
 
 import java.util.List;
@@ -23,7 +23,8 @@ public class StartupTaskExecutor extends ScheduledOperations {
     private final Observer<Class<? extends StartupTask>> mObserver;
 
     public StartupTaskExecutor(){
-        this(Schedulers.newThread(), new DefaultObserver<Class<? extends StartupTask>>() {}, new DeleteStreamCacheTask());
+        this(ScSchedulers.STORAGE_SCHEDULER, new DefaultObserver<Class<? extends StartupTask>>() {},
+                new DeleteStreamCacheTask());
     }
     @VisibleForTesting
     protected StartupTaskExecutor(Scheduler scheduler,

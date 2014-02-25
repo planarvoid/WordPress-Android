@@ -691,8 +691,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     private void setPlaybackState() {
         final boolean showPlayState = mPlaybackStateProvider.isSupposedToBePlaying();
+        long next = refreshNow();
         if (showPlayState) {
-            long next = refreshNow();
             queueNextRefresh(next);
         }
         mTransportBar.setPlaybackState(showPlayState);

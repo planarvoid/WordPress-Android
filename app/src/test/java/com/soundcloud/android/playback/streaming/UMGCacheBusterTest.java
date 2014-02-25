@@ -1,13 +1,8 @@
 package com.soundcloud.android.playback.streaming;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import org.junit.Before;
@@ -16,85 +11,71 @@ import org.mockito.Mock;
 import rx.Observer;
 import rx.schedulers.Schedulers;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-
 public class UMGCacheBusterTest {
 
     public static final String URL = "url";
     private UMGCacheBuster umgCacheBuster;
     @Mock
-    private Context context;
-    @Mock
-    private SharedPreferences sharedPrefs;
-    @Mock
     private StreamStorage streamStorage;
-    @Mock
-    private SharedPreferences.Editor editor;
     @Mock
     private Observer<Object> observer;
 
     @Before
     public void setUp(){
         initMocks(this);
-        when(context.getSharedPreferences(anyString(),anyInt())).thenReturn(sharedPrefs);
-        when(sharedPrefs.edit()).thenReturn(editor);
-        umgCacheBuster = new UMGCacheBuster(Schedulers.currentThread(), observer, context, streamStorage);
+        umgCacheBuster = new UMGCacheBuster(Schedulers.currentThread(), observer, streamStorage);
     }
 
     @Test
-    public void shouldUseLastStoredUrlIfNotPreviouslyProvided(){
-        when(sharedPrefs.getString(UMGCacheBuster.LAST_TRACK_PREFERENCE, URL)).thenReturn("url2");
+    public void shouldNotDoAnythingIfNoLastUrlExists(){
         umgCacheBuster.bustIt(URL);
-        verify(streamStorage).removeAllDataForItem("url2");
+        verifyZeroInteractions(streamStorage, observer);
     }
 
     @Test
-    public void shouldNotRemoveDataIfLastStoredUrlIfSameAsOneProvided(){
-        when(sharedPrefs.getString(UMGCacheBuster.LAST_TRACK_PREFERENCE, URL)).thenReturn(URL);
+    public void shouldNotDoAnythingIfComparisonUrlIsSameAsPreviousUrl(){
         umgCacheBuster.bustIt(URL);
-        verifyZeroInteractions(streamStorage);
+        umgCacheBuster.bustIt(URL);
+        verifyZeroInteractions(streamStorage, observer);
     }
 
     @Test
-    public void shouldUseProvidedUrlIfOnePreviouslyProvided(){
-        when(sharedPrefs.getString(UMGCacheBuster.LAST_TRACK_PREFERENCE, URL)).thenReturn(URL);
+    public void shouldClearCacheIfLastUrlIfDifferentFromComparisonUrl(){
         umgCacheBuster.bustIt(URL);
-        umgCacheBuster.bustIt("url3");
+        umgCacheBuster.bustIt("diffUrl");
         verify(streamStorage).removeAllDataForItem(URL);
-        verify(sharedPrefs, never()).getString(UMGCacheBuster.LAST_TRACK_PREFERENCE, "url3");
     }
 
     @Test
-    public void shouldNotRemoveDataIfProvidedUrlIsSameAsOneProvided(){
-        when(sharedPrefs.getString(UMGCacheBuster.LAST_TRACK_PREFERENCE, URL)).thenReturn(URL);
+    public void shouldClearCacheIfLastUrlIfDifferentFromComparisonUrlMultipleTimes(){
         umgCacheBuster.bustIt(URL);
+        umgCacheBuster.bustIt("diffUrl");
+        umgCacheBuster.bustIt("diffUrl");
+        umgCacheBuster.bustIt("diffUrl2");
+        verify(streamStorage).removeAllDataForItem(URL);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAcceptEmptyComparisonUrl(){
+        umgCacheBuster.bustIt("  ");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAcceptNullComparisonUrl(){
+        umgCacheBuster.bustIt(null);
+    }
+
+    @Test
+    public void shouldReturnLastComparisonUrlAfterMultipleInvocations(){
         umgCacheBuster.bustIt(URL);
-        verifyZeroInteractions(streamStorage);
-        verify(sharedPrefs, times(1)).getString(UMGCacheBuster.LAST_TRACK_PREFERENCE, URL);
+        umgCacheBuster.bustIt("diffUrl2");
+        expect(umgCacheBuster.getLastUrl()).toEqual("diffUrl2");
     }
 
     @Test
-    public void shouldUpdateStoredLastURLWhenRemovingData(){
-        when(sharedPrefs.getString(anyString(), anyString())).thenReturn(URL);
-        umgCacheBuster.bustIt("url2");
-        verify(editor).putString(UMGCacheBuster.LAST_TRACK_PREFERENCE, "url2");
-        verify(editor).commit();
-    }
-
-    @Test
-    public void shouldCallOnCompletedIfURLsAretheSame(){
-        when(sharedPrefs.getString(anyString(), anyString())).thenReturn(URL);
+    public void shouldReturnLastComparisonUrl(){
         umgCacheBuster.bustIt(URL);
-        verify(observer).onCompleted();
-        verify(observer, never()).onError(any(Exception.class));
+        expect(umgCacheBuster.getLastUrl()).toEqual(URL);
     }
 
-    @Test
-    public void shouldCallOnCompletedAfterSuccessfullyClearingData(){
-        when(sharedPrefs.getString(anyString(), anyString())).thenReturn(URL);
-        umgCacheBuster.bustIt("url2");
-        verify(observer).onCompleted();
-        verify(observer, never()).onError(any(Exception.class));
-    }
 }
