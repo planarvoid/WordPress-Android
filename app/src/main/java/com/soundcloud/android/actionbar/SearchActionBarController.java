@@ -31,6 +31,29 @@ public class SearchActionBarController extends ActionBarController {
     private final PublicCloudAPI mPublicCloudAPI;
     private final SearchCallback mSearchCallback;
 
+    private final SearchView.OnSuggestionListener mSuggestionListener = new SearchView.OnSuggestionListener() {
+        @Override
+        public boolean onSuggestionSelect(int position) {
+            return false;
+        }
+
+        @Override
+        public boolean onSuggestionClick(int position) {
+            String query = mSearchView.getQuery().toString();
+            mSearchView.clearFocus();
+
+            if (mSuggestionsAdapter.isSearchItem(position)) {
+                performSearch(query);
+            } else {
+                final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
+                final Intent intent = new Intent(Intent.ACTION_VIEW);
+                Screen.SEARCH_SUGGESTIONS.addToIntent(intent);
+                mActivity.startActivity(intent.setData(itemUri));
+            }
+            return true;
+        }
+    };
+
     public interface SearchCallback {
         void performTextSearch(String query);
         void performTagSearch(String tag);
@@ -95,29 +118,6 @@ public class SearchActionBarController extends ActionBarController {
                 mSearchCallback.exitSearchMode();
             }
             return false;
-        }
-    };
-
-    private final SearchView.OnSuggestionListener mSuggestionListener = new SearchView.OnSuggestionListener() {
-        @Override
-        public boolean onSuggestionSelect(int position) {
-            return false;
-        }
-
-        @Override
-        public boolean onSuggestionClick(int position) {
-            String query = mSearchView.getQuery().toString();
-            mSearchView.clearFocus();
-
-            if (mSuggestionsAdapter.isSearchItem(position)) {
-                performSearch(query);
-            } else {
-                final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
-                final Intent intent = new Intent(Intent.ACTION_VIEW);
-                Screen.SEARCH_SUGGESTIONS.addToIntent(intent);
-                mActivity.startActivity(intent.setData(itemUri));
-            }
-            return true;
         }
     };
 

@@ -58,6 +58,30 @@ public class SearchOperations {
                 }
             };
 
+    private final SearchResultsNextPageFunction mNextSearchResultsPageGenerator = new SearchResultsNextPageFunction() {
+        @Override
+        public Observable<Page<SearchResultsCollection>> call(SearchResultsCollection searchResultsCollection) {
+            final String nextHref = searchResultsCollection.getNextHref();
+            if (ScTextUtils.isNotBlank(nextHref)) {
+                return getSearchResults(nextHref);
+            } else {
+                return OperationPaged.emptyPageObservable();
+            }
+        }
+    };
+
+    private final DiscoveryResultsNextPageFunction mNextDiscoveryResultsPageGenerator = new DiscoveryResultsNextPageFunction() {
+        @Override
+        public Observable<Page<PlaylistSummaryCollection>> call(PlaylistSummaryCollection collection) {
+            final Optional<Link> nextLink = collection.getNextLink();
+            if (nextLink.isPresent()) {
+                return getPlaylistDiscoveryResultPage(nextLink.get().getHref());
+            } else {
+                return OperationPaged.emptyPageObservable();
+            }
+        }
+    };
+
     private final RxHttpClient mRxHttpClient;
 
     @Inject
@@ -100,7 +124,7 @@ public class SearchOperations {
 
     private Observable<Page<SearchResultsCollection>> getPageObservable(APIRequest<SearchResultsCollection> request) {
         Observable<SearchResultsCollection> source = mRxHttpClient.<SearchResultsCollection>fetchModels(request).map(FILTER_UNKOWN_RESOURCES);
-        return Observable.create(paged(source, nextSearchResultsPageGenerator));
+        return Observable.create(paged(source, mNextSearchResultsPageGenerator));
     }
 
     Observable<PlaylistTagsCollection> getPlaylistTags() {
@@ -120,32 +144,8 @@ public class SearchOperations {
                 .forPrivateAPI(1)
                 .forResource(TypeToken.of(PlaylistSummaryCollection.class))
                 .build();
-        return Observable.create(paged(mRxHttpClient.<PlaylistSummaryCollection>fetchModels(request), nextDiscoveryResultsPageGenerator));
+        return Observable.create(paged(mRxHttpClient.<PlaylistSummaryCollection>fetchModels(request), mNextDiscoveryResultsPageGenerator));
     }
-
-    private final SearchResultsNextPageFunction nextSearchResultsPageGenerator = new SearchResultsNextPageFunction() {
-        @Override
-        public Observable<Page<SearchResultsCollection>> call(SearchResultsCollection searchResultsCollection) {
-            final String nextHref = searchResultsCollection.getNextHref();
-            if (ScTextUtils.isNotBlank(nextHref)) {
-                return getSearchResults(nextHref);
-            } else {
-                return OperationPaged.emptyPageObservable();
-            }
-        }
-    };
-
-    private final DiscoveryResultsNextPageFunction nextDiscoveryResultsPageGenerator = new DiscoveryResultsNextPageFunction() {
-        @Override
-        public Observable<Page<PlaylistSummaryCollection>> call(PlaylistSummaryCollection collection) {
-            final Optional<Link> nextLink = collection.getNextLink();
-            if (nextLink.isPresent()) {
-                return getPlaylistDiscoveryResultPage(nextLink.get().getHref());
-            } else {
-                return OperationPaged.emptyPageObservable();
-            }
-        }
-    };
 
     private interface SearchResultsNextPageFunction extends Func1<SearchResultsCollection, Observable<Page<SearchResultsCollection>>> {}
     private interface DiscoveryResultsNextPageFunction extends Func1<PlaylistSummaryCollection, Observable<Page<PlaylistSummaryCollection>>> {}

@@ -14,6 +14,9 @@ public class PlaylistSummary extends ScModel {
     private String mArtworkUrl;
     private Date mCreatedAt;
 
+    /**
+     * Required for Jackson
+     */
     public PlaylistSummary() {
     }
 

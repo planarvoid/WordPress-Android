@@ -26,6 +26,23 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
     private SearchActionBarController mActionBarController;
     private String mQuery;
 
+    private final SearchActionBarController.SearchCallback mSearchCallback = new SearchActionBarController.SearchCallback() {
+        @Override
+        public void performTextSearch(String query) {
+            replaceContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
+        }
+
+        @Override
+        public void performTagSearch(String tag) {
+            replaceContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
+        }
+
+        @Override
+        public void exitSearchMode() {
+            replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +82,7 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
 
     @Override
     protected ActionBarController createActionBarController() {
-        mActionBarController = new SearchActionBarController(this, mPublicCloudAPI, searchCallback);
+        mActionBarController = new SearchActionBarController(this, mPublicCloudAPI, mSearchCallback);
         return mActionBarController;
     }
 
@@ -85,23 +102,6 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
         mActionBarController.setQuery(tag);
         replaceContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
     }
-
-    private SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {
-        @Override
-        public void performTextSearch(String query) {
-            replaceContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
-        }
-
-        @Override
-        public void performTagSearch(String tag) {
-            replaceContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
-        }
-
-        @Override
-        public void exitSearchMode() {
-            replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
-        }
-    };
 
     private void handleIntent() {
         final Intent intent = getIntent();

@@ -42,6 +42,14 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
     private EmptyListView mEmptyView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
+    private final View.OnClickListener mTagClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            TagClickListener listener = (TagClickListener) getActivity();
+            listener.onTagSelected(((TextView) v).getText().toString());
+        }
+    };
+
     public interface TagClickListener {
         void onTagSelected(String tag);
     }
@@ -109,13 +117,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
             if (!TextUtils.isEmpty(tag)) {
                 TextView tagView = ((TextView) inflater.inflate(R.layout.tag_text, null));
                 tagView.setText(tag);
-                tagView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        TagClickListener listener = (TagClickListener) getActivity();
-                        listener.onTagSelected(tag);
-                    }
-                });
+                tagView.setOnClickListener(mTagClickListener);
                 tagFlowLayout.addView(tagView, flowLP);
             }
         }
