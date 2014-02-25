@@ -6,16 +6,19 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.OperationPaged;
 import rx.android.observables.AndroidObservable;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
@@ -52,10 +55,13 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     @Inject
     ImageOperations mImageOperations;
     @Inject
+    EventBus mEventBus;
+    @Inject
     SearchResultsAdapter mAdapter;
 
     private int mSearchType;
     private Subscription mSubscription = Subscriptions.empty();
+    private Subscription mPlaybackSubscription = Subscriptions.empty();
 
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
@@ -78,10 +84,11 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
     @VisibleForTesting
     SearchResultsFragment(SearchOperations searchOperations, PlaybackOperations playbackOperations,
-                          ImageOperations imageOperations, SearchResultsAdapter adapter) {
+                          ImageOperations imageOperations, EventBus eventBus, SearchResultsAdapter adapter) {
         mSearchOperations = searchOperations;
         mPlaybackOperations = playbackOperations;
         mImageOperations = imageOperations;
+        mEventBus = eventBus;
         mAdapter = adapter;
     }
 
@@ -120,11 +127,20 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         getListView().setOnScrollListener(mImageOperations.createScrollPauseListener(false, true, mAdapter));
 
         loadSearchResults();
+
+        mPlaybackSubscription = mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackObserver());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onDestroy() {
         mSubscription.unsubscribe();
+        mPlaybackSubscription.unsubscribe();
         super.onDestroy();
     }
 
@@ -190,4 +206,12 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         mObservable.subscribe(new ListFragmentObserver<Page<SearchResultsCollection>>(this));
         mSubscription = mObservable.connect();
     }
+
+    private final class PlaybackObserver extends DefaultObserver<PlaybackEvent> {
+        @Override
+        public void onNext(PlaybackEvent event) {
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
 }
