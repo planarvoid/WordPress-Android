@@ -3,6 +3,7 @@ package com.soundcloud.android.storage;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.activities.Activity;
@@ -109,6 +110,7 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
 
     public Playlist addTrackToPlaylist(Playlist playlist, long trackId, long timeAdded) {
         playlist.setTrackCount(playlist.getTrackCount() + 1);
+        SoundCloudApplication.sModelManager.cache(playlist, ScResource.CacheUpdateMode.MINI);
 
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlist.getId());
