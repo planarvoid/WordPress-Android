@@ -8,6 +8,9 @@ import rx.subjects.PublishSubject;
 
 import android.util.SparseArray;
 
+import javax.inject.Singleton;
+
+@Singleton
 public class EventBus {
 
     public static final class QueueDescriptor<T> {

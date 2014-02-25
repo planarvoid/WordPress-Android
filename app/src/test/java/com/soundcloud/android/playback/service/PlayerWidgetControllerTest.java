@@ -4,6 +4,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
@@ -30,12 +31,15 @@ public class PlayerWidgetControllerTest {
     @Mock
     private PlayerAppWidgetProvider widgetProvider;
     @Mock
+    private SoundAssociationOperations soundAssociationOperations;
+    @Mock
     private EventBus eventBus;
 
     @Before
     public void setUp() throws Exception {
         when(context.getApplicationContext()).thenReturn(context);
-        controller = new PlayerWidgetController(context, playbackStateProvider, widgetProvider, eventBus);
+        controller = new PlayerWidgetController(context, playbackStateProvider, widgetProvider,
+                soundAssociationOperations, eventBus);
         eventMonitor = EventMonitor.on(eventBus);
     }
 

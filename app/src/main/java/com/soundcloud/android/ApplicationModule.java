@@ -1,10 +1,8 @@
 package com.soundcloud.android;
 
-import com.soundcloud.android.analytics.AnalyticsEngine;
+import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import dagger.Module;
 import dagger.Provides;
 
@@ -15,7 +13,9 @@ import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 
-@Module(library = true)
+import javax.inject.Singleton;
+
+@Module(library = true, includes = ApiModule.class, injects = SoundCloudApplication.class)
 public class ApplicationModule {
 
     private final SoundCloudApplication mApplication;
@@ -30,52 +30,39 @@ public class ApplicationModule {
     }
 
     @Provides
-    public Context provideContext(){
+    public Context provideContext() {
         return mApplication;
     }
 
     @Provides
-    public Resources provideResources(){
+    public Resources provideResources() {
         return mApplication.getResources();
     }
 
     @Provides
-    public AccountManager provideAccountManager(){
+    public AccountManager provideAccountManager() {
         return AccountManager.get(mApplication);
     }
 
     @Provides
-    public SharedPreferences provideDefaultSharedPreferences(){
+    public SharedPreferences provideDefaultSharedPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(mApplication);
     }
 
     @Provides
-    public LayoutInflater provideLayoutInflater(){
+    public LayoutInflater provideLayoutInflater() {
         return LayoutInflater.from(mApplication);
     }
 
     @Provides
+    @Singleton
     public ScModelManager provideModelManager() {
-        return SoundCloudApplication.sModelManager;
+        return new ScModelManager(mApplication);
     }
 
     @Provides
-    public AnalyticsEngine provideAnalyticsEngine() {
-        return mApplication.getAnalyticsEngine();
-    }
-
-    @Provides
-    public ImageOperations provideImageOperations() {
-        return ImageOperations.newInstance();
-    }
-
-    @Provides
-    public PlayerAppWidgetProvider provideAppWidgetProvider() {
-        return PlayerAppWidgetProvider.getInstance();
-    }
-
-    @Provides
+    @Singleton
     public EventBus provideEventBus() {
-        return mApplication.getEventBus();
+        return new EventBus();
     }
 }

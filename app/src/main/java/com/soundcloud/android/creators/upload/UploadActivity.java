@@ -1,18 +1,12 @@
 package com.soundcloud.android.creators.upload;
 
-import android.content.Intent;
-import android.database.DataSetObserver;
-import android.net.Uri;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.*;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
+
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
@@ -27,11 +21,23 @@ import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
 import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 
+import android.content.Intent;
+import android.database.DataSetObserver;
+import android.net.Uri;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ViewFlipper;
+
 import java.util.Arrays;
 import java.util.List;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
 
 public class UploadActivity extends ScActivity implements ISimpleDialogListener {
 
@@ -44,7 +50,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
     private RecordingMetaDataLayout mRecordingMetadata;
     private boolean mUploading;
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
+    private ImageOperations mImageOperations;
 
     private RecordingStorage mStorage;
     private PublicCloudAPI mOldCloudAPI;
@@ -59,6 +65,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         mOldCloudAPI = new PublicApi(this);
         setTitle(R.string.share);
 
+        mImageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
         mStorage = new RecordingStorage();
 
         final Intent intent = getIntent();

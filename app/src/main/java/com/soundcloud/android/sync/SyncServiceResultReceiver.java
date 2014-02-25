@@ -4,7 +4,6 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.activities.Activities;
 import com.soundcloud.android.storage.ActivitiesStorage;
@@ -27,8 +26,6 @@ class SyncServiceResultReceiver extends ResultReceiver {
     private SyncResult result;
     private SoundCloudApplication app;
     private Bundle extras;
-
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     public SyncServiceResultReceiver(SoundCloudApplication app, SyncResult result, Bundle extras) {
         super(new Handler());

@@ -2,7 +2,6 @@ package com.soundcloud.android.main;
 
 import static rx.android.observables.AndroidObservable.fromActivity;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -10,8 +9,6 @@ import com.soundcloud.android.accounts.UserOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.LikesListFragment;
 import com.soundcloud.android.collections.ScListFragment;
-import com.soundcloud.android.dagger.DaggerDependencyInjector;
-import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -57,25 +54,15 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     @Inject
     UserOperations mUserOperations;
 
-    private final DependencyInjector mDependencyInjector;
-
     private CompositeSubscription mSubscription = new CompositeSubscription();
 
-    @SuppressWarnings("unused")
     public MainActivity() {
-        this(new DaggerDependencyInjector());
-    }
-
-    @VisibleForTesting
-    protected MainActivity(DependencyInjector objectGraphCreator) {
-        this.mDependencyInjector = objectGraphCreator;
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-
-        mDependencyInjector.fromAppGraphWithModules(new MainModule()).inject(this);
 
         mNavigationFragment = findNavigationFragment();
         mNavigationFragment.initState(savedInstanceState);

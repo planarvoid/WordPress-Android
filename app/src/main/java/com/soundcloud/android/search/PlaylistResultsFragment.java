@@ -5,8 +5,8 @@ import static rx.android.observables.AndroidObservable.fromFragment;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.PlaylistSummary;
@@ -59,7 +59,7 @@ public class PlaylistResultsFragment extends ListFragment implements EmptyViewAw
 
     public PlaylistResultsFragment() {
         setRetainInstance(true);
-        new DaggerDependencyInjector().fromAppGraphWithModules(new SearchModule()).inject(this);
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting

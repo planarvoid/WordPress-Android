@@ -10,13 +10,13 @@ import com.google.common.collect.Lists;
 import com.localytics.android.Constants;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsEngine;
+import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.c2dm.C2DMReceiver;
-import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
@@ -52,12 +52,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.StrictMode;
-import android.preference.PreferenceManager;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 
-public class SoundCloudApplication extends Application implements ObjectGraphProvider {
+public class SoundCloudApplication extends Application {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
 
     // Remove these fields when we've moved to a full DI solution
@@ -69,15 +69,33 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     public static ScModelManager sModelManager;
 
     private User mLoggedInUser;
-    private AccountOperations mAccountOperations;
-    private AnalyticsEngine mAnalyticsEngine;
-    private EventBus mEventBus;
 
-    private ObjectGraph mObjectGraph;
+    // needs to remain in memory over the life-time of the app
+    @SuppressWarnings("unused")
+    private AnalyticsEngine mAnalyticsEngine;
+
+    @Inject
+    EventBus mEventBus;
+    @Inject
+    ScModelManager mModelManager;
+    @Inject
+    ImageOperations mImageOperations;
+    @Inject
+    AccountOperations mAccountOperations;
+    @Inject
+    ApplicationProperties mApplicationProperties;
+    @Inject
+    AnalyticsProperties mAnalyticsProperties;
+    @Inject
+    SharedPreferences mSharedPreferences;
+    @Inject
+    PlayerWidgetController mWidgetController;
+
+    protected ObjectGraph mObjectGraph;
 
     // DO NOT REMOVE, Android needs a default constructor.
     public SoundCloudApplication() {
-        mEventBus = new EventBus();
+        mObjectGraph = ObjectGraph.create(new ApplicationModule(this), new WidgetModule(), new SoundCloudModule());
     }
 
     @VisibleForTesting
@@ -90,22 +108,20 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     public void onCreate() {
         super.onCreate();
 
-        sModelManager = new ScModelManager(this);
         instance = this;
 
-        mObjectGraph = ObjectGraph.create(new ApplicationModule(this));
+        mObjectGraph.inject(this);
+
+        // reroute to a static field for legacy code
+        sModelManager = mModelManager;
 
         new MigrationEngine(this).migrate();
         new StartupTaskExecutor().executeTasks();
 
-        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Log.i(TAG, "Application starting up in mode " + mApplicationProperties.getBuildType());
+        Log.d(TAG, mApplicationProperties.toString());
 
-        ApplicationProperties appProperties = new ApplicationProperties(getResources());
-
-        Log.i(TAG, "Application starting up in mode " + appProperties.getBuildType());
-        Log.d(TAG, appProperties.toString());
-
-        if (appProperties.isDevBuildRunningOnDalvik() && !ActivityManager.isUserAMonkey()) {
+        if (mApplicationProperties.isDevBuildRunningOnDalvik() && !ActivityManager.isUserAMonkey()) {
             setupStrictMode();
         }
 
@@ -116,10 +132,18 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
         IOUtils.checkState(this);
 
-        ImageOperations imageOperations = ImageOperations.newInstance();
-        imageOperations.initialise(this);
+        mImageOperations.initialise(this);
 
-        mAccountOperations = new AccountOperations(this);
+        setupCurrentUserAccount();
+
+        setupAnalytics();
+
+        FacebookSSOActivity.extendAccessTokenIfNeeded(this);
+
+        mWidgetController.subscribe();
+    }
+
+    private void setupCurrentUserAccount() {
         final Account account = mAccountOperations.getSoundCloudAccount();
 
         if (account != null) {
@@ -132,7 +156,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
             AndroidUtils.doOnce(this, "reset.c2dm.reg_id", new Runnable() {
                 @Override
                 public void run() {
-                    sharedPreferences.edit().remove(Consts.PrefKeys.C2DM_DEVICE_URL).commit();
+                    mSharedPreferences.edit().remove(Consts.PrefKeys.C2DM_DEVICE_URL).commit();
                 }
             });
             // delete old cache dir
@@ -145,7 +169,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
             try {
                 C2DMReceiver.register(this);
             } catch (Exception e){
-                SoundCloudApplication.handleSilentException("Could not register c2dm ",e);
+                SoundCloudApplication.handleSilentException("Could not register c2dm ", e);
             }
 
             // sync current sets
@@ -158,15 +182,10 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
             ContentStats.init(this);
 
-            if (appProperties.isBetaBuildRunningOnDalvik()){
+            if (mApplicationProperties.isBetaBuildRunningOnDalvik()){
                 Crashlytics.setUserIdentifier(getLoggedInUser().username);
             }
         }
-
-        setupAnalytics(sharedPreferences, appProperties);
-
-        FacebookSSOActivity.extendAccessTokenIfNeeded(this);
-        PlayerWidgetController.getInstance(this).subscribe();
     }
 
     /*
@@ -186,30 +205,40 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         });
     }
 
-    private void setupAnalytics(SharedPreferences sharedPreferences, ApplicationProperties appProperties) {
-        AnalyticsProperties analyticsProperties = new AnalyticsProperties(getResources());
-        Log.d(TAG, analyticsProperties.toString());
+    private void setupAnalytics() {
+        Log.d(TAG, mAnalyticsProperties.toString());
+
         // Unfortunately, both Localytics and ComScore are unmockable in tests and were crashing the tests during
         // initialiation of AnalyticsEngine, so we do not register them unless we're running on a real device
         final List<AnalyticsProvider> analyticsProviders;
-        if (appProperties.isRunningOnDalvik()) {
+        if (mApplicationProperties.isRunningOnDalvik()) {
             analyticsProviders = Lists.newArrayList(
-                    new LocalyticsAnalyticsProvider(this, analyticsProperties, getCurrentUserId()),
+                    new LocalyticsAnalyticsProvider(this, mAnalyticsProperties, getCurrentUserId()),
                     new EventLoggerAnalyticsProvider(),
                     new ComScoreAnalyticsProvider(this));
         } else {
-           analyticsProviders = Collections.emptyList();
+            analyticsProviders = Collections.emptyList();
         }
-        mAnalyticsEngine = new AnalyticsEngine(mEventBus, sharedPreferences, analyticsProperties, analyticsProviders);
-        Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && appProperties.isDebugBuild();
+        mAnalyticsEngine = new AnalyticsEngine(mEventBus, mSharedPreferences, mAnalyticsProperties, analyticsProviders);
+        Constants.IS_LOGGABLE = mAnalyticsProperties.isAnalyticsAvailable() && mApplicationProperties.isDebugBuild();
     }
 
     public EventBus getEventBus() {
         return mEventBus;
     }
 
-    public ObjectGraph getObjectGraph() {
-        return mObjectGraph;
+    @Deprecated // use @Inject instead!
+    public ImageOperations getImageOperations() {
+        return mImageOperations;
+    }
+
+    @NotNull
+    public static ObjectGraph getObjectGraph() {
+        if (instance == null || instance.mObjectGraph == null) {
+            throw new IllegalStateException(
+                    "Cannot access the app graph before the application has been created");
+        }
+        return instance.mObjectGraph;
     }
 
     public synchronized User getLoggedInUser() {
@@ -259,10 +288,6 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         } else {
             return false;
         }
-    }
-
-    public AnalyticsEngine getAnalyticsEngine() {
-        return mAnalyticsEngine;
     }
 
     /**

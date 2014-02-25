@@ -1,20 +1,20 @@
 package com.soundcloud.android.explore;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.view.SlidingTabLayout;
+
 import android.annotation.SuppressLint;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.dagger.DaggerDependencyInjector;
-import com.soundcloud.android.dagger.DependencyInjector;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.view.SlidingTabLayout;
 
 import javax.inject.Inject;
 
@@ -24,28 +24,26 @@ public class ExploreFragment extends Fragment {
     @Inject
     EventBus mEventBus;
     @Inject
-    Resources mResources;
-    @Inject
-    ExplorePagerAdapterFactory mExplorePagerAdapterFactory;
+    ExplorePagerAdapterFactory mPagerAdapterFactory;
 
-    private ExplorePagerAdapter mExplorePagerAdapter;
+    private ExplorePagerAdapter mPagerAdapter;
     private ViewPager mPager;
-    private DependencyInjector mInjector;
 
     public ExploreFragment() {
-        this(new DaggerDependencyInjector());
+        setRetainInstance(true);
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
-    public ExploreFragment(DependencyInjector injector){
-        mInjector = injector;
-        setRetainInstance(true);
+    @VisibleForTesting
+    ExploreFragment(ExplorePagerAdapterFactory pagerAdapterFactory, EventBus eventBus) {
+        mPagerAdapterFactory = pagerAdapterFactory;
+        mEventBus = eventBus;
     }
 
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
-        mInjector.fromAppGraphWithModules(new ExploreModule()).inject(this);
-        mExplorePagerAdapter = mExplorePagerAdapterFactory.create(this.getChildFragmentManager());
+        mPagerAdapter = mPagerAdapterFactory.create(this.getChildFragmentManager());
     }
 
     @Override
@@ -57,9 +55,9 @@ public class ExploreFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mPager = (ViewPager) view.findViewById(R.id.pager);
-        mPager.setAdapter(mExplorePagerAdapter);
+        mPager.setAdapter(mPagerAdapter);
         mPager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
-        mPager.setPageMargin(mResources.getDimensionPixelOffset(R.dimen.view_pager_divider_width));
+        mPager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
         SlidingTabLayout tabIndicator = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
         tabIndicator.setViewPager(mPager);

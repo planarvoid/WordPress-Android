@@ -8,7 +8,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackEvent;
@@ -16,7 +15,6 @@ import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.playback.PlaybackModule;
 import com.soundcloud.android.playback.service.managers.AudioManagerFactory;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
@@ -126,6 +124,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     AccountOperations mAccountOperations;
     @Inject
     ImageOperations mImageOperations;
+    @Inject
+    PlayerAppWidgetProvider mAppWidgetProvider;
 
     private @Nullable MediaPlayer mMediaPlayer;
     private int mLoadPercent = 0;       // track buffer indicator
@@ -143,8 +143,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private int mServiceStartId = -1;
     private boolean mServiceInUse;
-
-    private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
 
     private static final int IDLE_DELAY = 60*1000;  // interval after which we stop the service when idle
 
@@ -189,11 +187,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         String IS_REPOST = "isRepost";
     }
 
+    public PlaybackService() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
-
-        new DaggerDependencyInjector().fromAppGraphWithModules(new PlaybackModule()).inject(this);
 
         mOldCloudApi = new PublicApi(this);
         mPlaybackReceiver = new PlaybackReceiver(this, mAccountOperations, mPlayQueueManager);

@@ -42,7 +42,7 @@ import java.util.List;
 public class WaveformControllerLayout extends TouchLayout implements CommentPanelLayout.CommentPanelListener {
     private static final String TAG = WaveformControllerLayout.class.getSimpleName();
 
-    protected ImageOperations mImageOperations = ImageOperations.newInstance();
+    protected ImageOperations mImageOperations;
 
     protected static final long CLOSE_COMMENT_DELAY = 5000;
     private static final int OVERLAY_BG_COLOR = Color.WHITE;
@@ -121,6 +121,8 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
 
     public WaveformControllerLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        mImageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
 
         setWillNotDraw(false);
 

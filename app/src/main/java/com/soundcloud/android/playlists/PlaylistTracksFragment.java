@@ -5,9 +5,9 @@ import static rx.android.observables.AndroidObservable.fromFragment;
 import com.google.common.annotations.VisibleForTesting;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListView;
-import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
@@ -68,7 +68,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     ImageOperations mImageOperations;
 
     public PlaylistTracksFragment() {
-        new DaggerDependencyInjector().fromAppGraphWithModules(new PlaylistsModule()).inject(this);
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting

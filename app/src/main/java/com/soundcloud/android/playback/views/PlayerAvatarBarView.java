@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
@@ -54,7 +55,7 @@ public class PlayerAvatarBarView extends View {
 
     private Thread mAvatarRefreshThread;
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
+    private ImageOperations mImageOperations;
 
     private @Nullable Bitmap mCanvasBmp;
     private Bitmap mNextCanvasBmp;
@@ -69,6 +70,8 @@ public class PlayerAvatarBarView extends View {
 
     public PlayerAvatarBarView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
+
+        mImageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
 
         mAvatarGraphicsSize = context.getResources().getDisplayMetrics().density > 1 ?
                 ImageSize.BADGE :

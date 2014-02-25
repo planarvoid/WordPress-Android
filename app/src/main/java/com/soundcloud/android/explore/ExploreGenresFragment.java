@@ -1,20 +1,13 @@
 package com.soundcloud.android.explore;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import static com.soundcloud.android.explore.ExploreGenresAdapter.AUDIO_SECTION;
+import static com.soundcloud.android.explore.ExploreGenresAdapter.MUSIC_SECTION;
+import static rx.android.observables.AndroidObservable.fromFragment;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.collections.Section;
-import com.soundcloud.android.dagger.AndroidObservableFactory;
-import com.soundcloud.android.dagger.DaggerDependencyInjector;
-import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
@@ -29,10 +22,17 @@ import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
-import javax.inject.Inject;
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
-import static com.soundcloud.android.explore.ExploreGenresAdapter.AUDIO_SECTION;
-import static com.soundcloud.android.explore.ExploreGenresAdapter.MUSIC_SECTION;
+import javax.inject.Inject;
 
 @SuppressLint("ValidFragment")
 public class ExploreGenresFragment extends Fragment implements AdapterView.OnItemClickListener, EmptyViewAware {
@@ -44,7 +44,7 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
     EventBus mEventBus;
 
     @Inject
-    AndroidObservableFactory mObservableFactory;
+    ExploreTracksOperations mExploreOperations;
 
     @Inject
     ExploreGenresAdapter mGenresAdapter;
@@ -53,29 +53,24 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
     ImageOperations mImageOperations;
 
     private Subscription mSubscription = Subscriptions.empty();
-    private ConnectableObservable<Section<ExploreGenre>> mGenresObservable;
-
-    private DependencyInjector mDependencyInjector;
 
     public ExploreGenresFragment() {
-        this(new DaggerDependencyInjector());
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting
-    protected ExploreGenresFragment(DependencyInjector dependencyInjector) {
-        mDependencyInjector = dependencyInjector;
+    protected ExploreGenresFragment(ExploreTracksOperations exploreOperations, ExploreGenresAdapter adapter,
+                                    ImageOperations imageOperations, EventBus eventBus) {
+        mExploreOperations = exploreOperations;
+        mImageOperations = imageOperations;
+        mGenresAdapter = adapter;
+        mEventBus = eventBus;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDependencyInjector.fromAppGraphWithModules(new ExploreModule()).inject(this);
-        mGenresObservable = buildObservable(mObservableFactory.create(this));
         mSubscription = loadCategories();
-    }
-
-    private ConnectableObservable<Section<ExploreGenre>> buildObservable(Observable<ExploreGenresSections> observable) {
-        return observable.mapMany(GENRES_TO_SECTIONS).replay();
     }
 
     @Override
@@ -106,7 +101,6 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
             @Override
             public void onEmptyViewRetry() {
                 setEmptyViewStatus(EmptyListView.Status.WAITING);
-                mGenresObservable = buildObservable(mObservableFactory.create(ExploreGenresFragment.this));
                 mSubscription = loadCategories();
             }
         });
@@ -143,6 +137,8 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
     }
 
     private Subscription loadCategories() {
+        ConnectableObservable<Section<ExploreGenre>> mGenresObservable =
+                fromFragment(this, mExploreOperations.getCategories().mergeMap(GENRES_TO_SECTIONS)).replay();
         mGenresObservable.subscribe(mGenresAdapter);
         mGenresObservable.subscribe(new ListFragmentObserver<Section<ExploreGenre>>(this));
         return mGenresObservable.connect();

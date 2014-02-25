@@ -1,12 +1,15 @@
 package com.soundcloud.android.main;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.image.ImageOperations;
 import org.jetbrains.annotations.Nullable;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -19,18 +22,26 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import javax.inject.Inject;
+
+@SuppressLint("ValidFragment")
 public class NavigationDrawerFragment extends NavigationFragment {
 
     @Nullable
     private ActionBarDrawerToggle mDrawerToggle;
 
     private DrawerLayout mDrawerLayout;
-    private EventBus mEventBus;
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mEventBus = ((SoundCloudApplication) activity.getApplication()).getEventBus();
+    @Inject
+    EventBus mEventBus;
+
+    public NavigationDrawerFragment() {
+    }
+
+    @VisibleForTesting
+    protected NavigationDrawerFragment(ImageOperations imageOperations, EventBus eventBus) {
+        super(imageOperations);
+        this.mEventBus = eventBus;
     }
 
     @Override

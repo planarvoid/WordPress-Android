@@ -9,10 +9,13 @@ import com.soundcloud.android.R;
 
 import android.content.res.Resources;
 
+import javax.inject.Inject;
+
 public class AnalyticsProperties {
     private final String mLocalyticsAppKey;
     private final boolean mAnalyticsAvailable;
 
+    @Inject
     public AnalyticsProperties(Resources resources) {
         mAnalyticsAvailable = resources.getBoolean(R.bool.analytics_enabled);
         mLocalyticsAppKey = resources.getString(R.string.localytics_app_key);

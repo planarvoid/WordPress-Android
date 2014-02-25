@@ -48,7 +48,7 @@ public class PlayablePresenter {
 
     public PlayablePresenter(Context context) {
         mContext = context;
-        mImageOperations = ImageOperations.newInstance();
+        mImageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
     }
 
     public PlayablePresenter setPlayableRowView(View view){

@@ -2,7 +2,6 @@ package com.soundcloud.android.explore;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,29 +9,20 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collections.Section;
-import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
-import dagger.Module;
-import dagger.Provides;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rx.Observable;
-import rx.Subscription;
-import rx.observables.ConnectableObservable;
-import rx.util.functions.Func1;
 
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,7 +41,7 @@ public class ExploreGenresFragmentTest {
     @Mock
     private ExploreGenresAdapter adapter;
     @Mock
-    private AndroidObservableFactory factory;
+    private ExploreTracksOperations operations;
     @Mock
     private ExploreGenre exploreGenre;
     @Mock
@@ -63,8 +53,7 @@ public class ExploreGenresFragmentTest {
 
     @Before
     public void setUp() throws Exception {
-        MockInjector dependencyInjector = new MockInjector(new TestModule(factory));
-        fragment = new ExploreGenresFragment(dependencyInjector);
+        fragment = new ExploreGenresFragment(operations, adapter, imageOperations, eventBus);
         Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
     }
 
@@ -83,26 +72,8 @@ public class ExploreGenresFragmentTest {
     }
 
     @Test
-    public void shouldUnsubscribeFromObservableInOnDestroy() {
-        Observable observable = Mockito.mock(Observable.class);
-        ConnectableObservable mockObservable = mock(ConnectableObservable.class);
-        final Subscription subscription = Mockito.mock(Subscription.class);
-
-        when(factory.create(any(Fragment.class))).thenReturn(observable);
-        when(observable.mapMany(any(Func1.class))).thenReturn(observable);
-        when(observable.replay()).thenReturn(mockObservable);
-        when(mockObservable.connect()).thenReturn(subscription);
-
-        createFragment();
-        createFragmentView();
-
-        fragment.onDestroy();
-        verify(subscription).unsubscribe();
-    }
-
-    @Test
     public void shouldRecreateObservableWhenClickingRetryAfterFailureSoThatWeDontEmitCachedResults() {
-        when(factory.create(any(Fragment.class))).thenReturn(Observable.<ExploreGenresSections>error(new Exception()));
+        when(operations.getCategories()).thenReturn(Observable.<ExploreGenresSections>error(new Exception()));
 
         createFragment();
         createFragmentView();
@@ -113,7 +84,7 @@ public class ExploreGenresFragmentTest {
 
         // this verifies that clicking the retry button does not re-run the initial observable, but a new one.
         // If that wasn't the case, we'd simply replay a failed result.
-        verify(factory, times(2)).create(fragment);
+        verify(operations, times(2)).getCategories();
     }
 
     @Test
@@ -153,7 +124,7 @@ public class ExploreGenresFragmentTest {
     private void addCategoriesToFragment(ExploreGenresSections categories) {
         final Observable<ExploreGenresSections> observable = Observable.just(
                 categories);
-        when(factory.create(any(Fragment.class))).thenReturn(observable);
+        when(operations.getCategories()).thenReturn(observable);
         when(listView.getHeaderViewsCount()).thenReturn(0);
         when(adapter.getSection(0)).thenReturn(buildMusicSection(categories.getMusic()));
         when(adapter.getSection(1)).thenReturn(buildAudioSection(categories.getAudio()));
@@ -193,34 +164,4 @@ public class ExploreGenresFragmentTest {
         sections.setAudio(audioCategories);
         return sections;
     }
-
-    @Module(injects = ExploreGenresFragment.class)
-    public class TestModule {
-        AndroidObservableFactory observableFactory;
-
-        public TestModule(AndroidObservableFactory observableFactory) {
-            this.observableFactory = observableFactory;
-        }
-
-        @Provides
-        AndroidObservableFactory provideFactory() {
-            return factory;
-        }
-
-        @Provides
-        ExploreGenresAdapter provideExplorePagerAdapter() {
-            return adapter;
-        }
-
-        @Provides
-        ImageOperations provideImageOperations() {
-            return imageOperations;
-        }
-
-        @Provides
-        EventBus provideEventBus() {
-            return eventBus;
-        }
-    }
-
 }

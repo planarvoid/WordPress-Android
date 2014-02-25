@@ -21,7 +21,6 @@ import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.associations.SoundAssociationOperations;
-import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.main.ScActivity;
@@ -85,14 +84,16 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         int TRACK_UNAVAILABLE = 2;
     }
 
+    public PlayerActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.player_activity);
 
         setTitle(R.string.title_now_playing);
-
-        new DaggerDependencyInjector().fromAppGraphWithModules(new PlaybackModule()).inject(this);
 
         mTrackPager = (PlayerTrackPager) findViewById(R.id.track_view);
         mTrackPager.setPageMarginDrawable(R.drawable.track_view_separator);

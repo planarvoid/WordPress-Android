@@ -21,7 +21,7 @@ public abstract class IconLayout extends FrameLayout {
     protected ImageOperations mImageOperations;
 
     public IconLayout(Context context, AttributeSet attributeSet) {
-        this(context, attributeSet, ImageOperations.newInstance());
+        this(context, attributeSet, SoundCloudApplication.fromContext(context).getImageOperations());
     }
 
     public IconLayout(Context context, ImageOperations imageOperations) {

@@ -23,8 +23,23 @@ public class ExplorePagerAdapterTest {
     }
 
     @Test
-    public void shouldCreateCategoriesFragmentForFirstPagerPage() {
-        expect(adapter.getItem(0)).toBeInstanceOf(ExploreGenresFragment.class);
+    public void shouldHave3Fragments() {
+        expect(adapter.getCount()).toBe(3);
+    }
+
+    @Test
+    public void shouldCreateGenresFragmentForFirstPage() {
+        expect(adapter.getPageTitle(0)).toEqual("Genres");
+    }
+
+    @Test
+    public void shouldCreateMusicFragmentForSecondPage() {
+        expect(adapter.getPageTitle(1)).toEqual("Music");
+    }
+
+    @Test
+    public void shouldCreateAudioFragmentForThirdPage() {
+        expect(adapter.getPageTitle(2)).toEqual("Audio");
     }
 
 }

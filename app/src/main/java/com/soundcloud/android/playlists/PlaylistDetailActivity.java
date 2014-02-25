@@ -1,13 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.Toast;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -15,7 +7,6 @@ import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.associations.SoundAssociationOperations;
-import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
@@ -30,6 +21,15 @@ import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.FullImageDialog;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -77,11 +77,13 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         return intent.setData(playlist.toUri());
     }
 
+    public PlaylistDetailActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        new DaggerDependencyInjector().fromAppGraphWithModules(new PlaylistsModule()).inject(this);
 
         setTitle(R.string.activity_title_playlist);
         setContentView(R.layout.playlist_activity);

@@ -2,8 +2,8 @@ package com.soundcloud.android.search;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.view.SlidingTabLayout;
@@ -31,7 +31,6 @@ public class TabbedSearchFragment extends Fragment {
     @Inject
     Resources mResources;
 
-    private SearchPagerAdapter mSearchPagerAdapter;
     private ViewPager mPager;
 
     public static TabbedSearchFragment newInstance(String query) {
@@ -45,7 +44,7 @@ public class TabbedSearchFragment extends Fragment {
 
     public TabbedSearchFragment() {
         setRetainInstance(true);
-        new DaggerDependencyInjector().fromAppGraphWithModules(new SearchModule()).inject(this);
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting
@@ -71,7 +70,7 @@ public class TabbedSearchFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         String query = getArguments().getString(KEY_QUERY);
-        mSearchPagerAdapter = new SearchPagerAdapter(mResources, this.getChildFragmentManager(), query);
+        SearchPagerAdapter mSearchPagerAdapter = new SearchPagerAdapter(mResources, this.getChildFragmentManager(), query);
 
         mPager = (ViewPager) view.findViewById(R.id.pager);
         mPager.setAdapter(mSearchPagerAdapter);

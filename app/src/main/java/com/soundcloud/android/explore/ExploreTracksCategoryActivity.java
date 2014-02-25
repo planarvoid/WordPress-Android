@@ -1,28 +1,11 @@
 package com.soundcloud.android.explore;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.dagger.DaggerDependencyInjector;
-import com.soundcloud.android.dagger.DependencyInjector;
-import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.ExploreGenre;
-import dagger.ObjectGraph;
 
 import android.os.Bundle;
 
-public class ExploreTracksCategoryActivity extends ScActivity implements ObjectGraphProvider {
-
-    private ObjectGraph mObjectGraph;
-
-    @SuppressWarnings("unused")
-    public ExploreTracksCategoryActivity() {
-        this(new DaggerDependencyInjector());
-    }
-
-    @VisibleForTesting
-    protected ExploreTracksCategoryActivity(DependencyInjector objectGraphCreator) {
-        mObjectGraph = objectGraphCreator.fromAppGraphWithModules(new ExploreModule());
-    }
+public class ExploreTracksCategoryActivity extends ScActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,18 +26,7 @@ public class ExploreTracksCategoryActivity extends ScActivity implements ObjectG
     }
 
     @Override
-    public ObjectGraph getObjectGraph() {
-        return mObjectGraph;
-    }
-
-    @Override
     protected void setContentView() {
         // nop, don't allow margins to be set here
-    }
-
-    @Override
-    protected void onDestroy() {
-        mObjectGraph = null;
-        super.onDestroy();
     }
 }

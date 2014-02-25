@@ -1,5 +1,6 @@
 package com.soundcloud.android.image;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
@@ -25,12 +26,13 @@ public class ImageOperations {
 
     private ImageLoader mImageLoader;
 
-    public static ImageOperations newInstance() {
-        return new ImageOperations(ImageLoader.getInstance());
+    @Inject
+    public ImageOperations() {
+        mImageLoader = ImageLoader.getInstance();
     }
 
-    @Inject
-    ImageOperations(ImageLoader imageLoader) {
+    @VisibleForTesting
+    public ImageOperations(ImageLoader imageLoader) {
         mImageLoader = imageLoader;
     }
 

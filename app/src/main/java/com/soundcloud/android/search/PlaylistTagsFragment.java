@@ -1,13 +1,12 @@
 package com.soundcloud.android.search;
 
-import com.soundcloud.android.model.PlaylistTagsCollection;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static rx.android.observables.AndroidObservable.fromFragment;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.dagger.DaggerDependencyInjector;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.PlaylistTagsCollection;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.utils.ViewUtils;
@@ -48,7 +47,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
     }
 
     public PlaylistTagsFragment() {
-        new DaggerDependencyInjector().fromAppGraphWithModules(new SearchModule()).inject(this);
+        SoundCloudApplication.getObjectGraph().inject(this);
         setRetainInstance(true);
     }
 

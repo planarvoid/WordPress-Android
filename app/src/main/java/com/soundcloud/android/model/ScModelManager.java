@@ -12,7 +12,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
+import javax.inject.Singleton;
+
 @Deprecated
+@Singleton
 public class ScModelManager {
     private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1024 * 1024; // Available mem in bytes
     private static final int LOW_MEM_REFERENCE = 16 * 1024 * 1024; // In bytes, used as a reference for calculations

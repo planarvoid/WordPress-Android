@@ -9,6 +9,7 @@ import android.view.View;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -37,11 +38,13 @@ public class NavigationDrawerFragmentTest {
     @Mock
     View view;
     @Mock
+    ImageOperations imageOperations;
+    @Mock
     EventBus eventBus;
 
     @Before
     public void setUp() throws Exception {
-        fragment = new NavigationDrawerFragment();
+        fragment = new NavigationDrawerFragment(imageOperations, eventBus);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setView(view);
         when(activity.findViewById(R.id.drawer_layout)).thenReturn(drawerLayout);

@@ -2,8 +2,8 @@ package com.soundcloud.android.search;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -70,15 +70,16 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
     public SearchResultsFragment() {
         setRetainInstance(true);
-        new DaggerDependencyInjector().fromAppGraphWithModules(new SearchModule()).inject(this);
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting
-    SearchResultsFragment(SearchOperations searchOperations, PlaybackOperations playbackOperations, ImageOperations imageOperations, SearchResultsAdapter adapter) {
+    SearchResultsFragment(SearchOperations searchOperations, PlaybackOperations playbackOperations,
+                          ImageOperations imageOperations, SearchResultsAdapter adapter) {
         mSearchOperations = searchOperations;
         mPlaybackOperations = playbackOperations;
-        mAdapter = adapter;
         mImageOperations = imageOperations;
+        mAdapter = adapter;
     }
 
     @Override

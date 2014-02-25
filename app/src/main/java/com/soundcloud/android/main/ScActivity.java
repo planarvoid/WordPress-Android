@@ -63,7 +63,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
     private Subscription mUserEventSubscription = Subscriptions.empty();
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
+    private ImageOperations mImageOperations;
 
     protected AccountOperations mAccountOperations;
     protected PublicCloudAPI mPublicCloudAPI;
@@ -79,6 +79,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
         setContentView();
 
+        mImageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
         mEventBus = SoundCloudApplication.fromContext(this).getEventBus();
         mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
 

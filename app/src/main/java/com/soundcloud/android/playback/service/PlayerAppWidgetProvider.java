@@ -13,19 +13,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class PlayerAppWidgetProvider extends AppWidgetProvider {
     public static final String TAG = "PlayerWidget";
 
     private static final ComponentName THIS_APPWIDGET = new ComponentName("com.soundcloud.android",
             PlayerAppWidgetProvider.class.getCanonicalName());
 
-    private static PlayerAppWidgetProvider sInstance;
-
-    public static synchronized PlayerAppWidgetProvider getInstance() {
-        if (sInstance == null) {
-            sInstance = new PlayerAppWidgetProvider();
-        }
-        return sInstance;
+    @Inject
+    public PlayerAppWidgetProvider() {
     }
 
     @Override

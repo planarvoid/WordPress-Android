@@ -16,6 +16,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.view.GridViewCompat;
 import com.tobedevoured.modelcitizen.CreateModelException;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +26,7 @@ import rx.Observer;
 import rx.Scheduler;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 import java.util.HashSet;
@@ -57,6 +59,9 @@ public class SuggestedUsersCategoryFragmentTest {
         args.putParcelable(Category.EXTRA, category);
 
         fragment = new SuggestedUsersCategoryFragment(followingOperations);
+        Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
+        Robolectric.shadowOf(fragment).setAttached(true);
+
         fragment.setArguments(args);
         fragment.onCreate(null);
 

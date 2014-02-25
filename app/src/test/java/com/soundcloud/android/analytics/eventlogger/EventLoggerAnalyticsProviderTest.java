@@ -4,13 +4,9 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
-import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import dagger.Module;
-import dagger.ObjectGraph;
-import dagger.Provides;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,17 +15,14 @@ import org.mockito.Mock;
 @RunWith(SoundCloudTestRunner.class)
 public class EventLoggerAnalyticsProviderTest {
 
-    EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider;
+    private EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider;
 
     @Mock
-    EventLogger eventLogger;
-    @Mock
-    ObjectGraph objectGraph;
+    private EventLogger eventLogger;
 
     @Before
     public void setUp() throws Exception {
-        MockInjector dependencyInjector = new MockInjector(new TestModule());
-        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(dependencyInjector);
+        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventLogger);
     }
 
     @Test
@@ -50,13 +43,5 @@ public class EventLoggerAnalyticsProviderTest {
         PlayerLifeCycleEvent event = PlayerLifeCycleEvent.forDestroyed();
         eventLoggerAnalyticsProvider.handlePlayerLifeCycleEvent(event);
         verify(eventLogger).stop();
-    }
-
-    @Module(library = true, injects = EventLoggerAnalyticsProviderTest.class)
-    public class TestModule {
-        @Provides
-        public EventLogger provideEventLogger(){
-            return eventLogger;
-        }
     }
 }

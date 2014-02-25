@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * A controller class which handles communication between our widget and the application layer.
@@ -27,42 +28,26 @@ import javax.inject.Inject;
  *
  * Eventually this should process playback events as well.
  */
+@Singleton
 public class PlayerWidgetController {
 
-    private static PlayerWidgetController instance;
-
-    @Inject
-    Context mContext;
-    @Inject
-    PlaybackStateProvider mPlaybackStateProvider;
-    @Inject
-    PlayerAppWidgetProvider mWidgetProvider;
-    @Inject
-    SoundAssociationOperations mSoundAssocicationOps;
-    @Inject
-    EventBus mEventBus;
+    private final Context mContext;
+    private final PlaybackStateProvider mPlaybackStateProvider;
+    private final PlayerAppWidgetProvider mWidgetProvider;
+    private final SoundAssociationOperations mSoundAssocicationOps;
+    private final EventBus mEventBus;
 
     private Subscription eventSubscription = Subscriptions.empty();
 
-    public static PlayerWidgetController getInstance(Context context) {
-        if (instance == null) {
-            instance = new PlayerWidgetController(context);
-        }
-        return instance;
-    }
-
-    @VisibleForTesting
-    PlayerWidgetController(Context context, PlaybackStateProvider playbackStateProvider, PlayerAppWidgetProvider provider,
-                           EventBus eventBus) {
+    @Inject
+    public PlayerWidgetController(Context context, PlaybackStateProvider playbackStateProvider,
+                                  PlayerAppWidgetProvider widgetProvider,
+                                  SoundAssociationOperations soundAssociationOps, EventBus eventBus) {
         mContext = context;
         mPlaybackStateProvider = playbackStateProvider;
-        mWidgetProvider = provider;
+        mWidgetProvider = widgetProvider;
+        mSoundAssocicationOps = soundAssociationOps;
         mEventBus = eventBus;
-    }
-
-    private PlayerWidgetController(Context context) {
-        SoundCloudApplication application = (SoundCloudApplication) context.getApplicationContext();
-        application.getObjectGraph().plus(new PlayerWidgetModule()).inject(this);
     }
 
     public void subscribe() {
@@ -106,7 +91,9 @@ public class PlayerWidgetController {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (PlaybackService.Actions.WIDGET_LIKE_CHANGED.equals(intent.getAction())) {
-                PlayerWidgetController.getInstance(context).handleWidgetLikeAction(intent);
+                final PlayerWidgetController widgetController =
+                        SoundCloudApplication.getObjectGraph().get(PlayerWidgetController.class);
+                widgetController.handleWidgetLikeAction(intent);
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.soundcloud.android.api;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.HttpProperties;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
@@ -9,19 +8,13 @@ import com.soundcloud.android.api.http.json.JsonTransformer;
 import com.soundcloud.android.rx.ScSchedulers;
 import dagger.Module;
 import dagger.Provides;
-import rx.Scheduler;
 
-import javax.inject.Named;
+import android.content.Context;
+
 import javax.inject.Singleton;
 
-@Module(library = true, complete = false)
+@Module(complete = false, library = true)
 public class ApiModule {
-
-    @Provides
-    @Named("APIScheduler")
-    public Scheduler provideApiScheduler(){
-        return ScSchedulers.API_SCHEDULER;
-    }
 
     @Provides
     @Singleton
@@ -31,9 +24,9 @@ public class ApiModule {
 
     @Provides
     @Singleton
-    public RxHttpClient provideRxHttpClient(@Named("APIScheduler") Scheduler scheduler, JsonTransformer jsonTransformer,
-                                            SoundCloudApplication application, HttpProperties httpProperties) {
-        return new SoundCloudRxHttpClient(scheduler, jsonTransformer, application, httpProperties);
+    public RxHttpClient provideRxHttpClient(JsonTransformer jsonTransformer,
+                                            Context context, HttpProperties httpProperties) {
+        return new SoundCloudRxHttpClient(ScSchedulers.API_SCHEDULER, jsonTransformer, context, httpProperties);
     }
 
 }

@@ -113,7 +113,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
 
     private Subscription mUserEventSubscription = Subscriptions.empty();
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
+    private ImageOperations mImageOperations;
     private EventBus mEventBus;
 
     public static ScListFragment newInstance(Content content, Screen screen) {
@@ -173,6 +173,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         mEventBus = SoundCloudApplication.fromContext(getActivity()).getEventBus();
+        mImageOperations = SoundCloudApplication.fromContext(getActivity()).getImageOperations();
         publicApi = new PublicApi(getActivity());
         mKeepGoing = true;
         setupListAdapter();

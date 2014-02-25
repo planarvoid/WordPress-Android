@@ -1,14 +1,11 @@
 package com.soundcloud.android;
 
-import static org.mockito.Mockito.mock;
-
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.creators.record.WavHeader;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.api.Token;
+import dagger.ObjectGraph;
 
 import android.content.Intent;
 
@@ -30,7 +27,7 @@ public class TestApplication extends SoundCloudApplication {
     }
 
     private TestApplication(Token token) {
-        super(mock(EventBus.class), mock(AccountOperations.class));
+        mObjectGraph = ObjectGraph.create(new TestApplicationModule(this));
         this.token = token;
     }
 

@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.creators.upload.tasks.FoursquareVenueTask;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.FoursquareVenue;
@@ -59,7 +60,7 @@ public class LocationPickerActivity extends ListActivity {
 
     private static final int LOADING = 0;
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
+    private ImageOperations mImageOperations;
 
     private String mProvider;
     private Location mLocation;
@@ -70,6 +71,7 @@ public class LocationPickerActivity extends ListActivity {
 
         setContentView(R.layout.location_picker);
 
+        mImageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
         final FoursquareVenueAdapter adapter = new FoursquareVenueAdapter();
         final EditText where = (EditText) findViewById(R.id.where);
         where.setOnEditorActionListener(new TextView.OnEditorActionListener() {

@@ -5,9 +5,8 @@ import static rx.android.OperationPaged.Page;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.dagger.DaggerDependencyInjector;
-import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.SuggestedTracksCollection;
@@ -58,7 +57,6 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
     private Subscription mSubscription = Subscriptions.empty();
-    private DependencyInjector mDependencyInjector;
 
     public static ExploreTracksFragment create(ExploreGenre category, Screen screenTag) {
         final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
@@ -70,18 +68,13 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     }
 
     public ExploreTracksFragment() {
-        this(new DaggerDependencyInjector());
-    }
-
-    public ExploreTracksFragment(DependencyInjector dependencyInjector) {
-        mDependencyInjector = dependencyInjector;
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDependencyInjector.fromAppGraphWithModules(new ExploreModule()).inject(this);
         mObserver = new ExploreTracksObserver();
 
         mSuggestedTracksObservable = buildSuggestedTracksObservable();

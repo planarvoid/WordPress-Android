@@ -56,7 +56,7 @@ public class NavigationFragmentTest {
 
     @Before
     public void setUp() throws Exception {
-        fragment = new NavigationFragment();
+        fragment = new NavigationFragment(imageOperations);
         Robolectric.shadowOf(fragment).setActivity(activity);
         when(activity.getIntent()).thenReturn(intent);
         when(activity.getApplication()).thenReturn(application);

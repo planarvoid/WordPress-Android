@@ -9,6 +9,7 @@ import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -27,15 +28,18 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import javax.inject.Inject;
 import java.util.EnumSet;
 
+@SuppressLint("ValidFragment")
 public class NavigationFragment extends Fragment {
 
     @VisibleForTesting
     static final String STATE_SELECTED_POSITION = "selected_navigation_position";
     private static final int NO_IMAGE = -1;
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
+    @Inject
+    ImageOperations mImageOperations;
 
     private NavigationCallbacks mCallbacks;
 
@@ -64,6 +68,15 @@ public class NavigationFragment extends Fragment {
     // normal rows (below profile)
     private static final EnumSet<NavItem> TEXT_NAV_ITEMS =
             EnumSet.of(NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS);
+
+    public NavigationFragment() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @VisibleForTesting
+    protected NavigationFragment(ImageOperations imageOperations) {
+        mImageOperations = imageOperations;
+    }
 
     @Override
     public void onAttach(Activity activity) {

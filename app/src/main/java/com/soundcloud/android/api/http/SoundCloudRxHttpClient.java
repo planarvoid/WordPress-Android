@@ -64,8 +64,8 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
     }
 
     public SoundCloudRxHttpClient(Scheduler scheduler, JsonTransformer jsonTransformer,
-                                  SoundCloudApplication application, HttpProperties httpProperties) {
-        this(jsonTransformer, new WrapperFactory(application), httpProperties);
+                                  Context context, HttpProperties httpProperties) {
+        this(jsonTransformer, new WrapperFactory(context), httpProperties);
         subscribeOn(scheduler);
     }
 

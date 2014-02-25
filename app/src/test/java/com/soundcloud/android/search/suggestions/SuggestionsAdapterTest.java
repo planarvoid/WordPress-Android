@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.model.SearchSuggestions;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -103,6 +104,7 @@ public class SuggestionsAdapterTest {
     private Context mockContext() {
         Context context = mock(Context.class);
         ContentResolver mockResolver = mock(ContentResolver.class);
+        when(context.getApplicationContext()).thenReturn(mock(SoundCloudApplication.class));
         when(context.getContentResolver()).thenReturn(mockResolver);
         when(context.getResources()).thenReturn(mock(Resources.class));
 

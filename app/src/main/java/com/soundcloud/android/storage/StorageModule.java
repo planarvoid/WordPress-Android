@@ -6,7 +6,7 @@ import dagger.Provides;
 
 import android.content.ContentResolver;
 
-@Module(library = true, complete = false)
+@Module(complete = false, library = true)
 public class StorageModule {
 
     @Provides

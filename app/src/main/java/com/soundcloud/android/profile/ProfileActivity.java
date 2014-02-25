@@ -69,7 +69,7 @@ public class ProfileActivity extends ScActivity implements
 
     /* package */ @Nullable User mUser;
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
+    private ImageOperations mImageOperations;
 
     private TextView mUsername, mFullName, mFollowerCount, mFollowerMessage, mTrackCount, mLocation;
     private ToggleButton mToggleFollow;
@@ -104,6 +104,7 @@ public class ProfileActivity extends ScActivity implements
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.profile_activity);
+        mImageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
         mOldCloudAPI = new PublicApi(this);
         mFollowingOperations = new FollowingOperations();
         mAccountOperations = new AccountOperations(this);
