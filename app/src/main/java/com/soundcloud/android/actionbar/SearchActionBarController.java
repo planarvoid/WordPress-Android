@@ -44,6 +44,7 @@ public class SearchActionBarController extends ActionBarController {
 
             if (mSuggestionsAdapter.isSearchItem(position)) {
                 performSearch(query);
+                mSearchView.setSuggestionsAdapter(null);
             } else {
                 final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
                 final Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -69,7 +70,7 @@ public class SearchActionBarController extends ActionBarController {
 
     @Override
     public void onDestroy() {
-        // suggestions adapter has to stop handler thread
+        // Suggestions adapter has to stop handler thread
         if (mSuggestionsAdapter != null) mSuggestionsAdapter.onDestroy();
     }
 
@@ -107,13 +108,17 @@ public class SearchActionBarController extends ActionBarController {
         @Override
         public boolean onQueryTextSubmit(String query) {
             performSearch(query);
-            // clear focus as a workaround for https://code.google.com/p/android/issues/detail?id=24599
             mSearchView.clearFocus();
+            mSearchView.setSuggestionsAdapter(null);
             return true;
         }
 
         @Override
         public boolean onQueryTextChange(String s) {
+            if (mSearchView.getSuggestionsAdapter() == null) {
+                // This is nulled on search as a workaround to unwanted focus on some devices
+                mSearchView.setSuggestionsAdapter(mSuggestionsAdapter);
+            }
             if (s.length() < 1) {
                 mSearchCallback.exitSearchMode();
             }
