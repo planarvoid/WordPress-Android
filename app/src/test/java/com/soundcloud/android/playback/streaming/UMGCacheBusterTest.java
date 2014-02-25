@@ -28,30 +28,47 @@ public class UMGCacheBusterTest {
 
     @Test
     public void shouldNotDoAnythingIfNoLastUrlExists(){
-        expect(umgCacheBuster.bustIt(URL)).toBeFalse();
+        umgCacheBuster.bustIt(URL);
         verifyZeroInteractions(streamStorage, observer);
+    }
+
+    @Test
+    public void shouldReturnFalseIfNoLastUrlExists(){
+        expect(umgCacheBuster.bustIt(URL)).toBeFalse();
     }
 
     @Test
     public void shouldNotDoAnythingIfComparisonUrlIsSameAsPreviousUrl(){
-        expect(umgCacheBuster.bustIt(URL)).toBeFalse();
-        expect(umgCacheBuster.bustIt(URL)).toBeFalse();
+        umgCacheBuster.bustIt(URL);
+        umgCacheBuster.bustIt(URL);
         verifyZeroInteractions(streamStorage, observer);
     }
 
     @Test
-    public void shouldClearCacheIfLastUrlIfDifferentFromComparisonUrl(){
+    public void shouldReturnFalseIfComparisonUrlIsSameAsPreviousUrl(){
+        umgCacheBuster.bustIt(URL);
         expect(umgCacheBuster.bustIt(URL)).toBeFalse();
-        expect(umgCacheBuster.bustIt("diffUrl")).toBeTrue();
+    }
+
+    @Test
+    public void shouldClearCacheIfLastUrlIfDifferentFromComparisonUrl(){
+        umgCacheBuster.bustIt(URL);
+        umgCacheBuster.bustIt("diffUrl");
         verify(streamStorage).removeAllDataForItem(URL);
     }
 
     @Test
-    public void shouldClearCacheIfLastUrlIfDifferentFromComparisonUrlMultipleTimes(){
-        expect(umgCacheBuster.bustIt(URL)).toBeFalse();
+    public void shouldReturnTrueIfLastUrlIfDifferentFromComparisonUrl(){
+        umgCacheBuster.bustIt(URL);
         expect(umgCacheBuster.bustIt("diffUrl")).toBeTrue();
-        expect(umgCacheBuster.bustIt("diffUrl")).toBeFalse();
-        expect(umgCacheBuster.bustIt("diffUrl2")).toBeTrue();
+    }
+
+    @Test
+    public void shouldClearCacheIfLastUrlIfDifferentFromComparisonUrlMultipleTimes(){
+        umgCacheBuster.bustIt(URL);
+        umgCacheBuster.bustIt("diffUrl");
+        umgCacheBuster.bustIt("diffUrl");
+        umgCacheBuster.bustIt("diffUrl2");
         verify(streamStorage).removeAllDataForItem(URL);
     }
 
