@@ -126,7 +126,10 @@ public class StreamLoader {
     }
 
     public StreamFuture getDataForUrl(String url, Range range) throws IOException {
-         umgCacheBuster.bustIt(url);
+
+        if (umgCacheBuster.bustIt(url)) {
+            clearPendingStreamTasks();
+        }
 
         final StreamItem item = mStorage.getMetadata(url);
 
@@ -137,7 +140,8 @@ public class StreamLoader {
         final StreamFuture pc = new StreamFuture(item, range);
         if (!missing.isEmpty()) {
             mResultHandler.post(new Runnable() {
-                @Override public void run() {
+                @Override
+                public void run() {
                     mPlayerCallbacks.add(pc);
                     if (mLowPriorityQueue.contains(item)) mLowPriorityQueue.remove(item);
 
@@ -159,6 +163,20 @@ public class StreamLoader {
             pc.setByteBuffer(mStorage.fetchStoredDataForUrl(url, range));
         }
         return pc;
+    }
+
+    private void clearPendingStreamTasks() {
+        // all pending data tasks will no longer be saved regardless
+        mHighPriorityQ.clear();
+        // clear queued stream tasks but keep low priority items to fufill playcount tasks
+        mDataHandler.removeMessages(HI_PRIO);
+        mHeadHandler.removeMessages(HI_PRIO);
+        // headtasks must be cleared at the same time as the head handler or they will not be fulfilled in the future
+        mHeadTasks.clear();
+        // only the new item will need a head request
+        mItemsNeedingHeadRequests.clear();
+        // no longer fulfilling pending player callbacks
+        mPlayerCallbacks.clear();
     }
 
     public boolean logPlaycount(String url) {

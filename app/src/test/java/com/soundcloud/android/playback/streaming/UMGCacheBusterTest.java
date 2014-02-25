@@ -28,30 +28,30 @@ public class UMGCacheBusterTest {
 
     @Test
     public void shouldNotDoAnythingIfNoLastUrlExists(){
-        umgCacheBuster.bustIt(URL);
+        expect(umgCacheBuster.bustIt(URL)).toBeFalse();
         verifyZeroInteractions(streamStorage, observer);
     }
 
     @Test
     public void shouldNotDoAnythingIfComparisonUrlIsSameAsPreviousUrl(){
-        umgCacheBuster.bustIt(URL);
-        umgCacheBuster.bustIt(URL);
+        expect(umgCacheBuster.bustIt(URL)).toBeFalse();
+        expect(umgCacheBuster.bustIt(URL)).toBeFalse();
         verifyZeroInteractions(streamStorage, observer);
     }
 
     @Test
     public void shouldClearCacheIfLastUrlIfDifferentFromComparisonUrl(){
-        umgCacheBuster.bustIt(URL);
-        umgCacheBuster.bustIt("diffUrl");
+        expect(umgCacheBuster.bustIt(URL)).toBeFalse();
+        expect(umgCacheBuster.bustIt("diffUrl")).toBeTrue();
         verify(streamStorage).removeAllDataForItem(URL);
     }
 
     @Test
     public void shouldClearCacheIfLastUrlIfDifferentFromComparisonUrlMultipleTimes(){
-        umgCacheBuster.bustIt(URL);
-        umgCacheBuster.bustIt("diffUrl");
-        umgCacheBuster.bustIt("diffUrl");
-        umgCacheBuster.bustIt("diffUrl2");
+        expect(umgCacheBuster.bustIt(URL)).toBeFalse();
+        expect(umgCacheBuster.bustIt("diffUrl")).toBeTrue();
+        expect(umgCacheBuster.bustIt("diffUrl")).toBeFalse();
+        expect(umgCacheBuster.bustIt("diffUrl2")).toBeTrue();
         verify(streamStorage).removeAllDataForItem(URL);
     }
 

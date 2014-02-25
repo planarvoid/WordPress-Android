@@ -31,7 +31,7 @@ class UMGCacheBuster extends ScheduledOperations {
         mObserver = observer;
     }
 
-    public void bustIt(final String comparisonUrl) {
+    public boolean bustIt(final String comparisonUrl) {
         checkArgument(isNotBlank(comparisonUrl), "Comparison URL must be non null/not empty");
 
         final CacheBustingObservable cacheBustingObservable;
@@ -39,11 +39,11 @@ class UMGCacheBuster extends ScheduledOperations {
         synchronized (this) {
             if (ScTextUtils.isBlank(mCurrentUrl)) {
                 mCurrentUrl = comparisonUrl;
-                return;
+                return false;
             }
 
             if (mCurrentUrl.equals(comparisonUrl)) {
-                return;
+                return false;
             }
 
             cacheBustingObservable = new CacheBustingObservable(mCurrentUrl);
@@ -51,7 +51,7 @@ class UMGCacheBuster extends ScheduledOperations {
         }
 
         schedule(Observable.create(cacheBustingObservable)).subscribe(mObserver);
-
+        return true;
     }
 
     public String getLastUrl() {
