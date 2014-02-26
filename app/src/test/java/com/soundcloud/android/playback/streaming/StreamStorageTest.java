@@ -1,15 +1,15 @@
 package com.soundcloud.android.playback.streaming;
 
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import com.soundcloud.android.preferences.SettingsActivity;
+import static com.soundcloud.android.Expect.expect;
+import static junit.framework.Assert.fail;
+import static org.mockito.Mockito.mock;
+
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.xtremelabs.robolectric.shadows.ShadowStatFs;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,11 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import static android.content.SharedPreferences.Editor;
-import static com.soundcloud.android.Expect.expect;
-import static junit.framework.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 @RunWith(DefaultTestRunner.class)
 public class StreamStorageTest {
@@ -162,28 +157,6 @@ public class StreamStorageTest {
         for (int i : sampleChunkIndexes) {
             expect(storage.getChunkData(item.getUrl(), i)).not.toBeNull();
         }
-    }
-
-    @Test
-    public void shouldTestCompleteFileConstruction() throws Exception {
-        int chunks = setupChunkArray();
-        Collections.shuffle(sampleChunkIndexes);
-
-        expect(storage.storeMetadata(item)).toBeTrue();
-        for (int i : sampleChunkIndexes) {
-            storage.storeData(item.getUrl(), sampleBuffers.get(i), i);
-        }
-
-        expect(item.numberOfChunks(storage.chunkSize)).toBe(chunks);
-
-        File assembled = storage.completeFileForUrl(item.streamItemUrl());
-        expect(assembled.exists()).toBeTrue();
-        expect(assembled.length()).toEqual(item.getContentLength());
-
-        // make sure index file is gone
-        expect(storage.incompleteFileForUrl(item.streamItemUrl()).exists()).toBeFalse();
-        String original = IOUtils.md5(getClass().getResourceAsStream("fred.mp3"));
-        expect(IOUtils.md5(new FileInputStream(assembled))).toEqual(original);
     }
 
     @Test

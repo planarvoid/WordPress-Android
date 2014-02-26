@@ -179,23 +179,6 @@ public class StreamStorage {
         item.downloadedChunks.add(chunkIndex);
         storeMetadata(item);
 
-        if (item.downloadedChunks.size() == item.numberOfChunks(chunkSize)) {
-            new CompleteFileTask(item.getContentLength(), item.etag(), chunkSize, item.downloadedChunks) {
-                @Override protected void onPreExecute() {
-                    mConvertingUrls.add(url);
-                }
-                @Override protected void onPostExecute(Boolean success) {
-                    if (success) {
-                        removeIncompleteDataForItem(url);
-                        new UpdateMetadataTask(mContext.getContentResolver()).execute(item);
-                    } else {
-                        removeAllDataForItem(url);
-                    }
-                    mConvertingUrls.remove(url);
-                }
-            }.execute(incompleteFile, completeFileForUrl(url));
-        }
-
         if (mCleanupInterval > 0) {
             //Update the number of writes, cleanup if necessary
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
