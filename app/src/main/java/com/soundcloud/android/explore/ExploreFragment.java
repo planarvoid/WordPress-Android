@@ -43,7 +43,6 @@ public class ExploreFragment extends Fragment {
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
-        mPagerAdapter = mPagerAdapterFactory.create(this.getChildFragmentManager());
     }
 
     @Override
@@ -55,9 +54,11 @@ public class ExploreFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mPager = (ViewPager) view.findViewById(R.id.pager);
-        mPager.setAdapter(mPagerAdapter);
         mPager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         mPager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
+
+        mPagerAdapter = mPagerAdapterFactory.create(this.getChildFragmentManager());
+        mPager.setAdapter(mPagerAdapter);
 
         SlidingTabLayout tabIndicator = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
         tabIndicator.setViewPager(mPager);
@@ -73,6 +74,7 @@ public class ExploreFragment extends Fragment {
         // it's important to reset the adapter here. since otherwise this will leak a Context reference through
         // the dataset observer Android registers internally (and we're retaining the adapter instance)
         mPager = null;
+        mPagerAdapter = null;
         super.onDestroyView();
     }
 
