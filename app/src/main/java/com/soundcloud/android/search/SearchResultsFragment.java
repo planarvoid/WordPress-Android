@@ -65,7 +65,6 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
-    private ConnectableObservable<Page<SearchResultsCollection>> mObservable;
 
     public static SearchResultsFragment newInstance(int type, String query) {
         SearchResultsFragment fragment = new SearchResultsFragment();
@@ -98,8 +97,6 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
         mSearchType = getArguments().getInt(KEY_TYPE);
         setListAdapter(mAdapter);
-
-        mObservable = buildSearchResultsObservable();
     }
 
     @Override
@@ -116,7 +113,6 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
-                mObservable = buildSearchResultsObservable();
                 loadSearchResults();
             }
         });
@@ -127,21 +123,20 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         getListView().setOnScrollListener(mImageOperations.createScrollPauseListener(false, true, mAdapter));
 
         loadSearchResults();
-
         mPlaybackSubscription = mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackObserver());
+    }
+
+    @Override
+    public void onDestroyView() {
+        mSubscription.unsubscribe();
+        mPlaybackSubscription.unsubscribe();
+        super.onDestroyView();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         mAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onDestroy() {
-        mSubscription.unsubscribe();
-        mPlaybackSubscription.unsubscribe();
-        super.onDestroy();
     }
 
     @Override
@@ -201,6 +196,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     }
 
     private void loadSearchResults() {
+        ConnectableObservable<Page<SearchResultsCollection>> mObservable = buildSearchResultsObservable();
         setEmptyViewStatus(EmptyListView.Status.WAITING);
         mObservable.subscribe(mAdapter);
         mObservable.subscribe(new ListFragmentObserver<Page<SearchResultsCollection>>(this));

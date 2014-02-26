@@ -183,8 +183,6 @@ public class SearchResultsFragmentTest {
         return arguments;
     }
 
-    // HELPERS
-
     private View createFragmentView() {
         View layout = fragment.onCreateView(LayoutInflater.from(Robolectric.application), null, null);
         Robolectric.shadowOf(fragment).setView(layout);

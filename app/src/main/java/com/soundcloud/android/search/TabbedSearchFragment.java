@@ -70,10 +70,10 @@ public class TabbedSearchFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         String query = getArguments().getString(KEY_QUERY);
-        SearchPagerAdapter mSearchPagerAdapter = new SearchPagerAdapter(mResources, this.getChildFragmentManager(), query);
+        SearchPagerAdapter searchPagerAdapter = new SearchPagerAdapter(mResources, this.getChildFragmentManager(), query);
 
         mPager = (ViewPager) view.findViewById(R.id.pager);
-        mPager.setAdapter(mSearchPagerAdapter);
+        mPager.setAdapter(searchPagerAdapter);
         mPager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         mPager.setPageMargin(mResources.getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
