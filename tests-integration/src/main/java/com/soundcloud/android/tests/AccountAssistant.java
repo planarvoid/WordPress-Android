@@ -1,11 +1,8 @@
 package com.soundcloud.android.tests;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.app.Instrumentation;
-import android.content.Context;
-import android.os.AsyncTask;
-import android.util.Log;
+import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
+import static junit.framework.Assert.assertNotNull;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -17,8 +14,12 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 
-import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
-import static junit.framework.Assert.assertNotNull;
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.app.Instrumentation;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.util.Log;
 
 public final class AccountAssistant {
     public static final String USERNAME = "android-testing";
@@ -56,7 +57,7 @@ public final class AccountAssistant {
         User user;
         try {
             token = publicApiWrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
-            user = new FetchUserTask(publicApiWrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
+            user = getUser(publicApiWrapper);
         } catch (Exception e) {
             Log.w(AccountAssistant.class.getSimpleName(), e);
             throw new AssertionError("error logging in: "+e.getMessage());
@@ -68,6 +69,32 @@ public final class AccountAssistant {
         };
 
         return null;
+    }
+
+    private static User getUser(PublicApiWrapper publicApiWrapper) {
+        User user = null;
+        int count = 0;
+        int maxTries = 3;
+        while(user == null && count < maxTries) {
+            try {
+                user = new FetchUserTask(publicApiWrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
+            } catch (Exception e) {
+                if (++count == maxTries) throw new AssertionError("error logging in: "+e.getMessage());
+            }
+            if (user == null) {
+                sleep(5000);
+            }
+            count++;
+        }
+        return user;
+    }
+
+    private static void sleep(int miliseconds) {
+        try {
+            Thread.sleep(miliseconds);
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
     }
 
     public static boolean logOut(Instrumentation instrumentation) throws Exception {
