@@ -335,14 +335,19 @@ public class StreamLoader {
             if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                 Log.d(LOG_TAG, "result of message:" + msg.obj);
             }
+
             StreamItemTask task = (StreamItemTask)msg.obj;
+            if (task instanceof HeadTask) {
+                // remove from set of head tasks being processed
+                loader.mHeadTasks.remove(((HeadTask)task).item);
+            }
+
 
             if(!umgCacheBuster.getLastUrl().equals(task.item.streamItemUrl())){
                 return;
             }
             if (task instanceof HeadTask) {
                 HeadTask t = (HeadTask)task;
-                loader.mHeadTasks.remove(t.item);
                 if (t.item.isAvailable()) {
                     loader.mStorage.storeMetadata(t.item);
                 } else {
