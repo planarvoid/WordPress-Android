@@ -18,6 +18,7 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.PlaylistSummaryCollection;
 import com.soundcloud.android.model.PlaylistTagsCollection;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.model.Track;
@@ -25,7 +26,6 @@ import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.rx.RxTestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,11 +47,13 @@ public class SearchOperationsTest {
     @Mock
     private RxHttpClient rxHttpClient;
     @Mock
+    private ScModelManager modelManager;
+    @Mock
     private Observer observer;
 
     @Before
     public void setUp() {
-        searchOperations = new SearchOperations(rxHttpClient);
+        searchOperations = new SearchOperations(rxHttpClient, modelManager);
         when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
     }
 
@@ -114,12 +116,43 @@ public class SearchOperationsTest {
                 track, playlist, unknown, user));
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
         when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        Track cachedTrack = new Track();
+        when(modelManager.cache(track, ScResource.CacheUpdateMode.FULL)).thenReturn(cachedTrack);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
         ArgumentCaptor<OperationPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
         verify(observer).onNext(captor.capture());
         expect(captor.getValue().getPagedCollection()).toContainInOrder(track, playlist, user);
+    }
+
+    @Test
+    public void shouldCacheSearchResultsInModelManager() throws Exception {
+        ScResource track = new Track();
+        SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track));
+        Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
+        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
+
+        searchOperations.getAllSearchResults("any query").subscribe(observer);
+
+        verify(modelManager).cache(track, ScResource.CacheUpdateMode.FULL);
+    }
+
+    @Test
+    public void shouldEmitCachedModelsOnSearchResults() throws Exception {
+        ScResource track = new Track();
+        SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track));
+        Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
+        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        Track cachedTrack = new Track();
+        when(modelManager.cache(track, ScResource.CacheUpdateMode.FULL)).thenReturn(cachedTrack);
+
+        searchOperations.getAllSearchResults("any query").subscribe(observer);
+
+        ArgumentCaptor<OperationPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
+        verify(observer).onNext(captor.capture());
+        Track firstResultsTrack = (Track) Lists.newArrayList(captor.getValue().getPagedCollection()).get(0);
+        expect(firstResultsTrack).toBe(cachedTrack);
     }
 
     @Test

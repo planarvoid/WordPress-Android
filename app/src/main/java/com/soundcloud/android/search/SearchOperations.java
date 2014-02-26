@@ -15,6 +15,7 @@ import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.model.Link;
 import com.soundcloud.android.model.PlaylistSummaryCollection;
 import com.soundcloud.android.model.PlaylistTagsCollection;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.model.UnknownResource;
@@ -82,11 +83,25 @@ public class SearchOperations {
         }
     };
 
+    private final Func1<SearchResultsCollection, SearchResultsCollection> mCacheResources = new Func1<SearchResultsCollection, SearchResultsCollection>() {
+        @Override
+        public SearchResultsCollection call(SearchResultsCollection results) {
+            List<ScResource> cachedResults = new ArrayList<ScResource>(results.size());
+            for (ScResource resource : results) {
+                ScResource cachedResource = mModelManager.cache(resource, ScResource.CacheUpdateMode.FULL);
+                cachedResults.add(cachedResource);
+            }
+            return new SearchResultsCollection(cachedResults, results.getNextHref());
+        }
+    };
+
     private final RxHttpClient mRxHttpClient;
+    private final ScModelManager mModelManager;
 
     @Inject
-    public SearchOperations(RxHttpClient rxHttpClient) {
+    public SearchOperations(RxHttpClient rxHttpClient, ScModelManager modelManager) {
         mRxHttpClient = rxHttpClient;
+        mModelManager = modelManager;
     }
 
     public Observable<Page<SearchResultsCollection>> getAllSearchResults(String query) {
@@ -123,7 +138,9 @@ public class SearchOperations {
     }
 
     private Observable<Page<SearchResultsCollection>> getPageObservable(APIRequest<SearchResultsCollection> request) {
-        Observable<SearchResultsCollection> source = mRxHttpClient.<SearchResultsCollection>fetchModels(request).map(FILTER_UNKOWN_RESOURCES);
+        Observable<SearchResultsCollection> source = mRxHttpClient.<SearchResultsCollection>fetchModels(request)
+                .map(FILTER_UNKOWN_RESOURCES)
+                .map(mCacheResources);
         return Observable.create(paged(source, mNextSearchResultsPageGenerator));
     }
 
