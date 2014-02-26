@@ -24,6 +24,7 @@ import java.util.List;
 
 public class SearchResultsScreen extends Screen {
     private static final Class ACTIVITY = CombinedSearchActivity.class;
+    private static final String FRAGMENT = "tabbed_search";
 
     private static final String ALL_TAB_TEXT = "ALL";
     private static final String TRACKS_TAB_TEXT = "TRACKS";
@@ -34,8 +35,9 @@ public class SearchResultsScreen extends Screen {
 
     public SearchResultsScreen(Han solo) {
         super(solo);
-        viewPager = new ViewPagerElement(solo);
         waiter.waitForActivity(getActivity());
+        waiter.waitForFragmentByTag(FRAGMENT);
+        viewPager = new ViewPagerElement(solo);
     }
 
     public PlayerScreen clickFirstTrackItem() {
@@ -141,6 +143,6 @@ public class SearchResultsScreen extends Screen {
 
     @Override
     public boolean isVisible() {
-        return waiter.waitForFragmentByTag("tabbed_search");
+        return waiter.waitForFragmentByTag(FRAGMENT);
     }
 }
