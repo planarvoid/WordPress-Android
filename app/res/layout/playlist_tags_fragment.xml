@@ -1,27 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
-    <ScrollView android:id="@+id/playlistTagsContainer"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
         <com.soundcloud.android.view.FlowLayout
-                android:id="@+id/tags"
+                android:id="@+id/recent_tags"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 android:paddingLeft="15dp"
                 android:paddingTop="15dp"
-                />
+                android:layout_marginBottom="30dp" />
 
-    </ScrollView>
+        <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    <com.soundcloud.android.view.EmptyListView
-            android:id="@android:id/empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            <com.soundcloud.android.view.FlowLayout
+                    android:id="@+id/all_tags"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:paddingLeft="15dp"
+                    android:paddingTop="15dp" />
 
-</FrameLayout>
+            <com.soundcloud.android.view.EmptyListView
+                    android:id="@android:id/empty"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+</ScrollView>

@@ -1,7 +1,7 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.screens.elements.ActionBarElement;
-import com.soundcloud.android.screens.search.SearchPlaylistTagsScreen;
+import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
 
@@ -36,9 +36,9 @@ public abstract class Screen {
         solo.swipeRight();
     }
 
-    public SearchPlaylistTagsScreen clickPhysicalSearchButton() {
+    public PlaylistTagsScreen clickPhysicalSearchButton() {
         solo.sendKey(KeyEvent.KEYCODE_SEARCH);
-        return new SearchPlaylistTagsScreen(solo);
+        return new PlaylistTagsScreen(solo);
     }
 
     public boolean isVisible() {

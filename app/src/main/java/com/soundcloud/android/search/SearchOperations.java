@@ -19,10 +19,12 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.model.UnknownResource;
+import com.soundcloud.android.storage.PlaylistTagStorage;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.OperationPaged;
+import rx.util.functions.Action0;
 import rx.util.functions.Func1;
 
 import javax.inject.Inject;
@@ -96,11 +98,13 @@ public class SearchOperations {
     };
 
     private final RxHttpClient mRxHttpClient;
+    private final PlaylistTagStorage mTagStorage;
     private final ScModelManager mModelManager;
 
     @Inject
-    public SearchOperations(RxHttpClient rxHttpClient, ScModelManager modelManager) {
+    public SearchOperations(RxHttpClient rxHttpClient, PlaylistTagStorage tagStorage, ScModelManager modelManager) {
         mRxHttpClient = rxHttpClient;
+        mTagStorage = tagStorage;
         mModelManager = modelManager;
     }
 
@@ -144,6 +148,10 @@ public class SearchOperations {
         return Observable.create(paged(source, mNextSearchResultsPageGenerator));
     }
 
+    Observable<PlaylistTagsCollection> getRecentPlaylistTags() {
+        return mTagStorage.getRecentTagsAsync().map(TO_HASH_TAGS);
+    }
+
     Observable<PlaylistTagsCollection> getPlaylistTags() {
         APIRequest<PlaylistTagsCollection> request = RequestBuilder.<PlaylistTagsCollection>get(APIEndpoints.PLAYLIST_DISCOVERY_TAGS.path())
                 .forPrivateAPI(1)
@@ -153,7 +161,13 @@ public class SearchOperations {
     }
 
     Observable<Page<PlaylistSummaryCollection>> getPlaylistDiscoveryResults(final String query) {
-        return getPlaylistDiscoveryResultPage(APIEndpoints.PLAYLIST_DISCOVERY_RESULTS.path(query.replace("#", "")));
+        final String cleanTag = query.replaceFirst("#", "");
+        return getPlaylistDiscoveryResultPage(APIEndpoints.PLAYLIST_DISCOVERY_RESULTS.path(cleanTag)).doOnCompleted(new Action0() {
+            @Override
+            public void call() {
+                mTagStorage.addRecentTag(cleanTag);
+            }
+        });
     }
 
     private Observable<Page<PlaylistSummaryCollection>> getPlaylistDiscoveryResultPage(String url) {

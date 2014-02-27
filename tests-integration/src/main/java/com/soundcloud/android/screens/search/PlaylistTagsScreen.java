@@ -12,22 +12,39 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class SearchPlaylistTagsScreen extends Screen {
+public class PlaylistTagsScreen extends Screen {
 
     private static final Class ACTIVITY = CombinedSearchActivity.class;
 
-    public SearchPlaylistTagsScreen(Han solo) {
+    public PlaylistTagsScreen(Han solo) {
         super(solo);
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public PlaylistResultsScreen clickOnTag(int index) {
-        solo.getSolo().clickOnView(getTagViews().get(index));
+        solo.getSolo().clickOnView(getTagViews(R.id.all_tags).get(index));
         return new PlaylistResultsScreen(solo);
     }
 
     public List<String> getTags() {
-        return Lists.transform(getTagViews(), new Function<TextView, String>() {
+        return getTagStringsFromContainer(R.id.all_tags);
+    }
+
+    public List<String> getRecentTags() {
+        return getTagStringsFromContainer(R.id.recent_tags);
+    }
+
+    public boolean isDisplayingTags() {
+        return !getTagViews(R.id.all_tags).isEmpty();
+    }
+
+    @Override
+    public boolean isVisible() {
+        return waiter.waitForElement(R.id.all_tags);
+    }
+
+    private List<String> getTagStringsFromContainer(int containerId) {
+        return Lists.transform(getTagViews(containerId), new Function<TextView, String>() {
             @Override
             public String apply(TextView input) {
                 return input.getText().toString();
@@ -35,18 +52,13 @@ public class SearchPlaylistTagsScreen extends Screen {
         });
     }
 
-    public List<TextView> getTagViews() {
-        return solo.getSolo().getCurrentViews(TextView.class, solo.getView(R.id.tags));
+    private List<TextView> getTagViews(int containerId) {
+        return solo.getSolo().getCurrentViews(TextView.class, solo.getView(containerId));
     }
 
     @Override
     protected Class getActivity() {
         return ACTIVITY;
-    }
-
-    @Override
-    public boolean isVisible() {
-        return waiter.waitForElement(R.id.playlistTagsContainer);
     }
 
 }

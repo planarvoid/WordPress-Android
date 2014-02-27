@@ -28,6 +28,7 @@ import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
+import com.soundcloud.android.storage.PlaylistTagStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
 import org.junit.Before;
@@ -65,6 +66,8 @@ public class AccountRemovalFunctionTest {
     @Mock
     private ActivitiesStorage activitiesStorage;
     @Mock
+    private PlaylistTagStorage tagStorage;
+    @Mock
     private SoundRecorder soundRecorder;
     @Mock
     private PlayQueueView playQueue;
@@ -91,7 +94,7 @@ public class AccountRemovalFunctionTest {
     @Before
     public void setup(){
         function = new AccountRemovalFunction(eventBus, soundCloudAccount, context, accountManager, syncStateManager,
-                collectionStorage, activitiesStorage, userAssociationStorage, soundRecorder, c2DMReceiver, unauthorisedRequestRegistry);
+                collectionStorage, activitiesStorage, userAssociationStorage, tagStorage, soundRecorder, c2DMReceiver, unauthorisedRequestRegistry);
 
         when(accountManager.removeAccount(soundCloudAccount,null,null)).thenReturn(future);
         when(context.getSharedPreferences(anyString(),anyInt())).thenReturn(sharedPreferences);

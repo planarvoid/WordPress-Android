@@ -5,7 +5,7 @@ import static junit.framework.Assert.assertEquals;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.screens.PlaylistResultsScreen;
-import com.soundcloud.android.screens.search.SearchPlaylistTagsScreen;
+import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
@@ -30,9 +30,9 @@ public class ActionBarElement {
         solo.clickOnActionBarHomeButton();
     }
 
-    public SearchPlaylistTagsScreen clickSearchButton() {
+    public PlaylistTagsScreen clickSearchButton() {
         solo.clickOnActionBarItem(SEARCH_SELECTOR);
-        return new SearchPlaylistTagsScreen(solo);
+        return new PlaylistTagsScreen(solo);
     }
 
     public SearchResultsScreen doSearch(String query) {
@@ -64,6 +64,11 @@ public class ActionBarElement {
         List<AutoCompleteTextView> views = solo.getSolo().getCurrentViews(AutoCompleteTextView.class);
         assertEquals("Expected to find just one search view", views.size(), 1);
         return views.get(0);
+    }
+
+    public PlaylistTagsScreen dismissSearch() {
+        setSearchQuery("");
+        return new PlaylistTagsScreen(solo);
     }
 
 }

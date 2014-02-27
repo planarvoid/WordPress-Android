@@ -4,7 +4,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistResultsScreen;
-import com.soundcloud.android.screens.search.SearchPlaylistTagsScreen;
+import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 
@@ -13,7 +13,7 @@ import java.util.List;
 public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
 
     private MainScreen mainScreen;
-    private SearchPlaylistTagsScreen playlistTagsScreen;
+    private PlaylistTagsScreen playlistTagsScreen;
 
     public PlaylistDiscovery() {
         super(MainActivity.class);
@@ -29,7 +29,15 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
     }
 
     public void testTagsAreDisplayedWhenSearchScreenIsOpened() {
-        assertFalse("Playlist tags should be visible", playlistTagsScreen.getTagViews().isEmpty());
+        assertEquals("Playlist tags should be visible", true, playlistTagsScreen.isDisplayingTags());
+    }
+
+    public void testTagDisplayedAsSuggestionAfterTagSearch() {
+        PlaylistResultsScreen resultsScreen = playlistTagsScreen.actionBar().doTagSearch("#deep house");
+        PlaylistTagsScreen tagsScreen = resultsScreen.actionBar().dismissSearch();
+
+        assertEquals("Playlist tags screen should be visible", true, tagsScreen.isVisible());
+        assertEquals("Searched tag should be in recents", true, tagsScreen.getRecentTags().contains("#deep house"));
     }
 
     public void testClickingOnPlaylistTagOpensPlaylistResultsScreenWith20Results() {
@@ -67,4 +75,5 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
         PlaylistResultsScreen resultsScreen = new PlaylistResultsScreen(solo);
         assertEquals("Playlist results screen should be visible", true, resultsScreen.isVisible());
     }
+
 }

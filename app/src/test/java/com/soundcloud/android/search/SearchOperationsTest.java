@@ -26,6 +26,8 @@ import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.PlaylistTagStorage;
+
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,13 +49,16 @@ public class SearchOperationsTest {
     @Mock
     private RxHttpClient rxHttpClient;
     @Mock
+    private PlaylistTagStorage tagStorage;
+    @Mock
     private ScModelManager modelManager;
+
     @Mock
     private Observer observer;
 
     @Before
     public void setUp() {
-        searchOperations = new SearchOperations(rxHttpClient, modelManager);
+        searchOperations = new SearchOperations(rxHttpClient, tagStorage, modelManager);
         when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
     }
 
@@ -219,7 +224,7 @@ public class SearchOperationsTest {
     }
 
     @Test
-    public void shouldMapPlaylistTagsToHaveAPoundSymbol() {
+    public void shouldMapPlaylistTagsToHaveAHashSymbol() {
         PlaylistTagsCollection tags = new PlaylistTagsCollection();
         tags.setCollection(Arrays.asList("tag1", "tag2", "tag3"));
         when(rxHttpClient.<PlaylistTagsCollection>fetchModels(any(APIRequest.class))).thenReturn(
@@ -231,6 +236,20 @@ public class SearchOperationsTest {
         verify(observer).onNext(tagsCaptor.capture());
 
         expect(tagsCaptor.getValue()).toContainExactly("#tag1", "#tag2", "#tag3");
+    }
+
+    @Test
+    public void shouldReturnRecentPlaylistTagsWithHashSymbol() {
+        PlaylistTagsCollection tags = new PlaylistTagsCollection();
+        tags.setCollection(Arrays.asList("tag3", "tag2", "tag1"));
+        when(tagStorage.getRecentTagsAsync()).thenReturn(Observable.<PlaylistTagsCollection>from(tags));
+
+        searchOperations.getRecentPlaylistTags().subscribe(observer);
+
+        ArgumentCaptor<PlaylistTagsCollection> tagsCaptor = ArgumentCaptor.forClass(PlaylistTagsCollection.class);
+        verify(observer).onNext(tagsCaptor.capture());
+
+        expect(tagsCaptor.getValue()).toContainExactly("#tag3", "#tag2", "#tag1");
     }
 
     @Test

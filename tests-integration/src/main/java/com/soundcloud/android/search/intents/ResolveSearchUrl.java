@@ -1,6 +1,6 @@
 package com.soundcloud.android.search.intents;
 
-import com.soundcloud.android.screens.search.SearchPlaylistTagsScreen;
+import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -13,7 +13,7 @@ public class ResolveSearchUrl extends SearchIntentsBase {
     }
 
     public void testSearchUrlResolution() {
-        SearchPlaylistTagsScreen tagsScreen = new SearchPlaylistTagsScreen(solo);
+        PlaylistTagsScreen tagsScreen = new PlaylistTagsScreen(solo);
         assertEquals("Playlist tags screen should be visible", true, tagsScreen.isVisible());
     }
 

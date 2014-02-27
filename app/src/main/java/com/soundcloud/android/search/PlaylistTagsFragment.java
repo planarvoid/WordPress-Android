@@ -7,14 +7,14 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.PlaylistTagsCollection;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.FlowLayout;
 import rx.Observable;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.subscriptions.CompositeSubscription;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -37,16 +37,17 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
     @Inject
     SearchOperations mSearchOperations;
 
-    private Observable<PlaylistTagsCollection> mObservable;
-    private Subscription mSubscription = Subscriptions.empty();
+    private CompositeSubscription mSubscription;
+    private Observable<PlaylistTagsCollection> mAllObservable;
+
     private EmptyListView mEmptyView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
-    private final View.OnClickListener mTagClickListener = new View.OnClickListener() {
+    private View.OnClickListener mTagClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             TagClickListener listener = (TagClickListener) getActivity();
-            listener.onTagSelected(((TextView) v).getText().toString());
+            listener.onTagSelected((String) v.getTag());
         }
     };
 
@@ -73,7 +74,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mObservable = fromFragment(this, mSearchOperations.getPlaylistTags()).cache();
+        mAllObservable = fromFragment(this, mSearchOperations.getPlaylistTags()).cache();
     }
 
     @Override
@@ -88,13 +89,17 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
         mEmptyView.setVisibility(View.VISIBLE);
         mEmptyView.setStatus(mEmptyViewStatus);
 
-        mSubscription = mObservable.subscribe(new TagsObserver());
+        Observable<PlaylistTagsCollection> recentsObservable = fromFragment(this, mSearchOperations.getRecentPlaylistTags());
+
+        mSubscription = new CompositeSubscription();
+        mSubscription.add(mAllObservable.subscribe(new TagsObserver()));
+        mSubscription.add(recentsObservable.subscribe(new RecentsObserver()));
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroyView() {
+        super.onDestroyView();
         mSubscription.unsubscribe();
-        super.onDestroy();
     }
 
     @Override
@@ -105,8 +110,16 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
         }
     }
 
-    private void displayTags(LayoutInflater inflater, View layout, List<String> tags) {
-        ViewGroup tagFlowLayout = (ViewGroup) layout.findViewById(R.id.tags);
+    private void displayAllTags(PlaylistTagsCollection tags) {
+        displayTags(getLayoutInflater(null), getView(), tags.getCollection(), R.id.all_tags);
+    }
+
+    private void displayRecentTags(PlaylistTagsCollection tags) {
+        displayTags(getLayoutInflater(null), getView(), tags.getCollection(), R.id.recent_tags);
+    }
+
+    private void displayTags(LayoutInflater inflater, View layout, List<String> tags, int layoutId) {
+        ViewGroup tagFlowLayout = (ViewGroup) layout.findViewById(layoutId);
         tagFlowLayout.removeAllViews();
 
         int padding = ViewUtils.dpToPx(getActivity(), 10);
@@ -117,6 +130,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
             if (!TextUtils.isEmpty(tag)) {
                 TextView tagView = ((TextView) inflater.inflate(R.layout.tag_text, null));
                 tagView.setText(tag);
+                tagView.setTag(tag);
                 tagView.setOnClickListener(mTagClickListener);
                 tagFlowLayout.addView(tagView, flowLP);
             }
@@ -130,7 +144,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
 
         @Override
         public void onNext(PlaylistTagsCollection tags) {
-            displayTags(getLayoutInflater(null), getView(), tags.getCollection());
+            displayAllTags(tags);
         }
 
         @Override
@@ -138,5 +152,14 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
             super.onCompleted();
             mEmptyView.setVisibility(View.GONE);
         }
+    }
+
+    private final class RecentsObserver extends DefaultObserver<PlaylistTagsCollection> {
+
+        @Override
+        public void onNext(PlaylistTagsCollection tags) {
+            displayRecentTags(tags);
+        }
+
     }
 }

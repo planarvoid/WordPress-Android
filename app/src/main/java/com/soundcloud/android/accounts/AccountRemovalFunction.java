@@ -17,6 +17,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
+import com.soundcloud.android.storage.PlaylistTagStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
 import rx.Observer;
@@ -36,6 +37,7 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
     private final CollectionStorage mCollectionStorage;
     private final ActivitiesStorage mActivitiesStorage;
     private final UserAssociationStorage mUserAssociationStorage;
+    private final PlaylistTagStorage mTagStorage;
     private final SoundRecorder mSoundRecorder;
     private final AccountManager mAccountManager;
     private final SyncStateManager mSyncStateManager;
@@ -45,7 +47,7 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
     public AccountRemovalFunction(Account soundCloudAccount, AccountManager accountManager, Context context) {
         this(SoundCloudApplication.fromContext(context).getEventBus(),
                 soundCloudAccount, context, accountManager, new SyncStateManager(context), new CollectionStorage(context),
-                new ActivitiesStorage(context), new UserAssociationStorage(context), SoundRecorder.getInstance(context),
+                new ActivitiesStorage(context), new UserAssociationStorage(context), new PlaylistTagStorage(context), SoundRecorder.getInstance(context),
                 new C2DMReceiver(), UnauthorisedRequestRegistry.getInstance(context));
     }
 
@@ -53,7 +55,7 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
     protected AccountRemovalFunction(EventBus eventBus, Account soundCloudAccount, Context context,
                                      AccountManager accountManager, SyncStateManager syncStateManager,
                            CollectionStorage collectionStorage, ActivitiesStorage activitiesStorage, UserAssociationStorage userAssociationStorage,
-                           SoundRecorder soundRecorder, C2DMReceiver c2DMReceiver, UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
+                           PlaylistTagStorage tagStorage, SoundRecorder soundRecorder, C2DMReceiver c2DMReceiver, UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
         mEventBus = eventBus;
         mSoundCloudAccount = soundCloudAccount;
         mContext = context;
@@ -61,6 +63,7 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
         mSyncStateManager = syncStateManager;
         mCollectionStorage = collectionStorage;
         mActivitiesStorage = activitiesStorage;
+        mTagStorage = tagStorage;
         mUserAssociationStorage = userAssociationStorage;
         mSoundRecorder = soundRecorder;
         mC2DMReceiver = c2DMReceiver;
@@ -96,6 +99,7 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
         mCollectionStorage.clear();
         mActivitiesStorage.clear(null);
         mUserAssociationStorage.clear();
+        mTagStorage.clear();
 
         mSoundRecorder.reset();
 

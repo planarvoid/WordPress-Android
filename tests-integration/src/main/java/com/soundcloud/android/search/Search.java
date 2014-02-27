@@ -5,7 +5,7 @@ import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.screens.search.SearchPlaylistTagsScreen;
+import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
@@ -13,7 +13,7 @@ import com.soundcloud.android.tests.ActivityTestCase;
 public class Search extends ActivityTestCase<MainActivity> {
 
     private MainScreen mainScreen;
-    private SearchPlaylistTagsScreen playlistTagsScreen;
+    private PlaylistTagsScreen playlistTagsScreen;
 
     public Search() {
         super(MainActivity.class);
@@ -52,12 +52,18 @@ public class Search extends ActivityTestCase<MainActivity> {
         assertEquals("Main screen should be visible", true, mainScreen.isVisible());
     }
 
-    public void ignore_testTypingSearchFieldPresentsSearchSuggestions() {
-        // To be implemented
+    public void testSearchingFromSuggestionShortcutShowsSearchResults() {
+        playlistTagsScreen.actionBar().setSearchQuery("dubstep");
+        solo.clickInList(0);
+
+        SearchResultsScreen resultsScreen = new SearchResultsScreen(solo);
+        assertEquals("Search results screen should be visible", true, resultsScreen.isVisible());
     }
 
-    public void ignore_testClearingSearchFieldReturnsToDisplayingTags() {
-        // To be implemented
+    public void testClearingSearchFieldReturnsToDisplayingTags() {
+        SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("dub");
+        PlaylistTagsScreen tagsScreen = resultsScreen.actionBar().dismissSearch();
+        assertEquals("Playlist tags screen should be visible", true, tagsScreen.isVisible());
     }
 
     public void testTappingTrackOnAllTabOpensPlayer() {
