@@ -37,8 +37,10 @@ public class PlaylistTagStorage extends ScheduledOperations {
     }
 
     public void addRecentTag(String tag) {
-        LinkedList<String> recentTags = getRecentTags();
-        if (recentTags.contains(tag)) return;
+        LinkedList<String> recentTags = new LinkedList<String>(getRecentTags());
+        if (recentTags.contains(tag)) {
+            return;
+        }
         if (recentTags.size() == MAX_TAGS) {
             recentTags.removeLast();
         }
@@ -63,7 +65,7 @@ public class PlaylistTagStorage extends ScheduledOperations {
     }
 
     @VisibleForTesting
-    LinkedList<String> getRecentTags() {
+    List<String> getRecentTags() {
         String storedTags = mSharedPreferences.getString(KEY_RECENT_TAGS, "");
         if (ScTextUtils.isBlank(storedTags)) {
             return new LinkedList<String>();
@@ -75,8 +77,8 @@ public class PlaylistTagStorage extends ScheduledOperations {
         return tag.replaceFirst(",.*", "");
     }
 
-    private LinkedList<String> deserialize(String serializedTags) {
-        return new LinkedList<String>(Arrays.asList(serializedTags.split(",")));
+    private List<String> deserialize(String serializedTags) {
+        return Arrays.asList(serializedTags.split(","));
     }
 
     private String serialize(List<String> tags) {

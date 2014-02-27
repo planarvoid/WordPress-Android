@@ -1,5 +1,6 @@
 package com.soundcloud.android.search;
 
+import static android.view.View.*;
 import static com.google.common.base.Preconditions.checkArgument;
 import static rx.android.observables.AndroidObservable.fromFragment;
 
@@ -43,7 +44,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
     private EmptyListView mEmptyView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
-    private View.OnClickListener mTagClickListener = new View.OnClickListener() {
+    private final OnClickListener mTagClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             TagClickListener listener = (TagClickListener) getActivity();
@@ -86,7 +87,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mEmptyView = (EmptyListView) view.findViewById(android.R.id.empty);
-        mEmptyView.setVisibility(View.VISIBLE);
+        mEmptyView.setVisibility(VISIBLE);
         mEmptyView.setStatus(mEmptyViewStatus);
 
         Observable<PlaylistTagsCollection> recentsObservable = fromFragment(this, mSearchOperations.getRecentPlaylistTags());
@@ -125,7 +126,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
         int padding = ViewUtils.dpToPx(getActivity(), 10);
         FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(padding, padding);
 
-        tagFlowLayout.setVisibility(tags.isEmpty() ? View.GONE : View.VISIBLE);
+        tagFlowLayout.setVisibility(tags.isEmpty() ? GONE : VISIBLE);
         for (final String tag : tags) {
             if (!TextUtils.isEmpty(tag)) {
                 TextView tagView = ((TextView) inflater.inflate(R.layout.tag_text, null));
@@ -150,7 +151,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
         @Override
         public void onCompleted() {
             super.onCompleted();
-            mEmptyView.setVisibility(View.GONE);
+            mEmptyView.setVisibility(GONE);
         }
     }
 
