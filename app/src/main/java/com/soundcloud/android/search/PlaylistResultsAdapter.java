@@ -2,6 +2,7 @@ package com.soundcloud.android.search;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collections.EndlessPagingAdapter;
 import com.soundcloud.android.image.ImageOperations;
@@ -16,13 +17,11 @@ import javax.inject.Inject;
 
 class PlaylistResultsAdapter extends EndlessPagingAdapter<PlaylistSummary> {
 
-    private static final int PAGE_SIZE = 20;
-
     private final ImageOperations mImageOperations;
 
     @Inject
     public PlaylistResultsAdapter(ImageOperations imageOperations) {
-        super(PAGE_SIZE);
+        super(Consts.CARD_PAGE_SIZE);
         mImageOperations = imageOperations;
     }
 
