@@ -41,18 +41,21 @@ public class SearchResultsScreen extends Screen {
     }
 
     public PlayerScreen clickFirstTrackItem() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         View itemView = getFirstResultsItemByClass(Track.class);
         solo.clickOnView(itemView);
         return new PlayerScreen(solo);
     }
 
     public PlaylistDetailsScreen clickFirstPlaylistItem() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         View itemView = getFirstResultsItemByClass(Playlist.class);
         solo.clickOnView(itemView);
         return new PlaylistDetailsScreen(solo);
     }
 
     public ProfileScreen clickFirstUserItem() {
+
         View itemView = getFirstResultsItemByClass(User.class);
         solo.clickOnView(itemView);
         return new ProfileScreen(solo);
