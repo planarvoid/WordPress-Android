@@ -5,6 +5,7 @@ $ 81
     * Added new empty state views
     * Fixed a progress reporting bug
     * Fixed some authentication issues occuring after sign up
+    * Removed audio caching support
     - aggregated OOM errors
     - fixed 0 progress bug
     - Removed caching per UMG
