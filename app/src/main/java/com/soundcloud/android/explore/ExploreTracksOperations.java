@@ -5,6 +5,7 @@ import static rx.android.OperationPaged.paged;
 
 import com.google.common.base.Optional;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
@@ -22,8 +23,6 @@ import rx.util.functions.Func1;
 import javax.inject.Inject;
 
 public class ExploreTracksOperations extends ScheduledOperations {
-
-    private static final int PAGE_SIZE = 15;
 
     public RxHttpClient mRxHttpClient;
 
@@ -54,7 +53,7 @@ public class ExploreTracksOperations extends ScheduledOperations {
 
     private Observable<Page<SuggestedTracksCollection>> getSuggestedTracks(String endpoint) {
         APIRequest<SuggestedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<SuggestedTracksCollection>get(endpoint)
-                .addQueryParameters("limit", String.valueOf(PAGE_SIZE))
+                .addQueryParameters("limit", String.valueOf(Consts.CARD_PAGE_SIZE))
                 .forPrivateAPI(1)
                 .forResource(TypeToken.of(SuggestedTracksCollection.class)).build();
 

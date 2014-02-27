@@ -35,7 +35,7 @@ public class SyncAdapterServicePushTest extends SyncAdapterServiceTestBase {
     @Test
     public void shouldShowNewFetchedFollower() throws Exception {
         TestHelper.addIdResponse("/me/followers/ids?linked_partitioning=1" + NON_INTERACTIVE, 792584, 1255758, 308291);
-        addResourceResponse("/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE + NON_INTERACTIVE, "users.json");
+        addResourceResponse("/me/followers?linked_partitioning=1&limit=" + Consts.LIST_PAGE_SIZE + NON_INTERACTIVE, "users.json");
 
         addHttpResponseRule(
             createRegexRequestMatcherForUriWithClientId("GET", "/users/12345"),

@@ -709,7 +709,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         Request request = getRequest(isRefresh);
         if (request != null) {
             request.add(PublicApiWrapper.LINKED_PARTITIONING, "1");
-            request.add("limit", Consts.COLLECTION_PAGE_SIZE);
+            request.add("limit", Consts.LIST_PAGE_SIZE);
         }
         return request;
     }

@@ -29,7 +29,8 @@ public final class Consts {
     public static final File DEPRECATED_EXTERNAL_STORAGE_DIRECTORY =
             new File(Environment.getExternalStorageDirectory(), "Soundcloud");
 
-    public static final int COLLECTION_PAGE_SIZE      = 50;
+    public static final int LIST_PAGE_SIZE = 30;
+    public static final int CARD_PAGE_SIZE = 20;
     public static final int MAX_COMMENTS_TO_LOAD      = 50;
 
     public static final String AUDIO_BECOMING_NOISY = "android.media.AUDIO_BECOMING_NOISY";

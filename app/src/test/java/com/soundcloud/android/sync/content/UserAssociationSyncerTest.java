@@ -97,7 +97,7 @@ public class UserAssociationSyncerTest {
     @Test
     public void shouldSyncFollowers() throws Exception {
         addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
+        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.LIST_PAGE_SIZE, "users.json");
 
         ApiSyncResult result = sync(Content.ME_FOLLOWERS.uri);
         expect(result.success).toBeTrue();
@@ -114,7 +114,7 @@ public class UserAssociationSyncerTest {
     @Test
     public void shouldCallUserAssociationStorageWithAllIds() throws Exception {
         addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "empty_collection.json");
+        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.LIST_PAGE_SIZE, "empty_collection.json");
 
         userAssociationSyncer.setBulkInsertBatchSize(Integer.MAX_VALUE);
         userAssociationSyncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
@@ -133,7 +133,7 @@ public class UserAssociationSyncerTest {
                 .toEqual(UserAssociation.LocalState.PENDING_ADDITION);
 
         addIdResponse("/me/followings/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addCannedResponse(ApiSyncServiceTest.class, "/me/followings?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
+        addCannedResponse(ApiSyncServiceTest.class, "/me/followings?linked_partitioning=1&limit=" + Consts.LIST_PAGE_SIZE, "users.json");
 
         expect(sync(Content.ME_FOLLOWINGS.uri).success).toBeTrue();
 
@@ -152,7 +152,7 @@ public class UserAssociationSyncerTest {
                 .toEqual(UserAssociation.LocalState.PENDING_REMOVAL);
 
         addIdResponse("/me/followings/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addCannedResponse(ApiSyncServiceTest.class, "/me/followings?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
+        addCannedResponse(ApiSyncServiceTest.class, "/me/followings?linked_partitioning=1&limit=" + Consts.LIST_PAGE_SIZE, "users.json");
 
         expect(sync(Content.ME_FOLLOWINGS.uri).success).toBeTrue();
 
@@ -163,7 +163,7 @@ public class UserAssociationSyncerTest {
     @Test
     public void shouldReturnSuccessAndUnchangedResultForRepeatEmptySync() throws Exception {
         addIdResponse("/me/followers/ids?linked_partitioning=1");
-        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "empty_collection.json");
+        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.LIST_PAGE_SIZE, "empty_collection.json");
 
         ApiSyncResult result = sync(Content.ME_FOLLOWERS.uri);
         expect(result.success).toBeTrue();
@@ -172,7 +172,7 @@ public class UserAssociationSyncerTest {
         expect(Content.ME_FOLLOWERS).toHaveCount(0);
 
         addIdResponse("/me/followers/ids?linked_partitioning=1");
-        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "empty_collection.json");
+        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.LIST_PAGE_SIZE, "empty_collection.json");
         result = sync(Content.ME_FOLLOWERS.uri);
         expect(result.success).toBe(true);
         expect(result.change).toEqual(ApiSyncResult.UNCHANGED);
@@ -183,7 +183,7 @@ public class UserAssociationSyncerTest {
     @Test
     public void shouldReturnReorderedForUsersIfLocalStateEqualsRemote() throws Exception {
         addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
+        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.LIST_PAGE_SIZE, "users.json");
 
         ApiSyncResult result = sync(Content.ME_FOLLOWERS.uri);
         expect(result.success).toBeTrue();
@@ -195,7 +195,7 @@ public class UserAssociationSyncerTest {
         assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
 
         addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
+        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.LIST_PAGE_SIZE, "users.json");
         result = sync(Content.ME_FOLLOWERS.uri);
         expect(result.success).toBe(true);
         expect(result.change).toEqual(ApiSyncResult.REORDERED);

@@ -31,21 +31,21 @@ public class Explore extends ActivityTestCase<MainActivity> {
     public void testTrendingMusicIsDisplayed() {
         exploreScreen.touchTrendingMusicTab();
         assertEquals("Current tab is MUSIC", "MUSIC", exploreScreen.currentTabTitle());
-        assertEquals("Invalid number of trending music items", 15, exploreScreen.getItemsOnTrendingMusicList());
+        assertEquals("Invalid number of trending music items", 20, exploreScreen.getItemsOnTrendingMusicList());
     }
 
     public void testTrendingMusicPullToRefresh() {
         exploreScreen.touchTrendingMusicTab();
-        assertEquals("Invalid number of trending music items", 15, exploreScreen.getItemsOnTrendingMusicList());
+        assertEquals("Invalid number of trending music items", 20, exploreScreen.getItemsOnTrendingMusicList());
 
         exploreScreen.pullToRefresh();
-        assertEquals("Invalid number of trending music items", 15, exploreScreen.getItemsOnTrendingMusicList());
+        assertEquals("Invalid number of trending music items", 20, exploreScreen.getItemsOnTrendingMusicList());
     }
 
     public void testTendingMusicLoadsNextPage(){
         exploreScreen.touchTrendingMusicTab();
         exploreScreen.scrollToBottomOfTracksListAndLoadMoreItems();
-        assertTrue(15 < exploreScreen.getItemsOnTrendingMusicList());
+        assertTrue(20 < exploreScreen.getItemsOnTrendingMusicList());
     }
 
     public void testTrendingAudioIsDisplayedUsingSwiping() {
@@ -53,22 +53,22 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
         waiter.waitForContentAndRetryIfLoadingFailed();
         assertEquals("Current tab should be AUDIO", "AUDIO", exploreScreen.currentTabTitle());
-        assertEquals("Invalid number of genres found", 15, exploreScreen.getItemsOnTrendingAudioList());
+        assertEquals("Invalid number of genres found", 20, exploreScreen.getItemsOnTrendingAudioList());
     }
 
     public void testTrendingAudioIsDisplayedWhenTouchingTab() {
         exploreScreen.touchTrendingAudioTab();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        assertEquals("Invalid number of tracks found", 15, exploreScreen.getItemsOnTrendingAudioList());
+        assertEquals("Invalid number of tracks found", 20, exploreScreen.getItemsOnTrendingAudioList());
     }
 
     public void testTrendingAudioPullToRefresh() {
         exploreScreen.touchTrendingAudioTab();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        assertEquals("Invalid number of trending audio items", 15, exploreScreen.getItemsOnTrendingAudioList());
+        assertEquals("Invalid number of trending audio items", 20, exploreScreen.getItemsOnTrendingAudioList());
 
         exploreScreen.pullToRefresh();
-        assertEquals("Invalid number of trending audio items", 15, exploreScreen.getItemsOnTrendingAudioList());
+        assertEquals("Invalid number of trending audio items", 20, exploreScreen.getItemsOnTrendingAudioList());
     }
 
     public void testTendingAudioLoadsNextPage(){

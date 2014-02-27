@@ -24,7 +24,7 @@ public class SearchResultsAdapter extends EndlessPagingAdapter<ScResource> {
 
     @Inject
     public SearchResultsAdapter(ImageOperations imageOperations) {
-        super(Consts.COLLECTION_PAGE_SIZE);
+        super(Consts.LIST_PAGE_SIZE);
         mImageOperations = imageOperations;
     }
 

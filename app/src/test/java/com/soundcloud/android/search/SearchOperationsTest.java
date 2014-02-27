@@ -103,7 +103,7 @@ public class SearchOperationsTest {
         verify(rxHttpClient).fetchModels(argumentCaptor.capture());
         String value = argumentCaptor.getValue().getQueryParameters().get("limit").toArray()[0].toString();
         int pageSize = Integer.valueOf(value);
-        expect(pageSize).toEqual(50);
+        expect(pageSize).toEqual(30);
     }
 
     @Test

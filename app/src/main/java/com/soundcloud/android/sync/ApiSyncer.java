@@ -173,7 +173,7 @@ public class ApiSyncer extends SyncStrategy {
         Activities activities;
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
             final Activity oldestActivity = mActivitiesStorage.getOldestActivity(c);
-            Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
+            Request request = new Request(c.request()).add("limit", Consts.LIST_PAGE_SIZE);
             if (oldestActivity != null) request.add("cursor", oldestActivity.toGUID());
             activities = Activities.fetch(mApi, request);
             if (activities == null || activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(oldestActivity))) {

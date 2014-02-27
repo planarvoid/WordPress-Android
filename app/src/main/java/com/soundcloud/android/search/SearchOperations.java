@@ -35,7 +35,7 @@ public class SearchOperations {
             new Func1<SearchResultsCollection, SearchResultsCollection>() {
                 @Override
                 public SearchResultsCollection call(SearchResultsCollection unfilteredResult) {
-                    List<ScResource> filteredList = new ArrayList<ScResource>(Consts.COLLECTION_PAGE_SIZE);
+                    List<ScResource> filteredList = new ArrayList<ScResource>(Consts.LIST_PAGE_SIZE);
                     for (ScResource resource : unfilteredResult) {
                         if (!(resource instanceof UnknownResource)) {
                             filteredList.add(resource);
@@ -132,7 +132,7 @@ public class SearchOperations {
 
     private RequestBuilder<SearchResultsCollection> createSearchRequestBuilder(String path) {
         return RequestBuilder.<SearchResultsCollection>get(path)
-                    .addQueryParameters("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE))
+                    .addQueryParameters("limit", String.valueOf(Consts.LIST_PAGE_SIZE))
                     .forPublicAPI()
                     .forResource(TypeToken.of(SearchResultsCollection.class));
     }

@@ -125,7 +125,7 @@ public class UserAssociationSyncer extends SyncStrategy {
                 // parse and add first items
                 List<ScResource> resources = mApi.readList(Request.to(content.remoteUri)
                         .add(PublicApiWrapper.LINKED_PARTITIONING, "1")
-                        .add("limit", Consts.COLLECTION_PAGE_SIZE));
+                        .add("limit", Consts.LIST_PAGE_SIZE));
 
                 if (!isLoggedIn()) {
                     return new ApiSyncResult(content.uri);

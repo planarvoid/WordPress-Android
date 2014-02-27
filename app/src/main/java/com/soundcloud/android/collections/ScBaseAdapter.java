@@ -199,8 +199,8 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         CollectionParams params = new CollectionParams();
         params.loadModel = mContent.modelType;
         params.isRefresh = refresh;
-        params.maxToLoad = Consts.COLLECTION_PAGE_SIZE;
-        params.startIndex = refresh ? 0 : mPage * Consts.COLLECTION_PAGE_SIZE;
+        params.maxToLoad = Consts.LIST_PAGE_SIZE;
+        params.startIndex = refresh ? 0 : mPage * Consts.LIST_PAGE_SIZE;
         params.contentUri = mContentUri;
         return params;
     }

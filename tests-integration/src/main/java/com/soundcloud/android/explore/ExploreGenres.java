@@ -31,26 +31,26 @@ public class ExploreGenres extends ActivityTestCase<MainActivity> {
         exploreScreen.touchGenresTab();
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
         waiter.waitForContentAndRetryIfLoadingFailed();
-        assertEquals(15, categoryScreen.getItemsOnList());
+        assertEquals(20, categoryScreen.getItemsOnList());
     }
 
     public void testElectronicMusicCategoryPullToRefresh(){
         exploreScreen.touchGenresTab();
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
         waiter.waitForContentAndRetryIfLoadingFailed();
-        assertEquals(15, categoryScreen.getItemsOnList());
+        assertEquals(20, categoryScreen.getItemsOnList());
 
         exploreScreen.pullToRefresh();
-        assertEquals(15, categoryScreen.getItemsOnList());
+        assertEquals(20, categoryScreen.getItemsOnList());
     }
 
     public void testElectronicMusicCategoryLoadsNextPageOfTracks(){
         exploreScreen.touchGenresTab();
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
         waiter.waitForContentAndRetryIfLoadingFailed();
-        assertEquals(15, categoryScreen.getItemsOnList());
+        assertEquals(20, categoryScreen.getItemsOnList());
 
         categoryScreen.scrollToBottomOfTracksListAndLoadMoreItems();
-        assertTrue(15 < categoryScreen.getItemsOnList());
+        assertTrue(20 < categoryScreen.getItemsOnList());
     }
 }

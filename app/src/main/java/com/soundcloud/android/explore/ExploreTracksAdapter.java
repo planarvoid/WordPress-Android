@@ -1,6 +1,7 @@
 package com.soundcloud.android.explore;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collections.EndlessPagingAdapter;
 import com.soundcloud.android.collections.views.GridSpacer;
@@ -19,14 +20,12 @@ import javax.inject.Inject;
 import java.util.Locale;
 public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
 
-    public static final int INITIAL_LIST_SIZE = 20;
-
     private final ImageOperations mImageOperations;
     private GridSpacer mGridSpacer;
 
     @Inject
     public ExploreTracksAdapter(GridSpacer gridSpacer, ImageOperations imageOperations) {
-        super(INITIAL_LIST_SIZE, R.layout.grid_loading_item);
+        super(Consts.CARD_PAGE_SIZE, R.layout.grid_loading_item);
         mGridSpacer = gridSpacer;
         mImageOperations = imageOperations;
     }
