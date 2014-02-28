@@ -377,9 +377,8 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
             case HttpStatus.SC_NOT_FOUND:
                 throw new NotFoundException();
             default:
-                if (!isStatusCodeOk(code) && !mApplicationProperties.isReleaseBuild()) {
+                if (!isStatusCodeOk(code)) {
                     final UnexpectedResponseException exception = new UnexpectedResponseException(originalRequest, response.getStatusLine());
-                    SoundCloudApplication.handleSilentException("Get InputStream failed", exception);
                     throw exception;
                 }
         }
@@ -397,10 +396,6 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
     public static boolean isStatusCodeClientError(int code) {
         return code >= 400 && code < 500;
-    }
-
-    public static boolean isStatusCodeServerError(int code) {
-        return code >= 500 && code < 600;
     }
 
     // accepts all certificates - don't use in production

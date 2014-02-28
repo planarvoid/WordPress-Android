@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.TempEndpoints;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.ConnectionDAO;
@@ -89,7 +90,7 @@ public class ApiSyncer extends SyncStrategy {
         } else if (c.remoteUri != null) {
             switch (c) {
                 case ME:
-                    result = syncMe(c, userId);
+                    result = syncMe(c);
                     if (result.success) {
                         mResolver.notifyChange(Content.ME.uri, null);
                         User loggedInUser = SoundCloudApplication.fromContext(mContext).getLoggedInUser();
@@ -335,7 +336,7 @@ public class ApiSyncer extends SyncStrategy {
         return result;
     }
 
-    private ApiSyncResult syncMe(Content c, long userId) throws IOException {
+    private ApiSyncResult syncMe(Content c) throws IOException {
         ApiSyncResult result = new ApiSyncResult(c.uri);
         User user = new FetchUserTask(mApi).resolve(c.request());
         result.synced_at = System.currentTimeMillis();
@@ -416,17 +417,22 @@ public class ApiSyncer extends SyncStrategy {
         ApiSyncResult result = new ApiSyncResult(contentUri);
 
         try {
-            Playlist p = mApi.read(Content.match(contentUri).request(contentUri));
+            ScResource resource = mApi.read(Content.match(contentUri).request(contentUri));
+            if(resource instanceof UnknownResource){
+                result.success = false;
+                return result;
+            }
+            Playlist playlist = (Playlist)resource;
 
             Cursor c = mResolver.query(
-                    Content.PLAYLIST_TRACKS.forId(p.getId()), new String[]{DBHelper.PlaylistTracksView._ID},
+                    Content.PLAYLIST_TRACKS.forId(playlist.getId()), new String[]{DBHelper.PlaylistTracksView._ID},
                     DBHelper.PlaylistTracksView.PLAYLIST_ADDED_AT + " IS NOT NULL", null,
                     DBHelper.PlaylistTracksView.PLAYLIST_ADDED_AT + " ASC");
 
 
             if (c != null && c.getCount() > 0) {
                 Set<Long> toAdd = new LinkedHashSet<Long>(c.getCount());
-                for (Track t : p.tracks) {
+                for (Track t : playlist.tracks) {
                     toAdd.add(t.getId());
                 }
                 while (c.moveToNext()) {
@@ -438,19 +444,15 @@ public class ApiSyncer extends SyncStrategy {
                 log("Pushing new playlist content to api: " + content);
 
                 Request r = Content.PLAYLIST.request(contentUri).withContent(content, "application/json");
-                final ScResource scResource = mApi.update(r);
-                if (scResource instanceof Playlist){
-                    p = (Playlist) scResource;
-                } else {
-                    // Debugging. Return objects sometimes are not playlists. In this case the user will lose addition.
-                    // This is an edge case so I think its acceptable until we can figure out the root of the problem [JS]
-                    SoundCloudApplication.handleSilentException("Error updating playlist " + p, new PlaylistUpdateException(content));
+                resource = mApi.update(r);
+                if (resource instanceof Playlist){
+                    playlist = (Playlist) resource;
                 }
             }
             if (c != null) c.close();
 
-            p = mPlaylistStorage.storeAsync(p).toBlockingObservable().last();
-            final Uri insertedUri = p.toUri();
+            playlist = mPlaylistStorage.storeAsync(playlist).toBlockingObservable().last();
+            final Uri insertedUri = playlist.toUri();
             if (insertedUri != null) {
                 log("inserted " + insertedUri.toString());
                 result.setSyncData(true, System.currentTimeMillis(), 1, ApiSyncResult.CHANGED);
