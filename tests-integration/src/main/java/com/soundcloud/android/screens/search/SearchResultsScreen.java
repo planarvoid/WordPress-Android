@@ -61,10 +61,9 @@ public class SearchResultsScreen extends Screen {
         return new ProfileScreen(solo);
     }
 
-    public MainScreen pressBack() {
+    public PlaylistTagsScreen pressBack() {
         solo.goBack();
-        // A supposition is made that the previous screen was the main screen
-        return new MainScreen(solo);
+        return new PlaylistTagsScreen(solo);
     }
 
     public void touchAllTab() {

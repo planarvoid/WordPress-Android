@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens;
 
+import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.search.CombinedSearchActivity;
 import com.soundcloud.android.tests.Han;
 
@@ -28,6 +29,11 @@ public class PlaylistResultsScreen extends Screen {
     public PlaylistDetailsScreen clickOnPlaylist(int position) {
         solo.getSolo().clickInList(position);
         return new PlaylistDetailsScreen(solo);
+    }
+
+    public PlaylistTagsScreen pressBack() {
+        solo.goBack();
+        return new PlaylistTagsScreen(solo);
     }
 
 }

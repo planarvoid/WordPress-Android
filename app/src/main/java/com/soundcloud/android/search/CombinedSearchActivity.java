@@ -29,19 +29,25 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
     private final SearchActionBarController.SearchCallback mSearchCallback = new SearchActionBarController.SearchCallback() {
         @Override
         public void performTextSearch(String query) {
-            replaceContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
+            addContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
         }
 
         @Override
         public void performTagSearch(String tag) {
-            replaceContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
+            addContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
         }
 
         @Override
         public void exitSearchMode() {
-            replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
+            getSupportFragmentManager().popBackStack();
         }
     };
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        mActionBarController.setQuery("");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +76,6 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
         } else {
             mActionBarController.requestSearchFieldFocus();
         }
-
         return true;
     }
 
@@ -86,9 +91,16 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
         return mActionBarController;
     }
 
-    private void replaceContent(Fragment fragment, String tag) {
+    private void addPlaylistTagsFragment() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.holder, new PlaylistTagsFragment(), PlaylistTagsFragment.TAG)
+                .commit();
+    }
+
+    private void addContent(Fragment fragment, String tag) {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.holder, fragment, tag)
+                .addToBackStack(tag)
                 .commit();
     }
 
@@ -100,10 +112,11 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
     @Override
     public void onTagSelected(String tag) {
         mActionBarController.setQuery(tag);
-        replaceContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
+        addContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
     }
 
     private void handleIntent() {
+        addPlaylistTagsFragment();
         final Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction()) || ACTION_PLAY_FROM_SEARCH.equals(intent.getAction())) {
             showResultsFromIntent(intent.getStringExtra(SearchManager.QUERY));
@@ -112,8 +125,6 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
         } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null
                 && !intent.getData().getPath().equals(INTENT_URI_SEARCH_PATH)) {
             handleUri(intent);
-        } else {
-            replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
         }
     }
 
@@ -135,14 +146,12 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
             // Quick search box - Resolve through normal system
             startActivity(new Intent(Intent.ACTION_VIEW).setData(intent.getData()));
             finish();
-        } else {
-            replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
         }
     }
 
     private void showResultsFromIntent(String query) {
         mQuery = query;
-        replaceContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);   
+        addContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
     }
 
 }
