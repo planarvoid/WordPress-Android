@@ -69,13 +69,13 @@ public class UMGCacheBusterTest {
     public void shouldReturnLastComparisonUrlAfterMultipleInvocations(){
         umgCacheBuster.bustIt(URL);
         umgCacheBuster.bustIt("diffUrl2");
-        expect(umgCacheBuster.getLastUrl()).toEqual("diffUrl2");
+        expect(umgCacheBuster.getCurrentPlayingUrl()).toEqual("diffUrl2");
     }
 
     @Test
     public void shouldReturnLastComparisonUrl(){
         umgCacheBuster.bustIt(URL);
-        expect(umgCacheBuster.getLastUrl()).toEqual(URL);
+        expect(umgCacheBuster.getCurrentPlayingUrl()).toEqual(URL);
     }
 
 }

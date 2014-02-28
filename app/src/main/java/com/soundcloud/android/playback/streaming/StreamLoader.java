@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.streaming;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.utils.BatteryListener;
@@ -129,9 +130,13 @@ public class StreamLoader {
         umgCacheBuster.bustIt(url);
 
         final StreamItem item = mStorage.getMetadata(url);
-
+        if(item == null){
+            SoundCloudApplication.handleSilentException("Stream item was null wtf",
+                    new IllegalStateException(String.format("Stream Item for url %s is null : %s", url,
+                            umgCacheBuster.getCurrentPlayingUrl())));
+        }
         // no point trying if item is no longer available
-        if (!item.isAvailable()) throw new IOException("Item is not available");
+        if (item == null || !item.isAvailable()) throw new IOException("Item is not available");
 
         final Index missing = mStorage.getMissingChunksForItem(url, range.chunkRange(mStorage.chunkSize));
         final StreamFuture pc = new StreamFuture(item, range);
@@ -343,7 +348,7 @@ public class StreamLoader {
             }
 
 
-            if(!umgCacheBuster.getLastUrl().equals(task.item.streamItemUrl())){
+            if(!umgCacheBuster.getCurrentPlayingUrl().equals(task.item.streamItemUrl())){
                 return;
             }
             if (task instanceof HeadTask) {

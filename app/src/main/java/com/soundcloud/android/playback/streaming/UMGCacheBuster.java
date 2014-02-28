@@ -54,7 +54,7 @@ class UMGCacheBuster extends ScheduledOperations {
 
     }
 
-    public String getLastUrl() {
+    public String getCurrentPlayingUrl() {
         synchronized (this){
             return mCurrentUrl;
         }
