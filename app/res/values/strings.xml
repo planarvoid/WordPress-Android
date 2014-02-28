@@ -187,5 +187,9 @@
     <string name="search_type_tracks">Tracks</string>
     <string name="search_type_playlists">Playlists</string>
     <string name="search_type_people">People</string>
+    <string name="search_recent_tags">RECENT</string>
+    <string name="search_popular_tags">POPULAR TAGS</string>
+    <string name="search_tags_title">Choose your favorite tag</string>
+    <string name="search_tags_subtitle">Discover popular playlists on SoundCloud</string>
 
 </resources>

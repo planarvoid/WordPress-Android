@@ -92,5 +92,6 @@
     <color name="dark_gray_background">#333</color>
 
     <color name="tab_bar_divider">#dddddd</color>
+    <color name="tag_text">#666666</color>
 
 </resources>

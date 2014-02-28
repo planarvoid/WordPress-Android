@@ -1312,6 +1312,19 @@
         <item name="android:layout_margin">@dimen/full_image_margin</item>
     </style>
 
+    <style name="UnderlinedListTitle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:textColor">@color/scOrange</item>
+        <item name="android:gravity">bottom</item>
+        <item name="android:background">@drawable/divider_list_orange</item>
+    </style>
+
     <style name="ExploreTrackGridItemSelector">
         <item name="android:background">@drawable/suggested_track_grid_item_selector</item>
         <item name="android:layout_width">match_parent</item>
@@ -1339,18 +1352,7 @@
         <item name="android:layout_alignParentTop">true</item>
         <item name="android:orientation">vertical</item>
     </style>
-    <style name="ExploreListTitle">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">50dp</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:paddingLeft">20dp</item>
-        <item name="android:paddingRight">20dp</item>
-        <item name="android:paddingBottom">4dp</item>
-        <item name="android:textColor">@color/scOrange</item>
-        <item name="android:gravity">bottom</item>
-        <item name="android:background">@drawable/divider_list_orange</item>
-    </style>
+
 
     <style name="emptyCollectionErrorContentHolder" parent="emptyCollectionContentHolderBase">
         <item name="android:layout_height">wrap_content</item>
@@ -1411,6 +1413,39 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:background">@color/tab_bar_divider</item>
+    </style>
+
+    <!-- Playlist Discovery -->
+
+    <style name="Tag">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/btn_tag</item>
+        <item name="android:gravity">center</item>
+        <item name="android:focusable">true</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/tag_text</item>
+        <item name="custom_font">fonts/Roboto-Light.ttf</item>
+    </style>
+
+    <style name="Tag.Small" parent="Tag">
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="TagCloudTitle" parent="UnderlinedListTitle">
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+    </style>
+
+    <style name="TagHeaderText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
     </style>
 
 </resources>

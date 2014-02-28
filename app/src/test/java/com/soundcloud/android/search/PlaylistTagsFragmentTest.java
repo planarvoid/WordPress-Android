@@ -124,7 +124,7 @@ public class PlaylistTagsFragmentTest {
         when(searchOperations.getRecentPlaylistTags()).thenReturn(observable);
 
         createFragment();
-        View recentTagsLayout = fragment.getView().findViewById(R.id.recent_tags);
+        View recentTagsLayout = fragment.getView().findViewById(R.id.recent_tags_container);
         expect(recentTagsLayout.getVisibility()).toEqual(View.GONE);
     }
 
@@ -133,10 +133,9 @@ public class PlaylistTagsFragmentTest {
         when(searchOperations.getRecentPlaylistTags()).thenReturn(Observable.<PlaylistTagsCollection>error(new Exception()));
 
         createFragment();
-        View recentTagsLayout = fragment.getView().findViewById(R.id.recent_tags);
+        View recentTagsLayout = fragment.getView().findViewById(R.id.recent_tags_container);
         expect(recentTagsLayout.getVisibility()).toEqual(View.GONE);
     }
-
 
     @Test
     public void clickingTagShouldCallTagListenerWithCorrectTag() {

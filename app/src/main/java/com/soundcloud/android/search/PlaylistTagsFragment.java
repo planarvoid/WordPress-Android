@@ -123,13 +123,12 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
         ViewGroup tagFlowLayout = (ViewGroup) layout.findViewById(layoutId);
         tagFlowLayout.removeAllViews();
 
-        int padding = ViewUtils.dpToPx(getActivity(), 10);
+        int padding = ViewUtils.dpToPx(getActivity(), 5);
         FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(padding, padding);
 
-        tagFlowLayout.setVisibility(tags.isEmpty() ? GONE : VISIBLE);
         for (final String tag : tags) {
             if (!TextUtils.isEmpty(tag)) {
-                TextView tagView = ((TextView) inflater.inflate(R.layout.tag_text, null));
+                TextView tagView = ((TextView) inflater.inflate(R.layout.btn_tag, null));
                 tagView.setText(tag);
                 tagView.setTag(tag);
                 tagView.setOnClickListener(mTagClickListener);
@@ -159,8 +158,11 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
 
         @Override
         public void onNext(PlaylistTagsCollection tags) {
-            displayRecentTags(tags);
+            if (!tags.getCollection().isEmpty()) {
+                getView().findViewById(R.id.recent_tags_container).setVisibility(VISIBLE);
+                displayRecentTags(tags);
+            }
         }
-
     }
+
 }

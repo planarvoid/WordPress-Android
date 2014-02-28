@@ -8,8 +8,6 @@ import com.soundcloud.android.search.SearchByTagActivity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.activities.Activity;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.utils.ViewUtils;
-import com.soundcloud.android.view.FlowLayout;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -30,6 +28,7 @@ import android.widget.TextView;
 import java.util.List;
 
 public class PlayerTrackDetailsLayout extends LinearLayout {
+
     private View mInfoView;
     private ViewGroup mTrackTags;
     private TableRow mTagsAndDescriptionRow;
@@ -43,6 +42,15 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
 
     private long mTrackId;
     private @Nullable TagsHolder mLastTags;
+
+    private final OnClickListener mTagClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(getContext(), SearchByTagActivity.class);
+            intent.putExtra(SearchByTagActivity.EXTRA_TAG, (String) v.getTag());
+            getContext().startActivity(intent);
+        }
+    };
 
     public PlayerTrackDetailsLayout(Context context) {
         super(context);
@@ -201,9 +209,6 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
         mLastTags = new TagsHolder(track);
         TextView txt;
 
-        int padding = ViewUtils.dpToPx(getContext(), 10);
-        FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(padding, padding);
-
         mTrackTags.removeAllViews();
 
         final List<String> tags = track.humanTags();
@@ -214,7 +219,8 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
 
             final LayoutInflater inflater = LayoutInflater.from(getContext());
             if (!TextUtils.isEmpty(track.genre)) {
-                txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
+                txt = ((TextView) inflater.inflate(R.layout.btn_tag_small, null));
+                txt.setText(withHashTag(track.genre));
                 txt.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -223,25 +229,22 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
                         getContext().startActivity(intent);
                     }
                 });
-                txt.setText(track.genre);
-                mTrackTags.addView(txt, flowLP);
+                mTrackTags.addView(txt);
             }
             for (final String t : tags) {
                 if (!TextUtils.isEmpty(t)) {
-                    txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
-                    txt.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent intent = new Intent(getContext(), SearchByTagActivity.class);
-                            intent.putExtra(SearchByTagActivity.EXTRA_TAG, t);
-                            getContext().startActivity(intent);
-                        }
-                    });
-                    txt.setText(t);
-                    mTrackTags.addView(txt, flowLP);
+                    txt = ((TextView) inflater.inflate(R.layout.btn_tag_small, null));
+                    txt.setText(withHashTag(t));
+                    txt.setTag(t);
+                    txt.setOnClickListener(mTagClickListener);
+                    mTrackTags.addView(txt);
                 }
             }
         }
+    }
+
+    private String withHashTag(String tag) {
+        return "#" + tag;
     }
 
     private void openInteractionActivity(Activity.Type interactionType) {
