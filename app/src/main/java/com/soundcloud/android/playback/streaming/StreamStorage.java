@@ -75,33 +75,40 @@ public class StreamStorage {
         this.chunkSize = chunkSize;
     }
 
-    public synchronized boolean storeMetadata(StreamItem item) {
-        verifyMetadata(item);
+    public boolean storeMetadata(StreamItem item) {
+        synchronized (this) {
+            verifyMetadata(item);
 
-        mItems.put(item.urlHash, item);
-        try {
-            File indexFile = incompleteIndexFileForUrl(item.streamItemUrl());
-            if (indexFile.exists() && !indexFile.delete()) Log.w(LOG_TAG, "could not delete "+indexFile);
-            item.toIndexFile(indexFile);
-            return true;
-        } catch (IOException e) {
-            if (IOUtils.isSDCardAvailable()) {
-                Log.e(LOG_TAG, "Error storing index data ", e);
+            mItems.put(item.urlHash, item);
+            try {
+                File indexFile = incompleteIndexFileForUrl(item.streamItemUrl());
+                if (indexFile.exists() && !indexFile.delete())
+                    Log.w(LOG_TAG, "could not delete " + indexFile);
+                item.toIndexFile(indexFile);
+                return true;
+            } catch (IOException e) {
+                if (IOUtils.isSDCardAvailable()) {
+                    Log.e(LOG_TAG, "Error storing index data ", e);
+                }
+                return false;
             }
-            return false;
         }
     }
 
-    public synchronized @NotNull StreamItem getMetadata(String url) {
-        String hashed = StreamItem.urlHash(url);
-        if (!mItems.containsKey(hashed)) {
-            mItems.put(hashed, readMetadata(url));
+    public @NotNull StreamItem getMetadata(String url) {
+        synchronized (this) {
+            String hashed = StreamItem.urlHash(url);
+            if (!mItems.containsKey(hashed)) {
+                mItems.put(hashed, readMetadata(url));
+            }
+            return mItems.get(hashed);
         }
-        return mItems.get(hashed);
     }
 
-    public synchronized boolean removeMetadata(String url) {
-        return mItems.remove(StreamItem.urlHash(url)) != null;
+    public boolean removeMetadata(String url) {
+        synchronized (this) {
+            return mItems.remove(StreamItem.urlHash(url)) != null;
+        }
     }
 
     public ByteBuffer fetchStoredDataForUrl(String url, Range range) throws IOException {
@@ -276,9 +283,12 @@ public class StreamStorage {
     }
 
     public void removeAllDataForItem(String url) {
-        Log.d(LOG_TAG, "removing all data for "+url);
-        removeCompleteDataForItem(url);
-        removeIncompleteDataForItem(url);
+        synchronized (this) {
+            Log.d(LOG_TAG, "removing all data for "+url);
+            removeCompleteDataForItem(url);
+            removeIncompleteDataForItem(url);
+        }
+
     }
 
     private boolean removeIncompleteDataForItem(String url) {

@@ -126,7 +126,7 @@ public class StreamLoader {
     }
 
     public StreamFuture getDataForUrl(String url, Range range) throws IOException {
-         umgCacheBuster.bustIt(url);
+        umgCacheBuster.bustIt(url);
 
         final StreamItem item = mStorage.getMetadata(url);
 
