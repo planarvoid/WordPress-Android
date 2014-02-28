@@ -130,6 +130,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     public void onDestroyView() {
         mSubscription.unsubscribe();
         mPlaybackSubscription.unsubscribe();
+        mAdapter.clear();
         super.onDestroyView();
     }
 
