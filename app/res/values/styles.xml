@@ -1426,16 +1426,16 @@
         <item name="android:ellipsize">end</item>
         <item name="android:singleLine">true</item>
         <item name="android:textSize">18sp</item>
-        <item name="android:paddingRight">20dp</item>
-        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingLeft">16dp</item>
         <item name="android:textColor">@color/tag_text</item>
         <item name="custom_font">fonts/Roboto-Light.ttf</item>
     </style>
 
     <style name="Tag.Small" parent="Tag">
         <item name="android:textSize">13sp</item>
-        <item name="android:paddingRight">15dp</item>
-        <item name="android:paddingLeft">15dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:paddingLeft">12dp</item>
     </style>
 
     <style name="TagCloudTitle" parent="UnderlinedListTitle">
