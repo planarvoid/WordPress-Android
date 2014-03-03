@@ -1,7 +1,9 @@
 package com.soundcloud.android.actionbar;
 
 import static com.soundcloud.android.actionbar.SearchActionBarController.SearchCallback;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.api.PublicCloudAPI;
@@ -44,10 +46,13 @@ public class SearchActionBarControllerTest {
     }
 
     @Test
-    public void shouldStripFirstHastagsWhenPerformingPlaylistTagSearch() throws Exception {
+    public void shouldNotPerformPlaylistTagSearchForSingleHashtagQuery() throws Exception {
         actionBarController.performSearch("#");
-        verify(callback).performTagSearch(eq(""));
+        verify(callback, never()).performTagSearch(anyString());
+    }
 
+    @Test
+    public void shouldStripFirstHastagsWhenPerformingPlaylistTagSearch() throws Exception {
         actionBarController.performSearch("###clowstep");
         verify(callback).performTagSearch(eq("clowstep"));
 

@@ -1,6 +1,7 @@
 package com.soundcloud.android.actionbar;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicCloudAPI;
@@ -129,9 +130,16 @@ public class SearchActionBarController extends ActionBarController {
     @VisibleForTesting
     void performSearch(final String query) {
         if (query.startsWith("#")) {
-            mSearchCallback.performTagSearch(query.replaceAll("^#+", "")); // Replaces the first occurrences of #
+            performTagSearch(query);
         } else {
             mSearchCallback.performTextSearch(query);
+        }
+    }
+
+    private void performTagSearch(final String query) {
+        String tag = query.replaceAll("^#+", ""); // Replaces the first occurrences of #
+        if (!Strings.isNullOrEmpty(tag)) {
+            mSearchCallback.performTagSearch(tag);
         }
     }
 

@@ -34,9 +34,7 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
 
         @Override
         public void performTagSearch(String tag) {
-            if (!tag.isEmpty()) {
-                addContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
-            }
+            addContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
         }
 
         @Override
