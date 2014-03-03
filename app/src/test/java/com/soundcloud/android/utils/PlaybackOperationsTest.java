@@ -19,7 +19,6 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TrackStorage;
@@ -33,7 +32,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
-import rx.concurrency.Schedulers;
 
 import android.content.Intent;
 import android.net.Uri;

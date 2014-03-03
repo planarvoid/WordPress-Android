@@ -11,7 +11,6 @@ import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import org.junit.Before;
 import org.junit.Test;
@@ -113,7 +112,7 @@ public class SuggestedUsersOperationsTest {
 
     @Test
     public void shouldReturnEmptyCategoryWhenFacebookFails() {
-        when(soundCloudRxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(TestObservables.errorThrowingObservable());
+        when(soundCloudRxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.error(new Exception()));
         suggestedUsersOperations.getFacebookSuggestions().subscribe(observer);
         verify(observer, never()).onError(any(Exception.class));
     }

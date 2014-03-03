@@ -15,6 +15,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlaylistTagsCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
+import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.EmptyListView;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -86,14 +87,14 @@ public class PlaylistTagsFragmentTest {
 
     @Test
     public void shouldCacheObservableResults() {
-        Observable observable = RxTestHelper.mockObservable().howeverScheduled().get();
+        TestObservables.MockObservable observable = TestObservables.emptyObservable();
         when(searchOperations.getPlaylistTags()).thenReturn(observable);
 
         createFragment();
         // go through config change; onViewCreated is called again, should not trigger the source sequence again
         fragment.onViewCreated(fragment.getView(), null);
 
-        verify(observable, times(1)).subscribe(Matchers.any(Observer.class));
+        expect(observable.subscribers()).toNumber(1);
     }
 
     @Test

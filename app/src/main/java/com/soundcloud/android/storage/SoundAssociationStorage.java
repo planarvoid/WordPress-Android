@@ -10,9 +10,7 @@ import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.Subscriber;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -61,12 +59,11 @@ public class SoundAssociationStorage extends ScheduledOperations {
     }
 
     public Observable<SoundAssociation> addLikeAsync(final Playable playable) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<SoundAssociation>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<SoundAssociation>() {
             @Override
-            public Subscription onSubscribe(Observer<? super SoundAssociation> observer) {
+            public void call(Subscriber<? super SoundAssociation> observer) {
                 observer.onNext(addLike(playable));
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }
@@ -86,12 +83,11 @@ public class SoundAssociationStorage extends ScheduledOperations {
     }
 
     public Observable<SoundAssociation> removeLikeAsync(final Playable playable) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<SoundAssociation>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<SoundAssociation>() {
             @Override
-            public Subscription onSubscribe(Observer<? super SoundAssociation> observer) {
+            public void call(Subscriber<? super SoundAssociation> observer) {
                 observer.onNext(removeLike(playable));
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }
@@ -110,12 +106,11 @@ public class SoundAssociationStorage extends ScheduledOperations {
     }
 
     public Observable<SoundAssociation> addRepostAsync(final Playable playable) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<SoundAssociation>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<SoundAssociation>() {
             @Override
-            public Subscription onSubscribe(Observer<? super SoundAssociation> observer) {
+            public void call(Subscriber<? super SoundAssociation> observer) {
                 observer.onNext(addRepost(playable));
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }
@@ -135,12 +130,11 @@ public class SoundAssociationStorage extends ScheduledOperations {
     }
 
     public Observable<SoundAssociation> removeRepostAsync(final Playable playable) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<SoundAssociation>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<SoundAssociation>() {
             @Override
-            public Subscription onSubscribe(Observer<? super SoundAssociation> observer) {
+            public void call(Subscriber<? super SoundAssociation> observer) {
                 observer.onNext(removeRepost(playable));
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }
@@ -173,13 +167,11 @@ public class SoundAssociationStorage extends ScheduledOperations {
     }
 
     private Observable<SoundAssociation> addCreationAsync(final Playable playable, final BaseDAO<SoundAssociation> dao, final SoundAssociation.Type assocType) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<SoundAssociation>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<SoundAssociation>() {
             @Override
-            public Subscription onSubscribe(Observer<? super SoundAssociation> observer) {
+            public void call(Subscriber<? super SoundAssociation> observer) {
                 observer.onNext(addCreation(playable, dao, assocType));
                 observer.onCompleted();
-
-                return Subscriptions.empty();
             }
 
         }));
@@ -205,12 +197,11 @@ public class SoundAssociationStorage extends ScheduledOperations {
     }
 
     public Observable<List<Long>> getTrackLikesAsIdsAsync(){
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<List<Long>>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<List<Long>>() {
             @Override
-            public Subscription onSubscribe(Observer<? super List<Long>> observer) {
+            public void call(Subscriber<? super List<Long>> observer) {
                 observer.onNext(getTrackLikesAsIds());
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }

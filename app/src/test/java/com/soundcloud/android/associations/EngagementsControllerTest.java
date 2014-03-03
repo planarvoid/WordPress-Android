@@ -1,7 +1,6 @@
 package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.rx.RxTestHelper.mockObservable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
@@ -22,6 +21,7 @@ import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.TestObservables;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
 import org.junit.Before;
@@ -229,7 +229,7 @@ public class EngagementsControllerTest {
         expect(likeButton.isChecked()).toBeFalse();
 
         final Subscription subscription = mock(Subscription.class);
-        final Observable observable = mockObservable().howeverScheduled().returning(subscription).get();
+        final Observable observable = TestObservables.fromSubscription(subscription);
         when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class))).thenReturn(observable);
 
         likeButton.performClick();

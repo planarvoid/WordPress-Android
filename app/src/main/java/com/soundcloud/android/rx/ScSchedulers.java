@@ -1,7 +1,7 @@
 package com.soundcloud.android.rx;
 
 import rx.Scheduler;
-import rx.concurrency.Schedulers;
+import rx.schedulers.Schedulers;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;

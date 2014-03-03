@@ -14,6 +14,7 @@
 
     <properties>
         <dagger.version>1.2.1</dagger.version>
+        <rxjava.version>0.17.0.RC7.c298d5e</rxjava.version>
     </properties>
 
     <build>
@@ -321,12 +322,7 @@
         <dependency>
             <groupId>com.netflix.rxjava</groupId>
             <artifactId>rxjava-android</artifactId>
-            <version>0.16.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.netflix.rxjava</groupId>
-            <artifactId>rxjava-core</artifactId>
-            <version>0.16.1</version>
+            <version>${rxjava.version}</version>
         </dependency>
         <dependency>
             <groupId>com.nostra13.universalimageloader</groupId>

@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.observers.ListFragmentObserver;
+import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,14 +24,12 @@ import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.Map;
-
 @RunWith(SoundCloudTestRunner.class)
 public class SectionedAdapterTest {
 
     private SectionedAdapter adapter;
     @Mock
-    private ListFragmentObserver listFragmentObserver;
+    private ListFragmentSubscriber listFragmentSubscriber;
 
     @Before
     public void setup() {

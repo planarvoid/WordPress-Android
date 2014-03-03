@@ -20,7 +20,7 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -154,7 +154,7 @@ public class PlaybackOperations {
         cacheAndGoToPlayer(context, initialTrack);
 
         if (isNotCurrentlyPlaying(initialTrack)) {
-            mTrackStorage.getTrackIdsForUriAsync(uri).subscribe(new DefaultObserver<List<Long>>() {
+            mTrackStorage.getTrackIdsForUriAsync(uri).subscribe(new DefaultSubscriber<List<Long>>() {
                 @Override
                 public void onNext(List<Long> idList) {
                     final int updatedPosition = correctStartPositionAndDeduplicateList(idList, startPosition, initialTrack);

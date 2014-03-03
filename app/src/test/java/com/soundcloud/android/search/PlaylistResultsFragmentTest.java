@@ -115,22 +115,6 @@ public class PlaylistResultsFragmentTest {
     }
 
     @Test
-    public void shouldUnsubscribeInOnDestroy() {
-        Subscription subscription = mock(Subscription.class);
-        Observable<Page<PlaylistSummaryCollection>> observable =
-                RxTestHelper.<Page<PlaylistSummaryCollection>>mockObservable()
-                        .howeverScheduled()
-                        .returning(subscription)
-                        .get();
-        when(searchOperations.getPlaylistDiscoveryResults(anyString())).thenReturn(observable);
-
-        fragment.onCreate(null);
-        fragment.onDestroy();
-
-        verify(subscription).unsubscribe();
-    }
-
-    @Test
     public void shouldOpenPlaylistActivityWhenClickingPlaylistItem() throws CreateModelException {
         PlaylistSummary clickedPlaylist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
         when(adapter.getItem(0)).thenReturn(clickedPlaylist);

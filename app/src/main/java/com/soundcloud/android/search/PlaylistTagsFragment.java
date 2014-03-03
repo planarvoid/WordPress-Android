@@ -1,6 +1,8 @@
 package com.soundcloud.android.search;
 
-import static android.view.View.*;
+import static android.view.View.GONE;
+import static android.view.View.OnClickListener;
+import static android.view.View.VISIBLE;
 import static com.google.common.base.Preconditions.checkArgument;
 import static rx.android.observables.AndroidObservable.fromFragment;
 
@@ -8,9 +10,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.PlaylistTagsCollection;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
-import com.soundcloud.android.rx.observers.ListFragmentObserver;
+import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.FlowLayout;
@@ -39,7 +41,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
     SearchOperations mSearchOperations;
 
     private CompositeSubscription mSubscription;
-    private Observable<PlaylistTagsCollection> mAllObservable;
+    private Observable<PlaylistTagsCollection> mAllTagsObservable;
 
     private EmptyListView mEmptyView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
@@ -75,7 +77,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAllObservable = fromFragment(this, mSearchOperations.getPlaylistTags()).cache();
+        mAllTagsObservable = fromFragment(this, mSearchOperations.getPlaylistTags()).cache();
     }
 
     @Override
@@ -90,11 +92,9 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
         mEmptyView.setVisibility(VISIBLE);
         mEmptyView.setStatus(mEmptyViewStatus);
 
-        Observable<PlaylistTagsCollection> recentsObservable = fromFragment(this, mSearchOperations.getRecentPlaylistTags());
-
         mSubscription = new CompositeSubscription();
-        mSubscription.add(mAllObservable.subscribe(new TagsObserver()));
-        mSubscription.add(recentsObservable.subscribe(new RecentsObserver()));
+        mSubscription.add(mAllTagsObservable.subscribe(new TagsSubscriber()));
+        mSubscription.add(fromFragment(this, mSearchOperations.getRecentPlaylistTags()).subscribe(new RecentsSubscriber()));
     }
 
     @Override
@@ -137,8 +137,8 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
         }
     }
 
-    private final class TagsObserver extends ListFragmentObserver<PlaylistTagsCollection> {
-        public TagsObserver() {
+    private final class TagsSubscriber extends ListFragmentSubscriber<PlaylistTagsCollection> {
+        public TagsSubscriber() {
             super(PlaylistTagsFragment.this);
         }
 
@@ -154,7 +154,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
         }
     }
 
-    private final class RecentsObserver extends DefaultObserver<PlaylistTagsCollection> {
+    private final class RecentsSubscriber extends DefaultSubscriber<PlaylistTagsCollection> {
 
         @Override
         public void onNext(PlaylistTagsCollection tags) {

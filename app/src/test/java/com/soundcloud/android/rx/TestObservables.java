@@ -2,16 +2,64 @@ package com.soundcloud.android.rx;
 
 import rx.Observable;
 import rx.Observer;
+import rx.Subscriber;
 import rx.Subscription;
+
+import javax.annotation.Nullable;
+import java.util.LinkedList;
+import java.util.List;
 
 public class TestObservables {
 
-    public static <T> Observable<T> errorThrowingObservable() {
-        return Observable.create(new Observable.OnSubscribeFunc<T>() {
+    public static <T> Observable<T> fromSubscription(final Subscription subscription) {
+        return Observable.create(new Observable.OnSubscribe<T>() {
             @Override
-            public Subscription onSubscribe(Observer<? super T> observer) {
-                throw new RuntimeException();
+            public void call(Subscriber<? super T> subscriber) {
+                subscriber.add(subscription);
+                subscriber.onCompleted();
             }
         });
+    }
+
+    public static <T> MockObservable<T> emptyObservable() {
+        return new MockObservable<T>(new OnSubscribeCapture(Observable.empty()));
+    }
+
+    public static <T> MockObservable<T> errorObservable(Throwable error) {
+        return new MockObservable<T>(new OnSubscribeCapture(Observable.error(error)));
+    }
+
+    public static class MockObservable<T> extends Observable<T> {
+
+        private final OnSubscribeCapture capture;
+
+        protected MockObservable(OnSubscribeCapture capture) {
+            super(capture);
+            this.capture = capture;
+        }
+
+        public boolean subscribedTo() {
+            return capture.subscribers != null;
+        }
+
+        public List<Subscriber<? super T>> subscribers() {
+            return capture.subscribers;
+        }
+    }
+
+    private static final class OnSubscribeCapture<T> implements Observable.OnSubscribe<T> {
+
+        List<Subscriber<? super T>> subscribers = new LinkedList<Subscriber<? super T>>();
+        Observable<T> source;
+
+        private OnSubscribeCapture(Observable<T> source) {
+            this.source = source;
+        }
+
+        @Override
+        public void call(Subscriber<? super T> subscriber) {
+            this.subscribers.add(subscriber);
+            source.subscribe(subscriber);
+        }
     }
 }

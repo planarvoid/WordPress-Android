@@ -17,7 +17,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
@@ -367,7 +367,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         return this;
     }
 
-    private final DefaultObserver<CurrentUserChangedEvent> mUserEventObserver = new DefaultObserver<CurrentUserChangedEvent>() {
+    private final DefaultSubscriber<CurrentUserChangedEvent> mUserEventObserver = new DefaultSubscriber<CurrentUserChangedEvent>() {
         @Override
         public void onNext(CurrentUserChangedEvent args) {
             if (args.getKind() == CurrentUserChangedEvent.USER_REMOVED) {

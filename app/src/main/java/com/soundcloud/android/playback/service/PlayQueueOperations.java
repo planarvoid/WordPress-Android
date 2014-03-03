@@ -9,7 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.RelatedTracksCollection;
-import com.soundcloud.android.rx.observers.RxObserverHelper;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.PlayQueueStorage;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -84,7 +84,7 @@ public class PlayQueueOperations {
 
         SharedPreferencesUtils.apply(editor);
 
-        return RxObserverHelper.fireAndForget(mPlayQueueStorage.storeCollectionAsync(playQueue.getItems()));
+        return DefaultSubscriber.fireAndForget(mPlayQueueStorage.storeCollectionAsync(playQueue.getItems()));
     }
 
     public void clear() {

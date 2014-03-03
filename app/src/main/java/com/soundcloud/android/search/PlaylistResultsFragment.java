@@ -14,7 +14,7 @@ import com.soundcloud.android.model.PlaylistSummaryCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
-import com.soundcloud.android.rx.observers.ListFragmentObserver;
+import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
@@ -112,7 +112,7 @@ public class PlaylistResultsFragment extends ListFragment implements EmptyViewAw
 
         setEmptyViewStatus(EmptyListView.Status.WAITING);
         observable.subscribe(mAdapter);
-        observable.subscribe(new ListFragmentObserver<Page<PlaylistSummaryCollection>>(this));
+        observable.subscribe(new ListFragmentSubscriber<Page<PlaylistSummaryCollection>>(this));
         mSubscription = observable.connect();
     }
 

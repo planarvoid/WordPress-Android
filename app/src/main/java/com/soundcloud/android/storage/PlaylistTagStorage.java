@@ -7,9 +7,7 @@ import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.Subscriber;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -50,12 +48,11 @@ public class PlaylistTagStorage extends ScheduledOperations {
     }
 
     public Observable<PlaylistTagsCollection> getRecentTagsAsync() {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<PlaylistTagsCollection>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<PlaylistTagsCollection>() {
             @Override
-            public Subscription onSubscribe(Observer<? super PlaylistTagsCollection> observer) {
+            public void call(Subscriber<? super PlaylistTagsCollection> observer) {
                 observer.onNext(new PlaylistTagsCollection(getRecentTags()));
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }

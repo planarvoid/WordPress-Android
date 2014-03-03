@@ -8,7 +8,7 @@ import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.collections.SingleLineCollectionTextView;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -267,7 +267,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         }
     }
 
-    private final DefaultObserver<UserAssociation> mNotifyWhenDoneObserver = new DefaultObserver<UserAssociation>() {
+    private final DefaultSubscriber<UserAssociation> mNotifyWhenDoneObserver = new DefaultSubscriber<UserAssociation>() {
         @Override
         public void onCompleted() {
             notifyDataSetChanged();

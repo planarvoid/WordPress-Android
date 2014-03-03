@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.service;
 
-import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -21,7 +21,7 @@ import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.streaming.StreamItem;
 import com.soundcloud.android.playback.streaming.StreamProxy;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.track.TrackOperations;
@@ -463,7 +463,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         if (!getPlayQueueInternal().isEmpty()){
             final long currentTrackId = getPlayQueueInternal().getCurrentTrackId();
             mTrackOperations.loadTrack(currentTrackId, AndroidSchedulers.mainThread())
-                    .subscribe(new DefaultObserver<Track>() {
+                    .subscribe(new DefaultSubscriber<Track>() {
                         @Override
                         public void onNext(Track track) {
                             openCurrent(track);

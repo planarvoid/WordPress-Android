@@ -15,14 +15,15 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.PlayQueueStorage;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import dagger.Module;
@@ -36,15 +37,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.util.functions.Func1;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -102,32 +101,29 @@ public class PlayQueueOperationsTest {
     }
 
     @Test
-    public void shouldReturnObservableForLoadingLastPlayQueue() throws Exception {
+    public void shouldLoadAPreviouslyStoredPlayQueue() throws Exception {
+        PlayQueueItem playQueueItem = new PlayQueueItem(1L, "source1", "version1");
         when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
 
-        Observable<List<PlayQueueItem>> itemObservable = Mockito.mock(Observable.class);
+        Observable<List<PlayQueueItem>> itemObservable = Observable.just(Arrays.asList(playQueueItem));
         when(playQueueStorage.getPlayQueueItemsAsync()).thenReturn(itemObservable);
-        when(itemObservable.observeOn(AndroidSchedulers.mainThread())).thenReturn(itemObservable);
 
-        Observable<PlayQueue> queueObservable = Mockito.mock(Observable.class);
-        when(itemObservable.map(any(Func1.class))).thenReturn(queueObservable);
-
-        expect(playQueueOperations.getLastStoredPlayQueue()).toBe(queueObservable);
+        ArgumentCaptor<PlayQueue> captor = ArgumentCaptor.forClass(PlayQueue.class);
+        playQueueOperations.getLastStoredPlayQueue().subscribe(observer);
+        verify(observer).onNext(captor.capture());
+        expect(captor.getValue().getItems()).toContainExactly(playQueueItem);
     }
 
     @Test
     public void shouldCreateQueueFromItemsObservable() throws Exception {
         when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
 
-        Observable<List<PlayQueueItem>> mockObservable = Mockito.mock(Observable.class);
-        when(playQueueStorage.getPlayQueueItemsAsync()).thenReturn(mockObservable);
-
         PlayQueueItem playQueueItem1 = new PlayQueueItem(1L, "source1", "version1");
         PlayQueueItem playQueueItem2 = new PlayQueueItem(2L, "source2", "version2");
         List<PlayQueueItem> items = Lists.newArrayList(playQueueItem1, playQueueItem2);
         Observable<List<PlayQueueItem>> itemObservable = Observable.just(items);
 
-        when(mockObservable.observeOn(AndroidSchedulers.mainThread())).thenReturn(itemObservable);
+        when(playQueueStorage.getPlayQueueItemsAsync()).thenReturn(itemObservable);
 
         PlayQueue playQueue = playQueueOperations.getLastStoredPlayQueue().toBlockingObservable().lastOrDefault(null);
         expect(playQueue.getItems()).toContainExactly(playQueueItem1, playQueueItem2);
@@ -156,16 +152,14 @@ public class PlayQueueOperationsTest {
 
     @Test
     public void saveShouldStoreAllPlayQueueItems() throws Exception {
-        final Collection<PlayQueueItem> mock = Mockito.mock(Collection.class);
-        when(playQueue.getItems()).thenReturn(mock);
+        TestObservables.MockObservable observable = TestObservables.emptyObservable();
+        final Collection<PlayQueueItem> collection = Mockito.mock(Collection.class);
+        when(playQueue.getItems()).thenReturn(collection);
+        when(playQueueStorage.storeCollectionAsync(collection)).thenReturn(observable);
 
-        final Observable<Collection<PlayQueueItem>> mockObservable = Mockito.mock(Observable.class);
-        when(playQueueStorage.storeCollectionAsync(mock)).thenReturn(mockObservable);
+        playQueueOperations.saveQueue(playQueue, playSessionSource, 200L);
 
-        final Subscription subscription = Mockito.mock(Subscription.class);
-        when(mockObservable.subscribe(any(Observer.class))).thenReturn(subscription);
-
-        expect(playQueueOperations.saveQueue(playQueue, playSessionSource, 200L)).toBe(subscription);
+        expect(observable.subscribedTo()).toBeTrue();
     }
 
     @Test

@@ -12,9 +12,9 @@ import org.mockito.Mock;
 import rx.Observer;
 
 @RunWith(SoundCloudTestRunner.class)
-public class ListFragmentObserverTest {
+public class ListFragmentSubscriberTest {
 
-    private ListFragmentObserver observer;
+    private ListFragmentSubscriber observer;
     private EmptyViewAware emptyViewHolder;
 
     @Mock
@@ -23,7 +23,7 @@ public class ListFragmentObserverTest {
     @Before
     public void setUp() throws Exception {
         emptyViewHolder = mock(EmptyViewAware.class);
-        observer = new ListFragmentObserver(emptyViewHolder);
+        observer = new ListFragmentSubscriber(emptyViewHolder);
     }
 
     @Test

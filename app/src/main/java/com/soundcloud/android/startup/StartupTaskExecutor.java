@@ -5,14 +5,13 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.Subscriber;
 
 import java.util.List;
 
@@ -23,7 +22,7 @@ public class StartupTaskExecutor extends ScheduledOperations {
     private final Observer<Class<? extends StartupTask>> mObserver;
 
     public StartupTaskExecutor(){
-        this(ScSchedulers.STORAGE_SCHEDULER, new DefaultObserver<Class<? extends StartupTask>>() {},
+        this(ScSchedulers.STORAGE_SCHEDULER, new DefaultSubscriber<Class<? extends StartupTask>>() {},
                 new DeleteStreamCacheTask());
     }
     @VisibleForTesting
@@ -36,10 +35,10 @@ public class StartupTaskExecutor extends ScheduledOperations {
     }
 
     public void executeTasks() {
-        schedule(Observable.create(new Observable.OnSubscribeFunc<Class<? extends StartupTask>>() {
+        schedule(Observable.create(new Observable.OnSubscribe<Class<? extends StartupTask>>() {
             //Sorry for the Observer<? super Class<? extends StartupTask>> but RxJava made me do it
             @Override
-            public Subscription onSubscribe(Observer<? super Class<? extends StartupTask>> observer) {
+            public void call(Subscriber<? super Class<? extends StartupTask>> observer) {
                 for (StartupTask task : mTasks) {
                     try{
                         task.executeTask();
@@ -50,7 +49,6 @@ public class StartupTaskExecutor extends ScheduledOperations {
                     observer.onNext(task.getClass());
                 }
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         })).subscribe(mObserver);
     }

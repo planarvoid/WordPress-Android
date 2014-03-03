@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests;
 
-import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static junit.framework.Assert.assertNotNull;
 
 import com.soundcloud.android.R;

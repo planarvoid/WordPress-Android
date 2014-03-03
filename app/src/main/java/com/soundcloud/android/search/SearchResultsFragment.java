@@ -13,9 +13,9 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
-import com.soundcloud.android.rx.observers.ListFragmentObserver;
+import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 import rx.Subscription;
@@ -123,7 +123,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         getListView().setOnScrollListener(mImageOperations.createScrollPauseListener(false, true, mAdapter));
 
         loadSearchResults();
-        mPlaybackSubscription = mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackObserver());
+        mPlaybackSubscription = mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackSubscriber());
     }
 
     @Override
@@ -200,11 +200,11 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         ConnectableObservable<Page<SearchResultsCollection>> mObservable = buildSearchResultsObservable();
         setEmptyViewStatus(EmptyListView.Status.WAITING);
         mObservable.subscribe(mAdapter);
-        mObservable.subscribe(new ListFragmentObserver<Page<SearchResultsCollection>>(this));
+        mObservable.subscribe(new ListFragmentSubscriber<Page<SearchResultsCollection>>(this));
         mSubscription = mObservable.connect();
     }
 
-    private final class PlaybackObserver extends DefaultObserver<PlaybackEvent> {
+    private final class PlaybackSubscriber extends DefaultSubscriber<PlaybackEvent> {
         @Override
         public void onNext(PlaybackEvent event) {
             mAdapter.notifyDataSetChanged();

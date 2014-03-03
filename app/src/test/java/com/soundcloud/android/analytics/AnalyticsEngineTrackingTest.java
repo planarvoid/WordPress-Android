@@ -34,8 +34,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Scheduler;
 import rx.Subscription;
+import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Action0;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -65,7 +65,7 @@ public class AnalyticsEngineTrackingTest {
     @Before
     public void setUp() throws Exception {
         eventMonitor = EventMonitor.on(eventBus).withSubscription(eventSubscription);
-        when(scheduler.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(Subscriptions.empty());
+        when(scheduler.schedule(any(Action1.class), anyLong(), any(TimeUnit.class))).thenReturn(Subscriptions.empty());
     }
 
     @Test

@@ -19,8 +19,8 @@ import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.utils.Log;
 import org.apache.http.HttpStatus;
 import rx.Observable;
-import rx.util.functions.Action0;
-import rx.util.functions.Func1;
+import rx.functions.Action0;
+import rx.functions.Func1;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -65,13 +65,13 @@ public class SoundAssociationOperations {
 
     public Observable<SoundAssociation> like(final Playable playable) {
         logPlayable("LIKE", playable);
-        return mHttpClient.fetchResponse(buildRequestForLike(playable, true)).mapMany(mapAddLikeResponse(playable))
+        return mHttpClient.fetchResponse(buildRequestForLike(playable, true)).mergeMap(mapAddLikeResponse(playable))
                 .doOnCompleted(handlePlayableStateChanged(playable));
     }
 
     public Observable<SoundAssociation> unlike(final Playable playable) {
         logPlayable("UNLIKE", playable);
-        return mHttpClient.fetchResponse(buildRequestForLike(playable, false)).mapMany(mapRemoveLikeResponse(playable))
+        return mHttpClient.fetchResponse(buildRequestForLike(playable, false)).mergeMap(mapRemoveLikeResponse(playable))
                 .onErrorResumeNext(handle404(mSoundAssocStorage.removeLikeAsync(playable)))
                 .doOnCompleted(handlePlayableStateChanged(playable));
     }
@@ -134,13 +134,13 @@ public class SoundAssociationOperations {
 
     public Observable<SoundAssociation> repost(final Playable playable) {
         logPlayable("REPOST", playable);
-        return mHttpClient.fetchResponse(buildRequestForReposts(playable, true)).mapMany(mapAddRepostResponse(playable))
+        return mHttpClient.fetchResponse(buildRequestForReposts(playable, true)).mergeMap(mapAddRepostResponse(playable))
                 .doOnCompleted(handlePlayableStateChanged(playable));
     }
 
     public Observable<SoundAssociation> unrepost(final Playable playable) {
         logPlayable("UNREPOST", playable);
-        return mHttpClient.fetchResponse(buildRequestForReposts(playable, false)).mapMany(mapRemoveRepostResponse(playable))
+        return mHttpClient.fetchResponse(buildRequestForReposts(playable, false)).mergeMap(mapRemoveRepostResponse(playable))
                 .onErrorResumeNext(handle404(mSoundAssocStorage.removeRepostAsync(playable)))
                 .doOnCompleted(handlePlayableStateChanged(playable));
     }

@@ -9,7 +9,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
@@ -116,7 +116,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
         txtTrackCount.setText(String.valueOf(newTracksCount));
 
         fromFragment(this, mPlaylistOperations.addTrackToPlaylist(
-                playlistId, trackId)).subscribe(new TrackAddedObserver());
+                playlistId, trackId)).subscribe(new TrackAddedSubscriber());
 
         final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
         mEventBus.publish(EventQueue.UI, UIEvent.fromAddToPlaylist(originScreen, false, trackId));
@@ -164,7 +164,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
         mAdapter.setCursor(null);
     }
 
-    private final class TrackAddedObserver extends DefaultObserver<Playlist> {
+    private final class TrackAddedSubscriber extends DefaultSubscriber<Playlist> {
 
         @Override
         public void onNext(Playlist playlist) {

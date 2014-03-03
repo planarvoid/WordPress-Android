@@ -14,17 +14,15 @@ import static rx.android.OperationPaged.paged;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import rx.Observable;
 import rx.Observer;
 
+import java.util.Arrays;
 import java.util.List;
 
-@RunWith(JUnit4.class)
 public class OperationPagedTest {
 
     @Mock
@@ -92,7 +90,7 @@ public class OperationPagedTest {
     }
 
     private Observable<Page<List<Integer>>> pagedObservableWithNext(Observable<List<Integer>> nextPage) {
-        Observable source = Observable.from(1, 2, 3).toList();
+        Observable source = Observable.from(Arrays.asList(1, 2, 3)).toList();
         return Observable.create(paged(source, nextPageFrom(nextPage)));
     }
 }

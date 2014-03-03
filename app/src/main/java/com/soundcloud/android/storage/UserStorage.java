@@ -5,9 +5,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.Subscriber;
 
 import android.net.Uri;
 
@@ -35,12 +33,11 @@ public class UserStorage extends ScheduledOperations implements Storage<User> {
 
     @Override
     public Observable<User> storeAsync(final User user) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<User>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<User>() {
             @Override
-            public Subscription onSubscribe(Observer<? super User> observer) {
+            public void call(Subscriber<? super User> observer) {
                 observer.onNext(store(user));
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }
@@ -51,12 +48,11 @@ public class UserStorage extends ScheduledOperations implements Storage<User> {
     }
 
     public Observable<User> createOrUpdateAsync(final User user) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<User>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<User>() {
             @Override
-            public Subscription onSubscribe(Observer<? super User> observer) {
+            public void call(Subscriber<? super User> observer) {
                 observer.onNext(createOrUpdate(user));
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }

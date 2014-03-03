@@ -5,7 +5,7 @@ package com.soundcloud.android.rx.observers;
  * be used with blocking observables.
  *
  */
-public class SuccessObserver extends DefaultObserver<Object> {
+public class SuccessSubscriber extends DefaultSubscriber<Object> {
     private boolean isSuccess;
     @Override
     public void onCompleted() {

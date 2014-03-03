@@ -9,7 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.SyncInitiator;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
@@ -46,7 +46,7 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
         }
 
         mSubscription = fromFragment(this, mFollowingOperations.waitForActivities(getActivity()))
-                .subscribe(new FollowingsSyncObserver());
+                .subscribe(new FollowingsSyncSubscriber());
     }
 
     @Override
@@ -74,7 +74,7 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
         getActivity().finish();
     }
 
-    class FollowingsSyncObserver extends DefaultObserver<Boolean> {
+    class FollowingsSyncSubscriber extends DefaultSubscriber<Boolean> {
 
         @Override
         public void onNext(Boolean success) {

@@ -1,5 +1,6 @@
 package com.soundcloud.android.onboarding.suggestions;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,6 +15,7 @@ import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.GridViewCompat;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
@@ -22,8 +24,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.Observer;
-import rx.Scheduler;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -42,8 +42,6 @@ public class SuggestedUsersCategoryFragmentTest {
     private View fragmentView;
     @Mock
     private GridViewCompat gridView;
-    @Mock
-    private Observable observable;
 
     private List<SuggestedUser> suggestedUsers;
 
@@ -85,27 +83,29 @@ public class SuggestedUsersCategoryFragmentTest {
     }
 
     @Test
-    public void shouldFollowAllUsers(){
+    public void shouldFollowAllUsers() {
+        TestObservables.MockObservable observable = TestObservables.emptyObservable();
         when(followingOperations.addFollowingsBySuggestedUsers(Lists.newArrayList(suggestedUsers.get(1)))).thenReturn(observable);
-        when(observable.observeOn(any(Scheduler.class))).thenReturn(observable);
         fragment.toggleFollowings(true);
 
-        verify(observable).subscribe(any(Observer.class));
         verify(gridView, times(2)).setItemChecked(0, true);
         verify(gridView).setItemChecked(1, true);
         verify(gridView, times(2)).setItemChecked(2, true);
+
+        expect(observable.subscribedTo()).toBeTrue();
     }
 
     @Test
     public void shouldUnfollowAllUsers(){
+        TestObservables.MockObservable observable = TestObservables.emptyObservable();
         when(followingOperations.removeFollowingsBySuggestedUsers(Lists.newArrayList(suggestedUsers.get(0), suggestedUsers.get(2)))).thenReturn(observable);
-        when(observable.observeOn(any(Scheduler.class))).thenReturn(observable);
         fragment.toggleFollowings(false);
 
-        verify(observable).subscribe(any(Observer.class));
         verify(gridView).setItemChecked(0, false);
         verify(gridView, times(2)).setItemChecked(1, false);
         verify(gridView).setItemChecked(2, false);
+
+        expect(observable.subscribedTo()).toBeTrue();
     }
 
 }

@@ -20,7 +20,7 @@ import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
@@ -130,7 +130,7 @@ public class PlayerTrackView extends FrameLayout implements
     public void setPlayQueueItem(Observable<Track> trackObservable, int queuePosition){
         mQueuePosition = queuePosition;
         mTrackSubscription.unsubscribe(); // unsubscribe from old subscription which may be in flight
-        mTrackSubscription = trackObservable.subscribe(new DefaultObserver<Track>() {
+        mTrackSubscription = trackObservable.subscribe(new DefaultSubscriber<Track>() {
             @Override
             public void onNext(Track args) {
                 // GET RID OF PRIORITY OR IMPLEMENT IT PROPERLY

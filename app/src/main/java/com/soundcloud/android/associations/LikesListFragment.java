@@ -11,7 +11,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import org.jetbrains.annotations.NotNull;
 import rx.Subscription;
@@ -104,7 +104,7 @@ public class LikesListFragment extends ScListFragment {
         });
     }
 
-    private final DefaultObserver<List<Long>> mLikedTrackIdsObserver = new DefaultObserver<List<Long>>() {
+    private final DefaultSubscriber<List<Long>> mLikedTrackIdsObserver = new DefaultSubscriber<List<Long>>() {
         @Override
         public void onNext(List<Long> trackIds) {
             updateShuffleHeader(trackIds);

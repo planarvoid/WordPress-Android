@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.service;
 
-import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
@@ -10,7 +10,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
@@ -51,7 +51,7 @@ public class PlayerWidgetController {
     }
 
     public void subscribe() {
-        eventSubscription = mEventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new PlayableChangedObserver());
+        eventSubscription = mEventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new PlayableChangedSubscriber());
     }
 
     @VisibleForTesting
@@ -72,7 +72,7 @@ public class PlayerWidgetController {
      * Listens for track changes emitted from our application layer via Rx and updates the widget
      * accordingly.
      */
-    private final class PlayableChangedObserver extends DefaultObserver<PlayableChangedEvent> {
+    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableChangedEvent> {
 
         @Override
         public void onNext(PlayableChangedEvent event) {

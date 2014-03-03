@@ -2,8 +2,9 @@ package rx.android;
 
 import rx.Observable;
 import rx.Observer;
+import rx.Subscriber;
 import rx.Subscription;
-import rx.util.functions.Func1;
+import rx.functions.Func1;
 
 import java.util.Collections;
 
@@ -47,28 +48,29 @@ public final class OperationPaged {
         }
     }
 
-    public static <CollT extends Iterable<?>> Observable.OnSubscribeFunc<Page<CollT>> paged(
+    public static <CollT extends Iterable<?>> Observable.OnSubscribe<Page<CollT>> paged(
             final Observable<CollT> source, final Func1<CollT, Observable<Page<CollT>>> nextPageGenerator) {
-        return new Observable.OnSubscribeFunc<Page<CollT>>() {
+        return new Observable.OnSubscribe<Page<CollT>>() {
             @Override
-            public Subscription onSubscribe(final Observer<? super Page<CollT>> observer) {
-                return source.subscribe(new Observer<CollT>() {
+            public void call(final Subscriber<? super Page<CollT>> subscriber) {
+                Subscription wrapped = source.subscribe(new Subscriber<CollT>() {
                     @Override
                     public void onCompleted() {
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        observer.onError(e);
+                        subscriber.onError(e);
                     }
 
                     @Override
                     public void onNext(CollT pagedCollection) {
                         final Observable<Page<CollT>> nextPageObservable = nextPageGenerator.call(pagedCollection);
-                        observer.onNext(new Page<CollT>(pagedCollection, nextPageObservable));
-                        observer.onCompleted();
+                        subscriber.onNext(new Page<CollT>(pagedCollection, nextPageObservable));
+                        subscriber.onCompleted();
                     }
                 });
+                subscriber.add(wrapped);
             }
         };
     }

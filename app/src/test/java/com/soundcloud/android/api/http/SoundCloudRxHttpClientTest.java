@@ -36,7 +36,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observer;
-import rx.concurrency.Schedulers;
+import rx.schedulers.Schedulers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -5,7 +5,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.content.UserAssociationSyncer;
-import rx.concurrency.Schedulers;
+import rx.schedulers.Schedulers;
 
 import android.app.Activity;
 import android.content.Context;

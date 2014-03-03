@@ -6,13 +6,12 @@ import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.Subscriber;
 
 class UMGCacheBuster extends ScheduledOperations {
 
@@ -21,7 +20,7 @@ class UMGCacheBuster extends ScheduledOperations {
     private final Observer<Object> mObserver;
 
     public UMGCacheBuster(StreamStorage streamStorage) {
-        this(ScSchedulers.IO_SCHEDULER, new DefaultObserver<Object>() {}, streamStorage);
+        this(ScSchedulers.IO_SCHEDULER, new DefaultSubscriber<Object>() {}, streamStorage);
     }
 
     @VisibleForTesting
@@ -60,7 +59,7 @@ class UMGCacheBuster extends ScheduledOperations {
         }
     }
 
-    private class CacheBustingObservable implements Observable.OnSubscribeFunc<Object> {
+    private class CacheBustingObservable implements Observable.OnSubscribe<Object> {
         private final String mUrlToRemoveFor;
 
         private CacheBustingObservable(String mUrlToRemoveFor) {
@@ -68,10 +67,9 @@ class UMGCacheBuster extends ScheduledOperations {
         }
 
         @Override
-        public Subscription onSubscribe(Observer<? super Object> observer) {
+        public void call(Subscriber<? super Object> observer) {
             mStreamStorage.removeAllDataForItem(mUrlToRemoveFor);
             observer.onCompleted();
-            return Subscriptions.empty();
         }
     }
 }

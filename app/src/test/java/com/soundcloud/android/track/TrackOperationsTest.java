@@ -18,6 +18,7 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.TrackStorage;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -27,9 +28,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
-import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.util.functions.Func1;
 
 import android.app.Activity;
 
@@ -65,14 +64,12 @@ public class TrackOperationsTest {
 
     @Test
     public void shouldLoadTrackFromStorageAndEmitOnUIThreadForPlayback() {
-        Observable loadFromStorageObservable = mock(Observable.class);
+        TestObservables.MockObservable loadFromStorageObservable = TestObservables.emptyObservable();
         when(trackStorage.getTrackAsync(1L)).thenReturn(loadFromStorageObservable);
-        when(loadFromStorageObservable.map(any(Func1.class))).thenReturn(loadFromStorageObservable);
-        when(loadFromStorageObservable.observeOn(any(Scheduler.class))).thenReturn(loadFromStorageObservable);
 
         trackOperations.loadTrack(1L, AndroidSchedulers.mainThread()).subscribe(observer);
 
-        verify(loadFromStorageObservable).subscribe(observer);
+        expect(loadFromStorageObservable.subscribedTo()).toBeTrue();
     }
 
     @Test

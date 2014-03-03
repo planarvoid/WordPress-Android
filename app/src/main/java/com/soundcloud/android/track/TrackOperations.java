@@ -12,12 +12,10 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.api.Endpoints;
 import rx.Observable;
-import rx.Observer;
 import rx.Scheduler;
-import rx.Subscription;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
+import rx.functions.Func1;
 
 import android.app.Activity;
 
@@ -51,22 +49,21 @@ public class TrackOperations {
      * Load the track from storage and fallback to the api if the stored track is incomplete : {@link com.soundcloud.android.model.Track#isIncomplete()}
      * Note: this will call onNext twice on an incomplete track, so this must be accounted for by the caller
      */
-    public Observable<Track> loadCompleteTrack(final Activity fromActivity, final long trackId) {
-        return loadTrack(trackId, AndroidSchedulers.mainThread()).mapMany(new Func1<Track, Observable<? extends Track>>() {
+    public Observable<Track> loadCompleteTrack(final Activity activity, final long trackId) {
+        return loadTrack(trackId, AndroidSchedulers.mainThread()).mergeMap(new Func1<Track, Observable<? extends Track>>() {
             @Override
             public Observable<? extends Track> call(final Track track) {
-                return Observable.create(new Observable.OnSubscribeFunc<Track>() {
+                return Observable.create(new Observable.OnSubscribe<Track>() {
                     @Override
-                    public Subscription onSubscribe(Observer<? super Track> observer) {
-                        observer.onNext(track);
-                        if (track.isIncomplete()) {
-                            return fromActivity(fromActivity, getCompleteTrackFromApi(trackId)
+                    public void call(Subscriber<? super Track> subscriber) {
+                        subscriber.onNext(track);
+                        if (track.isIncomplete() && !subscriber.isUnsubscribed()) {
+                            subscriber.add(fromActivity(activity, getCompleteTrackFromApi(trackId)
                                     .map(cacheAndStoreTrack(trackId, ScResource.CacheUpdateMode.FULL)))
-                                    .subscribe(observer);
+                                    .subscribe(subscriber));
                         } else {
-                            observer.onCompleted();
+                            subscriber.onCompleted();
                         }
-                        return Subscriptions.empty();
                     }
                 });
             }

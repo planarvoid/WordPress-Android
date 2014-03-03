@@ -12,7 +12,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
@@ -145,7 +145,7 @@ public class EngagementsController {
 
     public void startListeningForChanges() {
         // make sure we pick up changes to the current playable that come via the event bus
-        mSubscription.add(mEventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new DefaultObserver<PlayableChangedEvent>() {
+        mSubscription.add(mEventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new DefaultSubscriber<PlayableChangedEvent>() {
             @Override
             public void onNext(PlayableChangedEvent event) {
                 if (mPlayable != null && mPlayable.getId() == event.getPlayable().getId()) {
@@ -250,7 +250,7 @@ public class EngagementsController {
         }
     }
 
-    private static final class ResetToggleButton extends DefaultObserver<SoundAssociation> {
+    private static final class ResetToggleButton extends DefaultSubscriber<SoundAssociation> {
         private final ToggleButton mToggleButton;
 
         private ResetToggleButton(ToggleButton toggleButton) {

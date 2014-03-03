@@ -13,7 +13,7 @@ import com.soundcloud.android.model.SuggestedTracksCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
-import com.soundcloud.android.rx.observers.ListFragmentObserver;
+import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observer;
@@ -44,7 +44,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     private EmptyListView mEmptyListView;
 
-    private ExploreTracksObserver mObserver;
+    private ExploreTracksSubscriber mObserver;
 
     @Inject
     ExploreTracksAdapter mAdapter;
@@ -75,7 +75,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mObserver = new ExploreTracksObserver();
+        mObserver = new ExploreTracksSubscriber();
 
         mSuggestedTracksObservable = buildSuggestedTracksObservable();
         loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
@@ -151,7 +151,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onRefresh(PullToRefreshBase<GridView> refreshView) {
         final ConnectableObservable<Page<SuggestedTracksCollection>> refreshObservable = buildSuggestedTracksObservable();
-        loadTrackSuggestions(refreshObservable, new PullToRefreshObserver(refreshObservable));
+        loadTrackSuggestions(refreshObservable, new PullToRefreshSubscriber(refreshObservable));
     }
 
     @Override
@@ -162,11 +162,11 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         }
     }
 
-    private final class ExploreTracksObserver extends ListFragmentObserver<Page<SuggestedTracksCollection>> {
+    private final class ExploreTracksSubscriber extends ListFragmentSubscriber<Page<SuggestedTracksCollection>> {
 
         private String mLastExploreTag;
 
-        private ExploreTracksObserver() {
+        private ExploreTracksSubscriber() {
             super(ExploreTracksFragment.this);
         }
 
@@ -184,12 +184,12 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
      * TODO: REPLACE ME
      * Turn this into an RX operator if possible
      */
-    private final class PullToRefreshObserver extends ListFragmentObserver<Page<SuggestedTracksCollection>> {
+    private final class PullToRefreshSubscriber extends ListFragmentSubscriber<Page<SuggestedTracksCollection>> {
 
         private final ConnectableObservable<Page<SuggestedTracksCollection>> mNewObservable;
         private Page<SuggestedTracksCollection> mRefreshedPage;
 
-        public PullToRefreshObserver(ConnectableObservable<Page<SuggestedTracksCollection>> newObservable) {
+        public PullToRefreshSubscriber(ConnectableObservable<Page<SuggestedTracksCollection>> newObservable) {
             super(ExploreTracksFragment.this);
             mNewObservable = newObservable;
         }

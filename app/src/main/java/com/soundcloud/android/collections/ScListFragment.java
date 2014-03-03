@@ -28,7 +28,7 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.playlists.PlaylistChangedReceiver;
 import com.soundcloud.android.profile.MyTracksAdapter;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStateManager;
@@ -811,7 +811,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         }
     };
 
-    private final DefaultObserver<CurrentUserChangedEvent> mUserEventObserver = new DefaultObserver<CurrentUserChangedEvent>() {
+    private final DefaultSubscriber<CurrentUserChangedEvent> mUserEventObserver = new DefaultSubscriber<CurrentUserChangedEvent>() {
         @Override
         public void onNext(CurrentUserChangedEvent args) {
             if (args.getKind() == CurrentUserChangedEvent.USER_REMOVED) {

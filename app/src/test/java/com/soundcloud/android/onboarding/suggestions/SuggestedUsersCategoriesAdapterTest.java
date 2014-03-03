@@ -14,15 +14,13 @@ import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.TestObservables;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.Observer;
-import rx.Scheduler;
 
 import android.util.SparseArray;
 import android.view.View;
@@ -36,10 +34,9 @@ public class SuggestedUsersCategoriesAdapterTest {
 
     private SuggestedUsersCategoriesAdapter adapter;
     private SuggestedUsersCategoriesAdapter nonFacebookAdapter;
+
     @Mock
     private FollowingOperations followingOperations;
-    @Mock
-    Observable observable;
 
     @Before
     public void setup() throws CreateModelException {
@@ -230,13 +227,13 @@ public class SuggestedUsersCategoriesAdapterTest {
         nonFacebookAdapter.addItem(audio());
         nonFacebookAdapter.addItem(music());
         List<SuggestedUser> users = nonFacebookAdapter.getItem(0).getUsers();
+        TestObservables.MockObservable observable = TestObservables.emptyObservable();
         when(followingOperations.addFollowingsBySuggestedUsers(users)).thenReturn(observable);
-        when(observable.observeOn(any(Scheduler.class))).thenReturn(observable);
 
         View itemLayout = nonFacebookAdapter.getView(0, null, new FrameLayout(Robolectric.application));
         itemLayout.findViewById(R.id.btn_user_bucket_select_all).performClick();
 
-        verify(observable).subscribe(any(Observer.class));
+        expect(observable.subscribedTo()).toBeTrue();
     }
 
     @Test

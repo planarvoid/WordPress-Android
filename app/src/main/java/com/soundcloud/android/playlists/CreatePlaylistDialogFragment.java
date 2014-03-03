@@ -1,6 +1,6 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;

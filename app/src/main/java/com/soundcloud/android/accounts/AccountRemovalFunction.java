@@ -1,7 +1,6 @@
 package com.soundcloud.android.accounts;
 
 import static com.soundcloud.android.onboarding.auth.FacebookSSOActivity.FBToken;
-import static rx.Observable.OnSubscribeFunc;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
@@ -20,9 +19,8 @@ import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.PlaylistTagStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
-import rx.Observer;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.Observable;
+import rx.Subscriber;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -30,7 +28,7 @@ import android.accounts.AccountManagerFuture;
 import android.content.Context;
 import android.content.Intent;
 
-class AccountRemovalFunction implements OnSubscribeFunc<Void> {
+class AccountRemovalFunction implements Observable.OnSubscribe<Void> {
     private final EventBus mEventBus;
     private final Context mContext;
     private final Account mSoundCloudAccount;
@@ -72,7 +70,7 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
 
 
     @Override
-    public Subscription onSubscribe(Observer<? super Void> observer) {
+    public void call(Subscriber<? super Void> observer) {
         try {
             AccountManagerFuture<Boolean> accountRemovalFuture = mAccountManager.removeAccount(mSoundCloudAccount, null, null);
 
@@ -86,8 +84,6 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
         } catch (Exception e) {
             observer.onError(e);
         }
-
-        return Subscriptions.empty();
     }
 
     /**

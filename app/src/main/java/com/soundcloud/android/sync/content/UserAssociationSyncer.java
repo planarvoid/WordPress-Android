@@ -9,15 +9,15 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.api.http.PublicApiWrapper;
-import com.soundcloud.android.storage.CollectionStorage;
-import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
-import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.rx.observers.SuccessSubscriber;
+import com.soundcloud.android.storage.CollectionStorage;
+import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.rx.observers.SuccessObserver;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.utils.Log;
@@ -27,7 +27,7 @@ import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Scheduler;
-import rx.concurrency.Schedulers;
+import rx.schedulers.Schedulers;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -57,7 +57,7 @@ public class UserAssociationSyncer extends SyncStrategy {
     @VisibleForTesting
     protected UserAssociationSyncer(Context context, AccountOperations accountOperations) {
         super(context, context.getContentResolver(), accountOperations);
-        Scheduler scheduler = Schedulers.currentThread();
+        Scheduler scheduler = Schedulers.immediate();
         init(new UserAssociationStorage(scheduler, context.getContentResolver()), new FollowingOperations(scheduler));
     }
 
@@ -215,20 +215,22 @@ public class UserAssociationSyncer extends SyncStrategy {
                 }
             }
 
-            final BulkFollowObserver observer = new BulkFollowObserver(associationsNeedingSync, mUserAssociationStorage, new FollowingOperations());
+            final BulkFollowSubscriber observer = new BulkFollowSubscriber(associationsNeedingSync, mUserAssociationStorage, new FollowingOperations());
             mFollowingOperations.bulkFollowAssociations(associationsNeedingSync).subscribe(observer);
-            result.success = observer.wasSuccess();
+            if (!observer.wasSuccess()) {
+                result.success = false;
+            }
         }
         return result;
     }
 
-    protected static class BulkFollowObserver extends SuccessObserver {
+    protected static class BulkFollowSubscriber extends SuccessSubscriber {
 
         private final FollowingOperations mFollowingOperations;
         private UserAssociationStorage mUserAssociationStorage;
         private Collection<UserAssociation> mUserAssociations;
 
-        public BulkFollowObserver(Collection<UserAssociation> userAssociations, UserAssociationStorage userAssociationStorage, FollowingOperations followingOperations) {
+        public BulkFollowSubscriber(Collection<UserAssociation> userAssociations, UserAssociationStorage userAssociationStorage, FollowingOperations followingOperations) {
             mUserAssociations = userAssociations;
             mUserAssociationStorage = userAssociationStorage;
             mFollowingOperations = followingOperations;

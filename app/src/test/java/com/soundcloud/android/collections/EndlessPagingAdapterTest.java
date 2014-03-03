@@ -1,16 +1,14 @@
 package com.soundcloud.android.collections;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.rx.TestObservables.MockObservable;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 import static rx.android.OperationPaged.Page;
 import static rx.android.OperationPaged.paged;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.TestObservables;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,9 +17,8 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.OperationPaged;
-import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
 
 import android.os.Parcelable;
 import android.view.LayoutInflater;
@@ -30,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -37,8 +35,6 @@ public class EndlessPagingAdapterTest {
 
     @Mock
     private AbsListView absListView;
-    @Mock
-    private Observable mockObservable;
     @Mock
     private View rowView;
 
@@ -48,7 +44,6 @@ public class EndlessPagingAdapterTest {
     @Before
     public void setup() {
         adapter = buildAdapter();
-        when(mockObservable.observeOn(AndroidSchedulers.mainThread())).thenReturn(mockObservable);
     }
 
     @Test
@@ -169,55 +164,54 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldRetryRequestWhenClickingOnErrorRow() {
-        Observable<Page<List<Parcelable>>> failedSequence = mockObservable;
+        MockObservable<Page<List<Parcelable>>> failedSequence = TestObservables.errorObservable(new Exception());
 
         // loads page 1 successfully
         pagingObservable(sourceSequence(), failedSequence).subscribe(adapter);
 
-        // loads page 2
+        // loads page 2 (will fail)
         adapter.loadNextPage();
-        adapter.onError(new Exception()); // call explicitly since the mock won't do it
 
         View errorView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
         errorView.performClick();
 
-        verify(failedSequence, times(2)).subscribe(adapter);
+        expect(failedSequence.subscribers()).toNumber(2);
     }
 
     @Test
     public void pageScrollListenerShouldTriggerNextPageLoad() {
-        Observable<Page<List<Parcelable>>> nextPage = mockObservable;
+        MockObservable<Page<List<Parcelable>>> nextPage = TestObservables.emptyObservable();
         pagingObservable(sourceSequence(), nextPage).subscribe(adapter);
 
         adapter.onScroll(absListView, 0, 5, 5);
-        verify(nextPage).subscribe(adapter);
+        expect(nextPage.subscribedTo()).toBeTrue();
     }
 
     @Test
     public void pageScrollListenerShouldNotDoAnythingIfAlreadyLoading() {
-        Observable<Page<List<Parcelable>>> nextPage = mockObservable;
+        MockObservable<Page<List<Parcelable>>> nextPage = TestObservables.emptyObservable();
         pagingObservable(sourceSequence(), nextPage).subscribe(adapter);
         adapter.loadNextPage();
         adapter.onScroll(absListView, 0, 5, 5); // should not trigger load again, already loading
-        verify(nextPage, times(1)).subscribe(adapter);
+        expect(nextPage.subscribers()).toNumber(1);
     }
 
     @Test
     public void pageScrollListenerShouldNotDoAnythingIfLastAppendWasError() {
-        Observable<Page<List<Parcelable>>> nextPage = mockObservable;
+        MockObservable<Page<List<Parcelable>>> nextPage = TestObservables.emptyObservable();
         pagingObservable(Observable.<List<Parcelable>>error(new Exception()), nextPage).subscribe(adapter);
 
         adapter.onScroll(absListView, 0, 5, 5);
-        verifyZeroInteractions(mockObservable);
+        expect(nextPage.subscribers()).toBeEmpty();
     }
 
     @Test
     public void pageScrollListenerShouldNotLoadNextPageIfZeroItems() {
-        Observable<Page<List<Parcelable>>> nextPage = mockObservable;
+        MockObservable<Page<List<Parcelable>>> nextPage = TestObservables.emptyObservable();
         pagingObservable(Observable.<List<Parcelable>>empty(), nextPage).subscribe(adapter);
 
         adapter.onScroll(absListView, 0, 0, 0);
-        verifyZeroInteractions(mockObservable);
+        expect(nextPage.subscribers()).toBeEmpty();
     }
 
     private <T> Observable<Page<List<T>>> pagingObservable(Observable<List<T>> source, final Observable<Page<List<T>>> nextPage) {
@@ -252,6 +246,6 @@ public class EndlessPagingAdapterTest {
     }
 
     private Observable<List<Parcelable>> sourceSequence() {
-        return Observable.from(mock(Parcelable.class), mock(Parcelable.class), mock(Parcelable.class)).toList();
+        return Observable.from(Arrays.asList(mock(Parcelable.class), mock(Parcelable.class), mock(Parcelable.class))).toList();
     }
 }

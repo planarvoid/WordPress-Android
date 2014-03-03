@@ -18,7 +18,7 @@ import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import net.hockeyapp.android.UpdateManager;
 import rx.subscriptions.CompositeSubscription;
@@ -78,7 +78,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
-        mSubscription.add(mEventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedObserver()));
+        mSubscription.add(mEventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber()));
     }
 
     private NavigationFragment findNavigationFragment() {
@@ -92,7 +92,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
         User currentUser = mApplication.getLoggedInUser();
         if (!justAuthenticated && mAccountOperations.shouldCheckForConfirmedEmailAddress(currentUser)) {
-            mSubscription.add(fromActivity(this, mUserOperations.refreshCurrentUser()).subscribe(new UserObserver()));
+            mSubscription.add(fromActivity(this, mUserOperations.refreshCurrentUser()).subscribe(new UserSubscriber()));
         }
 
         if (appProperties.isBetaBuildRunningOnDalvik()) {
@@ -281,7 +281,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         return true;
     }
 
-    private class CurrentUserChangedObserver extends DefaultObserver<CurrentUserChangedEvent> {
+    private class CurrentUserChangedSubscriber extends DefaultSubscriber<CurrentUserChangedEvent> {
         @Override
         public void onNext(CurrentUserChangedEvent userChangedEvent) {
             if(userChangedEvent.getKind() == CurrentUserChangedEvent.USER_UPDATED) {
@@ -290,7 +290,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         }
     }
 
-    private class UserObserver extends DefaultObserver<User> {
+    private class UserSubscriber extends DefaultSubscriber<User> {
         @Override
         public void onNext(User user) {
             updateUser(user);

@@ -27,11 +27,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.Observer;
 import rx.Scheduler;
-import rx.Subscription;
-import rx.subscriptions.BooleanSubscription;
-import rx.subscriptions.Subscriptions;
+import rx.Subscriber;
 import rx.util.functions.Func1;
 
 import android.content.Context;
@@ -80,20 +77,18 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
 
     @Override
     public Observable<APIResponse> fetchResponse(final APIRequest apiRequest) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<APIResponse>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<APIResponse>() {
             @Override
-            public Subscription onSubscribe(Observer<? super APIResponse> observer) {
-                BooleanSubscription subscription = new BooleanSubscription();
+            public void call(Subscriber<? super APIResponse> subscriber) {
                 try {
                     final APIResponse response = executeRequest(apiRequest);
-                    if (!subscription.isUnsubscribed()) {
-                        observer.onNext(response);
-                        observer.onCompleted();
+                    if (!subscriber.isUnsubscribed()) {
+                        subscriber.onNext(response);
+                        subscriber.onCompleted();
                     }
                 } catch (APIRequestException e) {
-                    observer.onError(e);
+                    subscriber.onError(e);
                 }
-                return subscription;
             }
 
         }));
@@ -110,24 +105,23 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
     }
 
     private <ModelType> Observable<ModelType> mapResponseToModels(final APIRequest apiRequest, final APIResponse apiResponse) {
-        return Observable.create(new Observable.OnSubscribeFunc<ModelType>() {
+        return Observable.create(new Observable.OnSubscribe<ModelType>() {
             @Override
-            public Subscription onSubscribe(Observer<? super ModelType> observer) {
+            public void call(Subscriber<? super ModelType> subscriber) {
                 TypeToken resourceType = apiRequest.getResourceType();
                 try {
                     if (resourceType != null && apiResponse.hasResponseBody()) {
                         Object resource = parseJsonResponse(apiResponse, apiRequest);
                         @SuppressWarnings("unchecked")
                         Collection<ModelType> resources = isRequestedResourceTypeOfCollection(resourceType) ? Collection.class.cast(resource) : Collections.singleton(resource);
-                        RxUtils.emitIterable(observer, resources);
+                        RxUtils.emitIterable(subscriber, resources);
                     } else if (resourceType != null && !apiResponse.hasResponseBody()) {
-                        observer.onError(APIRequestException.badResponse(apiRequest, apiResponse, "Response could not be unmarshaled into resource type as response is empty"));
+                        subscriber.onError(APIRequestException.badResponse(apiRequest, apiResponse, "Response could not be unmarshaled into resource type as response is empty"));
                     }
-                    observer.onCompleted();
+                    subscriber.onCompleted();
                 } catch (APIRequestException apiException) {
-                    observer.onError(apiException);
+                    subscriber.onError(apiException);
                 }
-                return Subscriptions.empty();
             }
         });
     }

@@ -1,7 +1,7 @@
 package com.soundcloud.android.profile;
 
 import static android.text.TextUtils.isEmpty;
-import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -22,7 +22,7 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -57,8 +57,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-
-import java.util.Locale;
 
 public class ProfileActivity extends ScActivity implements
         FollowingOperations.FollowStatusChangedListener,
@@ -304,7 +302,7 @@ public class ProfileActivity extends ScActivity implements
     }
 
     private void toggleFollowing(User user) {
-        mFollowingOperations.toggleFollowing(user).subscribe(new DefaultObserver<UserAssociation>() {
+        mFollowingOperations.toggleFollowing(user).subscribe(new DefaultSubscriber<UserAssociation>() {
             @Override
             public void onCompleted() {
                 SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());

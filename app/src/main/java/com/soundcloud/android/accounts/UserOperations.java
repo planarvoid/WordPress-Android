@@ -30,7 +30,7 @@ public class UserOperations extends ScheduledOperations {
                 .forPublicAPI()
                 .forResource(User.class)
                 .build();
-        return mHttpClient.<User>fetchModels(request).mapMany(new Func1<User, Observable<User>>() {
+        return mHttpClient.<User>fetchModels(request).mergeMap(new Func1<User, Observable<User>>() {
             @Override
             public Observable<User> call(User user) {
                 return mUserStorage.createOrUpdateAsync(user);

@@ -13,7 +13,7 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStateManager;
@@ -104,7 +104,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     private void loadPlaylist() {
         final Uri playlistUri = getArguments().getParcelable(Playlist.EXTRA_URI);
         fromFragment(this, mPlaylistOperations.loadPlaylist(UriUtils.getLastSegmentAsLong(playlistUri)))
-                .subscribe(new PlaylistObserver());
+                .subscribe(new PlaylistSubscriber());
     }
 
     @Override
@@ -263,7 +263,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         mAdapter.notifyDataSetChanged();
     }
 
-    private final class PlaylistObserver extends DefaultObserver<Playlist> {
+    private final class PlaylistSubscriber extends DefaultSubscriber<Playlist> {
         @Override
         public void onNext(Playlist playlist) {
             mPlaylist = playlist;

@@ -10,10 +10,7 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
-import rx.Observer;
-import rx.Scheduler;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.Subscriber;
 
 import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
@@ -28,7 +25,6 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -105,12 +101,11 @@ public class SyncStateManager extends ScheduledOperations {
     }
 
     public Observable<Boolean> forceToStaleAsync(final Content content) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Boolean>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
-            public Subscription onSubscribe(Observer<? super Boolean> observer) {
+            public void call(Subscriber<? super Boolean> observer) {
                 observer.onNext(forceToStale(content));
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }

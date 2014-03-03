@@ -14,7 +14,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
-import com.soundcloud.android.rx.observers.ListFragmentObserver;
+import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 import rx.Subscription;
@@ -140,7 +140,7 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
         ConnectableObservable<Section<ExploreGenre>> mGenresObservable =
                 fromFragment(this, mExploreOperations.getCategories().mergeMap(GENRES_TO_SECTIONS)).replay();
         mGenresObservable.subscribe(mGenresAdapter);
-        mGenresObservable.subscribe(new ListFragmentObserver<Section<ExploreGenre>>(this));
+        mGenresObservable.subscribe(new ListFragmentSubscriber<Section<ExploreGenre>>(this));
         return mGenresObservable.connect();
     }
 

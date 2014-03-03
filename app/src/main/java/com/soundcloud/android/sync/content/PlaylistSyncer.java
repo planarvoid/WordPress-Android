@@ -19,7 +19,6 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import rx.concurrency.Schedulers;
 
 import android.content.ContentResolver;
 import android.content.Context;

@@ -3,7 +3,6 @@ package com.soundcloud.android.collections.tasks;
 import static com.soundcloud.android.Expect.expect;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Mockito.stub;
 import static org.mockito.Mockito.verify;
@@ -11,13 +10,14 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.api.Request;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -26,8 +26,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.Observer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,8 +46,6 @@ public class RemoteCollectionLoaderTest {
     private CollectionHolder<ScResource> collectionHolder;
     @Mock
     private TrackStorage trackStorage;
-    @Mock
-    private Observable<Collection<Track>> trackCollectionObservable;
 
     @Before
     public void setup() throws IOException {
@@ -105,7 +101,8 @@ public class RemoteCollectionLoaderTest {
         collection.add(TestHelper.getModelFactory().createModel(User.class));
         collection.add(track2);
 
-        when(trackStorage.storeCollectionAsync(anyCollection())).thenReturn(trackCollectionObservable);
+        TestObservables.MockObservable observable = TestObservables.emptyObservable();
+        when(trackStorage.storeCollectionAsync(anyCollection())).thenReturn(observable);
 
         when(collectionHolder.getCollection()).thenReturn(collection);
         remoteCollectionLoader.load(publicCloudApi, parameters);
@@ -114,6 +111,6 @@ public class RemoteCollectionLoaderTest {
         verify(trackStorage).storeCollectionAsync((Collection<Track>) captor.capture());
         expect(captor.getValue()).toContainExactly(track1, track2);
 
-        verify(trackCollectionObservable).subscribe(any(Observer.class));
+        expect(observable.subscribedTo()).toBeTrue();
     }
 }

@@ -26,7 +26,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.*;
 
 import java.io.File;
@@ -288,7 +288,7 @@ public class SettingsActivity extends ScSettingsActivity {
         public void onClick(final DialogInterface dialog, int whichButton) {
             final ProgressDialog progressDialog = AndroidUtils.showProgress(mActivityContext, R.string.settings_logging_out);
 
-            mAccountOperations.removeSoundCloudAccount().subscribe(new DefaultObserver<Void>() {
+            mAccountOperations.removeSoundCloudAccount().subscribe(new DefaultSubscriber<Void>() {
                 @Override
                 public void onCompleted() {
                     mAccountOperations.addSoundCloudAccountManually(mActivityContext);

@@ -10,10 +10,7 @@ import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.subscriptions.BooleanSubscription;
-import rx.subscriptions.Subscriptions;
+import rx.Subscriber;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -47,14 +44,13 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
     }
 
     public Observable<Track> createPlayImpressionAsync(final Track track) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Track>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
-            public Subscription onSubscribe(Observer<? super Track> observer) {
+            public void call(Subscriber<? super Track> observer) {
                 if (createPlayImpression(track)) {
                     observer.onNext(track);
                 }
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }
@@ -73,24 +69,22 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
 
     @Override
     public Observable<Track> storeAsync(final Track track) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Track>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
-            public Subscription onSubscribe(Observer<? super Track> observer) {
+            public void call(Subscriber<? super Track> observer) {
                 observer.onNext(store(track));
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }
 
     public Observable<Collection<Track>> storeCollectionAsync(final Collection<Track> tracks) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Collection<Track>>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<Collection<Track>>() {
             @Override
-            public Subscription onSubscribe(Observer<? super Collection<Track>> observer) {
+            public void call(Subscriber<? super Collection<Track>> observer) {
                 storeCollection(tracks);
                 observer.onNext(tracks);
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }
@@ -105,9 +99,9 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
     }
 
     public Observable<Track> getTrackAsync(final long id) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Track>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
-            public Subscription onSubscribe(Observer<? super Track> observer) {
+            public void call(Subscriber<? super Track> observer) {
                 final Track cachedTrack = mModelManager.getCachedTrack(id);
                 if (cachedTrack != null){
                     observer.onNext(cachedTrack);
@@ -115,7 +109,6 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
                     observer.onNext(mTrackDAO.queryById(id));
                 }
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }
@@ -123,13 +116,12 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
     // TODO: this should not depend on content URIs, since we're trying to move away from it. Difficult to do without
     // migrating the front end first to not use content URIs
     public Observable<List<Long>> getTrackIdsForUriAsync(final Uri uri) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<List<Long>>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<List<Long>>() {
             @Override
-            public Subscription onSubscribe(Observer<? super List<Long>> observer) {
+            public void call(Subscriber<? super List<Long>> observer) {
 
                 final boolean isActivityCursor = Content.match(uri).isActivitiesItem();
                 final String idColumn = isActivityCursor ? DBHelper.ActivityView.SOUND_ID : DBHelper.SoundView._ID;
-                final BooleanSubscription subscription = new BooleanSubscription();
 
                 // if playlist, adjust load uri to request the tracks instead of meta_data
                 final Uri adjustedUri = (Content.match(uri) == Content.PLAYLIST) ?
@@ -137,7 +129,7 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
 
                 Cursor cursor = mResolver.query(adjustedUri, new String[]{idColumn}, DBHelper.SoundView._TYPE + " = ?",
                         new String[]{String.valueOf(Playable.DB_TYPE_TRACK)}, null);
-                if (!subscription.isUnsubscribed()) {
+                if (!observer.isUnsubscribed()) {
                     if (cursor == null) {
                         observer.onNext(Collections.<Long>emptyList());
                         observer.onCompleted();
@@ -156,7 +148,6 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
                         }
                     }
                 }
-                return subscription;
             }
         }));
     }

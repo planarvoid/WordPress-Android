@@ -11,14 +11,14 @@ import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.preferences.SettingsActivity;
-import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.SerialSubscription;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Action0;
 
 import android.content.SharedPreferences;
 
@@ -45,9 +45,9 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private Scheduler mScheduler;
 
     // will be called by the Rx scheduler after a given delay, as long as events come in
-    private final Action0 mFlushAction = new Action0() {
+    private final Action1<Scheduler.Inner> mFlushAction = new Action1<Scheduler.Inner>() {
         @Override
-        public void call() {
+        public void call(Scheduler.Inner inner) {
             Log.d(AnalyticsEngine.this, "Flushing event data");
             for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
                 analyticsProvider.flush();
@@ -89,12 +89,12 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         if (mAnalyticsProperties.isAnalyticsAvailable() && analyticsEnabled) {
             Log.d(this, "Subscribing to events");
             mEventsSubscription = new CompositeSubscription();
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackEventObserver()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.UI, new UIEventObserver()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.ONBOARDING, new OnboardingEventObserver()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventObserver()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.SCREEN_ENTERED, new ScreenEventObserver()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new UserChangeEventObserver()));
+            mEventsSubscription.add(mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackEventSubscriber()));
+            mEventsSubscription.add(mEventBus.subscribe(EventQueue.UI, new UIEventSubscriber()));
+            mEventsSubscription.add(mEventBus.subscribe(EventQueue.ONBOARDING, new OnboardingEventSubscriber()));
+            mEventsSubscription.add(mEventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventSubscriber()));
+            mEventsSubscription.add(mEventBus.subscribe(EventQueue.SCREEN_ENTERED, new ScreenEventSubscriber()));
+            mEventsSubscription.add(mEventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new UserChangeEventSubscriber()));
         }
     }
 
@@ -188,7 +188,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         SoundCloudApplication.handleSilentException(message, t);
     }
 
-    private final class UserChangeEventObserver extends DefaultObserver<CurrentUserChangedEvent> {
+    private final class UserChangeEventSubscriber extends DefaultSubscriber<CurrentUserChangedEvent> {
         @Override
         public void onNext(CurrentUserChangedEvent event) {
             Log.d(this, "UserChangeEventObserver onNext: " + event);
@@ -197,7 +197,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    private final class ActivityEventObserver extends DefaultObserver<ActivityLifeCycleEvent> {
+    private final class ActivityEventSubscriber extends DefaultSubscriber<ActivityLifeCycleEvent> {
         @Override
         public void onNext(ActivityLifeCycleEvent event) {
             Log.d(this, "ActivityEventObserver onNext: " + event);
@@ -206,7 +206,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    private final class ScreenEventObserver extends DefaultObserver<String> {
+    private final class ScreenEventSubscriber extends DefaultSubscriber<String> {
         @Override
         public void onNext(String screenTag) {
             //TODO Be defensive, check screenTag value
@@ -217,7 +217,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    private final class PlaybackEventObserver extends DefaultObserver<PlaybackEvent> {
+    private final class PlaybackEventSubscriber extends DefaultSubscriber<PlaybackEvent> {
         @Override
         public void onNext(PlaybackEvent args) {
             Log.d(this, "PlaybackEventObserver onNext: " + args);
@@ -226,7 +226,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    private final class UIEventObserver extends DefaultObserver<UIEvent> {
+    private final class UIEventSubscriber extends DefaultSubscriber<UIEvent> {
         @Override
         public void onNext(UIEvent args) {
             Log.d(this, "UIEventObserver onNext: " + args);
@@ -235,7 +235,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    private final class OnboardingEventObserver extends DefaultObserver<OnboardingEvent> {
+    private final class OnboardingEventSubscriber extends DefaultSubscriber<OnboardingEvent> {
         @Override
         public void onNext(OnboardingEvent args) {
             Log.d(this, "OnboardingEventObserver onNext: " + args);

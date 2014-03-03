@@ -16,9 +16,7 @@ import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.Subscriber;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -65,16 +63,15 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     }
 
     public Observable<Playlist> loadPlaylistAsync(final long playlistId) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Playlist>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<Playlist>() {
             @Override
-            public Subscription onSubscribe(Observer<? super Playlist> observer) {
+            public void call(Subscriber<? super Playlist> observer) {
                 try {
                     observer.onNext(loadPlaylist(playlistId));
                     observer.onCompleted();
                 } catch (NotFoundException e) {
                     observer.onError(e);
                 }
-                return Subscriptions.empty();
             }
         }));
     }
@@ -86,16 +83,15 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     }
 
     public Observable<Playlist> loadPlaylistWithTracksAsync(final long playlistId) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Playlist>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<Playlist>() {
             @Override
-            public Subscription onSubscribe(Observer<? super Playlist> observer) {
+            public void call(Subscriber<? super Playlist> observer) {
                 try {
                     observer.onNext(loadPlaylistWithTracks(playlistId));
                     observer.onCompleted();
                 } catch (NotFoundException e) {
                     observer.onError(e);
                 }
-                return Subscriptions.empty();
             }
         }));
     }
@@ -115,12 +111,11 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
      */
     @Override
     public Observable<Playlist> storeAsync(final Playlist playlist) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Playlist>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<Playlist>() {
             @Override
-            public Subscription onSubscribe(Observer<? super Playlist> observer) {
+            public void call(Subscriber<? super Playlist> observer) {
                 observer.onNext(store(playlist));
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }

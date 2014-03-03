@@ -1,7 +1,7 @@
 package com.soundcloud.android.associations;
 
 import static com.google.common.collect.Collections2.filter;
-import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
@@ -32,10 +32,8 @@ import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.Observer;
 import rx.Scheduler;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.Subscriber;
 import rx.util.functions.Func1;
 
 import android.content.Context;
@@ -184,9 +182,9 @@ public class FollowingOperations {
     //TODO: didn't have enough time porting this over, next time :)
     // couldn't write tests either since Activities.fetch isn't mockable :(
     private Observable<Boolean> fetchActivities(final PublicApi api) {
-        return Observable.create(new Observable.OnSubscribeFunc<Boolean>() {
+        return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
-            public Subscription onSubscribe(Observer<? super Boolean> observer) {
+            public void call(Subscriber<? super Boolean> subscriber) {
                 try {
                     boolean hasActivities = false;
                     int attempts = 15;
@@ -202,23 +200,21 @@ public class FollowingOperations {
                             SystemClock.sleep(backoffTime);
                         }
                     }
-                    observer.onNext(hasActivities);
-                    observer.onCompleted();
+                    subscriber.onNext(hasActivities);
+                    subscriber.onCompleted();
                 } catch (Exception e) {
-                    observer.onError(e);
+                    subscriber.onError(e);
                 }
-                return Subscriptions.empty();
             }
         }).subscribeOn(ScSchedulers.API_SCHEDULER);
     }
 
     private Observable<UserAssociation> getFollowingsNeedingSync() {
-        return Observable.create(new Observable.OnSubscribeFunc<UserAssociation>() {
+        return Observable.create(new Observable.OnSubscribe<UserAssociation>() {
             @Override
-            public Subscription onSubscribe(Observer<? super UserAssociation> observer) {
-                RxUtils.emitIterable(observer, mUserAssociationStorage.getFollowingsNeedingSync());
-                observer.onCompleted();
-                return Subscriptions.empty();
+            public void call(Subscriber<? super UserAssociation> subscriber) {
+                RxUtils.emitIterable(subscriber, mUserAssociationStorage.getFollowingsNeedingSync());
+                subscriber.onCompleted();
             }
         });
     }

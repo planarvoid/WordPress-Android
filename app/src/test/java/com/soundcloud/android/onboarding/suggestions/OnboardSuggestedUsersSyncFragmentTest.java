@@ -28,8 +28,6 @@ public class OnboardSuggestedUsersSyncFragmentTest {
 
     @Mock
     private FollowingOperations followingOperations;
-    @Mock
-    private Observable<Boolean> mockObservable;
 
     @Before
     public void setup() {
@@ -39,16 +37,8 @@ public class OnboardSuggestedUsersSyncFragmentTest {
     }
 
     @Test
-    public void shouldTriggerBulkFollowInOnCreate() {
-        when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(mockObservable);
-        when(mockObservable.observeOn(any(Scheduler.class))).thenReturn(mockObservable);
-        fragment.onCreate(null);
-        verify(mockObservable).subscribe(any(OnboardSuggestedUsersSyncFragment.FollowingsSyncObserver.class));
-    }
-
-    @Test
     public void shouldStartActivityStreamWithSuccessFlagOnSuccess() {
-        Observable<Boolean> observable = Observable.just(true);
+        Observable<Boolean> observable = Observable.from(true);
         when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(observable);
         fragment.onCreate(null);
 
@@ -59,7 +49,7 @@ public class OnboardSuggestedUsersSyncFragmentTest {
 
     @Test
     public void shouldStartActivityStreamWithFailureFlagOnNoSuccess() {
-        Observable<Boolean> observable = Observable.just(false);
+        Observable<Boolean> observable = Observable.from(false);
         when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(observable);
         fragment.onCreate(null);
 

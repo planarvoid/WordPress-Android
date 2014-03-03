@@ -6,15 +6,13 @@ import static com.soundcloud.android.model.Recording.isAmplitudeFile;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.Subscriber;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -43,13 +41,12 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
 
     @Override
     public Observable<Recording> storeAsync(final Recording recording) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Recording>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<Recording>() {
             @Override
-            public Subscription onSubscribe(Observer<? super Recording> observer) {
+            public void call(Subscriber<? super Recording> observer) {
                 store(recording);
                 observer.onNext(recording);
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }

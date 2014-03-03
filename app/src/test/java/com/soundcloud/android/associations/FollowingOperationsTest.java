@@ -22,6 +22,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
@@ -59,8 +60,6 @@ public class FollowingOperationsTest {
     @Mock
     private UserAssociation userAssociationTwo;
     @Mock
-    private Observable observable;
-    @Mock
     private Observer observer;
 
     private User user;
@@ -71,6 +70,8 @@ public class FollowingOperationsTest {
     @Before
     public void before() throws CreateModelException {
         when(scModelManager.cache(any(User.class), any(ScResource.CacheUpdateMode.class))).thenReturn(mock(User.class));
+
+        Observable<UserAssociation> observable = Observable.empty();
         when(userAssociationStorage.follow(any(User.class))).thenReturn(observable);
         when(userAssociationStorage.unfollow(any(User.class))).thenReturn(observable);
 
@@ -122,10 +123,11 @@ public class FollowingOperationsTest {
 
     @Test
     public void shouldForceStreamToStaleIfFirstFollowingFromAddition() {
+        TestObservables.MockObservable<Boolean> observable = TestObservables.emptyObservable();
         when(syncStateManager.forceToStaleAsync(Content.ME_SOUND_STREAM)).thenReturn(observable);
         when(followStatus.isEmpty()).thenReturn(true, false);
         ops.addFollowing(user);
-        verify(observable).subscribe(any(Observer.class));
+        expect(observable.subscribedTo()).toBeTrue();
     }
 
     @Test

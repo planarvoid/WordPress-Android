@@ -4,9 +4,7 @@ import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.Subscriber;
 
 import android.content.ContentResolver;
 
@@ -29,12 +27,11 @@ public class PlayQueueStorage extends ScheduledOperations {
     }
 
     public Observable<Collection<PlayQueueItem>> storeCollectionAsync(final Collection<PlayQueueItem> playQueueItems) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Collection<PlayQueueItem>>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<Collection<PlayQueueItem>>() {
             @Override
-            public Subscription onSubscribe(Observer<? super Collection<PlayQueueItem>> observer) {
+            public void call(Subscriber<? super Collection<PlayQueueItem>> observer) {
                 observer.onNext(storeCollection(playQueueItems));
                 observer.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }
@@ -45,12 +42,11 @@ public class PlayQueueStorage extends ScheduledOperations {
     }
 
     public Observable<List<PlayQueueItem>> getPlayQueueItemsAsync(){
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<List<PlayQueueItem>>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<List<PlayQueueItem>>() {
             @Override
-            public Subscription onSubscribe(Observer<? super List<PlayQueueItem>> t1) {
+            public void call(Subscriber<? super List<PlayQueueItem>> t1) {
                 t1.onNext(getPlayQueueItems());
                 t1.onCompleted();
-                return Subscriptions.empty();
             }
         }));
     }
