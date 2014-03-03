@@ -4,7 +4,7 @@ import static android.view.View.GONE;
 import static android.view.View.OnClickListener;
 import static android.view.View.VISIBLE;
 import static com.google.common.base.Preconditions.checkArgument;
-import static rx.android.observables.AndroidObservable.fromFragment;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
@@ -77,7 +77,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAllTagsObservable = fromFragment(this, mSearchOperations.getPlaylistTags()).cache();
+        mAllTagsObservable = mSearchOperations.getPlaylistTags().observeOn(mainThread()).cache();
     }
 
     @Override
@@ -94,7 +94,8 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
 
         mSubscription = new CompositeSubscription();
         mSubscription.add(mAllTagsObservable.subscribe(new TagsSubscriber()));
-        mSubscription.add(fromFragment(this, mSearchOperations.getRecentPlaylistTags()).subscribe(new RecentsSubscriber()));
+        mSubscription.add(mSearchOperations.getRecentPlaylistTags().observeOn(mainThread())
+                .subscribe(new RecentsSubscriber()));
     }
 
     @Override

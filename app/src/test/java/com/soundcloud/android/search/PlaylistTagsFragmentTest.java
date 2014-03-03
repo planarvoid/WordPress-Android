@@ -92,6 +92,7 @@ public class PlaylistTagsFragmentTest {
 
         createFragment();
         // go through config change; onViewCreated is called again, should not trigger the source sequence again
+        fragment.onDestroyView();
         fragment.onViewCreated(fragment.getView(), null);
 
         expect(observable.subscribers()).toNumber(1);
