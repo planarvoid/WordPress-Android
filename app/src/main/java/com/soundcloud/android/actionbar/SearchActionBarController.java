@@ -171,7 +171,4 @@ public class SearchActionBarController extends ActionBarController {
         return mSearchView.getQuery().toString();
     }
 
-    public void requestSearchFieldFocus() {
-        mSearchView.requestFocus();
-    }
 }

@@ -73,8 +73,6 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
         super.onCreateOptionsMenu(menu);
         if (ScTextUtils.isNotBlank(mQuery)) {
             mActionBarController.setQuery(mQuery);
-        } else {
-            mActionBarController.requestSearchFieldFocus();
         }
         return true;
     }
