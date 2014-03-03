@@ -1,6 +1,7 @@
 package com.soundcloud.android.search;
 
 import static rx.android.OperationPaged.Page;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
@@ -77,7 +78,6 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     }
 
     public SearchResultsFragment() {
-        setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
@@ -97,6 +97,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
         mSearchType = getArguments().getInt(KEY_TYPE);
         setListAdapter(mAdapter);
+        loadSearchResults();
     }
 
     @Override
@@ -116,22 +117,26 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
                 loadSearchResults();
             }
         });
+
         getListView().setEmptyView(mEmptyListView);
         getListView().setOnItemClickListener(this);
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
         getListView().setOnScrollListener(mImageOperations.createScrollPauseListener(false, true, mAdapter));
 
-        loadSearchResults();
         mPlaybackSubscription = mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackSubscriber());
     }
 
     @Override
     public void onDestroyView() {
-        mSubscription.unsubscribe();
         mPlaybackSubscription.unsubscribe();
-        mAdapter.clear();
         super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        mSubscription.unsubscribe();
+        super.onDestroy();
     }
 
     @Override
@@ -193,7 +198,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
             default:
                 throw new IllegalArgumentException("Query type not valid");
         }
-        return AndroidObservable.fromFragment(this, observable).replay();
+        return observable.observeOn(mainThread()).publish();
     }
 
     private void loadSearchResults() {
