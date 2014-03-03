@@ -53,10 +53,10 @@ public class SearchActionBarControllerTest {
 
     @Test
     public void shouldStripFirstHastagsWhenPerformingPlaylistTagSearch() throws Exception {
-        actionBarController.performSearch("###clowstep");
-        verify(callback).performTagSearch(eq("clowstep"));
+        actionBarController.performSearch("###clownstep");
+        verify(callback).performTagSearch(eq("clownstep"));
 
-        actionBarController.performSearch("####clowstep #dub");
-        verify(callback).performTagSearch(eq("clowstep #dub"));
+        actionBarController.performSearch("####clownstep #dub");
+        verify(callback).performTagSearch(eq("clownstep #dub"));
     }
 }
