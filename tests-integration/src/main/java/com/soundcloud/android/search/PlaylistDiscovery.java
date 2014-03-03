@@ -5,7 +5,6 @@ import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistResultsScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
-import com.soundcloud.android.screens.search.SearchResultsScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 
@@ -42,8 +41,9 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
     }
 
     public void testClickingOnPlaylistTagOpensPlaylistResultsScreenWith20Results() {
-        PlaylistResultsScreen resultsScreen = playlistTagsScreen.clickOnTag(0);
+        playlistTagsScreen.clickOnTag(0);
 
+        PlaylistResultsScreen resultsScreen = new PlaylistResultsScreen(solo);
         assertEquals("Playlist results screen should be visible", true, resultsScreen.isVisible());
         assertEquals("Playlist results should not be empty", 20, resultsScreen.getResultsCount());
     }
@@ -74,14 +74,6 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
 
         PlaylistResultsScreen resultsScreen = new PlaylistResultsScreen(solo);
         assertEquals("Playlist results screen should be visible", true, resultsScreen.isVisible());
-    }
-
-    public void testGoingBackFromPlayResultsReturnsToTagPage() {
-        PlaylistResultsScreen resultsScreen = playlistTagsScreen.clickOnTag(0);
-
-        playlistTagsScreen = resultsScreen.pressBack();
-        assertEquals("Main screen should be visible", true, playlistTagsScreen.isVisible());
-        assertEquals("Search query should be empty", "", playlistTagsScreen.actionBar().getSearchQuery());
     }
 
 }

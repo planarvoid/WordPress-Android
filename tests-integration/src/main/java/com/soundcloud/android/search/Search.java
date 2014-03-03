@@ -46,17 +46,9 @@ public class Search extends ActivityTestCase<MainActivity> {
         assertTrue("Search results should be populated", resultsScreen.getResultItemCount() > 0);
     }
 
-    public void testGoingBackFromSearchResultsReturnsToTagPage() {
+    public void testGoingBackFromSearchResultsReturnsToPreviousPage() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("dub");
-        playlistTagsScreen = resultsScreen.pressBack();
-        assertEquals("Tags screen should be visible", true, playlistTagsScreen.isVisible());
-        assertEquals("Search query should be empty", "", playlistTagsScreen.actionBar().getSearchQuery());
-    }
-
-    public void testGoingBackFromTagsScreenExitsSearch() {
-        SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("dub");
-        playlistTagsScreen = resultsScreen.pressBack();
-        mainScreen = playlistTagsScreen.pressBack();
+        MainScreen mainScreen = resultsScreen.pressBack();
         assertEquals("Main screen should be visible", true, mainScreen.isVisible());
     }
 
