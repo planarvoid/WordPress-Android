@@ -42,6 +42,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
 
     private CompositeSubscription mSubscription;
     private Observable<PlaylistTagsCollection> mAllTagsObservable;
+    private Observable<PlaylistTagsCollection> mRecentTagsObservable;
 
     private EmptyListView mEmptyView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
@@ -78,6 +79,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAllTagsObservable = mSearchOperations.getPlaylistTags().observeOn(mainThread()).cache();
+        mRecentTagsObservable = mSearchOperations.getRecentPlaylistTags().observeOn(mainThread());
     }
 
     @Override
@@ -94,8 +96,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
 
         mSubscription = new CompositeSubscription();
         mSubscription.add(mAllTagsObservable.subscribe(new TagsSubscriber()));
-        mSubscription.add(mSearchOperations.getRecentPlaylistTags().observeOn(mainThread())
-                .subscribe(new RecentsSubscriber()));
+        mSubscription.add(mRecentTagsObservable.subscribe(new RecentsSubscriber()));
     }
 
     @Override
