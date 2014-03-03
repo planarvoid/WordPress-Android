@@ -158,12 +158,6 @@
 
     <repositories>
         <repository>
-            <id>soundcloud.internal.hosted</id>
-            <name>SoundCloud Internal hosted</name>
-            <url>http://maven.int.s-cloud.net/content/groups/hosted</url>
-        </repository>
-
-        <repository>
             <id>soundcloud.internal.releases</id>
             <name>SoundCloud Internal Releases</name>
             <url>http://maven.int.s-cloud.net/content/repositories/releases</url>

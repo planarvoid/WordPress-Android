@@ -352,7 +352,7 @@
         <dependency>
             <groupId>com.pivotallabs</groupId>
             <artifactId>robolectric</artifactId>
-            <version>1.2-sdk_19_fix</version>
+            <version>1.2_sdk_19_fix</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
