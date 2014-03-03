@@ -9,7 +9,7 @@ import android.util.AttributeSet;
 public class SnappedTagView extends CustomFontTextView {
 
     private static final int GRID_SIZE_DP = 8;
-    private static final int MAX_WIDTH_PADDING_DP = 5;
+    private static final int MAX_WIDTH_PADDING_DP = 8;
 
     public SnappedTagView(Context context, AttributeSet attrs) {
         super(context, attrs);
