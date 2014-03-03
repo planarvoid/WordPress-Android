@@ -76,4 +76,9 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
         assertEquals("Playlist results screen should be visible", true, resultsScreen.isVisible());
     }
 
+    public void testSearchingEmptyHashtagDoesNotPerformSearch() {
+        PlaylistResultsScreen resultsScreen = playlistTagsScreen.actionBar().doTagSearch("#");
+        assertEquals("Playlist results screen should not be visible", false, resultsScreen.isVisible());
+    }
+
 }

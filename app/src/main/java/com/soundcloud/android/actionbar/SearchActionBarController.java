@@ -129,7 +129,7 @@ public class SearchActionBarController extends ActionBarController {
     @VisibleForTesting
     void performSearch(final String query) {
         if (query.startsWith("#")) {
-            mSearchCallback.performTagSearch(query.replaceFirst("#", ""));
+            mSearchCallback.performTagSearch(query.replaceAll("^#+", "")); // Replaces the first occurrences of #
         } else {
             mSearchCallback.performTextSearch(query);
         }

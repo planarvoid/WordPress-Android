@@ -1,6 +1,6 @@
 package com.soundcloud.android.actionbar;
 
-import static com.soundcloud.android.actionbar.SearchActionBarController.*;
+import static com.soundcloud.android.actionbar.SearchActionBarController.SearchCallback;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -43,4 +43,15 @@ public class SearchActionBarControllerTest {
         verify(callback).performTextSearch(eq("skrillex"));
     }
 
+    @Test
+    public void shouldStripFirstHastagsWhenPerformingPlaylistTagSearch() throws Exception {
+        actionBarController.performSearch("#");
+        verify(callback).performTagSearch(eq(""));
+
+        actionBarController.performSearch("###clowstep");
+        verify(callback).performTagSearch(eq("clowstep"));
+
+        actionBarController.performSearch("####clowstep #dub");
+        verify(callback).performTagSearch(eq("clowstep #dub"));
+    }
 }
