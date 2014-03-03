@@ -62,6 +62,9 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldGetAllResultsForAllQueryOnCreate() throws Exception {
+        when(searchOperations.getAllSearchResults(anyString()))
+                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+
         createWithArguments(buildSearchArgs("skrillex", 0));
         createFragmentView();
 
@@ -70,6 +73,9 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldGetTracksResultsForTracksQueryOnCreate() throws Exception {
+        when(searchOperations.getTrackSearchResults(anyString()))
+                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+
         createWithArguments(buildSearchArgs("skrillex", 1));
         createFragmentView();
 
@@ -78,6 +84,9 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldGetPlaylistResultsForPlaylistQueryOnCreate() throws Exception {
+        when(searchOperations.getPlaylistSearchResults(anyString()))
+                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+
         createWithArguments(buildSearchArgs("skrillex", 2));
         createFragmentView();
 
@@ -86,6 +95,9 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldGetSearchAllResultsForQueryTypePeopleOnCreate() throws Exception {
+        when(searchOperations.getUserSearchResults(anyString()))
+                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+
         createWithArguments(buildSearchArgs("skrillex", 3));
         createFragmentView();
 
@@ -94,6 +106,9 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldStartPlaybackWhenClickingPlayableRow() throws Exception {
+        when(searchOperations.getAllSearchResults(anyString()))
+                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+
         adapter.addItem(new Track());
 
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
@@ -103,6 +118,9 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldSendSearchEverythingTrackingScreenOnItemClick() throws Exception {
+        when(searchOperations.getAllSearchResults(anyString()))
+                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+
         adapter.addItem(new Track());
 
         createWithArguments(buildSearchArgs("", 0));
@@ -113,6 +131,9 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldSendSearchTracksTrackingScreenOnItemClick() throws Exception {
+        when(searchOperations.getTrackSearchResults(anyString()))
+                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+
         adapter.addItem(new Track());
 
         createWithArguments(buildSearchArgs("", 1));
@@ -123,6 +144,9 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldSendSearchPlaylistsTrackingScreenOnItemClick() throws Exception {
+        when(searchOperations.getPlaylistSearchResults(anyString()))
+                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+
         adapter.addItem(new Track());
 
         createWithArguments(buildSearchArgs("", 2));
