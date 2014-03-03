@@ -39,7 +39,9 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
 
         @Override
         public void exitSearchMode() {
-            replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
+            if (getSupportFragmentManager().findFragmentByTag(PlaylistTagsFragment.TAG) == null) {
+                replaceContent(new PlaylistTagsFragment(), PlaylistTagsFragment.TAG);
+            }
         }
     };
 
