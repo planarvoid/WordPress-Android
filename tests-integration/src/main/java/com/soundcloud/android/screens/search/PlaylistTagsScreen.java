@@ -3,6 +3,7 @@ package com.soundcloud.android.screens.search;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
+import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlaylistResultsScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.search.CombinedSearchActivity;
@@ -54,6 +55,11 @@ public class PlaylistTagsScreen extends Screen {
 
     private List<TextView> getTagViews(int containerId) {
         return solo.getSolo().getCurrentViews(TextView.class, solo.getView(containerId));
+    }
+
+    public MainScreen pressBack() {
+        solo.goBack();
+        return new MainScreen(solo);
     }
 
     @Override
