@@ -129,10 +129,11 @@ public class SearchActionBarController extends ActionBarController {
 
     @VisibleForTesting
     void performSearch(final String query) {
-        if (query.startsWith("#")) {
-            performTagSearch(query);
+        String trimmedQuery = query.trim();
+        if (trimmedQuery.startsWith("#")) {
+            performTagSearch(trimmedQuery);
         } else {
-            mSearchCallback.performTextSearch(query);
+            mSearchCallback.performTextSearch(trimmedQuery);
         }
     }
 

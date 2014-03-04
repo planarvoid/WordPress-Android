@@ -59,4 +59,22 @@ public class SearchActionBarControllerTest {
         actionBarController.performSearch("####clownstep #dub");
         verify(callback).performTagSearch(eq("clownstep #dub"));
     }
+
+    @Test
+    public void shouldTrimQueryForTextSearch() throws Exception {
+        actionBarController.performSearch("  a normal search ");
+        verify(callback).performTextSearch(eq("a normal search"));
+
+        actionBarController.performSearch("  a normal   search");
+        verify(callback).performTextSearch(eq("a normal   search"));
+    }
+
+    @Test
+    public void shouldTrimQueryForPlaylistTagSearch() throws Exception {
+        actionBarController.performSearch("  #tag   ");
+        verify(callback).performTagSearch(eq("tag"));
+
+        actionBarController.performSearch("  ##tag1 #tag2  ");
+        verify(callback).performTagSearch(eq("tag1 #tag2"));
+    }
 }
