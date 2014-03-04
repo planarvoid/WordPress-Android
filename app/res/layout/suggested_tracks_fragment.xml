@@ -5,13 +5,15 @@
 
     <com.handmark.pulltorefresh.library.PullToRefreshGridView
             android:id="@+id/suggested_tracks_grid"
+            style="@style/GridView"
             android:layout_gravity="top"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:horizontalSpacing="@dimen/explore_suggested_track_item_spacing_inside"
             android:verticalSpacing="@dimen/explore_suggested_track_item_spacing_inside"
-            android:listSelector="@android:color/transparent"
-            android:numColumns="@integer/suggested_user_grid_num_columns"/>
+            android:numColumns="@integer/suggested_user_grid_num_columns"
+            android:listSelector="@drawable/suggested_track_grid_item_selector"
+            android:drawSelectorOnTop="true"/>
 
     <com.soundcloud.android.view.EmptyListView
             android:id="@android:id/empty"

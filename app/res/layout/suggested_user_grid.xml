@@ -2,6 +2,7 @@
 <com.soundcloud.android.view.GridViewCompat
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/suggested_users_grid"
+        style="@style/GridView"
         android:layout_gravity="top"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

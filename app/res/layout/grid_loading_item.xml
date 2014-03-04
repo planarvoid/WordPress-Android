@@ -5,7 +5,7 @@
                 android:layout_height="wrap_content">
 
     <RelativeLayout android:layout_width="fill_parent"
-                    android:layout_height="@dimen/explore_suggested_track_item_height">
+                    android:layout_height="@dimen/gridview_loading_height">
 
         <ProgressBar android:id="@+id/list_loading_view"
                      android:indeterminateOnly="true"
@@ -16,7 +16,7 @@
 
         <LinearLayout android:id="@+id/list_loading_retry_view"
                       android:layout_width="fill_parent"
-                      android:layout_height="@dimen/explore_suggested_track_item_height"
+                      android:layout_height="@dimen/gridview_loading_height"
                       android:gravity="center"
                       android:visibility="gone"
                       android:orientation="vertical">

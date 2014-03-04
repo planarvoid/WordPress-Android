@@ -1,7 +1,6 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.collections.views.GridSpacer;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.view.GridViewCompat;
@@ -23,12 +22,10 @@ class SuggestedUsersAdapter extends BaseAdapter {
     private ImageOperations mImageOperations;
 
     private final List<SuggestedUser> mSuggestedUsers;
-    private GridSpacer mGridSpacer;
 
     public SuggestedUsersAdapter(List<SuggestedUser> suggestedUsers, ImageOperations imageOperations) {
         mSuggestedUsers = suggestedUsers;
         mImageOperations = imageOperations;
-        mGridSpacer = new GridSpacer();
     }
 
     @Override
@@ -64,8 +61,6 @@ class SuggestedUsersAdapter extends BaseAdapter {
         }
 
         configureViewHolder(getItem(position), viewHolder);
-        mGridSpacer.configureItemPadding(convertView, position, getCount());
-
         return convertView;
     }
 

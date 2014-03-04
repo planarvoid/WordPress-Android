@@ -121,10 +121,10 @@
     <dimen name="onboarding_suggested_user_item_height">108dp</dimen>
     <dimen name="onboarding_suggested_user_item_spacing">@dimen/default_list_item_padding</dimen>
 
-    <dimen name="explore_suggested_track_item_height">180dp</dimen>
     <dimen name="explore_suggested_track_item_spacing_inside">10dp</dimen>
-    <dimen name="explore_suggested_track_item_spacing_outside_left_right">@dimen/default_list_item_padding</dimen>
-    <dimen name="explore_suggested_track_item_spacing_outside_top_bottom">10dp</dimen>
+    <dimen name="gridview_padding_left_right">16dp</dimen>
+    <dimen name="gridview_padding_top_bottom">10dp</dimen>
+    <dimen name="gridview_loading_height">180dp</dimen>
     <dimen name="explore_suggested_track_padding">13dp</dimen>
 
     <dimen name="explore_suggested_track_category_text_size">16sp</dimen>

@@ -131,9 +131,17 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         gridView.setOnItemClickListener(this);
         gridView.setAdapter(mAdapter);
         gridView.setEmptyView(mEmptyListView);
+        setGridSpacing(gridView);
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
         gridView.setOnScrollListener(new AbsListViewParallaxer(mImageOperations.createScrollPauseListener(false, true, mAdapter)));
+    }
+
+    private void setGridSpacing(GridView gridView) {
+        // We can define the padding in XML once we get rid of the old pull to refresh library
+        int horizontal = (int) getResources().getDimension(R.dimen.gridview_padding_left_right);
+        int vertical = (int) getResources().getDimension(R.dimen.gridview_padding_top_bottom);
+        gridView.setPadding(horizontal, vertical, horizontal, vertical);
     }
 
     @Override

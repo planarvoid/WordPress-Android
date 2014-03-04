@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collections.EndlessPagingAdapter;
-import com.soundcloud.android.collections.views.GridSpacer;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -18,15 +17,14 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.Locale;
+
 public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
 
     private final ImageOperations mImageOperations;
-    private GridSpacer mGridSpacer;
 
     @Inject
-    public ExploreTracksAdapter(GridSpacer gridSpacer, ImageOperations imageOperations) {
+    public ExploreTracksAdapter(ImageOperations imageOperations) {
         super(Consts.CARD_PAGE_SIZE, R.layout.grid_loading_item);
-        mGridSpacer = gridSpacer;
         mImageOperations = imageOperations;
     }
 
@@ -68,8 +66,6 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
         viewHolder.imageView.setBackgroundResource(R.drawable.placeholder_cells);
         final String artworkUri = track.getArtworkOrAvatar(ImageSize.getFullImageSize(itemView.getResources()));
         mImageOperations.displayInGridView(artworkUri, viewHolder.imageView);
-
-        mGridSpacer.configureItemPadding(itemView, position, getCount());
     }
 
     @VisibleForTesting

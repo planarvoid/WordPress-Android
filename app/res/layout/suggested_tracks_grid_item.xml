@@ -25,9 +25,5 @@
     <TextView android:id="@id/playcount"
               style="@style/ExploreTrackPlaycount"/>
 
-    <ImageView style="@style/ExploreTrackGridItemSelector"
-               android:layout_alignBottom="@id/suggested_track_image"
-               android:layout_alignTop="@id/suggested_track_image"/>
-
 </RelativeLayout>
 

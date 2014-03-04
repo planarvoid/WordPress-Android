@@ -4,4 +4,7 @@
         <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS"/>
         <Package name="com.soundcloud.android.model" />
     </Match>
+    <Match>
+        <Package name="com.soundcloud.android.cropimage" />
+    </Match>
 </FindBugsFilter>

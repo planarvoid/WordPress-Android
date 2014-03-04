@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.collections.views.GridSpacer;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -30,12 +29,10 @@ public class ExploreTracksAdapterTest {
 
     @Mock
     private ImageOperations imageOperations;
-    @Mock
-    private GridSpacer gridSpacer;
 
     @Before
     public void setUp() {
-        mAdapter = new ExploreTracksAdapter(gridSpacer, imageOperations);
+        mAdapter = new ExploreTracksAdapter(imageOperations);
     }
 
     @Test

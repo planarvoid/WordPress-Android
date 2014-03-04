@@ -8,6 +8,11 @@
         <item name="android:listSelector">@drawable/list_selector_gray</item>
     </style>
 
+    <style name="GridView" parent="@android:style/Widget.GridView">
+        <item name="android:clipToPadding">false</item>
+        <item name="android:scrollbarStyle">outsideOverlay</item>
+    </style>
+
     <style name="Animation.Popup">
         <item name="@android:windowEnterAnimation">@anim/fade_in</item>
         <item name="@android:windowExitAnimation">@anim/fade_out</item>
@@ -1332,7 +1337,7 @@
     </style>
     <style name="ExploreGridItemImageViewBase">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/explore_suggested_track_item_height</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:scaleType">centerCrop</item>
         <item name="dominantMeasurement">width</item>
         <item name="aspectRatio">.55</item>
