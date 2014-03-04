@@ -179,4 +179,12 @@ public class StreamStorageTest {
         Index index = storage.getMissingChunksForItem(item.streamItemUrl(), item.chunkRange(storage.chunkSize));
         expect(index.size()).toEqual(51);
     }
+
+    @Test
+    public void replacesNullStreamItemWhenGettingMeta() throws Exception {
+        String url = "https://api.soundcloud.com/tracks/1234/stream";
+        storage.putStreamItem(StreamItem.urlHash(url), null);
+        expect(storage.getMetadata(url)).not.toBeNull();
+
+    }
 }

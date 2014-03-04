@@ -130,7 +130,7 @@ public class StreamLoader {
         umgCacheBuster.bustIt(url);
 
         final StreamItem item = mStorage.getMetadata(url);
-        if(item == null){
+        if (item == null) {
             SoundCloudApplication.handleSilentException("Stream item was null wtf",
                     new IllegalStateException(String.format("Stream Item for url %s is null : %s", url,
                             umgCacheBuster.getCurrentPlayingUrl())));
@@ -142,7 +142,8 @@ public class StreamLoader {
         final StreamFuture pc = new StreamFuture(item, range);
         if (!missing.isEmpty()) {
             mResultHandler.post(new Runnable() {
-                @Override public void run() {
+                @Override
+                public void run() {
                     mPlayerCallbacks.add(pc);
                     if (mLowPriorityQueue.contains(item)) mLowPriorityQueue.remove(item);
 

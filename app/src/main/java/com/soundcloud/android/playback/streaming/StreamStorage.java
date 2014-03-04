@@ -95,10 +95,10 @@ public class StreamStorage {
         }
     }
 
-    public @NotNull StreamItem getMetadata(String url) {
+    public StreamItem getMetadata(String url) {
         synchronized (this) {
             String hashed = StreamItem.urlHash(url);
-            if (!mItems.containsKey(hashed)) {
+            if (!mItems.containsKey(hashed) || mItems.get(hashed) == null) {
                 mItems.put(hashed, readMetadata(url));
             }
             return mItems.get(hashed);
@@ -464,5 +464,10 @@ public class StreamStorage {
                 return s.endsWith("."+ext);
             }
         };
+    }
+
+    @VisibleForTesting
+    void putStreamItem(String key, StreamItem item){
+        mItems.put(key, item);
     }
 }
