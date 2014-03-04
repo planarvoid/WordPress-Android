@@ -16,7 +16,7 @@ public interface APIRequest<ResourceType> {
      * Should return the path (minus host) that the request should be made to. Query parameters not currently supported
      * @return The path the request will be made to
      */
-    String getUriPath();
+    String getEncodedPath();
 
     /**
      * Should return the resource type that the response (if any) should be unmarshaled into.

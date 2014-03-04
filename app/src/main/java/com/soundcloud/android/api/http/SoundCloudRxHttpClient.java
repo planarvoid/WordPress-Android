@@ -173,9 +173,9 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
     }
 
     private Request createSCRequest(APIRequest<?> apiRequest) throws IOException {
-        final boolean needsPrefix = apiRequest.isPrivate() && !apiRequest.getUriPath().startsWith(URI_APP_PREFIX);
+        final boolean needsPrefix = apiRequest.isPrivate() && !apiRequest.getEncodedPath().startsWith(URI_APP_PREFIX);
         String baseUriPath = needsPrefix ? mHttpProperties.getApiMobileBaseUriPath() : ScTextUtils.EMPTY_STRING;
-        Request request = Request.to(baseUriPath + apiRequest.getUriPath());
+        Request request = Request.to(baseUriPath + apiRequest.getEncodedPath());
 
 
         final Multimap<String,String> queryParameters = apiRequest.getQueryParameters();

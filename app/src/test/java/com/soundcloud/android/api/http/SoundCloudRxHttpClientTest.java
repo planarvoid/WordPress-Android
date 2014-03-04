@@ -73,7 +73,7 @@ public class SoundCloudRxHttpClientTest {
     public void setUp() throws Exception {
         initMocks(this);
         rxHttpClient = new SoundCloudRxHttpClient(jsonTransformer, wrapperFactory, httpProperties).subscribeOn(Schedulers.immediate());
-        when(apiRequest.getUriPath()).thenReturn(URI);
+        when(apiRequest.getEncodedPath()).thenReturn(URI);
         when(apiRequest.getMethod()).thenReturn("get");
         when(apiRequest.getQueryParameters()).thenReturn(ArrayListMultimap.create());
         when(wrapperFactory.createWrapper(any(APIRequest.class))).thenReturn(publicApiWrapper);
@@ -154,7 +154,7 @@ public class SoundCloudRxHttpClientTest {
 
     @Test
     public void shouldNotAppendBasePathIfAppPrefixPresent() throws IOException {
-        when(apiRequest.getUriPath()).thenReturn(SoundCloudRxHttpClient.URI_APP_PREFIX);
+        when(apiRequest.getEncodedPath()).thenReturn(SoundCloudRxHttpClient.URI_APP_PREFIX);
         when(apiRequest.getMethod()).thenReturn("post");
         when(publicApiWrapper.post(any(Request.class))).thenReturn(httpResponse);
         when(apiRequest.isPrivate()).thenReturn(true);

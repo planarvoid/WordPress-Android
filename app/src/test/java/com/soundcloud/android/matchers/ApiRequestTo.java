@@ -18,7 +18,7 @@ class ApiRequestTo extends ArgumentMatcher<APIRequest> {
     public boolean matches(Object argument) {
         if (argument instanceof APIRequest) {
             APIRequest request = (APIRequest) argument;
-            return request.getUriPath().equals(expectedPath) &&
+            return request.getEncodedPath().equals(expectedPath) &&
                     request.getMethod().equalsIgnoreCase(expectedMethod) &&
                     request.isPrivate() == isMobileApi;
         }

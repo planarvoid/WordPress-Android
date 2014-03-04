@@ -43,8 +43,8 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
     }
 
     @Override
-    public String getUriPath() {
-        return mUri.getPath();
+    public String getEncodedPath() {
+        return mUri.getEncodedPath();
     }
 
     @Override

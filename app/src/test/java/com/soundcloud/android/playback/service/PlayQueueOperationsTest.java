@@ -180,8 +180,7 @@ public class PlayQueueOperationsTest {
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(rxHttpClient).fetchModels(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getMethod()).toEqual("GET");
-        expect(argumentCaptor.getValue().getUriPath()).toEqual(String.format(APIEndpoints.RELATED_TRACKS.path(),
-                Urn.forTrack(123L).toString()));
+        expect(argumentCaptor.getValue().getEncodedPath()).toEqual(APIEndpoints.RELATED_TRACKS.path(Urn.forTrack(123L).toString()));
     }
 
     @Test

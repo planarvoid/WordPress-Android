@@ -213,7 +213,7 @@ public class SearchOperationsTest {
 
         ArgumentCaptor<APIRequest> captor = ArgumentCaptor.forClass(APIRequest.class);
         verify(rxHttpClient, times(2)).fetchModels(captor.capture());
-        expect(captor.getAllValues().get(1).getUriPath()).toEqual("/next-href.json");
+        expect(captor.getAllValues().get(1).getEncodedPath()).toEqual("/next-href.json");
     }
 
     @Test

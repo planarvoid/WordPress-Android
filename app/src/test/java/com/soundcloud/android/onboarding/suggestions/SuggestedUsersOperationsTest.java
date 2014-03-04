@@ -51,7 +51,7 @@ public class SuggestedUsersOperationsTest {
         suggestedUsersOperations.getFacebookSuggestions();
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
-        expect(argumentCaptor.getValue().getUriPath()).toEqual("/suggestions/users/social/facebook");
+        expect(argumentCaptor.getValue().getEncodedPath()).toEqual("/suggestions/users/social/facebook");
     }
 
     @Test
@@ -83,7 +83,7 @@ public class SuggestedUsersOperationsTest {
         suggestedUsersOperations.getMusicAndSoundsSuggestions();
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
-        expect(argumentCaptor.getValue().getUriPath()).toEqual("/suggestions/users/categories");
+        expect(argumentCaptor.getValue().getEncodedPath()).toEqual("/suggestions/users/categories");
     }
 
     @Test

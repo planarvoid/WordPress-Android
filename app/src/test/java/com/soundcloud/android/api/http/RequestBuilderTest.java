@@ -32,13 +32,13 @@ public class RequestBuilderTest {
     @Test
     public void shouldReturnRequestInstanceWithURISet() {
         APIRequest<Integer> request = buildValidRequest();
-        expect(request.getUriPath()).toEqual(URI_PATH);
+        expect(request.getEncodedPath()).toEqual(URI_PATH);
     }
 
     @Test
     public void shouldReturnRequestWithCorrectUriPathFromFullUri() {
         APIRequest<Integer> request = buildValidRequestFromFullUri();
-        expect(request.getUriPath()).toEqual(URI_PATH);
+        expect(request.getEncodedPath()).toEqual(URI_PATH);
     }
 
     @Test
