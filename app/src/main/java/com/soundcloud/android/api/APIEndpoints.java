@@ -3,8 +3,8 @@ package com.soundcloud.android.api;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import android.net.Uri;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -53,12 +53,7 @@ public enum APIEndpoints {
     private static final Function<Object, Object> encodingFunction = new Function<Object, Object>() {
         @Override
         public Object apply(Object input) {
-            String param = String.valueOf(input);
-            try {
-                return URLEncoder.encode(param, "utf-8");
-            } catch (UnsupportedEncodingException e) {
-                throw new IllegalStateException(e);
-            }
+            return Uri.encode(String.valueOf(input));
         }
     };
 }

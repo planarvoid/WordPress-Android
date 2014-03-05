@@ -2,8 +2,11 @@ package com.soundcloud.android.api;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(SoundCloudTestRunner.class)
 public class APIEndpointsTest {
 
     @Test
@@ -13,14 +16,9 @@ public class APIEndpointsTest {
     }
 
     @Test
-    public void shouldUrlEncodePathParameters() {
+    public void shouldPercentEncodePathParameters() {
         String resolvedPath = APIEndpoints.RELATED_TRACKS.path("has space");
-        expect(resolvedPath).toEqual("/tracks/has+space/related");
+        expect(resolvedPath).toEqual("/tracks/has%20space/related");
     }
 
-    @Test
-    public void shouldUrlEncodePathSpecialCharactersParametersOnPath() {
-        String resolvedPath = APIEndpoints.RELATED_TRACKS.path(" %{}±!@#$%^&*()_+}{<>?");
-        expect(resolvedPath).toEqual("/tracks/+%25%7B%7D%C2%B1%21%40%23%24%25%5E%26*%28%29_%2B%7D%7B%3C%3E%3F/related");
-    }
 }
