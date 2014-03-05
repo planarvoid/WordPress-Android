@@ -35,14 +35,23 @@ public class Waiter {
     }
 
     public boolean waitForWebViewToLoad(final WebView webViewToCheck) {
-        Condition condition = new Condition() {
+        solo.getCurrentActivity().runOnUiThread(new Runnable() {
+            Condition condition = new Condition() {
+
+                @Override
+                public boolean isSatisfied() {
+                    return (webViewToCheck.getUrl() != null);
+                }
+            };
 
             @Override
-            public boolean isSatisfied() {
-                return (webViewToCheck.getUrl() != null);
+            public void run() {
+                solo.waitForCondition(condition, NETWORK_TIMEOUT );
             }
-        };
-        return solo.waitForCondition(condition,this.NETWORK_TIMEOUT );
+        });
+
+
+        return true;
     }
 
     private boolean waitForListContent() {

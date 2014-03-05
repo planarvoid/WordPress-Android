@@ -1,12 +1,13 @@
 package com.soundcloud.android.screens.auth;
 
-import android.R.id;
-import android.widget.EditText;
 import com.soundcloud.android.R;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
+
+import android.R.id;
+import android.widget.EditText;
 
 public class LoginScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;
@@ -69,7 +70,6 @@ public class LoginScreen extends Screen {
     public void clickOnContinueButton() {
         solo.clickOnButton(R.string.btn_continue);
         waiter.waitForTextToDisappear("Logging you in");
-        solo.waitForText("Stream", 0, 15000, false);
     }
     public MainScreen loginAs(String username, String password) {
         solo.clearEditText(email());

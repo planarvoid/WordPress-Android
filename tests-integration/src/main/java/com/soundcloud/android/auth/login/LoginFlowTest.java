@@ -118,8 +118,8 @@ public class LoginFlowTest extends LoginTestCase {
         assertNotNull(webView);
         assertTrue(waiter.waitForWebViewToLoad(webView));
 
-        FBWebViewScreen.typeEmail(scAccount.getEmail());
         FBWebViewScreen.typePassword(scAccount.getPassword());
+        FBWebViewScreen.typeEmail(scAccount.getEmail());
         FBWebViewScreen.submit();
 
         assertEquals(scAccount.getUsername(), menuScreen.getUserName());

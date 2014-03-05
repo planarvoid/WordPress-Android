@@ -30,6 +30,7 @@ public class FBWebViewScreen {
         solo.waitForWebElement(emailField());
         solo.clearTextInWebElement(emailField());
         solo.typeTextInWebElement(emailField(), text);
+        solo.clickOnWebElement(emailField());
     }
 
     public void typePassword(String text) {
