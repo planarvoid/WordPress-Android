@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 
 public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFragment.TagClickListener {
@@ -39,7 +40,7 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
 
         @Override
         public void exitSearchMode() {
-            getSupportFragmentManager().popBackStack();
+            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     };
 
@@ -96,7 +97,14 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
     }
 
     private void addContent(Fragment fragment, String tag) {
-        getSupportFragmentManager().beginTransaction()
+        FragmentManager manager = getSupportFragmentManager();
+
+        // Clear the backstack before adding new content Fragment
+        if (manager.getBackStackEntryCount() > 0) {
+            manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
+
+        manager.beginTransaction()
                 .replace(R.id.holder, fragment, tag)
                 .addToBackStack(tag)
                 .commit();
