@@ -246,15 +246,15 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldMakeGETRequestToPlaylistDiscoveryEndpoint() {
-        searchOperations.getPlaylistDiscoveryResults("electronic").subscribe(observer);
+        searchOperations.getPlaylistResults("electronic").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET",
                 APIEndpoints.PLAYLIST_DISCOVERY.path())));
     }
 
     @Test
-    public void shouldMakeRequestPlaylistDiscoveryResulstsWithCorrectParameters() {
-        searchOperations.getPlaylistDiscoveryResults("electronic").subscribe(observer);
+    public void shouldMakeRequestPlaylistDiscoveryResultsWithCorrectParameters() {
+        searchOperations.getPlaylistResults("electronic").subscribe(observer);
 
         Multimap<String, String> parameters = ArrayListMultimap.create();
         parameters.put("tag", "electronic");
@@ -272,7 +272,7 @@ public class SearchOperationsTest {
         when(rxHttpClient.<PlaylistSummaryCollection>fetchModels(any(APIRequest.class))).thenReturn(
                 Observable.<PlaylistSummaryCollection>from(collection));
 
-        searchOperations.getPlaylistDiscoveryResults("electronic").subscribe(observer);
+        searchOperations.getPlaylistResults("electronic").subscribe(observer);
 
         ArgumentCaptor<Page> resultCaptor = ArgumentCaptor.forClass(Page.class);
         verify(observer).onNext(resultCaptor.capture());
@@ -282,7 +282,7 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldStripHashSymbolFromSearchTag() {
-        searchOperations.getPlaylistDiscoveryResults("#electronic").subscribe(observer);
+        searchOperations.getPlaylistResults("#electronic").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET",
                 APIEndpoints.PLAYLIST_DISCOVERY.path("electronic"))));

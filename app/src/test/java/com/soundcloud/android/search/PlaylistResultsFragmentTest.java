@@ -28,7 +28,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.Subscription;
 import rx.android.OperationPaged;
 
 import android.content.Context;
@@ -64,7 +63,7 @@ public class PlaylistResultsFragmentTest {
         PlaylistSummaryCollection collection = new PlaylistSummaryCollection();
         PlaylistSummary playlist = new PlaylistSummary();
         collection.setCollection(Lists.newArrayList(playlist));
-        when(searchOperations.getPlaylistDiscoveryResults("selected tag")).thenReturn(
+        when(searchOperations.getPlaylistResults("selected tag")).thenReturn(
                 RxTestHelper.singlePage(Observable.<PlaylistSummaryCollection>from(collection)));
 
         fragment.onCreate(null);
@@ -76,7 +75,7 @@ public class PlaylistResultsFragmentTest {
 
     @Test
     public void shouldShowErrorStateScreenOnGetResultsError() throws Exception {
-        when(searchOperations.getPlaylistDiscoveryResults(anyString())).
+        when(searchOperations.getPlaylistResults(anyString())).
                 thenReturn(Observable.<Page<PlaylistSummaryCollection>>error(new Exception()));
 
         fragment.onCreate(null);
@@ -89,7 +88,7 @@ public class PlaylistResultsFragmentTest {
     @Test
     public void shouldShowWaitingStateWhileLoading() throws Exception {
         // Do not emit items, to simulate an ongoing data fetch
-        when(searchOperations.getPlaylistDiscoveryResults(anyString())).
+        when(searchOperations.getPlaylistResults(anyString())).
                 thenReturn(Observable.<Page<PlaylistSummaryCollection>>never());
 
         fragment.onCreate(null);
@@ -101,7 +100,7 @@ public class PlaylistResultsFragmentTest {
 
     @Test
     public void shouldRecreateObservableWhenClickingRetryAfterFailureSoThatWeDontEmitCachedResults() throws Exception {
-        when(searchOperations.getPlaylistDiscoveryResults(anyString())).
+        when(searchOperations.getPlaylistResults(anyString())).
                 thenReturn(Observable.<OperationPaged.Page<PlaylistSummaryCollection>>error(new Exception()));
 
         fragment.onCreate(null);
@@ -111,7 +110,7 @@ public class PlaylistResultsFragmentTest {
         expect(retryButton).not.toBeNull();
         retryButton.performClick();
 
-        verify(searchOperations, times(2)).getPlaylistDiscoveryResults(anyString());
+        verify(searchOperations, times(2)).getPlaylistResults(anyString());
     }
 
     @Test

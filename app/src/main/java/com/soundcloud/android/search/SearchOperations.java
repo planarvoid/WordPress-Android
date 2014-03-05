@@ -78,7 +78,7 @@ public class SearchOperations {
         public Observable<Page<PlaylistSummaryCollection>> call(PlaylistSummaryCollection collection) {
             final Optional<Link> nextLink = collection.getNextLink();
             if (nextLink.isPresent()) {
-                return getPlaylistDiscoveryResultsNextPage(nextLink.get().getHref());
+                return getPlaylistResultsNextPage(nextLink.get().getHref());
             } else {
                 return OperationPaged.emptyPageObservable();
             }
@@ -160,7 +160,7 @@ public class SearchOperations {
         return mRxHttpClient.<PlaylistTagsCollection>fetchModels(request).map(TO_HASH_TAGS);
     }
 
-    Observable<Page<PlaylistSummaryCollection>> getPlaylistDiscoveryResults(final String query) {
+    Observable<Page<PlaylistSummaryCollection>> getPlaylistResults(final String query) {
         final String cleanTag = query.replaceFirst("#", "");
         final RequestBuilder<PlaylistSummaryCollection> builder = createPlaylistResultsRequest(APIEndpoints.PLAYLIST_DISCOVERY.path());
         return getPlaylistResultsPageObservable(builder.addQueryParameters("tag", cleanTag).build()).doOnCompleted(new Action0() {
@@ -171,7 +171,7 @@ public class SearchOperations {
         });
     }
 
-    Observable<Page<PlaylistSummaryCollection>> getPlaylistDiscoveryResultsNextPage(String nextHref) {
+    Observable<Page<PlaylistSummaryCollection>> getPlaylistResultsNextPage(String nextHref) {
         final RequestBuilder<PlaylistSummaryCollection> builder = createPlaylistResultsRequest(nextHref);
         return getPlaylistResultsPageObservable(builder.build());
     }
@@ -181,7 +181,6 @@ public class SearchOperations {
                 .forPrivateAPI(1)
                 .forResource(TypeToken.of(PlaylistSummaryCollection.class));
     }
-
 
     private Observable<Page<PlaylistSummaryCollection>> getPlaylistResultsPageObservable(APIRequest<PlaylistSummaryCollection> request) {
         Observable<PlaylistSummaryCollection> source = mRxHttpClient.fetchModels(request);

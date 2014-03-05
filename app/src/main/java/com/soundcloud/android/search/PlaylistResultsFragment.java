@@ -108,7 +108,7 @@ public class PlaylistResultsFragment extends ListFragment implements EmptyViewAw
     private void loadPlaylistResults() {
         String playlistTag = getArguments().getString(KEY_PLAYLIST_TAG);
         ConnectableObservable<Page<PlaylistSummaryCollection>> observable =
-                fromFragment(this, mSearchOperations.getPlaylistDiscoveryResults(playlistTag)).publish();
+                fromFragment(this, mSearchOperations.getPlaylistResults(playlistTag)).publish();
 
         setEmptyViewStatus(EmptyListView.Status.WAITING);
         observable.subscribe(mAdapter);
