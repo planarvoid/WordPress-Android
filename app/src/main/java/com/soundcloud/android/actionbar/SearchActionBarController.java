@@ -110,7 +110,7 @@ public class SearchActionBarController extends ActionBarController {
         @Override
         public boolean onQueryTextSubmit(String query) {
             performSearch(query);
-            mSearchView.clearFocus();
+            clearFocus();
             mSearchView.setSuggestionsAdapter(null);
             return true;
         }
@@ -166,11 +166,14 @@ public class SearchActionBarController extends ActionBarController {
 
     public void setQuery(String query) {
         mSearchView.setQuery(query, false);
-        mSearchView.clearFocus();
+        clearFocus();
     }
 
     public String getQuery() {
         return mSearchView.getQuery().toString();
     }
 
+    public void clearFocus() {
+        mSearchView.clearFocus();
+    }
 }

@@ -16,6 +16,7 @@ import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.FlowLayout;
+import com.soundcloud.android.view.ListenableScrollView;
 import rx.Observable;
 import rx.subscriptions.CompositeSubscription;
 
@@ -33,7 +34,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
-public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
+public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, ListenableScrollView.OnScrollListener {
 
     public static final String TAG = "playlist_tags";
 
@@ -50,13 +51,14 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
     private final OnClickListener mTagClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            TagClickListener listener = (TagClickListener) getActivity();
+            TagEventsListener listener = (TagEventsListener) getActivity();
             listener.onTagSelected((String) v.getTag());
         }
     };
 
-    public interface TagClickListener {
+    public interface TagEventsListener {
         void onTagSelected(String tag);
+        void onTagsScrolled();
     }
 
     public PlaylistTagsFragment() {
@@ -72,7 +74,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        checkArgument(activity instanceof TagClickListener, "Host activity must be a " + TagClickListener.class);
+        checkArgument(activity instanceof TagEventsListener, "Host activity must be a " + TagEventsListener.class);
     }
 
     @Override
@@ -94,6 +96,9 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
         mEmptyView.setVisibility(VISIBLE);
         mEmptyView.setStatus(mEmptyViewStatus);
 
+        ListenableScrollView scrollView = (ListenableScrollView) view.findViewById(R.id.playlist_tags_scroll_container);
+        scrollView.setOnScrollListener(this);
+
         mSubscription = new CompositeSubscription();
         mSubscription.add(mAllTagsObservable.subscribe(new TagsSubscriber()));
         mSubscription.add(mRecentTagsObservable.subscribe(new RecentsSubscriber()));
@@ -111,6 +116,11 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware {
         if (mEmptyView != null) {
             mEmptyView.setStatus(status);
         }
+    }
+
+    @Override
+    public void onScroll(int top, int oldTop) {
+        ((TagEventsListener) getActivity()).onTagsScrolled();
     }
 
     private void displayAllTags(PlaylistTagsCollection tags) {

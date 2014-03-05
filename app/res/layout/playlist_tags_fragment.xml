@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true">
+<com.soundcloud.android.view.ListenableScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/playlist_tags_scroll_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -12,15 +14,15 @@
             android:padding="10dp">
 
         <TextView
-            style="@style/TagHeaderText"
-            android:layout_marginTop="10dp"
-            android:textStyle="bold"
-            android:text="@string/search_tags_title" />
+                style="@style/TagHeaderText"
+                android:layout_marginTop="10dp"
+                android:textStyle="bold"
+                android:text="@string/search_tags_title"/>
 
         <TextView
-            style="@style/TagHeaderText"
-            android:textColor="@color/tag_text"
-            android:text="@string/search_tags_subtitle" />
+                style="@style/TagHeaderText"
+                android:textColor="@color/tag_text"
+                android:text="@string/search_tags_subtitle"/>
 
         <LinearLayout
                 android:id="@+id/recent_tags_container"
@@ -32,20 +34,20 @@
 
             <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                       style="@style/TagCloudTitle"
-                      android:text="@string/search_recent_tags" />
+                      android:text="@string/search_recent_tags"/>
 
             <com.soundcloud.android.view.FlowLayout
                     android:id="@+id/recent_tags"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingLeft="5dp"
-                    android:paddingTop="15dp" />
+                    android:paddingTop="15dp"/>
 
         </LinearLayout>
 
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                   style="@style/TagCloudTitle"
-                  android:text="@string/search_popular_tags" />
+                  android:text="@string/search_popular_tags"/>
 
         <FrameLayout
                 android:layout_width="match_parent"
@@ -56,15 +58,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingLeft="5dp"
-                    android:paddingTop="15dp" />
+                    android:paddingTop="15dp"/>
 
             <com.soundcloud.android.view.EmptyListView
                     android:id="@android:id/empty"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"/>
 
         </FrameLayout>
 
     </LinearLayout>
 
-</ScrollView>
+</com.soundcloud.android.view.ListenableScrollView>

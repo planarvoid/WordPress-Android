@@ -15,7 +15,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 
-public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFragment.TagClickListener {
+public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFragment.TagEventsListener {
 
     private static final String ACTION_PLAY_FROM_SEARCH = "android.media.action.MEDIA_PLAY_FROM_SEARCH";
     private static final String INTENT_URL_HOST = "soundcloud.com";
@@ -119,6 +119,11 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
     public void onTagSelected(String tag) {
         mActionBarController.setQuery(tag);
         addContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
+    }
+
+    @Override
+    public void onTagsScrolled() {
+        mActionBarController.clearFocus();
     }
 
     private void handleIntent() {

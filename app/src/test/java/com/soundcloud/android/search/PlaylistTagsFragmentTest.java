@@ -1,11 +1,10 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.search.PlaylistTagsFragment.TagClickListener;
+import static com.soundcloud.android.search.PlaylistTagsFragment.TagEventsListener;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -14,17 +13,14 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlaylistTagsCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.EmptyListView;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.Observer;
 
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
@@ -143,13 +139,24 @@ public class PlaylistTagsFragmentTest {
     public void clickingTagShouldCallTagListenerWithCorrectTag() {
         createFragment();
 
-        FragmentActivity listener = mock(FragmentActivity.class, withSettings().extraInterfaces(TagClickListener.class));
+        FragmentActivity listener = mock(FragmentActivity.class, withSettings().extraInterfaces(TagEventsListener.class));
         Robolectric.shadowOf(fragment).setActivity(listener);
 
         ViewGroup tagFlowLayout = (ViewGroup) fragment.getView().findViewById(R.id.all_tags);
         tagFlowLayout.getChildAt(0).performClick();
 
-        verify((TagClickListener) listener).onTagSelected("one");
+        verify((TagEventsListener) listener).onTagSelected("one");
+    }
+
+    @Test
+    public void shouldCallBackToActivityWhenScrollingTags() {
+        createFragment();
+        FragmentActivity listener = mock(FragmentActivity.class, withSettings().extraInterfaces(TagEventsListener.class));
+        Robolectric.shadowOf(fragment).setActivity(listener);
+
+        fragment.onScroll(1, 2);
+
+        verify((TagEventsListener) listener).onTagsScrolled();
     }
 
     private void createFragment() {
