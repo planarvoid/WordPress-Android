@@ -251,8 +251,6 @@
 
     <string name="appending_failed">Error al cargar. Toca para volver a intentarlo.</string>
 
-    <string name="playcount">%s reproducciones</string>
-
     <string name="player_fetching_related_message_1">Solo un segundo</string>
     <string name="player_fetching_related_message_2">Estamos obteniendo tu próxima pista</string>
 

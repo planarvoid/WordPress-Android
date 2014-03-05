@@ -1,6 +1,8 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.image.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -64,6 +66,13 @@ public class PlaylistSummary extends ScModel {
 
     public String getArtworkUrl() {
         return mArtworkUrl;
+    }
+
+    public String getArtworkUrl(ImageSize imageSize) {
+        if (ImageUtils.checkIconShouldLoad(mArtworkUrl)) {
+            return imageSize.formatUri(mArtworkUrl);
+        }
+        return null;
     }
 
     @JsonProperty("artwork_url")

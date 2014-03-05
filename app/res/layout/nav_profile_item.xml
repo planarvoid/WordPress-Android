@@ -25,7 +25,7 @@
                                                     android:drawableLeft="@drawable/drawer_follower"
                                                     android:drawablePadding="3dp"/>
 
-    <View style="@style/ExploreTrackGridItemSelector"
+    <View style="@style/GridItemSelector"
           android:layout_alignBottom="@id/avatar"
           android:layout_alignTop="@id/avatar"/>
 

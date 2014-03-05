@@ -26,6 +26,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -106,13 +107,25 @@ public class PlaylistTagsFragmentTest {
 
     @Test
     public void shouldShowRecentTagsIfRecentTagsExist() throws Exception {
-        PlaylistTagsCollection collection = new PlaylistTagsCollection(Lists.newArrayList("#tag1"));
+        PlaylistTagsCollection collection = new PlaylistTagsCollection(Lists.newArrayList("tag1"));
         Observable<PlaylistTagsCollection> observable = Observable.<PlaylistTagsCollection>from(collection);
         when(searchOperations.getRecentPlaylistTags()).thenReturn(observable);
 
         createFragment();
         View recentTagsLayout = fragment.getView().findViewById(R.id.recent_tags);
         expect(recentTagsLayout.getVisibility()).toEqual(View.VISIBLE);
+    }
+
+    @Test
+    public void shouldDisplayTagsWithHashSymbolPrepended() throws Exception {
+        PlaylistTagsCollection collection = new PlaylistTagsCollection(Lists.newArrayList("tag1"));
+        Observable<PlaylistTagsCollection> observable = Observable.<PlaylistTagsCollection>from(collection);
+        when(searchOperations.getRecentPlaylistTags()).thenReturn(observable);
+
+        createFragment();
+        ViewGroup recentTagsLayout = (ViewGroup) fragment.getView().findViewById(R.id.recent_tags);
+        TextView tagView = (TextView) recentTagsLayout.getChildAt(0);
+        expect(tagView.getText()).toEqual("#tag1");
     }
 
     @Test

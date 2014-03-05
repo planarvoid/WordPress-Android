@@ -172,8 +172,6 @@
 
     <string name="appending_failed">Loading error. Tap to try again</string>
 
-    <string name="playcount">%s plays</string>
-
     <string name="player_fetching_related_message_1">Just a second</string>
     <string name="player_fetching_related_message_2">We\'re getting your next track</string>
 

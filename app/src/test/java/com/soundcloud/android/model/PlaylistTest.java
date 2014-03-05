@@ -94,7 +94,7 @@ public class PlaylistTest {
         expect(playlist.getId()).toEqual(source.getId());
         expect(playlist.getUrn()).toEqual(source.getUrn());
         expect(playlist.getTitle()).toEqual(source.getTitle());
-        expect(playlist.tag_list).toEqual("tag1 tag2");
+        expect(playlist.tag_list).toEqual("tag1 tag2 tag3");
         expect(playlist.getUsername()).toEqual(source.getUsername());
         expect(playlist.artwork_url).toEqual(source.getArtworkUrl());
         expect(playlist.created_at).toEqual(source.getCreatedAt());

@@ -67,10 +67,10 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="TextAppearance.ExploreTrackBottom">
+    <style name="TextAppearance.GridItemBottom">
         <item name="android:singleLine">true</item>
-        <item name="android:textColor">#7FFFFFFF</item>
-        <item name="android:textSize">@dimen/explore_suggested_track_category_bottom_text_size</item>
+        <item name="android:textColor">#666666</item>
+        <item name="android:textSize">@dimen/grid_item_bottom_text_size</item>
     </style>
 
     <style name="TextAppearance.FollowingMessage">

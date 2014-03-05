@@ -117,7 +117,7 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
 
     @Override
     public void onTagSelected(String tag) {
-        mActionBarController.setQuery(tag);
+        mActionBarController.setQuery("#" + tag);
         addContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
     }
 

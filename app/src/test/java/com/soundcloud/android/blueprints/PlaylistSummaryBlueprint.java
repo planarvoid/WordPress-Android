@@ -32,7 +32,7 @@ public class PlaylistSummaryBlueprint {
     UserSummary user;
 
     @Default
-    List<String> tags = Arrays.asList("tag1", "tag2");
+    List<String> tags = Arrays.asList("tag1", "tag2", "tag3");
 
     @Default(force = true)
     Integer trackCount = 5;

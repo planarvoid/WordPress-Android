@@ -7,7 +7,7 @@
         <item name="android:scaleType">fitXY</item>
     </style>
 
-    <style name="ExploreGridItemImageView" parent="ExploreGridItemImageViewBase">
+    <style name="GridItemImageView" parent="GridItemImageViewBase">
         <item name="movement">-8dp</item>
     </style>
 

@@ -141,7 +141,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
         for (final String tag : tags) {
             if (!TextUtils.isEmpty(tag)) {
                 TextView tagView = ((TextView) inflater.inflate(R.layout.btn_tag, null));
-                tagView.setText(tag);
+                tagView.setText("#" + tag);
                 tagView.setTag(tag);
                 tagView.setOnClickListener(mTagClickListener);
                 tagFlowLayout.addView(tagView, flowLP);

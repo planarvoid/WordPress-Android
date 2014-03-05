@@ -4,15 +4,14 @@ import static com.soundcloud.android.api.http.SoundCloudAPIRequest.RequestBuilde
 import static rx.android.OperationPaged.Page;
 import static rx.android.OperationPaged.paged;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.model.Link;
+import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.PlaylistSummaryCollection;
 import com.soundcloud.android.model.PlaylistTagsCollection;
 import com.soundcloud.android.model.ScModelManager;
@@ -25,10 +24,11 @@ import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.OperationPaged;
 import rx.functions.Action0;
-import rx.util.functions.Func1;
+import rx.functions.Func1;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class SearchOperations {
@@ -44,20 +44,6 @@ public class SearchOperations {
                         }
                     }
                     return new SearchResultsCollection(filteredList, unfilteredResult.getNextHref());
-                }
-            };
-
-    private static final Func1<PlaylistTagsCollection, PlaylistTagsCollection> TO_HASH_TAGS =
-            new Func1<PlaylistTagsCollection, PlaylistTagsCollection>() {
-                @Override
-                public PlaylistTagsCollection call(PlaylistTagsCollection tags) {
-                    tags.setCollection(Lists.transform(tags.getCollection(), new Function<String, String>() {
-                        @Override
-                        public String apply(String tag) {
-                            return "#" + tag;
-                        }
-                    }));
-                    return tags;
                 }
             };
 
@@ -149,7 +135,7 @@ public class SearchOperations {
     }
 
     Observable<PlaylistTagsCollection> getRecentPlaylistTags() {
-        return mTagStorage.getRecentTagsAsync().map(TO_HASH_TAGS);
+        return mTagStorage.getRecentTagsAsync();
     }
 
     Observable<PlaylistTagsCollection> getPlaylistTags() {
@@ -157,18 +143,17 @@ public class SearchOperations {
                 .forPrivateAPI(1)
                 .forResource(TypeToken.of(PlaylistTagsCollection.class))
                 .build();
-        return mRxHttpClient.<PlaylistTagsCollection>fetchModels(request).map(TO_HASH_TAGS);
+        return mRxHttpClient.fetchModels(request);
     }
 
     Observable<Page<PlaylistSummaryCollection>> getPlaylistResults(final String query) {
-        final String cleanTag = query.replaceFirst("#", "");
         final RequestBuilder<PlaylistSummaryCollection> builder = createPlaylistResultsRequest(APIEndpoints.PLAYLIST_DISCOVERY.path());
-        return getPlaylistResultsPageObservable(builder.addQueryParameters("tag", cleanTag).build()).doOnCompleted(new Action0() {
+        return getPlaylistResultsPageObservable(builder.addQueryParameters("tag", query).build()).doOnCompleted(new Action0() {
             @Override
             public void call() {
-                mTagStorage.addRecentTag(cleanTag);
+                mTagStorage.addRecentTag(query);
             }
-        });
+        }).map(withSearchTag(query));
     }
 
     Observable<Page<PlaylistSummaryCollection>> getPlaylistResultsNextPage(String nextHref) {
@@ -185,6 +170,22 @@ public class SearchOperations {
     private Observable<Page<PlaylistSummaryCollection>> getPlaylistResultsPageObservable(APIRequest<PlaylistSummaryCollection> request) {
         Observable<PlaylistSummaryCollection> source = mRxHttpClient.fetchModels(request);
         return Observable.create(paged(source, mNextDiscoveryResultsPageGenerator));
+    }
+
+    private Func1<Page<PlaylistSummaryCollection>, Page<PlaylistSummaryCollection>> withSearchTag(final String searchTag) {
+        return new Func1<Page<PlaylistSummaryCollection>, Page<PlaylistSummaryCollection>>() {
+            @Override
+            public Page<PlaylistSummaryCollection> call(Page<PlaylistSummaryCollection> page) {
+                PlaylistSummaryCollection collection = page.getPagedCollection();
+                for (PlaylistSummary playlist : collection) {
+                    LinkedList<String> tagsWithSearchTag = new LinkedList<String>(playlist.getTags());
+                    tagsWithSearchTag.remove(searchTag);
+                    tagsWithSearchTag.addFirst(searchTag);
+                    playlist.setTags(tagsWithSearchTag);
+                }
+                return page;
+            }
+        };
     }
 
     private interface SearchResultsNextPageFunction extends Func1<SearchResultsCollection, Observable<Page<SearchResultsCollection>>> {}

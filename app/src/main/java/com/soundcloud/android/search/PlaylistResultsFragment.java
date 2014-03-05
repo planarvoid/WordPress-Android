@@ -15,21 +15,25 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
+import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.GridView;
 
 import javax.inject.Inject;
 
-public class PlaylistResultsFragment extends ListFragment implements EmptyViewAware,
+@SuppressLint("ValidFragment")
+public class PlaylistResultsFragment extends Fragment implements EmptyViewAware,
         AdapterView.OnItemClickListener {
 
     public static final String TAG = "playlist_results";
@@ -74,13 +78,12 @@ public class PlaylistResultsFragment extends ListFragment implements EmptyViewAw
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setListAdapter(mAdapter);
         loadPlaylistResults();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.default_list, container, false);
+        return inflater.inflate(R.layout.default_grid, container, false);
     }
 
     @Override
@@ -95,8 +98,14 @@ public class PlaylistResultsFragment extends ListFragment implements EmptyViewAw
                 loadPlaylistResults();
             }
         });
-        getListView().setEmptyView(mEmptyListView);
-        getListView().setOnItemClickListener(this);
+
+        GridView gridView = (GridView) view.findViewById(android.R.id.list);
+        gridView.setEmptyView(mEmptyListView);
+        gridView.setOnItemClickListener(this);
+        gridView.setAdapter(mAdapter);
+
+        // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
+        gridView.setOnScrollListener(new AbsListViewParallaxer(mImageOperations.createScrollPauseListener(false, true, mAdapter)));
     }
 
     @Override

@@ -40,7 +40,7 @@ public class ExploreTracksAdapterTest {
         View itemView = mAdapter.createItemView(0, new FrameLayout(Robolectric.application));
         expect(itemView).not.toBeNull();
         expect(itemView.getTag()).not.toBeNull(); // contains the private ViewHolder instance
-        expect(itemView.findViewById(R.id.suggested_track_image)).not.toBeNull();
+        expect(itemView.findViewById(R.id.image)).not.toBeNull();
         expect(itemView.findViewById(R.id.username)).not.toBeNull();
         expect(itemView.findViewById(R.id.title)).not.toBeNull();
     }

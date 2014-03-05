@@ -2,7 +2,6 @@ package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,6 +35,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.Button;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -43,6 +43,7 @@ public class PlaylistResultsFragmentTest {
 
     private PlaylistResultsFragment fragment;
     private Context context = Robolectric.application;
+    private AbsListView content;
 
     @Mock
     private SearchOperations searchOperations;
@@ -81,7 +82,7 @@ public class PlaylistResultsFragmentTest {
         fragment.onCreate(null);
         createFragmentView();
 
-        EmptyListView emptyView = (EmptyListView) fragment.getListView().getEmptyView();
+        EmptyListView emptyView = (EmptyListView) content.getEmptyView();
         expect(emptyView.getStatus()).toEqual(EmptyListView.Status.ERROR);
     }
 
@@ -94,7 +95,7 @@ public class PlaylistResultsFragmentTest {
         fragment.onCreate(null);
         createFragmentView();
 
-        EmptyListView emptyView = (EmptyListView) fragment.getListView().getEmptyView();
+        EmptyListView emptyView = (EmptyListView) content.getEmptyView();
         expect(emptyView.getStatus()).toEqual(EmptyListView.Status.WAITING);
     }
 
@@ -121,7 +122,7 @@ public class PlaylistResultsFragmentTest {
         fragment.onCreate(null);
         createFragmentView();
 
-        fragment.onItemClick(fragment.getListView(), null, 0, 0);
+        fragment.onItemClick(content, null, 0, 0);
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
@@ -142,6 +143,7 @@ public class PlaylistResultsFragmentTest {
         View layout = fragment.onCreateView(LayoutInflater.from(context), null, null);
         Robolectric.shadowOf(fragment).setView(layout);
         fragment.onViewCreated(layout, null);
+        content = (AbsListView) fragment.getView().findViewById(android.R.id.list);
         return layout;
     }
 

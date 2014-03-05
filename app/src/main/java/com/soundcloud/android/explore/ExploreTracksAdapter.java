@@ -16,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
-import java.util.Locale;
 
 public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
 
@@ -30,15 +29,16 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
 
     @Override
     protected View createItemView(int position, ViewGroup parent) {
-        View itemView = View.inflate(parent.getContext(), R.layout.suggested_tracks_grid_item, null);
+        View itemView = View.inflate(parent.getContext(), R.layout.default_grid_item, null);
         ItemViewHolder viewHolder = new ItemViewHolder();
-        viewHolder.imageView = (ImageView) itemView.findViewById(R.id.suggested_track_image);
+        viewHolder.imageView = (ImageView) itemView.findViewById(R.id.image);
         viewHolder.username = (TextView) itemView.findViewById(R.id.username);
         viewHolder.title = (TextView) itemView.findViewById(R.id.title);
-        viewHolder.genre = (TextView) itemView.findViewById(R.id.genre);
-        viewHolder.playcount = (TextView) itemView.findViewById(R.id.playcount);
+        viewHolder.genre = (TextView) itemView.findViewById(R.id.tag);
+        viewHolder.playcount = (TextView) itemView.findViewById(R.id.extra_info);
         itemView.setTag(viewHolder);
 
+        viewHolder.playcount.setCompoundDrawablesWithIntrinsicBounds(R.drawable.stats_plays, 0, 0, 0);
         return itemView;
     }
 
@@ -47,21 +47,17 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
         final TrackSummary track = getItem(position);
 
-        // TODO : figure out why we are null here
-        if (viewHolder == null) throw new IllegalArgumentException("VIEWHOLDER IS NULL");
-        if (track == null) throw new IllegalArgumentException("TRACK IS NULL");
-
         viewHolder.username.setText(track.getUserName());
         viewHolder.title.setText(track.getTitle());
 
         if (TextUtils.isEmpty(track.getGenre())){
             viewHolder.genre.setVisibility(View.GONE);
         } else {
-            viewHolder.genre.setText(track.getGenre().toUpperCase(Locale.getDefault()));
+            viewHolder.genre.setText("#" + track.getGenre());
             viewHolder.genre.setVisibility(View.VISIBLE);
         }
         final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getStats().getPlaybackCount());
-        viewHolder.playcount.setText(itemView.getResources().getString(R.string.playcount, playcountWithCommas));
+        viewHolder.playcount.setText(playcountWithCommas);
 
         viewHolder.imageView.setBackgroundResource(R.drawable.placeholder_cells);
         final String artworkUri = track.getArtworkOrAvatar(ImageSize.getFullImageSize(itemView.getResources()));

@@ -36,7 +36,7 @@ public class PlaylistResultsAdapterTest {
         View itemView = adapter.createItemView(0, new FrameLayout(Robolectric.application));
         expect(itemView).not.toBeNull();
         expect(itemView.getTag()).not.toBeNull(); // contains the private ViewHolder instance
-        expect(itemView.findViewById(R.id.suggested_track_image)).not.toBeNull();
+        expect(itemView.findViewById(R.id.image)).not.toBeNull();
         expect(itemView.findViewById(R.id.username)).not.toBeNull();
         expect(itemView.findViewById(R.id.title)).not.toBeNull();
     }
@@ -52,8 +52,8 @@ public class PlaylistResultsAdapterTest {
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
         expect(viewHolder.title.getText()).toEqual(playlist.getTitle());
         expect(viewHolder.username.getText()).toEqual(playlist.getUsername());
-        expect(viewHolder.tagList.getText()).toEqual("tag1, tag2");
-        expect(viewHolder.trackCount.getText()).toEqual("5");
+        expect(viewHolder.tagList.getText()).toEqual("#tag1, #tag2");
+        expect(viewHolder.trackCount.getText()).toEqual("5 tracks");
     }
 
 }
