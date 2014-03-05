@@ -67,49 +67,40 @@ public class SearchOperationsTest {
     public void shouldMakeGETRequestToSearchAllEndpoint() throws Exception {
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
-        verify(rxHttpClient).fetchModels(argThat(isPublicApiRequestTo("GET", APIEndpoints.SEARCH_ALL.path())));
+        verify(rxHttpClient).fetchModels(argThat(
+                isPublicApiRequestTo("GET", APIEndpoints.SEARCH_ALL.path())
+                        .withQueryParam("q", "any query")
+                        .withQueryParam("limit", "30")));
     }
 
     @Test
     public void shouldMakeGETRequestToSearchTracksEndpoint() throws Exception {
         searchOperations.getTrackSearchResults("any query").subscribe(observer);
 
-        verify(rxHttpClient).fetchModels(argThat(isPublicApiRequestTo("GET", APIEndpoints.SEARCH_TRACKS.path())));
+        verify(rxHttpClient).fetchModels(argThat(
+                isPublicApiRequestTo("GET", APIEndpoints.SEARCH_TRACKS.path())
+                        .withQueryParam("q", "any query")
+                        .withQueryParam("limit", "30")));
     }
 
     @Test
     public void shouldMakeGETRequestToSearchPlaylistsEndpoint() throws Exception {
         searchOperations.getPlaylistSearchResults("any query").subscribe(observer);
 
-        verify(rxHttpClient).fetchModels(argThat(isPublicApiRequestTo("GET", APIEndpoints.SEARCH_PLAYLISTS.path())));
+        verify(rxHttpClient).fetchModels(argThat(
+                isPublicApiRequestTo("GET", APIEndpoints.SEARCH_PLAYLISTS.path())
+                        .withQueryParam("q", "any query")
+                        .withQueryParam("limit", "30")));
     }
 
     @Test
     public void shouldMakeGETRequestToSearchPeopleEndpoint() throws Exception {
         searchOperations.getUserSearchResults("any query").subscribe(observer);
 
-        verify(rxHttpClient).fetchModels(argThat(isPublicApiRequestTo("GET", APIEndpoints.SEARCH_USERS.path())));
-    }
-
-    @Test
-    public void shouldMakeRequestToSearchAllWithCorrectQuery() throws Exception {
-        searchOperations.getAllSearchResults("the query").subscribe(observer);
-
-        ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
-        verify(rxHttpClient).fetchModels(argumentCaptor.capture());
-        String sentQuery = argumentCaptor.getValue().getQueryParameters().get("q").toArray()[0].toString();
-        expect(sentQuery).toEqual("the query");
-    }
-
-    @Test
-    public void shouldMakeRequestToSearchAllWithPageSize() throws Exception {
-        searchOperations.getAllSearchResults("blah").subscribe(observer);
-
-        ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
-        verify(rxHttpClient).fetchModels(argumentCaptor.capture());
-        String value = argumentCaptor.getValue().getQueryParameters().get("limit").toArray()[0].toString();
-        int pageSize = Integer.valueOf(value);
-        expect(pageSize).toEqual(30);
+        verify(rxHttpClient).fetchModels(argThat(
+                isPublicApiRequestTo("GET", APIEndpoints.SEARCH_USERS.path())
+                        .withQueryParam("q", "any query")
+                        .withQueryParam("limit", "30")));
     }
 
     @Test
