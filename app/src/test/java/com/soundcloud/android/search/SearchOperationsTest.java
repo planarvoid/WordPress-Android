@@ -10,7 +10,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.android.OperationPaged.Page;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
@@ -27,7 +29,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.PlaylistTagStorage;
-
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -257,7 +258,19 @@ public class SearchOperationsTest {
         searchOperations.getPlaylistDiscoveryResults("electronic").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET",
-                APIEndpoints.PLAYLIST_DISCOVERY_RESULTS.path("electronic"))));
+                APIEndpoints.PLAYLIST_DISCOVERY.path())));
+    }
+
+    @Test
+    public void shouldMakeRequestPlaylistDiscoveryResulstsWithCorrectParameters() {
+        searchOperations.getPlaylistDiscoveryResults("electronic").subscribe(observer);
+
+        Multimap<String, String> parameters = ArrayListMultimap.create();
+        parameters.put("tag", "electronic");
+
+        ArgumentCaptor<APIRequest> resultCaptor = ArgumentCaptor.forClass(APIRequest.class);
+        verify(rxHttpClient).fetchModels(resultCaptor.capture());
+        expect(resultCaptor.getValue().getQueryParameters()).toEqual(parameters);
     }
 
     @Test
@@ -281,6 +294,6 @@ public class SearchOperationsTest {
         searchOperations.getPlaylistDiscoveryResults("#electronic").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET",
-                APIEndpoints.PLAYLIST_DISCOVERY_RESULTS.path("electronic"))));
+                APIEndpoints.PLAYLIST_DISCOVERY.path("electronic"))));
     }
 }

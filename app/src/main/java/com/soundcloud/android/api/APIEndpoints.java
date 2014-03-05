@@ -19,8 +19,8 @@ public enum APIEndpoints {
     EXPLORE_TRACKS_POPULAR_MUSIC("/suggestions/tracks/categories/popular+music"),
     EXPLORE_TRACKS_POPULAR_AUDIO("/suggestions/tracks/categories/popular+audio"),
     EXPLORE_TRACKS_CATEGORIES("/suggestions/tracks/categories"),
+    PLAYLIST_DISCOVERY("/suggestions/playlists"),
     PLAYLIST_DISCOVERY_TAGS("/suggestions/playlists/tags"),
-    PLAYLIST_DISCOVERY_RESULTS("/suggestions/playlists/tags/%s"),
     RELATED_TRACKS("/tracks/%s/related"),
 
     // public API (DEPRECATED)

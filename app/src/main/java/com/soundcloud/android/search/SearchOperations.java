@@ -24,7 +24,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.OperationPaged;
-import rx.util.functions.Action0;
+import rx.functions.Action0;
 import rx.util.functions.Func1;
 
 import javax.inject.Inject;
@@ -78,7 +78,7 @@ public class SearchOperations {
         public Observable<Page<PlaylistSummaryCollection>> call(PlaylistSummaryCollection collection) {
             final Optional<Link> nextLink = collection.getNextLink();
             if (nextLink.isPresent()) {
-                return getPlaylistDiscoveryResultPage(nextLink.get().getHref());
+                return getPlaylistDiscoveryResultsNextPage(nextLink.get().getHref());
             } else {
                 return OperationPaged.emptyPageObservable();
             }
@@ -162,7 +162,8 @@ public class SearchOperations {
 
     Observable<Page<PlaylistSummaryCollection>> getPlaylistDiscoveryResults(final String query) {
         final String cleanTag = query.replaceFirst("#", "");
-        return getPlaylistDiscoveryResultPage(APIEndpoints.PLAYLIST_DISCOVERY_RESULTS.path(cleanTag)).doOnCompleted(new Action0() {
+        final RequestBuilder<PlaylistSummaryCollection> builder = createPlaylistResultsRequest(APIEndpoints.PLAYLIST_DISCOVERY.path());
+        return getPlaylistResultsPageObservable(builder.addQueryParameters("tag", cleanTag).build()).doOnCompleted(new Action0() {
             @Override
             public void call() {
                 mTagStorage.addRecentTag(cleanTag);
@@ -170,12 +171,21 @@ public class SearchOperations {
         });
     }
 
-    private Observable<Page<PlaylistSummaryCollection>> getPlaylistDiscoveryResultPage(String url) {
-        APIRequest<PlaylistSummaryCollection> request = RequestBuilder.<PlaylistSummaryCollection>get(url)
+    Observable<Page<PlaylistSummaryCollection>> getPlaylistDiscoveryResultsNextPage(String nextHref) {
+        final RequestBuilder<PlaylistSummaryCollection> builder = createPlaylistResultsRequest(nextHref);
+        return getPlaylistResultsPageObservable(builder.build());
+    }
+
+    private RequestBuilder<PlaylistSummaryCollection> createPlaylistResultsRequest(String url) {
+        return RequestBuilder.<PlaylistSummaryCollection>get(url)
                 .forPrivateAPI(1)
-                .forResource(TypeToken.of(PlaylistSummaryCollection.class))
-                .build();
-        return Observable.create(paged(mRxHttpClient.<PlaylistSummaryCollection>fetchModels(request), mNextDiscoveryResultsPageGenerator));
+                .forResource(TypeToken.of(PlaylistSummaryCollection.class));
+    }
+
+
+    private Observable<Page<PlaylistSummaryCollection>> getPlaylistResultsPageObservable(APIRequest<PlaylistSummaryCollection> request) {
+        Observable<PlaylistSummaryCollection> source = mRxHttpClient.fetchModels(request);
+        return Observable.create(paged(source, mNextDiscoveryResultsPageGenerator));
     }
 
     private interface SearchResultsNextPageFunction extends Func1<SearchResultsCollection, Observable<Page<SearchResultsCollection>>> {}
