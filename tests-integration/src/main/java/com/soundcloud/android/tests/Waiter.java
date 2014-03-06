@@ -165,7 +165,7 @@ public class Waiter {
             @Override
             public boolean isSatisfied() {
                 Log.i(TAG, String.format("ViewID visibility: %d", solo.getView(content).getVisibility()));
-                return ( solo.getView(content).getVisibility() == View.VISIBLE);
+                return ( solo.getView(content).isShown());
             }
         };
         return solo.waitForCondition(condition, this.TIMEOUT);

@@ -19,6 +19,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -458,6 +459,22 @@ public class Han  {
 
     public void clickInList(int line, int index) {
         solo.clickInList(line, index);
+    }
+
+    public boolean isKeyboardShown() {
+        InputMethodManager inputMethodManager = (InputMethodManager)  solo.getCurrentActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        View focusedView = solo.getCurrentActivity().getCurrentFocus();
+
+        if (focusedView == null) {
+            return false;
+        }
+
+        boolean canHideKeyboard = inputMethodManager.hideSoftInputFromWindow(focusedView.getWindowToken(), 0);
+        if (canHideKeyboard) {
+            inputMethodManager.showSoftInput(focusedView,  inputMethodManager.SHOW_IMPLICIT);
+        }
+        return canHideKeyboard;
+
     }
 }
 
