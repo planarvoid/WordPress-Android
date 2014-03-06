@@ -113,7 +113,7 @@ module Build
     end
 
     def execute
-      Build.run_command @command
+      Build.run_command command
     end
   end
 end

@@ -232,7 +232,11 @@ module Build
 
       desc "runs acceptance tests"
       task :acceptance => Build.apk_path do
-        mvn_task(:phone_test).execute
+        begin
+          mvn_task(:phone_test).execute
+        rescue
+          Device.get_screenshots
+        end
       end
 
       desc "runs monkey tests"
