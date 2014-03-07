@@ -1,21 +1,8 @@
 package com.soundcloud.android.preferences;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.preference.Preference;
-import android.preference.PreferenceGroup;
-import android.preference.PreferenceManager;
+import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -33,10 +20,24 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 
-import java.io.File;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.preference.Preference;
+import android.preference.PreferenceGroup;
+import android.preference.PreferenceManager;
 
-import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
+import java.io.File;
 
 public class SettingsActivity extends ScSettingsActivity {
 
@@ -49,6 +50,8 @@ public class SettingsActivity extends ScSettingsActivity {
     public static final String HELP = "help";
     public static final String ANALYTICS_ENABLED = "analytics_enabled";
     public static final String CLEAR_CACHE = "clearCache";
+    public static final String STREAM_CACHE_SIZE = "streamCacheSize";
+    public static final String CLEAR_STREAM_CACHE = "clearStreamCache";
     public static final String WIRELESS = "wireless";
     public static final String EXTRAS = "extras";
     public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
@@ -149,6 +152,35 @@ public class SettingsActivity extends ScSettingsActivity {
                     }
                 });
 
+        findPreference(CLEAR_STREAM_CACHE).setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                        new FileCache.DeleteCacheTask(true) {
+                            @Override
+                            protected void onPreExecute() {
+                                safeShowDialog(DIALOG_CACHE_DELETING);
+                            }
+
+                            @Override
+                            protected void onProgressUpdate(Integer... progress) {
+                                if (mDeleteDialog != null) {
+                                    mDeleteDialog.setIndeterminate(false);
+                                    mDeleteDialog.setProgress(progress[0]);
+                                    mDeleteDialog.setMax(progress[1]);
+                                }
+                            }
+
+                            @Override
+                            protected void onPostExecute(Boolean result) {
+                                removeDialog(DIALOG_CACHE_DELETING);
+                                updateClearCacheTitles();
+                            }
+                        }.execute(Consts.EXTERNAL_STREAM_DIRECTORY);
+                        return true;
+                    }
+                });
+
+
         findPreference(WIRELESS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
@@ -208,6 +240,7 @@ public class SettingsActivity extends ScSettingsActivity {
 
     private void updateClearCacheTitles() {
         setClearCacheTitle(CLEAR_CACHE, R.string.pref_clear_cache, IOUtils.getCacheDir(this));
+        setClearCacheTitle(CLEAR_STREAM_CACHE, R.string.pref_clear_stream_cache, Consts.EXTERNAL_STREAM_DIRECTORY);
     }
 
     private SoundCloudApplication getApp() {

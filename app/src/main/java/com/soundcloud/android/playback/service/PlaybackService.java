@@ -254,7 +254,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         // stop proxy before removing the cache
         if (mProxy != null && mProxy.isRunning()) mProxy.stop();
-        IOUtils.deleteDir(Consts.EXTERNAL_STREAM_DIRECTORY);
 
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);

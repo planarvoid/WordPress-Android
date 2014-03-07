@@ -1,18 +1,24 @@
 package com.soundcloud.android.playback.streaming;
 
 
+import static android.content.SharedPreferences.Editor;
 import static com.soundcloud.android.Expect.expect;
 import static junit.framework.Assert.fail;
 import static org.mockito.Mockito.mock;
 
+import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.xtremelabs.robolectric.shadows.ShadowStatFs;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -89,6 +95,29 @@ public class StreamStorageTest {
     }
 
     @Test
+    public void shouldCalculateFileMetrics() throws Exception {
+        ShadowStatFs.registerStats(baseDir, 100, 100, 100);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(DefaultTestRunner.application);
+        Editor editor = sharedPreferences.edit();
+
+        editor.putInt(SettingsActivity.STREAM_CACHE_SIZE, 0);
+        editor.commit();
+
+        expect(storage.calculateUsableSpace()).toBe(0L);
+
+        editor.putInt(SettingsActivity.STREAM_CACHE_SIZE, 33);
+        editor.commit();
+
+        expect(storage.calculateUsableSpace()).toEqual(ShadowStatFs.BLOCK_SIZE * 33L);
+
+        editor.putInt(SettingsActivity.STREAM_CACHE_SIZE, 100);
+        editor.commit();
+
+        expect(storage.calculateUsableSpace()).toEqual(ShadowStatFs.BLOCK_SIZE * 100L);
+    }
+
+    @Test
     public void shouldTestIncompleteSequentialWriting() throws Exception {
         setupChunkArray();
 
@@ -160,6 +189,28 @@ public class StreamStorageTest {
     }
 
     @Test
+    public void shouldTestCompleteFileConstruction() throws Exception {
+        int chunks = setupChunkArray();
+        Collections.shuffle(sampleChunkIndexes);
+
+        expect(storage.storeMetadata(item)).toBeTrue();
+        for (int i : sampleChunkIndexes) {
+            storage.storeData(item.getUrl(), sampleBuffers.get(i), i);
+        }
+
+        expect(item.numberOfChunks(storage.chunkSize)).toBe(chunks);
+
+        File assembled = storage.completeFileForUrl(item.streamItemUrl());
+        expect(assembled.exists()).toBeTrue();
+        expect(assembled.length()).toEqual(item.getContentLength());
+
+        // make sure index file is gone
+        expect(storage.incompleteFileForUrl(item.streamItemUrl()).exists()).toBeFalse();
+        String original = IOUtils.md5(getClass().getResourceAsStream("fred.mp3"));
+        expect(IOUtils.md5(new FileInputStream(assembled))).toEqual(original);
+    }
+
+    @Test
     public void shouldCheckEtagOfCompleteItem() throws Exception {
         setupChunkArray();
         Collections.shuffle(sampleChunkIndexes);
@@ -178,13 +229,5 @@ public class StreamStorageTest {
     public void shouldReturnMissingIndexes() throws Exception {
         Index index = storage.getMissingChunksForItem(item.streamItemUrl(), item.chunkRange(storage.chunkSize));
         expect(index.size()).toEqual(51);
-    }
-
-    @Test
-    public void replacesNullStreamItemWhenGettingMeta() throws Exception {
-        String url = "https://api.soundcloud.com/tracks/1234/stream";
-        storage.putStreamItem(StreamItem.urlHash(url), null);
-        expect(storage.getMetadata(url)).not.toBeNull();
-
     }
 }

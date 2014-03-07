@@ -4,6 +4,7 @@ import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
@@ -75,40 +76,33 @@ public class StreamStorage {
         this.chunkSize = chunkSize;
     }
 
-    public boolean storeMetadata(StreamItem item) {
-        synchronized (this) {
-            verifyMetadata(item);
+    public synchronized boolean storeMetadata(StreamItem item) {
+        verifyMetadata(item);
 
-            mItems.put(item.urlHash, item);
-            try {
-                File indexFile = incompleteIndexFileForUrl(item.streamItemUrl());
-                if (indexFile.exists() && !indexFile.delete())
-                    Log.w(LOG_TAG, "could not delete " + indexFile);
-                item.toIndexFile(indexFile);
-                return true;
-            } catch (IOException e) {
-                if (IOUtils.isSDCardAvailable()) {
-                    Log.e(LOG_TAG, "Error storing index data ", e);
-                }
-                return false;
+        mItems.put(item.urlHash, item);
+        try {
+            File indexFile = incompleteIndexFileForUrl(item.streamItemUrl());
+            if (indexFile.exists() && !indexFile.delete()) Log.w(LOG_TAG, "could not delete "+indexFile);
+            item.toIndexFile(indexFile);
+            return true;
+        } catch (IOException e) {
+            if (IOUtils.isSDCardAvailable()) {
+                Log.e(LOG_TAG, "Error storing index data ", e);
             }
+            return false;
         }
     }
 
-    public StreamItem getMetadata(String url) {
-        synchronized (this) {
-            String hashed = StreamItem.urlHash(url);
-            if (!mItems.containsKey(hashed) || mItems.get(hashed) == null) {
-                mItems.put(hashed, readMetadata(url));
-            }
-            return mItems.get(hashed);
+    public synchronized @NotNull StreamItem getMetadata(String url) {
+        String hashed = StreamItem.urlHash(url);
+        if (!mItems.containsKey(hashed)) {
+            mItems.put(hashed, readMetadata(url));
         }
+        return mItems.get(hashed);
     }
 
-    public boolean removeMetadata(String url) {
-        synchronized (this) {
-            return mItems.remove(StreamItem.urlHash(url)) != null;
-        }
+    public synchronized boolean removeMetadata(String url) {
+        return mItems.remove(StreamItem.urlHash(url)) != null;
     }
 
     public ByteBuffer fetchStoredDataForUrl(String url, Range range) throws IOException {
@@ -185,6 +179,23 @@ public class StreamStorage {
         // Add Index and save it
         item.downloadedChunks.add(chunkIndex);
         storeMetadata(item);
+
+        if (item.downloadedChunks.size() == item.numberOfChunks(chunkSize)) {
+            new CompleteFileTask(item.getContentLength(), item.etag(), chunkSize, item.downloadedChunks) {
+                @Override protected void onPreExecute() {
+                    mConvertingUrls.add(url);
+                }
+                @Override protected void onPostExecute(Boolean success) {
+                    if (success) {
+                        removeIncompleteDataForItem(url);
+                        new UpdateMetadataTask(mContext.getContentResolver()).execute(item);
+                    } else {
+                        removeAllDataForItem(url);
+                    }
+                    mConvertingUrls.remove(url);
+                }
+            }.execute(incompleteFile, completeFileForUrl(url));
+        }
 
         if (mCleanupInterval > 0) {
             //Update the number of writes, cleanup if necessary
@@ -282,16 +293,13 @@ public class StreamStorage {
         }
     }
 
-    public void removeAllDataForItem(String url) {
-        synchronized (this) {
-            Log.d(LOG_TAG, "removing all data for "+url);
-            removeCompleteDataForItem(url);
-            removeIncompleteDataForItem(url);
-        }
-
+    private void removeAllDataForItem(String url) {
+        Log.w(LOG_TAG, "removing all data for "+url);
+        removeCompleteDataForItem(url);
+        removeIncompleteDataForItem(url);
     }
 
-    private boolean removeIncompleteDataForItem(String url) {
+    private synchronized boolean removeIncompleteDataForItem(String url) {
         final File incompleteFile = incompleteFileForUrl(url);
         final File indexFile = incompleteIndexFileForUrl(url);
         boolean fileDeleted = true, indexDeleted = true;
@@ -345,7 +353,9 @@ public class StreamStorage {
         long spaceLeft  = getSpaceLeft();
         long totalSpace = getTotalSpace();
 
-        int percentageOfExternal = DEFAULT_PCT_OF_FREE_SPACE;
+        int percentageOfExternal = PreferenceManager
+                .getDefaultSharedPreferences(mContext)
+                .getInt(SettingsActivity.STREAM_CACHE_SIZE, DEFAULT_PCT_OF_FREE_SPACE);
 
         if (percentageOfExternal < 0) {
             percentageOfExternal = 0;
@@ -464,10 +474,5 @@ public class StreamStorage {
                 return s.endsWith("."+ext);
             }
         };
-    }
-
-    @VisibleForTesting
-    void putStreamItem(String key, StreamItem item){
-        mItems.put(key, item);
     }
 }
