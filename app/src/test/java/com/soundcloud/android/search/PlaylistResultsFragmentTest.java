@@ -10,6 +10,7 @@ import static rx.android.OperationPaged.Page;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.PlaylistSummaryCollection;
@@ -128,6 +129,7 @@ public class PlaylistResultsFragmentTest {
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Actions.PLAYLIST);
         expect(intent.getData()).toEqual(Content.PLAYLISTS.forQuery(String.valueOf(clickedPlaylist.getId())));
+        expect(Screen.fromIntent(intent)).toBe(Screen.SEARCH_PLAYLIST_RESULTS);
     }
 
     private void createFragment() {

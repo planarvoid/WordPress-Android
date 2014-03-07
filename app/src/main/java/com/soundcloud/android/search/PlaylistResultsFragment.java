@@ -136,6 +136,6 @@ public class PlaylistResultsFragment extends Fragment implements EmptyViewAware,
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         PlaylistSummary playlist = mAdapter.getItem(position);
-        PlaylistDetailActivity.start(getActivity(), new Playlist(playlist), mModelManager, Screen.UNKNOWN);
+        PlaylistDetailActivity.start(getActivity(), new Playlist(playlist), mModelManager, Screen.SEARCH_PLAYLIST_DISCO);
     }
 }
