@@ -63,7 +63,7 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
 
     private void init(Context context) {
         View.inflate(context, R.layout.track_info, this);
-        setBackgroundResource(R.color.playerTrackDetailsBg);
+        setBackgroundResource(android.R.color.white);
         setOrientation(VERTICAL);
 
         mInfoView = findViewById(R.id.info_view);
@@ -170,7 +170,7 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
             mTagsAndDescriptionRow.setBackgroundResource(filledStats ? R.drawable.bottom_separator : android.R.color.transparent);
 
             if (isMissingTagsAndDescription){
-                // show an empty message to avoid a blank scre
+                // show an empty message to avoid a blank screen
                 mTxtInfo.setVisibility(View.VISIBLE);
                 mTxtInfo.setText(R.string.no_info_available);
                 mTxtInfo.setGravity(Gravity.CENTER_HORIZONTAL);
