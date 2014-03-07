@@ -129,7 +129,7 @@ public class PlaylistResultsFragmentTest {
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Actions.PLAYLIST);
         expect(intent.getData()).toEqual(Content.PLAYLISTS.forQuery(String.valueOf(clickedPlaylist.getId())));
-        expect(Screen.fromIntent(intent)).toBe(Screen.SEARCH_PLAYLIST_RESULTS);
+        expect(Screen.fromIntent(intent)).toBe(Screen.SEARCH_PLAYLIST_DISCO);
     }
 
     private void createFragment() {
