@@ -43,8 +43,6 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
 
     @Inject
     SearchOperations mSearchOperations;
-    @Inject
-    EventBus mEventBus;
 
     private CompositeSubscription mSubscription;
     private Observable<PlaylistTagsCollection> mAllTagsObservable;
@@ -72,9 +70,8 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
     }
 
     @VisibleForTesting
-    PlaylistTagsFragment(SearchOperations searchOperations, EventBus eventBus) {
+    PlaylistTagsFragment(SearchOperations searchOperations) {
         mSearchOperations = searchOperations;
-        mEventBus = eventBus;
     }
 
     @Override
@@ -88,8 +85,6 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
         super.onCreate(savedInstanceState);
         mAllTagsObservable = mSearchOperations.getPlaylistTags().observeOn(mainThread()).cache();
         mRecentTagsObservable = mSearchOperations.getRecentPlaylistTags().observeOn(mainThread());
-        mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_MAIN.get());
-
     }
 
     @Override

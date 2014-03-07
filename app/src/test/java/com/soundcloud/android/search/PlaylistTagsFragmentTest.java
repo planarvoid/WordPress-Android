@@ -43,8 +43,6 @@ public class PlaylistTagsFragmentTest {
 
     @Mock
     private SearchOperations searchOperations;
-    @Mock
-    private EventBus eventBus;
 
     @Before
     public void setUp() throws Exception {
@@ -56,7 +54,7 @@ public class PlaylistTagsFragmentTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void onAttachShouldThrowIllegalArgumentIfParentActivityIsNotTagClickListener() {
-        fragment = new PlaylistTagsFragment(searchOperations, eventBus);
+        fragment = new PlaylistTagsFragment(searchOperations);
         fragment.onAttach(new FragmentActivity());
     }
 
@@ -178,15 +176,8 @@ public class PlaylistTagsFragmentTest {
         verify((TagEventsListener) listener).onTagsScrolled();
     }
 
-    @Test
-    public void shouldTrackSearchMainScreenOnCreate() {
-        createFragment();
-
-        verify(eventBus).publish(eq(EventQueue.SCREEN_ENTERED), eq(Screen.SEARCH_MAIN.get()));
-    }
-
     private void createFragment() {
-        fragment = new PlaylistTagsFragment(searchOperations, eventBus);
+        fragment = new PlaylistTagsFragment(searchOperations);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
         fragment.onCreate(null);

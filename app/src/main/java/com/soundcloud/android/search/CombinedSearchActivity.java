@@ -3,6 +3,8 @@ package com.soundcloud.android.search;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.SearchActionBarController;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -15,7 +17,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 
-public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFragment.TagEventsListener {
+public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFragment.TagEventsListener,
+        FragmentManager.OnBackStackChangedListener {
 
     private static final String ACTION_PLAY_FROM_SEARCH = "android.media.action.MEDIA_PLAY_FROM_SEARCH";
     private static final String INTENT_URL_HOST = "soundcloud.com";
@@ -45,15 +48,20 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
     };
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        mActionBarController.setQuery("");
+    public void onBackStackChanged() {
+        boolean isRemove = getSupportFragmentManager().getBackStackEntryCount() <= 0;
+        if (isRemove) {
+            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_MAIN.get());
+            mActionBarController.setQuery("");
+        }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.container_layout);
+
+        getSupportFragmentManager().addOnBackStackChangedListener(this);
 
         if (savedInstanceState == null) {
             handleIntent();
@@ -132,10 +140,12 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
         if (Intent.ACTION_SEARCH.equals(intent.getAction()) || ACTION_PLAY_FROM_SEARCH.equals(intent.getAction())) {
             showResultsFromIntent(intent.getStringExtra(SearchManager.QUERY));
         } else if (isInterceptedSearchUrl(intent)) {
-            handleDeeplink(intent);
+            showResultsFromIntent(intent.getData().getQueryParameter(INTENT_URL_QUERY_PARAM));
         } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null
                 && !intent.getData().getPath().equals(INTENT_URI_SEARCH_PATH)) {
             handleUri(intent);
+        } else {
+            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_MAIN.get());
         }
     }
 
@@ -143,10 +153,6 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
         return intent.getData() != null
                 && intent.getData().getHost().equals(INTENT_URL_HOST)
                 && ScTextUtils.isNotBlank(intent.getData().getQueryParameter(INTENT_URL_QUERY_PARAM));
-    }
-
-    private void handleDeeplink(final Intent intent) {
-        showResultsFromIntent(intent.getData().getQueryParameter(INTENT_URL_QUERY_PARAM));
     }
 
     private void handleUri(final Intent intent) {
