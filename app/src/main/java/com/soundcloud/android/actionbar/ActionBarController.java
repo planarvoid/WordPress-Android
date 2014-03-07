@@ -60,10 +60,8 @@ public class ActionBarController {
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
-        final EventBus eventBus = SoundCloudApplication.fromContext(mActivity).getEventBus();
         switch (item.getItemId()) {
             case R.id.action_search:
-                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_SUGGESTIONS.get());
                 startActivity(CombinedSearchActivity.class);
                 return true;
             case R.id.action_settings:
