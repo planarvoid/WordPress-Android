@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.search.PlaylistTagsFragment.TagEventsListener;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,6 +12,9 @@ import static org.mockito.Mockito.withSettings;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlaylistTagsCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
@@ -39,6 +43,8 @@ public class PlaylistTagsFragmentTest {
 
     @Mock
     private SearchOperations searchOperations;
+    @Mock
+    private EventBus eventBus;
 
     @Before
     public void setUp() throws Exception {
@@ -50,7 +56,7 @@ public class PlaylistTagsFragmentTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void onAttachShouldThrowIllegalArgumentIfParentActivityIsNotTagClickListener() {
-        fragment = new PlaylistTagsFragment(searchOperations);
+        fragment = new PlaylistTagsFragment(searchOperations, eventBus);
         fragment.onAttach(new FragmentActivity());
     }
 
@@ -172,8 +178,15 @@ public class PlaylistTagsFragmentTest {
         verify((TagEventsListener) listener).onTagsScrolled();
     }
 
+    @Test
+    public void shouldTrackSearchMainScreenOnCreate() {
+        createFragment();
+
+        verify(eventBus).publish(eq(EventQueue.SCREEN_ENTERED), eq(Screen.SEARCH_MAIN.get()));
+    }
+
     private void createFragment() {
-        fragment = new PlaylistTagsFragment(searchOperations);
+        fragment = new PlaylistTagsFragment(searchOperations, eventBus);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
         fragment.onCreate(null);

@@ -9,6 +9,9 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlaylistTagsCollection;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
@@ -40,6 +43,8 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
 
     @Inject
     SearchOperations mSearchOperations;
+    @Inject
+    EventBus mEventBus;
 
     private CompositeSubscription mSubscription;
     private Observable<PlaylistTagsCollection> mAllTagsObservable;
@@ -67,8 +72,9 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
     }
 
     @VisibleForTesting
-    PlaylistTagsFragment(SearchOperations searchOperations) {
+    PlaylistTagsFragment(SearchOperations searchOperations, EventBus eventBus) {
         mSearchOperations = searchOperations;
+        mEventBus = eventBus;
     }
 
     @Override
@@ -82,6 +88,8 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
         super.onCreate(savedInstanceState);
         mAllTagsObservable = mSearchOperations.getPlaylistTags().observeOn(mainThread()).cache();
         mRecentTagsObservable = mSearchOperations.getRecentPlaylistTags().observeOn(mainThread());
+        mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_MAIN.get());
+
     }
 
     @Override

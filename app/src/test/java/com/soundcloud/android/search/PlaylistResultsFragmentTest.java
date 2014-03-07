@@ -2,6 +2,7 @@ package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,6 +12,8 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.PlaylistSummaryCollection;
@@ -54,6 +57,8 @@ public class PlaylistResultsFragmentTest {
     private PlaylistResultsAdapter adapter;
     @Mock
     private ScModelManager modelManager;
+    @Mock
+    private EventBus eventBus;
 
     @Before
     public void setUp() throws Exception {
@@ -132,8 +137,16 @@ public class PlaylistResultsFragmentTest {
         expect(Screen.fromIntent(intent)).toBe(Screen.SEARCH_PLAYLIST_DISCO);
     }
 
+    @Test
+    public void shouldTrackSearchTagsScreenOnCreate() {
+        createFragment();
+        fragment.onCreate(null);
+
+        verify(eventBus).publish(eq(EventQueue.SCREEN_ENTERED), eq(Screen.SEARCH_PLAYLIST_DISCO.get()));
+    }
+
     private void createFragment() {
-        fragment = new PlaylistResultsFragment(searchOperations, imageOperations, adapter, modelManager);
+        fragment = new PlaylistResultsFragment(searchOperations, imageOperations, adapter, modelManager, eventBus);
         Bundle arguments = new Bundle();
         arguments.putString(PlaylistResultsFragment.KEY_PLAYLIST_TAG, "selected tag");
         fragment.setArguments(arguments);

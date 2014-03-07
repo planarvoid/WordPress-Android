@@ -58,6 +58,7 @@ public enum Screen {
     PLAYER_COMMENTS("tracks:comments"),
 
     // search
+    SEARCH_MAIN("search:main"),
     SEARCH_EVERYTHING("search:everything"),
     SEARCH_TRACKS("search:tracks"),
     SEARCH_PLAYLISTS("search:playlists"),

@@ -7,6 +7,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.PlaylistSummary;
@@ -47,6 +49,8 @@ public class PlaylistResultsFragment extends Fragment implements EmptyViewAware,
     PlaylistResultsAdapter mAdapter;
     @Inject
     ScModelManager mModelManager;
+    @Inject
+    EventBus mEventBus;
 
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
@@ -68,16 +72,18 @@ public class PlaylistResultsFragment extends Fragment implements EmptyViewAware,
 
     @VisibleForTesting
     PlaylistResultsFragment(SearchOperations searchOperations, ImageOperations imageOperations,
-                            PlaylistResultsAdapter adapter, ScModelManager modelManager) {
+                            PlaylistResultsAdapter adapter, ScModelManager modelManager, EventBus eventBus) {
         mSearchOperations = searchOperations;
         mImageOperations = imageOperations;
         mAdapter = adapter;
         mModelManager = modelManager;
+        mEventBus = eventBus;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_PLAYLIST_DISCO.get());
         loadPlaylistResults();
     }
 
