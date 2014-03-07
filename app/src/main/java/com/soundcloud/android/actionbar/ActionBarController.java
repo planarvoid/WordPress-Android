@@ -1,13 +1,9 @@
 package com.soundcloud.android.actionbar;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activities.ActivitiesActivity;
-import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.search.CombinedSearchActivity;
 import org.jetbrains.annotations.NotNull;
