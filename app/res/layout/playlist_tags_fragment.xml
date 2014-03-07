@@ -63,7 +63,9 @@
             <com.soundcloud.android.view.EmptyListView
                     android:id="@android:id/empty"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="match_parent"
+                    android:paddingTop="50dp"
+                    android:paddingBottom="50dp"/>
 
         </FrameLayout>
 
