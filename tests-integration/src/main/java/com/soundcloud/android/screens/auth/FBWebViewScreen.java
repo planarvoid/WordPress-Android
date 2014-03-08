@@ -42,7 +42,7 @@ public class FBWebViewScreen {
     public MainScreen submit() {
         solo.waitForWebElement(loginField());
         solo.clickOnWebElement(loginField());
-        if (solo.searchText("Do you want the browser to remember this password?", true)) {
+        if (solo.searchTextWithoutScrolling("Do you want the browser to remember this password?")) {
             solo.clickOnText("Never");
         }
         waiter.waitForLogInDialog();
