@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -14,7 +13,6 @@ import com.soundcloud.android.search.CombinedSearchActivity;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.view.SlidingTabLayout;
 
-import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -104,13 +102,13 @@ public class SearchResultsScreen extends Screen {
 
     public String currentTabTitle() {
         waiter.waitForItemCountToIncrease(resultsList().getAdapter(), 0);
-        List<View> indicatorItems = getViewPagerIndicator().getChildAt(0).getTouchables();
-        TextView selectedItem = (TextView) indicatorItems.get(getViewPager().getCurrentItem());
-        return selectedItem.getText().toString();
+        // toUppercase since SlidingTabLayout does the same
+        return getViewPager().getCurrentTabText().toUpperCase();
     }
 
-    private ViewPager getViewPager() {
-        return (ViewPager) solo.getView(R.id.pager);
+    private ViewPagerElement getViewPager() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return new ViewPagerElement(solo);
     }
 
     private SlidingTabLayout getViewPagerIndicator() {
