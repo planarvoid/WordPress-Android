@@ -4,6 +4,8 @@ import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.search.CombinedSearchActivity;
 import com.soundcloud.android.tests.Han;
 
+import android.widget.GridView;
+
 public class PlaylistResultsScreen extends Screen {
 
     private static final Class ACTIVITY = CombinedSearchActivity.class;
@@ -23,7 +25,7 @@ public class PlaylistResultsScreen extends Screen {
     }
 
     public int getResultsCount() {
-        return solo.getCurrentListView().getAdapter().getCount();
+        return getList().getAdapter().getCount();
     }
 
     public PlaylistDetailsScreen clickOnPlaylist(int position) {
@@ -35,6 +37,11 @@ public class PlaylistResultsScreen extends Screen {
     public PlaylistTagsScreen pressBack() {
         solo.goBack();
         return new PlaylistTagsScreen(solo);
+    }
+
+    private GridView getList() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return solo.getCurrentGridView();
     }
 
 }
