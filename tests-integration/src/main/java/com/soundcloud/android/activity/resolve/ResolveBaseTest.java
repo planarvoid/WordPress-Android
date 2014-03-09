@@ -1,5 +1,7 @@
 package com.soundcloud.android.activity.resolve;
 
+import static com.soundcloud.android.tests.TestUser.defaultUser;
+
 import com.soundcloud.android.main.ResolveActivity;
 import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -24,7 +26,7 @@ public abstract class ResolveBaseTest extends ActivityTestCase<ResolveActivity> 
 
     @Override
     protected void setUp() throws Exception {
-        AccountAssistant.loginAsDefault(getInstrumentation());
+        defaultUser.logIn(getInstrumentation().getTargetContext());
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(getUri()));
         assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
         super.setUp();
