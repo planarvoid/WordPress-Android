@@ -42,6 +42,7 @@ public class PlaylistTagsScreen extends Screen {
 
     @Override
     public boolean isVisible() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return waiter.waitForElement(R.id.all_tags);
     }
 
@@ -55,7 +56,10 @@ public class PlaylistTagsScreen extends Screen {
     }
 
     private List<TextView> getTagViews(int containerId) {
-        return solo.getSolo().getCurrentViews(TextView.class, solo.getView(containerId));
+        if (solo.getView(containerId) != null) {
+            return solo.getSolo().getCurrentViews(TextView.class, solo.getView(containerId));
+        }
+        return null;
     }
 
     public MainScreen pressBack() {

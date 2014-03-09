@@ -31,6 +31,7 @@ public class ActionBarElement {
     }
 
     public PlaylistTagsScreen clickSearchButton() {
+        waiter.waitForElement(SEARCH_SELECTOR);
         solo.clickOnActionBarItem(SEARCH_SELECTOR);
         return new PlaylistTagsScreen(solo);
     }
@@ -52,22 +53,17 @@ public class ActionBarElement {
     }
 
     public void setSearchQuery(final String query) {
-        solo.getCurrentActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                getSearchView().setText(query);
-            }
-        });
+        solo.typeText(getSearchView(), query);
     }
 
     private AutoCompleteTextView getSearchView() {
         List<AutoCompleteTextView> views = solo.getSolo().getCurrentViews(AutoCompleteTextView.class);
-        assertEquals("Expected to find just one search view", views.size(), 1);
+        assertEquals("Expected to find just one search view", 1, views.size());
         return views.get(0);
     }
 
     public PlaylistTagsScreen dismissSearch() {
-        setSearchQuery("");
+        solo.clearEditText(getSearchView());
         return new PlaylistTagsScreen(solo);
     }
 

@@ -5,8 +5,8 @@ import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistResultsScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
-import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
+import com.soundcloud.android.tests.TestUser;
 
 import android.widget.ListView;
 
@@ -23,10 +23,11 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        AccountAssistant.loginAsDefault(getInstrumentation());
+        TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
 
         mainScreen = new MainScreen(solo);
+        waiter.waitForContentAndRetryIfLoadingFailed();
         playlistTagsScreen = mainScreen.actionBar().clickSearchButton();
     }
 
@@ -79,8 +80,8 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
     }
 
     public void testSearchingEmptyHashtagDoesNotPerformSearch() {
-        PlaylistResultsScreen resultsScreen = playlistTagsScreen.actionBar().doTagSearch("#");
-        assertEquals("Playlist results screen should not be visible", false, resultsScreen.isVisible());
+        playlistTagsScreen.actionBar().doTagSearch("#");
+        assertEquals("Screen should not change", true, playlistTagsScreen.isVisible());
     }
 
     public void testGoingBackFromPlayResultsReturnsToTagPage() {
