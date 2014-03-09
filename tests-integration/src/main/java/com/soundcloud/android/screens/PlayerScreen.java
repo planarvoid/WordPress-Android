@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.tests.Han;
 
+import android.view.View;
 import android.widget.TextView;
 
 public class PlayerScreen extends Screen {
@@ -11,6 +12,15 @@ public class PlayerScreen extends Screen {
 
     public PlayerScreen(Han solo) {
         super(solo);
+    }
+
+    public void stopPlayback() {
+        solo.clickOnView(R.id.pause);
+    }
+
+    private View pauseButton() {
+        waiter.waitForElement(R.id.pause);
+        return solo.getView(R.id.pause);
     }
 
     @Override
