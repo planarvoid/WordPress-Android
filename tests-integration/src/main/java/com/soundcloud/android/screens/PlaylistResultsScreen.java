@@ -27,6 +27,7 @@ public class PlaylistResultsScreen extends Screen {
     }
 
     public PlaylistDetailsScreen clickOnPlaylist(int position) {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         solo.getSolo().clickInList(position);
         return new PlaylistDetailsScreen(solo);
     }
