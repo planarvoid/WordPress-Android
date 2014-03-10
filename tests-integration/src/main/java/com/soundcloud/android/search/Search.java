@@ -131,4 +131,8 @@ public class Search extends ActivityTestCase<MainActivity> {
         assertTrue(initialItemCount < resultsScreen.getResultItemCount());
     }
 
+    public void testShowKeyboardWhenEnteringSearch() {
+        assertEquals("Keyboard should be visible when entering search", true, solo.isKeyboardShown());
+    }
+
 }

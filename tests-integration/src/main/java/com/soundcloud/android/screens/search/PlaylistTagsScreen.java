@@ -20,6 +20,7 @@ public class PlaylistTagsScreen extends Screen {
     public PlaylistTagsScreen(Han solo) {
         super(solo);
         waiter.waitForContentAndRetryIfLoadingFailed();
+        waiter.waitForElement(R.id.all_tags);
     }
 
     public PlaylistResultsScreen clickOnTag(int index) {
