@@ -84,7 +84,7 @@
         <!-- Different layout structures for landscape tablets -->
         <ignore path="res/layout/profile_activity.xml" />
         <ignore path="res/layout/main_activity.xml" />
-        <ignore path="res/layout/playlist_fragment.xml" />
+        <ignore path="res/layout-sw600dp-land/playlist_fragment.xml" />
     </issue>
 
     <issue id="IconXmlAndPng">
