@@ -45,7 +45,7 @@ public class TestUser {
 
     public boolean logIn(Context context){
         setPublicApiWrapper(PublicApiWrapper.getInstance(context));
-        return SoundCloudApplication.instance.addUserAccountAndEnableSync(getUser(), getToken(), SignupVia.NONE);
+        return SoundCloudApplication.fromContext(context).addUserAccountAndEnableSync(getUser(), getToken(), SignupVia.NONE);
     }
 
     private void setPublicApiWrapper(PublicApiWrapper apiWrapper) {

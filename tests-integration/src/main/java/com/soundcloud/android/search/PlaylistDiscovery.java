@@ -24,6 +24,7 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
     @Override
     public void setUp() throws Exception {
         TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
+
         super.setUp();
 
         mainScreen = new MainScreen(solo);
@@ -91,5 +92,4 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
         assertEquals("Main screen should be visible", true, playlistTagsScreen.isVisible());
         assertEquals("Search query should be empty", "", playlistTagsScreen.actionBar().getSearchQuery());
     }
-
 }

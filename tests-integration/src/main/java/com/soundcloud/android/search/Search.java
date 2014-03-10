@@ -7,8 +7,8 @@ import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
-import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
+import com.soundcloud.android.tests.TestUser;
 
 public class Search extends ActivityTestCase<MainActivity> {
 
@@ -21,7 +21,8 @@ public class Search extends ActivityTestCase<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        AccountAssistant.loginAsDefault(getInstrumentation());
+        TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
+
         super.setUp();
 
         mainScreen = new MainScreen(solo);
@@ -115,6 +116,7 @@ public class Search extends ActivityTestCase<MainActivity> {
 
     public void testOrderOfDisplayededTabs() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("dub");
+        waiter.waitForContentAndRetryIfLoadingFailed();
         assertEquals("Current tab should be ALL", "ALL", resultsScreen.currentTabTitle());
         resultsScreen.swipeLeft();
         assertEquals("Current tab should be TRACKS", "TRACKS", resultsScreen.currentTabTitle());
@@ -133,6 +135,11 @@ public class Search extends ActivityTestCase<MainActivity> {
 
     public void testShowKeyboardWhenEnteringSearch() {
         assertEquals("Keyboard should be visible when entering search", true, solo.isKeyboardShown());
+    }
+
+    public void testShouldHideSoftKeyboardWhenScrollingTagsVertically() {
+        solo.getSolo().scrollDown();
+        assertEquals("Keyboard should be hidden when scrolling", false, solo.isKeyboardShown());
     }
 
 }

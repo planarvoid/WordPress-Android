@@ -33,7 +33,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
         solo = new Han(getInstrumentation());
         menuScreen = new MenuScreen(solo);
         waiter = new Waiter(solo);
-
+        getActivity();
         applicationProperties = new ApplicationProperties(getActivity().getResources());
 
         super.setUp(); // do not move, this has to run after the above

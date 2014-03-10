@@ -450,7 +450,7 @@ public class Han  {
     }
 
     public void openSystemMenu() {
-        solo.sendKey(solo.MENU);
+        solo.sendKey(Solo.MENU);
     }
 
     public boolean waitForFragmentByTag(String fragment_tag, int timeout) {
@@ -471,7 +471,7 @@ public class Han  {
 
         boolean canHideKeyboard = inputMethodManager.hideSoftInputFromWindow(focusedView.getWindowToken(), 0);
         if (canHideKeyboard) {
-            inputMethodManager.showSoftInput(focusedView,  inputMethodManager.SHOW_IMPLICIT);
+            inputMethodManager.showSoftInput(focusedView,  InputMethodManager.SHOW_IMPLICIT);
         }
         return canHideKeyboard;
 
