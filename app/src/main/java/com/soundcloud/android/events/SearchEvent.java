@@ -6,7 +6,7 @@ import com.soundcloud.android.storage.provider.Content;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SearchEvent {
+public final class SearchEvent {
 
     public static final int SEARCH_SUGGESTION = 0;
     public static final int SEARCH_SUBMIT = 1;

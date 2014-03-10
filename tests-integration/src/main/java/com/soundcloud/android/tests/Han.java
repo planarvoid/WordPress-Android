@@ -474,7 +474,6 @@ public class Han  {
             inputMethodManager.showSoftInput(focusedView,  InputMethodManager.SHOW_IMPLICIT);
         }
         return canHideKeyboard;
-
     }
 }
 
