@@ -27,10 +27,11 @@ import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 public class EngagementsController {
 
-    private final Context mContext;
+    private Context mContext;
 
     @Nullable
     private ToggleButton mToggleLike;
@@ -39,7 +40,7 @@ public class EngagementsController {
     @Nullable
     private ImageButton mShareButton;
     @Nullable
-    private ImageButton mAddToPlaylistBtn;
+    private AddToPlaylistListener mAddToPlaylistListener;
 
     private Playable mPlayable;
     private final SoundAssociationOperations mSoundAssociationOps;
@@ -52,30 +53,27 @@ public class EngagementsController {
         void onAddToPlaylist(Track track);
     }
 
-    public EngagementsController(Context context, View rootView, EventBus eventBus,
-                                 SoundAssociationOperations soundAssocOperations,
-                                 @Nullable OriginProvider originProvider) {
-        this(context, rootView, eventBus, soundAssocOperations, originProvider, null);
-    }
-
-    public EngagementsController(Context context, View rootView, EventBus eventBus,
-                                 SoundAssociationOperations soundAssocOperations,
-                                 @Nullable OriginProvider originProvider, final AddToPlaylistListener listener) {
-
-        mContext = context;
+    @Inject
+    public EngagementsController(EventBus eventBus, SoundAssociationOperations soundAssocOperations) {
         mEventBus = eventBus;
         mSoundAssociationOps = soundAssocOperations;
-        OriginProvider result;
-        result = originProvider != null ? originProvider : new OriginProvider() {
+    }
+
+    public void bindView(View rootView) {
+        bindView(rootView, new OriginProvider() {
             @Override
             public String getScreenTag() {
                 return Screen.UNKNOWN.get();
             }
-        };
-        mOriginProvider = result;
+        });
+    }
+
+    public void bindView(View rootView, OriginProvider originProvider) {
+        mContext = rootView.getContext();
+        mOriginProvider = originProvider;
 
         mToggleLike = (ToggleButton) rootView.findViewById(R.id.toggle_like);
-        if (mToggleLike != null){
+        if (mToggleLike != null) {
             mToggleLike.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -95,7 +93,7 @@ public class EngagementsController {
         }
 
         mToggleRepost = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
-        if (mToggleRepost != null){
+        if (mToggleRepost != null) {
             mToggleRepost.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -115,7 +113,7 @@ public class EngagementsController {
         }
 
         mShareButton = (ImageButton) rootView.findViewById(R.id.btn_share);
-        if (mShareButton != null){
+        if (mShareButton != null) {
             mShareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -130,13 +128,13 @@ public class EngagementsController {
             });
         }
 
-        mAddToPlaylistBtn = (ImageButton) rootView.findViewById(R.id.btn_addToPlaylist);
-        if (mAddToPlaylistBtn != null){
+        ImageButton mAddToPlaylistBtn = (ImageButton) rootView.findViewById(R.id.btn_addToPlaylist);
+        if (mAddToPlaylistBtn != null) {
             mAddToPlaylistBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mPlayable instanceof Track && listener != null) {
-                        listener.onAddToPlaylist((Track) mPlayable);
+                    if (mPlayable instanceof Track && mAddToPlaylistListener != null) {
+                        mAddToPlaylistListener.onAddToPlaylist((Track) mPlayable);
                     }
                 }
             });
@@ -160,6 +158,9 @@ public class EngagementsController {
         mSubscription.unsubscribe();
     }
 
+    public void setAddToPlaylistListener(AddToPlaylistListener listener) {
+        mAddToPlaylistListener = listener;
+    }
 
     public void setOriginProvider(OriginProvider originProvider) {
         mOriginProvider = originProvider;

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
@@ -10,5 +11,10 @@
               android:text="@string/playlist_info_header_text"
               android:textColor="@color/listTxtHeader"
               android:textSize="@dimen/list_txt_sub_size"
-              android:padding="10dp"/>
+              android:padding="10dp"
+              android:layout_marginLeft="6dp" />
+
+    <View style="@style/Divider"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp" />
 </LinearLayout>

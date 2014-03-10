@@ -128,6 +128,9 @@
     <dimen name="gridview_loading_height">180dp</dimen>
     <dimen name="grid_item_padding">10dp</dimen>
 
+    <dimen name="playlist_header_height">120dp</dimen>
+    <dimen name="playlist_header_padding">16dp</dimen>
+
     <dimen name="explore_suggested_track_category_text_size">16sp</dimen>
     <dimen name="grid_item_bottom_text_size">14sp</dimen>
 

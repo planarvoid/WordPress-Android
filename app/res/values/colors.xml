@@ -16,7 +16,7 @@
 
     <color name="dark_bg">#FF252525</color>
 
-    <color name="listTxtHeader">#777777</color>
+    <color name="listTxtHeader">#666666</color>
     <color name="commentLine">#AAD7D7D7</color>
     <color name="activeCommentLine">#CCe36711</color>
 
@@ -92,5 +92,8 @@
 
     <color name="tab_bar_divider">#dddddd</color>
     <color name="tag_text">#666666</color>
+
+    <color name="playlist_background">#f2f2f2</color>
+    <color name="playlist_divider">#dddddd</color>
 
 </resources>

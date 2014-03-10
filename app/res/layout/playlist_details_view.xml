@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/playlist_background">
+
+    <com.soundcloud.android.view.SquareImageView android:id="@+id/artwork"
+                                                 android:layout_width="match_parent"
+                                                 android:layout_height="wrap_content"
+                                                 android:scaleType="centerCrop" />
+
+    <com.soundcloud.android.view.JaggedTextView android:id="@+id/username"
+                                                android:layout_above="@+id/title"
+                                                android:layout_marginLeft="@dimen/playlist_header_padding"
+                                                style="@style/BlackOverlayText.Regular.Grid" />
+
+    <com.soundcloud.android.view.JaggedTextView android:id="@+id/title"
+                                                android:layout_marginLeft="@dimen/playlist_header_padding"
+                                                android:layout_marginRight="@dimen/playlist_header_padding"
+                                                android:layout_marginBottom="@dimen/playlist_header_padding"
+                                                android:layout_marginTop="4dp"
+                                                android:layout_alignBottom="@id/artwork"
+                                                style="@style/BlackOverlayText.RegularSubtext.Grid" />
+
+    <View
+        android:id="@+id/artwork_divider"
+        android:layout_below="@id/artwork"
+        style="@style/PlaylistDivider" />
+
+    <include layout="@layout/playlist_action_bar"
+             android:layout_below="@id/artwork_divider"
+             android:id="@+id/playlist_action_bar"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content" />
+
+    <View
+        android:layout_below="@+id/playlist_action_bar"
+        style="@style/PlaylistDivider" />
+
+</RelativeLayout>

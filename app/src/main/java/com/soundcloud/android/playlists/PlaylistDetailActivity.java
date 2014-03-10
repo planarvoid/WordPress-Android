@@ -3,22 +3,14 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.associations.EngagementsController;
-import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
-import com.soundcloud.android.playback.views.PlayablePresenter;
-import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.utils.images.ImageUtils;
-import com.soundcloud.android.view.FullImageDialog;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,8 +19,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import javax.inject.Inject;
@@ -37,19 +27,16 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
 
     public static final String EXTRA_SCROLL_TO_PLAYING_TRACK = "scroll_to_playing_track";
     private static final String TRACKS_FRAGMENT_TAG = "tracks_fragment";
+
     private Playlist mPlaylist;
-    private PlayablePresenter mPlayablePresenter;
-    private EngagementsController mEngagementsController;
 
     @Inject
     ScModelManager mModelManager;
     @Inject
     ImageOperations mImageOperations;
-    @Inject
-    SoundAssociationOperations mSoundAssocOps;
+
     @Inject
     PlaybackStateProvider mPlaybackStateProvider;
-
     private PlaylistTracksFragment mFragment;
 
     private final BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
@@ -88,21 +75,6 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         setTitle(R.string.activity_title_playlist);
         setContentView(R.layout.playlist_activity);
 
-        mPlayablePresenter = new PlayablePresenter(this);
-        mPlayablePresenter.setPlayableRowView(findViewById(R.id.playable_bar))
-            .setArtwork((ImageView) findViewById(R.id.icon), ImageSize.getListItemImageSize(this), R.drawable.artwork_badge);
-        mPlayablePresenter.addTextShadowForGrayBg();
-
-
-        mEngagementsController = new EngagementsController(this, findViewById(R.id.playlist_action_bar),
-                getApp().getEventBus(), mSoundAssocOps, new OriginProvider() {
-            @Override
-            public String getScreenTag() {
-                return Screen.fromIntent(getIntent()).get();
-            }
-        });
-        mEngagementsController.startListeningForChanges();
-
         handleIntent(savedInstanceState, true);
 
         // listen for playback changes, so that we can update the now-playing indicator
@@ -123,7 +95,6 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mPlaybackStatusListener);
-        mEngagementsController.stopListeningForChanges();
     }
 
     private void handleIntent(@Nullable Bundle savedInstanceState, boolean setupViews) {
@@ -146,27 +117,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         }
     }
 
-    private void setupViews(@Nullable Bundle savedInstanceState) {
-
-        View playlistBar = findViewById(R.id.playable_bar);
-        playlistBar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ProfileActivity.startFromPlayable(PlaylistDetailActivity.this, mPlaylist);
-            }
-        });
-
-        playlistBar.findViewById(R.id.icon).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String artwork = mPlaylist.getArtwork();
-                if (ImageUtils.checkIconShouldLoad(artwork)) {
-                    new FullImageDialog(PlaylistDetailActivity.this, ImageSize.CROP.formatUri(artwork), mImageOperations).show();
-                }
-
-            }
-        });
-
+    protected void setupViews(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             mFragment = PlaylistTracksFragment.create(getIntent().getData(), Screen.fromIntent(getIntent()));
             getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, mFragment, TRACKS_FRAGMENT_TAG).commit();
@@ -175,14 +126,16 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         }
     }
 
+    protected Playlist getPlaylist() {
+        return mPlaylist;
+    }
+
     private boolean setPlaylist(@NotNull Playlist playlist) {
         boolean changed = playlist != mPlaylist;
         if (mPlaylist != null && changed) {
             mPlaylist.stopObservingChanges(getContentResolver(), this);
         }
         mPlaylist = playlist;
-        mPlayablePresenter.setPlayable(playlist);
-        mEngagementsController.setPlayable(playlist);
         return changed;
     }
 
@@ -222,6 +175,5 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
 
     private void refresh() {
         mFragment.refresh();
-        mPlayablePresenter.setPlayable(mPlaylist);
     }
 }

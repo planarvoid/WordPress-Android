@@ -71,12 +71,13 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     PlayerTrackPagerAdapter mTrackPagerAdapter;
     @Inject
     SoundAssociationOperations mSoundAssocicationOps;
+    @Inject
+    EngagementsController mEngagementsController;
 
     @NotNull
     private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
     private PlayerTrackDetailsLayout mTrackDetailsView;
     private PlayablePresenter mPlayablePresenter;
-    private EngagementsController mEngagementsController;
 
     public interface PlayerError {
         int PLAYBACK_ERROR    = 0;
@@ -122,10 +123,9 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                     .setCreatedAtView((TextView) findViewById(R.id.playable_created_at))
                     .setPrivacyIndicatorView((TextView) findViewById(R.id.playable_private_indicator));
 
-            mEngagementsController = new EngagementsController(this, mPlayerInfoLayout,  getApp().getEventBus(),
-                    mSoundAssocicationOps, mPlaybackStateProvider, this);
+            mEngagementsController.bindView(mPlayerInfoLayout, mPlaybackStateProvider);
+            mEngagementsController.setAddToPlaylistListener(this);
             mEngagementsController.startListeningForChanges();
-
         }
 
         mIsFirstLoad = bundle == null;

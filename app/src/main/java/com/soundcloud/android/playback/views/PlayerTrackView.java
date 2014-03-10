@@ -87,7 +87,9 @@ public class PlayerTrackView extends FrameLayout implements
                 SoundCloudApplication.sModelManager);
 
         mPlayablePresenter = new PlayablePresenter(context);
-        mEngagementsController = new EngagementsController(context, this, application.getEventBus(), soundAssocOps, null, this);
+        mEngagementsController = new EngagementsController(application.getEventBus(), soundAssocOps);
+        mEngagementsController.bindView(this);
+        mEngagementsController.setAddToPlaylistListener(this);
 
         final View trackInfoBar = findViewById(R.id.playable_bar);
         if (trackInfoBar != null){
@@ -112,7 +114,7 @@ public class PlayerTrackView extends FrameLayout implements
     @Override
     protected void onDetachedFromWindow() {
         mEngagementsController.stopListeningForChanges();
-        super.onAttachedToWindow();
+        super.onDetachedFromWindow();
     }
 
     @Override
