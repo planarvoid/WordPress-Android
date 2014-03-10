@@ -1,17 +1,8 @@
 
 package com.soundcloud.android.playback;
 
-import android.content.*;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
+
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -30,7 +21,12 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
-import com.soundcloud.android.playback.views.*;
+import com.soundcloud.android.playback.views.AddCommentDialog;
+import com.soundcloud.android.playback.views.PlayablePresenter;
+import com.soundcloud.android.playback.views.PlayerTrackDetailsLayout;
+import com.soundcloud.android.playback.views.PlayerTrackPager;
+import com.soundcloud.android.playback.views.PlayerTrackView;
+import com.soundcloud.android.playback.views.TransportBarView;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.utils.UriUtils;
@@ -38,11 +34,26 @@ import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
 import javax.annotation.CheckForNull;
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
-
-import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
 
 public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTrackPageListener, PlayerTrackView.PlayerTrackViewListener, EngagementsController.AddToPlaylistListener {
 
@@ -62,6 +73,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     PlaybackService mPlaybackService;
     private int mPendingPlayPosition = -1;
     private boolean mIsFirstLoad;
+    private boolean mIsTabletLandscapeLayout;
 
     @Inject
     PlaybackStateProvider mPlaybackStateProvider;
@@ -109,10 +121,10 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         mTransportBar.setOnPauseListener(mPauseListener);
         mTransportBar.setOnCommentListener(mCommentListener);
 
-
-        // only exists in tablet layouts
         LinearLayout mPlayerInfoLayout = (LinearLayout) findViewById(R.id.player_info_view);
-        if (mPlayerInfoLayout != null){
+        mIsTabletLandscapeLayout = mPlayerInfoLayout != null;
+
+        if (mIsTabletLandscapeLayout){
             mTrackDetailsView = (PlayerTrackDetailsLayout) mPlayerInfoLayout.findViewById(R.id.player_track_details);
             mPlayablePresenter = new PlayablePresenter(this);
 
@@ -388,7 +400,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private void updatePlayerInfoPanelFromTrackPager() {
         final Track track = SoundCloudApplication.sModelManager.getTrack(getCurrentDisplayedTrackId());
         if (track != null) {
-            if (mTrackDetailsView != null) {
+            if (mIsTabletLandscapeLayout) {
                 if (track.shouldLoadInfo()) {
                     startService(new Intent(PlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, track.getId()));
                     mTrackDetailsView.setTrack(track, true);
