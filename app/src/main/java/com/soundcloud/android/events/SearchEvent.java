@@ -4,6 +4,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.storage.provider.Content;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public final class SearchEvent {
@@ -35,7 +36,7 @@ public final class SearchEvent {
 
     public static SearchEvent searchSuggestion(Content itemKind, boolean localResult) {
         return new SearchEvent(SEARCH_SUGGESTION)
-                .putAttribute("type", itemKind.name().toLowerCase())
+                .putAttribute("type", itemKind.name().toLowerCase(Locale.US))
                 .putAttribute("context", localResult ? "personal" : "global");
     }
 
