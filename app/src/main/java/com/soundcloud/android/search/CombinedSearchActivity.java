@@ -63,7 +63,7 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
         boolean isRemove = getSupportFragmentManager().getBackStackEntryCount() <= 0;
         if (isRemove) {
             mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_MAIN.get());
-            mActionBarController.setQuery("");
+            mActionBarController.clearQuery();
         }
     }
 
