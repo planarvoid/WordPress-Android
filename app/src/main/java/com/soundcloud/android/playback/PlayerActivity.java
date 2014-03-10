@@ -28,6 +28,7 @@ import com.soundcloud.android.playback.views.PlayerTrackPager;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.playback.views.TransportBarView;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.StatsView;
@@ -90,6 +91,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
     private PlayerTrackDetailsLayout mTrackDetailsView;
     private PlayablePresenter mPlayablePresenter;
+    private View mTrackInfoBar;
 
     public interface PlayerError {
         int PLAYBACK_ERROR    = 0;
@@ -121,29 +123,33 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         mTransportBar.setOnPauseListener(mPauseListener);
         mTransportBar.setOnCommentListener(mCommentListener);
 
-        LinearLayout mPlayerInfoLayout = (LinearLayout) findViewById(R.id.player_info_view);
-        mIsTabletLandscapeLayout = mPlayerInfoLayout != null;
-
-        if (mIsTabletLandscapeLayout){
-            mTrackDetailsView = (PlayerTrackDetailsLayout) mPlayerInfoLayout.findViewById(R.id.player_track_details);
-            mPlayablePresenter = new PlayablePresenter(this);
-
-            mPlayablePresenter.setTitleView((TextView) findViewById(R.id.playable_title))
-                    .setUsernameView((TextView) findViewById(R.id.playable_user))
-                    .setAvatarView((ImageView) findViewById(R.id.icon), ImageSize.getListItemImageSize(this), R.drawable.avatar_badge)
-                    .setStatsView((StatsView) findViewById(R.id.stats), false)
-                    .setCreatedAtView((TextView) findViewById(R.id.playable_created_at))
-                    .setPrivacyIndicatorView((TextView) findViewById(R.id.playable_private_indicator));
-
-            mEngagementsController.bindView(mPlayerInfoLayout, mPlaybackStateProvider);
-            mEngagementsController.setAddToPlaylistListener(this);
-            mEngagementsController.startListeningForChanges();
+        LinearLayout playerInfoLayout = (LinearLayout) findViewById(R.id.player_info_view);
+        mIsTabletLandscapeLayout = playerInfoLayout != null;
+        if (mIsTabletLandscapeLayout) {
+            setupFixedPlayableInfo(playerInfoLayout);
         }
 
         mIsFirstLoad = bundle == null;
 
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    private void setupFixedPlayableInfo(LinearLayout playerInfoLayout) {
+        mTrackInfoBar = playerInfoLayout.findViewById(R.id.playable_bar);
+        mTrackDetailsView = (PlayerTrackDetailsLayout) playerInfoLayout.findViewById(R.id.player_track_details);
+        mPlayablePresenter = new PlayablePresenter(this);
+
+        mPlayablePresenter.setTitleView((TextView) findViewById(R.id.playable_title))
+                .setUsernameView((TextView) findViewById(R.id.playable_user))
+                .setAvatarView((ImageView) findViewById(R.id.icon), ImageSize.getListItemImageSize(this), R.drawable.avatar_badge)
+                .setStatsView((StatsView) findViewById(R.id.stats), false)
+                .setCreatedAtView((TextView) findViewById(R.id.playable_created_at))
+                .setPrivacyIndicatorView((TextView) findViewById(R.id.playable_private_indicator));
+
+        mEngagementsController.bindView(playerInfoLayout, mPlaybackStateProvider);
+        mEngagementsController.setAddToPlaylistListener(this);
+        mEngagementsController.startListeningForChanges();
     }
 
     @Override
@@ -401,18 +407,28 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         final Track track = SoundCloudApplication.sModelManager.getTrack(getCurrentDisplayedTrackId());
         if (track != null) {
             if (mIsTabletLandscapeLayout) {
-                if (track.shouldLoadInfo()) {
-                    startService(new Intent(PlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, track.getId()));
-                    mTrackDetailsView.setTrack(track, true);
-                } else {
-                    mTrackDetailsView.setTrack(track);
-                }
+                updateFixedPlayableInfo(track);
             }
             if (mPlayablePresenter != null) {
                 mPlayablePresenter.setPlayable(track);
                 mEngagementsController.setPlayable(track);
             }
         }
+    }
+
+    private void updateFixedPlayableInfo(final Track track) {
+        if (track.shouldLoadInfo()) {
+            startService(new Intent(PlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, track.getId()));
+            mTrackDetailsView.setTrack(track, true);
+        } else {
+            mTrackDetailsView.setTrack(track);
+        }
+
+        mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                ProfileActivity.startFromPlayable(PlayerActivity.this, track);
+            }
+        });
     }
 
     private final ServiceConnection osc = new ServiceConnection() {
