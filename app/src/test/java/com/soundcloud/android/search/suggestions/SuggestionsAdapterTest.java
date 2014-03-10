@@ -12,6 +12,7 @@ import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.model.SearchSuggestions;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -20,7 +21,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 
+import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -36,6 +39,20 @@ import java.util.regex.Matcher;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SuggestionsAdapterTest {
+
+    private SuggestionsAdapter adapter;
+
+    @Mock
+    private PublicApi mockApi;
+
+    @Mock
+    private ContentResolver contentResolver;
+
+    @Mock
+    private Cursor cursor;
+
+    @Mock
+    private Context context;
 
     @Before
     public void setup() {
@@ -61,9 +78,9 @@ public class SuggestionsAdapterTest {
 
     @Test
     public void shouldQuerySuggestApi() throws Exception {
-        PublicApi mockApi = mockPublicApi("suggest_highlight.json");
+        mockPublicApi("suggest_highlight.json");
+        createAdapter();
 
-        SuggestionsAdapter adapter = new SuggestionsAdapter(mockContext(), mockApi);
         adapter.runQueryOnBackgroundThread("foo");
 
         ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
@@ -82,11 +99,9 @@ public class SuggestionsAdapterTest {
 
     @Test
     public void shouldPrefetchResources() throws IOException {
-        TestHelper.connectedViaWifi(true);
-        PublicApi mockApi = mockPublicApi("suggest_mixed.json");
+        mockPublicApi("suggest_mixed.json");
+        createAdapter();
 
-        final Context context = mockContext();
-        SuggestionsAdapter adapter = new SuggestionsAdapter(context, mockApi);
         adapter.runQueryOnBackgroundThread("foo");
 
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
@@ -101,11 +116,33 @@ public class SuggestionsAdapterTest {
         expect(uris.get(2).toString()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/playlists/q/324731");
     }
 
-    private Context mockContext() {
-        Context context = mock(Context.class);
-        ContentResolver mockResolver = mock(ContentResolver.class);
+    @Test
+    public void shouldReportCorrectSourceForPosition() throws IOException {
+        mockPublicApi("suggest_mixed.json");
+        mockCursorSource(1);
+        createAdapter();
+
+        adapter.runQueryOnBackgroundThread("foo");
+
+        expect(adapter.isLocalResult(0)).toBeTrue();
+    }
+
+    private void mockCursorContentType(Uri contentUri) {
+        when(cursor.moveToNext()).thenReturn(true, false);
+        final int fakeContentUriColumn = 1;
+        when(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA)).thenReturn(fakeContentUriColumn);
+        when(cursor.getString(fakeContentUriColumn)).thenReturn(contentUri.toString());
+    }
+
+    private void mockCursorSource(int isLocal) {
+        mockCursorContentType(Content.TRACK.forId(1L));
+        final int fakeSourceColumn = 2;
+        when(cursor.getColumnIndex(SuggestionsAdapter.LOCAL)).thenReturn(fakeSourceColumn);
+        when(cursor.getInt(fakeSourceColumn)).thenReturn(isLocal);
+    }
+
+    private void mockContext() {
         when(context.getApplicationContext()).thenReturn(mock(SoundCloudApplication.class));
-        when(context.getContentResolver()).thenReturn(mockResolver);
         when(context.getResources()).thenReturn(mock(Resources.class));
 
         NetworkInfo networkInfo = mock(NetworkInfo.class);
@@ -114,20 +151,23 @@ public class SuggestionsAdapterTest {
         when(cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI)).thenReturn(networkInfo);
         when(context.getSystemService(Context.CONNECTIVITY_SERVICE)).thenReturn(cm);
 
-        when(mockResolver.query(any(Uri.class), any(String[].class), anyString(), any(String[].class), anyString())).thenReturn(mock(Cursor.class));
-        return context;
+        when(contentResolver.query(any(Uri.class), any(String[].class), anyString(), any(String[].class), anyString()))
+                .thenReturn(cursor);
     }
 
-    private PublicApi mockPublicApi(String fixture) throws IOException {
-        PublicApi mockApi = mock(PublicApi.class);
+    private void mockPublicApi(String fixture) throws IOException {
         when(mockApi.getMapper()).thenReturn(TestHelper.getObjectMapper());
 
         final String suggestionsJson = TestHelper.resourceAsString(SearchSuggestions.class, fixture);
         HttpResponse response = new TestHttpResponse(200, suggestionsJson);
         when(mockApi.get(any(Request.class))).thenReturn(response);
-        return mockApi;
     }
 
+    private void createAdapter() {
+        mockContext();
+        adapter = new SuggestionsAdapter(context, mockApi, contentResolver);
+        adapter.changeCursor(cursor);
+    }
 
     // TODO: shadow for support-v4 CursorAdapter doesn't work. RL 2.0 may fix this.
 //    @DisableStrictI18n

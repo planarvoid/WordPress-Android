@@ -3,6 +3,7 @@ package com.soundcloud.android.robolectric;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplicationModule;
 import com.soundcloud.android.robolectric.shadows.ScShadowParcel;
+import com.soundcloud.android.robolectric.shadows.ShadowV4CursorAdapter;
 import com.soundcloud.android.robolectric.shadows.ShadowV4Fragment;
 import com.soundcloud.android.robolectric.shadows.ShadowV4ListFragment;
 import com.xtremelabs.robolectric.Robolectric;
@@ -42,5 +43,6 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
         Robolectric.bindShadowClass(ScShadowParcel.class);
         Robolectric.bindShadowClass(ShadowV4Fragment.class);
         Robolectric.bindShadowClass(ShadowV4ListFragment.class);
+        Robolectric.bindShadowClass(ShadowV4CursorAdapter.class);
     }
 }

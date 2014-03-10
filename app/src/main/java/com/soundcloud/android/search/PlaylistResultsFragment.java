@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.PlaylistSummary;
@@ -143,5 +144,6 @@ public class PlaylistResultsFragment extends Fragment implements EmptyViewAware,
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         PlaylistSummary playlist = mAdapter.getItem(position);
         PlaylistDetailActivity.start(getActivity(), new Playlist(playlist), mModelManager, Screen.SEARCH_PLAYLIST_DISCO);
+        mEventBus.publish(EventQueue.SEARCH, SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_PLAYLIST_DISCO));
     }
 }

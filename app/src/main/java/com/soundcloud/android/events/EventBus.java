@@ -26,7 +26,7 @@ public class EventBus {
             return new QueueDescriptor<T>(name, eventType);
         }
 
-        public static <T extends Event> QueueDescriptor<T> create(Class<T> eventType) {
+        public static <T> QueueDescriptor<T> create(Class<T> eventType) {
             return new QueueDescriptor<T>(eventType.getSimpleName(), eventType);
         }
 

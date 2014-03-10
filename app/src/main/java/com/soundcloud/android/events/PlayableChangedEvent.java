@@ -2,7 +2,7 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.model.Playable;
 
-public final class PlayableChangedEvent implements Event {
+public final class PlayableChangedEvent {
 
     private Playable mPlayable;
 
@@ -16,10 +16,5 @@ public final class PlayableChangedEvent implements Event {
 
     public Playable getPlayable() {
         return mPlayable;
-    }
-
-    @Override
-    public int getKind() {
-        return 0;
     }
 }

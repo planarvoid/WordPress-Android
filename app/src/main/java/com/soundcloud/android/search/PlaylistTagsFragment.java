@@ -9,6 +9,9 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.PlaylistTagsCollection;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
@@ -41,6 +44,9 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
     @Inject
     SearchOperations mSearchOperations;
 
+    @Inject
+    EventBus mEventBus;
+
     private CompositeSubscription mSubscription;
     private Observable<PlaylistTagsCollection> mAllTagsObservable;
     private Observable<PlaylistTagsCollection> mRecentTagsObservable;
@@ -48,11 +54,19 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
     private EmptyListView mEmptyView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
-    private final OnClickListener mTagClickListener = new OnClickListener() {
+    private final OnClickListener mRecentTagClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            TagEventsListener listener = (TagEventsListener) getActivity();
-            listener.onTagSelected((String) v.getTag());
+            mEventBus.publish(EventQueue.SEARCH, SearchEvent.recentTagSearch((String) v.getTag()));
+            selectTag(v);
+        }
+    };
+
+    private final OnClickListener mPopularTagClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mEventBus.publish(EventQueue.SEARCH, SearchEvent.popularTagSearch((String) v.getTag()));
+            selectTag(v);
         }
     };
 
@@ -67,8 +81,9 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
     }
 
     @VisibleForTesting
-    PlaylistTagsFragment(SearchOperations searchOperations) {
+    PlaylistTagsFragment(SearchOperations searchOperations, EventBus eventBus) {
         mSearchOperations = searchOperations;
+        mEventBus = eventBus;
     }
 
     @Override
@@ -123,15 +138,16 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
         ((TagEventsListener) getActivity()).onTagsScrolled();
     }
 
-    private void displayAllTags(PlaylistTagsCollection tags) {
-        displayTags(getLayoutInflater(null), getView(), tags.getCollection(), R.id.all_tags);
+    private void displayPopularTags(PlaylistTagsCollection tags) {
+        displayTags(getLayoutInflater(null), getView(), tags.getCollection(), R.id.all_tags, mPopularTagClickListener);
     }
 
     private void displayRecentTags(PlaylistTagsCollection tags) {
-        displayTags(getLayoutInflater(null), getView(), tags.getCollection(), R.id.recent_tags);
+        displayTags(getLayoutInflater(null), getView(), tags.getCollection(), R.id.recent_tags, mRecentTagClickListener);
     }
 
-    private void displayTags(LayoutInflater inflater, View layout, List<String> tags, int layoutId) {
+    private void displayTags(LayoutInflater inflater, View layout, List<String> tags,
+                             int layoutId, OnClickListener tagClickListener) {
         ViewGroup tagFlowLayout = (ViewGroup) layout.findViewById(layoutId);
         tagFlowLayout.removeAllViews();
 
@@ -143,10 +159,15 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
                 TextView tagView = ((TextView) inflater.inflate(R.layout.btn_tag, null));
                 tagView.setText("#" + tag);
                 tagView.setTag(tag);
-                tagView.setOnClickListener(mTagClickListener);
+                tagView.setOnClickListener(tagClickListener);
                 tagFlowLayout.addView(tagView, flowLP);
             }
         }
+    }
+
+    private void selectTag(View v) {
+        TagEventsListener listener = (TagEventsListener) getActivity();
+        listener.onTagSelected((String) v.getTag());
     }
 
     private final class TagsSubscriber extends ListFragmentSubscriber<PlaylistTagsCollection> {
@@ -156,7 +177,7 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
 
         @Override
         public void onNext(PlaylistTagsCollection tags) {
-            displayAllTags(tags);
+            displayPopularTags(tags);
         }
 
         @Override

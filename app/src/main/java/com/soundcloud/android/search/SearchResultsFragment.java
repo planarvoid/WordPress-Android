@@ -10,8 +10,13 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SearchResultsCollection;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -20,7 +25,6 @@ import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.observables.AndroidObservable;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
@@ -41,10 +45,10 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
     public static final String TAG = "search_results";
 
-    public static final int TYPE_ALL = 0;
-    public static final int TYPE_TRACKS = 1;
-    public static final int TYPE_PLAYLISTS = 2;
-    public static final int TYPE_USERS = 3;
+    static final int TYPE_ALL = 0;
+    static final int TYPE_TRACKS = 1;
+    static final int TYPE_PLAYLISTS = 2;
+    static final int TYPE_USERS = 3;
 
     private static final String KEY_QUERY = "query";
     private static final String KEY_TYPE = "type";
@@ -155,12 +159,17 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        int type = mAdapter.getItemViewType(position);
+        ScResource item = mAdapter.getItem(position);
         Context context = getActivity();
-        if (type == SearchResultsAdapter.TYPE_PLAYABLE) {
+        if (item instanceof Track) {
+            mEventBus.publish(EventQueue.SEARCH, SearchEvent.tapTrackOnScreen(getTrackingScreen()));
             mPlaybackOperations.playFromAdapter(context, mAdapter.getItems(), position, null, getTrackingScreen());
-        } else if (type == SearchResultsAdapter.TYPE_USER) {
-            context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, mAdapter.getItem(position)));
+        } else if (item instanceof Playlist) {
+            mEventBus.publish(EventQueue.SEARCH, SearchEvent.tapPlaylistOnScreen(getTrackingScreen()));
+            mPlaybackOperations.playFromAdapter(context, mAdapter.getItems(), position, null, getTrackingScreen());
+        } else if (item instanceof User) {
+            mEventBus.publish(EventQueue.SEARCH, SearchEvent.tapUserOnScreen(getTrackingScreen()));
+            context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, item));
         }
     }
 

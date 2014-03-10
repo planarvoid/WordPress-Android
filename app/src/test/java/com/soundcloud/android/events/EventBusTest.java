@@ -40,15 +40,8 @@ public class EventBusTest {
 
     @Test
     public void shouldDeriveQueueNameWhenEventTypeIsCustomType() {
-        class CustomEvent implements Event {
-
-            @Override
-            public int getKind() {
-                return 0;
-            }
-        }
-        EventBus.QueueDescriptor qd = EventBus.QueueDescriptor.create(CustomEvent.class);
-        expect(qd.name).toEqual("CustomEvent");
+        EventBus.QueueDescriptor qd = EventBus.QueueDescriptor.create(Object.class);
+        expect(qd.name).toEqual("Object");
     }
 
     @Test

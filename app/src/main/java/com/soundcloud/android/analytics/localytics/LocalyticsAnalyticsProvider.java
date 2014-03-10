@@ -10,6 +10,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.Log;
@@ -30,10 +31,11 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     private  static final int NO_USER = -1;
 
-    private LocalyticsSession mLocalyticsSession;
-    private LocalyticsUIEventHandler mLocalyticsUIEventHandler;
-    private LocalyticsOnboardingEventHandler mLocalyticsOnboardingEventHandler;
+    private LocalyticsSession mSession;
+    private LocalyticsUIEventHandler mUIEventHandler;
+    private LocalyticsOnboardingEventHandler mOnboardingEventHandler;
     private PlaybackStateProvider mPlaybackStateWrapper;
+    private LocalyticsSearchEventHandler mSearchEventHandler;
 
     public LocalyticsAnalyticsProvider(Context context, AnalyticsProperties analyticsProperties, long currentUserId) {
         this(new LocalyticsSession(context.getApplicationContext(), analyticsProperties.getLocalyticsAppKey()),
@@ -50,24 +52,25 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     @VisibleForTesting
     protected LocalyticsAnalyticsProvider(LocalyticsSession localyticsSession,
                                           PlaybackStateProvider playbackStateWrapper) {
-        mLocalyticsSession = localyticsSession;
-        mLocalyticsUIEventHandler = new LocalyticsUIEventHandler(mLocalyticsSession);
-        mLocalyticsOnboardingEventHandler = new LocalyticsOnboardingEventHandler(mLocalyticsSession);
+        mSession = localyticsSession;
+        mUIEventHandler = new LocalyticsUIEventHandler(mSession);
+        mOnboardingEventHandler = new LocalyticsOnboardingEventHandler(mSession);
+        mSearchEventHandler = new LocalyticsSearchEventHandler(mSession);
         mPlaybackStateWrapper = playbackStateWrapper;
     }
 
     @Override
     public void flush() {
-        mLocalyticsSession.upload();
+        mSession.upload();
     }
 
     @Override
     public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
         int eventKind = event.getKind();
         if (eventKind == CurrentUserChangedEvent.USER_UPDATED) {
-            mLocalyticsSession.setCustomerId(Long.toString(event.getCurrentUser().getId()));
+            mSession.setCustomerId(Long.toString(event.getCurrentUser().getId()));
         } else if(eventKind == CurrentUserChangedEvent.USER_REMOVED) {
-            mLocalyticsSession.setCustomerId(null);
+            mSession.setCustomerId(null);
         }
     }
 
@@ -93,7 +96,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleScreenEvent(String screenTag) {
-        mLocalyticsSession.tagScreen(screenTag);
+        mSession.tagScreen(screenTag);
     }
 
     @Override
@@ -130,16 +133,21 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
                 logAttributes(eventAttributes);
             }
 
-            mLocalyticsSession.tagEvent(LocalyticsEvents.LISTEN, eventAttributes);
+            mSession.tagEvent(LocalyticsEvents.LISTEN, eventAttributes);
         }
     }
 
     public void handleUIEvent(UIEvent event) {
-        mLocalyticsUIEventHandler.handleEvent(event);
+        mUIEventHandler.handleEvent(event);
     }
 
     public void handleOnboardingEvent(OnboardingEvent event){
-        mLocalyticsOnboardingEventHandler.handleEvent(event);
+        mOnboardingEventHandler.handleEvent(event);
+    }
+
+    @Override
+    public void handleSearchEvent(SearchEvent event) {
+        mSearchEventHandler.handleEvent(event);
     }
 
     @VisibleForTesting
@@ -149,12 +157,12 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     private void openSession() {
         Log.d(TAG, "opening session");
-        mLocalyticsSession.open();
+        mSession.open();
     }
 
     private void closeSession() {
         Log.d(TAG, "closing session");
-        mLocalyticsSession.close();
+        mSession.close();
     }
 
     /**

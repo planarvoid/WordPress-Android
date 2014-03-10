@@ -5,7 +5,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import org.jetbrains.annotations.NotNull;
 
-public final class PlaybackEvent implements Event {
+public final class PlaybackEvent {
 
     public static final int STOP_REASON_PAUSE = 0;
     public static final int STOP_REASON_BUFFERING = 1;
@@ -58,7 +58,6 @@ public final class PlaybackEvent implements Event {
         mTimeStamp = timestamp;
     }
 
-    @Override
     public int getKind() {
         return mKind;
     }

@@ -33,4 +33,11 @@ public interface LocalyticsEvents {
         String ONBOARDING_COMPLETE = "Onboarding complete";
     }
 
+
+    interface Search {
+        String SEARCH_SUGGESTION = "Search suggestion";
+        String SEARCH_SUBMIT = "Search submit";
+        String SEARCH_RESULTS = "Search results";
+    }
+
 }

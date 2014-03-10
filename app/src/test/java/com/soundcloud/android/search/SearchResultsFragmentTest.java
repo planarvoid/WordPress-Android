@@ -2,6 +2,7 @@ package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -14,10 +15,15 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyListView;
 import com.xtremelabs.robolectric.Robolectric;
@@ -65,7 +71,7 @@ public class SearchResultsFragmentTest {
         when(searchOperations.getAllSearchResults(anyString()))
                 .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
 
-        createWithArguments(buildSearchArgs("skrillex", 0));
+        createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_ALL));
         createFragmentView();
 
         verify(searchOperations).getAllSearchResults("skrillex");
@@ -76,7 +82,7 @@ public class SearchResultsFragmentTest {
         when(searchOperations.getTrackSearchResults(anyString()))
                 .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
 
-        createWithArguments(buildSearchArgs("skrillex", 1));
+        createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_TRACKS));
         createFragmentView();
 
         verify(searchOperations).getTrackSearchResults("skrillex");
@@ -87,7 +93,7 @@ public class SearchResultsFragmentTest {
         when(searchOperations.getPlaylistSearchResults(anyString()))
                 .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
 
-        createWithArguments(buildSearchArgs("skrillex", 2));
+        createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_PLAYLISTS));
         createFragmentView();
 
         verify(searchOperations).getPlaylistSearchResults("skrillex");
@@ -98,7 +104,7 @@ public class SearchResultsFragmentTest {
         when(searchOperations.getUserSearchResults(anyString()))
                 .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
 
-        createWithArguments(buildSearchArgs("skrillex", 3));
+        createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_USERS));
         createFragmentView();
 
         verify(searchOperations).getUserSearchResults("skrillex");
@@ -108,8 +114,7 @@ public class SearchResultsFragmentTest {
     public void shouldStartPlaybackWhenClickingPlayableRow() throws Exception {
         when(searchOperations.getAllSearchResults(anyString()))
                 .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
-
-        adapter.addItem(new Track());
+        when(adapter.getItem(0)).thenReturn(new Track());
 
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
@@ -120,10 +125,9 @@ public class SearchResultsFragmentTest {
     public void shouldSendSearchEverythingTrackingScreenOnItemClick() throws Exception {
         when(searchOperations.getAllSearchResults(anyString()))
                 .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+        when(adapter.getItem(0)).thenReturn(new Track());
 
-        adapter.addItem(new Track());
-
-        createWithArguments(buildSearchArgs("", 0));
+        createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_ALL));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         verify(playbackOperations).playFromAdapter(any(Context.class), anyList(), eq(0), isNull(Uri.class), eq(Screen.SEARCH_EVERYTHING));
@@ -133,10 +137,9 @@ public class SearchResultsFragmentTest {
     public void shouldSendSearchTracksTrackingScreenOnItemClick() throws Exception {
         when(searchOperations.getTrackSearchResults(anyString()))
                 .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+        when(adapter.getItem(0)).thenReturn(new Track());
 
-        adapter.addItem(new Track());
-
-        createWithArguments(buildSearchArgs("", 1));
+        createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_TRACKS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         verify(playbackOperations).playFromAdapter(any(Context.class), anyList(), eq(0), isNull(Uri.class), eq(Screen.SEARCH_TRACKS));
@@ -146,10 +149,9 @@ public class SearchResultsFragmentTest {
     public void shouldSendSearchPlaylistsTrackingScreenOnItemClick() throws Exception {
         when(searchOperations.getPlaylistSearchResults(anyString()))
                 .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+        when(adapter.getItem(0)).thenReturn(new Playlist());
 
-        adapter.addItem(new Track());
-
-        createWithArguments(buildSearchArgs("", 2));
+        createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_PLAYLISTS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         verify(playbackOperations).playFromAdapter(any(Context.class), anyList(), eq(0), isNull(Uri.class), eq(Screen.SEARCH_PLAYLISTS));
@@ -193,6 +195,51 @@ public class SearchResultsFragmentTest {
 
         EmptyListView emptyView = (EmptyListView) fragment.getListView().getEmptyView();
         expect(emptyView.getStatus()).toEqual(EmptyListView.Status.WAITING);
+    }
+
+    @Test
+    public void shouldPublishSearchEventWhenResultOnTracksTabIsClicked() throws Exception {
+        when(searchOperations.getTrackSearchResults(anyString()))
+                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+        when(adapter.getItem(anyInt())).thenReturn(new Track());
+
+        createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_TRACKS));
+        fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
+
+        SearchEvent event = EventMonitor.on(eventBus).verifyEventOn(EventQueue.SEARCH);
+        expect(event.getKind()).toEqual(SearchEvent.SEARCH_RESULTS);
+        expect(event.getAttributes().get("type")).toEqual("track");
+        expect(event.getAttributes().get("context")).toEqual("tracks");
+    }
+
+    @Test
+    public void shouldPublishSearchEventWhenResultOnPlaylistsTabIsClicked() throws Exception {
+        when(searchOperations.getPlaylistSearchResults(anyString()))
+                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+        when(adapter.getItem(anyInt())).thenReturn(new Playlist());
+
+        createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_PLAYLISTS));
+        fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
+
+        SearchEvent event = EventMonitor.on(eventBus).verifyEventOn(EventQueue.SEARCH);
+        expect(event.getKind()).toEqual(SearchEvent.SEARCH_RESULTS);
+        expect(event.getAttributes().get("type")).toEqual("playlist");
+        expect(event.getAttributes().get("context")).toEqual("playlists");
+    }
+
+    @Test
+    public void shouldPublishSearchEventWhenResultOnPeopleTabIsClicked() throws Exception {
+        when(searchOperations.getUserSearchResults(anyString()))
+                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+        when(adapter.getItem(anyInt())).thenReturn(new User());
+
+        createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_USERS));
+        fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
+
+        SearchEvent event = EventMonitor.on(eventBus).verifyEventOn(EventQueue.SEARCH);
+        expect(event.getKind()).toEqual(SearchEvent.SEARCH_RESULTS);
+        expect(event.getAttributes().get("type")).toEqual("user");
+        expect(event.getAttributes().get("context")).toEqual("people");
     }
 
     private void createWithArguments(Bundle arguments) {

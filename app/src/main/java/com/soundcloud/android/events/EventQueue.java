@@ -12,4 +12,5 @@ public interface EventQueue {
     final QueueDescriptor<String> SCREEN_ENTERED = create("screen", String.class);
     final QueueDescriptor<CurrentUserChangedEvent> CURRENT_USER_CHANGED = create(CurrentUserChangedEvent.class);
     final QueueDescriptor<OnboardingEvent> ONBOARDING = create(OnboardingEvent.class);
+    final QueueDescriptor<SearchEvent> SEARCH = create(SearchEvent.class);
 }

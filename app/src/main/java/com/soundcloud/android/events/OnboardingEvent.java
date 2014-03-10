@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class OnboardingEvent implements Event {
+public final class OnboardingEvent {
 
     public static final int AUTH_PROMPT = 0;
     public static final int AUTH_CREDENTIALS = 1;
@@ -91,7 +91,6 @@ public final class OnboardingEvent implements Event {
         return new OnboardingEvent(ONBOARDING_COMPLETE);
     }
 
-    @Override
     public int getKind() {
         return mKind;
     }

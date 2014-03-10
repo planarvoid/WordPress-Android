@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class UIEvent implements Event {
+public final class UIEvent {
 
     public static final int FOLLOW = 0;
     public static final int UNFOLLOW = 1;
@@ -118,7 +118,6 @@ public final class UIEvent implements Event {
         this(kind, Collections.<String,String>emptyMap());
     }
 
-    @Override
     public int getKind() {
         return mKind;
     }

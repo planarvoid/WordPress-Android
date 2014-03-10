@@ -1,9 +1,11 @@
 package com.soundcloud.android.search;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.SearchActionBarController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.storage.provider.Content;
@@ -46,6 +48,15 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
             getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     };
+
+    @SuppressWarnings("unused")
+    public CombinedSearchActivity() {
+    }
+
+    @VisibleForTesting
+    CombinedSearchActivity(SearchActionBarController actionBarController) {
+        mActionBarController = actionBarController;
+    }
 
     @Override
     public void onBackStackChanged() {
@@ -94,7 +105,9 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
 
     @Override
     protected ActionBarController createActionBarController() {
-        mActionBarController = new SearchActionBarController(this, mPublicCloudAPI, mSearchCallback);
+        if (mActionBarController == null) {
+            mActionBarController = new SearchActionBarController(this, new PublicApi(this), mSearchCallback, mEventBus);
+        }
         return mActionBarController;
     }
 

@@ -93,9 +93,9 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private @NotNull SearchSuggestions mLocalSuggestions  = SearchSuggestions.EMPTY;
     private @NotNull SearchSuggestions mRemoteSuggestions = SearchSuggestions.EMPTY;
 
-    public SuggestionsAdapter(Context context, PublicCloudAPI api) {
+    public SuggestionsAdapter(Context context, PublicCloudAPI api, ContentResolver contentResolver) {
         super(context, null, 0);
-        mContentResolver = context.getContentResolver();
+        mContentResolver = contentResolver;
         mContext = context;
         mImageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
 
@@ -147,6 +147,13 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     public boolean isSearchItem(int position) {
         return position == 0;
+    }
+
+    public boolean isLocalResult(int position) {
+        Cursor cursor = (Cursor) getItem(position);
+        final int isLocal = cursor.getInt(cursor.getColumnIndex(LOCAL));
+        cursor.close();
+        return isLocal == 1;
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.soundcloud.android.events;
 
 import android.app.Activity;
 
-public final class ActivityLifeCycleEvent implements Event {
+public final class ActivityLifeCycleEvent {
 
     public static final int ON_RESUME_EVENT = 0;
     public static final int ON_CREATE_EVENT = 1;
@@ -28,7 +28,6 @@ public final class ActivityLifeCycleEvent implements Event {
         mKind = kind;
     }
 
-    @Override
     public int getKind() {
         return mKind;
     }

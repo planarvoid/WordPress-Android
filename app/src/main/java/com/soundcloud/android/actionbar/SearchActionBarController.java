@@ -5,7 +5,11 @@ import com.google.common.base.Strings;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,6 +35,7 @@ public class SearchActionBarController extends ActionBarController {
 
     private final PublicCloudAPI mPublicCloudAPI;
     private final SearchCallback mSearchCallback;
+    private final EventBus mEventBus;
 
     private final SearchView.OnSuggestionListener mSuggestionListener = new SearchView.OnSuggestionListener() {
         @Override
@@ -44,14 +49,20 @@ public class SearchActionBarController extends ActionBarController {
             mSearchView.clearFocus();
 
             if (mSuggestionsAdapter.isSearchItem(position)) {
-                performSearch(query);
+                performSearch(query, true);
                 mSearchView.setSuggestionsAdapter(null);
             } else {
                 final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
+
+                final SearchEvent event = SearchEvent.searchSuggestion(
+                        Content.match(itemUri), mSuggestionsAdapter.isLocalResult(position));
+                mEventBus.publish(EventQueue.SEARCH, event);
+
                 final Intent intent = new Intent(Intent.ACTION_VIEW);
                 Screen.SEARCH_SUGGESTIONS.addToIntent(intent);
                 mActivity.startActivity(intent.setData(itemUri));
             }
+
             return true;
         }
     };
@@ -63,10 +74,11 @@ public class SearchActionBarController extends ActionBarController {
     }
 
     public SearchActionBarController(@NotNull ActionBarOwner owner, PublicCloudAPI publicCloudAPI,
-                                     SearchCallback searchCallback) {
+                                     SearchCallback searchCallback, EventBus eventBus) {
         super(owner);
         mPublicCloudAPI = publicCloudAPI;
         mSearchCallback = searchCallback;
+        mEventBus = eventBus;
     }
 
     @Override
@@ -102,14 +114,14 @@ public class SearchActionBarController extends ActionBarController {
         mSearchView.setIconified(false);
         mSearchView.setQueryHint(mOwner.getActivity().getString(R.string.search_hint));
 
-        mSuggestionsAdapter = new SuggestionsAdapter(mActivity, mPublicCloudAPI);
+        mSuggestionsAdapter = new SuggestionsAdapter(mActivity, mPublicCloudAPI, mActivity.getContentResolver());
         mSearchView.setSuggestionsAdapter(mSuggestionsAdapter);
     }
 
     private final SearchView.OnQueryTextListener mQueryTextListener = new SearchView.OnQueryTextListener() {
         @Override
         public boolean onQueryTextSubmit(String query) {
-            performSearch(query);
+            performSearch(query, false);
             clearFocus();
             mSearchView.setSuggestionsAdapter(null);
             return true;
@@ -129,13 +141,22 @@ public class SearchActionBarController extends ActionBarController {
     };
 
     @VisibleForTesting
-    void performSearch(final String query) {
+    void performSearch(final String query, boolean viaShortcut) {
         String trimmedQuery = query.trim();
-        if (trimmedQuery.startsWith("#")) {
+        boolean tagSearch = isTagSearch(trimmedQuery);
+
+        mEventBus.publish(EventQueue.SEARCH,
+                SearchEvent.searchField(query, viaShortcut, tagSearch));
+
+        if (tagSearch) {
             performTagSearch(trimmedQuery);
         } else {
             mSearchCallback.performTextSearch(trimmedQuery);
         }
+    }
+
+    private boolean isTagSearch(String trimmedQuery) {
+        return trimmedQuery.startsWith("#");
     }
 
     private void performTagSearch(final String query) {

@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-public final class PlayerLifeCycleEvent implements Event {
+public final class PlayerLifeCycleEvent {
 
     public static final int STATE_IDLE = 0;
     public static final int STATE_DESTROYED = 1;
@@ -19,7 +19,6 @@ public final class PlayerLifeCycleEvent implements Event {
         mKind = kind;
     }
 
-    @Override
     public int getKind() {
         return mKind;
     }

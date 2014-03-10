@@ -4,18 +4,18 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.search.PlaylistTagsFragment.TagEventsListener;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.actionbar.SearchActionBarController;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.PlaylistTagsCollection;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.EmptyListView;
@@ -38,23 +38,31 @@ import java.util.Collections;
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistTagsFragmentTest {
 
-    private PlaylistTagsFragment fragment;
-    private FragmentActivity activity = new CombinedSearchActivity();
-
     @Mock
     private SearchOperations searchOperations;
+    @Mock
+    private SearchActionBarController actionBarController;
+    @Mock
+    private EventBus eventBus;
+
+    private PlaylistTagsFragment fragment;
+    private FragmentActivity activity;
 
     @Before
     public void setUp() throws Exception {
-        final PlaylistTagsCollection tags = new PlaylistTagsCollection();
-        tags.setCollection(Arrays.asList("one", "two", "three"));
-        when(searchOperations.getPlaylistTags()).thenReturn(Observable.<PlaylistTagsCollection>from(tags));
-        when(searchOperations.getRecentPlaylistTags()).thenReturn(Observable.<PlaylistTagsCollection>empty());
+        final PlaylistTagsCollection popularTags = new PlaylistTagsCollection();
+        popularTags.setCollection(Arrays.asList("popular1", "popular2", "popular3"));
+
+        final PlaylistTagsCollection recentTags = new PlaylistTagsCollection();
+        recentTags.setCollection(Arrays.asList("recent1", "recent2", "recent3"));
+
+        when(searchOperations.getPlaylistTags()).thenReturn(Observable.<PlaylistTagsCollection>from(popularTags));
+        when(searchOperations.getRecentPlaylistTags()).thenReturn(Observable.<PlaylistTagsCollection>from(recentTags));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void onAttachShouldThrowIllegalArgumentIfParentActivityIsNotTagClickListener() {
-        fragment = new PlaylistTagsFragment(searchOperations);
+        fragment = new PlaylistTagsFragment(searchOperations, eventBus);
         fragment.onAttach(new FragmentActivity());
     }
 
@@ -111,10 +119,6 @@ public class PlaylistTagsFragmentTest {
 
     @Test
     public void shouldShowRecentTagsIfRecentTagsExist() throws Exception {
-        PlaylistTagsCollection collection = new PlaylistTagsCollection(Lists.newArrayList("tag1"));
-        Observable<PlaylistTagsCollection> observable = Observable.<PlaylistTagsCollection>from(collection);
-        when(searchOperations.getRecentPlaylistTags()).thenReturn(observable);
-
         createFragment();
         View recentTagsLayout = fragment.getView().findViewById(R.id.recent_tags);
         expect(recentTagsLayout.getVisibility()).toEqual(View.VISIBLE);
@@ -122,14 +126,10 @@ public class PlaylistTagsFragmentTest {
 
     @Test
     public void shouldDisplayTagsWithHashSymbolPrepended() throws Exception {
-        PlaylistTagsCollection collection = new PlaylistTagsCollection(Lists.newArrayList("tag1"));
-        Observable<PlaylistTagsCollection> observable = Observable.<PlaylistTagsCollection>from(collection);
-        when(searchOperations.getRecentPlaylistTags()).thenReturn(observable);
-
         createFragment();
         ViewGroup recentTagsLayout = (ViewGroup) fragment.getView().findViewById(R.id.recent_tags);
         TextView tagView = (TextView) recentTagsLayout.getChildAt(0);
-        expect(tagView.getText()).toEqual("#tag1");
+        expect(tagView.getText()).toEqual("#recent1");
     }
 
     @Test
@@ -162,9 +162,9 @@ public class PlaylistTagsFragmentTest {
         ViewGroup tagFlowLayout = (ViewGroup) fragment.getView().findViewById(R.id.all_tags);
         tagFlowLayout.getChildAt(0).performClick();
 
-        verify((TagEventsListener) listener).onTagSelected("one");
+        verify((TagEventsListener) listener).onTagSelected("popular1");
     }
-
+    
     @Test
     public void shouldCallBackToActivityWhenScrollingTags() {
         createFragment();
@@ -176,8 +176,39 @@ public class PlaylistTagsFragmentTest {
         verify((TagEventsListener) listener).onTagsScrolled();
     }
 
+    @Test
+    public void shouldTrackSearchSubmitEventForRecentTag() throws Exception {
+        createFragment();
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
+        ViewGroup tagFlowLayout = (ViewGroup) fragment.getView().findViewById(R.id.recent_tags);
+        tagFlowLayout.getChildAt(0).performClick();
+
+        SearchEvent event = eventMonitor.verifyEventOn(EventQueue.SEARCH);
+        expect(event.getKind()).toEqual(SearchEvent.SEARCH_SUBMIT);
+        expect(event.getAttributes().get("type")).toEqual("tag");
+        expect(event.getAttributes().get("location")).toEqual("recent_tags");
+        expect(event.getAttributes().get("content")).toEqual("recent1");
+    }
+
+    @Test
+    public void shouldTrackSearchSubmitEventForPopularTag() throws Exception {
+        createFragment();
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
+        ViewGroup tagFlowLayout = (ViewGroup) fragment.getView().findViewById(R.id.all_tags);
+        tagFlowLayout.getChildAt(0).performClick();
+
+        SearchEvent event = eventMonitor.verifyEventOn(EventQueue.SEARCH);
+        expect(event.getKind()).toEqual(SearchEvent.SEARCH_SUBMIT);
+        expect(event.getAttributes().get("type")).toEqual("tag");
+        expect(event.getAttributes().get("location")).toEqual("popular_tags");
+        expect(event.getAttributes().get("content")).toEqual("popular1");
+    }
+
     private void createFragment() {
-        fragment = new PlaylistTagsFragment(searchOperations);
+        activity = new CombinedSearchActivity(actionBarController);
+        fragment = new PlaylistTagsFragment(searchOperations, eventBus);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
         fragment.onCreate(null);

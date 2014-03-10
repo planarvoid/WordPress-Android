@@ -9,6 +9,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -91,10 +92,11 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             mEventsSubscription = new CompositeSubscription();
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackEventSubscriber()));
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.UI, new UIEventSubscriber()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.ONBOARDING, new OnboardEventSubscriber()));
+            mEventsSubscription.add(mEventBus.subscribe(EventQueue.ONBOARDING, new OnboardingEventSubscriber()));
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventSubscriber()));
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.SCREEN_ENTERED, new ScreenEventSubscriber()));
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new UserEventSubscriber()));
+            mEventsSubscription.add(mEventBus.subscribe(EventQueue.SEARCH, new SearchEventSubscriber()));
         }
     }
 
@@ -115,72 +117,6 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    private void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
-        Log.d(this, "User changed event " + event.getCurrentUser());
-        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-            try {
-                analyticsProvider.handleCurrentUserChangedEvent(event);
-            } catch (Throwable t) {
-                handleProviderError(t, analyticsProvider, "handleCurrentUserChangedEvent");
-            }
-        }
-    }
-
-    private void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
-        Log.d(this, "Activity life-cycle event " + event);
-        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-            try {
-                analyticsProvider.handleActivityLifeCycleEvent(event);
-            } catch (Throwable t) {
-                handleProviderError(t, analyticsProvider, "handleActivityLifeCycleEvent");
-            }
-        }
-    }
-
-    private void handleScreenEvent(String screenTag) {
-        Log.d(this, "Track screen " + screenTag);
-        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-            try {
-                analyticsProvider.handleScreenEvent(screenTag);
-            } catch (Throwable t) {
-                handleProviderError(t, analyticsProvider, "handleScreenEvent");
-            }
-        }
-    }
-
-    private void handlePlaybackEvent(PlaybackEvent playbackEvent) {
-        Log.d(this, "Track playback event " + playbackEvent);
-        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-            try {
-                analyticsProvider.handlePlaybackEvent(playbackEvent);
-            } catch (Throwable t) {
-                handleProviderError(t, analyticsProvider, "handlePlaybackEvent");
-            }
-        }
-    }
-
-    private void handleUIEvent(UIEvent event) {
-        Log.d(this, "Track UI event " + event);
-        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-            try {
-                analyticsProvider.handleUIEvent(event);
-            } catch (Throwable t) {
-                handleProviderError(t, analyticsProvider, "handleUIEvent");
-            }
-        }
-    }
-
-    private void handleOnboardingEvent(OnboardingEvent event) {
-        Log.d(this, "Track onboarding event " + event);
-        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-            try {
-                analyticsProvider.handleOnboardingEvent(event);
-            } catch (Throwable t) {
-                handleProviderError(t, analyticsProvider, "handleOnboardingEvent");
-            }
-        }
-    }
-
     private void handleProviderError(Throwable t, AnalyticsProvider provider, String methodName) {
         final String message = String.format("exception while processing %s for provider %s, with error = %s",
                 methodName, provider.getClass(), t.toString());
@@ -188,59 +124,69 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         SoundCloudApplication.handleSilentException(message, t);
     }
 
-    private final class UserEventSubscriber extends DefaultSubscriber<CurrentUserChangedEvent> {
+    private final class ActivityEventSubscriber extends EventSubscriber<ActivityLifeCycleEvent> {
         @Override
-        public void onNext(CurrentUserChangedEvent event) {
-            Log.d(this, "UserEventSubscriber onNext: " + event);
-            handleCurrentUserChangedEvent(event);
-            scheduleFlush();
+        protected void handleEvent(AnalyticsProvider provider, ActivityLifeCycleEvent event) {
+            provider.handleActivityLifeCycleEvent(event);
         }
     }
 
-    private final class ActivityEventSubscriber extends DefaultSubscriber<ActivityLifeCycleEvent> {
+    private final class ScreenEventSubscriber extends EventSubscriber<String> {
         @Override
-        public void onNext(ActivityLifeCycleEvent event) {
-            Log.d(this, "ActivityEventObserver onNext: " + event);
-            handleActivityLifeCycleEvent(event);
-            scheduleFlush();
+        protected void handleEvent(AnalyticsProvider provider, String event) {
+            provider.handleScreenEvent(event);
         }
     }
 
-    private final class ScreenEventSubscriber extends DefaultSubscriber<String> {
+    private final class UserEventSubscriber extends EventSubscriber<CurrentUserChangedEvent> {
         @Override
-        public void onNext(String screenTag) {
-            //TODO Be defensive, check screenTag value
-            //If dev/beta build and empty crash the app, otherwise log silent error
-            Log.d(this, "ScreenTrackingObserver onNext: " + screenTag);
-            handleScreenEvent(screenTag);
-            scheduleFlush();
+        protected void handleEvent(AnalyticsProvider provider, CurrentUserChangedEvent event) {
+            provider.handleCurrentUserChangedEvent(event);
         }
     }
 
-    private final class PlaybackEventSubscriber extends DefaultSubscriber<PlaybackEvent> {
+    private final class PlaybackEventSubscriber extends EventSubscriber<PlaybackEvent> {
         @Override
-        public void onNext(PlaybackEvent args) {
-            Log.d(this, "PlaybackEventObserver onNext: " + args);
-            handlePlaybackEvent(args);
-            scheduleFlush();
+        protected void handleEvent(AnalyticsProvider provider, PlaybackEvent event) {
+            provider.handlePlaybackEvent(event);
         }
     }
 
-    private final class UIEventSubscriber extends DefaultSubscriber<UIEvent> {
+    private final class UIEventSubscriber extends EventSubscriber<UIEvent> {
         @Override
-        public void onNext(UIEvent args) {
-            Log.d(this, "UIEventObserver onNext: " + args);
-            handleUIEvent(args);
-            scheduleFlush();
+        protected void handleEvent(AnalyticsProvider provider, UIEvent event) {
+            provider.handleUIEvent(event);
         }
     }
 
-    private final class OnboardEventSubscriber extends DefaultSubscriber<OnboardingEvent> {
+    private final class OnboardingEventSubscriber extends EventSubscriber<OnboardingEvent> {
         @Override
-        public void onNext(OnboardingEvent args) {
-            Log.d(this, "OnboardingEventObserver onNext: " + args);
-            handleOnboardingEvent(args);
+        protected void handleEvent(AnalyticsProvider provider, OnboardingEvent event) {
+            provider.handleOnboardingEvent(event);
+        }
+    }
+
+    private final class SearchEventSubscriber extends EventSubscriber<SearchEvent> {
+        @Override
+        protected void handleEvent(AnalyticsProvider provider, SearchEvent event) {
+            provider.handleSearchEvent(event);
+        }
+    }
+
+    private abstract class EventSubscriber<EventT> extends DefaultSubscriber<EventT> {
+        @Override
+        public void onNext(EventT event) {
+            Log.d(AnalyticsEngine.this, "Track event " + event);
+            for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
+                try {
+                    handleEvent(analyticsProvider, event);
+                } catch (Throwable t) {
+                    handleProviderError(t, analyticsProvider, getClass().getSimpleName());
+                }
+            }
             scheduleFlush();
         }
+
+        protected abstract void handleEvent(AnalyticsProvider provider, EventT event);
     }
 }

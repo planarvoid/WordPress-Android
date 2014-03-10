@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import com.soundcloud.android.model.User;
 import org.jetbrains.annotations.Nullable;
 
-public final class CurrentUserChangedEvent implements Event {
+public final class CurrentUserChangedEvent {
 
     public static final int USER_UPDATED = 0;
     public static final int USER_REMOVED = 1;

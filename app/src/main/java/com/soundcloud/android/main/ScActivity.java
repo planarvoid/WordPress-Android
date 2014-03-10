@@ -7,8 +7,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.NowPlayingActionBarController;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
@@ -66,7 +64,6 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     private ImageOperations mImageOperations;
 
     protected AccountOperations mAccountOperations;
-    protected PublicCloudAPI mPublicCloudAPI;
     protected EventBus mEventBus;
 
     @Nullable
@@ -84,7 +81,6 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
 
         mAccountOperations = new AccountOperations(this);
-        mPublicCloudAPI = new PublicApi(this);
         connectivityListener = new NetworkConnectivityListener();
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
         mUnauthoriedRequestReceiver = new UnauthorisedRequestReceiver(getApplicationContext(), getSupportFragmentManager());

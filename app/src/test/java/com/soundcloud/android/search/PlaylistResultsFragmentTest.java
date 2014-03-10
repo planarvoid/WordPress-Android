@@ -14,10 +14,12 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.PlaylistSummaryCollection;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.RxTestHelper;
@@ -135,6 +137,22 @@ public class PlaylistResultsFragmentTest {
         expect(intent.getAction()).toEqual(Actions.PLAYLIST);
         expect(intent.getData()).toEqual(Content.PLAYLISTS.forQuery(String.valueOf(clickedPlaylist.getId())));
         expect(Screen.fromIntent(intent)).toBe(Screen.SEARCH_PLAYLIST_DISCO);
+    }
+
+    @Test
+    public void shouldPublishSearchEventWhenResultOnPlaylistTagResultsIsClicked() throws Exception {
+        PlaylistSummary clickedPlaylist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
+        when(adapter.getItem(0)).thenReturn(clickedPlaylist);
+
+        fragment.onCreate(null);
+        createFragmentView();
+
+        fragment.onItemClick(content, null, 0, 0);
+
+        SearchEvent event = EventMonitor.on(eventBus).verifyEventOn(EventQueue.SEARCH);
+        expect(event.getKind()).toEqual(SearchEvent.SEARCH_RESULTS);
+        expect(event.getAttributes().get("type")).toEqual("playlist");
+        expect(event.getAttributes().get("context")).toEqual("tags");
     }
 
     @Test
