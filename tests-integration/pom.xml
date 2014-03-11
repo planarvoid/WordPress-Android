@@ -10,6 +10,10 @@
     <artifactId>tests-integration</artifactId>
     <packaging>apk</packaging>
     <name>Instrumentation tests</name>
+    <properties>
+        <android.device>${env.DEVICE}</android.device>
+    </properties>
+
 
     <dependencies>
         <dependency>
