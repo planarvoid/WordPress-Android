@@ -76,7 +76,7 @@ public class Waiter {
     private boolean retryIfFailed() {
         View retryButton = solo.waitForViewId(R.id.btn_retry, ELEMENT_TIMEOUT, false);
         if(retryButton != null){
-            solo.clickOnButton(R.string.retry);
+            solo.clickOnButton(R.id.btn_retry);
             waitForListContent();
         }
         return retryButton != null;

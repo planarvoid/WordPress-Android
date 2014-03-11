@@ -17,6 +17,7 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     private View rootContainer() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return solo.getView(R.id.list);
     }
 
