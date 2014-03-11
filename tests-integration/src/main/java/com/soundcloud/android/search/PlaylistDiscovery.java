@@ -8,8 +8,6 @@ import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TestUser;
 
-import android.widget.ListView;
-
 import java.util.List;
 
 public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
@@ -73,9 +71,8 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
 
     public void testSearchingHashtagFromSuggestionShortcutShowsPlaylistDiscoveryResults() {
         playlistTagsScreen.actionBar().setSearchQuery("#deep house");
-        solo.getSolo().waitForView(ListView.class);
-        solo.clickInList(0);
-
+        //TODO: That should actually be handled buy SearchSuggestionsElement class
+        solo.clickOnText("Search for");
         PlaylistResultsScreen resultsScreen = new PlaylistResultsScreen(solo);
         assertEquals("Playlist results screen should be visible", true, resultsScreen.isVisible());
     }

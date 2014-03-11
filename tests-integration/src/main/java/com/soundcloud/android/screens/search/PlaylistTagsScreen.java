@@ -19,7 +19,6 @@ public class PlaylistTagsScreen extends Screen {
 
     public PlaylistTagsScreen(Han solo) {
         super(solo);
-        waiter.waitForContentAndRetryIfLoadingFailed();
         waiter.waitForElement(R.id.all_tags);
     }
 
@@ -29,10 +28,12 @@ public class PlaylistTagsScreen extends Screen {
     }
 
     public List<String> getTags() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return getTagStringsFromContainer(R.id.all_tags);
     }
 
     public List<String> getRecentTags() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return getTagStringsFromContainer(R.id.recent_tags);
     }
 
@@ -57,6 +58,7 @@ public class PlaylistTagsScreen extends Screen {
 
     private List<TextView> getTagViews(int containerId) {
         if (solo.getView(containerId) != null) {
+            waiter.waitForContentAndRetryIfLoadingFailed();
             return solo.getSolo().getCurrentViews(TextView.class, solo.getView(containerId));
         }
         return null;

@@ -63,7 +63,8 @@ public class Search extends ActivityTestCase<MainActivity> {
 
     public void testSearchingFromSuggestionShortcutShowsSearchResults() {
         playlistTagsScreen.actionBar().setSearchQuery("dubstep");
-        solo.clickInList(0);
+        //TODO: That should actually be handled buy SearchSuggestionsElement class
+        solo.clickOnText("Search for");
 
         SearchResultsScreen resultsScreen = new SearchResultsScreen(solo);
         assertEquals("Search results screen should be visible", true, resultsScreen.isVisible());
