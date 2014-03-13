@@ -1,6 +1,7 @@
 package com.soundcloud.android.rx.observers;
 
 import com.soundcloud.android.utils.ErrorUtils;
+import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 
@@ -10,15 +11,9 @@ import rx.Subscription;
  */
 public abstract class DefaultSubscriber<T> extends Subscriber<T> {
 
-    /**
-     * For fire and forget style subscriptions. Do not use this directly, use {@link DefaultSubscriber#fireAndForget(rx.Observable)})}
-     * instead.
-     */
-    /* package */ static final DefaultSubscriber<Object> NOOP_SUBSCRIBER = new DefaultSubscriber<Object>() {
-    };
-
-    public static Subscription fireAndForget(rx.Observable<?> observable) {
-        return observable.subscribe(NOOP_SUBSCRIBER);
+    public static <T> Subscription fireAndForget(Observable<T> observable) {
+        return observable.subscribe(new DefaultSubscriber<T>() {
+        });
     }
 
     @Override
