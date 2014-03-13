@@ -11,6 +11,7 @@ import android.os.Message;
 import android.util.Log;
 import android.util.Pair;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public class EventLoggerHandler extends Handler {
@@ -44,10 +45,12 @@ public class EventLoggerHandler extends Handler {
     private void handleTrackingEvent(Message msg) {
         switch (msg.what) {
             case INSERT_TOKEN:
-                final PlaybackEvent params = (PlaybackEvent) msg.obj;
-                long id = mStorage.insertEvent(params);
-                if (id < 0) {
-                    Log.w(EventLogger.TAG, "error inserting tracking event");
+                try {
+                    if (mStorage.insertEvent((PlaybackEvent) msg.obj) < 0) {
+                        Log.w(EventLogger.TAG, "error inserting tracking event");
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    Log.w(EventLogger.TAG, "error inserting tracking event", e);
                 }
                 break;
 

@@ -1,10 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParams.Action;
-
 import com.google.common.collect.Lists;
 import com.soundcloud.android.events.PlaybackEvent;
-import com.soundcloud.android.model.Urn;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -27,7 +24,7 @@ public class EventLoggerStorage {
         mEventLoggerParamsBuilder = eventLoggerParamsBuilder;
     }
 
-    public long insertEvent(PlaybackEvent playbackEvent){
+    public long insertEvent(PlaybackEvent playbackEvent) throws UnsupportedEncodingException {
         final SQLiteDatabase database = mDbHelper.getWritableDatabase();
         return database.insertOrThrow(EventLoggerDbHelper.EVENTS_TABLE, null, createValuesFromPlaybackEvent(playbackEvent));
     }
@@ -64,14 +61,11 @@ public class EventLoggerStorage {
     }
 
 
-    private ContentValues createValuesFromPlaybackEvent(PlaybackEvent params) {
+    private ContentValues createValuesFromPlaybackEvent(PlaybackEvent params) throws UnsupportedEncodingException {
         ContentValues values = new ContentValues();
         values.put(EventLoggerDbHelper.TrackingEvents.TIMESTAMP, params.getTimeStamp());
-        values.put(EventLoggerDbHelper.TrackingEvents.ACTION, params.isPlayEvent() ? Action.PLAY : Action.STOP);
-        values.put(EventLoggerDbHelper.TrackingEvents.SOUND_URN, Urn.forTrack(params.getTrack().getId()).toString());
-        values.put(EventLoggerDbHelper.TrackingEvents.SOUND_DURATION, params.getTrack().duration);
-        values.put(EventLoggerDbHelper.TrackingEvents.USER_URN, Urn.forUser(params.getUserId()).toString());
-        values.put(EventLoggerDbHelper.TrackingEvents.SOURCE_INFO, mEventLoggerParamsBuilder.build(params.getTrackSourceInfo()));
+        values.put(EventLoggerDbHelper.TrackingEvents.PATH, EventLoggerEventTypes.PLAYBACK.getPath());
+        values.put(EventLoggerDbHelper.TrackingEvents.PARAMS, mEventLoggerParamsBuilder.buildFromPlaybackEvent(params));
         return values;
     }
 }

@@ -1,5 +1,8 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import com.integralblue.httpresponsecache.compat.Charsets;
+import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -15,15 +18,24 @@ public class EventLoggerParamsBuilder {
     public EventLoggerParamsBuilder() {
     }
 
-    public String build(TrackSourceInfo trackSourceInfo) {
+    public String buildFromPlaybackEvent(PlaybackEvent playbackEvent) throws UnsupportedEncodingException {
         final Uri.Builder builder = new Uri.Builder();
+
+        builder.appendQueryParameter("ts", String.valueOf(playbackEvent.getTimeStamp()));
+        builder.appendQueryParameter("action", playbackEvent.isPlayEvent() ? EventLoggerParams.Action.PLAY : EventLoggerParams.Action.STOP);
+        builder.appendQueryParameter("duration", String.valueOf(playbackEvent.getTrack().duration));
+        builder.appendQueryParameter("sound", URLEncoder.encode(Urn.forTrack(playbackEvent.getTrack().getId()).toString(), Charsets.UTF_8.name()));
+        builder.appendQueryParameter("user", URLEncoder.encode(Urn.forUser(playbackEvent.getUserId()).toString(), Charsets.UTF_8.name()));
+
+
+        TrackSourceInfo trackSourceInfo = playbackEvent.getTrackSourceInfo();
 
         if (trackSourceInfo.getIsUserTriggered()){
             builder.appendQueryParameter(EventLoggerParams.Keys.TRIGGER, EventLoggerParams.Trigger.MANUAL);
         } else {
             builder.appendQueryParameter(EventLoggerParams.Keys.TRIGGER, EventLoggerParams.Trigger.AUTO);
         }
-        builder.appendQueryParameter(EventLoggerParams.Keys.ORIGIN_URL, formatOriginUrl(trackSourceInfo.getOriginScreen().toString()));
+        builder.appendQueryParameter(EventLoggerParams.Keys.ORIGIN_URL, formatOriginUrl(trackSourceInfo.getOriginScreen()));
 
         if (trackSourceInfo.hasSource()) {
             builder.appendQueryParameter(EventLoggerParams.Keys.SOURCE, trackSourceInfo.getSource());
@@ -34,7 +46,7 @@ public class EventLoggerParamsBuilder {
             builder.appendQueryParameter(EventLoggerParams.Keys.SET_ID, String.valueOf(trackSourceInfo.getPlaylistId()));
             builder.appendQueryParameter(EventLoggerParams.Keys.SET_POSITION, String.valueOf(trackSourceInfo.getPlaylistPosition()));
         }
-        return builder.build().getQuery().toString();
+        return builder.build().getQuery();
     }
 
     private String formatOriginUrl(String originUrl) {

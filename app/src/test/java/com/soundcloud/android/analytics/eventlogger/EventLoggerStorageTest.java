@@ -7,17 +7,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.PlaybackEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
-import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import android.content.ContentValues;
 import android.database.MatrixCursor;
@@ -30,48 +28,43 @@ import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class EventLoggerStorageTest {
+    private final String params = "keys=values";
 
+    private PlaybackEvent playbackEvent;
     private EventLoggerStorage eventLoggerStorage;
     
     @Mock
-    EventLoggerDbHelper eventLoggerDbHelper;
+    private EventLoggerDbHelper eventLoggerDbHelper;
     @Mock
-    EventLoggerParamsBuilder eventLoggerParamsBuilder;
+    private EventLoggerParamsBuilder eventLoggerParamsBuilder;
     @Mock
-    SQLiteDatabase sqLiteDatabase;
+    private SQLiteDatabase sqLiteDatabase;
     @Mock
-    TrackSourceInfo trackSourceInfo;
+    private TrackSourceInfo trackSourceInfo;
     @Mock
-    EventLoggerApi eventLoggerApi;
-
-    final String trackingParams1 = "tracking=params";
+    private EventLoggerApi eventLoggerApi;
 
     @Before
     public void setUp() throws Exception {
         eventLoggerStorage = new EventLoggerStorage(eventLoggerDbHelper, eventLoggerParamsBuilder);
+        playbackEvent = PlaybackEvent.forPlay(Mockito.mock(Track.class), 123L, Mockito.mock(TrackSourceInfo.class));
         when(eventLoggerDbHelper.getWritableDatabase()).thenReturn(sqLiteDatabase);
         when(eventLoggerDbHelper.getReadableDatabase()).thenReturn(sqLiteDatabase);
-        when(eventLoggerParamsBuilder.build(trackSourceInfo)).thenReturn(trackingParams1);
+        when(eventLoggerParamsBuilder.buildFromPlaybackEvent(playbackEvent)).thenReturn(params);
 
     }
 
     @Test
-    public void shouldInsertPlaybackEvent() throws CreateModelException {
-        Track track = TestHelper.getModelFactory().createModel(Track.class);
-        final PlaybackEvent playbackEvent = PlaybackEvent.forPlay(track, 1l, trackSourceInfo);
-
+    public void shouldInsertPlaybackEvent() throws Exception {
         eventLoggerStorage.insertEvent(playbackEvent);
 
         ArgumentCaptor<ContentValues> valuesArgumentCaptor = ArgumentCaptor.forClass(ContentValues.class);
         verify(sqLiteDatabase).insertOrThrow(eq(EventLoggerDbHelper.EVENTS_TABLE), isNull(String.class), valuesArgumentCaptor.capture());
 
         ContentValues values = valuesArgumentCaptor.getValue();
-        expect(values.get(EventLoggerDbHelper.TrackingEvents.ACTION)).toEqual(EventLoggerParams.Action.PLAY);
-        expect(values.get(EventLoggerDbHelper.TrackingEvents.SOUND_URN)).toEqual(Urn.forTrack(track.getId()).toString());
+        expect(values.get(EventLoggerDbHelper.TrackingEvents.PATH)).toEqual(EventLoggerEventTypes.PLAYBACK.getPath());
         expect(values.get(EventLoggerDbHelper.TrackingEvents.TIMESTAMP)).toEqual(playbackEvent.getTimeStamp());
-        expect(values.get(EventLoggerDbHelper.TrackingEvents.SOUND_DURATION)).toEqual(track.duration);
-        expect(values.get(EventLoggerDbHelper.TrackingEvents.USER_URN)).toEqual(Urn.forUser(playbackEvent.getUserId()).toString());
-        expect(values.get(EventLoggerDbHelper.TrackingEvents.SOURCE_INFO)).toEqual(trackingParams1);
+        expect(values.get(EventLoggerDbHelper.TrackingEvents.PARAMS)).toEqual("keys=values");
     }
 
     @Test

@@ -1,14 +1,9 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.TrackingEvents.ACTION;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.TrackingEvents.SOUND_DURATION;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.TrackingEvents.SOUND_URN;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.TrackingEvents.SOURCE_INFO;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.TrackingEvents.TIMESTAMP;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.TrackingEvents.USER_URN;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.TrackingEvents.PARAMS;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.TrackingEvents.PATH;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.integralblue.httpresponsecache.compat.Charsets;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.http.HttpURLConnectionFactory;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -17,6 +12,7 @@ import org.apache.http.HttpStatus;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 import android.util.Pair;
 
@@ -24,14 +20,13 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EventLoggerApi {
 
     private static final String TAG = EventLoggerApi.class.getSimpleName();
-    private static final String ENDPOINT = "http://eventlogger.soundcloud.com/audio";
+    private static final String ENDPOINT = "http://eventlogger.soundcloud.com";
 
     static final int READ_TIMEOUT = 5 * 1000;
     static final int CONNECT_TIMEOUT = 10 * 1000;
@@ -94,23 +89,15 @@ public class EventLoggerApi {
     }
 
     String buildUrl(Cursor trackingData) throws UnsupportedEncodingException {
-        StringBuilder sb = new StringBuilder(ENDPOINT);
-        sb.append("?client_id=").append(mAppId);
-        long timestamp = trackingData.getLong(trackingData.getColumnIndex(TIMESTAMP));
-        sb.append("&ts=").append(timestamp);
-        String action = trackingData.getString(trackingData.getColumnIndex(ACTION));
-        sb.append("&action=").append(action);
-        String userUrn = trackingData.getString(trackingData.getColumnIndex(USER_URN));
-        sb.append("&user=").append(URLEncoder.encode(userUrn, Charsets.UTF_8.name()));
-        String soundUrn = trackingData.getString(trackingData.getColumnIndex(SOUND_URN));
-        sb.append("&sound=").append(URLEncoder.encode(soundUrn, Charsets.UTF_8.name()));
-        long soundDuration = trackingData.getLong(trackingData.getColumnIndex(SOUND_DURATION));
-        sb.append("&duration=").append(soundDuration);
-        sb.append("&anonymous_id=").append(mUniqueDeviceId);
-        String sourceInfo = trackingData.getString(trackingData.getColumnIndex(SOURCE_INFO));
-        if (ScTextUtils.isNotBlank(sourceInfo)){
-            sb.append("&").append(sourceInfo);
+        Uri.Builder builder = Uri.parse(ENDPOINT).buildUpon();
+        builder.appendPath(trackingData.getString(trackingData.getColumnIndex(PATH)));
+        builder.appendQueryParameter("client_id", mAppId);
+        builder.appendQueryParameter("anonymous_id", mUniqueDeviceId);
+
+        String sourceInfoQueryString = trackingData.getString(trackingData.getColumnIndex(PARAMS));
+        if (ScTextUtils.isNotBlank(sourceInfoQueryString)){
+            return builder.toString() + "&" + sourceInfoQueryString;
         }
-        return sb.toString();
+        return builder.toString();
     }
 }

@@ -10,7 +10,7 @@ import javax.inject.Inject;
 class EventLoggerDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "SoundCloud-tracking.sqlite";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     static final String EVENTS_TABLE = "events";
 
@@ -38,20 +38,13 @@ class EventLoggerDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_CREATE_PLAY_TRACKING = "CREATE TABLE IF NOT EXISTS " + EVENTS_TABLE + "(" +
             TrackingEvents._ID + " INTEGER PRIMARY KEY," +
             TrackingEvents.TIMESTAMP + " INTEGER NOT NULL," +
-            TrackingEvents.ACTION + " TEXT NOT NULL," +
-            TrackingEvents.SOUND_URN + " TEXT NOT NULL," +
-            TrackingEvents.USER_URN + " TEXT NOT NULL," + // soundcloud:users:123 for logged in, soundcloud:users:0 for logged out
-            TrackingEvents.SOUND_DURATION + " INTEGER NOT NULL," + // this it the total sound length in millis
-            TrackingEvents.SOURCE_INFO + " TEXT NOT NULL," +
-            "UNIQUE (" + TrackingEvents.TIMESTAMP + ", " + TrackingEvents.ACTION + ") ON CONFLICT IGNORE" +
-            ")";
+            TrackingEvents.PATH + " STRING NOT NULL," +
+            TrackingEvents.PARAMS + " TEXT NOT NULL," +
+            "UNIQUE (" + TrackingEvents.TIMESTAMP + ", " + TrackingEvents.PARAMS + ") ON CONFLICT IGNORE" +")";
 
     public interface TrackingEvents extends BaseColumns {
-        final String TIMESTAMP = "timestamp";
-        final String ACTION    = "action";
-        final String SOUND_URN = "sound_urn";
-        final String USER_URN  = "user_urn";
-        final String SOUND_DURATION = "sound_duration";
-        final String SOURCE_INFO = "source_info";
+        String TIMESTAMP = "timestamp";
+        String PATH = "path";
+        String PARAMS = "params";
     }
 }
