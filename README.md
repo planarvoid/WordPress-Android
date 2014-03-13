@@ -40,7 +40,7 @@ Copy the current debug configuration into the app resource dir:
 
     $ cp app/properties/app_properties_debug.xml app/res/values/
 
-Open IntelliJ, select "New Project", then "Import project", select `pom.xml` from the root project directory.
+Open IntelliJ, select "Import project", select `pom.xml` from the root project directory.
 
 Select Next and confirm the import of the parent project.
 
