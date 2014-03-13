@@ -28,8 +28,9 @@ Clone and build it:
 
     $ git clone git@github.com:soundcloud/SoundCloud-Android.git
     $ cd SoundCloud-Android
-    $ rake debug:build
-    $ adb install app/target/soundcloud-android-X.Y-SNAPSHOT.apk
+    $ bundle install
+    $ rake build
+    $ adb install app/target/soundcloud-android-X.Y.Z-debug.apk
 
 ## Opening the project in Intellij IDEA
 
