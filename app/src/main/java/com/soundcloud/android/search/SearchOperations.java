@@ -5,6 +5,8 @@ import static rx.android.OperationPaged.Page;
 import static rx.android.OperationPaged.paged;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.APIEndpoints;
@@ -28,6 +30,7 @@ import rx.functions.Func1;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -178,14 +181,17 @@ public class SearchOperations {
             public Page<PlaylistSummaryCollection> call(Page<PlaylistSummaryCollection> page) {
                 PlaylistSummaryCollection collection = page.getPagedCollection();
                 for (PlaylistSummary playlist : collection) {
-                    LinkedList<String> tagsWithSearchTag = new LinkedList<String>(playlist.getTags());
-                    tagsWithSearchTag.remove(searchTag);
+                    LinkedList<String> tagsWithSearchTag = new LinkedList<String>(removeItemIgnoreCase(playlist.getTags(), searchTag));
                     tagsWithSearchTag.addFirst(searchTag);
                     playlist.setTags(tagsWithSearchTag);
                 }
                 return page;
             }
         };
+    }
+
+    private Collection<String> removeItemIgnoreCase(List<String> list, String itemToRemove) {
+        return Collections2.filter(list, Predicates.containsPattern("(?i)^(?!" + itemToRemove + "$).*$"));
     }
 
     private interface SearchResultsNextPageFunction extends Func1<SearchResultsCollection, Observable<Page<SearchResultsCollection>>> {}

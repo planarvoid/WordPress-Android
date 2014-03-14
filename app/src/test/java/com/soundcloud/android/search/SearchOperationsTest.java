@@ -283,4 +283,32 @@ public class SearchOperationsTest {
         expect(playlistSummary.getTags()).toContainExactly("tag2", "tag1", "tag3");
     }
 
+    @Test
+    public void shouldReorderTagListIfPlaylistTagSearchedWithDifferentCaseAlreadyExists() throws CreateModelException {
+        buildPlaylistSummariesResponse();
+
+        searchOperations.getPlaylistResults("Tag2").subscribe(observer);
+
+        ArgumentCaptor<Page> resultCaptor = ArgumentCaptor.forClass(Page.class);
+        verify(observer).onNext(resultCaptor.capture());
+
+        PlaylistSummary playlistSummary = (PlaylistSummary) Lists.newArrayList(
+                resultCaptor.getValue().getPagedCollection()).get(0);
+        expect(playlistSummary.getTags()).toContainExactly("Tag2", "tag1", "tag3");
+    }
+
+    @Test
+    public void shouldNotReorderTagListIfSearchedTagIsSubsetOfAnExistingTag() throws CreateModelException {
+        buildPlaylistSummariesResponse();
+
+        searchOperations.getPlaylistResults("ag2").subscribe(observer);
+
+        ArgumentCaptor<Page> resultCaptor = ArgumentCaptor.forClass(Page.class);
+        verify(observer).onNext(resultCaptor.capture());
+
+        PlaylistSummary playlistSummary = (PlaylistSummary) Lists.newArrayList(
+                resultCaptor.getValue().getPagedCollection()).get(0);
+        expect(playlistSummary.getTags()).toContainExactly("ag2", "tag1", "tag2", "tag3");
+    }
+
 }
