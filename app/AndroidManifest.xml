@@ -92,7 +92,7 @@
                 <data android:host="m.soundcloud.com" android:scheme="https"/>
             </intent-filter>
 
-            <!-- kee this separate, if combined with above, Android accepts ALL urls -->
+            <!-- keep this separate, if combined with above, Android accepts ALL urls -->
             <intent-filter android:priority="1">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>

@@ -2,7 +2,6 @@ package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.tasks.AddUserInfoTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
@@ -16,12 +15,12 @@ import java.io.File;
 
 public class AddUserInfoTaskFragment extends AuthTaskFragment {
 
-    private static final String USER_EXTRA = "user";
+    private static final String USERNAME_EXTRA = "username";
     private static final String AVATAR_EXTRA = "avatar";
 
-    public static AddUserInfoTaskFragment create(User updatedUser, File avatarFile) {
+    public static AddUserInfoTaskFragment create(String username, File avatarFile) {
         final Bundle param = new Bundle();
-        param.putParcelable(USER_EXTRA,updatedUser);
+        param.putString(USERNAME_EXTRA, username);
         if (avatarFile != null && avatarFile.exists()){
             param.putSerializable(AVATAR_EXTRA, avatarFile.getAbsolutePath());
         }
@@ -35,9 +34,8 @@ public class AddUserInfoTaskFragment extends AuthTaskFragment {
     @Override
     AuthTask createAuthTask() {
         return new AddUserInfoTask((SoundCloudApplication) getActivity().getApplication(),
-                (User) getArguments().getParcelable(USER_EXTRA),
-                getArguments().containsKey(AVATAR_EXTRA) ? new File(getArguments().getString(AVATAR_EXTRA)) : null
-        );
+                getArguments().getString(USERNAME_EXTRA),
+                getArguments().containsKey(AVATAR_EXTRA) ? new File(getArguments().getString(AVATAR_EXTRA)) : null);
     }
 
     @Override

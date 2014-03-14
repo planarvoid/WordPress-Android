@@ -21,28 +21,29 @@ import java.io.IOException;
 
 public class AddUserInfoTask extends AuthTask {
 
-    private User mUpdatedUser;
-    private File mAvatarFile;
     private PublicCloudAPI mOldCloudAPI;
 
-    protected AddUserInfoTask(SoundCloudApplication app, User updatedUser, File avatarFile, UserStorage userStorage,
+    private String mUsername;
+    private File mAvatarFile;
+
+    protected AddUserInfoTask(SoundCloudApplication app, String username, File avatarFile, UserStorage userStorage,
                               PublicCloudAPI oldCloudAPI) {
         super(app, userStorage);
-        mUpdatedUser = updatedUser;
-        mAvatarFile = avatarFile;
         mOldCloudAPI = oldCloudAPI;
+        mUsername = username;
+        mAvatarFile = avatarFile;
     }
 
-    public AddUserInfoTask(SoundCloudApplication application, User updatedUser, File avatarFile){
-        this(application, updatedUser, avatarFile, new UserStorage(), new PublicApi(application));
+    public AddUserInfoTask(SoundCloudApplication application, String username, File avatarFile) {
+        this(application, username, avatarFile, new UserStorage(), new PublicApi(application));
     }
 
     @Override
     protected AuthTaskResult doInBackground(Bundle... params) {
         try {
             Request updateMe = Request.to(Endpoints.MY_DETAILS).with(
-                    Params.User.NAME, mUpdatedUser.username,
-                    Params.User.PERMALINK, mUpdatedUser.permalink);
+                    Params.User.NAME, mUsername,
+                    Params.User.PERMALINK, mUsername);
 
             // resize and attach file if present
             if (mAvatarFile != null && mAvatarFile.canWrite()) {

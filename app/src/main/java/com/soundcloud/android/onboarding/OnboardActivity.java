@@ -1,25 +1,11 @@
 package com.soundcloud.android.onboarding;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.view.animation.Animation;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import static com.soundcloud.android.Consts.RequestCodes;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.AnimUtils.hideView;
+import static com.soundcloud.android.utils.AnimUtils.showView;
+import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
+
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -31,7 +17,20 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.onboarding.auth.*;
+import com.soundcloud.android.onboarding.auth.AbstractLoginActivity;
+import com.soundcloud.android.onboarding.auth.AcceptTermsLayout;
+import com.soundcloud.android.onboarding.auth.AddUserInfoTaskFragment;
+import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
+import com.soundcloud.android.onboarding.auth.FacebookSwitcherActivity;
+import com.soundcloud.android.onboarding.auth.GooglePlusSignInTaskFragment;
+import com.soundcloud.android.onboarding.auth.LoginLayout;
+import com.soundcloud.android.onboarding.auth.LoginTaskFragment;
+import com.soundcloud.android.onboarding.auth.RecoverActivity;
+import com.soundcloud.android.onboarding.auth.SignUpLayout;
+import com.soundcloud.android.onboarding.auth.SignupLog;
+import com.soundcloud.android.onboarding.auth.SignupTaskFragment;
+import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.onboarding.auth.UserDetailsLayout;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -42,16 +41,30 @@ import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 import net.hockeyapp.android.UpdateManager;
 import org.jetbrains.annotations.Nullable;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.util.Log;
+import android.view.ContextThemeWrapper;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.view.animation.Animation;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static com.soundcloud.android.Consts.RequestCodes;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.utils.AnimUtils.hideView;
-import static com.soundcloud.android.utils.AnimUtils.showView;
-import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 public class OnboardActivity extends AbstractLoginActivity implements ISimpleDialogListener, LoginLayout.LoginHandler, SignUpLayout.SignUpHandler, UserDetailsLayout.UserDetailsHandler, AcceptTermsLayout.AcceptTermsHandler {
 
@@ -347,12 +360,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             return;
         }
 
-        if (!TextUtils.isEmpty(username)) {
-            mUser.username  = username;
-            mUser.permalink = username;
-        }
-
-        AddUserInfoTaskFragment.create(mUser,avatarFile).show(getSupportFragmentManager(), "add_user_task");
+        AddUserInfoTaskFragment.create(username, avatarFile).show(getSupportFragmentManager(), "add_user_task");
         mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.savedUserInfo(username, avatarFile));
     }
 
