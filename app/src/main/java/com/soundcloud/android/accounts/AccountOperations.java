@@ -16,6 +16,9 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -129,8 +132,17 @@ public class AccountOperations {
         Account soundCloudAccount = getSoundCloudAccount();
         checkNotNull(soundCloudAccount, "One does not simply remove something that does not exist");
 
-        return Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager, context));
+        return Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager));
+    }
 
+    public Observable<Void> purgeUserData() {
+        return Observable.create(new Observable.OnSubscribe<Void>() {
+            @Override
+            public void call(Subscriber<? super Void> subscriber) {
+                new AccountCleanupAction(context).call();
+                subscriber.onCompleted();
+            }
+        });
     }
 
     @Nullable

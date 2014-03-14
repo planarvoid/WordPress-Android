@@ -1,5 +1,26 @@
 package com.soundcloud.android.preferences;
 
+import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ChangeLog;
+import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.SharedPreferencesUtils;
+import rx.android.schedulers.AndroidSchedulers;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -16,23 +37,8 @@ import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.*;
 
 import java.io.File;
-
-import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class SettingsActivity extends ScSettingsActivity {
 
@@ -75,7 +81,7 @@ public class SettingsActivity extends ScSettingsActivity {
                         startActivity(intent);
                         return true;
                     }
-        });
+                });
 
         findPreference(NOTIFICATION_SETTINGS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
@@ -85,7 +91,7 @@ public class SettingsActivity extends ScSettingsActivity {
                         startActivity(intent);
                         return true;
                     }
-        });
+                });
 
         final ChangeLog cl = new ChangeLog(this);
         findPreference(CHANGE_LOG).setOnPreferenceClickListener(
@@ -280,7 +286,7 @@ public class SettingsActivity extends ScSettingsActivity {
 
         private LogoutClickListener(Activity activityContext) {
             mActivityContext = activityContext;
-            mSoundCloudApplication = (SoundCloudApplication)activityContext.getApplicationContext();
+            mSoundCloudApplication = (SoundCloudApplication) activityContext.getApplicationContext();
             this.mAccountOperations = new AccountOperations(mSoundCloudApplication);
         }
 
@@ -288,27 +294,29 @@ public class SettingsActivity extends ScSettingsActivity {
         public void onClick(final DialogInterface dialog, int whichButton) {
             final ProgressDialog progressDialog = AndroidUtils.showProgress(mActivityContext, R.string.settings_logging_out);
 
-            mAccountOperations.removeSoundCloudAccount().subscribe(new DefaultSubscriber<Void>() {
-                @Override
-                public void onCompleted() {
-                    mAccountOperations.addSoundCloudAccountManually(mActivityContext);
-                    progressDialog.dismiss();
-                    mActivityContext.finish();
-                }
+            mAccountOperations.removeSoundCloudAccount()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new DefaultSubscriber<Void>() {
+                        @Override
+                        public void onCompleted() {
+                            mAccountOperations.addSoundCloudAccountManually(mActivityContext);
+                            progressDialog.dismiss();
+                            mActivityContext.finish();
+                        }
 
-                @Override
-                public void onError(Throwable e) {
-                    super.onError(e);
-                    progressDialog.dismiss();
-                    new AlertDialog.Builder(mActivityContext)
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setMessage(R.string.settings_error_revoking_account_message)
-                            .setPositiveButton(android.R.string.ok, null)
-                            .create()
-                            .show();
-                }
+                        @Override
+                        public void onError(Throwable e) {
+                            super.onError(e);
+                            progressDialog.dismiss();
+                            new AlertDialog.Builder(mActivityContext)
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .setMessage(R.string.settings_error_revoking_account_message)
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .create()
+                                    .show();
+                        }
 
-            }, ScSchedulers.STORAGE_SCHEDULER);
+                    }, ScSchedulers.STORAGE_SCHEDULER);
         }
-    };
+    }
 }

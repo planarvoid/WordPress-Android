@@ -1,73 +1,21 @@
 package com.soundcloud.android.accounts;
 
-import static com.soundcloud.android.onboarding.auth.FacebookSSOActivity.FBToken;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.exception.OperationFailedException;
-import com.soundcloud.android.api.UnauthorisedRequestRegistry;
-import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.c2dm.C2DMReceiver;
-import com.soundcloud.android.cache.ConnectionsCache;
-import com.soundcloud.android.creators.record.SoundRecorder;
-import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.storage.ActivitiesStorage;
-import com.soundcloud.android.storage.CollectionStorage;
-import com.soundcloud.android.storage.PlaylistTagStorage;
-import com.soundcloud.android.storage.UserAssociationStorage;
-import com.soundcloud.android.sync.SyncStateManager;
 import rx.Observable;
 import rx.Subscriber;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
-import android.content.Context;
-import android.content.Intent;
 
 class AccountRemovalFunction implements Observable.OnSubscribe<Void> {
-    private final EventBus mEventBus;
-    private final Context mContext;
     private final Account mSoundCloudAccount;
-    private final CollectionStorage mCollectionStorage;
-    private final ActivitiesStorage mActivitiesStorage;
-    private final UserAssociationStorage mUserAssociationStorage;
-    private final PlaylistTagStorage mTagStorage;
-    private final SoundRecorder mSoundRecorder;
     private final AccountManager mAccountManager;
-    private final SyncStateManager mSyncStateManager;
-    private final C2DMReceiver mC2DMReceiver;
-    private final UnauthorisedRequestRegistry mUnauthorisedRequestRegistry;
 
-    public AccountRemovalFunction(Account soundCloudAccount, AccountManager accountManager, Context context) {
-        this(SoundCloudApplication.fromContext(context).getEventBus(),
-                soundCloudAccount, context, accountManager, new SyncStateManager(context), new CollectionStorage(context),
-                new ActivitiesStorage(context), new UserAssociationStorage(context), new PlaylistTagStorage(context), SoundRecorder.getInstance(context),
-                new C2DMReceiver(), UnauthorisedRequestRegistry.getInstance(context));
-    }
-
-    @VisibleForTesting
-    protected AccountRemovalFunction(EventBus eventBus, Account soundCloudAccount, Context context,
-                                     AccountManager accountManager, SyncStateManager syncStateManager,
-                           CollectionStorage collectionStorage, ActivitiesStorage activitiesStorage, UserAssociationStorage userAssociationStorage,
-                           PlaylistTagStorage tagStorage, SoundRecorder soundRecorder, C2DMReceiver c2DMReceiver, UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
-        mEventBus = eventBus;
+    public AccountRemovalFunction(Account soundCloudAccount, AccountManager accountManager) {
         mSoundCloudAccount = soundCloudAccount;
-        mContext = context;
         mAccountManager = accountManager;
-        mSyncStateManager = syncStateManager;
-        mCollectionStorage = collectionStorage;
-        mActivitiesStorage = activitiesStorage;
-        mTagStorage = tagStorage;
-        mUserAssociationStorage = userAssociationStorage;
-        mSoundRecorder = soundRecorder;
-        mC2DMReceiver = c2DMReceiver;
-        mUnauthorisedRequestRegistry = unauthorisedRequestRegistry;
     }
-
 
     @Override
     public void call(Subscriber<? super Void> observer) {
@@ -75,7 +23,6 @@ class AccountRemovalFunction implements Observable.OnSubscribe<Void> {
             AccountManagerFuture<Boolean> accountRemovalFuture = mAccountManager.removeAccount(mSoundCloudAccount, null, null);
 
             if (accountRemovalFuture.getResult()) {
-                finaliseAccountRemoval();
                 observer.onCompleted();
             } else {
                 observer.onError(new OperationFailedException());
@@ -85,31 +32,4 @@ class AccountRemovalFunction implements Observable.OnSubscribe<Void> {
             observer.onError(e);
         }
     }
-
-    /**
-     * TODO Should we just delete the private data directory? Context.getFilesDir()
-     */
-    private void finaliseAccountRemoval() {
-        mUnauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
-        mSyncStateManager.clear();
-        mCollectionStorage.clear();
-        mActivitiesStorage.clear(null);
-        mUserAssociationStorage.clear();
-        mTagStorage.clear();
-
-        mSoundRecorder.reset();
-
-        FBToken.clear(mContext);
-
-        mEventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
-        mContext.sendBroadcast(new Intent(PlaybackService.Actions.RESET_ALL));
-
-
-        mC2DMReceiver.unregister(mContext);
-        FollowingOperations.clearState();
-        ConnectionsCache.reset();
-        SoundCloudApplication applicationContext = (SoundCloudApplication) mContext.getApplicationContext();
-        applicationContext.clearLoggedInUser();
-    }
-
 }
