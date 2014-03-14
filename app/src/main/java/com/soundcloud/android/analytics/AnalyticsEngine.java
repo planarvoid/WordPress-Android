@@ -92,7 +92,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             mEventsSubscription = new CompositeSubscription();
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackEventSubscriber()));
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.UI, new UIEventSubscriber()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.ONBOARDING, new OnboardingEventSubscriber()));
+            mEventsSubscription.add(mEventBus.subscribe(EventQueue.ONBOARDING, new OnboardEventSubscriber()));
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventSubscriber()));
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.SCREEN_ENTERED, new ScreenEventSubscriber()));
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new UserEventSubscriber()));
@@ -159,7 +159,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    private final class OnboardingEventSubscriber extends EventSubscriber<OnboardingEvent> {
+    private final class OnboardEventSubscriber extends EventSubscriber<OnboardingEvent> {
         @Override
         protected void handleEvent(AnalyticsProvider provider, OnboardingEvent event) {
             provider.handleOnboardingEvent(event);
