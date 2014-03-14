@@ -1495,4 +1495,13 @@
         <item name="android:textColor">@color/listTxtHeader</item>
     </style>
 
+    <style name="PlaylistPlayToggle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:background">@drawable/btn_header_play_toggle</item>
+        <item name="android:textOn"></item>
+        <item name="android:textOff"></item>
+    </style>
+
 </resources>

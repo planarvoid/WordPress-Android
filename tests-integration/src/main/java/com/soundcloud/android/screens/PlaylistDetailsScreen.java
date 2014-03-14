@@ -4,10 +4,12 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.tests.Han;
 
+import android.widget.ToggleButton;
 import android.view.View;
 import android.widget.TextView;
 
 public class PlaylistDetailsScreen extends Screen {
+
     private static final Class ACTIVITY = PlaylistDetailActivity.class;
     private static final int TITLE = R.id.title;
     private static final int USERNAME = R.id.username;
@@ -27,10 +29,11 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public String getUsername() {
-        return ((TextView)title()).getText().toString();
+        return ((TextView) title()).getText().toString();
     }
+
     public String getTitle() {
-        return ((TextView)title()).getText().toString();
+        return ((TextView) title()).getText().toString();
     }
 
     private View title() {
@@ -41,5 +44,17 @@ public class PlaylistDetailsScreen extends Screen {
         return rootContainer().findViewById(USERNAME);
     }
 
+    public PlayerScreen clickHeaderPlay() {
+        solo.clickOnView(R.id.toggle_play_pause);
+        return new PlayerScreen(solo);
+    }
+
+    public void clickHeaderPause() {
+        solo.clickOnView(R.id.toggle_play_pause);
+    }
+
+    public boolean isPlayToggleChecked() {
+        return ((ToggleButton) solo.getView(R.id.toggle_play_pause)).isChecked();
+    }
 
 }

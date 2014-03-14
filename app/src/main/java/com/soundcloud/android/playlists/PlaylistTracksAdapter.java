@@ -8,12 +8,17 @@ import com.soundcloud.android.model.Track;
 import android.view.View;
 import android.view.ViewGroup;
 
+import javax.inject.Inject;
+
 public class PlaylistTracksAdapter extends ItemAdapter<Track> {
 
-    private ImageOperations mImageOperations;
+    private static final int INITIAL_SIZE = 10;
 
-    public PlaylistTracksAdapter(ImageOperations imageOperations) {
-        super(10);
+    private final ImageOperations mImageOperations;
+
+    @Inject
+    PlaylistTracksAdapter(ImageOperations imageOperations) {
+        super(INITIAL_SIZE);
         mImageOperations = imageOperations;
     }
 

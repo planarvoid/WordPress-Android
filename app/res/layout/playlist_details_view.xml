@@ -5,10 +5,18 @@
                 android:layout_height="wrap_content"
                 android:background="@color/playlist_background">
 
-    <com.soundcloud.android.view.SquareImageView android:id="@+id/artwork"
+    <RelativeLayout android:id="@+id/artwork_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+        <com.soundcloud.android.view.SquareImageView android:id="@+id/artwork"
                                                  android:layout_width="match_parent"
                                                  android:layout_height="wrap_content"
                                                  android:scaleType="centerCrop" />
+
+        <ToggleButton android:id="@+id/toggle_play_pause"
+                      style="@style/PlaylistPlayToggle" />
+    </RelativeLayout>
 
     <com.soundcloud.android.view.JaggedTextView android:id="@+id/username"
                                                 android:layout_above="@+id/title"
@@ -20,12 +28,12 @@
                                                 android:layout_marginRight="@dimen/playlist_header_padding"
                                                 android:layout_marginBottom="@dimen/playlist_header_padding"
                                                 android:layout_marginTop="4dp"
-                                                android:layout_alignBottom="@id/artwork"
+                                                android:layout_alignBottom="@id/artwork_container"
                                                 style="@style/BlackOverlayText.RegularSubtext.Grid" />
 
     <View
         android:id="@+id/artwork_divider"
-        android:layout_below="@id/artwork"
+        android:layout_below="@id/artwork_container"
         style="@style/PlaylistDivider" />
 
     <include layout="@layout/playlist_action_bar"

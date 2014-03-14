@@ -24,7 +24,6 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -82,7 +81,6 @@ public class PlaybackOperations {
         playTrack(context, track, playSessionSource);
     }
 
-
     private void playTrack(Context context, Track track, PlaySessionSource playSessionSource) {
         playFromIdList(context, Lists.newArrayList(track.getId()), 0, track, playSessionSource);
     }
@@ -97,6 +95,21 @@ public class PlaybackOperations {
         playFromUri(context, playlist.toUri(), startPosition, initialTrack, playSessionSource);
     }
 
+    public void playPlaylist(Context context, Playlist playlist, Screen screen) {
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screen.get());
+        playSessionSource.setPlaylist(playlist);
+        cacheAndGoToPlayer(context, playlist.getTracks().get(0));
+        final List<Long> trackIds = Lists.transform(playlist.getTracks(), new Function<Track, Long>() {
+            @Override
+            public Long apply(Track track) {
+                return track.getId();
+            }
+        });
+
+        context.startService(getPlayIntent(trackIds, 0, playSessionSource));
+    }
+
+    @Deprecated
     public void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri uri, Screen screen) {
         if (position >= data.size() || !(data.get(position) instanceof PlayableHolder)) {
             throw new AssertionError("Invalid item " + position + ", must be a playable");
@@ -121,7 +134,6 @@ public class PlaybackOperations {
         }
     }
 
-
     public void startPlayback(final Context context, Track track, Screen screen) {
         mModelManager.cache(track);
         startPlayback(context, track.getId(), screen);
@@ -129,6 +141,13 @@ public class PlaybackOperations {
 
     public void startPlayback(final Context context, long id, Screen screen) {
         context.startService(getPlayIntent(Lists.newArrayList(id), 0, new PlaySessionSource(screen)));
+    }
+
+    public void togglePlayback(final Context context) {
+        if (!mPlaybackStateProvider.isPlaying()) {
+            cacheAndGoToPlayer(context, mPlaybackStateProvider.getCurrentTrack());
+        }
+        context.startService(new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
     }
 
     public void playFromIdListShuffled(final Context context, List<Long> ids, Screen screen) {
@@ -245,13 +264,13 @@ public class PlaybackOperations {
         IDLE, LOADING, ERROR, EMPTY;
     }
 
-    public @Nullable Intent getServiceBasedUpIntent(@NotNull PlaybackService playbackService) {
-        final String originScreen = playbackService.getPlayQueueOriginScreen();
+    public @Nullable Intent getServiceBasedUpIntent() {
+        final String originScreen = mPlaybackStateProvider.getScreenTag();
         if (ScTextUtils.isBlank(originScreen)){
             return null; // might have come from widget and the play queue is empty
         }
 
-        long playlistId = playbackService.getPlayQueuePlaylistId();
+        long playlistId = mPlaybackStateProvider.getPlayQueuePlaylistId();
         if (playlistId != Playable.NOT_SET) {
             return getUpDestinationFromPlaylist(playlistId, originScreen);
         } else {

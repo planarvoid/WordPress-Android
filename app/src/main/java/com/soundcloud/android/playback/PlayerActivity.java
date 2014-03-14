@@ -166,7 +166,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     @Override
     public boolean onSupportNavigateUp() {
         if (mPlaybackService != null) {
-            Intent intent = mPlaybackOperations.getServiceBasedUpIntent(mPlaybackService);
+            Intent intent = mPlaybackOperations.getServiceBasedUpIntent();
             if (intent != null) {
                 startActivity(intent);
                 finish();

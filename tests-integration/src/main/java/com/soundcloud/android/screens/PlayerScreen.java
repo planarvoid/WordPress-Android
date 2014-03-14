@@ -23,6 +23,11 @@ public class PlayerScreen extends Screen {
         return solo.getView(R.id.pause);
     }
 
+    public PlaylistDetailsScreen goBackToPlaylist() {
+        solo.goBack();
+        return new PlaylistDetailsScreen(solo);
+    }
+
     @Override
     protected Class getActivity() {
         return ACTIVITY;

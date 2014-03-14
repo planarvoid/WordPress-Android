@@ -9,17 +9,19 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.EngagementsController;
-import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.collections.ScListView;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.PlayablePresenter;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -29,6 +31,8 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.EmptyListView;
 import org.jetbrains.annotations.Nullable;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -44,30 +48,13 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 
 @SuppressLint("ValidFragment")
 public class PlaylistTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
-        PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener {
-
-    private Playlist mPlaylist;
-    private TextView mInfoHeaderText;
-
-    private boolean mListShown;
-    private LocalCollection mLocalCollection;
-
-    private PlaylistTracksAdapter mAdapter;
-    private ScListView mListView;
-    private View mListViewContainer;
-    private View mProgressView;
-    private EmptyListView mEmptyView;
-
-    private int mScrollToPos = -1;
-
-    private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
-
-    private PlayablePresenter mPlayableDecorator;
+        PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener, View.OnClickListener {
 
     @Inject
     SyncStateManager mSyncStateManager;
@@ -76,13 +63,32 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     @Inject
     PlaybackOperations mPlaybackOperations;
     @Inject
+    PlaybackStateProvider mPlaybackStateProvider;
+    @Inject
     ImageOperations mImageOperations;
     @Inject
-    SoundAssociationOperations mSoundAssocOps;
+    EngagementsController mEngagementsController;
     @Inject
     EventBus mEventBus;
     @Inject
-    EngagementsController mEngagementsController;
+    PlaylistTracksAdapter mAdapter;
+
+    private Playlist mPlaylist;
+    private LocalCollection mLocalCollection;
+    private Subscription mSubscription = Subscriptions.empty();
+    private PlayablePresenter mPlayableDecorator;
+
+    private ScListView mListView;
+    private View mListViewContainer;
+    private View mProgressView;
+    private EmptyListView mEmptyView;
+    private TextView mInfoHeaderText;
+    private ToggleButton mPlayToggle;
+
+    private boolean mListShown;
+    private int mScrollToPos = -1;
+
+    private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
     public PlaylistTracksFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -90,13 +96,16 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     @VisibleForTesting
     public PlaylistTracksFragment(PlaybackOperations playbackOperations, PlaylistOperations playlistOperations,
+                                  PlaybackStateProvider playbackStateProvider,
                                   ImageOperations imageOperations, SyncStateManager syncStateManager,
-                                  EngagementsController engagementsController) {
+                                  EngagementsController engagementsController, PlaylistTracksAdapter adapter) {
         mPlaybackOperations = playbackOperations;
         mPlaylistOperations = playlistOperations;
+        mPlaybackStateProvider = playbackStateProvider;
         mImageOperations = imageOperations;
         mSyncStateManager = syncStateManager;
         mEngagementsController = engagementsController;
+        mAdapter = adapter;
     }
 
     public static PlaylistTracksFragment create(Uri playlistUri, Screen originScreen) {
@@ -104,13 +113,9 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         args.putParcelable(Playlist.EXTRA_URI, playlistUri);
         originScreen.addToBundle(args);
 
-        PlaylistTracksFragment fragment = createFragmentInstance();
+        PlaylistTracksFragment fragment = new PlaylistTracksFragment();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    protected static PlaylistTracksFragment createFragmentInstance() {
-        return new PlaylistTracksFragment();
     }
 
     @Override
@@ -118,15 +123,8 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         super.onCreate(savedInstanceState);
 
         mLocalCollection = getLocalCollection();
-        mAdapter = new PlaylistTracksAdapter(mImageOperations);
         mDetachableReceiver.setReceiver(PlaylistTracksFragment.this);
         mPlayableDecorator = new PlayablePresenter(getActivity());
-    }
-
-    private void loadPlaylist() {
-        final Uri playlistUri = getArguments().getParcelable(Playlist.EXTRA_URI);
-        mPlaylist = new Playlist(UriUtils.getLastSegmentAsLong(playlistUri));
-        fromFragment(this, mPlaylistOperations.loadPlaylist(mPlaylist.getId())).subscribe(new PlaylistSubscriber());
     }
 
     @Override
@@ -157,6 +155,49 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         setListShown(mListShown);
 
         loadPlaylist();
+
+        mSubscription = mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackSubscriber());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mPlayToggle.setChecked(mPlaybackStateProvider.isPlaylistPlaying(mPlaylist));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mPlayToggle.setOnCheckedChangeListener(null);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // observe changes to the local collection to update the last updated timestamp
+        mSyncStateManager.addChangeListener(mLocalCollection, this);
+        mEngagementsController.startListeningForChanges();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mSyncStateManager.removeChangeListener(mLocalCollection);
+        mEngagementsController.stopListeningForChanges();
+    }
+
+    @Override
+    public void onDestroyView() {
+        mSubscription.unsubscribe();
+        mEngagementsController = null;
+        mPlayableDecorator = null;
+        super.onDestroyView();
+    }
+
+    private void loadPlaylist() {
+        final Uri playlistUri = getArguments().getParcelable(Playlist.EXTRA_URI);
+        mPlaylist = new Playlist(UriUtils.getLastSegmentAsLong(playlistUri));
+        fromFragment(this, mPlaylistOperations.loadPlaylist(mPlaylist.getId())).subscribe(new PlaylistSubscriber());
     }
 
     private void configureInfoViews(View layout) {
@@ -188,18 +229,15 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
                 return Screen.fromBundle(getArguments()).get();
             }
         });
+
+        mPlayToggle = (ToggleButton) detailsView.findViewById(R.id.toggle_play_pause);
+        mPlayToggle.setOnClickListener(this);
     }
 
     private void addInfoHeader() {
         View mInfoHeader = View.inflate(getActivity(), R.layout.playlist_header, null);
         mInfoHeaderText = (TextView) mInfoHeader.findViewById(android.R.id.text1);
         mListView.getRefreshableView().addHeaderView(mInfoHeader, null, false);
-    }
-
-    @Override
-    public void onDestroyView() {
-        mEngagementsController = null;
-        super.onDestroyView();
     }
 
     private void setListShown(boolean show) {
@@ -214,26 +252,20 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        // observe changes to the local collection to update the last updated timestamp
-        mSyncStateManager.addChangeListener(mLocalCollection, this);
-        mEngagementsController.startListeningForChanges();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mSyncStateManager.removeChangeListener(mLocalCollection);
-        mEngagementsController.stopListeningForChanges();
-    }
-
-    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final int trackPosition = position - mListView.getRefreshableView().getHeaderViewsCount();
         final Track initialTrack = mAdapter.getItem(trackPosition);
         mPlaybackOperations.playFromPlaylist(getActivity(), mPlaylist, trackPosition, initialTrack,
                 Screen.fromBundle(getArguments()));
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (mPlaybackStateProvider.getPlayQueuePlaylistId() == mPlaylist.getId()) {
+            mPlaybackOperations.togglePlayback(getActivity());
+        } else {
+            mPlaybackOperations.playPlaylist(getActivity(), mPlaylist, Screen.fromBundle(getArguments()));
+        }
     }
 
     @Override
@@ -334,6 +366,13 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
             mAdapter.addItem(track);
         }
         mAdapter.notifyDataSetChanged();
+    }
+
+    private final class PlaybackSubscriber extends DefaultSubscriber<PlaybackEvent> {
+        @Override
+        public void onNext(PlaybackEvent event) {
+            mPlayToggle.setChecked(mPlaybackStateProvider.isPlaylistPlaying(mPlaylist));
+        }
     }
 
     private final class PlaylistSubscriber extends DefaultSubscriber<Playlist> {

@@ -52,13 +52,8 @@ public class PlaybackOperationsTest {
     private ScModelManager modelManager;
     @Mock
     private TrackStorage trackStorage;
-
     @Mock
     private Observer observer;
-    @Mock
-    private Playlist playlist;
-    @Mock
-    private PlaybackService playbackService;
     @Mock
     private PlaybackStateProvider playbackStateProvider;
 
@@ -90,6 +85,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playFromUriShouldOpenPlayerActivityWithInitialTrackId() {
+        Playlist playlist = new Playlist(3L);
         final Observable<List<Long>> trackIdList = Observable.<List<Long>>just(Lists.newArrayList(track.getId()));
         when(trackStorage.getTrackIdsForUriAsync(any(Uri.class))).thenReturn(trackIdList);
 
@@ -117,6 +113,30 @@ public class PlaybackOperationsTest {
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
         playSessionSource.setPlaylist(playlist);
         checkStartIntent(application.getNextStartedService(), 1, playSessionSource,
+                tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
+    }
+
+    @Test
+    public void shouldTogglePlayback() {
+        Track track = new Track(1L);
+        when(playbackStateProvider.getCurrentTrack()).thenReturn(track);
+        playbackOperations.togglePlayback(Robolectric.application);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        expect(application.getNextStartedService().getAction()).toBe(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION);
+    }
+
+    @Test
+    public void shouldStartPlaybackServiceWithPlaylistTrackIds() throws CreateModelException {
+        List<Track> tracks = TestHelper.createTracks(3);
+        Playlist playlist = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
+
+        playbackOperations.playPlaylist(Robolectric.application, playlist, ORIGIN_SCREEN);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
+        playSessionSource.setPlaylist(playlist);
+        checkStartIntent(application.getNextStartedService(), 0, playSessionSource,
                 tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
     }
 
@@ -251,15 +271,15 @@ public class PlaybackOperationsTest {
 
     @Test
     public void getUpIntentShouldReturnNullWithNoOriginScreen() throws Exception {
-        when(playbackService.getPlayQueueOriginScreen()).thenReturn(null);
-        expect(playbackOperations.getServiceBasedUpIntent(playbackService)).toBeNull();
+        when(playbackStateProvider.getScreenTag()).thenReturn(null);
+        expect(playbackOperations.getServiceBasedUpIntent()).toBeNull();
     }
 
     @Test
     public void getUpIntentShouldReturnPlaylistUpIntent() throws Exception {
-        when(playbackService.getPlayQueueOriginScreen()).thenReturn(Screen.PLAYLIST_DETAILS.get());
-        when(playbackService.getPlayQueuePlaylistId()).thenReturn(123L);
-        final Intent intent = playbackOperations.getServiceBasedUpIntent(playbackService);
+        when(playbackStateProvider.getScreenTag()).thenReturn(Screen.PLAYLIST_DETAILS.get());
+        when(playbackStateProvider.getPlayQueuePlaylistId()).thenReturn(123L);
+        final Intent intent = playbackOperations.getServiceBasedUpIntent();
         expect(intent).toHaveAction("com.soundcloud.android.action.PLAYLIST");
         expect(intent).toHaveData(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/playlists/123"));
         expect(intent).toHaveFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -268,9 +288,9 @@ public class PlaybackOperationsTest {
 
     @Test
     public void getUpIntentShouldReturnLikeUpIntent() throws Exception {
-        when(playbackService.getPlayQueueOriginScreen()).thenReturn(Screen.SIDE_MENU_LIKES.get());
-        when(playbackService.getPlayQueuePlaylistId()).thenReturn(-1L);
-        final Intent intent = playbackOperations.getServiceBasedUpIntent(playbackService);
+        when(playbackStateProvider.getScreenTag()).thenReturn(Screen.SIDE_MENU_LIKES.get());
+        when(playbackStateProvider.getPlayQueuePlaylistId()).thenReturn(-1L);
+        final Intent intent = playbackOperations.getServiceBasedUpIntent();
         expect(intent).toHaveAction("com.soundcloud.android.action.LIKES");
         expect(intent).toHaveFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }

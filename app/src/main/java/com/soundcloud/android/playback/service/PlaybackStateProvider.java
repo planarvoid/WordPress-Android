@@ -2,6 +2,8 @@ package com.soundcloud.android.playback.service;
 
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import org.jetbrains.annotations.Nullable;
@@ -62,6 +64,15 @@ public class PlaybackStateProvider implements OriginProvider {
     public boolean isSupposedToBePlaying() {
         final PlaybackService instance = PlaybackService.instance;
         return getPlaybackState(instance).isSupposedToBePlaying();
+    }
+
+    public long getPlayQueuePlaylistId() {
+        final PlaybackService instance = PlaybackService.instance;
+        return instance == null ? Playable.NOT_SET : instance.getPlayQueuePlaylistId();
+    }
+
+    public boolean isPlaylistPlaying(Playlist playlist) {
+        return getPlayQueuePlaylistId() == playlist.getId() && isPlaying();
     }
 
     @Override
