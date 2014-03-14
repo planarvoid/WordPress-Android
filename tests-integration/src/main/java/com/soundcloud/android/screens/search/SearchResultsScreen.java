@@ -29,13 +29,10 @@ public class SearchResultsScreen extends Screen {
     private static final String PLAYLISTS_TAB_TEXT = "PLAYLISTS";
     private static final String PEOPLE_TAB_TEXT = "PEOPLE";
 
-    private ViewPagerElement viewPager;
-
     public SearchResultsScreen(Han solo) {
         super(solo);
         waiter.waitForActivity(getActivity());
         waiter.waitForFragmentByTag(FRAGMENT);
-        viewPager = new ViewPagerElement(solo);
     }
 
     public PlayerScreen clickFirstTrackItem() {
@@ -85,7 +82,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
-        solo.scrollToBottom((ListView) viewPager.getCurrentPage(ListView.class));
+        solo.scrollToBottom((ListView) getViewPager().getCurrentPage(ListView.class));
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
@@ -121,7 +118,11 @@ public class SearchResultsScreen extends Screen {
     }
 
     private ListView resultsList() {
-        return (ListView) viewPager.getCurrentPage(ListView.class);
+        return (ListView) getViewPager().getCurrentPage(ListView.class);
+    }
+
+    private ViewPagerElement viewPagerElement() {
+        return new ViewPagerElement(solo);
     }
 
     private View getFirstResultsItemByClass(Class itemClass) {

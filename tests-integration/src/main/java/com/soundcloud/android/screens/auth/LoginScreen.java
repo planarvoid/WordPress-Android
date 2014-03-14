@@ -58,7 +58,7 @@ public class LoginScreen extends Screen {
 
     public void selectUserFromDialog(String username) {
         solo.clickOnText(username);
-        solo.waitForActivity(OnboardActivity.class);
+        waiter.waitForActivity(OnboardActivity.class);
     }
 
     public void clickOnCancelButton() {

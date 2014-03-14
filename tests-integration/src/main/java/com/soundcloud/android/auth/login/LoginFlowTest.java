@@ -8,7 +8,6 @@ import static com.soundcloud.android.tests.TestUser.scTestAccount;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.auth.LoginTestCase;
-import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.FacebookWebFlowActivity;
 import com.soundcloud.android.screens.HomeScreen;
@@ -145,10 +144,7 @@ public class LoginFlowTest extends LoginTestCase {
         loginScreen.loginAs(scTestAccount.getUsername(), "wrong-password", false);
 
         solo.assertText(R.string.authentication_login_error_password_message, "We could not log you in");
-
         loginScreen.clickOkButton();
-
-        solo.assertActivity(OnboardActivity.class);
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
     }
 
