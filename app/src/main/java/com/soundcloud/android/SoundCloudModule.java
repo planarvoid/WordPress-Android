@@ -15,6 +15,7 @@ import dagger.Module;
         StorageModule.class,
         ApiModule.class,
         AnalyticsModule.class,
+        AccountsModule.class,
         SearchModule.class,
         ExploreModule.class,
         LikesModule.class,
