@@ -1,12 +1,13 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.nostra13.universalimageloader.utils.L;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
@@ -20,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import android.content.ContentResolver;
@@ -115,6 +117,21 @@ public class PlaylistStorageTest {
         storage.store(playlist);
 
         verify(playlistDAO).create(playlist);
+    }
+
+    @Test
+    public void storePlaylistRemovesOldTracksIfPlaylistEmpty() throws Exception {
+        Playlist playlist = new Playlist(1L);
+        storage.store(playlist);
+        verify(resolver).delete(Content.PLAYLIST_TRACKS.forQuery("1"), null, null);
+    }
+
+    @Test
+    public void storePlaylistDoesNotRemoveTracksIfPlaylistNotEmpty() throws Exception {
+        Playlist playlist = new Playlist(1L);
+        playlist.tracks = Lists.newArrayList(new Track(1L));
+        storage.store(playlist);
+        verify(resolver, never()).delete(any(Uri.class), Matchers.<String>any(), Matchers.<String[]>any());
     }
 
     @Test

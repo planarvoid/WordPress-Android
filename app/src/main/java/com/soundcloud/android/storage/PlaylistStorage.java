@@ -99,6 +99,11 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     @Override
     public Playlist store(Playlist playlist) {
         mPlaylistDAO.create(playlist);
+        if (playlist.getTrackCount() == 0){
+            // this needs to be run on an empty playlist, if not empty, they would have been removed by a bulkInsert of the new tracks
+            mResolver.delete(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.getId())), null, null);
+        }
+
         return playlist;
     }
 
