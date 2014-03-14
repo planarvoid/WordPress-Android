@@ -172,7 +172,7 @@ public class PlaybackOperations {
                              final PlaySessionSource playSessionSource) {
         cacheAndGoToPlayer(context, initialTrack);
 
-        if (isNotCurrentlyPlaying(initialTrack)) {
+        if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
             mTrackStorage.getTrackIdsForUriAsync(uri).subscribe(new DefaultSubscriber<List<Long>>() {
                 @Override
                 public void onNext(List<Long> idList) {
@@ -187,7 +187,7 @@ public class PlaybackOperations {
     private void playFromIdList(Context context, List<Long> idList, int startPosition, Track initialTrack, PlaySessionSource playSessionSource) {
         cacheAndGoToPlayer(context, initialTrack);
 
-        if (isNotCurrentlyPlaying(initialTrack)) {
+        if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
             final int adjustedPosition = getDeduplicatedIdList(idList, startPosition);
             final Intent playIntent = getPlayIntent(idList, adjustedPosition, playSessionSource);
             context.startService(playIntent);
@@ -206,8 +206,10 @@ public class PlaybackOperations {
         context.startActivity(playerActivityIntent);
     }
 
-    private boolean isNotCurrentlyPlaying(Track track){
-        return mPlaybackStateProvider.getCurrentTrackId() != track.getId();
+    private boolean shouldChangePlayQueue(Track track, PlaySessionSource playSessionSource){
+        return mPlaybackStateProvider.getCurrentTrackId() != track.getId() ||
+                !playSessionSource.getOriginScreen().equals(mPlaybackStateProvider.getScreenTag()) ||
+                playSessionSource.getPlaylistId() != mPlaybackStateProvider.getPlayQueuePlaylistId();
     }
 
     public Intent getPlayIntent(final List<Long> trackList, int startPosition,

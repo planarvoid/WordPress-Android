@@ -76,7 +76,7 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playTrackShouldStartPlaybackServiceWithPlayQueueFromInitialTrack() {
+     public void playTrackShouldStartPlaybackServiceWithPlayQueueFromInitialTrack() {
         playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -84,7 +84,26 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playFromUriShouldOpenPlayerActivityWithInitialTrackId() {
+    public void playTrackShouldNotSendServiceIntentIfTrackAlreadyPlayingWithSameOrigin() {
+        when(playbackStateProvider.getCurrentTrackId()).thenReturn(track.getId());
+        playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        expect(application.getNextStartedService()).not.toBeNull();
+    }
+
+    @Test
+    public void playTrackShouldSendServiceIntentIfTrackAlreadyPlayingWithDifferentContext() {
+        when(playbackStateProvider.getCurrentTrackId()).thenReturn(track.getId());
+        when(playbackStateProvider.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get());
+        playbackOperations.playTrack(Robolectric.application, track, Screen.EXPLORE_TRENDING_AUDIO);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        expect(application.getNextStartedService()).not.toBeNull();
+    }
+
+    @Test
+    public void playFromPlaylistShouldOpenPlayerActivityWithInitialTrackId() {
         Playlist playlist = new Playlist(3L);
         final Observable<List<Long>> trackIdList = Observable.<List<Long>>just(Lists.newArrayList(track.getId()));
         when(trackStorage.getTrackIdsForUriAsync(any(Uri.class))).thenReturn(trackIdList);
@@ -100,7 +119,7 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playFromUriShouldStartPlaybackServiceWithPlayQueueFromPlaylist() throws CreateModelException {
+    public void playFromPlaylistShouldStartPlaybackServiceWithPlayQueueFromPlaylist() throws CreateModelException {
         List<Track> tracks = TestHelper.createTracks(3);
         Playlist playlist = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
@@ -114,6 +133,24 @@ public class PlaybackOperationsTest {
         playSessionSource.setPlaylist(playlist);
         checkStartIntent(application.getNextStartedService(), 1, playSessionSource,
                 tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
+    }
+
+    @Test
+    public void startsServiceIfPlayingQueueHasSameContextWithDifferentPlaylistSources() throws CreateModelException {
+        List<Track> tracks = TestHelper.createTracks(3);
+        Playlist playlist = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
+
+        final ArrayList<Long> trackIds = Lists.newArrayList(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
+        when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(trackIds));
+
+        when(playbackStateProvider.getCurrentTrackId()).thenReturn(tracks.get(1).getId()); // same track
+        when(playbackStateProvider.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get()); // same screen origin
+        when(playbackStateProvider.getPlayQueuePlaylistId()).thenReturn(-1L); // different Playlist Id
+
+        playbackOperations.playFromPlaylist(Robolectric.application, playlist, 1, tracks.get(1), Screen.EXPLORE_TRENDING_MUSIC);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        expect(application.getNextStartedService()).not.toBeNull();
     }
 
     @Test
