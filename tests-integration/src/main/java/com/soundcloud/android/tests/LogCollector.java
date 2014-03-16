@@ -58,11 +58,11 @@ public class LogCollector {
     }
 
     private void collectLogs() throws IOException {
-        logcat = Runtime.getRuntime().exec("/system/bin/logcat -f " + pathToFile().toString() + ".log");
+        logcat = Runtime.getRuntime().exec("/system/bin/logcat -f " + pathToFile().toString());
     }
 
     private File pathToFile() {
-        return new File(logsDir, testCaseName);
+        return new File(logsDir, testCaseName + ".log");
     }
 
     private void clearLogsDir() {
