@@ -9,6 +9,7 @@ import java.io.IOException;
 
 public class LogCollector {
     private static LogCollector instance;
+    private static boolean deleteFile;
     private final File logsDir;
     private Process logcat;
     private String testCaseName;
@@ -36,8 +37,24 @@ public class LogCollector {
         instance.stopCollectingLogs();
     }
 
+    public static void markFileForDeletion() {
+        deleteFile = true;
+    }
+
+    private void setTestCaseName(String testCaseName) {
+        this.testCaseName = testCaseName;
+    }
+
     private void stopCollectingLogs() {
         logcat.destroy();
+        deleteLogFile();
+    }
+
+    private void deleteLogFile() {
+        if(deleteFile) {
+            pathToFile().delete();
+            deleteFile = false;
+        }
     }
 
     private void collectLogs() throws IOException {
@@ -58,9 +75,5 @@ public class LogCollector {
 
     private File getLogsDir() {
         return new File(Environment.getExternalStorageDirectory(), "RobotiumLogs");
-    }
-
-    public void setTestCaseName(String testCaseName) {
-        this.testCaseName = testCaseName;
     }
 }

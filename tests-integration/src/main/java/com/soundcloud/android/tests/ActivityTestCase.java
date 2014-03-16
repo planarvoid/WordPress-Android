@@ -90,6 +90,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
     protected void runTest() throws Throwable {
         try {
             super.runTest();
+            LogCollector.markFileForDeletion();
         }
         catch (Throwable t) {
             solo.takeScreenshot(testCaseName);
