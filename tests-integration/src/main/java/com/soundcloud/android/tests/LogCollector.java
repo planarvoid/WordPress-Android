@@ -58,7 +58,7 @@ public class LogCollector {
     }
 
     private void collectLogs() throws IOException {
-        logcat = Runtime.getRuntime().exec("/system/bin/logcat -f " + pathToFile().toString());
+        logcat = Runtime.getRuntime().exec("/system/bin/logcat -f " + pathToFile().toString() + ".log");
     }
 
     private File pathToFile() {
