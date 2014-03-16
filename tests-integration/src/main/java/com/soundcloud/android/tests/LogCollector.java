@@ -66,7 +66,10 @@ public class LogCollector {
     }
 
     private void clearLogsDir() {
-        IOUtils.deleteDir(logsDir);
+        //http://stackoverflow.com/questions/11539657/open-failed-ebusy-device-or-resource-busy
+        File newLogsDir = new File(getLogsDir().getAbsolutePath() + "_old");
+        IOUtils.renameCaseSensitive(getLogsDir(), newLogsDir);
+        IOUtils.deleteDir(newLogsDir);
     }
 
     private void clearLogcat() throws IOException {
