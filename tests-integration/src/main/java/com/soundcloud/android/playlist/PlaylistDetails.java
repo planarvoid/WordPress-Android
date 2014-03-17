@@ -34,14 +34,23 @@ public class PlaylistDetails extends ActivityTestCase<MainActivity> {
         assertEquals("Playlist details screen should be visible", true, playlistDetailsScreen.isVisible());
     }
 
-    public void testHeaderPlayClickShouldOpenPlayerAndMaintainPlaybackState() {
+    public void testHeaderPlayClickShouldOpenPlayer() {
+        PlayerScreen playerScreen = playlistDetailsScreen.clickHeaderPlay();
+        assertEquals("Player screen should be visible", true, playerScreen.isVisible());
+
+        playlistDetailsScreen = playerScreen.goBackToPlaylist();
+
+        playlistDetailsScreen.clickHeaderPause();
+        assertEquals("Playlist details screen should be visible", true, playlistDetailsScreen.isVisible());
+    }
+
+    public void testToggleStateIsNotCheckedAfterPausingPlayer() {
         PlayerScreen playerScreen = playlistDetailsScreen.clickHeaderPlay();
         assertEquals("Player screen should be visible", true, playerScreen.isVisible());
 
         playerScreen.stopPlayback();
-        playlistDetailsScreen = playerScreen.goBackToPlaylist();
 
+        playlistDetailsScreen = playerScreen.goBackToPlaylist();
         assertEquals("Play toggle button should not be checked", false, playlistDetailsScreen.isPlayToggleChecked());
     }
-
 }
