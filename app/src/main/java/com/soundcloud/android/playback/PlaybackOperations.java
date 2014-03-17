@@ -144,8 +144,9 @@ public class PlaybackOperations {
     }
 
     public void togglePlayback(final Context context) {
-        if (!mPlaybackStateProvider.isPlaying()) {
-            cacheAndGoToPlayer(context, mPlaybackStateProvider.getCurrentTrack());
+        Track currentTrack = mPlaybackStateProvider.getCurrentTrack();
+        if (!mPlaybackStateProvider.isPlaying() && currentTrack != null) {
+            cacheAndGoToPlayer(context, currentTrack);
         }
         context.startService(new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
     }
