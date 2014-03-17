@@ -62,18 +62,16 @@ public class StreamLoader {
     static final int LOW_PRIO = 0;
     static final int HI_PRIO = 1;
     private PublicCloudAPI mOldCloudAPI;
-    private UMGCacheBuster umgCacheBuster;
 
     public StreamLoader(Context context, final StreamStorage storage) {
         mContext = context;
         mStorage = storage;
         mOldCloudAPI = new PublicApi(mContext);
-        umgCacheBuster = new UMGCacheBuster(storage);
         mResultThread = new HandlerThread("streaming-result");
         mResultThread.start();
 
         final Looper resultLooper = mResultThread.getLooper();
-        mResultHandler = new ResultHandler(this, resultLooper, umgCacheBuster);
+        mResultHandler = new ResultHandler(this, resultLooper);
 
         // setup connectivity listening
         mConnHandler = new ConnectivityHandler(this, resultLooper);
@@ -126,10 +124,8 @@ public class StreamLoader {
     }
 
     public StreamFuture getDataForUrl(String url, Range range) throws IOException {
-
-        if (umgCacheBuster.bustIt(url)) {
-            clearPendingStreamTasks();
-        }
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            Log.d(LOG_TAG, "Get data for url " + url + " " + range);
 
         final StreamItem item = mStorage.getMetadata(url);
 
@@ -140,8 +136,7 @@ public class StreamLoader {
         final StreamFuture pc = new StreamFuture(item, range);
         if (!missing.isEmpty()) {
             mResultHandler.post(new Runnable() {
-                @Override
-                public void run() {
+                @Override public void run() {
                     mPlayerCallbacks.add(pc);
                     if (mLowPriorityQueue.contains(item)) mLowPriorityQueue.remove(item);
 
@@ -163,20 +158,6 @@ public class StreamLoader {
             pc.setByteBuffer(mStorage.fetchStoredDataForUrl(url, range));
         }
         return pc;
-    }
-
-    private void clearPendingStreamTasks() {
-        // all pending data tasks will no longer be saved regardless
-        mHighPriorityQ.clear();
-        // clear queued stream tasks but keep low priority items to fufill playcount tasks
-        mDataHandler.removeMessages(HI_PRIO);
-        mHeadHandler.removeMessages(HI_PRIO);
-        // headtasks must be cleared at the same time as the head handler or they will not be fulfilled in the future
-        mHeadTasks.clear();
-        // only the new item will need a head request
-        mItemsNeedingHeadRequests.clear();
-        // no longer fulfilling pending player callbacks
-        mPlayerCallbacks.clear();
     }
 
     public boolean logPlaycount(String url) {
@@ -335,12 +316,11 @@ public class StreamLoader {
 
     private static final class ResultHandler extends Handler {
 
-        private final WeakReference<StreamLoader> mLoaderRef;
-        private final UMGCacheBuster umgCacheBuster;
-        private ResultHandler(StreamLoader loader, Looper looper, UMGCacheBuster umgCacheBuster) {
+        private WeakReference<StreamLoader> mLoaderRef;
+
+        private ResultHandler(StreamLoader loader, Looper looper) {
             super(looper);
             this.mLoaderRef = new WeakReference<StreamLoader>(loader);
-            this.umgCacheBuster = umgCacheBuster;
         }
 
         @Override
@@ -353,13 +333,9 @@ public class StreamLoader {
             if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                 Log.d(LOG_TAG, "result of message:" + msg.obj);
             }
-            StreamItemTask task = (StreamItemTask)msg.obj;
 
-            if(!umgCacheBuster.getLastUrl().equals(task.item.streamItemUrl())){
-                return;
-            }
-            if (task instanceof HeadTask) {
-                HeadTask t = (HeadTask)task;
+            if (msg.obj instanceof HeadTask) {
+                HeadTask t = (HeadTask) msg.obj;
                 loader.mHeadTasks.remove(t.item);
                 if (t.item.isAvailable()) {
                     loader.mStorage.storeMetadata(t.item);
@@ -377,22 +353,22 @@ public class StreamLoader {
                         }
                     }
                 }
-            } else if (task instanceof DataTask) {
-                DataTask dataTask = (DataTask) task;
+            } else if (msg.obj instanceof DataTask) {
+                DataTask t = (DataTask) msg.obj;
                 if (msg.peekData() == null || !msg.getData().getBoolean(DataTask.SUCCESS_KEY)) {
                     // some failure, re-add item to queue, will be retried next time
-                    loader.mHighPriorityQ.addItem(dataTask.item, dataTask.chunkRange.toIndex());
+                    loader.mHighPriorityQ.addItem(t.item, t.chunkRange.toIndex());
                 } else {
                     // for responsiveness, try to fulfill callbacks directly before storing buffer
                     for (Iterator<StreamFuture> it = loader.mPlayerCallbacks.iterator(); it.hasNext(); ) {
                         StreamFuture cb = it.next();
-                        if (cb.item.equals(dataTask.item) && cb.byteRange.equals(dataTask.byteRange)) {
-                            cb.setByteBuffer(dataTask.buffer.asReadOnlyBuffer());
+                        if (cb.item.equals(t.item) && cb.byteRange.equals(t.byteRange)) {
+                            cb.setByteBuffer(t.buffer.asReadOnlyBuffer());
                             it.remove();
                         }
                     }
                     try {
-                        loader.mStorage.storeData(dataTask.item.streamItemUrl(), dataTask.buffer, dataTask.chunkRange.start);
+                        loader.mStorage.storeData(t.item.streamItemUrl(), t.buffer, t.chunkRange.start);
                         loader.fulfillPlayerCallbacks();
                     } catch (IOException e) {
                         Log.e(LOG_TAG, "exception storing data", e);

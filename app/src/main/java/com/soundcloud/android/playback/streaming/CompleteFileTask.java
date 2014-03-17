@@ -71,15 +71,11 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
     private Boolean move(File chunkFile, File completeFile) {
         if (chunkFile.renameTo(completeFile)) {
             if (completeFile.length() != mContentLength) {
-                RandomAccessFile file = null;
                 try {
-                    file = new RandomAccessFile(completeFile, "rw");
-                    file.setLength(mContentLength);
+                    new RandomAccessFile(completeFile, "rw").setLength(mContentLength);
                     return true;
                 } catch (IOException e) {
                     Log.w(LOG_TAG, e);
-                } finally {
-                    IOUtils.close(file);
                 }
             }
         } else {

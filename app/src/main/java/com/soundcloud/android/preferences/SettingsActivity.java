@@ -51,6 +51,8 @@ public class SettingsActivity extends ScSettingsActivity {
     public static final String HELP = "help";
     public static final String ANALYTICS_ENABLED = "analytics_enabled";
     public static final String CLEAR_CACHE = "clearCache";
+    public static final String STREAM_CACHE_SIZE = "streamCacheSize";
+    public static final String CLEAR_STREAM_CACHE = "clearStreamCache";
     public static final String WIRELESS = "wireless";
     public static final String EXTRAS = "extras";
     public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
@@ -151,6 +153,35 @@ public class SettingsActivity extends ScSettingsActivity {
                     }
                 });
 
+        findPreference(CLEAR_STREAM_CACHE).setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                        new FileCache.DeleteCacheTask(true) {
+                            @Override
+                            protected void onPreExecute() {
+                                safeShowDialog(DIALOG_CACHE_DELETING);
+                            }
+
+                            @Override
+                            protected void onProgressUpdate(Integer... progress) {
+                                if (mDeleteDialog != null) {
+                                    mDeleteDialog.setIndeterminate(false);
+                                    mDeleteDialog.setProgress(progress[0]);
+                                    mDeleteDialog.setMax(progress[1]);
+                                }
+                            }
+
+                            @Override
+                            protected void onPostExecute(Boolean result) {
+                                removeDialog(DIALOG_CACHE_DELETING);
+                                updateClearCacheTitles();
+                            }
+                        }.execute(Consts.EXTERNAL_STREAM_DIRECTORY);
+                        return true;
+                    }
+                });
+
+
         findPreference(WIRELESS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
@@ -210,6 +241,7 @@ public class SettingsActivity extends ScSettingsActivity {
 
     private void updateClearCacheTitles() {
         setClearCacheTitle(CLEAR_CACHE, R.string.pref_clear_cache, IOUtils.getCacheDir(this));
+        setClearCacheTitle(CLEAR_STREAM_CACHE, R.string.pref_clear_stream_cache, Consts.EXTERNAL_STREAM_DIRECTORY);
     }
 
     private SoundCloudApplication getApp() {

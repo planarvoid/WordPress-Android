@@ -21,8 +21,6 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.startup.StartupTaskExecutor;
-import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
@@ -30,6 +28,7 @@ import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.service.PlayerWidgetController;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
@@ -116,7 +115,6 @@ public class SoundCloudApplication extends Application {
         sModelManager = mModelManager;
 
         new MigrationEngine(this).migrate();
-        new StartupTaskExecutor().executeTasks();
 
         Log.i(TAG, "Application starting up in mode " + mApplicationProperties.getBuildType());
         Log.d(TAG, mApplicationProperties.toString());

@@ -239,6 +239,8 @@
   <string name="pref_change_log_desc">See the latest changes for this release</string>
   <string name="pref_clear_cache">Clear Cache</string>
   <string name="pref_clear_cache_desc">Clear the application cache to free up memory</string>
+  <string name="pref_clear_stream_cache">Clear Stream Cache</string>
+  <string name="pref_clear_stream_cache_desc">Clear the stream cache</string>
   <string name="pref_connection_and_data">Connection and data</string>
   <string name="pref_help">Help</string>
   <string name="pref_help_desc">Access the SoundCloud support site</string>
@@ -347,6 +349,9 @@
 
   <string name="optimize_toggle_on">Optimized</string>
   <string name="optimize_toggle_off">Not Optimized</string>
+
+  <string name="pref_stream_cache_size">Stream Cache Size</string>
+  <string name="pref_stream_cache_size_desc">The size of the stream cache in percent</string>
 
   <string name="create_autosave_message">Your recordings will automatically be saved as you create them. You can find them in your list of sounds.</string>
   <string name="create_regenerating_waveform_message">Regenerating waveform, please wait.</string>

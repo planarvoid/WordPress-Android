@@ -7,6 +7,9 @@
     <string name="optimize_toggle_on">Optimizado</string>
     <string name="optimize_toggle_off">No optimizado</string>
 
+    <string name="pref_stream_cache_size">Tamaño de caché de transferencia</string>
+    <string name="pref_stream_cache_size_desc">El tamaño de la caché de transferencia en porcentaje</string>
+
     <string name="create_autosave_message">Tus grabaciones se guardarán automáticamente a medida que las crees. Puedes encontrarlas en tu lista de sonidos.</string>
     <string name="create_regenerating_waveform_message">Regenerando forma de onda, espera.</string>
 

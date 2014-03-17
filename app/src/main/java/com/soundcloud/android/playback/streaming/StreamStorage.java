@@ -4,6 +4,7 @@ import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
@@ -292,13 +293,13 @@ public class StreamStorage {
         }
     }
 
-    public void removeAllDataForItem(String url) {
-        Log.d(LOG_TAG, "removing all data for "+url);
+    private void removeAllDataForItem(String url) {
+        Log.w(LOG_TAG, "removing all data for "+url);
         removeCompleteDataForItem(url);
         removeIncompleteDataForItem(url);
     }
 
-    private boolean removeIncompleteDataForItem(String url) {
+    private synchronized boolean removeIncompleteDataForItem(String url) {
         final File incompleteFile = incompleteFileForUrl(url);
         final File indexFile = incompleteIndexFileForUrl(url);
         boolean fileDeleted = true, indexDeleted = true;
@@ -352,7 +353,9 @@ public class StreamStorage {
         long spaceLeft  = getSpaceLeft();
         long totalSpace = getTotalSpace();
 
-        int percentageOfExternal = DEFAULT_PCT_OF_FREE_SPACE;
+        int percentageOfExternal = PreferenceManager
+                .getDefaultSharedPreferences(mContext)
+                .getInt(SettingsActivity.STREAM_CACHE_SIZE, DEFAULT_PCT_OF_FREE_SPACE);
 
         if (percentageOfExternal < 0) {
             percentageOfExternal = 0;

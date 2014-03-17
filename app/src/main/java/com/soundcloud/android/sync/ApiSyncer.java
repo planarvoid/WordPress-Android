@@ -77,7 +77,7 @@ public class ApiSyncer extends SyncStrategy {
         } else if (c.remoteUri != null) {
             switch (c) {
                 case ME:
-                    result = syncMe(c, userId);
+                    result = syncMe(c);
                     if (result.success) {
                         mResolver.notifyChange(Content.ME.uri, null);
                         User loggedInUser = SoundCloudApplication.fromContext(mContext).getLoggedInUser();
@@ -210,7 +210,7 @@ public class ApiSyncer extends SyncStrategy {
         return result;
     }
 
-    private ApiSyncResult syncMe(Content c, long userId) throws IOException {
+    private ApiSyncResult syncMe(Content c) throws IOException {
         ApiSyncResult result = new ApiSyncResult(c.uri);
         User user = new FetchUserTask(mApi).resolve(c.request());
         result.synced_at = System.currentTimeMillis();

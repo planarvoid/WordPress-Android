@@ -1,8 +1,11 @@
 package com.soundcloud.android.playback.streaming;
 
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import static android.content.SharedPreferences.Editor;
+import static com.soundcloud.android.Expect.expect;
+import static junit.framework.Assert.fail;
+import static org.mockito.Mockito.mock;
+
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -14,6 +17,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,11 +30,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import static android.content.SharedPreferences.Editor;
-import static com.soundcloud.android.Expect.expect;
-import static junit.framework.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 @RunWith(DefaultTestRunner.class)
 public class StreamStorageTest {
@@ -91,6 +92,29 @@ public class StreamStorageTest {
         TestHelper.disableSDCard();
         expect(storage.storeMetadata(item)).toBeTrue();
         expect(storage.storeData(item.getUrl(), ByteBuffer.wrap(new byte[]{1, 2, 3}), 0)).toBeFalse();
+    }
+
+    @Test
+    public void shouldCalculateFileMetrics() throws Exception {
+        ShadowStatFs.registerStats(baseDir, 100, 100, 100);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(DefaultTestRunner.application);
+        Editor editor = sharedPreferences.edit();
+
+        editor.putInt(SettingsActivity.STREAM_CACHE_SIZE, 0);
+        editor.commit();
+
+        expect(storage.calculateUsableSpace()).toBe(0L);
+
+        editor.putInt(SettingsActivity.STREAM_CACHE_SIZE, 33);
+        editor.commit();
+
+        expect(storage.calculateUsableSpace()).toEqual(ShadowStatFs.BLOCK_SIZE * 33L);
+
+        editor.putInt(SettingsActivity.STREAM_CACHE_SIZE, 100);
+        editor.commit();
+
+        expect(storage.calculateUsableSpace()).toEqual(ShadowStatFs.BLOCK_SIZE * 100L);
     }
 
     @Test

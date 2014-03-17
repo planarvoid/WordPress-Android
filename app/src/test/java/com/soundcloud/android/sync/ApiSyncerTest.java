@@ -336,6 +336,12 @@ public class ApiSyncerTest {
     }
 
     @Test(expected = PublicCloudAPI.UnexpectedResponseException.class)
+    public void shouldThrowExceptionIfResponseIsServerErrorWhenSyncingPlaylists() throws IOException {
+        Robolectric.addPendingHttpResponse(500 , "{}");
+        sync(Content.PLAYLIST.uri);
+    }
+
+    @Test(expected = PublicCloudAPI.UnexpectedResponseException.class)
     public void shouldThrowUnexpectedResponseExceptionOn500() throws Exception {
         Robolectric.setDefaultHttpResponse(500, "error");
         sync(Content.ME_LIKES.uri);

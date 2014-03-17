@@ -233,7 +233,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         // stop proxy before removing the cache
         if (mProxy != null && mProxy.isRunning()) mProxy.stop();
-        IOUtils.deleteDir(Consts.EXTERNAL_STREAM_DIRECTORY);
 
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -833,8 +832,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
      */
     /* package */
     public long getProgress() {
-
-        if (mCurrentTrack != null && mResumeInfo != null && mResumeInfo.getTrackId() == mCurrentTrack.getId()) {
+        final long currentTrackId = mPlayQueueManager.getCurrentPlayQueue().getCurrentTrackId();
+        if (currentTrackId != Track.NOT_SET && mResumeInfo != null && mResumeInfo.getTrackId() == currentTrackId) {
             return mResumeInfo.getTime(); // either -1 or a valid resume time
         } else if (mWaitingForSeek && mSeekPos > 0) {
             return mSeekPos;
