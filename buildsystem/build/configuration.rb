@@ -24,7 +24,7 @@ module Build
     end
 
     def build_env
-      config_env
+      config_env == 'release' ? nil : config_env
     end
 
     private

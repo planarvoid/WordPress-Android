@@ -106,11 +106,13 @@ module Build
 
       mvn_task(:build).execute
 
+      git.checkout('app/AndroidManifest.xml')
+
       if Build.ci?
         apk_name = Build.apk_file_name
         cp(
           "app/target/#{apk_name}",
-          "app/target/#{apk_name}-#{Build.build_number}.apk"
+          "app/target/#{apk_name.gsub('.apk','')}-#{Build.build_number}.apk"
         )
       end
     end
