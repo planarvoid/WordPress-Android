@@ -33,11 +33,16 @@ module Build
   end
 
   def version_name
-    [version, env, build_number].compact.join("-")
+    if env == 'release'
+      [version].compact.join("-")
+    else
+      [version, env, build_number].compact.join("-")
+    end
   end
 
   def apk_file_name
-    "soundcloud-android-#{version}-#{env}.apk"
+    suffix = [version, env].compact.join('-')
+    "soundcloud-android-#{suffix}.apk"
   end
 
   def apk_path
