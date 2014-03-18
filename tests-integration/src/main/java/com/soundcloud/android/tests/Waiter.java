@@ -9,8 +9,10 @@ import com.soundcloud.android.utils.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.ListAdapter;
+import android.widget.ProgressBar;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 
 
 public class Waiter {
@@ -18,20 +20,14 @@ public class Waiter {
     public Han solo;
     public final int TIMEOUT = 10 * 1000;
     public final int NETWORK_TIMEOUT = 120 * 1000;
-    private final int ELEMENT_TIMEOUT = 2 * 1000;
+    private final int ELEMENT_TIMEOUT = 5 * 1000;
 
     public Waiter(Han driver) {
         solo = driver;
     }
 
-    public boolean waitForTextToDisappear(final String text) {
-        Condition condition = new Condition() {
-            @Override
-            public boolean isSatisfied() {
-                return !solo.searchTextWithoutScrolling(text);
-            }
-        };
-        return solo.waitForCondition(condition, this.NETWORK_TIMEOUT);
+    public boolean waitForTextToDisappear(String text) {
+        return solo.waitForCondition(new NoTextCondition(text), this.NETWORK_TIMEOUT);
     }
 
     public boolean waitForWebViewToLoad(final WebView webViewToCheck) {
@@ -50,26 +46,19 @@ public class Waiter {
             }
         });
 
-
         return true;
     }
 
     private boolean waitForListContent() {
-        return solo.waitForCondition(new Condition() {
-            @Override
-            public boolean isSatisfied() {
-                final View view = solo.waitForViewId(R.id.empty_view_progress, ELEMENT_TIMEOUT, false);
-                final boolean result = (view == null || !view.isShown());
-                java.util.Date date = new java.util.Date();
-                Log.i(TAG, String.format("[ %s ] Spinner view found: %b", new Timestamp(date.getTime()), !result ));
-                return result;
-            }
-        }, this.NETWORK_TIMEOUT);
+        return solo.waitForCondition(new NoProgressBarCondition(), this.NETWORK_TIMEOUT);
     }
 
     public boolean waitForContentAndRetryIfLoadingFailed() {
-        waitForListContent();
-        return retryIfFailed();
+        boolean success = waitForListContent();
+        if(!success) {
+            success = retryIfFailed();
+        }
+        return success;
     }
 
     //TODO: We should have an error screen class defined
@@ -92,45 +81,19 @@ public class Waiter {
     }
 
     public boolean waitForPlayerPlaying() {
-        final PlaybackStateProvider playbackState = new PlaybackStateProvider();
-        Condition condition = new Condition() {
-            @Override
-            public boolean isSatisfied() {
-                return playbackState.isPlaying();
-            }
-        };
-        return solo.waitForCondition(condition, this.NETWORK_TIMEOUT);
+        return solo.waitForCondition(new PlayerPlayingCondition(), this.NETWORK_TIMEOUT);
     }
 
     public void waitForViewId(int id) {
         solo.waitForViewId(id, TIMEOUT);
     }
 
-    //TODO: Is there a better way of making sure that the drawer is opened or not?
-    public boolean waitForDrawerToOpen() {
-        final NavigationDrawerFragment navigationDrawerFragment = solo.getCurrentNavigationDrawer();
-
-        Condition condition = new Condition() {
-            @Override
-            public boolean isSatisfied() {
-                return navigationDrawerFragment.isDrawerOpen();
-            }
-        };
-
-        return solo.waitForCondition(condition, this.TIMEOUT);
+    public boolean waitForDrawerToClose() {
+        return solo.waitForCondition(new DrawerStateCondition(false), this.TIMEOUT);
     }
 
-    public boolean waitForDrawerToClose() {
-        final NavigationDrawerFragment navigationDrawerFragment = solo.getCurrentNavigationDrawer();
-
-        Condition condition = new Condition() {
-            @Override
-            public boolean isSatisfied() {
-                return !navigationDrawerFragment.isDrawerOpen();
-            }
-        };
-
-        return solo.waitForCondition(condition, this.TIMEOUT);
+    public boolean waitForDrawerToOpen() {
+        return solo.waitForCondition(new DrawerStateCondition(true), this.TIMEOUT);
     }
 
     public void waitForLogInDialog() {
@@ -150,24 +113,88 @@ public class Waiter {
     }
 
     public boolean waitForElement(final View view) {
-        Condition condition = new Condition() {
-            @Override
-            public boolean isSatisfied() {
-                Log.i(TAG, String.format("View visibility: %d", solo.getView(view.getId()).getVisibility()));
-                return ( solo.getView(view.getId()).getVisibility() == View.VISIBLE);
-            }
-        };
-        return solo.waitForCondition(condition, this.TIMEOUT);
+        return solo.waitForCondition(new VisibleElementCondition(view), this.TIMEOUT);
     }
 
     public boolean waitForElement(final int content) {
-        Condition condition = new Condition() {
-            @Override
-            public boolean isSatisfied() {
-                Log.i(TAG, String.format("ViewID visibility: %d", solo.getView(content).getVisibility()));
-                return ( solo.getView(content).isShown());
+        return solo.waitForCondition(new VisibleElementCondition(content), this.TIMEOUT);
+    }
+
+    private class VisibleElementCondition implements Condition {
+        private int viewId;
+
+        VisibleElementCondition(int id) {
+            viewId = id;
+        }
+
+        VisibleElementCondition(View view) {
+            viewId = view.getId();
+        }
+        @Override
+        public boolean isSatisfied() {
+            Log.i(TAG, String.format("ViewID visibility: %d", solo.getView(viewId).getVisibility()));
+            return ( solo.getView(viewId).isShown());
+        }
+    }
+
+
+    private class NoProgressBarCondition implements Condition {
+        private final Class<ProgressBar> PROGRESS_CLASS = ProgressBar.class;
+        private ArrayList<ProgressBar> progressBars;
+
+        private NoProgressBarCondition() {
+            solo.waitForViewId(R.id.empty_view_progress, ELEMENT_TIMEOUT, false);
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            boolean progressBarNotDisplayed = true;
+            progressBars = solo.getSolo().getCurrentViews(PROGRESS_CLASS);
+
+            for(View progressBar : progressBars ){
+                if(progressBar.isShown() && progressBar.getVisibility() == View.VISIBLE) {
+                    Log.i(TAG, String.format("[ %s ] Spinner view found",
+                           new Timestamp( new java.util.Date().getTime())));
+                    progressBarNotDisplayed = progressBarNotDisplayed && false;
+                }
             }
-        };
-        return solo.waitForCondition(condition, this.TIMEOUT);
+            return progressBarNotDisplayed;
+        }
+    };
+
+    private class NoTextCondition implements Condition {
+        private String searchedText;
+
+        private NoTextCondition (String text) {
+            searchedText = text;
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            return !solo.searchTextWithoutScrolling(searchedText);
+        }
+    }
+
+    private class PlayerPlayingCondition implements Condition {
+        private final PlaybackStateProvider playbackState = new PlaybackStateProvider();
+
+        @Override
+        public boolean isSatisfied() {
+            return playbackState.isPlaying();
+        }
+    }
+
+    private class DrawerStateCondition implements Condition {
+        private final NavigationDrawerFragment navigationDrawerFragment = solo.getCurrentNavigationDrawer();
+        private boolean state;
+
+        DrawerStateCondition(boolean shouldBeOpen) {
+            this.state = shouldBeOpen;
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            return state && navigationDrawerFragment.isDrawerOpen();
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.soundcloud.android.drawer;
 
 
-import android.accounts.Account;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.LikesScreen;
 import com.soundcloud.android.screens.PlaylistScreen;
@@ -37,7 +36,6 @@ public class DrawerTest extends ActivityTestCase<LauncherActivity> {
     }
 
     public void testDrawerProfileButtonOpensProfile() {
-        Account account = AccountAssistant.getAccount(getInstrumentation().getTargetContext());
         menuScreen.open();
         ProfileScreen profileScreen = menuScreen.clickProfile();
         assertEquals("Should go to user profile", "android-testing", profileScreen.userName());
