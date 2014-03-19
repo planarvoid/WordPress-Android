@@ -114,6 +114,8 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         super.onViewCreated(view, savedInstanceState);
 
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
+        configureEmptyView();
+
         mEmptyListView.setStatus(mEmptyViewStatus);
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
@@ -129,6 +131,12 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         getListView().setOnScrollListener(mImageOperations.createScrollPauseListener(false, true, mAdapter));
 
         mPlaybackSubscription = mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackSubscriber());
+    }
+
+    private void configureEmptyView() {
+        mEmptyListView.setImage(R.drawable.empty_search);
+        mEmptyListView.setMessageText(R.string.search_empty);
+        mEmptyListView.setSecondaryText(R.string.search_empty_subtext);
     }
 
     @Override

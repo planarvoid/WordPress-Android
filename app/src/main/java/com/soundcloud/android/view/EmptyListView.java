@@ -250,6 +250,10 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
+    public EmptyListView setSecondaryText(int secondaryTextId) {
+        return setSecondaryText(getResources().getString(secondaryTextId));
+    }
+
     public EmptyListView setSecondaryText(String secondaryText) {
         mSecondaryText = secondaryText;
         if (mTxtLink != null) {

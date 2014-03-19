@@ -189,5 +189,7 @@
     <string name="search_popular_tags">POPULAR TAGS</string>
     <string name="search_tags_title">Choose your favorite tag</string>
     <string name="search_tags_subtitle">Discover popular playlists on SoundCloud</string>
+    <string name="search_empty">No results found</string>
+    <string name="search_empty_subtext">Check the spelling or try a different search</string>
 
 </resources>
