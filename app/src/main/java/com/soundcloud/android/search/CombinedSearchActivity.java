@@ -19,8 +19,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 
-public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFragment.TagEventsListener,
-        FragmentManager.OnBackStackChangedListener {
+public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFragment.TagEventsListener {
 
     private static final String ACTION_PLAY_FROM_SEARCH = "android.media.action.MEDIA_PLAY_FROM_SEARCH";
     private static final String INTENT_URL_HOST = "soundcloud.com";
@@ -45,6 +44,7 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
 
         @Override
         public void exitSearchMode() {
+            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_MAIN.get());
             getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     };
@@ -59,11 +59,12 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
     }
 
     @Override
-    public void onBackStackChanged() {
-        boolean isRemove = getSupportFragmentManager().getBackStackEntryCount() <= 0;
-        if (isRemove) {
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_MAIN.get());
+    public void onBackPressed() {
+        boolean isShowingResults = getSupportFragmentManager().getBackStackEntryCount() > 0;
+        if (isShowingResults) {
             mActionBarController.clearQuery();
+        } else {
+            super.onBackPressed();
         }
     }
 
@@ -71,8 +72,6 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.container_layout);
-
-        getSupportFragmentManager().addOnBackStackChangedListener(this);
 
         if (savedInstanceState == null) {
             handleIntent();
