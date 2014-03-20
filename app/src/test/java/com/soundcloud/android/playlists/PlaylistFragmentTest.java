@@ -167,7 +167,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void setsPlayableOnEngagementsControllerTwiceWhenPlaylistEmittedTwice() throws Exception {
-        Playlist playlist2 = new Playlist(playlist.getId());
+        Playlist playlist2 = new Playlist(2L);
         when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(Arrays.asList(playlist, playlist2)));
         createFragmentView();
 
