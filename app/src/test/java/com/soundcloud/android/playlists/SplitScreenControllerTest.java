@@ -28,7 +28,7 @@ public class SplitScreenControllerTest {
     @Mock
     private EmptyListView emptyView;
     @Mock
-    private View listContainer;
+    private View container;
     @Mock
     private Resources resources;
     @Mock
@@ -40,20 +40,20 @@ public class SplitScreenControllerTest {
         controller = new SplitScreenController(imageOperations);
         when(layout.findViewById(android.R.id.list)).thenReturn(listView);
         when(layout.findViewById(android.R.id.empty)).thenReturn(emptyView);
-        when(layout.findViewById(R.id.list_container)).thenReturn(listContainer);
+        when(layout.findViewById(R.id.container)).thenReturn(container);
         controller.onViewCreated(layout, resources);
     }
 
     @Test
     public void setListShownWithTrueSetsListContainerVisibilityToVisible() throws Exception {
         controller.setListShown(true);
-        verify(listContainer).setVisibility(View.VISIBLE);
+        verify(container).setVisibility(View.VISIBLE);
     }
 
     @Test
     public void setListShownWithFalseSetsListContainerVisibilityToGone() throws Exception {
         controller.setListShown(false);
-        verify(listContainer).setVisibility(View.GONE);
+        verify(container).setVisibility(View.GONE);
     }
 
     @Test

@@ -30,7 +30,7 @@ class SplitScreenController implements PlaylistDetailsController {
         mEmptyView  = (EmptyListView) layout.findViewById(android.R.id.empty);
         mEmptyView.setMessageText(resources.getString(R.string.empty_playlist));
 
-        mListViewContainer = layout.findViewById(R.id.list_container);
+        mListViewContainer = layout.findViewById(R.id.container);
         ListView listView = (ListView) layout.findViewById(android.R.id.list);
         listView.setEmptyView(mEmptyView);
     }
