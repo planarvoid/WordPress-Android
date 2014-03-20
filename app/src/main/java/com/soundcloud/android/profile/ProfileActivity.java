@@ -302,10 +302,11 @@ public class ProfileActivity extends ScActivity implements
     }
 
     private void toggleFollowing(User user) {
+        final SyncInitiator syncInitiator = new SyncInitiator(this);
         mFollowingOperations.toggleFollowing(user).subscribe(new DefaultSubscriber<UserAssociation>() {
             @Override
             public void onCompleted() {
-                SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
+                syncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
             }
 
             @Override

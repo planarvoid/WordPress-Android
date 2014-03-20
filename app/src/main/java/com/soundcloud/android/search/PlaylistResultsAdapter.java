@@ -53,7 +53,7 @@ class PlaylistResultsAdapter extends EndlessPagingAdapter<PlaylistSummary> {
         String tracksQuantity = itemView.getResources().getQuantityString(R.plurals.number_of_sounds,
                 playlist.getTrackCount(), playlist.getTrackCount());
         viewHolder.trackCount.setText(tracksQuantity);
-        viewHolder.tagList.setText(formatTags(playlist.getTags().subList(0, 2)));
+        viewHolder.tagList.setText(formatTags(playlist.getTags()));
 
         viewHolder.imageView.setBackgroundResource(R.drawable.placeholder_cells);
         final String artworkUri = playlist.getArtworkUrl(ImageSize.getFullImageSize(itemView.getResources()));
@@ -61,12 +61,18 @@ class PlaylistResultsAdapter extends EndlessPagingAdapter<PlaylistSummary> {
     }
 
     private String formatTags(List<String> tags) {
-        return Joiner.on(", ").join(Lists.transform(tags, new Function<String, String>() {
-            @Override
-            public String apply(String tag) {
-                return "#" + tag;
-            }
-        }));
+        if (tags.size() >= 2) {
+            return Joiner.on(", ").join(Lists.transform(tags.subList(0, 2), new Function<String, String>() {
+                @Override
+                public String apply(String tag) {
+                    return "#" + tag;
+                }
+            }));
+        } else if (tags.size() == 1) {
+            return "#" + tags.get(0);
+        } else {
+            return "";
+        }
     }
 
     @VisibleForTesting

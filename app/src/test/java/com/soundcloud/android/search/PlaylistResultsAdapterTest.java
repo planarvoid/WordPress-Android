@@ -18,6 +18,9 @@ import org.mockito.Mock;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistResultsAdapterTest {
 
@@ -56,4 +59,29 @@ public class PlaylistResultsAdapterTest {
         expect(viewHolder.trackCount.getText()).toEqual("5 tracks");
     }
 
+    @Test
+    public void shouldShowJustTheTagIfPlaylistHasSingleTag() throws CreateModelException {
+        PlaylistSummary playlist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
+        playlist.setTags(Arrays.asList("tag1"));
+        adapter.addItem(playlist);
+
+        View itemView = adapter.createItemView(0, new FrameLayout(Robolectric.application));
+        adapter.bindItemView(0, itemView);
+
+        ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
+        expect(viewHolder.tagList.getText()).toEqual("#tag1");
+    }
+
+    @Test
+    public void shouldShowBlankTagIfPlaylistHasNoTags() throws CreateModelException {
+        PlaylistSummary playlist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
+        playlist.setTags(Collections.<String>emptyList());
+        adapter.addItem(playlist);
+
+        View itemView = adapter.createItemView(0, new FrameLayout(Robolectric.application));
+        adapter.bindItemView(0, itemView);
+
+        ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
+        expect(viewHolder.tagList.getText()).toEqual("");
+    }
 }

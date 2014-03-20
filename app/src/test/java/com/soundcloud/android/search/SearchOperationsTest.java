@@ -27,6 +27,7 @@ import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.BulkStorage;
 import com.soundcloud.android.storage.PlaylistTagStorage;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -40,6 +41,7 @@ import rx.android.OperationPaged;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SearchOperationsTest {
@@ -48,6 +50,8 @@ public class SearchOperationsTest {
 
     @Mock
     private RxHttpClient rxHttpClient;
+    @Mock
+    private BulkStorage bulkStorage;
     @Mock
     private PlaylistTagStorage tagStorage;
     @Mock
@@ -58,8 +62,9 @@ public class SearchOperationsTest {
 
     @Before
     public void setUp() {
-        searchOperations = new SearchOperations(rxHttpClient, tagStorage, modelManager);
+        searchOperations = new SearchOperations(rxHttpClient, tagStorage, bulkStorage, modelManager);
         when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
+        when(bulkStorage.bulkInsertAsync(any(Iterable.class))).thenReturn(Observable.<Iterable>empty());
     }
 
     @Test
@@ -119,7 +124,7 @@ public class SearchOperationsTest {
 
         ArgumentCaptor<OperationPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
         verify(observer).onNext(captor.capture());
-        expect(captor.getValue().getPagedCollection()).toContainInOrder(track, playlist, user);
+        expect(captor.getValue().getPagedCollection()).toContainExactly(track, playlist, user);
     }
 
     @Test
@@ -132,6 +137,18 @@ public class SearchOperationsTest {
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
         verify(modelManager).cache(track, ScResource.CacheUpdateMode.FULL);
+    }
+
+    @Test
+    public void shouldWriteSearchResultsToLocalStorage() {
+        final Track track = new Track();
+        SearchResultsCollection collection = new SearchResultsCollection(Arrays.<ScResource>asList(track));
+        Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
+        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
+
+        searchOperations.getAllSearchResults("any query").subscribe(observer);
+
+        verify(bulkStorage).bulkInsertAsync(any(SearchResultsCollection.class));
     }
 
     @Test
@@ -200,6 +217,7 @@ public class SearchOperationsTest {
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
 
         when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
+
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
         ArgumentCaptor<APIRequest> captor = ArgumentCaptor.forClass(APIRequest.class);
@@ -244,6 +262,16 @@ public class SearchOperationsTest {
         verify(observer).onNext(resultCaptor.capture());
 
         expect(resultCaptor.getValue().getPagedCollection()).toBe(collection);
+    }
+
+    @Test
+    public void shouldWritePlaylistDiscoveryResultToLocalStorage() throws CreateModelException {
+        PlaylistSummaryCollection collection = buildPlaylistSummariesResponse();
+
+        searchOperations.getPlaylistResults("electronic").subscribe(observer);
+
+        final List<Playlist> resources = Arrays.asList(new Playlist(collection.getCollection().get(0)));
+        verify(bulkStorage).bulkInsertAsync(resources);
     }
 
     private PlaylistSummaryCollection buildPlaylistSummariesResponse() throws CreateModelException {

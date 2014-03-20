@@ -1,4 +1,4 @@
-package com.soundcloud.android.playlists;
+package com.soundcloud.android.sync.content;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isLegacyRequestToUrl;
@@ -10,7 +10,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicCloudAPI;
@@ -27,7 +26,6 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.exception.UnknownResourceException;
 import com.soundcloud.api.Request;
-import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.util.EntityUtils;
 import org.junit.Before;
@@ -49,9 +47,9 @@ import java.io.IOException;
 import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlaylistSyncOperationsTest {
+public class PlaylistSyncHelperTest {
 
-    private PlaylistSyncOperations playlistSyncOperations;
+    private PlaylistSyncHelper playlistSyncHelper;
 
     @Mock
     private PlaylistStorage playlistStorage;
@@ -76,7 +74,7 @@ public class PlaylistSyncOperationsTest {
 
     @Before
     public void setup() {
-        playlistSyncOperations = new PlaylistSyncOperations(playlistStorage, soundAssociationStorage, modelManager);
+        playlistSyncHelper = new PlaylistSyncHelper(playlistStorage, soundAssociationStorage, modelManager);
         when(playlist.getId()).thenReturn(123L);
         when(playlist.getTitle()).thenReturn("Skrillex goes to Deleware");
         when(playlist.getSharing()).thenReturn(Sharing.PRIVATE);
@@ -94,7 +92,7 @@ public class PlaylistSyncOperationsTest {
         ).thenReturn(Collections.<Playlist>emptyList());
 
         when(playlistStorage.getLocalPlaylists()).thenReturn(Lists.newArrayList(playlist));
-        playlistSyncOperations.pushLocalPlaylists(context, publicCloudAPI, syncStateManager);
+        playlistSyncHelper.pushLocalPlaylists(context, publicCloudAPI, syncStateManager);
 
         ArgumentCaptor<Request> captor = ArgumentCaptor.forClass(Request.class);
         verify(publicCloudAPI).create(captor.capture());
@@ -122,7 +120,7 @@ public class PlaylistSyncOperationsTest {
 
         final UnknownResource apiPlaylist = Mockito.mock(UnknownResource.class);
         when(publicCloudAPI.create(any(Request.class))).thenReturn(apiPlaylist);
-        playlistSyncOperations.pushLocalPlaylists(context, publicCloudAPI, syncStateManager);
+        playlistSyncHelper.pushLocalPlaylists(context, publicCloudAPI, syncStateManager);
 
         verify(playlist, never()).localToGlobal(any(Context.class), any(Playlist.class));
         verify(modelManager, never()).removeFromCache(oldPlaylistUri);
@@ -144,7 +142,7 @@ public class PlaylistSyncOperationsTest {
 
         final Playlist apiPlaylist = Mockito.mock(Playlist.class);
         when(publicCloudAPI.create(any(Request.class))).thenReturn(apiPlaylist);
-        playlistSyncOperations.pushLocalPlaylists(context, publicCloudAPI, syncStateManager);
+        playlistSyncHelper.pushLocalPlaylists(context, publicCloudAPI, syncStateManager);
 
         InOrder inOrder = Mockito.inOrder(playlist, modelManager, playlistStorage, soundAssociationStorage, syncStateManager, playlistStorage);
 
@@ -159,21 +157,21 @@ public class PlaylistSyncOperationsTest {
     @Test(expected = UnknownResourceException.class)
     public void pushUnpushedTracksShouldThrowUnknownResourceExceptionWithUnexpectedResourceResponse() throws IOException {
         when(publicCloudAPI.read(argThat(isLegacyRequestToUrl("/playlists/123")))).thenReturn(Mockito.mock(UnknownResource.class));
-        playlistSyncOperations.syncPlaylist(Content.PLAYLIST.forId(123L), publicCloudAPI);
+        playlistSyncHelper.syncPlaylist(Content.PLAYLIST.forId(123L), publicCloudAPI);
     }
 
     @Test
     public void pushUnpushedTracksShouldReturnOriginalPlaylistIfNoPendingPushes() throws IOException {
         when(publicCloudAPI.read(argThat(isLegacyRequestToUrl("/playlists/123")))).thenReturn(playlist);
         when(playlistStorage.getUnpushedTracksForPlaylist(123L)).thenReturn(Collections.<Long>emptyList());
-        expect(playlistSyncOperations.syncPlaylist(Content.PLAYLIST.forId(123L), publicCloudAPI)).toEqual(playlist);
+        expect(playlistSyncHelper.syncPlaylist(Content.PLAYLIST.forId(123L), publicCloudAPI)).toEqual(playlist);
     }
 
     @Test
     public void pushUnpushedTracksShouldReturnOriginalPlaylistAfterUnsuccessfulPush() throws IOException {
         when(publicCloudAPI.read(argThat(isLegacyRequestToUrl("/playlists/123")))).thenReturn(playlist);
         when(playlistStorage.getUnpushedTracksForPlaylist(123L)).thenReturn(Lists.newArrayList(4L, 5L, 6L));
-        expect(playlistSyncOperations.syncPlaylist(Content.PLAYLIST.forId(123L), publicCloudAPI)).toEqual(playlist);
+        expect(playlistSyncHelper.syncPlaylist(Content.PLAYLIST.forId(123L), publicCloudAPI)).toEqual(playlist);
     }
 
     @Test
@@ -185,7 +183,7 @@ public class PlaylistSyncOperationsTest {
         when(publicCloudAPI.update(any(Request.class))).thenReturn(updatedPlaylist);
         when(playlistStorage.store(updatedPlaylist)).thenReturn(updatedPlaylist);
 
-        final Playlist actual = playlistSyncOperations.syncPlaylist(Content.PLAYLIST.forId(123L), publicCloudAPI);
+        final Playlist actual = playlistSyncHelper.syncPlaylist(Content.PLAYLIST.forId(123L), publicCloudAPI);
         expect(actual).not.toEqual(playlist);
     }
 
@@ -195,7 +193,7 @@ public class PlaylistSyncOperationsTest {
         when(playlist.getTracks()).thenReturn(Lists.newArrayList(new Track(1L), new Track(2L), new Track(3L)));
         when(playlistStorage.getUnpushedTracksForPlaylist(123L)).thenReturn(Lists.newArrayList(4L, 5L, 6L));
 
-        playlistSyncOperations.syncPlaylist(Content.PLAYLIST.forId(123L), publicCloudAPI);
+        playlistSyncHelper.syncPlaylist(Content.PLAYLIST.forId(123L), publicCloudAPI);
 
         ArgumentCaptor<Request> captor = new ArgumentCaptor<Request>();
         verify(publicCloudAPI).update(captor.capture());

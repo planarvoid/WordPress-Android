@@ -87,9 +87,9 @@ public class PlaybackOperations {
 
     /**
      * From a uri with an initial track to show while loading the full playlist from the DB.
-     * Used in {@link com.soundcloud.android.playlists.PlaylistTracksFragment}
+     * Used in {@link com.soundcloud.android.playlists.PlaylistFragment}
      */
-    public void playFromPlaylist(Context context, Playlist playlist, int startPosition, Track initialTrack, Screen screen) {
+    public void playPlaylistFromPosition(Context context, Playlist playlist, int startPosition, Track initialTrack, Screen screen) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen.get());
         playSessionSource.setPlaylist(playlist);
         playFromUri(context, playlist.toUri(), startPosition, initialTrack, playSessionSource);

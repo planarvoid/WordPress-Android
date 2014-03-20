@@ -134,11 +134,12 @@ public class UserlistRow extends IconLayout implements ListRow {
     }
 
     private void toggleFollowing(final User user) {
+        final SyncInitiator syncInitiator = new SyncInitiator(getContext());
         mFollowingOperations.toggleFollowing(user).observeOn(
                 AndroidSchedulers.mainThread()).subscribe(new DefaultSubscriber<UserAssociation>() {
             @Override
             public void onCompleted() {
-                SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
+                syncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
                 setFollowingStatus();
             }
 

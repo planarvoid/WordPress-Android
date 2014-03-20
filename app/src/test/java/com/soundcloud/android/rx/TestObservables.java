@@ -1,11 +1,9 @@
 package com.soundcloud.android.rx;
 
 import rx.Observable;
-import rx.Observer;
 import rx.Subscriber;
 import rx.Subscription;
 
-import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 

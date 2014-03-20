@@ -1500,8 +1500,9 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_centerInParent">true</item>
         <item name="android:background">@drawable/btn_header_play_toggle</item>
-        <item name="android:textOn"></item>
-        <item name="android:textOff"></item>
+        <item name="android:textOn">@null</item>
+        <item name="android:textOff">@null</item>
+        <item name="android:enabled">false</item>
     </style>
 
 </resources>

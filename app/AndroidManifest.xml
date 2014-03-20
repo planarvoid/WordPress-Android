@@ -317,7 +317,7 @@
         <activity android:name=".associations.TrackInteractionActivity"/>
         <activity android:name=".search.SearchByTagActivity"/>
 
-        <activity android:launchMode="singleTop" android:name=".playlists.PlaylistDetailActivity">
+        <activity android:name=".playlists.PlaylistDetailActivity">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.PLAYLIST"/>
                 <category android:name="android.intent.category.DEFAULT"/>

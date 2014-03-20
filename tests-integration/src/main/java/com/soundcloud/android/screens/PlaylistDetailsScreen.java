@@ -20,7 +20,7 @@ public class PlaylistDetailsScreen extends Screen {
 
     private View rootContainer() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return solo.getView(R.id.list);
+        return solo.getView(android.R.id.list);
     }
 
     @Override

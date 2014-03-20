@@ -133,7 +133,10 @@ public class LocalCollection implements Identifiable, Persisted {
     }
 
     public boolean shouldAutoRefresh() {
-        if (!isIdle() || getId() <= 0) return false;
+        return isIdle() && getId() > 0 && isSyncDue();
+    }
+
+    public boolean isSyncDue() {
         Content c = Content.match(getUri());
 
         // only auto refresh once every 30 mins at most, that we won't hammer their phone or the api if there are errors

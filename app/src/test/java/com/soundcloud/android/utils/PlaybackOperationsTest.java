@@ -108,7 +108,7 @@ public class PlaybackOperationsTest {
         final Observable<List<Long>> trackIdList = Observable.<List<Long>>just(Lists.newArrayList(track.getId()));
         when(trackStorage.getTrackIdsForUriAsync(any(Uri.class))).thenReturn(trackIdList);
 
-        playbackOperations.playFromPlaylist(Robolectric.application, playlist, 0, track, Screen.YOUR_LIKES);
+        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist, 0, track, Screen.YOUR_LIKES);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedActivity = application.getNextStartedActivity();
@@ -126,7 +126,7 @@ public class PlaybackOperationsTest {
         final ArrayList<Long> trackIds = Lists.newArrayList(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
         when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(trackIds));
 
-        playbackOperations.playFromPlaylist(Robolectric.application, playlist, 1, tracks.get(1), ORIGIN_SCREEN);
+        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist, 1, tracks.get(1), ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
@@ -147,7 +147,7 @@ public class PlaybackOperationsTest {
         when(playbackStateProvider.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get()); // same screen origin
         when(playbackStateProvider.getPlayQueuePlaylistId()).thenReturn(-1L); // different Playlist Id
 
-        playbackOperations.playFromPlaylist(Robolectric.application, playlist, 1, tracks.get(1), Screen.EXPLORE_TRENDING_MUSIC);
+        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist, 1, tracks.get(1), Screen.EXPLORE_TRENDING_MUSIC);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService()).not.toBeNull();

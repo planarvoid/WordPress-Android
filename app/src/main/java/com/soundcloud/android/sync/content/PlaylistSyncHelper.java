@@ -1,4 +1,4 @@
-package com.soundcloud.android.playlists;
+package com.soundcloud.android.sync.content;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.annotations.VisibleForTesting;
@@ -11,6 +11,8 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playlists.PlaylistApiCreateObject;
+import com.soundcloud.android.playlists.PlaylistApiUpdateObject;
 import com.soundcloud.android.storage.PlaylistStorage;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -30,18 +32,18 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public class PlaylistSyncOperations {
+class PlaylistSyncHelper {
 
     private final PlaylistStorage mPlaylistStorage;
     private final SoundAssociationStorage mSoundAssociationStorage;
     private final ScModelManager mModelManager;
 
-    public PlaylistSyncOperations() {
+    public PlaylistSyncHelper() {
         this(new PlaylistStorage(), new SoundAssociationStorage(), SoundCloudApplication.sModelManager);
     }
 
     @VisibleForTesting
-    PlaylistSyncOperations(PlaylistStorage playlistStorage, SoundAssociationStorage soundAssociationStorage, ScModelManager modelManager) {
+    PlaylistSyncHelper(PlaylistStorage playlistStorage, SoundAssociationStorage soundAssociationStorage, ScModelManager modelManager) {
         mPlaylistStorage = playlistStorage;
         mSoundAssociationStorage = soundAssociationStorage;
         mModelManager = modelManager;

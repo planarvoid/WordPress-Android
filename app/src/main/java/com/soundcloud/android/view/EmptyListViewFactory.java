@@ -7,7 +7,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.provider.Content;
 import org.jetbrains.annotations.Nullable;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -22,7 +21,7 @@ public class EmptyListViewFactory {
     private String mMessageText, mActionText, mSecondaryText;
     private Intent mAction;
 
-    public EmptyListView build(Activity context) {
+    public EmptyListView build(Context context) {
         EmptyListView view = new EmptyListView(context);
         if (mMessageText != null) view.setMessageText(mMessageText);
         if (mActionText != null) view.setActionText(mActionText);

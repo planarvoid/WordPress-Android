@@ -18,6 +18,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,7 +94,8 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
         public void onError(Throwable error) {
             super.onError(error);
             // send sync adapter request for followings so retry logic will kick in
-            SyncInitiator.pushFollowingsToApi(new AccountOperations(getActivity()).getSoundCloudAccount());
+            FragmentActivity context = getActivity();
+            new SyncInitiator(context).pushFollowingsToApi(new AccountOperations(context).getSoundCloudAccount());
             finish(false);
         }
     }

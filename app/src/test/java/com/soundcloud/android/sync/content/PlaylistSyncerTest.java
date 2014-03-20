@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync;
+package com.soundcloud.android.sync.content;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isLegacyRequestToUrl;
@@ -16,12 +16,12 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.playlists.PlaylistSyncOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.content.PlaylistSyncer;
+import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -44,7 +44,7 @@ public class PlaylistSyncerTest {
     @Mock
     SoundAssociationStorage soundAssociationStorage;
     @Mock
-    PlaylistSyncOperations playlistOperations;
+    PlaylistSyncHelper syncHelper;
     @Mock
     PublicCloudAPI publicCloudAPI;
     @Mock
@@ -61,7 +61,7 @@ public class PlaylistSyncerTest {
     @Before
     public void setUp() throws Exception {
         playlistSyncer = new PlaylistSyncer(Robolectric.application, resolver,
-                publicCloudAPI, syncStateManager, accountOperations, playlistOperations);
+                publicCloudAPI, syncStateManager, accountOperations, syncHelper);
     }
 
     @Test
@@ -160,7 +160,7 @@ public class PlaylistSyncerTest {
     public void syncMePlaylistsShouldSyncChangedPlaylists() throws Exception {
         when(localCollection.hasSyncedBefore()).thenReturn(true);
         when(localCollection.shouldAutoRefresh()).thenReturn(false);
-        when(playlistOperations.syncMyNewPlaylists(eq(Lists.newArrayList(new SoundAssociation(playlist))))).thenReturn(true);
+        when(syncHelper.syncMyNewPlaylists(eq(Lists.newArrayList(new SoundAssociation(playlist))))).thenReturn(true);
 
         setupMyPlaylistsRemote(Lists.newArrayList(playlist));
 

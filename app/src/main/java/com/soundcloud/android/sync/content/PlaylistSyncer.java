@@ -9,7 +9,6 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.playlists.PlaylistSyncOperations;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
@@ -33,19 +32,19 @@ public class PlaylistSyncer extends SyncStrategy {
     @VisibleForTesting
     public static final int MAX_MY_PLAYLIST_TRACK_COUNT_SYNC = 30;
 
-    private final PlaylistSyncOperations mPlaylistSyncOperations;
+    private final PlaylistSyncHelper mPlaylistSyncHelper;
 
     public PlaylistSyncer(Context context, ContentResolver resolver) {
         this(context, resolver, new PublicApi(context),  new SyncStateManager(resolver, new LocalCollectionDAO(resolver)),
-                new AccountOperations(context), new PlaylistSyncOperations());
+                new AccountOperations(context), new PlaylistSyncHelper());
     }
 
     // TODO : Inject when we add injection to the syncer
     public PlaylistSyncer(Context context, ContentResolver resolver, PublicCloudAPI publicCloudAPI, SyncStateManager syncStateManager,
-                          AccountOperations accountOperations, PlaylistSyncOperations playlistOperations) {
+                          AccountOperations accountOperations, PlaylistSyncHelper playlistOperations) {
 
         super(context, resolver, publicCloudAPI, syncStateManager, accountOperations);
-        mPlaylistSyncOperations = playlistOperations;
+        mPlaylistSyncHelper = playlistOperations;
     }
 
     public ApiSyncResult syncContent(@NotNull Uri uri) throws IOException {
@@ -81,7 +80,7 @@ public class PlaylistSyncer extends SyncStrategy {
      * we could use that path
      */
     private ApiSyncResult syncMyPlaylists() throws IOException {
-        mPlaylistSyncOperations.pushLocalPlaylists(mContext, mApi, mSyncStateManager);
+        mPlaylistSyncHelper.pushLocalPlaylists(mContext, mApi, mSyncStateManager);
 
         final Request request = Request.to(Content.ME_PLAYLISTS.remoteUri)
                 .add("representation", "compact").with("limit", 200);
@@ -110,7 +109,7 @@ public class PlaylistSyncer extends SyncStrategy {
             }
         }
 
-        boolean changed = mPlaylistSyncOperations.syncMyNewPlaylists(associations);
+        boolean changed = mPlaylistSyncHelper.syncMyNewPlaylists(associations);
         ApiSyncResult result = new ApiSyncResult(Content.ME_PLAYLISTS.uri);
         result.change = changed ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
         result.setSyncData(System.currentTimeMillis(), associations.size());
@@ -123,7 +122,7 @@ public class PlaylistSyncer extends SyncStrategy {
         log("Syncing playlist " + contentUri);
         ApiSyncResult result = new ApiSyncResult(contentUri);
         try {
-            Playlist playlist = mPlaylistSyncOperations.syncPlaylist(contentUri, mApi);
+            Playlist playlist = mPlaylistSyncHelper.syncPlaylist(contentUri, mApi);
             if (playlist != null) {
                 log("inserted " + playlist.toString());
                 result.setSyncData(true, System.currentTimeMillis(), 1, ApiSyncResult.CHANGED);
@@ -135,7 +134,7 @@ public class PlaylistSyncer extends SyncStrategy {
 
         } catch (PublicCloudAPI.NotFoundException e) {
             log("Received a 404 on playlist, deleting " + contentUri.toString());
-            mPlaylistSyncOperations.removePlaylist(contentUri);
+            mPlaylistSyncHelper.removePlaylist(contentUri);
             result.setSyncData(true, System.currentTimeMillis(), 0, ApiSyncResult.CHANGED);
             return result;
         }

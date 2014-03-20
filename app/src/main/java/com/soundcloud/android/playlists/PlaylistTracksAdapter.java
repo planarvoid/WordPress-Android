@@ -10,9 +10,9 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class PlaylistTracksAdapter extends ItemAdapter<Track> {
+class PlaylistTracksAdapter extends ItemAdapter<Track> {
 
-    private static final int INITIAL_SIZE = 10;
+    private static final int INITIAL_SIZE = 20;
 
     private final ImageOperations mImageOperations;
 

@@ -133,6 +133,10 @@ public class PlayablePresenter {
         }
     }
 
+    public Playable getPlayable() {
+        return mPlayable;
+    }
+
     public void addTextShadowForGrayBg() {
         if (mTitleView != null) AndroidUtils.setTextShadowForGrayBg(mTitleView);
         if (mUsernameView != null) AndroidUtils.setTextShadowForGrayBg(mUsernameView);
