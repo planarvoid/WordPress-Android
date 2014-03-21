@@ -18,7 +18,7 @@ public class PlaylistSummary extends ScModel {
     private Date mCreatedAt;
     private PlayableStats mStats;
     private int mDuration;
-    private boolean mPublic;
+    private Sharing mSharing;
 
     /**
      * Required for Jackson
@@ -85,11 +85,15 @@ public class PlaylistSummary extends ScModel {
     }
 
     public boolean isPublic() {
-        return mPublic;
+        return mSharing.isPublic();
     }
 
-    public void setPublic(boolean isPublic) {
-        mPublic = isPublic;
+    public Sharing getSharing() {
+        return mSharing;
+    }
+
+    public void setSharing(Sharing sharing) {
+        mSharing = sharing;
     }
 
     public String getArtworkUrl() {

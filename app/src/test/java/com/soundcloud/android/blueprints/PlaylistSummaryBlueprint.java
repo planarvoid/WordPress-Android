@@ -2,6 +2,7 @@ package com.soundcloud.android.blueprints;
 
 import com.soundcloud.android.model.PlayableStats;
 import com.soundcloud.android.model.PlaylistSummary;
+import com.soundcloud.android.model.Sharing;
 import com.soundcloud.android.model.UserSummary;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
@@ -43,6 +44,9 @@ public class PlaylistSummaryBlueprint {
 
     @Default
     Date createdAt = new Date();
+
+    @Default
+    Sharing sharing = Sharing.PUBLIC;
 
     @Default
     PlayableStats stats = new PlayableStats() {

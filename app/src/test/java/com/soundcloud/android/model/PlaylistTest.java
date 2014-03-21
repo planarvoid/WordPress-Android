@@ -90,7 +90,6 @@ public class PlaylistTest {
     @Test
     public void shouldConvertPlaylistSummaryToPlaylist() throws CreateModelException {
         PlaylistSummary source = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
-        source.setPublic(true);
         Playlist playlist = new Playlist(source);
         expect(playlist.getId()).toEqual(source.getId());
         expect(playlist.getUrn()).toEqual(source.getUrn());
@@ -102,7 +101,7 @@ public class PlaylistTest {
         expect(playlist.likes_count).toEqual(source.getStats().getLikesCount());
         expect(playlist.reposts_count).toEqual(source.getStats().getRepostsCount());
         expect(playlist.duration).toEqual(source.getDuration());
-        expect(playlist.getSharing().isPublic()).toEqual(source.isPublic());
+        expect(playlist.getSharing()).toEqual(source.getSharing());
     }
 
     private void comparePlaylists(Playlist playlist, Playlist playlist1) {
