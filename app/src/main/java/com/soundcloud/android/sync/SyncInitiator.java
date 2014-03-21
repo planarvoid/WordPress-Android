@@ -1,5 +1,6 @@
 package com.soundcloud.android.sync;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +14,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Parcelable;
 import android.os.ResultReceiver;
 
 import javax.inject.Inject;
@@ -21,13 +21,16 @@ import javax.inject.Inject;
 public class SyncInitiator {
 
     private final Context mContext;
+    private final AccountOperations mAccountOperations;
 
     @Inject
-    public SyncInitiator(Context context) {
+    public SyncInitiator(Context context, AccountOperations accountOperations) {
         mContext = context.getApplicationContext();
+        mAccountOperations = accountOperations;
     }
 
-    public boolean pushFollowingsToApi(@Nullable Account account) {
+    public boolean pushFollowingsToApi() {
+        final Account account = mAccountOperations.getSoundCloudAccount();
         if (account != null) {
             final Bundle extras = new Bundle();
             extras.putBoolean(SyncAdapterService.EXTRA_SYNC_PUSH, true);

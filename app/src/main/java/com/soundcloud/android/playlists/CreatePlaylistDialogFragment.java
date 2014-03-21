@@ -11,7 +11,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.properties.ApplicationProperties;
 import eu.inmite.android.lib.dialogs.BaseDialogFragment;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -19,13 +18,19 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import javax.inject.Inject;
+
 public class CreatePlaylistDialogFragment extends BaseDialogFragment {
 
     private static final String KEY_ORIGIN_SCREEN = "ORIGIN_SCREEN";
     private static final String KEY_TRACK_ID = "TRACK_ID";
 
-    private EventBus mEventBus;
-    private ApplicationProperties mApplicationProperties;
+    @Inject
+    PlaylistOperations mPlaylistOperations;
+    @Inject
+    EventBus mEventBus;
+    @Inject
+    ApplicationProperties mApplicationProperties;
 
     public static CreatePlaylistDialogFragment from(long trackId, String originScreen) {
         Bundle b = new Bundle();
@@ -36,16 +41,8 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
         return fragment;
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mEventBus = ((SoundCloudApplication) activity.getApplication()).getEventBus();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mApplicationProperties = new ApplicationProperties(getResources());
+    public CreatePlaylistDialogFragment() {
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @Override
@@ -83,11 +80,10 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
     }
 
     private void createPlaylist(final String title, final boolean isPrivate) {
-        PlaylistOperations playlistOperations = new PlaylistOperations(getActivity());
         final User currentUser = SoundCloudApplication.instance.getLoggedInUser();
         final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
         final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
-        fireAndForget(playlistOperations.createNewPlaylist(currentUser, title, isPrivate, firstTrackId));
+        fireAndForget(mPlaylistOperations.createNewPlaylist(currentUser, title, isPrivate, firstTrackId));
         mEventBus.publish(EventQueue.UI, UIEvent.fromAddToPlaylist(originScreen, true, firstTrackId));
     }
 }

@@ -7,7 +7,14 @@ import dagger.Provides;
 
 import android.content.res.Resources;
 
-@Module(complete = false, injects = {PlaylistDetailActivity.class, PlaylistFragment.class})
+@Module(complete = false,
+        injects = {
+                PlaylistDetailActivity.class,
+                PlaylistFragment.class,
+                AddToPlaylistDialogFragment.class,
+                CreatePlaylistDialogFragment.class
+        }
+)
 public class PlaylistsModule {
 
     @Provides

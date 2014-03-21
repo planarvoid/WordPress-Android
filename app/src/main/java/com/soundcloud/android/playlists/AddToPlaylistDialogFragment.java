@@ -37,6 +37,8 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import javax.inject.Inject;
+
 public class AddToPlaylistDialogFragment extends BaseDialogFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -50,8 +52,11 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
     private static final int CLOSE_DELAY_MILLIS = 500;
 
     private MyPlaylistsAdapter mAdapter;
-    private PlaylistOperations mPlaylistOperations;
-    private EventBus mEventBus;
+
+    @Inject
+    PlaylistOperations mPlaylistOperations;
+    @Inject
+    EventBus mEventBus;
 
     public static AddToPlaylistDialogFragment from(Track track, String originScreen) {
         Bundle b = new Bundle();
@@ -65,18 +70,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
     }
 
     public AddToPlaylistDialogFragment() {
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mEventBus = ((SoundCloudApplication) activity.getApplication()).getEventBus();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mPlaylistOperations = new PlaylistOperations(getActivity());
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @Override

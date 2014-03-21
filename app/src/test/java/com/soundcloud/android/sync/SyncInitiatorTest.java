@@ -2,12 +2,15 @@ package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.shadows.ShadowContentResolver.Status;
+import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -20,15 +23,23 @@ import android.os.ResultReceiver;
 @RunWith(SoundCloudTestRunner.class)
 public class SyncInitiatorTest {
 
-    private SyncInitiator initiator = new SyncInitiator(Robolectric.application);
+    private SyncInitiator initiator;
 
     @Mock
+    private AccountOperations accountOperations;
+    @Mock
     private ResultReceiver resultReceiver;
+
+    @Before
+    public void setup() {
+        initiator = new SyncInitiator(Robolectric.application, accountOperations);
+    }
 
     @Test
     public void shouldCreateSyncIntentForPushingFollowingsForValidAccount() throws Exception {
         Account account = new Account("soundcloud", "account");
-        expect(initiator.pushFollowingsToApi(account)).toBeTrue();
+        when(accountOperations.getSoundCloudAccount()).thenReturn(account);
+        expect(initiator.pushFollowingsToApi()).toBeTrue();
 
         Status syncStatus = ShadowContentResolver.getStatus(account, ScContentProvider.AUTHORITY);
         expect(syncStatus.syncRequests).toBe(1);
@@ -38,7 +49,7 @@ public class SyncInitiatorTest {
 
     @Test
     public void shouldReturnFalseWhenPushingFollowingsWithInvalidAccount() throws Exception {
-        expect(initiator.pushFollowingsToApi(null)).toBeFalse();
+        expect(initiator.pushFollowingsToApi()).toBeFalse();
     }
 
     @Test

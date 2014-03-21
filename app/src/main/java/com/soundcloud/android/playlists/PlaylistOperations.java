@@ -22,7 +22,6 @@ import rx.functions.Func1;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
@@ -54,12 +53,6 @@ public class PlaylistOperations {
             return Observable.just(playlist);
         }
     };
-
-    @Deprecated
-    public PlaylistOperations(Context context) {
-        this(new PlaylistStorage(), new SoundAssociationStorage(), new SyncInitiator(context),
-                new SyncStateManager(context), new AccountOperations(context));
-    }
 
     @Inject
     public PlaylistOperations(PlaylistStorage playlistStorage, SoundAssociationStorage soundAssocStorage,

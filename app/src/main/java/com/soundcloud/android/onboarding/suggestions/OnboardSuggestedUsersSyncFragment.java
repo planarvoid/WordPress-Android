@@ -95,7 +95,7 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
             super.onError(error);
             // send sync adapter request for followings so retry logic will kick in
             FragmentActivity context = getActivity();
-            new SyncInitiator(context).pushFollowingsToApi(new AccountOperations(context).getSoundCloudAccount());
+            new SyncInitiator(context, new AccountOperations(context)).pushFollowingsToApi();
             finish(false);
         }
     }
