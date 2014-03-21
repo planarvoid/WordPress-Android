@@ -43,7 +43,6 @@ public class PlaylistDetailActivity extends ScActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(LOG_TAG, "onCreate");
 
         setTitle(R.string.activity_title_playlist);
         setContentView(R.layout.playlist_activity);
