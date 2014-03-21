@@ -78,6 +78,37 @@ public class PlaylistFragmentTest {
     }
 
     @Test
+    public void shouldNotShowPlayToggleButtonWithNoTracks() throws Exception {
+        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
+        View layout = createFragmentView();
+
+        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
+        expect(toggleButton.getVisibility()).toBe(View.GONE);
+    }
+
+    @Test
+    public void shouldHidePlayToggleButtonWithNoTracks() throws Exception {
+        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
+        playlist.tracks = Lists.newArrayList(new Track(1L));
+        View layout = createFragmentView();
+
+        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
+        expect(toggleButton.getVisibility()).toBe(View.VISIBLE);
+    }
+
+
+    @Test
+    public void shouldHidePlayToggleButtonOnSecondPlaylistEmissionWithNoTracks() throws Exception {
+        playlist.tracks = Lists.newArrayList(new Track(1L));
+        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(Arrays.asList(playlist, new Playlist(playlist.getId()))));
+        View layout = createFragmentView();
+
+        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
+        expect(toggleButton.getVisibility()).toBe(View.GONE);
+    }
+
+
+    @Test
     public void shouldPlayPlaylistOnToggleToPlayState() throws Exception {
         when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
         View layout = createFragmentView();

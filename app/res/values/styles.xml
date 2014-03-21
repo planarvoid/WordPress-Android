@@ -1502,7 +1502,7 @@
         <item name="android:background">@drawable/btn_header_play_toggle</item>
         <item name="android:textOn">@null</item>
         <item name="android:textOff">@null</item>
-        <item name="android:enabled">false</item>
+        <item name="android:visibility">gone</item>
     </style>
 
 </resources>

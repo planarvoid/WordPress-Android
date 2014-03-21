@@ -18,6 +18,7 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.PlayablePresenter;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
@@ -45,6 +46,7 @@ import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.List;
 
 @SuppressLint("ValidFragment")
 public class PlaylistFragment extends Fragment implements AdapterView.OnItemClickListener {
@@ -267,7 +269,16 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         mInfoHeaderText.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
 
         // don't register clicks before we have a valid playlist
-        mPlayToggle.setEnabled(true);
+        final List<Track> tracks = playlist.getTracks();
+        if (tracks != null && tracks.size() > 0) {
+            if (mPlayToggle.getVisibility() != View.VISIBLE) {
+                mPlayToggle.setVisibility(View.VISIBLE);
+                AnimUtils.runFadeInAnimationOn(getActivity(), mPlayToggle);
+            }
+        } else {
+            mPlayToggle.setVisibility(View.GONE);
+        }
+
     }
 
     private void updateTracksAdapter(Playlist playlist) {
