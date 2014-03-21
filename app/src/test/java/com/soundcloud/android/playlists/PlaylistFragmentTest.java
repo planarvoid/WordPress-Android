@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -81,9 +80,10 @@ public class PlaylistFragmentTest {
     @Test
     public void shouldPlayPlaylistOnToggleToPlayState() throws Exception {
         when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
-        createFragmentView();
+        View layout = createFragmentView();
 
-        fragment.onClick(mock(ToggleButton.class));
+        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
+        toggleButton.performClick();
 
         verify(playbackOperations).playPlaylist(any(Context.class), eq(playlist), eq(Screen.SIDE_MENU_STREAM));
     }
@@ -92,9 +92,10 @@ public class PlaylistFragmentTest {
     public void shouldPlayPlaylistOnToggleToPauseState() throws Exception {
         when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
         when(playbackStateProvider.getPlayQueuePlaylistId()).thenReturn(playlist.getId());
-        createFragmentView();
+        View layout = createFragmentView();
 
-        fragment.onClick(mock(ToggleButton.class));
+        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
+        toggleButton.performClick();
 
         verify(playbackOperations).togglePlayback(any(Context.class));
     }

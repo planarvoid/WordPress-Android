@@ -47,7 +47,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 @SuppressLint("ValidFragment")
-public class PlaylistFragment extends Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
+public class PlaylistFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     @Inject
     PlaylistOperations mPlaylistOperations;
@@ -82,6 +82,18 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
             final String action = intent.getAction();
             if (isAdded() && PlaybackService.Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
                 refreshNowPlayingState();
+            }
+        }
+    };
+
+    private final View.OnClickListener mOnPlayToggleClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            final Playlist playlist = (Playlist) mPlayablePresenter.getPlayable();
+            if (mPlaybackStateProvider.getPlayQueuePlaylistId() == playlist.getId()) {
+                mPlaybackOperations.togglePlayback(getActivity());
+            } else {
+                mPlaybackOperations.playPlaylist(getActivity(), playlist, Screen.fromBundle(getArguments()));
             }
         }
     };
@@ -221,7 +233,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         });
 
         mPlayToggle = (ToggleButton) detailsView.findViewById(R.id.toggle_play_pause);
-        mPlayToggle.setOnClickListener(this);
+        mPlayToggle.setOnClickListener(mOnPlayToggleClick);
     }
 
     private void addInfoHeader() {
@@ -243,16 +255,6 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         final Playlist playlist = (Playlist) mPlayablePresenter.getPlayable();
         mPlaybackOperations.playPlaylistFromPosition(getActivity(), playlist, trackPosition, initialTrack,
                 Screen.fromBundle(getArguments()));
-    }
-
-    @Override
-    public void onClick(View v) {
-        final Playlist playlist = (Playlist) mPlayablePresenter.getPlayable();
-        if (mPlaybackStateProvider.getPlayQueuePlaylistId() == playlist.getId()) {
-            mPlaybackOperations.togglePlayback(getActivity());
-        } else {
-            mPlaybackOperations.playPlaylist(getActivity(), playlist, Screen.fromBundle(getArguments()));
-        }
     }
 
     protected void refreshMetaData(Playlist playlist) {
