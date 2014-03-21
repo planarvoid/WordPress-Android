@@ -76,7 +76,7 @@ public class EventLoggerApiTest {
         });
 
         trackingData.moveToNext();
-        assertThat(eventLoggerApi.buildUrl(trackingData), is(urlEqualTo("http://eventlogger.soundcloud.com/audio-performance?key5=5&key6=6&client_id=1&anonymous_id=9876")));
+        assertThat(eventLoggerApi.buildUrl(trackingData), is(urlEqualTo("http://eventlogger.soundcloud.com/audio_performance?key5=5&key6=6&client_id=1&anonymous_id=9876")));
     }
 
     @Test
