@@ -31,7 +31,7 @@ import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
-import com.soundcloud.android.view.EmptyListViewFactory;
+import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.SlidingTabLayout;
 import com.soundcloud.api.Endpoints;
@@ -523,7 +523,7 @@ public class ProfileActivity extends ScActivity implements
                     screen = currentTab.userScreen;
                 }
                 ScListFragment listFragment = ScListFragment.newInstance(contentUri, screen);
-                listFragment.setEmptyViewFactory(new EmptyListViewFactory().forContent(ProfileActivity.this, contentUri, mUser));
+                listFragment.setEmptyViewFactory(new EmptyViewBuilder().forContent(ProfileActivity.this, contentUri, mUser));
                 return listFragment;
             }
         }

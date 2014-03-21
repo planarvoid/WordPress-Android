@@ -20,6 +20,7 @@ import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyViewBuilder;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
@@ -98,6 +99,7 @@ public class PlaylistResultsFragment extends Fragment implements EmptyViewAware,
         super.onViewCreated(view, savedInstanceState);
 
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
+        new EmptyViewBuilder().configureForSearch(mEmptyListView);
         mEmptyListView.setStatus(mEmptyViewStatus);
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override

@@ -12,10 +12,10 @@ import android.content.Intent;
 import android.net.Uri;
 
 /**
- * A builder class to create {@link EmptyListView}s. Note that it is essential that instances of this class must be
+ * A builder class to build or configure {@link EmptyListView}s. Note that it is essential that instances of this class must be
  * retainable across configuration changes, so do NOT hold strong references to views or Context in here!
  */
-public class EmptyListViewFactory {
+public class EmptyViewBuilder {
 
     private int mImage;
     private String mMessageText, mActionText, mSecondaryText;
@@ -31,7 +31,7 @@ public class EmptyListViewFactory {
         return view;
     }
 
-    public EmptyListViewFactory forContent(final Context context, final Uri contentUri, @Nullable final User user) {
+    public EmptyViewBuilder forContent(final Context context, final Uri contentUri, @Nullable final User user) {
 
         switch (Content.match(contentUri)) {
             case ME_SOUND_STREAM:
@@ -109,24 +109,31 @@ public class EmptyListViewFactory {
         return this;
     }
 
-    public EmptyListViewFactory withMessageText(@Nullable String messageText) {
+    public EmptyViewBuilder withMessageText(@Nullable String messageText) {
         mMessageText = messageText;
         return this;
     }
 
-    public EmptyListViewFactory withSecondaryText(@Nullable String secondaryText) {
+    public EmptyViewBuilder withSecondaryText(@Nullable String secondaryText) {
         mSecondaryText = secondaryText;
         return this;
     }
 
-    public EmptyListViewFactory withImage(int imageResourceId) {
+    public EmptyViewBuilder withImage(int imageResourceId) {
         mImage = imageResourceId;
         return this;
+    }
+
+    public void configureForSearch(EmptyListView emptyListView) {
+        emptyListView.setImage(R.drawable.empty_search);
+        emptyListView.setMessageText(R.string.search_empty);
+        emptyListView.setSecondaryText(R.string.search_empty_subtext);
     }
 
     private String getTextForUser(Context context, int userBasedText, @Nullable User user) {
         return context.getString(userBasedText,
                 user == null || user.username == null ? context.getString(R.string.this_user)
-                        : user.username);
+                        : user.username
+        );
     }
 }

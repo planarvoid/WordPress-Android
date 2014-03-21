@@ -7,7 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyListView;
-import com.soundcloud.android.view.EmptyListViewFactory;
+import com.soundcloud.android.view.EmptyViewBuilder;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -23,7 +23,7 @@ import android.widget.TextView;
 public class UserDetailsFragment extends Fragment {
 
     private long mUserId;
-    private EmptyListViewFactory mEmptyViewFactory;
+    private EmptyViewBuilder mEmptyViewFactory;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
     private boolean mDisplayedInfo;
 
@@ -39,7 +39,7 @@ public class UserDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mEmptyViewFactory = new EmptyListViewFactory();
+        mEmptyViewFactory = new EmptyViewBuilder();
     }
 
     @Override

@@ -23,6 +23,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyViewBuilder;
 import rx.Observable;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
@@ -114,7 +115,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         super.onViewCreated(view, savedInstanceState);
 
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
-        configureEmptyView();
+        new EmptyViewBuilder().configureForSearch(mEmptyListView);
 
         mEmptyListView.setStatus(mEmptyViewStatus);
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
@@ -131,12 +132,6 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         getListView().setOnScrollListener(mImageOperations.createScrollPauseListener(false, true, mAdapter));
 
         mPlaybackSubscription = mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackSubscriber());
-    }
-
-    private void configureEmptyView() {
-        mEmptyListView.setImage(R.drawable.empty_search);
-        mEmptyListView.setMessageText(R.string.search_empty);
-        mEmptyListView.setSecondaryText(R.string.search_empty_subtext);
     }
 
     @Override

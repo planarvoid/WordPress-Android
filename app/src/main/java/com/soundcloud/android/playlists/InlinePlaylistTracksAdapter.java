@@ -6,7 +6,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.view.EmptyListView;
-import com.soundcloud.android.view.EmptyListViewFactory;
+import com.soundcloud.android.view.EmptyViewBuilder;
 
 import android.content.Context;
 import android.view.View;
@@ -34,7 +34,7 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<Track> implements EmptyVie
     protected View createItemView(int position, ViewGroup parent) {
         Context context = parent.getContext();
         if (getItemViewType(position) == IGNORE_ITEM_VIEW_TYPE) {
-            return new EmptyListViewFactory().build(context);
+            return new EmptyViewBuilder().build(context);
         } else {
             return new PlayableRow(context, mImageOperations);
         }

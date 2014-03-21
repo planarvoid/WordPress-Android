@@ -36,7 +36,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.EmptyListView;
-import com.soundcloud.android.view.EmptyListViewFactory;
+import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -85,7 +85,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
     private @Nullable EmptyListView mEmptyListView;
-    private EmptyListViewFactory mEmptyListViewFactory;
+    private EmptyViewBuilder mEmptyViewBuilder;
 
     private Content mContent;
     private Uri mContentUri;
@@ -165,7 +165,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         }
         // should happen once per activity lifecycle
         startObservingChanges();
-        mEmptyListViewFactory = new EmptyListViewFactory().forContent(activity, mContentUri, null);
+        mEmptyViewBuilder = new EmptyViewBuilder().forContent(activity, mContentUri, null);
     }
 
     @Override
@@ -224,7 +224,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     }
 
     protected EmptyListView createEmptyView() {
-        return mEmptyListViewFactory.build(getActivity());
+        return mEmptyViewBuilder.build(getActivity());
     }
 
     @Override
@@ -400,8 +400,8 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         }
     }
 
-    public void setEmptyViewFactory(EmptyListViewFactory factory) {
-        mEmptyListViewFactory = factory;
+    public void setEmptyViewFactory(EmptyViewBuilder factory) {
+        mEmptyViewBuilder = factory;
     }
 
     @Nullable
