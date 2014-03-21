@@ -1,3 +1,13 @@
+$ 85
+  % v 2.8.0
+  _ 2014-3-14
+  ! Playlist Discovery
+    * Playlist Discovery now integrated into Search feature
+    * New Search UI
+    * Updated tab controls
+    * added updated SwipeToRefresh feature
+
+
 $ 84
   % v 2.7.10
   _ 2014-3-14
