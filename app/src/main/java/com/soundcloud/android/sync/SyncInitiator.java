@@ -79,6 +79,8 @@ public class SyncInitiator {
                 case ApiSyncService.STATUS_SYNC_ERROR:
                     mSubscriber.onError(new SyncFailedException(resultData));
                     break;
+                default:
+                    throw new IllegalStateException("Unexpected sync state: " + resultCode);
             }
         }
     };
