@@ -41,7 +41,8 @@ module Build
   end
 
   def apk_file_name
-    "soundcloud-android-#{version_name}.apk"
+    suffix = [version, env].compact.join('-')
+    "soundcloud-android-#{suffix}.apk"
   end
 
   def apk_path
