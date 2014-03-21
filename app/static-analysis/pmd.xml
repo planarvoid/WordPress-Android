@@ -4,6 +4,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
 
+    <exclude-pattern>com/soundcloud/android/crop/**/*.java</exclude-pattern>
+
     <rule ref="rulesets/java/android.xml"/>
     <rule ref="rulesets/java/basic.xml"/>
     <rule ref="rulesets/java/braces.xml"/>
@@ -22,4 +24,5 @@
         <exclude name="LocalVariableCouldBeFinal"/>
         <exclude name="MethodArgumentCouldBeFinal"/>
     </rule>
+
 </ruleset>

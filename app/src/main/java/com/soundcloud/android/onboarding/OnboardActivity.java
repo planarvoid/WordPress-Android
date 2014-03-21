@@ -13,6 +13,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
@@ -649,7 +650,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
                 break;
             }
 
-            case RequestCodes.IMAGE_CROP: {
+            case Crop.REQUEST_CROP: {
                 if (getUserDetails() != null) {
                     getUserDetails().onImageCrop(resultCode, intent);
                 }

@@ -350,7 +350,8 @@
         <activity android:name=".creators.upload.EmailPickerActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
         <activity android:name=".creators.upload.LocationPickerActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
         <activity android:name=".onboarding.auth.EmailConfirmationActivity"/>
-        <activity android:hardwareAccelerated="false" android:name=".cropimage.CropImageActivity"/>
+
+        <activity android:name=".crop.CropImageActivity"/>
 
         <!-- for testing purposes -->
 

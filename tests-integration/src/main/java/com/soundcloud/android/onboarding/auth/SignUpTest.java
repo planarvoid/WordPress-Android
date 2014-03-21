@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.cropimage.CropImageActivity;
+import com.soundcloud.android.crop.CropImageActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.tests.ActivityTestCase;
 

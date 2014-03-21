@@ -5,6 +5,7 @@
         <Package name="com.soundcloud.android.model" />
     </Match>
     <Match>
-        <Package name="com.soundcloud.android.cropimage" />
+        <!-- This is library -->
+        <Package name="com.soundcloud.android.crop" />
     </Match>
 </FindBugsFilter>

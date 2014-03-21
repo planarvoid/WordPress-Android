@@ -10,6 +10,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
@@ -308,14 +309,12 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
                 }
                 break;
 
-            case Consts.RequestCodes.IMAGE_CROP: {
+            case Crop.REQUEST_CROP: {
                 if (resultCode == RESULT_OK) {
-                    if (result.getExtras().containsKey("error")) {
-                        handleSilentException("error cropping image", (Exception) result.getSerializableExtra("error"));
-                        Toast.makeText(this,R.string.crop_image_error, Toast.LENGTH_SHORT).show();
-                    } else {
-                        mRecordingMetadata.setImage(mRecording.generateImageFile(Recording.IMAGE_DIR));
-                    }
+                    mRecordingMetadata.setImage(mRecording.generateImageFile(Recording.IMAGE_DIR));
+                } else if (resultCode == Crop.RESULT_ERROR) {
+                    handleSilentException("error cropping image", Crop.getError(result));
+                    Toast.makeText(this, R.string.crop_image_error, Toast.LENGTH_SHORT).show();
                 }
                 break;
             }

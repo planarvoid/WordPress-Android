@@ -1,9 +1,8 @@
 package com.soundcloud.android.utils.images;
 
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.cropimage.CropImageActivity;
+import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -440,15 +439,7 @@ public final class ImageUtils {
     }
 
     public static void sendCropIntent(Activity activity, Uri inputUri, Uri outputUri, int width, int height) {
-        Intent intent = new Intent(activity, CropImageActivity.class)
-                .setData(inputUri)
-                .putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
-                .putExtra("aspectX", 1)
-                .putExtra("aspectY", 1)
-                .putExtra("maxX", width)
-                .putExtra("maxY", height);
-
-        activity.startActivityForResult(intent, Consts.RequestCodes.IMAGE_CROP);
+        new Crop(inputUri).output(outputUri).asSquare().withMaxSize(width, height).start(activity);
     }
 
     public static void recycleImageViewBitmap(ImageView view) {

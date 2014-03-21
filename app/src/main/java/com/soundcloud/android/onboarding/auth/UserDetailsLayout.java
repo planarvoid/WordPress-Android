@@ -4,7 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
@@ -162,13 +162,10 @@ public class UserDetailsLayout extends RelativeLayout {
 
     public void onImageCrop(int resultCode, Intent result) {
         if (resultCode == Activity.RESULT_OK) {
-
-            if (result.getExtras().containsKey("error")) {
-                handleSilentException("error cropping image", (Exception) result.getSerializableExtra("error"));
-                Toast.makeText(getContext(),R.string.crop_image_error, Toast.LENGTH_SHORT).show();
-            } else {
-                setImage(mAvatarFile);
-            }
+            setImage(mAvatarFile);
+        } else if (resultCode == Crop.RESULT_ERROR) {
+            handleSilentException("error cropping image", Crop.getError(result));
+            Toast.makeText(getContext(), R.string.crop_image_error, Toast.LENGTH_SHORT).show();
         }
     }
 
