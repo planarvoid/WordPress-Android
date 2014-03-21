@@ -177,7 +177,7 @@ module Build
 
       message = "Version: #{current} bumped to: #{Build.version}"
 
-      Git.commit_a(message)
+      git.commit_a(message)
       puts message
     end
 
