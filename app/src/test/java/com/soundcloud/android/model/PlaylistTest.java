@@ -102,6 +102,7 @@ public class PlaylistTest {
         expect(playlist.reposts_count).toEqual(source.getStats().getRepostsCount());
         expect(playlist.duration).toEqual(source.getDuration());
         expect(playlist.getSharing()).toEqual(source.getSharing());
+        expect(playlist.getTrackCount()).toEqual(source.getTrackCount());
     }
 
     private void comparePlaylists(Playlist playlist, Playlist playlist1) {

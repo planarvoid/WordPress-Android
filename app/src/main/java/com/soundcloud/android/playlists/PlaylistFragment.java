@@ -261,7 +261,8 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         mPlayablePresenter.setPlayable(playlist);
         mEngagementsController.setPlayable(playlist);
 
-        final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, playlist.getTrackCount(),                playlist.getTrackCount());
+        final String trackCount = getResources().getQuantityString(
+                R.plurals.number_of_sounds, playlist.getTrackCount(), playlist.getTrackCount());
         final String duration = ScTextUtils.formatTimestamp(playlist.duration);
         mInfoHeaderText.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
 
