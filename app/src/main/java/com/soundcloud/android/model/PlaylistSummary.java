@@ -15,6 +15,7 @@ public class PlaylistSummary extends ScModel {
     private int mTrackCount;
     private String mArtworkUrl;
     private Date mCreatedAt;
+    private PlayableStats mStats;
 
     /**
      * Required for Jackson
@@ -64,6 +65,14 @@ public class PlaylistSummary extends ScModel {
         this.mTrackCount = trackCount;
     }
 
+    public PlayableStats getStats() {
+        return mStats;
+    }
+
+    public void setStats(PlayableStats stats) {
+        mStats = stats;
+    }
+
     public String getArtworkUrl() {
         return mArtworkUrl;
     }
@@ -92,13 +101,19 @@ public class PlaylistSummary extends ScModel {
     @JsonProperty("_embedded")
     public void setRelatedResources(RelatedResources relatedResources) {
         this.mUser = relatedResources.user;
+        this.mStats = relatedResources.stats;
     }
 
     private static class RelatedResources {
         private UserSummary user;
+        private PlayableStats stats;
 
         void setUser(UserSummary user) {
             this.user = user;
+        }
+
+        void setStats(PlayableStats stats) {
+            this.stats = stats;
         }
     }
 }

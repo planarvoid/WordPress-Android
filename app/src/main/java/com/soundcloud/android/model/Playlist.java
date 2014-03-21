@@ -58,6 +58,11 @@ public class Playlist extends Playable {
         artwork_url = playlist.getArtworkUrl();
         tag_list = playlist.getTags() == null ? ScTextUtils.EMPTY_STRING : TextUtils.join(" ", playlist.getTags());
         created_at = playlist.getCreatedAt();
+        PlayableStats stats = playlist.getStats();
+        if (stats != null) {
+            likes_count = stats.getLikesCount();
+            reposts_count = stats.getRepostsCount();
+        }
     }
 
     public interface OnChangeListener { void onPlaylistChanged(); }

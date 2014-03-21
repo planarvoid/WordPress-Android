@@ -98,6 +98,8 @@ public class PlaylistTest {
         expect(playlist.getUsername()).toEqual(source.getUsername());
         expect(playlist.artwork_url).toEqual(source.getArtworkUrl());
         expect(playlist.created_at).toEqual(source.getCreatedAt());
+        expect(playlist.likes_count).toEqual(source.getStats().getLikesCount());
+        expect(playlist.reposts_count).toEqual(source.getStats().getRepostsCount());
     }
 
     private void comparePlaylists(Playlist playlist, Playlist playlist1) {
