@@ -53,7 +53,6 @@
     <issue id="UnusedResources" severity="error">
         <ignore path="res/values/keys.xml"/>
         <ignore path="res/values/sigs.xml"/>
-        <ignore path="res/layout/pull_to_refresh_header_vertical.xml"/> <!-- overrides PTR header -->
         <ignore path="res/values/strings_record_tips.xml"/>
         <ignore path="res/values/strings_onboarding_categories.xml"/>
         <ignore path="res/values/app_properties.xml"/>
@@ -118,8 +117,15 @@
 
     <issue id="FloatMath">
         <ignore path="target/classes/com/viewpagerindicator/LinePageIndicator.class"/>
-        <ignore path="target/classes/com/handmark/pulltorefresh/library/PullToRefreshWebView.class"/>
-        <ignore path="target/classes/com/handmark/pulltorefresh/library/PullToRefreshWebView$InternalWebViewSDK9.class"/>
+    </issue>
+
+    <!-- When the lint is updated, we can use the id="all" and path regex to ignore the entire target folder -->
+    <issue id="NewApi">
+        <ignore path="target/classes/uk/co/senab/actionbarpulltorefresh/library/sdk/CompatV11.class"/>
+        <ignore path="target/classes/uk/co/senab/actionbarpulltorefresh/library/sdk/CompatV16.class"/>
+        <ignore path="target/classes/uk/co/senab/actionbarpulltorefresh/library/DefaultHeaderTransformer$HideAnimationCallback.class"/>
+        <ignore path="target/classes/uk/co/senab/actionbarpulltorefresh/library/DefaultHeaderTransformer.class"/>
+        <ignore path="target/classes/uk/co/senab/actionbarpulltorefresh/library/PullToRefreshAttacher$2.class"/>
     </issue>
 
     <issue id="Registered" severity="error">

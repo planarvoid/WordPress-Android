@@ -117,7 +117,6 @@
     <string name="authentication_log_in_with_google">Sign in with Google</string>
     <string name="error_google_sign_in_failed">We couldn\'t log you in with Google+. Visit plus.google.com to activate your Google+ account and try again</string>
 
-    <string name="updating">Updating...</string>
     <string name="btn_continue">Continue</string>
     <string name="privacy">Privacy</string>
 
@@ -191,5 +190,9 @@
     <string name="search_tags_subtitle">Discover popular playlists on SoundCloud</string>
     <string name="search_empty">No results found</string>
     <string name="search_empty_subtext">Check the spelling or try a different search</string>
+
+    <!-- Pull to refresh -->
+    <string name="ptr_swiping">Swipe down to refresh</string>
+    <string name="ptr_loading">Loading</string>
 
 </resources>

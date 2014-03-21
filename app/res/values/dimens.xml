@@ -119,7 +119,6 @@
     <dimen name="signup_done_drawable_padding">7dp</dimen>
 
     <dimen name="onboarding_suggested_user_item_height">108dp</dimen>
-    <dimen name="onboarding_suggested_user_item_spacing">@dimen/default_list_item_padding</dimen>
 
     <dimen name="grid_view_spacing_inside_horizontal">16dp</dimen>
     <dimen name="grid_view_spacing_inside_vertical">16dp</dimen>
@@ -147,5 +146,7 @@
     <dimen name="full_image_margin">20dp</dimen>
 
     <dimen name="tablet_followers_text">16sp</dimen>
+
+    <dimen name="ptr_thickness">4dp</dimen>
 
 </resources>

@@ -3,8 +3,8 @@ package com.soundcloud.android.collections;
 import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activities.ActivitiesAdapter;
@@ -35,6 +35,7 @@ import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.api.Request;
@@ -42,6 +43,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
+import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
+import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.ViewDelegate;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -67,7 +72,7 @@ import android.widget.ListView;
 import java.lang.ref.WeakReference;
 
 @Deprecated
-public class ScListFragment extends ListFragment implements PullToRefreshBase.OnRefreshListener,
+public class ScListFragment extends ListFragment implements OnRefreshListener,
                                                             DetachableResultReceiver.Receiver,
                                                             LocalCollection.OnChangeListener,
                                                             CollectionTask.Callback,
@@ -100,9 +105,6 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
 
     protected int mStatusCode;
 
-    // TODO, finish all screens when the enum is populated
-    private Screen mScreen;
-
     private @Nullable BroadcastReceiver mPlaylistChangedReceiver;
 
     private SyncStateManager mSyncStateManager;
@@ -115,6 +117,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
 
     private ImageOperations mImageOperations;
     private EventBus mEventBus;
+    private PullToRefreshLayout mPullToRefreshLayout;
 
     public static ScListFragment newInstance(Content content, Screen screen) {
         return newInstance(content.uri, screen);
@@ -183,39 +186,48 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final Context context = getActivity();
 
-        FrameLayout root = new FrameLayout(context);
-
-        mListView = configureList(new ScListView(getActivity()));
-        mListView.setOnRefreshListener(this);
-
+        mPullToRefreshLayout = (PullToRefreshLayout) inflater.inflate(R.layout.sc_list_fragment, null);
+        mListView = configureList((ScListView) mPullToRefreshLayout.findViewById(android.R.id.list));
         mListView.setOnScrollListener(mImageOperations.createScrollPauseListener(false, true, this));
 
-        if (mEmptyListView == null) {
-            mEmptyListView = createEmptyView();
-        }
+        mEmptyListView = createEmptyView();
         mEmptyListView.setStatus(mStatusCode);
         mEmptyListView.setOnRetryListener(this);
         mListView.setEmptyView(mEmptyListView);
 
-        configurePullToRefreshState();
+        mPullToRefreshLayout.addView(mEmptyListView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
         if (isRefreshing() || waitingOnInitialSync()){
             final ScBaseAdapter listAdapter = getListAdapter();
             if (listAdapter == null || listAdapter.isEmpty()){
                 configureEmptyView();
             } else if (isRefreshing()){
-                mListView.setRefreshing(false);
+                mPullToRefreshLayout.setRefreshing(true);
             }
         }
+        return mPullToRefreshLayout;
+    }
 
-        root.addView(mListView, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        root.setLayoutParams(new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
-        return root;
+        // configure PTR
+        ActionBarPullToRefresh.from(getActivity())
+                .theseChildrenArePullable(mListView, mEmptyListView)
+                .useViewDelegate(EmptyListView.class, new ViewDelegate() {
+                    @Override
+                    public boolean isReadyForPull(View view, float x, float y) {
+                        return Boolean.TRUE;
+                    }
+                })
+                .listener(this)
+                .setup(mPullToRefreshLayout);
+
+        ViewUtils.stylePtrProgress(getActivity(), mPullToRefreshLayout.getHeaderView());
+        configurePullToRefreshState();
     }
 
     @Override
@@ -255,7 +267,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         listAdapter.notifyDataSetChanged();
 
         if (mRetainedListPosition > 0) {
-            mListView.getRefreshableView().setSelection(mRetainedListPosition);
+            mListView.setSelection(mRetainedListPosition);
         }
     }
 
@@ -264,7 +276,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         super.onStop();
         stopListening();
         mIgnorePlaybackStatus = false;
-        mRetainedListPosition = mListView.getRefreshableView().getFirstVisiblePosition();
+        mRetainedListPosition = mListView.getFirstVisiblePosition();
     }
 
     @Override
@@ -473,9 +485,9 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private void configurePullToRefreshState() {
         if (isInLayout() && mListView != null && mLocalCollection != null) {
             if (mLocalCollection.isIdle()) {
-                if (mListView.isRefreshing()) mListView.onRefreshComplete();
-            } else if (!mListView.isRefreshing()){
-                mListView.setRefreshing(false);
+                if (mPullToRefreshLayout.isRefreshing()) mPullToRefreshLayout.setRefreshComplete();
+            } else if (!mPullToRefreshLayout.isRefreshing()) {
+                mPullToRefreshLayout.setRefreshing(true);
             }
         }
     }
@@ -527,15 +539,6 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         }
     }
 
-    @Override
-    public void onRefresh(PullToRefreshBase refreshView) {
-        refresh(true);
-    }
-
-    protected EmptyListView getEmptyListView() {
-        return mEmptyListView;
-    }
-
     protected Request getRequest(boolean isRefresh) {
         if (!isRefresh && !TextUtils.isEmpty(mNextHref)) {
             return new Request(mNextHref);
@@ -549,6 +552,11 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     protected boolean canAppend() {
         log("Can Append [mKeepGoing: " + mKeepGoing + "]");
         return mKeepGoing;
+    }
+
+    @Override
+    public void onRefreshStarted(View view) {
+        refresh(true);
     }
 
     protected void refresh(final boolean userRefresh) {
@@ -612,15 +620,15 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
             mRefreshTask.execute(getTaskParams(adapter, true));
         }
 
-        if (mListView != null && !mListView.isRefreshing()) {
+        if (mListView != null && !mPullToRefreshLayout.isRefreshing()) {
             configureEmptyView();
         }
     }
 
 
     protected ScListView configureList(ScListView lv) {
-        lv.getRefreshableView().setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-        lv.getRefreshableView().setFastScrollEnabled(false);
+        lv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+        lv.setFastScrollEnabled(false);
         return lv;
     }
 
@@ -673,8 +681,8 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     }
 
     protected void doneRefreshing() {
-        if (mListView != null) {
-            mListView.onRefreshComplete();
+        if (mPullToRefreshLayout != null) {
+            mPullToRefreshLayout.setRefreshComplete();
         }
     }
 
@@ -721,7 +729,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
                 log("Auto refreshing content");
                 if (!isRefreshing()) {
                     refresh(false);
-                    if (mListView != null) mListView.setRefreshing(false);
+                    if (mPullToRefreshLayout != null) mPullToRefreshLayout.setRefreshing(true);
                 }
             } else {
                 log("Skipping auto refresh");

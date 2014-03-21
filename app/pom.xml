@@ -285,23 +285,38 @@
             <type>apklib</type>
         </dependency>
         <dependency>
-            <groupId>com.github.chrisbanes.pulltorefresh</groupId>
-            <artifactId>library</artifactId>
-            <version>2.1.2-SOUNDCLOUD</version>
-            <type>apklib</type>
-        </dependency>
-        <dependency>
-            <groupId>com.github.chrisbanes.pulltorefresh</groupId>
-            <artifactId>extra-listfragment</artifactId>
-            <version>2.1.2-SOUNDCLOUD</version>
-            <type>apklib</type>
-            <scope>compile</scope>
+            <groupId>com.github.chrisbanes.actionbarpulltorefresh</groupId>
+            <artifactId>extra-abc</artifactId>
+            <version>0.9.3</version>
+            <type>aar</type>
             <exclusions>
                 <exclusion>
-                    <groupId>com.google.android</groupId>
-                    <artifactId>support-v4</artifactId>
+                    <groupId>com.github.chrisbanes.actionbarpulltorefresh</groupId>
+                    <artifactId>library</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.android.support</groupId>
+                    <artifactId>appcompat-v7</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.chrisbanes.actionbarpulltorefresh</groupId>
+            <artifactId>library</artifactId>
+            <version>0.9.3</version>
+            <type>aar</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.castorflex.smoothprogressbar</groupId>
+                    <artifactId>library</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.castorflex.smoothprogressbar</groupId>
+            <artifactId>library</artifactId>
+            <version>0.2.0</version>
+            <type>aar</type>
         </dependency>
         <dependency>
             <groupId>net.hockeyapp.android</groupId>

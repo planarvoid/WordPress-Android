@@ -1,14 +1,14 @@
 package com.soundcloud.android.collections;
 
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.soundcloud.android.R;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.widget.ListView;
 
-public class ScListView extends PullToRefreshListView {
+public class ScListView extends ListView {
 
     public ScListView(Context context) {
         super(context);
@@ -24,12 +24,11 @@ public class ScListView extends PullToRefreshListView {
     private void init() {
         final Resources res = getResources();
 
-        getRefreshableView().setFadingEdgeLength((int) (2 * res.getDisplayMetrics().density));
-        getRefreshableView().setSelector(R.drawable.list_selector_gray);
-        getRefreshableView().setLongClickable(false);
-        getRefreshableView().setScrollingCacheEnabled(false);
-        getRefreshableView().setCacheColorHint(Color.WHITE);
-        getLoadingLayoutProxy().setRefreshingLabel(getContext().getString(R.string.updating));
+        setFadingEdgeLength((int) (2 * res.getDisplayMetrics().density));
+        setSelector(R.drawable.list_selector_gray);
+        setLongClickable(false);
+        setScrollingCacheEnabled(false);
+        setCacheColorHint(Color.WHITE);
     }
 
     @Override

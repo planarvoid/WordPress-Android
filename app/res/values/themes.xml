@@ -16,10 +16,8 @@
         <item name="android:dropDownSpinnerStyle">@style/Spinner.DropDown</item>
         <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItem</item>
 
-        <!-- PullToRefresh specific -->
-        <item name="ptrAnimationStyle">flip</item>
-
         <item name="sdlDialogStyle">@style/DialogStyleLight</item>
+        <item name="ptrHeaderStyle">@style/Widget.Custom.PtrHeader</item>
     </style>
 
     <style name="Theme.SoundCloud" parent="Theme.SoundCloud.Base">
@@ -41,6 +39,13 @@
         <item name="logo">@drawable/actionbar_logo</item>
         <item name="android:displayOptions">homeAsUp|showTitle|useLogo|showHome</item>
         <item name="displayOptions">homeAsUp|showTitle|useLogo|showHome</item>
+    </style>
+
+    <style name="Widget.Custom.PtrHeader" parent="android:Widget">
+        <item name="ptrProgressBarColor">@color/ptr_orange</item>
+        <item name="ptrProgressBarStyle">inside</item>
+        <item name="ptrPullText">@string/ptr_swiping</item>
+        <item name="ptrRefreshingText">@string/ptr_loading</item>
     </style>
 
     <style name="Theme.SoundCloud.Widget.Base" parent="@style/Theme.AppCompat">

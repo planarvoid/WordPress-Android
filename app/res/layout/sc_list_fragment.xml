@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<FrameLayout
+<uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/ptr_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <GridView
+    <com.soundcloud.android.collections.ScListView
             android:id="@android:id/list"
-            style="@style/GridView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-    <com.soundcloud.android.view.EmptyListView
-            android:id="@android:id/empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-</FrameLayout>
+</uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout>

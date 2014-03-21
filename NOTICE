@@ -1,5 +1,5 @@
 RxJava
-Copyright 2012, Netflix Inc.
+Copyright 2014, Netflix Inc.
 
 Universal Image Loader
 Copyright 2013, Sergey Tarasevich 
@@ -22,14 +22,11 @@ Copyright 2013, The Apache Software Foundation
 android-change-log
 Copyright 2011, Karsten Priegnitz
 
-Android-PullToRefresh
-Copyright 2011, Chris Banes
+ActionBar-PullToRefresh
+Copyright 2014, Chris Banes
 
 SeekBarPreference
 Copyright 2009, Matthew Wiggins
-
-Android-ViewPagerIndicator
-Copyright 2012, Jake Wharton
 
 DiskLruCache
 Copyright 2012, Jake Wharton

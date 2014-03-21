@@ -2,8 +2,6 @@ package com.soundcloud.android.explore;
 
 import static rx.android.OperationPaged.Page;
 
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
@@ -15,12 +13,16 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.observables.AndroidObservable;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
+import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -35,7 +37,7 @@ import javax.inject.Inject;
 
 @SuppressLint("ValidFragment")
 public class ExploreTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
-        EmptyViewAware, PullToRefreshBase.OnRefreshListener<GridView> {
+        EmptyViewAware, OnRefreshListener {
 
     static final String SCREEN_TAG_EXTRA = "screen_tag";
 
@@ -54,6 +56,8 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     @Inject
     ImageOperations mImageOperations;
+
+    private PullToRefreshLayout mPullToRefreshLayout;
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
     private Subscription mSubscription = Subscriptions.empty();
@@ -79,6 +83,12 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
         mSuggestedTracksObservable = buildSuggestedTracksObservable();
         loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
+    }
+
+    @Override
+    public void onRefreshStarted(View view) {
+        final ConnectableObservable<Page<SuggestedTracksCollection>> refreshObservable = buildSuggestedTracksObservable();
+        loadTrackSuggestions(refreshObservable, new PullToRefreshSubscriber(refreshObservable));
     }
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> buildSuggestedTracksObservable() {
@@ -125,28 +135,26 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
             }
         });
 
-        PullToRefreshGridView ptrGridView = (PullToRefreshGridView) view.findViewById(GRID_VIEW_ID);
-        ptrGridView.setOnRefreshListener(this);
-        GridView gridView = ptrGridView.getRefreshableView();
+        GridView gridView = (GridView) view.findViewById(GRID_VIEW_ID);
         gridView.setOnItemClickListener(this);
         gridView.setAdapter(mAdapter);
         gridView.setEmptyView(mEmptyListView);
-        setGridSpacing(gridView);
 
-        // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
+        // Make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
         gridView.setOnScrollListener(new AbsListViewParallaxer(mImageOperations.createScrollPauseListener(false, true, mAdapter)));
-    }
 
-    private void setGridSpacing(GridView gridView) {
-        // We can define the padding in XML once we get rid of the old pull to refresh library
-        int horizontal = (int) getResources().getDimension(R.dimen.gridview_padding_left_right);
-        int vertical = (int) getResources().getDimension(R.dimen.gridview_padding_top_bottom);
-        gridView.setPadding(horizontal, vertical, horizontal, vertical);
+        // Now setup the PullToRefreshLayout
+        mPullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.ptr_layout);
+        ActionBarPullToRefresh.from(getActivity())
+                .allChildrenArePullable()
+                .listener(this)
+                .setup(mPullToRefreshLayout);
+        ViewUtils.stylePtrProgress(getActivity(), mPullToRefreshLayout.getHeaderView());
     }
 
     @Override
     public void onDestroyView() {
-        ((PullToRefreshGridView) getView().findViewById(GRID_VIEW_ID)).setAdapter(null);
+        ((GridView) getView().findViewById(GRID_VIEW_ID)).setAdapter(null);
         super.onDestroyView();
     }
 
@@ -156,11 +164,6 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         super.onDestroy();
     }
 
-    @Override
-    public void onRefresh(PullToRefreshBase<GridView> refreshView) {
-        final ConnectableObservable<Page<SuggestedTracksCollection>> refreshObservable = buildSuggestedTracksObservable();
-        loadTrackSuggestions(refreshObservable, new PullToRefreshSubscriber(refreshObservable));
-    }
 
     @Override
     public void setEmptyViewStatus(int status) {
@@ -224,7 +227,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         }
 
         private void hidePullToRefreshView() {
-            ((PullToRefreshGridView) getView().findViewById(GRID_VIEW_ID)).onRefreshComplete();
+            mPullToRefreshLayout.setRefreshComplete();
         }
     }
 }

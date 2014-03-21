@@ -51,7 +51,7 @@ public class LikesListFragment extends ScListFragment {
 
         final ScListView listView = getScListView();
         if (listView != null) {
-            listView.getRefreshableView().addHeaderView(mHeaderView);
+            listView.addHeaderView(mHeaderView);
         }
         return view;
     }
