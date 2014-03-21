@@ -23,13 +23,17 @@ public enum Sharing {
 
     // don't use built in valueOf to create so we can handle nulls and unknowns ourself
     @JsonCreator
-    public static Sharing fromString(String str) {
+    public static Sharing from(String str) {
         if (!TextUtils.isEmpty(str)) {
             for (Sharing s : values()) {
                 if (s.value.equalsIgnoreCase(str)) return s;
             }
         }
         return UNDEFINED;
+    }
+
+    public static Sharing from(boolean isPublic) {
+        return isPublic ? Sharing.PUBLIC : Sharing.PRIVATE;
     }
 
     public boolean isPublic() { return PUBLIC == this; }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 
+import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class PlaylistSummary extends ScModel {
     private Date mCreatedAt;
     private PlayableStats mStats;
     private int mDuration;
+    private boolean mPublic;
 
     /**
      * Required for Jackson
@@ -82,10 +84,19 @@ public class PlaylistSummary extends ScModel {
         mDuration = duration;
     }
 
+    public boolean isPublic() {
+        return mPublic;
+    }
+
+    public void setPublic(boolean isPublic) {
+        mPublic = isPublic;
+    }
+
     public String getArtworkUrl() {
         return mArtworkUrl;
     }
 
+    @Nullable
     public String getArtworkUrl(ImageSize imageSize) {
         if (ImageUtils.checkIconShouldLoad(mArtworkUrl)) {
             return imageSize.formatUri(mArtworkUrl);

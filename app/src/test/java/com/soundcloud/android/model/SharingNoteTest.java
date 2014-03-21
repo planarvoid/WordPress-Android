@@ -2,7 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -10,8 +10,45 @@ import android.os.Parcel;
 
 import java.util.Date;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class SharingNoteTest {
+
+    @Test
+    public void shouldResolveToString() {
+        expect(Sharing.PRIVATE.value).toEqual("private");
+        expect(Sharing.PUBLIC.value).toEqual("public");
+    }
+
+    @Test
+    public void shouldResolveFromString() {
+        expect(Sharing.from("private")).toBe(Sharing.PRIVATE);
+        expect(Sharing.from("public")).toBe(Sharing.PUBLIC);
+        expect(Sharing.from("abc")).toBe(Sharing.UNDEFINED);
+    }
+
+    @Test
+    public void shouldResolvePrivateToBoolean() {
+        expect(Sharing.PRIVATE.isPrivate()).toBeTrue();
+        expect(Sharing.PRIVATE.isPublic()).toBeFalse();
+    }
+
+    @Test
+    public void shouldResolvePublicToBoolean() {
+        expect(Sharing.PUBLIC.isPrivate()).toBeFalse();
+        expect(Sharing.PUBLIC.isPublic()).toBeTrue();
+    }
+
+    @Test
+    public void shouldResolveUndefinedToBoolean() {
+        expect(Sharing.UNDEFINED.isPrivate()).toBeFalse();
+        expect(Sharing.UNDEFINED.isPublic()).toBeFalse();
+    }
+
+    @Test
+    public void shouldResolveToPublicOrPrivateFromBoolean() {
+        expect(Sharing.from(true)).toBe(Sharing.PUBLIC);
+        expect(Sharing.from(false)).toBe(Sharing.PRIVATE);
+    }
 
     @Test
     public void shouldParcelAndUnparcelNullCreatedAtCorrectly() throws Exception {

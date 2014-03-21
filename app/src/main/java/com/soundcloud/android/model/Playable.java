@@ -109,7 +109,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         artwork_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.ARTWORK_URL));
         downloadable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.DOWNLOADABLE)) == 1;
         streamable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.STREAMABLE)) == 1;
-        sharing = Sharing.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.SHARING)));
+        sharing = Sharing.from(cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.SHARING)));
         license = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.LICENSE));
         genre = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.GENRE));
         likes_count = ResolverHelper.getLongOrNotSet(cursor, DBHelper.SoundView.LIKES_COUNT);
@@ -285,7 +285,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         likes_count = b.getLong("likes_count");
         reposts_count = b.getLong("reposts_count");
         tag_list = b.getString("tag_list");
-        sharing = Sharing.fromString(b.getString("sharing"));
+        sharing = Sharing.from(b.getString("sharing"));
         mElapsedTime = b.getCharSequence("elapsedTime");
         mArtworkUri = b.getString("list_artwork_uri");
     }

@@ -59,6 +59,7 @@ public class Playlist extends Playable {
         tag_list = playlist.getTags() == null ? ScTextUtils.EMPTY_STRING : TextUtils.join(" ", playlist.getTags());
         created_at = playlist.getCreatedAt();
         duration = playlist.getDuration();
+        sharing = Sharing.from(playlist.isPublic());
         PlayableStats stats = playlist.getStats();
         if (stats != null) {
             likes_count = stats.getLikesCount();
