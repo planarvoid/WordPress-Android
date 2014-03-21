@@ -16,6 +16,7 @@ public class PlaylistSummary extends ScModel {
     private String mArtworkUrl;
     private Date mCreatedAt;
     private PlayableStats mStats;
+    private int mDuration;
 
     /**
      * Required for Jackson
@@ -71,6 +72,14 @@ public class PlaylistSummary extends ScModel {
 
     public void setStats(PlayableStats stats) {
         mStats = stats;
+    }
+
+    public int getDuration() {
+        return mDuration;
+    }
+
+    public void setDuration(int duration) {
+        mDuration = duration;
     }
 
     public String getArtworkUrl() {
