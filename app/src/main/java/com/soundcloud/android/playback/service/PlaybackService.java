@@ -15,6 +15,7 @@ import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.peripherals.PeripheralsOperations;
 import com.soundcloud.android.playback.service.managers.AudioManagerFactory;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
@@ -118,6 +119,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     PlayQueueManager mPlayQueueManager;
     @Inject
     TrackOperations mTrackOperations;
+    @Inject
+    PeripheralsOperations mPeripheralsOperations;
     @Inject
     PlaybackEventSource mPlaybackEventSource;
     @Inject
@@ -411,8 +414,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             if (what.equals(Broadcasts.PLAYSTATE_CHANGED)) {
                 mFocus.setPlaybackState(mPlaybackState);
                 setPlayingNotification(mCurrentTrack);
+                mPeripheralsOperations.notifyPlayStateChanged(this, getCurrentTrack(), isPlaying());
             } else if (what.equals(Broadcasts.META_CHANGED)) {
                 onTrackChanged(mCurrentTrack);
+                mPeripheralsOperations.notifyMetaChanged(this, getCurrentTrack(), isPlaying());
             }
         }
 

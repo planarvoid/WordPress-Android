@@ -1,5 +1,6 @@
 package com.soundcloud.android.utils;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.nullToEmpty;
 
 import com.google.common.base.Strings;
@@ -135,6 +136,12 @@ public class ScTextUtils {
 
     public static String hexString(byte[] bytes) {
         return String.format(Locale.ENGLISH, "%0" + (bytes.length << 1) + "x", new BigInteger(1, bytes));
+    }
+
+    public static String getClippedString(String string, int maxLength){
+        checkArgument(isNotBlank(string), "String must be non null/not empty");
+        int length = (string.length() < maxLength) ? string.length() : maxLength;
+        return string.substring(0, length);
     }
 
     /**

@@ -2,7 +2,6 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
@@ -16,6 +15,21 @@ public class ScTextUtilsTest {
     @Test
     public void testHexString() throws Exception {
         expect(ScTextUtils.hexString(new byte[]{0, 12, 32, 0, 16})).toEqual("000c200010");
+    }
+
+    @Test
+    public void shouldGetClippedStringWhenLongerThanMaxLength() throws Exception {
+        expect(ScTextUtils.getClippedString("1234567890", 5)).toEqual("12345");
+    }
+
+    @Test
+    public void shouldGetClippedStringWhenSmallerThanMaxLength() throws Exception {
+        expect(ScTextUtils.getClippedString("123", 5)).toEqual("123");
+    }
+
+    @Test
+    public void shouldGetClippedStringWhenLengthEqualToMaxLength() throws Exception {
+        expect(ScTextUtils.getClippedString("1234567890", 10)).toEqual("1234567890");
     }
 
     @Test
