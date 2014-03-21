@@ -49,6 +49,10 @@ module Build
     "app/target/#{apk_file_name}"
   end
 
+  def artifact_path
+    "app/target/soundcloud-android-#{version_name}.apk"
+  end
+
   def build_number
     ENV['BUILD_NUMBER']
   end

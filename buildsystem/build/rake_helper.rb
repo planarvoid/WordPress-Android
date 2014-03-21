@@ -199,7 +199,7 @@ module Build
 
     def hockey_upload
       if Build::Configuration.hockey.enabled?
-        hockey.upload(Build.apk_path, 1)
+        hockey.upload(Build.artifact_path, "")
       end
     end
 
