@@ -108,7 +108,6 @@ public final class ImageUtils {
     public static void clearBitmap(Bitmap bmp) {
         if (bmp != null) {
             bmp.recycle();
-            System.gc();
         }
     }
 
