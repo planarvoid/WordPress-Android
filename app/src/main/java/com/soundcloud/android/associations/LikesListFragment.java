@@ -1,6 +1,6 @@
 package com.soundcloud.android.associations;
 
-import static rx.android.observables.AndroidObservable.fromFragment;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -57,15 +57,15 @@ public class LikesListFragment extends ScListFragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         refreshLikeIds();
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroyView() {
         mFetchIdsSubscription.unsubscribe();
-        super.onDestroy();
+        super.onDestroyView();
     }
 
     @Override
@@ -81,7 +81,8 @@ public class LikesListFragment extends ScListFragment {
     }
 
     private void refreshLikeIds() {
-        mFetchIdsSubscription = fromFragment(this, mSoundAssociationOperations.getLikedTracksIds()).subscribe(mLikedTrackIdsObserver);
+        mFetchIdsSubscription = mSoundAssociationOperations.getLikedTracksIds()
+                .observeOn(mainThread()).subscribe(new LikedIdsSubscriber());
     }
 
     private void updateShuffleHeader(@NotNull final List<Long> likedTrackIds) {
@@ -104,11 +105,11 @@ public class LikesListFragment extends ScListFragment {
         });
     }
 
-    private final DefaultSubscriber<List<Long>> mLikedTrackIdsObserver = new DefaultSubscriber<List<Long>>() {
+    private class LikedIdsSubscriber extends DefaultSubscriber<List<Long>> {
         @Override
         public void onNext(List<Long> trackIds) {
             updateShuffleHeader(trackIds);
         }
-    };
+    }
 
 }
