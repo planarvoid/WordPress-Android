@@ -1,38 +1,38 @@
 package com.soundcloud.android.analytics.localytics;
 
-public interface LocalyticsEvents {
+final class LocalyticsEvents {
 
-    String LISTEN = "Listen";
-    String PAGEVIEW = "Pageview";
-    String PLAY_CONTROLS = "Play Controls";
+    static final String LISTEN = "Listen";
+    static final String PAGEVIEW = "Pageview";
+    static final String PLAY_CONTROLS = "Play Controls";
 
-    interface UI {
-        String FOLLOW = "Follow";
-        String UNFOLLOW = "Unfollow";
-        String LIKE = "Like";
-        String UNLIKE = "Unlike";
-        String REPOST = "Repost";
-        String UNREPOST = "Unrepost";
-        String ADD_TO_PLAYLIST = "Add to playlist";
-        String COMMENT = "Comment";
-        String SHARE = "Share";
-        String SHUFFLE_LIKES = "Shuffle likes";
-        String NAVIGATION = "Navigation";
+    static final class UI {
+        static final String FOLLOW = "Follow";
+        static final String UNFOLLOW = "Unfollow";
+        static final String LIKE = "Like";
+        static final String UNLIKE = "Unlike";
+        static final String REPOST = "Repost";
+        static final String UNREPOST = "Unrepost";
+        static final String ADD_TO_PLAYLIST = "Add to playlist";
+        static final String COMMENT = "Comment";
+        static final String SHARE = "Share";
+        static final String SHUFFLE_LIKES = "Shuffle likes";
+        static final String NAVIGATION = "Navigation";
     }
 
-    interface Onboarding {
-        String AUTH_PROMPT = "Auth prompt";
-        String AUTH_CREDENTIALS = "Auth credentials";
-        String CONFIRM_TERMS = "Confirm terms";
-        String AUTH_COMPLETE = "Auth complete";
-        String USER_INFO = "User info";
-        String ONBOARDING_COMPLETE = "Onboarding complete";
+    static final class Onboarding {
+        static final String AUTH_PROMPT = "Auth prompt";
+        static final String AUTH_CREDENTIALS = "Auth credentials";
+        static final String CONFIRM_TERMS = "Confirm terms";
+        static final String AUTH_COMPLETE = "Auth complete";
+        static final String USER_INFO = "User info";
+        static final String ONBOARDING_COMPLETE = "Onboarding complete";
     }
 
-    interface Search {
-        String SEARCH_SUGGESTION = "Search suggestion";
-        String SEARCH_SUBMIT = "Search submit";
-        String SEARCH_RESULTS = "Search results";
+    static final class Search {
+        static final String SEARCH_SUGGESTION = "Search suggestion";
+        static final String SEARCH_SUBMIT = "Search submit";
+        static final String SEARCH_RESULTS = "Search results";
     }
 
 }

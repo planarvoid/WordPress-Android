@@ -20,9 +20,9 @@ import android.view.View;
 
 public class NowPlayingActionBarController extends ActionBarController implements View.OnClickListener {
 
-    private NowPlayingProgressBar mNowPlaying;
-    private View mNowPlayingHolder;
-    private PlaybackStateProvider mPlaybackStateProvider = new PlaybackStateProvider();
+    private final NowPlayingProgressBar mNowPlaying;
+    private final View mNowPlayingHolder;
+    private final PlaybackStateProvider mPlaybackStateProvider = new PlaybackStateProvider();
 
     private boolean mListening;
 

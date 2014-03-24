@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PlayControlEvent {
+public final class PlayControlEvent {
 
     public static final String EXTRA_EVENT_SOURCE = "play_event_source";
 
