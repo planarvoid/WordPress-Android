@@ -43,7 +43,7 @@
 
     <style name="Widget.Custom.PtrHeader" parent="android:Widget">
         <item name="ptrProgressBarColor">@color/ptr_orange</item>
-        <item name="ptrProgressBarStyle">inside</item>
+        <item name="ptrProgressBarStyle">outside</item>
         <item name="ptrPullText">@string/ptr_swiping</item>
         <item name="ptrRefreshingText">@string/ptr_loading</item>
     </style>
