@@ -149,6 +149,6 @@
 
     <dimen name="ptr_thickness">2dp</dimen>
     <!-- Override pull to refresh style -->
-    <dimen name="ptr_progress_bar_stroke_width" tools:ignore="UnusedResource">@dimen/ptr_thickness</dimen>
+    <dimen name="ptr_progress_bar_stroke_width" tools:ignore="UnusedResources">@dimen/ptr_thickness</dimen>
 
 </resources>
