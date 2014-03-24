@@ -9,12 +9,14 @@ import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.collections.ItemAdapter;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.PlayablePresenter;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -28,10 +30,6 @@ import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -63,6 +61,8 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     EngagementsController mEngagementsController;
     @Inject
     Provider<PlaylistDetailsController> mControllerProvider;
+    @Inject
+    EventBus mEventBus;
 
     private PlaylistDetailsController mController;
 
@@ -70,23 +70,14 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     private View mProgressView;
 
     private Observable<Playlist> mLoadPlaylist;
-    private Subscription mSubscription = Subscriptions.empty();
+    private Subscription mLoadPlaylistSubscription = Subscriptions.empty();
+    private Subscription mPlayEventSubscription = Subscriptions.empty();
 
     private PlayablePresenter mPlayablePresenter;
     private TextView mInfoHeaderText;
     private ToggleButton mPlayToggle;
 
     private boolean mListShown;
-
-    private final BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (isAdded() && PlaybackService.Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
-                refreshNowPlayingState();
-            }
-        }
-    };
 
     private final View.OnClickListener mOnPlayToggleClick = new View.OnClickListener() {
         @Override
@@ -107,15 +98,16 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
     @VisibleForTesting
     PlaylistFragment(PlaybackOperations playbackOperations, PlaylistOperations playlistOperations,
-                     PlaybackStateProvider playbackStateProvider,
-                     ImageOperations imageOperations,
-                     EngagementsController engagementsController, Provider<PlaylistDetailsController> adapterProvider) {
+                     PlaybackStateProvider playbackStateProvider, ImageOperations imageOperations,
+                     EngagementsController engagementsController, Provider<PlaylistDetailsController> adapterProvider,
+                     EventBus eventBus) {
         mPlaybackOperations = playbackOperations;
         mPlaylistOperations = playlistOperations;
         mPlaybackStateProvider = playbackStateProvider;
         mImageOperations = imageOperations;
         mEngagementsController = engagementsController;
         mControllerProvider = adapterProvider;
+        mEventBus = eventBus;
     }
 
     public static PlaylistFragment create(Uri playlistUri, Screen originScreen) {
@@ -161,14 +153,24 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
         showContent(mListShown);
 
-        mSubscription = mLoadPlaylist.subscribe(new PlaylistSubscriber());
+        mLoadPlaylistSubscription = mLoadPlaylist.subscribe(new PlaylistSubscriber());
     }
 
 
     @Override
     public void onResume() {
         super.onResume();
+        mEngagementsController.startListeningForChanges();
+
         refreshNowPlayingState();
+        mPlayEventSubscription = mEventBus.subscribe(EventQueue.PLAY_CONTROL, new PlayEventSubscriber());
+    }
+
+    @Override
+    public void onPause() {
+        mEngagementsController.stopListeningForChanges();
+        mPlayEventSubscription.unsubscribe();
+        super.onPause();
     }
 
     private void refreshNowPlayingState() {
@@ -177,25 +179,8 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        mEngagementsController.startListeningForChanges();
-        // listen for playback changes, so that we can update the now-playing indicator
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(PlaybackService.Broadcasts.PLAYSTATE_CHANGED);
-        getActivity().registerReceiver(mPlaybackStatusListener, intentFilter);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        getActivity().unregisterReceiver(mPlaybackStatusListener);
-        mEngagementsController.stopListeningForChanges();
-    }
-
-    @Override
     public void onDestroyView() {
-        mSubscription.unsubscribe();
+        mLoadPlaylistSubscription.unsubscribe();
         mController = null;
         super.onDestroyView();
     }
@@ -309,6 +294,13 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         @Override
         public void onCompleted() {
             mController.setEmptyViewStatus(EmptyListView.Status.OK);
+        }
+    }
+
+    private final class PlayEventSubscriber extends DefaultSubscriber<PlayControlEvent> {
+        @Override
+        public void onNext(PlayControlEvent event) {
+            refreshNowPlayingState();
         }
     }
 }

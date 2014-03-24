@@ -71,7 +71,7 @@ public class PlaybackStateProvider implements OriginProvider {
     }
 
     public boolean isPlaylistPlaying(long playlistId) {
-        return getPlayQueuePlaylistId() == playlistId && isPlaying();
+        return getPlayQueuePlaylistId() == playlistId && isSupposedToBePlaying();
     }
 
     @Override

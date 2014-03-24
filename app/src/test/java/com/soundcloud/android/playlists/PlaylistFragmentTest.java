@@ -4,6 +4,8 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.refEq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,11 +14,14 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.collections.ItemAdapter;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyListView;
 import com.xtremelabs.robolectric.Robolectric;
@@ -27,6 +32,9 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -59,6 +67,8 @@ public class PlaylistFragmentTest {
     private ItemAdapter<Track> adapter;
     @Mock
     private PlaylistDetailsController controller;
+    @Mock
+    private EventBus eventBus;
 
     private Provider<PlaylistDetailsController> controllerProvider = new Provider<PlaylistDetailsController>() {
         @Override
@@ -70,16 +80,16 @@ public class PlaylistFragmentTest {
     @Before
     public void setUp() throws Exception {
         fragment = new PlaylistFragment(playbackOperations, playlistOperations, playbackStateProvider,
-                imageOperations, engagementsController, controllerProvider);
+                imageOperations, engagementsController, controllerProvider, eventBus);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
 
         when(controller.getAdapter()).thenReturn(adapter);
+        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
     }
 
     @Test
     public void shouldNotShowPlayToggleButtonWithNoTracks() throws Exception {
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
         View layout = createFragmentView();
 
         ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
@@ -88,7 +98,6 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldHidePlayToggleButtonWithNoTracks() throws Exception {
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
         playlist.tracks = Lists.newArrayList(new Track(1L));
         View layout = createFragmentView();
 
@@ -110,7 +119,6 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldPlayPlaylistOnToggleToPlayState() throws Exception {
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
         View layout = createFragmentView();
 
         ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
@@ -121,7 +129,6 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldPlayPlaylistOnToggleToPauseState() throws Exception {
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
         when(playbackStateProvider.getPlayQueuePlaylistId()).thenReturn(playlist.getId());
         View layout = createFragmentView();
 
@@ -133,7 +140,6 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldSetToggleToPlayStateWhenPlayingCurrentPlaylistOnResume() throws Exception {
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
         when(playbackStateProvider.isPlaylistPlaying(playlist.getId())).thenReturn(true);
 
         View layout = createFragmentView();
@@ -144,21 +150,41 @@ public class PlaylistFragmentTest {
     }
 
     @Test
-     public void engagementsControllerStartsListeningInOnStart() throws Exception {
-        fragment.onStart();
+     public void engagementsControllerStartsListeningInOnResume() throws Exception {
+        createFragmentView();
+        fragment.onResume();
         verify(engagementsController).startListeningForChanges();
     }
 
     @Test
-    public void engagementsControllerStopsListeningInOnStop() throws Exception {
-        fragment.onStart(); // call on stop to avoid unregistered listener error
-        fragment.onStop();
+    public void engagementsControllerStopsListeningInOnPause() throws Exception {
+        when(eventBus.subscribe(any(EventBus.QueueDescriptor.class), any(Subscriber.class))).thenReturn(Subscriptions.empty());
+        createFragmentView();
+        fragment.onResume(); // call to avoid unregistered listener error
+        fragment.onPause();
         verify(engagementsController).stopListeningForChanges();
     }
 
     @Test
+    public void shouldStartListeningForPlayControlEventsInOnResume() {
+        createFragmentView();
+        fragment.onResume();
+        verify(eventBus).subscribe(refEq(EventQueue.PLAY_CONTROL), any(Subscriber.class));
+    }
+
+    @Test
+    public void shouldUnsubscribeFromPlayControlEventsInOnPause() {
+        Subscription subscription = mock(Subscription.class);
+        when(eventBus.subscribe(any(EventBus.QueueDescriptor.class), any(Subscriber.class))).thenReturn(subscription);
+
+        createFragmentView();
+        fragment.onResume();
+        fragment.onPause();
+        verify(subscription).unsubscribe();
+    }
+
+    @Test
     public void callsShowContentWhenPlaylistIsReturned() throws Exception {
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
         createFragmentView();
 
         InOrder inOrder = Mockito.inOrder(controller);
@@ -178,7 +204,6 @@ public class PlaylistFragmentTest {
 
     @Test
     public void setsEmptyViewToOkWhenPlaylistIsReturned() throws Exception {
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
         createFragmentView();
         verify(controller).setEmptyViewStatus(EmptyListView.Status.OK);
     }
@@ -192,7 +217,6 @@ public class PlaylistFragmentTest {
 
     @Test
     public void setsPlayableOnEngagementsControllerWhenPlaylistIsReturned() throws Exception {
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
         createFragmentView();
         verify(engagementsController).setPlayable(playlist);
     }
@@ -213,7 +237,6 @@ public class PlaylistFragmentTest {
         final Track track1 = Mockito.mock(Track.class);
         final Track track2 = Mockito.mock(Track.class);
         playlist.tracks = Lists.newArrayList(track1, track2);
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
 
         createFragmentView();
 

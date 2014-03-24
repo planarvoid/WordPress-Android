@@ -9,7 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playlist;
@@ -66,8 +66,8 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     SearchResultsAdapter mAdapter;
 
     private int mSearchType;
-    private Subscription mSubscription = Subscriptions.empty();
-    private Subscription mPlaybackSubscription = Subscriptions.empty();
+    private Subscription mSearchSubscription = Subscriptions.empty();
+    private Subscription mPlayEventSubscription = Subscriptions.empty();
 
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
@@ -130,19 +130,11 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
         getListView().setOnScrollListener(mImageOperations.createScrollPauseListener(false, true, mAdapter));
-
-        mPlaybackSubscription = mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackSubscriber());
-    }
-
-    @Override
-    public void onDestroyView() {
-        mPlaybackSubscription.unsubscribe();
-        super.onDestroyView();
     }
 
     @Override
     public void onDestroy() {
-        mSubscription.unsubscribe();
+        mSearchSubscription.unsubscribe();
         super.onDestroy();
     }
 
@@ -150,6 +142,13 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     public void onResume() {
         super.onResume();
         mAdapter.notifyDataSetChanged();
+        mPlayEventSubscription = mEventBus.subscribe(EventQueue.PLAY_CONTROL, new PlayEventSubscriber());
+    }
+
+    @Override
+    public void onPause() {
+        mPlayEventSubscription.unsubscribe();
+        super.onPause();
     }
 
     @Override
@@ -218,12 +217,12 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         setEmptyViewStatus(EmptyListView.Status.WAITING);
         mObservable.subscribe(mAdapter);
         mObservable.subscribe(new ListFragmentSubscriber<Page<SearchResultsCollection>>(this));
-        mSubscription = mObservable.connect();
+        mSearchSubscription = mObservable.connect();
     }
 
-    private final class PlaybackSubscriber extends DefaultSubscriber<PlaybackEvent> {
+    private final class PlayEventSubscriber extends DefaultSubscriber<PlayControlEvent> {
         @Override
-        public void onNext(PlaybackEvent event) {
+        public void onNext(PlayControlEvent event) {
             mAdapter.notifyDataSetChanged();
         }
     }
