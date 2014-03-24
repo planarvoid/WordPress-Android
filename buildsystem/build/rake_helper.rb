@@ -187,7 +187,7 @@ module Build
 
     def hockey_tasks
       desc "uploads to hockey"
-      task :upload do
+      task :upload => Build.artifact_path do
         hockey_upload
       end
 
@@ -199,7 +199,7 @@ module Build
 
     def hockey_upload
       if Build::Configuration.hockey.enabled?
-        hockey.upload(Build.artifact_path, "")
+        hockey.upload(Build.artifact_path)
       end
     end
 

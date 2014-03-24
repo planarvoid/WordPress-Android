@@ -41,7 +41,16 @@ module Build
       end
     end
 
-    def upload(path_to_file, notes)
+    def notes
+      changes = []
+      IO.read('CHANGES').split("\n")[1..-1].each do |line|
+        break if line[0] && line[0].chr == '$'
+        changes << line.gsub(/\s*\*/, ' *') if (line =~ /s*\*/)
+      end
+      changes.join("\n")
+    end
+
+    def upload(path_to_file)
       params = {
         :status     => STATUS_AVAILABLE,
         :notify     => NOTIFY_ALL_TESTERS,
