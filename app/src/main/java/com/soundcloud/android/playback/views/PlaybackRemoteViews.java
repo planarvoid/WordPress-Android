@@ -2,19 +2,15 @@ package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.playback.service.PlaybackService;
 
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.RemoteViews;
 
-
 public abstract class PlaybackRemoteViews extends RemoteViews {
+
     private int mPlayBtnId;
     private int mPauseBtnId;
 
@@ -32,22 +28,6 @@ public abstract class PlaybackRemoteViews extends RemoteViews {
         super(parcel);
     }
 
-    protected void linkPlayerControls(Context context) {
-        // Connect up various buttons and touch events
-        final Intent previous = new Intent(PlaybackService.Actions.PREVIOUS_ACTION);
-        setOnClickPendingIntent(R.id.prev, PendingIntent.getService(context,
-                0 /* requestCode */, previous, 0 /* flags */));
-
-        final Intent pause = new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION);
-        setOnClickPendingIntent(R.id.pause, PendingIntent.getService(context,
-                0 /* requestCode */, pause, 0 /* flags */));
-
-        final Intent next = new Intent(PlaybackService.Actions.NEXT_ACTION);
-        setOnClickPendingIntent(R.id.next, PendingIntent.getService(context,
-                0 /* requestCode */, next, 0 /* flags */));
-    }
-
-
     public void setCurrentTrackTitle(CharSequence title) {
         setTextViewText(R.id.title_txt, title);
     }
@@ -60,7 +40,6 @@ public abstract class PlaybackRemoteViews extends RemoteViews {
             setTextViewText(R.id.user_txt, username);
             setViewVisibility(R.id.by_txt, View.VISIBLE);
             setViewVisibility(R.id.user_txt, View.VISIBLE);
-
         }
     }
 

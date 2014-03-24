@@ -4,6 +4,9 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,7 +18,7 @@ import android.support.v7.app.ActionBar;
 import android.view.Gravity;
 import android.view.View;
 
-public class NowPlayingActionBarController extends ActionBarController {
+public class NowPlayingActionBarController extends ActionBarController implements View.OnClickListener {
 
     private NowPlayingProgressBar mNowPlaying;
     private View mNowPlayingHolder;
@@ -23,21 +26,14 @@ public class NowPlayingActionBarController extends ActionBarController {
 
     private boolean mListening;
 
-    public NowPlayingActionBarController(@NotNull ActionBarOwner owner) {
-        super(owner);
+    public NowPlayingActionBarController(@NotNull ActionBarOwner owner, @NotNull EventBus eventBus) {
+        super(owner, eventBus);
 
-        View customView = View.inflate(mActivity, R.layout.action_bar_now_playing_custom_view, null);
+        View customView = mActivity.getLayoutInflater().inflate(R.layout.action_bar_now_playing_custom_view, null);
         mOwner.getActivity().getSupportActionBar().setCustomView(customView, new ActionBar.LayoutParams(Gravity.RIGHT));
         mNowPlaying = (NowPlayingProgressBar) customView.findViewById(R.id.waveform_progress);
         mNowPlayingHolder = customView.findViewById(R.id.waveform_holder);
-        mNowPlayingHolder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mActivity.startActivity(new Intent(Actions.PLAYER));
-            }
-        });
-
-
+        mNowPlayingHolder.setOnClickListener(this);
     }
 
     @Override
@@ -101,5 +97,11 @@ public class NowPlayingActionBarController extends ActionBarController {
             }
         }
     };
+
+    @Override
+    public void onClick(View v) {
+        mActivity.startActivity(new Intent(Actions.PLAYER));
+        mEventBus.publish(EventQueue.UI, UIEvent.fromPlayerShortcut());
+    }
 
 }

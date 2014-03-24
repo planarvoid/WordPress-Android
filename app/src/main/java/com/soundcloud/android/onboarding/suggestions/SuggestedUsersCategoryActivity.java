@@ -1,8 +1,5 @@
 package com.soundcloud.android.onboarding.suggestions;
 
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.analytics.Screen;
@@ -10,6 +7,10 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Category;
+
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class SuggestedUsersCategoryActivity extends ScActivity {
 
@@ -50,7 +51,7 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     }
 
     protected ActionBarController createActionBarController() {
-        return new ActionBarController(this);
+        return new ActionBarController(this, mEventBus);
     }
 
     @Override

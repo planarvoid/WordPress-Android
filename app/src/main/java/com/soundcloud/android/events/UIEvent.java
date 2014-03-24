@@ -1,11 +1,9 @@
 package com.soundcloud.android.events;
 
-
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,60 +19,49 @@ public final class UIEvent {
     public static final int COMMENT = 7;
     public static final int SHARE = 8;
     public static final int SHUFFLE_LIKES = 9;
-    public static final int NAV_PROFILE = 10;
-    public static final int NAV_STREAM = 11;
-    public static final int NAV_EXPLORE = 12;
-    public static final int NAV_LIKES = 13;
-    public static final int NAV_PLAYLISTS = 14;
-    public static final int DRAWER_OPEN = 15;
+    public static final int NAVIGATION = 10;
 
     private final int mKind;
     private final Map<String, String> mAttributes;
 
     public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId) {
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("context", screenTag);
-        attributes.put("user_id", String.valueOf(userId));
-        return new UIEvent(isFollow ? FOLLOW : UNFOLLOW, attributes);
+        return new UIEvent(isFollow ? FOLLOW : UNFOLLOW)
+                .putAttribute("context", screenTag)
+                .putAttribute("user_id", String.valueOf(userId));
     }
 
     public static UIEvent fromToggleLike(boolean isLike, String screenTag, @NotNull Playable playable) {
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("context", screenTag);
-        attributes.put("resource", getPlayableType(playable));
-        attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new UIEvent(isLike ? LIKE : UNLIKE, attributes);
+        return new UIEvent(isLike ? LIKE : UNLIKE)
+                .putAttribute("context", screenTag)
+                .putAttribute("resource", getPlayableType(playable))
+                .putAttribute("resource_id", String.valueOf(playable.getId()));
     }
 
     public static UIEvent fromToggleRepost(boolean isRepost, String screenTag, @NotNull Playable playable) {
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("context", screenTag);
-        attributes.put("resource", getPlayableType(playable));
-        attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new UIEvent(isRepost ? REPOST : UNREPOST, attributes);
+        return new UIEvent(isRepost ? REPOST : UNREPOST)
+                .putAttribute("context", screenTag)
+                .putAttribute("resource", getPlayableType(playable))
+                .putAttribute("resource_id", String.valueOf(playable.getId()));
     }
 
     public static UIEvent fromAddToPlaylist(String screenTag, boolean isNewPlaylist, long trackId) {
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("context", screenTag);
-        attributes.put("is_new_playlist", isNewPlaylist ? "yes" : "no");
-        attributes.put("track_id", String.valueOf(trackId));
-        return new UIEvent(ADD_TO_PLAYLIST, attributes);
+        return new UIEvent(ADD_TO_PLAYLIST)
+                .putAttribute("context", screenTag)
+                .putAttribute("is_new_playlist", isNewPlaylist ? "yes" : "no")
+                .putAttribute("track_id", String.valueOf(trackId));
     }
 
     public static UIEvent fromComment(String screenTag, long trackId) {
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("context", screenTag);
-        attributes.put("track_id", String.valueOf(trackId));
-        return new UIEvent(COMMENT, attributes);
+        return new UIEvent(COMMENT)
+                .putAttribute("context", screenTag)
+                .putAttribute("track_id", String.valueOf(trackId));
     }
 
     public static UIEvent fromShare(String screenTag, @NotNull Playable playable) {
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("context", screenTag);
-        attributes.put("resource", getPlayableType(playable));
-        attributes.put("resource_id", String.valueOf(playable.getId()));
-        return new UIEvent(SHARE, attributes);
+        return new UIEvent(SHARE)
+                .putAttribute("context", screenTag)
+                .putAttribute("resource", getPlayableType(playable))
+                .putAttribute("resource_id", String.valueOf(playable.getId()));
     }
 
     public static UIEvent fromShuffleMyLikes() {
@@ -82,40 +69,40 @@ public final class UIEvent {
     }
 
     public static UIEvent fromProfileNav() {
-        return new UIEvent(NAV_PROFILE);
+        return new UIEvent(NAVIGATION).putAttribute("page", "you");
     }
 
     public static UIEvent fromStreamNav() {
-        return new UIEvent(NAV_STREAM);
+        return new UIEvent(NAVIGATION).putAttribute("page", "stream");
     }
 
     public static UIEvent fromExploreNav() {
-        return new UIEvent(NAV_EXPLORE);
+        return new UIEvent(NAVIGATION).putAttribute("page", "explore");
     }
 
     public static UIEvent fromLikesNav() {
-        return new UIEvent(NAV_LIKES);
+        return new UIEvent(NAVIGATION).putAttribute("page", "collection_likes");
     }
 
     public static UIEvent fromPlaylistsNav() {
-        return new UIEvent(NAV_PLAYLISTS);
+        return new UIEvent(NAVIGATION).putAttribute("page", "collection_playlists");
     }
 
-    public static UIEvent fromDrawerOpen() {
-        return new UIEvent(DRAWER_OPEN);
+    public static UIEvent fromSearchAction() {
+        return new UIEvent(NAVIGATION).putAttribute("page", "search");
+    }
+
+    public static UIEvent fromPlayerShortcut() {
+        return new UIEvent(NAVIGATION).putAttribute("page", "player_shortcut");
     }
 
     private static String getPlayableType(Playable playable) {
         return (playable instanceof Track ? "track" : "playlist");
     }
 
-    private UIEvent(int kind, Map<String, String> attributes) {
-        mKind = kind;
-        mAttributes = attributes;
-    }
-
     public UIEvent(int kind) {
-        this(kind, Collections.<String,String>emptyMap());
+        mKind = kind;
+        mAttributes = new HashMap<String, String>();
     }
 
     public int getKind() {
@@ -128,6 +115,11 @@ public final class UIEvent {
 
     @Override
     public String toString() {
-        return  String.format("UI Event with type id %s and %s", mKind, mAttributes.toString());
+        return String.format("UI Event with type id %s and %s", mKind, mAttributes.toString());
+    }
+
+    private UIEvent putAttribute(String key, String value) {
+        mAttributes.put(key, value);
+        return this;
     }
 }

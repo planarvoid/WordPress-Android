@@ -199,7 +199,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         super.onCreate();
 
         mOldCloudApi = new PublicApi(this);
-        mPlaybackReceiver = new PlaybackReceiver(this, mAccountOperations, mPlayQueueManager);
+        mPlaybackReceiver = new PlaybackReceiver(this, mAccountOperations, mPlayQueueManager, mEventBus);
 
         mCompletionListener = new TrackCompletionListener(this);
 

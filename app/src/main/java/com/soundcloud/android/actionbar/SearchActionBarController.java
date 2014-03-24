@@ -35,7 +35,6 @@ public class SearchActionBarController extends ActionBarController {
 
     private final PublicCloudAPI mPublicCloudAPI;
     private final SearchCallback mSearchCallback;
-    private final EventBus mEventBus;
 
     private final SearchView.OnSuggestionListener mSuggestionListener = new SearchView.OnSuggestionListener() {
         @Override
@@ -75,10 +74,9 @@ public class SearchActionBarController extends ActionBarController {
 
     public SearchActionBarController(@NotNull ActionBarOwner owner, PublicCloudAPI publicCloudAPI,
                                      SearchCallback searchCallback, EventBus eventBus) {
-        super(owner);
+        super(owner, eventBus);
         mPublicCloudAPI = publicCloudAPI;
         mSearchCallback = searchCallback;
-        mEventBus = eventBus;
     }
 
     @Override

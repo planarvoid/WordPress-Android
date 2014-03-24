@@ -71,7 +71,7 @@ public class OnboardingEventTest {
     @Test
     public void shouldCreateEventFromSaveUserInfo() {
         onboardingEvent = OnboardingEvent.savedUserInfo("", null);
-        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.SAVE_USER_INFO);
+        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.USER_INFO);
         expect(onboardingEvent.getAttributes().get("added_username")).toEqual("no");
         expect(onboardingEvent.getAttributes().get("added_picture")).toEqual("no");
     }
@@ -79,7 +79,7 @@ public class OnboardingEventTest {
     @Test
     public void shouldCreateEventFromSaveUserInfoWithUsernameAndPicture() {
         onboardingEvent = OnboardingEvent.savedUserInfo("Skrillex", new File("/sdcard/avatar.png"));
-        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.SAVE_USER_INFO);
+        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.USER_INFO);
         expect(onboardingEvent.getAttributes().get("added_username")).toEqual("yes");
         expect(onboardingEvent.getAttributes().get("added_picture")).toEqual("yes");
     }
@@ -87,7 +87,9 @@ public class OnboardingEventTest {
     @Test
     public void shouldCreateEventFromSkipUserInfo() {
         onboardingEvent = OnboardingEvent.skippedUserInfo();
-        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.SKIP_USER_INFO);
+        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.USER_INFO);
+        expect(onboardingEvent.getAttributes().get("added_username")).toEqual("no");
+        expect(onboardingEvent.getAttributes().get("added_picture")).toEqual("no");
     }
 
     @Test

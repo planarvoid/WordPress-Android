@@ -4,6 +4,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.search.CombinedSearchActivity;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +23,8 @@ public class ActionBarController {
     protected ActionBarOwner mOwner;
     @NotNull
     protected Activity mActivity;
+    @NotNull
+    protected EventBus mEventBus;
 
     public interface ActionBarOwner {
         @NotNull
@@ -28,9 +33,10 @@ public class ActionBarController {
         void restoreActionBar();
     }
 
-    public ActionBarController(@NotNull ActionBarOwner owner) {
+    public ActionBarController(@NotNull ActionBarOwner owner, @NotNull EventBus eventBus) {
         mOwner = owner;
         mActivity = owner.getActivity();
+        mEventBus = eventBus;
     }
 
     public void onResume() {
@@ -59,6 +65,7 @@ public class ActionBarController {
         switch (item.getItemId()) {
             case R.id.action_search:
                 startActivity(CombinedSearchActivity.class);
+                mEventBus.publish(EventQueue.UI, UIEvent.fromSearchAction());
                 return true;
             case R.id.action_settings:
                 startActivity(SettingsActivity.class);

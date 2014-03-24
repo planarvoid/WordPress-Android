@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.service;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -9,6 +10,9 @@ import static org.mockito.Mockito.when;
 import com.google.common.primitives.Longs;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.tasks.FetchModelTask;
@@ -16,6 +20,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -38,12 +43,14 @@ public class PlaybackReceiverTest {
     @Mock
     private PlayQueueManager playQueueManager;
     @Mock
+    private EventBus eventBus;
+    @Mock
     private PlaySessionSource playSessionSource;
 
     @Before
     public void setup() {
         SoundCloudApplication.sModelManager.clear();
-        playbackReceiver = new PlaybackReceiver(playbackService, accountOperations, playQueueManager);
+        playbackReceiver = new PlaybackReceiver(playbackService, accountOperations, playQueueManager, eventBus);
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(playbackService.getPlayQueueOriginScreen()).thenReturn("screen_tag");
     }
@@ -214,4 +221,79 @@ public class PlaybackReceiverTest {
         playbackReceiver.onReceive(Robolectric.application, intent);
         verifyZeroInteractions(playQueue);
     }
+
+    @Test
+    public void shouldTrackTogglePlayEventWithSource() {
+        when(playbackService.isSupposedToBePlaying()).thenReturn(false);
+        setupTrackingTest(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION, "source");
+
+        ArgumentCaptor<PlayControlEvent> captor = ArgumentCaptor.forClass(PlayControlEvent.class);
+        verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
+        PlayControlEvent event = captor.getValue();
+        expect(event.getAttributes().get("action")).toEqual("play");
+        expect(event.getAttributes().get("location")).toEqual("source");
+    }
+
+    @Test
+     public void shouldTrackTogglePauseEventWithSource() {
+        when(playbackService.isSupposedToBePlaying()).thenReturn(true);
+        setupTrackingTest(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION, "source");
+
+        ArgumentCaptor<PlayControlEvent> captor = ArgumentCaptor.forClass(PlayControlEvent.class);
+        verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
+        PlayControlEvent event = captor.getValue();
+        expect(event.getAttributes().get("action")).toEqual("pause");
+        expect(event.getAttributes().get("location")).toEqual("source");
+    }
+
+    @Test
+    public void shouldTrackPlayEventWithSource() {
+        setupTrackingTest(PlaybackService.Actions.PLAY_ACTION, "source");
+
+        ArgumentCaptor<PlayControlEvent> captor = ArgumentCaptor.forClass(PlayControlEvent.class);
+        verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
+        PlayControlEvent event = captor.getValue();
+        expect(event.getAttributes().get("action")).toEqual("play");
+        expect(event.getAttributes().get("location")).toEqual("source");
+    }
+
+    @Test
+    public void shouldTrackPauseEventWithSource() {
+        setupTrackingTest(PlaybackService.Actions.PAUSE_ACTION, "source");
+
+        ArgumentCaptor<PlayControlEvent> captor = ArgumentCaptor.forClass(PlayControlEvent.class);
+        verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
+        PlayControlEvent event = captor.getValue();
+        expect(event.getAttributes().get("action")).toEqual("pause");
+        expect(event.getAttributes().get("location")).toEqual("source");
+    }
+
+    @Test
+    public void shouldTrackSkipEventWithSource() {
+        setupTrackingTest(PlaybackService.Actions.NEXT_ACTION, "source");
+
+        ArgumentCaptor<PlayControlEvent> captor = ArgumentCaptor.forClass(PlayControlEvent.class);
+        verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
+        PlayControlEvent event = captor.getValue();
+        expect(event.getAttributes().get("action")).toEqual("skip");
+        expect(event.getAttributes().get("location")).toEqual("source");
+    }
+
+    @Test
+    public void shouldTrackPreviousEventWithSource() {
+        setupTrackingTest(PlaybackService.Actions.PREVIOUS_ACTION, "source");
+
+        ArgumentCaptor<PlayControlEvent> captor = ArgumentCaptor.forClass(PlayControlEvent.class);
+        verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
+        PlayControlEvent event = captor.getValue();
+        expect(event.getAttributes().get("action")).toEqual("prev");
+        expect(event.getAttributes().get("location")).toEqual("source");
+    }
+
+    private void setupTrackingTest(String action, String source) {
+        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        Intent intent = new Intent(action).putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, source);
+        playbackReceiver.onReceive(Robolectric.application, intent);
+    }
+
 }

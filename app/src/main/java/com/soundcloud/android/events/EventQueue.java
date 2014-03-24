@@ -13,4 +13,6 @@ public interface EventQueue {
     final QueueDescriptor<CurrentUserChangedEvent> CURRENT_USER_CHANGED = create(CurrentUserChangedEvent.class);
     final QueueDescriptor<OnboardingEvent> ONBOARDING = create(OnboardingEvent.class);
     final QueueDescriptor<SearchEvent> SEARCH = create(SearchEvent.class);
+    final QueueDescriptor<PlayControlEvent> PLAY_CONTROL = create(PlayControlEvent.class);
+
 }

@@ -7,6 +7,9 @@ import static com.soundcloud.android.playback.service.PlaybackService.PlayExtras
 import com.google.common.primitives.Longs;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.Log;
 
@@ -21,17 +24,24 @@ class PlaybackReceiver extends BroadcastReceiver {
     private PlaybackService mPlaybackService;
     private final AccountOperations mAccountOperations;
     private final PlayQueueManager mPlayQueueManager;
+    private final EventBus mEventBus;
 
-    public PlaybackReceiver(PlaybackService playbackService, AccountOperations accountOperations, PlayQueueManager playQueueManager) {
-        this.mPlaybackService = playbackService;
-        this.mAccountOperations = accountOperations;
+    public PlaybackReceiver(PlaybackService playbackService, AccountOperations accountOperations,
+                            PlayQueueManager playQueueManager, EventBus eventBus) {
+        mPlaybackService = playbackService;
+        mAccountOperations = accountOperations;
         mPlayQueueManager = playQueueManager;
+        mEventBus = eventBus;
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         Log.d(PlaybackService.TAG, "BroadcastReceiver#onReceive(" + action + ")");
+
+        if (intent.hasExtra(PlayControlEvent.EXTRA_EVENT_SOURCE)) {
+            trackPlayControlEvent(intent);
+        }
 
         if (Actions.RESET_ALL.equals(action)) {
             mPlaybackService.resetAll();
@@ -40,11 +50,11 @@ class PlaybackReceiver extends BroadcastReceiver {
         } else if (mAccountOperations.soundCloudAccountExists()) {
 
             if (Actions.NEXT_ACTION.equals(action)) {
-                if (mPlaybackService.next()){
+                if (mPlaybackService.next()) {
                     mPlaybackService.openCurrent();
                 }
             } else if (Actions.PREVIOUS_ACTION.equals(action)) {
-                if (mPlaybackService.prev()){
+                if (mPlaybackService.prev()) {
                     mPlaybackService.openCurrent();
                 }
             } else if (Actions.TOGGLEPLAYBACK_ACTION.equals(action)) {
@@ -56,7 +66,6 @@ class PlaybackReceiver extends BroadcastReceiver {
                 mPlaybackService.notifyChange(Broadcasts.PLAYSTATE_CHANGED);
             } else if (Actions.PLAY_ACTION.equals(action)) {
                 handlePlayAction(intent);
-
             } else if (Actions.RETRY_RELATED_TRACKS.equals(action)) {
                 mPlayQueueManager.retryRelatedTracksFetch();
             } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
@@ -99,12 +108,29 @@ class PlaybackReceiver extends BroadcastReceiver {
             mPlayQueueManager.setNewPlayQueue(playQueue, playSessionSource);
             mPlaybackService.openCurrent();
 
-            if (playSessionSource.originatedInExplore() && !playQueue.isEmpty()){
+            if (playSessionSource.originatedInExplore() && !playQueue.isEmpty()) {
                 mPlayQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
             }
 
         } else {
             Log.w(PlaybackService.TAG, "Received play intent without a play queue");
+        }
+    }
+
+    private void trackPlayControlEvent(Intent intent) {
+        String source = intent.getStringExtra(PlayControlEvent.EXTRA_EVENT_SOURCE);
+
+        if (Actions.TOGGLEPLAYBACK_ACTION.equals(intent.getAction())) {
+            mEventBus.publish(EventQueue.PLAY_CONTROL,
+                    PlayControlEvent.toggle(source, mPlaybackService.isSupposedToBePlaying()));
+        } else if (Actions.PLAY_ACTION.equals(intent.getAction())) {
+            mEventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.play(source));
+        } else if (Actions.PAUSE_ACTION.equals(intent.getAction())) {
+            mEventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.pause(source));
+        } else if (Actions.NEXT_ACTION.equals(intent.getAction())) {
+            mEventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.skip(source));
+        } else if (Actions.PREVIOUS_ACTION.equals(intent.getAction())) {
+            mEventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.previous(source));
         }
     }
 }

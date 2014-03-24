@@ -3,6 +3,8 @@ package com.soundcloud.android.analytics.localytics;
 public interface LocalyticsEvents {
 
     String LISTEN = "Listen";
+    String PAGEVIEW = "Pageview";
+    String PLAY_CONTROLS = "Play Controls";
 
     interface UI {
         String FOLLOW = "Follow";
@@ -15,12 +17,7 @@ public interface LocalyticsEvents {
         String COMMENT = "Comment";
         String SHARE = "Share";
         String SHUFFLE_LIKES = "Shuffle likes";
-        String NAV_PROFILE = "nav_you";
-        String NAV_STREAM = "nav_stream";
-        String NAV_EXPLORE = "nav_explore";
-        String NAV_LIKES = "nav_likes";
-        String NAV_PLAYLISTS = "nav_playlists";
-        String DRAWER_OPEN = "drawer_open";
+        String NAVIGATION = "Navigation";
     }
 
     interface Onboarding {
@@ -28,11 +25,9 @@ public interface LocalyticsEvents {
         String AUTH_CREDENTIALS = "Auth credentials";
         String CONFIRM_TERMS = "Confirm terms";
         String AUTH_COMPLETE = "Auth complete";
-        String SAVE_USER_INFO = "Save user info";
-        String SKIP_USER_INFO = "Skip user info";
+        String USER_INFO = "User info";
         String ONBOARDING_COMPLETE = "Onboarding complete";
     }
-
 
     interface Search {
         String SEARCH_SUGGESTION = "Search suggestion";

@@ -168,32 +168,58 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromProfileNavigation() throws Exception {
-        expect(UIEvent.fromProfileNav().getKind()).toEqual(10);
+        UIEvent uiEvent = UIEvent.fromProfileNav();
+        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
+        expect(uiEvent.getKind()).toEqual(10);
+        expect(uiEventAttributes.get("page")).toEqual("you");
     }
 
     @Test
     public void shouldCreateEventFromStreamNavigation() throws Exception {
-        expect(UIEvent.fromStreamNav().getKind()).toEqual(11);
+        UIEvent uiEvent = UIEvent.fromStreamNav();
+        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
+        expect(uiEvent.getKind()).toEqual(10);
+        expect(uiEventAttributes.get("page")).toEqual("stream");
     }
 
     @Test
     public void shouldCreateEventFromExploreNavigation() throws Exception {
-        expect(UIEvent.fromExploreNav().getKind()).toEqual(12);
+        UIEvent uiEvent = UIEvent.fromExploreNav();
+        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
+        expect(uiEvent.getKind()).toEqual(10);
+        expect(uiEventAttributes.get("page")).toEqual("explore");
     }
 
     @Test
     public void shouldCreateEventFromLikesNavigation() throws Exception {
-        expect(UIEvent.fromLikesNav().getKind()).toEqual(13);
+        UIEvent uiEvent = UIEvent.fromLikesNav();
+        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
+        expect(uiEvent.getKind()).toEqual(10);
+        expect(uiEventAttributes.get("page")).toEqual("collection_likes");
     }
 
     @Test
     public void shouldCreateEventFromPlaylistsNavigation() throws Exception {
-        expect(UIEvent.fromPlaylistsNav().getKind()).toEqual(14);
+        UIEvent uiEvent = UIEvent.fromPlaylistsNav();
+        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
+        expect(uiEvent.getKind()).toEqual(10);
+        expect(uiEventAttributes.get("page")).toEqual("collection_playlists");
     }
 
     @Test
-    public void shouldCreateEventFromDrawerOpen() throws Exception {
-        expect(UIEvent.fromDrawerOpen().getKind()).toEqual(15);
+    public void shouldCreateEventFromSearchNavigation() throws Exception {
+        UIEvent uiEvent = UIEvent.fromSearchAction();
+        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
+        expect(uiEvent.getKind()).toEqual(10);
+        expect(uiEventAttributes.get("page")).toEqual("search");
+    }
+
+    @Test
+    public void shouldCreateEventFromPlayerShortcutNavigation() throws Exception {
+        UIEvent uiEvent = UIEvent.fromPlayerShortcut();
+        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
+        expect(uiEvent.getKind()).toEqual(10);
+        expect(uiEventAttributes.get("page")).toEqual("player_shortcut");
     }
 
 }

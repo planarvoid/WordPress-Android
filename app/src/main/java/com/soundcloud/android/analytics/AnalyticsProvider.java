@@ -3,6 +3,7 @@ package com.soundcloud.android.analytics;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SearchEvent;
@@ -47,6 +48,13 @@ public interface AnalyticsProvider {
      * @param eventData what the playback event consisted of
      */
     void handlePlaybackEvent(PlaybackEvent eventData);
+
+    /**
+     * Signals to the analytics provider that a play control event has occurred
+     *
+     * @param eventData what the play control event consisted of
+     */
+    void handlePlayControlEvent(PlayControlEvent eventData);
 
     /**
      * Signals to the analytics provider that a UI event has occurred

@@ -8,6 +8,7 @@ import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SearchEvent;
@@ -97,6 +98,9 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void handleScreenEvent(String screenTag) {
         mSession.tagScreen(screenTag);
+        Map<String, String> eventAttributes = new HashMap<String, String>();
+        eventAttributes.put("context", screenTag);
+        mSession.tagEvent(LocalyticsEvents.PAGEVIEW, eventAttributes);
     }
 
     @Override
@@ -137,10 +141,17 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         }
     }
 
+    @Override
+    public void handlePlayControlEvent(PlayControlEvent event) {
+        mSession.tagEvent(LocalyticsEvents.PLAY_CONTROLS, event.getAttributes());
+    }
+
+    @Override
     public void handleUIEvent(UIEvent event) {
         mUIEventHandler.handleEvent(event);
     }
 
+    @Override
     public void handleOnboardingEvent(OnboardingEvent event){
         mOnboardingEventHandler.handleEvent(event);
     }

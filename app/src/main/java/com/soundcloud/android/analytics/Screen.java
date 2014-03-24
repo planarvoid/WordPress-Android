@@ -23,6 +23,7 @@ public enum Screen {
     AUTH_USER_DETAILS("auth:user_details"),
 
     // core screens
+    SIDE_MENU_DRAWER("drawer"),
     SIDE_MENU_STREAM("stream:main", Actions.STREAM),
     SIDE_MENU_LIKES("collection:likes", Actions.LIKES),
     SIDE_MENU_PLAYLISTS("collection:playlists"),

@@ -1,10 +1,8 @@
 package com.soundcloud.android.events;
 
-
 import com.soundcloud.android.utils.ScTextUtils;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,80 +12,63 @@ public final class OnboardingEvent {
     public static final int AUTH_CREDENTIALS = 1;
     public static final int CONFIRM_TERMS = 2;
     public static final int AUTH_COMPLETE = 3;
-    public static final int SAVE_USER_INFO = 4;
-    public static final int SKIP_USER_INFO = 5;
-    public static final int ONBOARDING_COMPLETE = 6;
+    public static final int USER_INFO = 4;
+    public static final int ONBOARDING_COMPLETE = 5;
 
     private final int mKind;
     private final Map<String, String> mAttributes;
 
-    private OnboardingEvent(int kind, Map<String, String> attributes) {
+    private OnboardingEvent(int kind) {
         mKind = kind;
-        mAttributes = attributes;
-    }
-
-    private OnboardingEvent(int type) {
-        this(type, Collections.<String, String>emptyMap());
+        mAttributes = new HashMap<String, String>();
     }
 
     public static OnboardingEvent signUpPrompt() {
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("type", "sign up");
-        return new OnboardingEvent(AUTH_PROMPT, attributes);
+        return new OnboardingEvent(AUTH_PROMPT).put("type", "sign up");
     }
 
     public static OnboardingEvent logInPrompt() {
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("type", "log in");
-        return new OnboardingEvent(AUTH_PROMPT, attributes);
+        return new OnboardingEvent(AUTH_PROMPT).put("type", "log in");
+
     }
 
-    public static OnboardingEvent nativeAuthEvent(){
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("type", "native");
-        return new OnboardingEvent(AUTH_CREDENTIALS, attributes);
+    public static OnboardingEvent nativeAuthEvent() {
+        return new OnboardingEvent(AUTH_CREDENTIALS).put("type", "native");
     }
 
-    public static OnboardingEvent googleAuthEvent(){
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("type", "google_plus");
-        return new OnboardingEvent(AUTH_CREDENTIALS, attributes);
+    public static OnboardingEvent googleAuthEvent() {
+        return new OnboardingEvent(AUTH_CREDENTIALS).put("type", "google_plus");
     }
 
-    public static OnboardingEvent facebookAuthEvent(){
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("type", "facebook");
-        return new OnboardingEvent(AUTH_CREDENTIALS, attributes);
+    public static OnboardingEvent facebookAuthEvent() {
+        return new OnboardingEvent(AUTH_CREDENTIALS).put("type", "facebook");
     }
 
-    public static OnboardingEvent termsAccepted(){
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("action", "accept");
-        return new OnboardingEvent(CONFIRM_TERMS, attributes);
+    public static OnboardingEvent termsAccepted() {
+        return new OnboardingEvent(CONFIRM_TERMS).put("action", "accept");
     }
 
-    public static OnboardingEvent termsRejected(){
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("action", "cancel");
-        return new OnboardingEvent(CONFIRM_TERMS, attributes);
+    public static OnboardingEvent termsRejected() {
+        return new OnboardingEvent(CONFIRM_TERMS).put("action", "cancel");
     }
 
-    public static OnboardingEvent authComplete(){
+    public static OnboardingEvent authComplete() {
         return new OnboardingEvent(AUTH_COMPLETE);
     }
 
-    public static OnboardingEvent savedUserInfo(String username, File avatarFile){
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("added_username", ScTextUtils.isNotBlank(username) ? "yes" : "no");
-        attributes.put("added_picture", avatarFile != null ? "yes" : "no");
-        return new OnboardingEvent(SAVE_USER_INFO, attributes);
+    public static OnboardingEvent savedUserInfo(String username, File avatarFile) {
+        return new OnboardingEvent(USER_INFO)
+                .put("added_username", ScTextUtils.isNotBlank(username) ? "yes" : "no")
+                .put("added_picture", avatarFile != null ? "yes" : "no");
     }
 
-    public static OnboardingEvent skippedUserInfo(){
-        return new OnboardingEvent(SKIP_USER_INFO);
+    public static OnboardingEvent skippedUserInfo() {
+        return new OnboardingEvent(USER_INFO)
+                .put("added_username", "no")
+                .put("added_picture", "no");
     }
 
-    public static OnboardingEvent onboardingComplete(){
+    public static OnboardingEvent onboardingComplete() {
         return new OnboardingEvent(ONBOARDING_COMPLETE);
     }
 
@@ -101,6 +82,11 @@ public final class OnboardingEvent {
 
     @Override
     public String toString() {
-        return  String.format("onboarding Event with type id %s and %s", mKind, mAttributes.toString());
+        return String.format("Onboarding Event with type id %s and %s", mKind, mAttributes.toString());
+    }
+
+    private OnboardingEvent put(String key, String value) {
+        mAttributes.put(key, value);
+        return this;
     }
 }

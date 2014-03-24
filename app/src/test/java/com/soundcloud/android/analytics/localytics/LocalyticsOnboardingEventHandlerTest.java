@@ -54,17 +54,10 @@ public class LocalyticsOnboardingEventHandlerTest {
     }
 
     @Test
-    public void shouldHandleSaveUserInfoEvent() throws Exception {
+    public void shouldHandleUserInfoEvent() throws Exception {
         OnboardingEvent event = OnboardingEvent.savedUserInfo("Skrillex", new File("asdf"));
         LocalyticsOnboardingEventHandler.handleEvent(event);
-        verify(localyticsSession).tagEvent("Save user info", event.getAttributes());
-    }
-
-    @Test
-    public void shouldHandleSkipUserInfoEvent() throws Exception {
-        OnboardingEvent event = OnboardingEvent.skippedUserInfo();
-        LocalyticsOnboardingEventHandler.handleEvent(event);
-        verify(localyticsSession).tagEvent("Skip user info", event.getAttributes());
+        verify(localyticsSession).tagEvent("User info", event.getAttributes());
     }
 
     @Test

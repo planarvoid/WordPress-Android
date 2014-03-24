@@ -20,6 +20,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -239,6 +240,18 @@ public class AnalyticsEngineTrackingTest {
     }
 
     @Test
+    public void shouldTrackPlayControlEvent() {
+        setAnalyticsEnabledViaSettings();
+        initialiseAnalyticsEngine();
+
+        PlayControlEvent playControlEvent = PlayControlEvent.playerClickPlay();
+        eventMonitor.publish(EventQueue.PLAY_CONTROL, playControlEvent);
+
+        verify(analyticsProviderOne, times(1)).handlePlayControlEvent(playControlEvent);
+        verify(analyticsProviderTwo, times(1)).handlePlayControlEvent(playControlEvent);
+    }
+
+    @Test
     public void shouldIsolateProvidersExceptions() throws Exception {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
@@ -249,6 +262,7 @@ public class AnalyticsEngineTrackingTest {
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleUIEvent(any(UIEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleOnboardingEvent(any(OnboardingEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleSearchEvent(any(SearchEvent.class));
+        doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlayControlEvent(any(PlayControlEvent.class));
 
         eventMonitor.publish(EventQueue.PLAYBACK, PlaybackEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
         eventMonitor.publish(EventQueue.UI, UIEvent.fromToggleFollow(true, "screen", 0));
@@ -256,6 +270,7 @@ public class AnalyticsEngineTrackingTest {
         eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen");
         eventMonitor.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
         eventMonitor.publish(EventQueue.SEARCH, SearchEvent.popularTagSearch("search"));
+        eventMonitor.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerClickPlay());
 
         verify(analyticsProviderTwo).handlePlaybackEvent(any(PlaybackEvent.class));
         verify(analyticsProviderTwo).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
@@ -263,6 +278,7 @@ public class AnalyticsEngineTrackingTest {
         verify(analyticsProviderTwo).handleUIEvent(any(UIEvent.class));
         verify(analyticsProviderTwo).handleOnboardingEvent(any(OnboardingEvent.class));
         verify(analyticsProviderTwo).handleSearchEvent(any(SearchEvent.class));
+        verify(analyticsProviderTwo).handlePlayControlEvent(any(PlayControlEvent.class));
     }
 
     private void setAnalyticsDisabledViaSettings() {

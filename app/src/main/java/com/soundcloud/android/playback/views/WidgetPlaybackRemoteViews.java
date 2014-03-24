@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -19,6 +20,9 @@ import android.os.Parcel;
  * @see com.soundcloud.android.playback.service.PlayerAppWidgetProvider
  */
 public class WidgetPlaybackRemoteViews extends PlaybackRemoteViews {
+
+    private static final int PENDING_INTENT_REQUEST_CODE = 1;
+
     public WidgetPlaybackRemoteViews(Context context) {
         super(context.getPackageName(), R.layout.appwidget_player,
                 R.drawable.ic_play_states, R.drawable.ic_pause_states);
@@ -59,20 +63,37 @@ public class WidgetPlaybackRemoteViews extends PlaybackRemoteViews {
 
         final Intent player = new Intent(Actions.PLAYER).addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         // go to player
-        setOnClickPendingIntent(R.id.title_txt, PendingIntent.getActivity(context, 0, player, 0));
+        setOnClickPendingIntent(R.id.title_txt, PendingIntent.getActivity(context, PENDING_INTENT_REQUEST_CODE, player, 0));
         if (trackId != -1) {
             final Intent browser = new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER_ID, userId);
             // go to user
-            setOnClickPendingIntent(R.id.user_txt,
-                    PendingIntent.getActivity(context, 0, browser, PendingIntent.FLAG_UPDATE_CURRENT));
+            setOnClickPendingIntent(R.id.user_txt, PendingIntent.getActivity(context,
+                    PENDING_INTENT_REQUEST_CODE, browser, PendingIntent.FLAG_UPDATE_CURRENT));
 
             final Intent toggleLike = new Intent(PlaybackService.Actions.WIDGET_LIKE_CHANGED);
             toggleLike.putExtra(PlaybackService.BroadcastExtras.IS_LIKE, userLike);
 
             // toggle like
             setOnClickPendingIntent(R.id.btn_like, PendingIntent.getBroadcast(context,
-                    0 /* requestCode */, toggleLike, PendingIntent.FLAG_UPDATE_CURRENT));
+                    PENDING_INTENT_REQUEST_CODE, toggleLike, PendingIntent.FLAG_UPDATE_CURRENT));
         }
+    }
+
+    private void linkPlayerControls(Context context) {
+        final Intent previous = new Intent(PlaybackService.Actions.PREVIOUS_ACTION)
+                .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_WIDGET);
+        setOnClickPendingIntent(R.id.prev, PendingIntent.getService(context,
+                PENDING_INTENT_REQUEST_CODE, previous, 0));
+
+        final Intent pause = new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION)
+                .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_WIDGET);
+        setOnClickPendingIntent(R.id.pause, PendingIntent.getService(context,
+                PENDING_INTENT_REQUEST_CODE, pause, 0));
+
+        final Intent next = new Intent(PlaybackService.Actions.NEXT_ACTION)
+                .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_WIDGET);
+        setOnClickPendingIntent(R.id.next, PendingIntent.getService(context,
+                PENDING_INTENT_REQUEST_CODE, next, 0));
     }
 
     public static class Args {

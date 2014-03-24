@@ -13,6 +13,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Comment;
@@ -67,7 +68,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private static final long TRACK_NAV_DELAY = 500;
 
     private long mSeekPos = -1;
-    private boolean mActivityPaused, mChangeTrackFast;
+    private boolean mActivityPaused;
+    private boolean mTransportBarTrackChange;
     private PlayerTrackPager mTrackPager;
     private TransportBarView mTransportBar;
     private @CheckForNull
@@ -189,22 +191,36 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         for (PlayerTrackView ptv : mTrackPagerAdapter.getPlayerTrackViews()) {
             ptv.onScrollComplete();
         }
+
         if (mPlaybackStateProvider.getPlayPosition() != getCurrentDisplayedTrackPosition() // different track
                 && !mHandler.hasMessages(SEND_CURRENT_QUEUE_POSITION) // not already changing
-                && (mChangeTrackFast || mPlaybackStateProvider.isSupposedToBePlaying()) // responding to transport click or already playing
+                && (mTransportBarTrackChange || mPlaybackStateProvider.isSupposedToBePlaying()) // responding to transport click or already playing
                 ) {
             sendTrackChangeOnDelay();
             mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYER_MAIN.get());
+            trackPlayControlSwipe();
         }
-        mChangeTrackFast = false;
+
+        mTransportBarTrackChange = false;
         mTransportBar.setIsCommenting(mTrackPager.getCurrentItem() == mTrackPagerAdapter.getCommentingPosition());
         updatePlayerInfoPanelFromTrackPager();
+    }
+
+    private void trackPlayControlSwipe() {
+        if (!mTransportBarTrackChange) {
+            if (getCurrentDisplayedTrackPosition() > mPlaybackStateProvider.getPlayPosition()) {
+                mEventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerSwipeSkip());
+            }
+            if (getCurrentDisplayedTrackPosition() < mPlaybackStateProvider.getPlayPosition()) {
+                mEventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerSwipePrevious());
+            }
+        }
     }
 
     private void sendTrackChangeOnDelay() {
         mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
         mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
-                mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
+                mTransportBarTrackChange ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
     }
 
     @Override
@@ -280,7 +296,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     @Override
     protected ActionBarController createActionBarController() {
-        return new ActionBarController(this);
+        return new ActionBarController(this, mEventBus);
     }
 
     @Override
@@ -470,6 +486,10 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 startService(new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
             }
 
+            mEventBus.publish(EventQueue.PLAY_CONTROL, mPlaybackStateProvider.isSupposedToBePlaying()
+                    ? PlayControlEvent.playerClickPlay()
+                    : PlayControlEvent.playerClickPause());
+
             setPlaybackState();
         }
     };
@@ -480,12 +500,14 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
+            mEventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerClickPrevious());
+
             if (mPlaybackService != null) {
                 final int playPosition = mPlayQueue.getPosition();
                 if (mPlaybackService.getProgress() < 2000 && playPosition > 0) {
 
                     if (getCurrentDisplayedTrackPosition() == playPosition) {
-                        mChangeTrackFast = true;
+                        mTransportBarTrackChange = true;
                         mTrackPager.prev();
                     } else {
                         mPlaybackService.setQueuePosition(playPosition - 1);
@@ -510,11 +532,13 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
+            mEventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerClickSkip());
+
             if (mPlaybackService != null) {
                 final int playPosition = mPlayQueue.getPosition();
                 if (mPlayQueue.size() > playPosition + 1) {
                     if (getCurrentDisplayedTrackPosition() == playPosition) {
-                        mChangeTrackFast = true;
+                        mTransportBarTrackChange = true;
                         mTrackPager.next();
                     } else {
                         mPlaybackService.setQueuePosition(playPosition + 1);

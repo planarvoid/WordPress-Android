@@ -30,11 +30,8 @@ public class LocalyticsOnboardingEventHandler {
             case OnboardingEvent.AUTH_COMPLETE:
                 mLocalyticsSession.tagEvent(LocalyticsEvents.Onboarding.AUTH_COMPLETE, eventAttributes);
                 break;
-            case OnboardingEvent.SAVE_USER_INFO:
-                mLocalyticsSession.tagEvent(LocalyticsEvents.Onboarding.SAVE_USER_INFO, eventAttributes);
-                break;
-            case OnboardingEvent.SKIP_USER_INFO:
-                mLocalyticsSession.tagEvent(LocalyticsEvents.Onboarding.SKIP_USER_INFO, eventAttributes);
+            case OnboardingEvent.USER_INFO:
+                mLocalyticsSession.tagEvent(LocalyticsEvents.Onboarding.USER_INFO, eventAttributes);
                 break;
             case OnboardingEvent.ONBOARDING_COMPLETE:
                 mLocalyticsSession.tagEvent(LocalyticsEvents.Onboarding.ONBOARDING_COMPLETE, eventAttributes);

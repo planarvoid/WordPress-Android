@@ -8,6 +8,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -97,6 +98,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.SCREEN_ENTERED, new ScreenEventSubscriber()));
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new UserEventSubscriber()));
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.SEARCH, new SearchEventSubscriber()));
+            mEventsSubscription.add(mEventBus.subscribe(EventQueue.PLAY_CONTROL, new PlayControlSubscriber()));
         }
     }
 
@@ -170,6 +172,13 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         @Override
         protected void handleEvent(AnalyticsProvider provider, SearchEvent event) {
             provider.handleSearchEvent(event);
+        }
+    }
+
+    private final class PlayControlSubscriber extends EventSubscriber<PlayControlEvent> {
+        @Override
+        protected void handleEvent(AnalyticsProvider provider, PlayControlEvent event) {
+            provider.handlePlayControlEvent(event);
         }
     }
 

@@ -124,7 +124,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     }
 
     protected ActionBarController createActionBarController() {
-        return new NowPlayingActionBarController(this);
+        return new NowPlayingActionBarController(this, mEventBus);
     }
 
     public void restoreActionBar() {

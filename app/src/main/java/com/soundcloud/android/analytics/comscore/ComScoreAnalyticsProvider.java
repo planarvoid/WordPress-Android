@@ -5,6 +5,7 @@ import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SearchEvent;
@@ -45,6 +46,9 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handlePlaybackEvent(PlaybackEvent eventData) {}
+
+    @Override
+    public void handlePlayControlEvent(PlayControlEvent eventData) {}
 
     @Override
     public void handleUIEvent(UIEvent event) {}
