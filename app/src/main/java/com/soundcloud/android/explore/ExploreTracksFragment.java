@@ -25,6 +25,7 @@ import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -140,13 +141,19 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         // Make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
         gridView.setOnScrollListener(new AbsListViewParallaxer(mImageOperations.createScrollPauseListener(false, true, mAdapter)));
 
-        // Now setup the PullToRefreshLayout
+        setupPullToRefresh(view);
+    }
+
+    private void setupPullToRefresh(View view) {
+        // Work around for child fragment issue where getActivity() returns previous instance after rotate
+        Activity actionBarOwner = getParentFragment() == null ? getActivity() : getParentFragment().getActivity();
+
         mPullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.ptr_layout);
-        ActionBarPullToRefresh.from(getActivity())
+        ActionBarPullToRefresh.from(actionBarOwner)
                 .allChildrenArePullable()
                 .listener(this)
                 .setup(mPullToRefreshLayout);
-        ViewUtils.stylePtrProgress(getActivity(), mPullToRefreshLayout.getHeaderView());
+        ViewUtils.stylePtrProgress(actionBarOwner, mPullToRefreshLayout.getHeaderView());
     }
 
     @Override
@@ -171,7 +178,6 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     }
 
     private final class ExploreTracksSubscriber extends ListFragmentSubscriber<Page<SuggestedTracksCollection>> {
-
 
         private ExploreTracksSubscriber() {
             super(ExploreTracksFragment.this);
