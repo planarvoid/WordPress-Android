@@ -21,7 +21,7 @@ import android.os.Parcel;
  */
 public class WidgetPlaybackRemoteViews extends PlaybackRemoteViews {
 
-    private static final int PENDING_INTENT_REQUEST_CODE = 1;
+    private static final int PENDING_INTENT_REQUEST_CODE = WidgetPlaybackRemoteViews.class.hashCode();
 
     public WidgetPlaybackRemoteViews(Context context) {
         super(context.getPackageName(), R.layout.appwidget_player,

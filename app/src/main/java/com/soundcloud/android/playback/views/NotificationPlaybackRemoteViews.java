@@ -15,7 +15,7 @@ import android.os.Parcel;
  */
 public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
 
-    private static final int PENDING_INTENT_REQUEST_CODE = 0;
+    private static final int PENDING_INTENT_REQUEST_CODE = NotificationPlaybackRemoteViews.class.hashCode();
 
     public NotificationPlaybackRemoteViews(String packageName) {
         super(packageName,
