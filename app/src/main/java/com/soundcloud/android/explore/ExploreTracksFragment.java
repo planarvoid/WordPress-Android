@@ -1,6 +1,7 @@
 package com.soundcloud.android.explore;
 
 import static rx.android.OperationPaged.Page;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -15,9 +16,8 @@ import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyListView;
-import rx.Observer;
+import rx.Subscriber;
 import rx.Subscription;
-import rx.android.observables.AndroidObservable;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
@@ -45,8 +45,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
     private EmptyListView mEmptyListView;
-
-    private ExploreTracksSubscriber mObserver;
+    private String mLastExploreTag;
 
     @Inject
     ExploreTracksAdapter mAdapter;
@@ -79,10 +78,8 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mObserver = new ExploreTracksSubscriber();
-
         mSuggestedTracksObservable = buildSuggestedTracksObservable();
-        loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
+        loadTrackSuggestions(mSuggestedTracksObservable, new ExploreTracksSubscriber());
     }
 
     @Override
@@ -94,7 +91,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     private ConnectableObservable<Page<SuggestedTracksCollection>> buildSuggestedTracksObservable() {
         final ExploreGenre category = getExploreCategory();
         final ExploreTracksOperations operations = new ExploreTracksOperations();
-        return AndroidObservable.fromFragment(this, operations.getSuggestedTracks(category)).replay();
+        return operations.getSuggestedTracks(category).observeOn(mainThread()).replay();
     }
 
     private ExploreGenre getExploreCategory() {
@@ -102,7 +99,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     }
 
     private void loadTrackSuggestions(ConnectableObservable<Page<SuggestedTracksCollection>> observable,
-                                      Observer<Page<SuggestedTracksCollection>> fragmentObserver) {
+                                      Subscriber<Page<SuggestedTracksCollection>> fragmentObserver) {
         setEmptyViewStatus(EmptyListView.Status.WAITING);
         observable.subscribe(mAdapter);
         observable.subscribe(fragmentObserver);
@@ -118,7 +115,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Track track = new Track(mAdapter.getItem(position));
         final String screenTagExtra = getArguments().getString(SCREEN_TAG_EXTRA);
-        mPlaybackOperations.playExploreTrack(getActivity(), track, mObserver.getLastExploreTag(), screenTagExtra);
+        mPlaybackOperations.playExploreTrack(getActivity(), track, mLastExploreTag, screenTagExtra);
     }
 
     @Override
@@ -131,7 +128,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
             @Override
             public void onEmptyViewRetry() {
                 mSuggestedTracksObservable = buildSuggestedTracksObservable();
-                loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
+                loadTrackSuggestions(mSuggestedTracksObservable, new ExploreTracksSubscriber());
             }
         });
 
@@ -175,7 +172,6 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     private final class ExploreTracksSubscriber extends ListFragmentSubscriber<Page<SuggestedTracksCollection>> {
 
-        private String mLastExploreTag;
 
         private ExploreTracksSubscriber() {
             super(ExploreTracksFragment.this);
@@ -184,10 +180,6 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         @Override
         public void onNext(Page<SuggestedTracksCollection> element) {
             mLastExploreTag = element.getPagedCollection().getTrackingTag();
-        }
-
-        private String getLastExploreTag() {
-            return mLastExploreTag;
         }
     }
 
