@@ -15,6 +15,7 @@ import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.android.view.EmptyListDelegate;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Subscriber;
 import rx.Subscription;
@@ -151,6 +152,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         mPullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.ptr_layout);
         ActionBarPullToRefresh.from(actionBarOwner)
                 .allChildrenArePullable()
+                .useViewDelegate(EmptyListView.class, new EmptyListDelegate())
                 .listener(this)
                 .setup(mPullToRefreshLayout);
         ViewUtils.stylePtrProgress(actionBarOwner, mPullToRefreshLayout.getHeaderView());

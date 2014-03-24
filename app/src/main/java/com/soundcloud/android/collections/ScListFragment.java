@@ -36,6 +36,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.android.view.EmptyListDelegate;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.api.Request;
@@ -46,7 +47,6 @@ import rx.subscriptions.Subscriptions;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
-import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.ViewDelegate;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -215,15 +215,9 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     private void setupPullToRefresh() {
         ActionBarPullToRefresh.from(getActivity())
                 .theseChildrenArePullable(mListView, mEmptyListView)
-                .useViewDelegate(EmptyListView.class, new ViewDelegate() {
-                    @Override
-                    public boolean isReadyForPull(View view, float x, float y) {
-                        return Boolean.TRUE;
-                    }
-                })
+                .useViewDelegate(EmptyListView.class, new EmptyListDelegate())
                 .listener(this)
                 .setup(mPullToRefreshLayout);
-
         ViewUtils.stylePtrProgress(getActivity(), mPullToRefreshLayout.getHeaderView());
         configurePullToRefreshState();
     }
