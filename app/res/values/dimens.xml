@@ -147,6 +147,8 @@
 
     <dimen name="tablet_followers_text">16sp</dimen>
 
-    <dimen name="ptr_thickness">4dp</dimen>
+    <dimen name="ptr_thickness">2dp</dimen>
+    <!-- Override pull to refresh style -->
+    <dimen name="ptr_progress_bar_stroke_width">@dimen/ptr_thickness</dimen>
 
 </resources>
