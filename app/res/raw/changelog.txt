@@ -5,8 +5,8 @@ $ 85
     * Playlist Discovery now integrated into Search feature
     * New Search UI
     * Updated tab controls
-    * added updated SwipeToRefresh feature
-
+    * Added updated SwipeToRefresh feature
+    * Send track information to peripherals
 
 $ 84
   % v 2.7.10
