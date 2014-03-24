@@ -199,6 +199,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         mPullToRefreshLayout.addView(mEmptyListView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
+        setupPullToRefresh();
+
         if (isRefreshing() || waitingOnInitialSync()){
             final ScBaseAdapter listAdapter = getListAdapter();
             if (listAdapter == null || listAdapter.isEmpty()){
@@ -210,11 +212,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         return mPullToRefreshLayout;
     }
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        // configure PTR
+    private void setupPullToRefresh() {
         ActionBarPullToRefresh.from(getActivity())
                 .theseChildrenArePullable(mListView, mEmptyListView)
                 .useViewDelegate(EmptyListView.class, new ViewDelegate() {
