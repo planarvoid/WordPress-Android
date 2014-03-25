@@ -42,11 +42,11 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
         assertEquals("Searched tag should be in recents", true, tagsScreen.getRecentTags().contains("#deep house"));
     }
 
-    public void testClickingOnPlaylistTagOpensPlaylistResultsScreenWith20Results() {
+    public void testClickingOnPlaylistTagOpensPlaylistResultsScreenWith10Results() {
         PlaylistResultsScreen resultsScreen = playlistTagsScreen.clickOnTag(0);
 
         assertEquals("Playlist results screen should be visible", true, resultsScreen.isVisible());
-        assertEquals("Playlist results should not be empty", 20, resultsScreen.getResultsCount());
+        assertEquals("Playlist results should not be empty", 10, resultsScreen.getResultsCount());
     }
 
     public void testClickingOnPlaylistTagPopulatesSearchField() {
