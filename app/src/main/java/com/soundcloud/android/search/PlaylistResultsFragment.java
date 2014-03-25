@@ -1,7 +1,7 @@
 package com.soundcloud.android.search;
 
 import static rx.android.OperationPaged.Page;
-import static rx.android.observables.AndroidObservable.fromFragment;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
@@ -57,7 +57,9 @@ public class PlaylistResultsFragment extends Fragment implements EmptyViewAware,
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
-    private Subscription mSubscription = Subscriptions.empty();
+    private ConnectableObservable<Page<PlaylistSummaryCollection>> mPlaylistsObservable;
+    private Subscription mPlaylistsSubscription = Subscriptions.empty();
+    private Subscription mListViewSubscription;
 
     public static PlaylistResultsFragment newInstance(String tag) {
         PlaylistResultsFragment fragment = new PlaylistResultsFragment();
@@ -86,7 +88,17 @@ public class PlaylistResultsFragment extends Fragment implements EmptyViewAware,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_PLAYLIST_DISCO.get());
-        loadPlaylistResults();
+        mPlaylistsObservable = preparePlaylistsObservable();
+        mPlaylistsSubscription = triggerPlaylistsObservable();
+    }
+
+    private ConnectableObservable<Page<PlaylistSummaryCollection>> preparePlaylistsObservable() {
+        String playlistTag = getArguments().getString(KEY_PLAYLIST_TAG);
+        ConnectableObservable<Page<PlaylistSummaryCollection>> observable = mSearchOperations.getPlaylistResults(playlistTag)
+                .observeOn(mainThread())
+                .replay();
+        observable.subscribe(mAdapter);
+        return observable;
     }
 
     @Override
@@ -104,7 +116,10 @@ public class PlaylistResultsFragment extends Fragment implements EmptyViewAware,
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
-                loadPlaylistResults();
+                mPlaylistsObservable = preparePlaylistsObservable();
+                mPlaylistsSubscription = triggerPlaylistsObservable();
+                mListViewSubscription = mPlaylistsObservable.subscribe(
+                        new ListFragmentSubscriber<Page<PlaylistSummaryCollection>>(PlaylistResultsFragment.this));
             }
         });
 
@@ -115,23 +130,28 @@ public class PlaylistResultsFragment extends Fragment implements EmptyViewAware,
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
         gridView.setOnScrollListener(new AbsListViewParallaxer(mImageOperations.createScrollPauseListener(false, true, mAdapter)));
+
+        mListViewSubscription = mPlaylistsObservable.subscribe(
+                new ListFragmentSubscriber<Page<PlaylistSummaryCollection>>(this));
+    }
+
+    @Override
+    public void onDestroyView() {
+        mListViewSubscription.unsubscribe();
+        GridView gridView = (GridView) getView().findViewById(android.R.id.list);
+        gridView.setAdapter(null);
+        super.onDestroyView();
     }
 
     @Override
     public void onDestroy() {
-        mSubscription.unsubscribe();
+        mPlaylistsSubscription.unsubscribe();
         super.onDestroy();
     }
 
-    private void loadPlaylistResults() {
-        String playlistTag = getArguments().getString(KEY_PLAYLIST_TAG);
-        ConnectableObservable<Page<PlaylistSummaryCollection>> observable =
-                fromFragment(this, mSearchOperations.getPlaylistResults(playlistTag)).publish();
-
+    private Subscription triggerPlaylistsObservable() {
         setEmptyViewStatus(EmptyListView.Status.WAITING);
-        observable.subscribe(mAdapter);
-        observable.subscribe(new ListFragmentSubscriber<Page<PlaylistSummaryCollection>>(this));
-        mSubscription = observable.connect();
+        return mPlaylistsObservable.connect();
     }
 
     @Override

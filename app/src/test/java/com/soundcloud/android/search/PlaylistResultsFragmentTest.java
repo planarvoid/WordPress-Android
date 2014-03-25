@@ -64,6 +64,9 @@ public class PlaylistResultsFragmentTest {
 
     @Before
     public void setUp() throws Exception {
+        when(searchOperations.getPlaylistResults(anyString())).
+                thenReturn(Observable.<Page<PlaylistSummaryCollection>>empty());
+
         createFragment();
     }
 
@@ -120,6 +123,23 @@ public class PlaylistResultsFragmentTest {
         retryButton.performClick();
 
         verify(searchOperations, times(2)).getPlaylistResults(anyString());
+    }
+
+    @Test
+    public void shouldShowWaitingStateWhenRetryingAFailedSequence() throws Exception {
+        when(searchOperations.getPlaylistResults(anyString())).
+                thenReturn(Observable.<OperationPaged.Page<PlaylistSummaryCollection>>error(new Exception()),
+                        Observable.<Page<PlaylistSummaryCollection>>never());
+
+        fragment.onCreate(null);
+        createFragmentView();
+
+        Button retryButton = (Button) fragment.getView().findViewById(R.id.btn_retry);
+        expect(retryButton).not.toBeNull();
+        retryButton.performClick();
+
+        EmptyListView emptyView = (EmptyListView) content.getEmptyView();
+        expect(emptyView.getStatus()).toEqual(EmptyListView.Status.WAITING);
     }
 
     @Test
