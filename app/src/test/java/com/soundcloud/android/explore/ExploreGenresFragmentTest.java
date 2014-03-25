@@ -16,6 +16,7 @@ import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.view.EmptyListView;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -85,6 +86,22 @@ public class ExploreGenresFragmentTest {
         // this verifies that clicking the retry button does not re-run the initial observable, but a new one.
         // If that wasn't the case, we'd simply replay a failed result.
         verify(operations, times(2)).getCategories();
+    }
+
+    @Test
+    public void shouldShowProgressSpinnerWhenReloadingResultViaRetryButton() {
+        when(operations.getCategories()).thenReturn(Observable.<ExploreGenresSections>error(new Exception()),
+                Observable.<ExploreGenresSections>never());
+
+        createFragment();
+        final View layout = createFragmentView();
+
+        Button retryButton = (Button) fragment.getView().findViewById(R.id.btn_retry);
+        expect(retryButton).not.toBeNull();
+        retryButton.performClick();
+
+        EmptyListView emptyView = (EmptyListView) layout.findViewById(android.R.id.empty);
+        expect(emptyView.getStatus()).toEqual(EmptyListView.Status.WAITING);
     }
 
     @Test
