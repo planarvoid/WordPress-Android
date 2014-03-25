@@ -75,7 +75,7 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
 
         if (savedInstanceState == null) {
             handleIntent();
-        } else {
+        } else if (savedInstanceState.containsKey(STATE_QUERY)) {
             mQuery = savedInstanceState.getString(STATE_QUERY);
         }
     }
@@ -98,7 +98,9 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putString(STATE_QUERY, mActionBarController.getQuery());
+        if (mActionBarController.isInitialised()) {
+            outState.putString(STATE_QUERY, mActionBarController.getQuery());
+        }
         super.onSaveInstanceState(outState);
     }
 
