@@ -2,7 +2,7 @@ package com.soundcloud.android.explore;
 
 import static com.soundcloud.android.explore.ExploreGenresAdapter.AUDIO_SECTION;
 import static com.soundcloud.android.explore.ExploreGenresAdapter.MUSIC_SECTION;
-import static rx.android.observables.AndroidObservable.fromFragment;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
@@ -18,9 +18,9 @@ import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 import rx.Subscription;
+import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -33,6 +33,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 
 @SuppressLint("ValidFragment")
 public class ExploreGenresFragment extends Fragment implements AdapterView.OnItemClickListener, EmptyViewAware {
@@ -52,7 +53,9 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
     @Inject
     ImageOperations mImageOperations;
 
-    private Subscription mSubscription = Subscriptions.empty();
+    private ConnectableObservable<Section<ExploreGenre>> mGenresObservable;
+    private Subscription mGenresSubscription = Subscriptions.empty();
+    private Subscription mListViewSubscription = Subscriptions.empty();
 
     public ExploreGenresFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -70,7 +73,19 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSubscription = loadCategories();
+        mGenresObservable = prepareGenresObservable();
+        mGenresSubscription = mGenresObservable.connect();
+    }
+
+    private ConnectableObservable<Section<ExploreGenre>> prepareGenresObservable() {
+        final ConnectableObservable<Section<ExploreGenre>> observable = mExploreOperations.getCategories()
+                .mergeMap(GENRES_TO_SECTIONS)
+                .observeOn(mainThread())
+                .replay();
+        // subscribe the adapter immediately; since we retain it, we don't go through unsubscribe/resubscribe so we
+        // don't have to deal with duplication issues by loading items into it that were cached by `replay`
+        observable.subscribe(mGenresAdapter);
+        return observable;
     }
 
     @Override
@@ -101,7 +116,10 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
             @Override
             public void onEmptyViewRetry() {
                 setEmptyViewStatus(EmptyListView.Status.WAITING);
-                mSubscription = loadCategories();
+                mGenresObservable = prepareGenresObservable();
+                mListViewSubscription = mGenresObservable.subscribe(
+                        new ListFragmentSubscriber<Section<ExploreGenre>>(ExploreGenresFragment.this));
+                mGenresSubscription = mGenresObservable.connect();
             }
         });
 
@@ -110,6 +128,8 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
         listview.setAdapter(mGenresAdapter);
         listview.setEmptyView(mEmptyListView);
         listview.setOnScrollListener(mImageOperations.createScrollPauseListener(false, true));
+
+        mListViewSubscription = mGenresObservable.subscribe(new ListFragmentSubscriber<Section<ExploreGenre>>(this));
     }
 
     private ListView getListView() {
@@ -118,12 +138,15 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
 
     @Override
     public void onDestroy() {
-        mSubscription.unsubscribe();
+        mGenresSubscription.unsubscribe();
         super.onDestroy();
     }
 
     @Override
     public void onDestroyView() {
+        // always unsubscribe the list view subscriber when we destroy the views
+        mListViewSubscription.unsubscribe();
+        // we keep the adapter subscribed, but detach it as a DataSetObserver from the list view
         ((ListView) getView().findViewById(android.R.id.list)).setAdapter(null);
         super.onDestroyView();
     }
@@ -136,21 +159,13 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
         }
     }
 
-    private Subscription loadCategories() {
-        ConnectableObservable<Section<ExploreGenre>> mGenresObservable =
-                fromFragment(this, mExploreOperations.getCategories().mergeMap(GENRES_TO_SECTIONS)).replay();
-        mGenresObservable.subscribe(mGenresAdapter);
-        mGenresObservable.subscribe(new ListFragmentSubscriber<Section<ExploreGenre>>(this));
-        return mGenresObservable.connect();
-    }
-
     private static final Func1<ExploreGenresSections, Observable<Section<ExploreGenre>>> GENRES_TO_SECTIONS =
             new Func1<ExploreGenresSections, Observable<Section<ExploreGenre>>>() {
                 @Override
                 public Observable<Section<ExploreGenre>> call(ExploreGenresSections categories) {
-                    return Observable.from(
+                    return Observable.from(Arrays.asList(
                             new Section<ExploreGenre>(MUSIC_SECTION, R.string.explore_genre_header_music, categories.getMusic()),
-                            new Section<ExploreGenre>(AUDIO_SECTION, R.string.explore_genre_header_audio, categories.getAudio()));
+                            new Section<ExploreGenre>(AUDIO_SECTION, R.string.explore_genre_header_audio, categories.getAudio())));
                 }
             };
 }
