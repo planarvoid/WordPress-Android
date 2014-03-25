@@ -66,8 +66,10 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     SearchResultsAdapter mAdapter;
 
     private int mSearchType;
+    private ConnectableObservable<Page<SearchResultsCollection>> mSearchObservable;
     private Subscription mSearchSubscription = Subscriptions.empty();
     private Subscription mPlayEventSubscription = Subscriptions.empty();
+    private Subscription mListViewSubscription = Subscriptions.empty();
 
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
@@ -102,7 +104,9 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
         mSearchType = getArguments().getInt(KEY_TYPE);
         setListAdapter(mAdapter);
-        loadSearchResults();
+
+        mSearchObservable = prepareSearchResultsObservable();
+        mSearchSubscription = loadSearchResults();
     }
 
     @Override
@@ -121,7 +125,10 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
-                loadSearchResults();
+                mSearchObservable = prepareSearchResultsObservable();
+                mSearchSubscription = loadSearchResults();
+                mListViewSubscription = mSearchObservable.subscribe(
+                        new ListFragmentSubscriber<Page<SearchResultsCollection>>(SearchResultsFragment.this));
             }
         });
 
@@ -130,6 +137,14 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
         getListView().setOnScrollListener(mImageOperations.createScrollPauseListener(false, true, mAdapter));
+
+        mListViewSubscription = mSearchObservable.subscribe(new ListFragmentSubscriber<Page<SearchResultsCollection>>(this));
+    }
+
+    @Override
+    public void onDestroyView() {
+        mListViewSubscription.unsubscribe();
+        super.onDestroyView();
     }
 
     @Override
@@ -190,7 +205,7 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         }
     }
 
-    private ConnectableObservable<Page<SearchResultsCollection>> buildSearchResultsObservable() {
+    private ConnectableObservable<Page<SearchResultsCollection>> prepareSearchResultsObservable() {
         final String query = getArguments().getString(KEY_QUERY);
         Observable<Page<SearchResultsCollection>> observable;
         switch (mSearchType) {
@@ -209,15 +224,15 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
             default:
                 throw new IllegalArgumentException("Query type not valid");
         }
-        return observable.observeOn(mainThread()).publish();
+        ConnectableObservable<Page<SearchResultsCollection>> connectableObservable
+                = observable.observeOn(mainThread()).replay();
+        connectableObservable.subscribe(mAdapter);
+        return connectableObservable;
     }
 
-    private void loadSearchResults() {
-        ConnectableObservable<Page<SearchResultsCollection>> mObservable = buildSearchResultsObservable();
+    private Subscription loadSearchResults() {
         setEmptyViewStatus(EmptyListView.Status.WAITING);
-        mObservable.subscribe(mAdapter);
-        mObservable.subscribe(new ListFragmentSubscriber<Page<SearchResultsCollection>>(this));
-        mSearchSubscription = mObservable.connect();
+        return mSearchObservable.connect();
     }
 
     private final class PlayEventSubscriber extends DefaultSubscriber<PlayControlEvent> {
