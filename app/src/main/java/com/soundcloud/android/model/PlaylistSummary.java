@@ -3,8 +3,8 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
 
