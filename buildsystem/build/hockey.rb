@@ -52,8 +52,8 @@ module Build
 
     def upload(path_to_file)
       params = {
-        :status     => STATUS_AVAILABLE,
-        :notify     => NOTIFY_ALL_TESTERS,
+        :status     => STATUS_RESTRICTED,
+        :notify     => NOTIFY_DO_NOT_NOTIFY,
         :notes_type => NOTES_TYPE_MARKDOWN,
         :notes      => notes,
         :ipa        => File.new(path_to_file, 'rb')
