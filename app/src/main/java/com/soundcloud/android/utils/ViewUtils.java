@@ -21,7 +21,7 @@ public class ViewUtils {
                 .interpolator(new DecelerateInterpolator())
                 .sectionsCount(3)
                 .separatorLength(0)
-                .width(context.getResources().getDimensionPixelSize(R.dimen.ptr_thickness))
+                .strokeWidth(context.getResources().getDimensionPixelSize(R.dimen.ptr_thickness))
                 .speed(1f)
                 .reversed(true)
                 .mirrorMode(true)

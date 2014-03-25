@@ -287,7 +287,7 @@
         <dependency>
             <groupId>com.github.chrisbanes.actionbarpulltorefresh</groupId>
             <artifactId>extra-abc</artifactId>
-            <version>0.9.3</version>
+            <version>0.9.4-SOUNDCLOUD</version>
             <type>aar</type>
             <exclusions>
                 <exclusion>
@@ -303,7 +303,7 @@
         <dependency>
             <groupId>com.github.chrisbanes.actionbarpulltorefresh</groupId>
             <artifactId>library</artifactId>
-            <version>0.9.3</version>
+            <version>0.9.4-SOUNDCLOUD</version>
             <type>aar</type>
             <exclusions>
                 <exclusion>
@@ -315,7 +315,7 @@
         <dependency>
             <groupId>com.github.castorflex.smoothprogressbar</groupId>
             <artifactId>library</artifactId>
-            <version>0.2.0</version>
+            <version>0.4.0</version>
             <type>aar</type>
         </dependency>
         <dependency>
