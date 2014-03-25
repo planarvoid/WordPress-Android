@@ -6,6 +6,7 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -49,6 +50,8 @@ public class EngagementsControllerTest {
     private Context context;
     @Mock
     private EventBus eventBus;
+    @Mock
+    private Subscription eventSubscription;
 
     @Before
     public void setup() {
@@ -56,7 +59,7 @@ public class EngagementsControllerTest {
         rootView = (ViewGroup) inflater.inflate(R.layout.player_action_bar, null);
         controller = new EngagementsController(eventBus, soundAssocOps);
         controller.bindView(rootView);
-        eventMonitor = EventMonitor.on(eventBus);
+        eventMonitor = EventMonitor.on(eventBus).withSubscription(eventSubscription);
         controller.startListeningForChanges();
     }
 
@@ -229,15 +232,28 @@ public class EngagementsControllerTest {
         ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         expect(likeButton.isChecked()).toBeFalse();
 
-        final Subscription subscription = mock(Subscription.class);
-        final Observable observable = TestObservables.fromSubscription(subscription);
+        final Subscription likeSubscription = mock(Subscription.class);
+        final Observable observable = TestObservables.fromSubscription(likeSubscription);
         when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class))).thenReturn(observable);
 
         likeButton.performClick();
 
         controller.stopListeningForChanges();
 
-        verify(subscription).unsubscribe();
+        verify(likeSubscription).unsubscribe();
+        verify(eventSubscription).unsubscribe();
+    }
+
+    @Test
+    public void shouldBeAbleToUnsubscribeThenResubscribeToChangeEvents() {
+        controller.setPlayable(new Track());
+
+        controller.stopListeningForChanges();
+        controller.startListeningForChanges();
+
+        // make sure starting to listen again does not try to use a subscription that had already been closed
+        // (in which case unsubscribe is called more than once)
+        verify(eventSubscription, times(1)).unsubscribe();
     }
 
     @Test

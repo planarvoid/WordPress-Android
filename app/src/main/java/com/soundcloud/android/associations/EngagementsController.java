@@ -142,6 +142,7 @@ public class EngagementsController {
     }
 
     public void startListeningForChanges() {
+        mSubscription = new CompositeSubscription();
         // make sure we pick up changes to the current playable that come via the event bus
         mSubscription.add(mEventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new DefaultSubscriber<PlayableChangedEvent>() {
             @Override
