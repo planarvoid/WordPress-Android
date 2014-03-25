@@ -13,8 +13,7 @@
     <com.soundcloud.android.view.JaggedTextView android:id="@+id/username"
                                                 android:layout_above="@+id/title"
                                                 android:layout_marginLeft="@dimen/grid_item_padding"
-                                                style="@style/BlackOverlayText.Regular.Grid"
-                                                 />
+                                                style="@style/BlackOverlayText.RegularSubtext.Grid" />
 
     <com.soundcloud.android.view.JaggedTextView android:id="@+id/title"
                                                 android:layout_marginLeft="@dimen/grid_item_padding"
@@ -22,7 +21,7 @@
                                                 android:layout_marginBottom="@dimen/grid_item_padding"
                                                 android:layout_marginTop="4dp"
                                                 android:layout_alignBottom="@id/image"
-                                                style="@style/BlackOverlayText.RegularSubtext.Grid"/>
+                                                style="@style/BlackOverlayText.Regular.Grid" />
 
     <TextView android:id="@+id/tag"
               android:layout_below="@id/image"

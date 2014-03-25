@@ -270,13 +270,13 @@
         <item name="android:textSize">18sp</item>
         <item name="android:textColor">#FFFFFF</item>
         <item name="custom_font">fonts/Roboto-Light.ttf</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
     </style>
     <style name="BlackOverlayText.RegularSubtext.Grid">
         <item name="custom_font">fonts/Roboto-Light.ttf</item>
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:textColor">#C5C5C5</item>
-        <item name="android:maxLines">2</item>
-        <item name="android:ellipsize">end</item>
     </style>
 
     <style name="Tour"/>
