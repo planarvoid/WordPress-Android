@@ -60,23 +60,29 @@ public class ImageOperations {
     }
 
     public void displayInGridView(String imageUrl, ImageView imageView) {
-        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false), ImageOptionsFactory.gridView());
+        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false),
+                ImageOptionsFactory.gridView());
     }
 
     public void displayInAdapterView(String imageUrl, ImageView imageView, int defaultResId) {
-        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false), ImageOptionsFactory.adapterView(defaultResId));
+        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false),
+                ImageOptionsFactory.adapterView(defaultResId));
     }
 
-    public void displayInPlayerView(String imageUrl, ImageView imageView, View parentView, boolean priority, ImageListener imageListener) {
-        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false), ImageOptionsFactory.player(parentView, priority), new ImageListenerUILAdapter(imageListener));
+    public void displayInPlayerView(String imageUrl, ImageView imageView, View parentView, boolean priority,
+                                    ImageListener imageListener) {
+        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false),
+                ImageOptionsFactory.player(parentView, priority), new ImageListenerUILAdapter(imageListener));
     }
 
     public void displayInFullDialogView(String imageUrl, ImageView imageView, ImageListener imageListener) {
-        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false), ImageOptionsFactory.fullImageDialog(), new ImageListenerUILAdapter(imageListener));
+        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false),
+                ImageOptionsFactory.fullImageDialog(), new ImageListenerUILAdapter(imageListener));
     }
 
     public void displayPlaceholder(String imageUrl, ImageView imageView, int defaultResId) {
-        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false), ImageOptionsFactory.placeholder(defaultResId));
+        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false),
+                ImageOptionsFactory.placeholder(defaultResId));
     }
 
     public void prefetch(String imageUrl) {
@@ -91,7 +97,8 @@ public class ImageOperations {
         mImageLoader.cancelDisplayTask(imageView);
     }
 
-    public AbsListView.OnScrollListener createScrollPauseListener(boolean pauseOnScroll, boolean pauseOnFling, AbsListView.OnScrollListener customListener) {
+    public AbsListView.OnScrollListener createScrollPauseListener(boolean pauseOnScroll, boolean pauseOnFling,
+                                                                  AbsListView.OnScrollListener customListener) {
         return new PauseOnScrollListener(mImageLoader, pauseOnScroll, pauseOnFling, customListener);
     }
 
