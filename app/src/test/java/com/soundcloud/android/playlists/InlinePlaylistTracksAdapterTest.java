@@ -60,6 +60,14 @@ public class InlinePlaylistTracksAdapterTest {
     }
 
     @Test
+    public void getViewReturnsEmptyListViewWithOkStateAndNoItemsOnAdapter() throws Exception {
+        adapter = new InlinePlaylistTracksAdapter(imageOperations);
+        adapter.setEmptyViewStatus(Status.OK);
+        EmptyListView view = (EmptyListView) adapter.getView(0, null, new FrameLayout(Robolectric.application));
+        expect(view.getStatus()).toEqual(Status.OK);
+    }
+
+    @Test
     public void returnTrackRowWithData() throws Exception {
         adapter = new InlinePlaylistTracksAdapter(imageOperations);
         adapter.addItem(new Track(1L));
