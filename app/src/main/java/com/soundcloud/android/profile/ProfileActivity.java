@@ -91,7 +91,7 @@ public class ProfileActivity extends ScActivity implements
         if (playable != null) {
             context.startActivity(
                     new Intent(context, ProfileActivity.class)
-                            .putExtra("userId", playable.getUserId()));
+                            .putExtra(EXTRA_USER_ID, playable.getUserId()));
             return true;
         }
         return false;
