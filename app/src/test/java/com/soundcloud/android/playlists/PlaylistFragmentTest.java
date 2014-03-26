@@ -4,8 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.refEq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,14 +12,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.collections.ItemAdapter;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyListView;
 import com.xtremelabs.robolectric.Robolectric;
@@ -32,9 +27,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -67,8 +59,6 @@ public class PlaylistFragmentTest {
     private ItemAdapter<Track> adapter;
     @Mock
     private PlaylistDetailsController controller;
-    @Mock
-    private EventBus eventBus;
 
     private Provider<PlaylistDetailsController> controllerProvider = new Provider<PlaylistDetailsController>() {
         @Override
@@ -80,7 +70,7 @@ public class PlaylistFragmentTest {
     @Before
     public void setUp() throws Exception {
         fragment = new PlaylistFragment(playbackOperations, playlistOperations, playbackStateProvider,
-                imageOperations, engagementsController, controllerProvider, eventBus);
+                imageOperations, engagementsController, controllerProvider);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
 
@@ -150,37 +140,16 @@ public class PlaylistFragmentTest {
     }
 
     @Test
-     public void engagementsControllerStartsListeningInOnResume() throws Exception {
-        createFragmentView();
-        fragment.onResume();
+     public void engagementsControllerStartsListeningInOnStart() throws Exception {
+        fragment.onStart();
         verify(engagementsController).startListeningForChanges();
     }
 
     @Test
-    public void engagementsControllerStopsListeningInOnPause() throws Exception {
-        when(eventBus.subscribe(any(EventBus.QueueDescriptor.class), any(Subscriber.class))).thenReturn(Subscriptions.empty());
-        createFragmentView();
-        fragment.onResume(); // call to avoid unregistered listener error
-        fragment.onPause();
+    public void engagementsControllerStopsListeningInOnStop() throws Exception {
+        fragment.onStart(); // call on stop to avoid unregistered listener error
+        fragment.onStop();
         verify(engagementsController).stopListeningForChanges();
-    }
-
-    @Test
-    public void shouldStartListeningForPlayControlEventsInOnResume() {
-        createFragmentView();
-        fragment.onResume();
-        verify(eventBus).subscribe(refEq(EventQueue.PLAY_CONTROL), any(Subscriber.class));
-    }
-
-    @Test
-    public void shouldUnsubscribeFromPlayControlEventsInOnPause() {
-        Subscription subscription = mock(Subscription.class);
-        when(eventBus.subscribe(any(EventBus.QueueDescriptor.class), any(Subscriber.class))).thenReturn(subscription);
-
-        createFragmentView();
-        fragment.onResume();
-        fragment.onPause();
-        verify(subscription).unsubscribe();
     }
 
     @Test

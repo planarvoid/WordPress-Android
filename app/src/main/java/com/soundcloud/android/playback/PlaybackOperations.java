@@ -98,7 +98,6 @@ public class PlaybackOperations {
     public void playPlaylist(Context context, Playlist playlist, Screen screen) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen.get());
         playSessionSource.setPlaylist(playlist);
-        cacheAndGoToPlayer(context, playlist.getTracks().get(0));
         final List<Long> trackIds = Lists.transform(playlist.getTracks(), new Function<Track, Long>() {
             @Override
             public Long apply(Track track) {
@@ -144,10 +143,6 @@ public class PlaybackOperations {
     }
 
     public void togglePlayback(final Context context) {
-        Track currentTrack = mPlaybackStateProvider.getCurrentTrack();
-        if (!mPlaybackStateProvider.isPlaying() && currentTrack != null) {
-            cacheAndGoToPlayer(context, currentTrack);
-        }
         context.startService(new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
     }
 

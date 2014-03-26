@@ -92,6 +92,10 @@ public class NowPlayingActionBarController extends ActionBarController implement
         public void onReceive(Context context, Intent intent) {
             mNowPlaying.getStatusListener().onReceive(context, intent);
 
+            if (mNowPlayingHolder.getVisibility() == View.GONE && mPlaybackStateProvider.isSupposedToBePlaying()) {
+                mNowPlayingHolder.setVisibility(View.VISIBLE);
+            }
+
             if (intent.getAction().equals(Broadcasts.PLAYSTATE_CHANGED)) {
                 mOwner.getActivity().supportInvalidateOptionsMenu();
             }
