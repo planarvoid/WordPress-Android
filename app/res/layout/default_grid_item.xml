@@ -23,14 +23,20 @@
                                                 android:layout_alignBottom="@id/image"
                                                 style="@style/BlackOverlayText.Regular.Grid" />
 
-    <TextView android:id="@+id/tag"
-              android:layout_below="@id/image"
-              android:layout_toLeftOf="@+id/extra_info"
-              style="@style/GridItemTag" />
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/image"
+                    android:clickable="true"
+                    android:focusable="false">
 
-    <TextView android:id="@id/extra_info"
-              android:layout_below="@id/image"
-              style="@style/GridItemExtra" />
+        <TextView android:id="@+id/tag"
+                  android:layout_toLeftOf="@+id/extra_info"
+                  style="@style/GridItemTag" />
+
+        <TextView android:id="@id/extra_info"
+                  style="@style/GridItemExtra" />
+
+    </RelativeLayout>
 
     <View
         android:layout_alignParentBottom="true"
