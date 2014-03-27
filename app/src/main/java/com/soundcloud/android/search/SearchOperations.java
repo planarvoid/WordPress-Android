@@ -193,7 +193,7 @@ public class SearchOperations {
     private Observable<Page<PlaylistSummaryCollection>> getPlaylistResultsPage(
             String query, APIRequest<PlaylistSummaryCollection> request) {
         Observable<PlaylistSummaryCollection> source = mRxHttpClient.fetchModels(request);
-        source = source.doOnNext(preCachePlaylistResults);//.map(withSearchTag(query));
+        source = source.doOnNext(preCachePlaylistResults).map(withSearchTag(query));
         return Observable.create(paged(source, nextDiscoveryResultsPageGenerator(query)));
     }
 
