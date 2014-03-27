@@ -68,18 +68,6 @@ public class SearchOperations {
         }
     };
 
-    private final DiscoveryResultsNextPageFunction mNextDiscoveryResultsPageGenerator = new DiscoveryResultsNextPageFunction() {
-        @Override
-        public Observable<Page<PlaylistSummaryCollection>> call(PlaylistSummaryCollection collection) {
-            final Optional<Link> nextLink = collection.getNextLink();
-            if (nextLink.isPresent()) {
-                return getPlaylistResultsNextPage(nextLink.get().getHref());
-            } else {
-                return OperationPaged.emptyPageObservable();
-            }
-        }
-    };
-
     private final Func1<SearchResultsCollection, SearchResultsCollection> mCacheResources = new Func1<SearchResultsCollection, SearchResultsCollection>() {
         @Override
         public SearchResultsCollection call(SearchResultsCollection results) {
@@ -92,10 +80,23 @@ public class SearchOperations {
         }
     };
 
+    private final Action1<PlaylistSummaryCollection> preCachePlaylistResults = new Action1<PlaylistSummaryCollection>() {
+        @Override
+        public void call(PlaylistSummaryCollection collection) {
+            final Function<PlaylistSummary, Playlist> function = new Function<PlaylistSummary, Playlist>() {
+                @Override
+                public Playlist apply(PlaylistSummary input) {
+                    return new Playlist(input);
+                }
+            };
+            fireAndForget(mBulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), function)));
+        }
+    };
+
+    private final ScModelManager mModelManager;
     private final RxHttpClient mRxHttpClient;
     private final PlaylistTagStorage mTagStorage;
     private final BulkStorage mBulkStorage;
-    private final ScModelManager mModelManager;
 
     @Inject
     public SearchOperations(RxHttpClient rxHttpClient, PlaylistTagStorage tagStorage,
@@ -165,18 +166,22 @@ public class SearchOperations {
     }
 
     Observable<Page<PlaylistSummaryCollection>> getPlaylistResults(final String query) {
-        final RequestBuilder<PlaylistSummaryCollection> builder = createPlaylistResultsRequest(APIEndpoints.PLAYLIST_DISCOVERY.path());
-        return getPlaylistResultsPageObservable(builder.addQueryParameters("tag", query).build()).doOnCompleted(new Action0() {
+        final APIRequest<PlaylistSummaryCollection> request =
+                createPlaylistResultsRequest(APIEndpoints.PLAYLIST_DISCOVERY.path())
+                        .addQueryParameters("tag", query)
+                        .build();
+
+        return getPlaylistResultsPage(query, request).doOnCompleted(new Action0() {
             @Override
             public void call() {
                 mTagStorage.addRecentTag(query);
             }
-        }).map(withSearchTag(query));
+        });
     }
 
-    private Observable<Page<PlaylistSummaryCollection>> getPlaylistResultsNextPage(String nextHref) {
+    private Observable<Page<PlaylistSummaryCollection>> getPlaylistResultsNextPage(String query, String nextHref) {
         final RequestBuilder<PlaylistSummaryCollection> builder = createPlaylistResultsRequest(nextHref);
-        return getPlaylistResultsPageObservable(builder.build());
+        return getPlaylistResultsPage(query, builder.build());
     }
 
     private RequestBuilder<PlaylistSummaryCollection> createPlaylistResultsRequest(String url) {
@@ -185,34 +190,37 @@ public class SearchOperations {
                 .forResource(TypeToken.of(PlaylistSummaryCollection.class));
     }
 
-    private Observable<Page<PlaylistSummaryCollection>> getPlaylistResultsPageObservable(APIRequest<PlaylistSummaryCollection> request) {
+    private Observable<Page<PlaylistSummaryCollection>> getPlaylistResultsPage(
+            String query, APIRequest<PlaylistSummaryCollection> request) {
         Observable<PlaylistSummaryCollection> source = mRxHttpClient.fetchModels(request);
-        source = source.doOnNext(new Action1<PlaylistSummaryCollection>() {
-            @Override
-            public void call(PlaylistSummaryCollection collection) {
-                final Function<PlaylistSummary, Playlist> function = new Function<PlaylistSummary, Playlist>() {
-                    @Override
-                    public Playlist apply(PlaylistSummary input) {
-                        return new Playlist(input);
-                    }
-                };
-                fireAndForget(mBulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), function)));
-            }
-        });
-        return Observable.create(paged(source, mNextDiscoveryResultsPageGenerator));
+        source = source.doOnNext(preCachePlaylistResults);//.map(withSearchTag(query));
+        return Observable.create(paged(source, nextDiscoveryResultsPageGenerator(query)));
     }
 
-    private Func1<Page<PlaylistSummaryCollection>, Page<PlaylistSummaryCollection>> withSearchTag(final String searchTag) {
-        return new Func1<Page<PlaylistSummaryCollection>, Page<PlaylistSummaryCollection>>() {
+    private DiscoveryResultsNextPageFunction nextDiscoveryResultsPageGenerator(final String query) {
+        return new DiscoveryResultsNextPageFunction() {
             @Override
-            public Page<PlaylistSummaryCollection> call(Page<PlaylistSummaryCollection> page) {
-                PlaylistSummaryCollection collection = page.getPagedCollection();
+            public Observable<Page<PlaylistSummaryCollection>> call(PlaylistSummaryCollection collection) {
+                final Optional<Link> nextLink = collection.getNextLink();
+                if (nextLink.isPresent()) {
+                    return getPlaylistResultsNextPage(query, nextLink.get().getHref());
+                } else {
+                    return OperationPaged.emptyPageObservable();
+                }
+            }
+        };
+    };
+
+    private Func1<PlaylistSummaryCollection, PlaylistSummaryCollection> withSearchTag(final String searchTag) {
+        return new Func1<PlaylistSummaryCollection, PlaylistSummaryCollection>() {
+            @Override
+            public PlaylistSummaryCollection call(PlaylistSummaryCollection collection) {
                 for (PlaylistSummary playlist : collection) {
                     LinkedList<String> tagsWithSearchTag = new LinkedList<String>(removeItemIgnoreCase(playlist.getTags(), searchTag));
                     tagsWithSearchTag.addFirst(searchTag);
                     playlist.setTags(tagsWithSearchTag);
                 }
-                return page;
+                return collection;
             }
         };
     }
