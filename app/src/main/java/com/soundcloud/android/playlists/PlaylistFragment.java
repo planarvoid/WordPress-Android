@@ -17,6 +17,7 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.PlayablePresenter;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.Log;
@@ -73,6 +74,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     private Subscription mSubscription = Subscriptions.empty();
 
     private PlayablePresenter mPlayablePresenter;
+    private View mHeaderUsernameText;
     private TextView mInfoHeaderText;
     private ToggleButton mPlayToggle;
 
@@ -98,6 +100,13 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
             } else {
                 mPlaybackOperations.playPlaylist(getActivity(), playlist, Screen.fromBundle(getArguments()));
             }
+        }
+    };
+
+    private final View.OnClickListener mOnHeaderTextClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            ProfileActivity.startFromPlayable(getActivity(), mPlayablePresenter.getPlayable());
         }
     };
 
@@ -237,6 +246,9 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
         mPlayToggle = (ToggleButton) detailsView.findViewById(R.id.toggle_play_pause);
         mPlayToggle.setOnClickListener(mOnPlayToggleClick);
+
+        mHeaderUsernameText = detailsView.findViewById(R.id.username);
+        mHeaderUsernameText.setOnClickListener(mOnHeaderTextClick);
     }
 
     private void addInfoHeader() {
@@ -280,6 +292,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
             mPlayToggle.setVisibility(View.GONE);
         }
 
+        mHeaderUsernameText.setEnabled(true);
     }
 
     private void updateTracksAdapter(Playlist playlist) {

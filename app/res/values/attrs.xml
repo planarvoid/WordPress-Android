@@ -27,7 +27,7 @@
     </declare-styleable>
 
     <declare-styleable name="JaggedTextView">
-        <attr name="jagged_background" format="color" />
+        <attr name="jagged_background" format="reference|color" />
     </declare-styleable>
 
     <declare-styleable name="CustomFontTextView">

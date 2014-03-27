@@ -94,10 +94,17 @@
     <color name="tag_text">#666666</color>
 
     <color name="playlist_background">#f2f2f2</color>
+    <color name="playlist_background_pressed">#fafafa</color>
     <color name="playlist_divider">#dddddd</color>
 
     <color name="ptr_orange">#ff8800</color>
     <color name="ptr_dark_orange">#ff5500</color>
     <color name="ptr_blue">#33b5e5</color>
+
+    <color name="overlay_text">#FFFFFF</color>
+    <color name="overlay_subtext">#CCCCCC</color>
+    <color name="overlay_subtext_pressed">#FFFFFF</color>
+    <color name="overlay_text_background">#CC000000</color>
+    <color name="overlay_text_background_pressed">#333333</color>
 
 </resources>

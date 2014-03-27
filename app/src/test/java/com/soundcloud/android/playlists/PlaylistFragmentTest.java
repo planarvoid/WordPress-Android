@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,8 +16,10 @@ import com.soundcloud.android.collections.ItemAdapter;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyListView;
 import com.xtremelabs.robolectric.Robolectric;
@@ -29,6 +32,7 @@ import org.mockito.Mockito;
 import rx.Observable;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
@@ -111,7 +115,7 @@ public class PlaylistFragmentTest {
     public void shouldPlayPlaylistOnToggleToPlayState() throws Exception {
         View layout = createFragmentView();
 
-        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
+        View toggleButton = layout.findViewById(R.id.toggle_play_pause);
         toggleButton.performClick();
 
         verify(playbackOperations).playPlaylist(any(Context.class), eq(playlist), eq(Screen.SIDE_MENU_STREAM));
@@ -122,7 +126,7 @@ public class PlaylistFragmentTest {
         when(playbackStateProvider.getPlayQueuePlaylistId()).thenReturn(playlist.getId());
         View layout = createFragmentView();
 
-        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
+        View toggleButton = layout.findViewById(R.id.toggle_play_pause);
         toggleButton.performClick();
 
         verify(playbackOperations).togglePlayback(any(Context.class));
@@ -143,6 +147,22 @@ public class PlaylistFragmentTest {
      public void engagementsControllerStartsListeningInOnStart() throws Exception {
         fragment.onStart();
         verify(engagementsController).startListeningForChanges();
+    }
+
+    public void shouldOpenUserProfileWhenUsernameTextIsClicked() throws Exception {
+        User user = new User();
+        playlist.setUser(user);
+        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
+        when(playbackStateProvider.getPlayQueuePlaylistId()).thenReturn(playlist.getId());
+        View layout = createFragmentView();
+
+        View usernameView = layout.findViewById(R.id.username);
+        usernameView.performClick();
+
+        Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
+        expect(intent).not.toBeNull();
+        expect(intent.getComponent().getClassName()).toEqual(ProfileActivity.class.getCanonicalName());
+        expect(intent.getParcelableExtra(ProfileActivity.EXTRA_USER)).toEqual(user);
     }
 
     @Test
@@ -203,8 +223,8 @@ public class PlaylistFragmentTest {
 
     @Test
     public void clearsAndAddsAllItemsToAdapterWhenPlaylistIsReturned() throws Exception {
-        final Track track1 = Mockito.mock(Track.class);
-        final Track track2 = Mockito.mock(Track.class);
+        final Track track1 = mock(Track.class);
+        final Track track2 = mock(Track.class);
         playlist.tracks = Lists.newArrayList(track1, track2);
 
         createFragmentView();

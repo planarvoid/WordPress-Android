@@ -3,7 +3,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/playlist_header_height"
-                android:background="@color/playlist_background">
+                android:background="@drawable/playlist_background_clickable"
+                android:addStatesFromChildren="true">
 
     <RelativeLayout android:id="@+id/artwork_container"
                     android:layout_width="wrap_content"
@@ -23,6 +24,7 @@
                                                 android:layout_toRightOf="@id/artwork_container"
                                                 android:layout_marginLeft="@dimen/playlist_header_padding"
                                                 android:layout_marginTop="13dp"
+                                                android:enabled="false"
                                                 style="@style/PlaylistTitle.Username" />
 
     <com.soundcloud.android.view.CustomFontTextView android:id="@+id/title"

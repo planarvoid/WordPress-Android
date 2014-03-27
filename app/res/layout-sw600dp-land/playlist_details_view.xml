@@ -12,7 +12,8 @@
     <com.soundcloud.android.view.JaggedTextView android:id="@+id/username"
                                                 android:layout_marginLeft="@dimen/playlist_header_padding"
                                                 android:layout_marginTop="30dp"
-                                                style="@style/BlackOverlayText.RegularSubtext.Grid" />
+                                                android:enabled="false"
+                                                style="@style/BlackOverlayText.RegularSubtext.Grid.Clickable" />
 
     <com.soundcloud.android.view.JaggedTextView android:id="@+id/title"
                                                 android:layout_marginLeft="@dimen/playlist_header_padding"

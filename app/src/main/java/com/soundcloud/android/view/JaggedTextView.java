@@ -1,9 +1,9 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.view.CustomFontTextView;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -13,6 +13,7 @@ import android.util.AttributeSet;
 
 public class JaggedTextView extends CustomFontTextView {
     private Paint mBackgroundPaint;
+    private ColorStateList mColorStateList;
 
     public JaggedTextView(Context context) {
         super(context);
@@ -20,30 +21,20 @@ public class JaggedTextView extends CustomFontTextView {
 
     public JaggedTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        applyColor(context, attrs);
+        initAttributes(context, attrs);
     }
 
     public JaggedTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        applyColor(context, attrs);
+        initAttributes(context, attrs);
     }
 
-    private void applyColor(Context context, AttributeSet attrs) {
+    private void initAttributes(Context context, AttributeSet attrs) {
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.JaggedTextView);
-        int color = array.getColor(R.styleable.JaggedTextView_jagged_background, 0x000000);
-
-        getBackgroundPaint().setColor(color);
-
+        mColorStateList = array.getColorStateList(R.styleable.JaggedTextView_jagged_background);
         array.recycle();
-    }
 
-    private Paint getBackgroundPaint() {
-        if (mBackgroundPaint == null) {
-            mBackgroundPaint = new Paint();
-            mBackgroundPaint.setColor(0x00000000);
-        }
-
-        return mBackgroundPaint;
+        mBackgroundPaint = new Paint();
     }
 
     @Override
@@ -77,10 +68,12 @@ public class JaggedTextView extends CustomFontTextView {
             left  -= getPaddingLeft();
             right += getPaddingRight();
 
-            canvas.drawRect(left, top, right, bottom, getBackgroundPaint());
+            int backgroundColor = mColorStateList.getColorForState(getDrawableState(), mColorStateList.getDefaultColor());
+            mBackgroundPaint.setColor(backgroundColor);
+            canvas.drawRect(left, top, right, bottom, mBackgroundPaint);
         }
 
-        layout.getPaint().setColor(getTextColors().getDefaultColor());
+        layout.getPaint().setColor(getCurrentTextColor());
         layout.draw(canvas);
     }
 }
