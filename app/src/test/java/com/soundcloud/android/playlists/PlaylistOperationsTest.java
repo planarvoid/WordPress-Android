@@ -135,7 +135,7 @@ public class PlaylistOperationsTest {
     @Test
     public void loadPlaylistShouldNotSyncAndEmitPlaylistImmediatelyIfPlaylistUpToDate() {
         final Playlist storedPlaylist = new Playlist(1L);
-        expect(storedPlaylist.isLocal()).toBeFalse();
+        expect(Playlist.isLocal(storedPlaylist.getId())).toBeFalse();
 
         when(syncState.isSyncDue()).thenReturn(false);
         when(syncStateManager.fromContent(storedPlaylist.toUri())).thenReturn(syncState);
@@ -178,7 +178,7 @@ public class PlaylistOperationsTest {
     @Test
     public void loadPlaylistShouldEmitPlaylistThenTriggerSyncIfPlaylistExistsButIsALocalPlaylist() {
         final Playlist storedPlaylist = new Playlist(-123L);
-        expect(storedPlaylist.isLocal()).toBeTrue();
+        expect(Playlist.isLocal(storedPlaylist.getId())).toBeTrue();
 
         final Playlist syncedPlaylist = new Playlist(123L);
 

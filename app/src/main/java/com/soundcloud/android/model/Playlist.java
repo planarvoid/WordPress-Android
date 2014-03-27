@@ -92,6 +92,11 @@ public class Playlist extends Playable {
         return fromBundle(intent.getExtras());
     }
 
+    public static boolean isLocal(long playlistId) {
+        return playlistId < 0;
+    }
+
+
     /**
      * Helper to instantiate a playlist the given user created locally. This playlist will have a negative timestamp
      * to indicate that it hasn't been synced to the API yet.
@@ -236,10 +241,6 @@ public class Playlist extends Playable {
             return new Playlist[size];
         }
     };
-
-    public boolean isLocal() {
-        return getId() < 0;
-    }
 
     @Override
     public boolean isStale() {

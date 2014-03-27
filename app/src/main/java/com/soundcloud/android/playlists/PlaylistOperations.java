@@ -45,9 +45,10 @@ public class PlaylistOperations {
         @Override
         public Observable<Playlist> call(Playlist playlist) {
             LocalCollection syncState = mSyncStateManager.fromContent(playlist.toUri());
-            if (playlist.isLocal() || syncState.isSyncDue()) {
-                Log.d(LOG_TAG, "Checking playlist sync state: local = " + playlist.isLocal() + "; stale = " + syncState.isSyncDue());
-                return Observable.concat(Observable.just(playlist), syncThenLoadPlaylist(playlist));
+            boolean isLocalPlaylist = Playlist.isLocal(playlist.getId());
+            if (isLocalPlaylist || syncState.isSyncDue()) {
+                Log.d(LOG_TAG, "Checking playlist sync state: local = " + isLocalPlaylist + "; stale = " + syncState.isSyncDue());
+                return Observable.concat(Observable.just(playlist), syncThenLoadPlaylist(playlist.getId()));
             }
             Log.d(LOG_TAG, "Playlist up to date, emitting directly");
             return Observable.just(playlist);
@@ -90,7 +91,7 @@ public class PlaylistOperations {
             public Observable<? extends Playlist> call(Throwable throwable) {
                 if (throwable instanceof NotFoundException) {
                     Log.d(LOG_TAG, "Playlist missing from local storage, will sync " + playlistId);
-                    return syncThenLoadPlaylist(new Playlist(playlistId));
+                    return syncThenLoadPlaylist(playlistId);
                 }
                 Log.d(LOG_TAG, "Caught error, forwarding to observer: " + throwable);
                 return Observable.error(throwable);
@@ -100,26 +101,27 @@ public class PlaylistOperations {
 
     /**
      * Performs a sync on the given playlist, then reloads it from local storage.
+     * @param playlistId
      */
-    private Observable<Playlist> syncThenLoadPlaylist(final Playlist playlist) {
-        return Observable.create(new Observable.OnSubscribe<Playlist>() {
+    private Observable<Playlist> syncThenLoadPlaylist(final long playlistId) {
+        return Observable.create(new Observable.OnSubscribe<Long>() {
             @Override
-            public void call(final Subscriber<? super Playlist> subscriber) {
-                final ResultReceiver resultReceiver = new ResultReceiverAdapter<Playlist>(subscriber, playlist);
-                if (playlist.isLocal()) {
+            public void call(final Subscriber<? super Long> subscriber) {
+                final ResultReceiver resultReceiver = new ResultReceiverAdapter<Long>(subscriber, playlistId);
+                if (Playlist.isLocal(playlistId)) {
                     Log.d(LOG_TAG, "Sending intent to sync all local playlists");
                     mSyncInitiator.syncLocalPlaylists(resultReceiver);
                 } else {
-                    Log.d(LOG_TAG, "Sending intent to sync playlist " + playlist.getId());
-                    mSyncInitiator.syncPlaylist(playlist.toUri(), resultReceiver);
+                    Log.d(LOG_TAG, "Sending intent to sync playlist " + playlistId);
+                    mSyncInitiator.syncPlaylist(Content.PLAYLIST.forId(playlistId), resultReceiver);
                 }
 
             }
-        }).mergeMap(new Func1<Playlist, Observable<Playlist>>() {
+        }).mergeMap(new Func1<Long, Observable<Playlist>>() {
             @Override
-            public Observable<Playlist> call(Playlist playlist) {
-                Log.d(LOG_TAG, "Reloading playlist from local storage: " + playlist.getId());
-                return mPlaylistStorage.loadPlaylistWithTracksAsync(playlist.getId());
+            public Observable<Playlist> call(Long playlistId) {
+                Log.d(LOG_TAG, "Reloading playlist from local storage: " + playlistId);
+                return mPlaylistStorage.loadPlaylistWithTracksAsync(playlistId);
             }
         });
     }
