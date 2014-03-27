@@ -67,6 +67,11 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<Track> implements EmptyVie
         return Math.max(1, mItems.size()); // at least 1 for the empty view
     }
 
+    @Override
+    public boolean isEnabled(int position) {
+        return getItemViewType(position) != IGNORE_ITEM_VIEW_TYPE;
+    }
+
     public void setEmptyViewStatus(int emptyViewStatus){
         mEmptyViewStatus = emptyViewStatus;
         notifyDataSetChanged();
