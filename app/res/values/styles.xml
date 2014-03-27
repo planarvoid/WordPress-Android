@@ -259,25 +259,17 @@
     </style>
 
     <style name="BlackOverlayText.Regular">
-        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
-    </style>
-    <style name="BlackOverlayText.RegularSubtext">
-        <item name="android:textColor">@color/overlay_subtext</item>
-        <item name="android:textSize">14sp</item>
-        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
-    </style>
-    <style name="BlackOverlayText.Regular.Grid">
         <item name="android:textSize">18sp</item>
         <item name="custom_font">fonts/Roboto-Light.ttf</item>
         <item name="android:maxLines">2</item>
         <item name="android:ellipsize">end</item>
     </style>
-    <style name="BlackOverlayText.RegularSubtext.Grid">
+    <style name="BlackOverlayText.RegularSubtext">
         <item name="custom_font">fonts/Roboto-Light.ttf</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/overlay_subtext</item>
     </style>
-    <style name="BlackOverlayText.RegularSubtext.Grid.Clickable">
+    <style name="BlackOverlayText.RegularSubtext.Clickable">
         <item name="android:textColor">@color/clickable_overlay_text</item>
         <item name="jagged_background">@color/clickable_overlay_background</item>
     </style>
@@ -1354,8 +1346,8 @@
         <item name="android:background">@drawable/divider_list_orange</item>
     </style>
 
-    <style name="GridItemSelector">
-        <item name="android:background">@drawable/grid_view_item_selector</item>
+    <style name="ItemSelector">
+        <item name="android:background">@drawable/list_selector_gray</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
     </style>

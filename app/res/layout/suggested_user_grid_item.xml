@@ -22,11 +22,12 @@
                       android:layout_alignParentBottom="true"
                       android:layout_toLeftOf="@+id/toggle_btn_follow"
                       android:orientation="vertical"
-                      android:layout_marginLeft="13dp"
-                      android:layout_marginBottom="13dp">
+                      android:layout_marginLeft="12dp"
+                      android:layout_marginBottom="12dp">
 
             <com.soundcloud.android.view.JaggedTextView android:id="@+id/username"
-                                                        style="@style/BlackOverlayText.Regular"/>
+                                                        style="@style/BlackOverlayText.Regular"
+                                                        android:layout_marginBottom="4dp"/>
             <com.soundcloud.android.view.JaggedTextView android:id="@+id/location"
                                                         style="@style/BlackOverlayText.RegularSubtext"/>
         </LinearLayout>

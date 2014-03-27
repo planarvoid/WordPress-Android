@@ -11,16 +11,16 @@
 
     <com.soundcloud.android.view.JaggedTextView android:id="@+id/username"
                                                 android:layout_marginLeft="@dimen/playlist_header_padding"
-                                                android:layout_marginTop="30dp"
+                                                android:layout_marginTop="32dp"
                                                 android:enabled="false"
-                                                style="@style/BlackOverlayText.RegularSubtext.Grid.Clickable" />
+                                                style="@style/BlackOverlayText.RegularSubtext.Clickable" />
 
     <com.soundcloud.android.view.JaggedTextView android:id="@+id/title"
                                                 android:layout_marginLeft="@dimen/playlist_header_padding"
                                                 android:layout_marginRight="@dimen/playlist_header_padding"
                                                 android:layout_marginTop="4dp"
                                                 android:layout_below="@id/username"
-                                                style="@style/BlackOverlayText.Regular.Grid" />
+                                                style="@style/BlackOverlayText.Regular" />
 
     <ToggleButton android:id="@+id/toggle_play_pause"
                   style="@style/PlaylistPlayToggle" />

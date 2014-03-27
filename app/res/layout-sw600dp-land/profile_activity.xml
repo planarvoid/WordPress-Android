@@ -23,11 +23,12 @@
                       android:layout_alignParentLeft="true"
                       android:layout_alignParentTop="true"
                       android:orientation="vertical"
-                      android:layout_marginLeft="13dp"
+                      android:layout_marginLeft="16dp"
                       android:layout_marginTop="32dp">
 
             <com.soundcloud.android.view.JaggedTextView android:id="@+id/username"
-                                                        style="@style/BlackOverlayText.Regular"/>
+                                                        style="@style/BlackOverlayText.Regular"
+                                                        android:layout_marginBottom="4dp"/>
             <com.soundcloud.android.view.CustomFontTextView android:id="@+id/location"
                                                         style="@style/BlackOverlayText.RegularSubtext"/>
         </LinearLayout>
