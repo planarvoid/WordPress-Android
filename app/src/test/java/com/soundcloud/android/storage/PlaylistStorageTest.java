@@ -216,10 +216,11 @@ public class PlaylistStorageTest {
     public void shouldReturnUnpushedTracksForPlaylist() throws Exception {
         Cursor cursor = new FakeCursor(new Object[][] {{2L}, {3L}});
 
-        when(resolver.query(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(1L)),
-                new String[]{DBHelper.PlaylistTracksView._ID},
-                DBHelper.PlaylistTracksView.PLAYLIST_ADDED_AT + " IS NOT NULL", null,
-                DBHelper.PlaylistTracksView.PLAYLIST_ADDED_AT + " ASC")).thenReturn(cursor);
+        when(resolver.query(Content.PLAYLIST_ALL_TRACKS.uri,
+                new String[]{ DBHelper.PlaylistTracks.TRACK_ID },
+                DBHelper.PlaylistTracks.ADDED_AT + " IS NOT NULL AND " + DBHelper.PlaylistTracks.PLAYLIST_ID + " = ?",
+                new String[] { String.valueOf(1L) },
+                DBHelper.PlaylistTracks.ADDED_AT + " ASC")).thenReturn(cursor);
 
         expect(storage.getUnpushedTracksForPlaylist(1L)).toEqual(Lists.newArrayList( 2L, 3L));
     }

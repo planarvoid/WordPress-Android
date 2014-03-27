@@ -258,10 +258,11 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
 
     public List<Long> getUnpushedTracksForPlaylist(long playlistId) {
         Cursor cursor = mResolver.query(
-                Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId)),
-                new String[]{DBHelper.PlaylistTracksView._ID},
-                DBHelper.PlaylistTracksView.PLAYLIST_ADDED_AT + " IS NOT NULL", null,
-                DBHelper.PlaylistTracksView.PLAYLIST_ADDED_AT + " ASC");
+                Content.PLAYLIST_ALL_TRACKS.uri,
+                new String[]{ DBHelper.PlaylistTracks.TRACK_ID },
+                DBHelper.PlaylistTracks.ADDED_AT + " IS NOT NULL AND " + DBHelper.PlaylistTracks.PLAYLIST_ID + " = ?",
+                new String[]{ String.valueOf(playlistId) },
+                DBHelper.PlaylistTracks.ADDED_AT + " ASC");
 
         if (cursor != null) {
             List<Long> ids = Lists.newArrayList();
