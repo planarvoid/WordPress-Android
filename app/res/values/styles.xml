@@ -178,12 +178,12 @@
     </style>
 
     <style name="PlayerAction.Button.AddToSet">
-        <item name="android:src">@drawable/ic_add_to_set</item>
+        <item name="android:src">@drawable/ic_btn_add_set</item>
         <item name="android:background">@drawable/btn_default_states</item>
     </style>
 
     <style name="PlayerAction.Button.Share">
-        <item name="android:src">@drawable/ic_share</item>
+        <item name="android:src">@drawable/ic_btn_share</item>
         <item name="android:background">@drawable/btn_default_states</item>
     </style>
 
