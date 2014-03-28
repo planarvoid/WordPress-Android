@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.AndroidUtils;
 
 import android.app.Activity;
@@ -23,7 +24,7 @@ public class FullImageDialog extends Dialog {
 
     private ImageOperations mImageOperations;
 
-    public FullImageDialog(Activity context, final String imageUri, ImageOperations imageOperations) {
+    public FullImageDialog(Activity context, final String resourceUrn, ImageOperations imageOperations) {
         super(context, R.style.Theme_FullImageDialog);
 
         mImageOperations = imageOperations;
@@ -36,7 +37,7 @@ public class FullImageDialog extends Dialog {
         mActivityRef = new WeakReference<Activity>(context);
         final ImageView image = (ImageView) this.findViewById(R.id.image);
         final ProgressBar progress = (ProgressBar) this.findViewById(R.id.progress);
-        mImageOperations.displayInFullDialogView(imageUri, image, new ImageListener() {
+        mImageOperations.displayInFullDialogView(resourceUrn, ImageSize.T500, image, new ImageListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
                 if (isShowing()) {

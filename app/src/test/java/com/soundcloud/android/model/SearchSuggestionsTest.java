@@ -3,6 +3,7 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.model.SearchSuggestions.Query;
 
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
@@ -22,7 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class SearchSuggestionsTest {
     @Test
     public void shouldDeserializeCorrectly() throws Exception {
@@ -44,15 +45,6 @@ public class SearchSuggestionsTest {
     }
 
     @Test
-    public void shouldReturnResolverIconUriIfNotSet() throws Exception {
-        Query q = new Query();
-        q.kind = "user";
-        q.id = 123;
-        expect(q.getIconUri()).toEqual(
-                "https://api.soundcloud.com/resolve/image?url=soundcloud%3Ausers%3A123&client_id=40ccfee680a844780a41fbe23ea89934");
-    }
-
-    @Test
     public void shouldInializeFromLocalResults() throws Exception {
         MatrixCursor cursor = new MatrixCursor(SuggestionsAdapter.COLUMN_NAMES);
         cursor.addRow(new Object[] {
@@ -60,14 +52,14 @@ public class SearchSuggestionsTest {
                 123,
                 "foo user",
                 Content.USER.forId(123).toString(),
-                "http://i1.sndcdn.com/avatars-000002315321-2z3mh1-large.jpg",
+                null,
         });
         cursor.addRow(new Object[] {
                 2,
                 1234,
                 "foo track",
                 Content.TRACK.forId(1234).toString(),
-                "http://i1.soundcloud.com/artworks-000004875808-1qu95c-large.jpg",
+                null,
         });
         SearchSuggestions suggestions = new SearchSuggestions(cursor);
         expect(suggestions.size()).toEqual(2);
@@ -79,13 +71,11 @@ public class SearchSuggestionsTest {
         expect(q1.kind).toEqual("user");
         expect(q1.id).toEqual(123l);
         expect(q1.query).toEqual("foo user");
-        expect(q1.getIconUri()).toEqual("http://i1.sndcdn.com/avatars-000002315321-2z3mh1-large.jpg");
         expect(q1.getIntentData()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/users/123");
 
         expect(q2.kind).toEqual("track");
         expect(q2.id).toEqual(1234l);
         expect(q2.query).toEqual("foo track");
-        expect(q2.getIconUri()).toEqual("http://i1.soundcloud.com/artworks-000004875808-1qu95c-large.jpg");
         expect(q2.getIntentData()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/tracks/1234");
     }
 
@@ -97,14 +87,14 @@ public class SearchSuggestionsTest {
                 123,
                 "foo user",
                 Content.USER.forId(123).toString(),
-                "http://i1.sndcdn.com/avatars-000002315321-2z3mh1-large.jpg",
+                null,
         });
         cursor.addRow(new Object[] {
                 2,
                 1234,
                 "foo track",
                 Content.TRACK.forId(1234).toString(),
-                "http://i1.soundcloud.com/artworks-000004875808-1qu95c-large.jpg",
+                null,
         });
         // duplicate!
         cursor.addRow(new Object[] {
@@ -112,7 +102,7 @@ public class SearchSuggestionsTest {
                 2097360,
                 "Foo Fighters",
                 Content.USER.forId(2097360).toString(),
-                "http://i1.soundcloud.com/artworks-000004875808-1qu95c-large.jpg"
+                null,
         });
         SearchSuggestions local = new SearchSuggestions(cursor);
         SearchSuggestions remote = TestHelper.readJson(SearchSuggestions.class,
@@ -161,7 +151,7 @@ public class SearchSuggestionsTest {
                 123,
                 "foo user",
                 Content.USER.forId(123).toString(),
-                "http://i1.sndcdn.com/avatars-000002315321-2z3mh1-large.jpg",
+                null,
         });
         SearchSuggestions suggestions = new SearchSuggestions(cursor);
         Cursor c = suggestions.asCursor();
@@ -170,7 +160,7 @@ public class SearchSuggestionsTest {
         expect(c.getLong(c.getColumnIndex(DBHelper.Suggestions.ID))).toEqual(123l);
         expect(c.getString(c.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("foo user");
         expect(c.getString(c.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual(Content.USER.forId(123).toString());
-        expect(c.getString(c.getColumnIndex(DBHelper.Suggestions.ICON_URL))).toEqual("http://i1.sndcdn.com/avatars-000002315321-2z3mh1-large.jpg");
+        expect(c.getString(c.getColumnIndex(DBHelper.Suggestions.ICON_URL))).toBeNull();
         expect(c.moveToNext()).toBeFalse();
     }
 

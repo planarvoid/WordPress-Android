@@ -113,11 +113,13 @@ public class PlayablePresenter {
         }
 
         if (mArtworkView != null) {
-            mImageOperations.displayPlaceholder(mArtworkSize.formatUri(mPlayable.getArtwork()), mArtworkView, mArtworkPlaceholderResId);
+            mImageOperations.displayWithPlaceholder(
+                    playable.getUrn(), mArtworkSize, mArtworkView, mArtworkPlaceholderResId);
         }
 
-        if (mAvatarView != null) {
-            mImageOperations.displayPlaceholder(mAvatarSize.formatUri(mPlayable.getAvatarUrl()), mAvatarView, mAvatarPlaceholderResId);
+        if (mAvatarView != null && playable.getUser() != null) {
+            mImageOperations.displayWithPlaceholder(
+                    playable.getUser().getUrn(), mAvatarSize, mAvatarView, mAvatarPlaceholderResId);
         }
 
         if (mStatsView != null) {

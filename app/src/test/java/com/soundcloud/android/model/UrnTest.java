@@ -2,7 +2,6 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import org.junit.Test;
@@ -60,6 +59,11 @@ public class UrnTest {
     }
 
     @Test
+    public void shouldBuildPlaylistUris() {
+        expect(Urn.forPlaylist(1)).toEqual(Urn.parse("soundcloud:playlists:1"));
+    }
+
+    @Test
     public void shouldBuildUserUris() {
         expect(Urn.forUser(1)).toEqual(Urn.parse("soundcloud:users:1"));
     }
@@ -67,20 +71,6 @@ public class UrnTest {
     @Test
     public void shouldBuildUrnsForAnonymousUsers() {
         expect(Urn.forUser(-1).toString()).toEqual("soundcloud:users:0");
-    }
-
-    @Test
-    public void shouldBuildImageResolveUri() {
-        expect(Urn.parse("soundcloud:sounds:123").imageUri())
-                .toEqual("https://api.soundcloud.com/resolve/image?url=soundcloud%3Asounds%3A123&client_id=40ccfee680a844780a41fbe23ea89934");
-
-    }
-
-    @Test
-    public void shouldBuildImageResolveUriWithImageSizeT500() {
-        expect(Urn.parse("soundcloud:sounds:123").imageUri(ImageSize.T500))
-                .toEqual("https://api.soundcloud.com/resolve/image?url=soundcloud%3Asounds%3A123&client_id=40ccfee680a844780a41fbe23ea89934&size=t500x500");
-
     }
 
 }

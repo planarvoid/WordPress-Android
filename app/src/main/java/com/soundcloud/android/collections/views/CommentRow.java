@@ -1,11 +1,10 @@
 package com.soundcloud.android.collections.views;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.collections.ListRow;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.collections.ListRow;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -50,13 +49,11 @@ public class CommentRow extends IconLayout implements ListRow {
     }
 
     @Override
-    public String getIconRemoteUri() {
-        if (mComment == null || mComment.getUser() == null || mComment.getUser().avatar_url == null) return "";
-        return ImageSize.formatUriForList(getContext(), mComment.getUser().avatar_url);
+    public String getResourceUrn() {
+        if (mComment != null && mComment.getUser() != null) {
+            return mComment.getUser().getUrn();
+        }
+        return null;
     }
 
-    @Override
-    protected int getDefaultArtworkResId() {
-        return R.drawable.artwork_badge;
-    }
 }

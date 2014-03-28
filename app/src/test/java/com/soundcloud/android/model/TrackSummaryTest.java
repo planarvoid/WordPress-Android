@@ -5,7 +5,6 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.image.ImageSize;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -47,28 +46,6 @@ public class TrackSummaryTest {
         trackSummary.writeToParcel(parcel, 0);
 
       compareSuggestedTracks(trackSummary, new TrackSummary(parcel));
-    }
-
-    @Test
-    public void shouldReturnArtworkUrlInCorrectSize(){
-        TrackSummary suggestion = new TrackSummary();
-        suggestion.setArtworkUrl("http://i1.sndcdn.com/artworks-000056989650-zm98k6-large.jpg?5e64f12");
-        expect(suggestion.getArtworkOrAvatar(ImageSize.T500)).toEqual("http://i1.sndcdn.com/artworks-000056989650-zm98k6-t500x500.jpg?5e64f12");
-    }
-
-    @Test
-    public void shouldReturnAvatarUrlInCorrectSize(){
-        TrackSummary suggestion = new TrackSummary();
-        final UserSummary user = new UserSummary("soundcloud:users:123");
-        user.setAvatarUrl("http://i1.sndcdn.com/avatars-000018614344-2p78eh-large.jpg?f34f187");
-        suggestion.setUser(user);
-        expect(suggestion.getArtworkOrAvatar(ImageSize.T500)).toEqual("http://i1.sndcdn.com/avatars-000018614344-2p78eh-t500x500.jpg?f34f187");
-    }
-
-    @Test
-    public void shouldReturnNullArtworkOrAvatar(){
-        TrackSummary suggestion = new TrackSummary();
-        expect(suggestion.getArtworkOrAvatar(ImageSize.T500)).toBeNull();
     }
 
     private void compareSuggestedTracks(TrackSummary track1, TrackSummary track2){

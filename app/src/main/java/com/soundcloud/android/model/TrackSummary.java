@@ -1,8 +1,6 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.image.ImageSize;
-import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.os.Parcel;
 
@@ -88,16 +86,6 @@ public class TrackSummary extends ScModel {
 
     public String getPermalinkUrl() {
         return mPermalinkUrl;
-    }
-
-    public String getArtworkOrAvatar(ImageSize imageSize) {
-        if (ImageUtils.checkIconShouldLoad(mArtworkUrl)) {
-            return imageSize.formatUri(mArtworkUrl);
-        } else if (mUser != null) {
-            return imageSize.formatUri(mUser.getAvatarUrl());
-        } else {
-            return null;
-        }
     }
 
     public TrackStats getStats() {

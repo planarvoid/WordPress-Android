@@ -352,20 +352,6 @@ public class User extends ScResource implements UserHolder {
         return shouldLoadIcon() ? avatar_url : null;
     }
 
-    public void refreshListAvatarUri(Context context) {
-        if (hasAvatarUrl()) {
-            _list_avatar_uri = shouldLoadIcon() ? ImageSize.formatUriForList(context, avatar_url) : null;
-        } else if (mURN != null) {
-            final Urn urn = Urn.parse(mURN);
-            _list_avatar_uri =  urn == null ? null : urn.imageUri(ImageSize.getListItemImageSize(context)).toString();
-        }
-    }
-
-    public String getListAvatarUri(Context context){
-        if (TextUtils.isEmpty(_list_avatar_uri)) refreshListAvatarUri(context);
-        return _list_avatar_uri;
-    }
-
     @Override
     public boolean isStale(){
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.user;

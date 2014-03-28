@@ -4,6 +4,7 @@ package com.soundcloud.android.collections.views;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageSize;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -42,13 +43,12 @@ public abstract class IconLayout extends FrameLayout {
     protected abstract View addContent(AttributeSet attributeSet);
 
     protected void loadIcon() {
-        mImageOperations.displayInAdapterView(getIconRemoteUri(), mIcon, getDefaultArtworkResId());
+        mImageOperations.displayInListView(getResourceUrn(), ImageSize.getListItemImageSize(getContext()), mIcon);
     }
 
-    abstract protected int getDefaultArtworkResId();
-
-    public String getIconRemoteUri() {
-        return "";
+    @Nullable
+    public String getResourceUrn() {
+        return null;
     }
 
 }

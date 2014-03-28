@@ -13,6 +13,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.peripherals.PeripheralsOperations;
@@ -59,6 +60,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Nullable
     static PlaybackService instance;
+    private ImageUtils.ViewlessLoadingListener lockScreenImageListener;
 
     private static void setState(PlaybackState newPlaybackState) { if (instance != null) instance.mPlaybackState = newPlaybackState;}
 
@@ -437,28 +439,27 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             // set initial data without bitmap so it doesn't have to wait
             mFocus.onTrackChanged(track, null);
 
-            final String artworkUri = track.getPlayerArtworkUri(this);
-            if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                mImageOperations.load(artworkUri, new ImageUtils.ViewlessLoadingListener() {
-                    @Override
-                    public void onLoadingFailed(String s, View view, String failedReason) {}
+            // Loads the current track artwork into the lock screen controls
+            // this is quite ugly; should move into ImageOperations really!
+            final ImageUtils.ViewlessLoadingListener lockScreenImageListener = new ImageUtils.ViewlessLoadingListener() {
+                @Override
+                public void onLoadingFailed(String s, View view, String failedReason) {
+                }
 
-                    @Override
-                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                        if (track == mCurrentTrack) {
-                            // use a copy of the bitmap because it is going to get recycled afterwards
-                            try {
-                                mFocus.onTrackChanged(track, loadedImage.copy(Bitmap.Config.ARGB_8888, false));
-                            } catch (OutOfMemoryError e) {
-                                mFocus.onTrackChanged(track, null);
-                                System.gc();
-                                // retry?
-                            }
+                @Override
+                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                    if (track == mCurrentTrack) {
+                        // use a copy of the bitmap because it is going to get recycled afterwards
+                        try {
+                            mFocus.onTrackChanged(track, loadedImage.copy(Bitmap.Config.ARGB_8888, false));
+                        } catch (OutOfMemoryError e) {
+                            mFocus.onTrackChanged(track, null);
                         }
-
                     }
-                });
-            }
+
+                }
+            };
+            mImageOperations.load(track.getUrn(), ImageSize.getFullImageSize(getResources()), lockScreenImageListener);
         }
     }
 

@@ -2,10 +2,12 @@ package com.soundcloud.android.onboarding.suggestions;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.view.GridViewCompat;
 
 import android.annotation.TargetApi;
+import android.content.res.Resources;
 import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
@@ -85,8 +87,9 @@ class SuggestedUsersAdapter extends BaseAdapter {
             viewHolder.location.setText(location);
             viewHolder.location.setVisibility(View.VISIBLE);
         }
-        mImageOperations.displayInAdapterView(suggestedUser.getAvatarUrl(), viewHolder.imageView,
-                R.drawable.placeholder_cells);
+        Resources resources = viewHolder.imageView.getResources();
+        mImageOperations.displayInListView(
+                suggestedUser.getUrn(), ImageSize.getFullImageSize(resources), viewHolder.imageView);
     }
 
     private static class ItemViewHolder {

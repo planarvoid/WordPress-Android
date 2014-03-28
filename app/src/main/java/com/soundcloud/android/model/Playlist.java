@@ -140,6 +140,12 @@ public class Playlist extends Playable {
     }
 
     @Override
+    public void setId(long id) {
+        super.setId(id);
+        mURN = Urn.forPlaylist(id).toString();
+    }
+
+    @Override
     public int describeContents() {
         return 0;
     }

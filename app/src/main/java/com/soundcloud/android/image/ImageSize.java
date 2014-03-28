@@ -24,17 +24,17 @@ public enum ImageSize {
 
     public final int width;
     public final int height;
-    public final String key;
+    public final String sizeSpec;
 
-    ImageSize(String key, int width, int height) {
-        this.key = key;
+    ImageSize(String sizeSpec, int width, int height) {
+        this.sizeSpec = sizeSpec;
         this.width = width;
         this.height = height;
     }
 
     public static ImageSize fromString(String s) {
         for (ImageSize gs : values()) {
-            if (gs.key.equalsIgnoreCase(s)) return gs;
+            if (gs.sizeSpec.equalsIgnoreCase(s)) return gs;
         }
         return Unknown;
     }
@@ -67,10 +67,6 @@ public enum ImageSize {
         }
     }
 
-    public static String formatUriForSearchSuggestionsList(Context c, String uri) {
-        return getSearchSuggestionsListItemImageSize(c).formatUri(uri);
-    }
-
     public static ImageSize getSearchSuggestionsListItemImageSize(Context c) {
         if (ImageUtils.isScreenXL(c)) {
             return ImageSize.T67;
@@ -81,10 +77,6 @@ public enum ImageSize {
                 return ImageSize.SMALL;
             }
         }
-    }
-
-    public static String formatUriForFullDisplay(Resources resources, String uri) {
-        return getFullImageSize(resources).formatUri(uri);
     }
 
     public static ImageSize getFullImageSize(Resources resources) {
@@ -100,17 +92,17 @@ public enum ImageSize {
     public String formatUri(String uri) {
         if (TextUtils.isEmpty(uri)) return null;
         for (ImageSize size : ImageSize.values()) {
-            if (uri.contains("-" + size.key) && this != size) {
-                return uri.replace("-" + size.key, "-" + key);
+            if (uri.contains("-" + size.sizeSpec) && this != size) {
+                return uri.replace("-" + size.sizeSpec, "-" + sizeSpec);
             }
         }
         Uri u = Uri.parse(uri);
         if (u.getPath().equals("/resolve/image")) {
             String size = u.getQueryParameter("size");
             if (size == null) {
-                return u.buildUpon().appendQueryParameter("size", key).toString();
-            } else if (!size.equals(key)) {
-                return uri.replace(size, key);
+                return u.buildUpon().appendQueryParameter("size", sizeSpec).toString();
+            } else if (!size.equals(sizeSpec)) {
+                return uri.replace(size, sizeSpec);
             }
         }
         return uri;

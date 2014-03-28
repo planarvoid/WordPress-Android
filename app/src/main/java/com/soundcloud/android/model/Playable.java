@@ -202,11 +202,6 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         return mArtworkUri;
     }
 
-    public String getPlayerArtworkUri(Context context) {
-        final String iconUrl = getArtwork();
-        return TextUtils.isEmpty(iconUrl) ? null : ImageSize.formatUriForFullDisplay(context.getResources(), iconUrl);
-    }
-
     @Override
     public void putDependencyValues(BulkInsertMap destination) {
         if (user != null) {
@@ -386,18 +381,6 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         return user != null && user.hasAvatarUrl();
     }
 
-    public String getAvatarUrl() {
-        return user == null ? null : user.avatar_url;
-    }
-
-    public boolean isLikesCountSet() {
-        return likes_count > NOT_SET;
-    }
-
-    public boolean isRepostCountSet(){
-        return reposts_count > NOT_SET;
-    }
-
     public @Nullable Intent getShareIntent() {
         if (!sharing.isPublic()) return null;
 
@@ -412,24 +395,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         return intent;
     }
 
-    public int getSharedToCount() {
-        return shared_to_count;
-    }
-
-    public String getLookupEndpointFromType(int type) {
-        return type == DB_TYPE_TRACK ? Endpoints.TRACKS : TempEndpoints.PLAYLISTS;
-    }
-
     public String getUsername() {
         return user != null ? user.username : "";
-    }
-
-    public static Playable fromCursor(Cursor cursor) {
-        if (isTrackCursor(cursor)) {
-            return new Track(cursor);
-        } else {
-            return new Playlist(cursor);
-        }
     }
 
     @NotNull

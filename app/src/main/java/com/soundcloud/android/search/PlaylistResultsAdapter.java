@@ -56,8 +56,8 @@ class PlaylistResultsAdapter extends EndlessPagingAdapter<PlaylistSummary> {
         viewHolder.tagList.setText(formatTags(playlist.getTags()));
 
         viewHolder.imageView.setBackgroundResource(R.drawable.placeholder_cells);
-        final String artworkUri = playlist.getArtworkUrl(ImageSize.getFullImageSize(itemView.getResources()));
-        mImageOperations.displayInGridView(artworkUri, viewHolder.imageView);
+        final ImageSize imageSize = ImageSize.getFullImageSize(itemView.getResources());
+        mImageOperations.displayInGridView(playlist.getUrn(), imageSize, viewHolder.imageView);
     }
 
     private String formatTags(List<String> tags) {

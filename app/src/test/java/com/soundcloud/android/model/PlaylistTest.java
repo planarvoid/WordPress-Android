@@ -17,6 +17,28 @@ import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class PlaylistTest {
+
+    @Test
+    public void shouldConstructPlaylistFromId() {
+        Playlist playlist = new Playlist(1L);
+        expect(playlist.getUrn()).toEqual("soundcloud:playlists:1");
+        expect(playlist.getId()).toEqual(1L);
+    }
+
+    @Test
+    public void setIdShouldUpdateUrn() throws Exception {
+        Playlist playlist = new Playlist();
+        playlist.setId(1000L);
+        expect(playlist.getUrn()).toEqual("soundcloud:playlists:1000");
+    }
+
+    @Test
+    public void setUrnShouldUpdateId() throws Exception {
+        Playlist playlist = new Playlist();
+        playlist.setUrn("soundcloud:playlists:1000");
+        expect(playlist.getId()).toEqual(1000L);
+    }
+
     @Test
     public void shouldDeserializePlaylist() throws Exception {
         Playlist p = TestHelper.getObjectMapper().readValue(

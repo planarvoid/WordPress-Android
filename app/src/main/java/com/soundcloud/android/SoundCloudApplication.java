@@ -10,7 +10,6 @@ import com.google.common.collect.Lists;
 import com.localytics.android.Constants;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsEngine;
-import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
@@ -130,7 +129,7 @@ public class SoundCloudApplication extends Application {
 
         IOUtils.checkState(this);
 
-        mImageOperations.initialise(this);
+        mImageOperations.initialise(this, mApplicationProperties);
 
         setupCurrentUserAccount();
 

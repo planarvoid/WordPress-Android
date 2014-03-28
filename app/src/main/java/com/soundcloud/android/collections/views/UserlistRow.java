@@ -100,11 +100,6 @@ public class UserlistRow extends IconLayout implements ListRow {
         }
     }
 
-    @Override
-    protected int getDefaultArtworkResId() {
-        return R.drawable.avatar_badge;
-    }
-
     private void setFollowingStatus() {
         final boolean following = mFollowingOperations.isFollowing(mUser);
         if (mUser.getId() == getCurrentUserId()) {
@@ -152,8 +147,8 @@ public class UserlistRow extends IconLayout implements ListRow {
     }
 
     @Override
-    public String getIconRemoteUri() {
-        return mUser == null ? null : mUser.getListAvatarUri(getContext());
+    public String getResourceUrn() {
+        return mUser == null ? null : mUser.getUrn();
     }
 
 }

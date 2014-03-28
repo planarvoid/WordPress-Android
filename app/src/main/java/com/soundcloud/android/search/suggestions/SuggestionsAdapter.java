@@ -9,12 +9,12 @@ import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.SearchSuggestions;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -340,22 +340,16 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
             boolean isUser = rowType == TYPE_USER;
 
-            final String iconUri = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL));
-            if (ImageUtils.checkIconShouldLoad(iconUri)) {
-                String imageUrl = ImageSize.formatUriForList(mContext, iconUri);
-                mImageOperations.displayInAdapterView(imageUrl, tag.iv_icon,
-                        isUser ? R.drawable.no_user_cover : R.drawable.no_sound_cover);
-            } else {
-                tag.iv_icon.setImageResource(isUser ? R.drawable.no_user_cover : R.drawable.no_sound_cover);
-            }
-
-
+            String urn;
             if (isUser) {
+                urn = Urn.forUser(id).toString();
                 tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
             } else {
+                urn = Urn.forTrack(id).toString();
                 tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
             }
 
+            mImageOperations.displayInListView(urn, ImageSize.getListItemImageSize(mContext), tag.iv_icon);
         }
         return view;
     }

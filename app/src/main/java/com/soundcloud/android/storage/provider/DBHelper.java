@@ -924,6 +924,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String TEXT = "text";
 
         // avatar_url | artwork_url
+        @Deprecated // we can remove this column, it's not used anymore since we've moved to the image resolver
         public static final String ICON_URL = "icon_url";
 
         // permalink_url

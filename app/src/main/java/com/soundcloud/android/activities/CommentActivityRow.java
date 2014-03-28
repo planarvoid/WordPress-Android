@@ -5,7 +5,6 @@ import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.ActivityRow;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.activities.CommentActivity;
@@ -45,9 +44,11 @@ public class CommentActivityRow extends ActivityRow {
     }
 
     @Override
-    public String getIconRemoteUri() {
-        if (mComment == null || mComment.getUser() == null || mComment.getUser().avatar_url == null) return "";
-        return ImageSize.formatUriForList(getContext(), mComment.getUser().avatar_url);
+    public String getResourceUrn() {
+        if (mComment != null && mComment.getUser() != null) {
+            return mComment.getUser().getUrn();
+        }
+        return null;
     }
 
     @Override

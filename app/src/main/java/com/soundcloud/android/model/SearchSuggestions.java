@@ -89,7 +89,7 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
                     q.id,              // id
                     q.query,           // SUGGEST_COLUMN_TEXT_1
                     q.getIntentData(), // SUGGEST_COLUMN_INTENT_DATA
-                    q.getIconUri(),    //
+                    null,              // this is not used anymore, we can remove this column
                     q.isLocal() ? 1 : 0,
                     buildHighlightData(q)
             });
@@ -197,11 +197,6 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
                 default:
                     throw new IllegalStateException("Unsupported content URI: " + uri);
             }
-        }
-
-        public String getIconUri() {
-            if (iconUri != null) return iconUri;
-            return getClientUri().imageUri().toString();
         }
 
         public String getIntentData() {

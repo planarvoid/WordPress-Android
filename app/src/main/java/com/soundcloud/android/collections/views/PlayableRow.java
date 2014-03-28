@@ -183,11 +183,6 @@ public class PlayableRow extends IconLayout implements ListRow {
         return inflate(getContext(), R.layout.playable_bar, this);
     }
 
-    @Override
-    protected int getDefaultArtworkResId() {
-        return R.drawable.artwork_badge;
-    }
-
     private void setupProcessingIndicator(Playable playable) {
         if (playable instanceof Track && ((Track) playable).isProcessing()) {
             if (findViewById(R.id.processing_progress) != null){
@@ -246,8 +241,8 @@ public class PlayableRow extends IconLayout implements ListRow {
     }
 
     @Override
-    public String getIconRemoteUri() {
-        return mPlayableHolder.getPlayable() == null ? null : mPlayableHolder.getPlayable().getListArtworkUrl(getContext());
+    public String getResourceUrn() {
+        return mPlayableHolder.getPlayable() == null ? null : mPlayableHolder.getPlayable().getUrn();
     }
 
     @Override

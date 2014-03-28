@@ -219,8 +219,7 @@ public class NavigationFragment extends Fragment {
         mProfileViewHolder.followers.setText(resources.getQuantityString(
                 R.plurals.number_of_followers, followersCount, followersCount));
 
-        String imageUri = ImageSize.formatUriForFullDisplay(resources, user.getNonDefaultAvatarUrl());
-        mImageOperations.displayInAdapterView(imageUri, mProfileViewHolder.imageView, R.drawable.placeholder_cells);
+        mImageOperations.displayInListView(user.getUrn(), ImageSize.getFullImageSize(resources), mProfileViewHolder.imageView);
     }
 
     protected void selectItem(int position) {

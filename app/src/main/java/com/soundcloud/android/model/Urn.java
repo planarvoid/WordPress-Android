@@ -27,7 +27,6 @@ public class Urn {
     public @NotNull final String type;
     public @NotNull final String id;
     public final long numericId;
-    private HttpProperties httpProperties;
 
     @NotNull
     public static Urn parse(String uri) {
@@ -37,6 +36,11 @@ public class Urn {
     @NotNull
     public static Urn forTrack(long id) {
         return new Urn(SCHEME + ":" + SOUNDS_TYPE + ":" + id);
+    }
+
+    @NotNull
+    public static Urn forPlaylist(long id) {
+        return new Urn(SCHEME + ":" + PLAYLISTS_TYPE + ":" + id);
     }
 
     @NotNull
@@ -68,7 +72,6 @@ public class Urn {
             throw new IllegalArgumentException("invalid uri: "+uri);
         }
         this.uri = uri;
-        httpProperties = new HttpProperties();
     }
 
     private static String fixType(String type){
@@ -85,19 +88,6 @@ public class Urn {
         else if (USERS_TYPE.equals(type)) return Content.USER.forId(numericId);
         else if (PLAYLISTS_TYPE.equals(type)) return Content.PLAYLIST.forId(numericId);
         else throw new IllegalStateException("Unsupported content type: " + type);
-    }
-
-    public Uri imageUri() {
-        return getResolveBuilder().build();
-    }
-
-    public Uri imageUri(@NotNull ImageSize size) {
-        return getResolveBuilder().appendQueryParameter("size", size.key).build();
-    }
-
-    private Uri.Builder getResolveBuilder() {
-        return Uri.parse("https://api.soundcloud.com/resolve/image").buildUpon().appendQueryParameter("url", toString())
-                .appendQueryParameter("client_id", httpProperties.getClientId());
     }
 
     @Override

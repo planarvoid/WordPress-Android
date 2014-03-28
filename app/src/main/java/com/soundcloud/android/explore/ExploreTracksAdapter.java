@@ -5,9 +5,9 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collections.EndlessPagingAdapter;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.image.ImageSize;
 
 import android.text.TextUtils;
 import android.view.View;
@@ -60,8 +60,8 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
         viewHolder.playcount.setText(playcountWithCommas);
 
         viewHolder.imageView.setBackgroundResource(R.drawable.placeholder_cells);
-        final String artworkUri = track.getArtworkOrAvatar(ImageSize.getFullImageSize(itemView.getResources()));
-        mImageOperations.displayInGridView(artworkUri, viewHolder.imageView);
+        final ImageSize imageSize = ImageSize.getFullImageSize(itemView.getResources());
+        mImageOperations.displayInGridView(track.getUrn(), imageSize, viewHolder.imageView);
     }
 
     @VisibleForTesting

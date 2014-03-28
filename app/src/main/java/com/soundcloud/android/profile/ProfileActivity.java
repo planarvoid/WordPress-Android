@@ -83,7 +83,6 @@ public class ProfileActivity extends ScActivity implements
     private AccountOperations mAccountOperations;
     private FollowingOperations mFollowingOperations;
     private final UserStorage mUserStorage = new UserStorage();
-    private String mCurrentAvatarUrl;
 
     private int mInitialOtherFollowers;
 
@@ -123,10 +122,7 @@ public class ProfileActivity extends ScActivity implements
             @Override
             public void onClick(View v) {
                 if (mUser != null) {
-                    final String avatarUrl = mUser.getNonDefaultAvatarUrl();
-                    if (!TextUtils.isEmpty(avatarUrl)) {
-                        new FullImageDialog(ProfileActivity.this, ImageSize.T500.formatUri(avatarUrl), mImageOperations).show();
-                    }
+                    new FullImageDialog(ProfileActivity.this, mUser.getUrn(), mImageOperations).show();
                 }
 
             }
@@ -389,12 +385,7 @@ public class ProfileActivity extends ScActivity implements
             }
         }
 
-        if (mCurrentAvatarUrl == null || !mCurrentAvatarUrl.equals(user.getNonDefaultAvatarUrl())){
-            mCurrentAvatarUrl = user.getNonDefaultAvatarUrl();
-
-            String imageUrl = ImageSize.formatUriForFullDisplay(getResources(), mCurrentAvatarUrl);
-            mImageOperations.displayInAdapterView(imageUrl, mUserImage, R.drawable.placeholder_cells);
-        }
+        mImageOperations.displayInListView(mUser.getUrn(), ImageSize.getFullImageSize(getResources()), mUserImage);
 
         supportInvalidateOptionsMenu();
     }

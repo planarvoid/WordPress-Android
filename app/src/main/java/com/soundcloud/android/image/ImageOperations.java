@@ -6,6 +6,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -24,21 +25,29 @@ public class ImageOperations {
     private static final Pattern PATTERN = Pattern.compile("^https?://(.+)");
     private static final String URL_BASE = "http://%s";
 
-    private ImageLoader mImageLoader;
+    private final ImageLoader mImageLoader;
+    private final ImageEndpointBuilder mImageEndpointBuilder;
 
     @Inject
-    public ImageOperations() {
+    public ImageOperations(ImageEndpointBuilder imageEndpointBuilder) {
         mImageLoader = ImageLoader.getInstance();
+        mImageEndpointBuilder = imageEndpointBuilder;
     }
 
     @VisibleForTesting
-    public ImageOperations(ImageLoader imageLoader) {
+    ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder) {
         mImageLoader = imageLoader;
+        mImageEndpointBuilder = imageEndpointBuilder;
     }
 
-    public void initialise(Context context) {
+    public void initialise(Context context, ApplicationProperties properties) {
         final Context appContext = context.getApplicationContext();
+
         final ImageLoaderConfiguration.Builder builder = new ImageLoaderConfiguration.Builder(appContext);
+        if (properties.isDebugBuild()) {
+            builder.writeDebugLogs();
+        }
+
         builder.defaultDisplayImageOptions(ImageOptionsFactory.cache());
         final long availableMemory = Runtime.getRuntime().maxMemory();
         // Here are some reference values for available mem: Wildfire: 16,777,216; Nexus S: 33,554,432; Nexus 4: 201,326,592
@@ -51,40 +60,60 @@ public class ImageOperations {
         FileCache.installFileCache(IOUtils.getCacheDir(appContext));
     }
 
+    public void displayInListView(String urn, ImageSize imageSize, ImageView imageView) {
+        mImageLoader.displayImage(
+                mImageEndpointBuilder.imageUrl(urn, imageSize), new ImageViewAware(imageView, false),
+                ImageOptionsFactory.listView());
+    }
+
+    public void displayInGridView(String urn, ImageSize imageSize, final ImageView imageView) {
+        mImageLoader.displayImage(
+                mImageEndpointBuilder.imageUrl(urn, imageSize),
+                new ImageViewAware(imageView, false),
+                ImageOptionsFactory.gridView());
+    }
+
+    public void displayWithPlaceholder(String urn, ImageSize imageSize, ImageView imageView, int defaultResId) {
+        mImageLoader.displayImage(
+                mImageEndpointBuilder.imageUrl(urn, imageSize),
+                new ImageViewAware(imageView, false),
+                ImageOptionsFactory.placeholder(defaultResId));
+    }
+
+    public void displayInPlayerView(String urn, ImageSize imageSize, ImageView imageView, View parentView,
+                                    boolean priority, ImageListener imageListener) {
+        mImageLoader.displayImage(
+                mImageEndpointBuilder.imageUrl(urn, imageSize),
+                new ImageViewAware(imageView, false),
+                ImageOptionsFactory.player(parentView, priority), new ImageListenerUILAdapter(imageListener));
+    }
+
+    public void displayInFullDialogView(String urn, ImageSize imageSize, ImageView imageView, ImageListener imageListener) {
+        mImageLoader.displayImage(mImageEndpointBuilder.imageUrl(urn, imageSize), new ImageViewAware(imageView, false),
+                ImageOptionsFactory.fullImageDialog(), new ImageListenerUILAdapter(imageListener));
+    }
+
+    public void load(String urn, ImageSize imageSize, ImageListener imageListener) {
+        mImageLoader.loadImage(mImageEndpointBuilder.imageUrl(urn, imageSize), new ImageListenerUILAdapter(imageListener));
+    }
+
+    @Deprecated // use the variants that take URNs instead
     public void load(String imageUrl, ImageListener imageListener) {
         mImageLoader.loadImage(adjustUrl(imageUrl), new ImageListenerUILAdapter(imageListener));
     }
 
+    @Deprecated // use the variants that take URNs instead
     public void display(String imageUrl, ImageView imageView) {
         mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false));
     }
 
-    public void displayInGridView(String imageUrl, ImageView imageView) {
-        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false),
-                ImageOptionsFactory.gridView());
-    }
-
-    public void displayInAdapterView(String imageUrl, ImageView imageView, int defaultResId) {
-        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false),
-                ImageOptionsFactory.adapterView(defaultResId));
-    }
-
-    public void displayInPlayerView(String imageUrl, ImageView imageView, View parentView, boolean priority,
-                                    ImageListener imageListener) {
-        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false),
-                ImageOptionsFactory.player(parentView, priority), new ImageListenerUILAdapter(imageListener));
-    }
-
-    public void displayInFullDialogView(String imageUrl, ImageView imageView, ImageListener imageListener) {
-        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false),
-                ImageOptionsFactory.fullImageDialog(), new ImageListenerUILAdapter(imageListener));
-    }
-
-    public void displayPlaceholder(String imageUrl, ImageView imageView, int defaultResId) {
+    @Deprecated // use the variants that take URNs instead
+    public void displayWithPlaceholder(String imageUrl, ImageView imageView, int defaultResId) {
         mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false),
                 ImageOptionsFactory.placeholder(defaultResId));
     }
 
+    @Deprecated // use the variants that take URNs instead
     public void prefetch(String imageUrl) {
         mImageLoader.loadImage(adjustUrl(imageUrl), ImageOptionsFactory.prefetch(), null);
     }

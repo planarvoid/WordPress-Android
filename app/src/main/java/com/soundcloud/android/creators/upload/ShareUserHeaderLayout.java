@@ -32,7 +32,7 @@ public class ShareUserHeaderLayout extends RelativeLayout {
 
         if (user.shouldLoadIcon()) {
             final ImageView icon = (ImageView) findViewById(R.id.icon);
-            mImageOperations.displayPlaceholder(user.getNonDefaultAvatarUrl(), icon, R.drawable.avatar_badge);
+            mImageOperations.displayWithPlaceholder(user.getNonDefaultAvatarUrl(), icon, R.drawable.avatar_badge);
         }
     }
 

@@ -8,7 +8,6 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.activities.Activity;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.DrawableSpan;
 import com.soundcloud.android.collections.ListRow;
@@ -83,9 +82,11 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
     }
 
     @Override
-    public String getIconRemoteUri() {
-        if (mActivity == null || mActivity.getUser() == null || mActivity.getUser().avatar_url == null) return "";
-        return ImageSize.formatUriForList(getContext(), mActivity.getUser().avatar_url);
+    public String getResourceUrn() {
+        if (mActivity != null && mActivity.getUser() != null) {
+            return mActivity.getUser().getUrn();
+        }
+        return null;
     }
 
     @Override
@@ -135,8 +136,4 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
         return mDrawable;
     }
 
-    @Override
-    protected int getDefaultArtworkResId() {
-        return R.drawable.avatar_badge;
-    }
 }

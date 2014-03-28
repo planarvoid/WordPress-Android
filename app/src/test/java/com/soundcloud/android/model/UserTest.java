@@ -71,33 +71,6 @@ public class UserTest {
     }
 
     @Test
-    public void shouldReturnNullWithNoAvatarOrUrn() {
-        User u = new User();
-        expect(u.getListAvatarUri(Robolectric.application)).toBeNull();
-    }
-
-    @Test
-    public void shouldReturnURNBasedImageResolverUri() {
-        User u = new User();
-        u.setId(1000L);
-        expect(u.getListAvatarUri(Robolectric.application)).toEqual("https://api.soundcloud.com/resolve/image?url=soundcloud%3Ausers%3A1000&client_id=40ccfee680a844780a41fbe23ea89934&size=badge");
-    }
-
-    @Test
-    public void shouldReturnNullWithDefaultAvatarUri() throws Exception {
-        User u = new User();
-        u.avatar_url = "http://a1.soundcloud.com/images/default_avatar_large.png?05a778";
-        expect(u.getListAvatarUri(Robolectric.application)).toBeNull();
-    }
-
-    @Test
-    public void shouldReturnFormattedAvatarUri() throws Exception {
-        User u = new User();
-        u.avatar_url = "http://i1.soundcloud.com/avatars-000002679242-0j7zgk-large.jpg?05a778";
-        expect(u.getListAvatarUri(Robolectric.application)).toEqual("http://i1.soundcloud.com/avatars-000002679242-0j7zgk-badge.jpg?05a778");
-    }
-
-    @Test
     public void shouldGetPlan() throws Exception {
         User u = new User();
         expect(u.getPlan()).toBe(Plan.UNKNOWN);

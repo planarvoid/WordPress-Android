@@ -6,6 +6,7 @@ import com.nostra13.universalimageloader.core.assist.LoadedFrom;
 import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
+import com.soundcloud.android.R;
 import com.soundcloud.android.utils.AnimUtils;
 
 import android.graphics.Bitmap;
@@ -22,12 +23,23 @@ class ImageOptionsFactory {
     final static int DELAY_BEFORE_LOADING_HIGH_PRIORITY = 0;
     final static int DELAY_BEFORE_LOADING_LOW_PRIORITY = 200;
 
+    @Deprecated
     public static DisplayImageOptions adapterView(int defaultIconResId){
         return fullCacheBuilder()
                 .resetViewBeforeLoading(true)
                 .showImageOnFail(defaultIconResId)
                 .showImageForEmptyUri(defaultIconResId)
                 .showImageOnLoading(defaultIconResId)
+                .displayer(new PlaceholderTransitionDisplayer())
+                .build();
+    }
+
+    static DisplayImageOptions listView() {
+        return fullCacheBuilder()
+                .resetViewBeforeLoading(true)
+                .showImageOnFail(R.drawable.placeholder_cells)
+                .showImageForEmptyUri(R.drawable.placeholder_cells)
+                .showImageOnLoading(R.drawable.placeholder_cells)
                 .displayer(new PlaceholderTransitionDisplayer())
                 .build();
     }

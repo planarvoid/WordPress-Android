@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.image.PlayerArtworkLoadListener;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -18,7 +19,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -186,16 +186,10 @@ public class ArtworkTrackView extends PlayerTrackView {
         // this will cause OOMs
         if (mTrack == null || ActivityManager.isUserAMonkey()) return;
 
-        final String playerArtworkUri = mTrack.getPlayerArtworkUri(getContext());
-        if (mLastArtworkUri == null || !mLastArtworkUri.equals(playerArtworkUri)){
-            mLastArtworkUri = playerArtworkUri;
-
-            showDefaultArtwork(); // during load
-            if (!TextUtils.isEmpty(playerArtworkUri)){
-                mImageOperations.displayInPlayerView(playerArtworkUri, mArtwork, mArtworkHolder, priority,
-                        new PlayerArtworkLoadListener(this, mTrack));
-            }
-        }
+        showDefaultArtwork(); // during load
+        mImageOperations.displayInPlayerView(mTrack.getUrn(), ImageSize.getFullImageSize(getResources()),
+                mArtwork, mArtworkHolder, priority,
+                new PlayerArtworkLoadListener(this, mTrack));
     }
 
     private void showDefaultArtwork() {
