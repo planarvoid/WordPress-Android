@@ -84,8 +84,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     private final BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (isAdded() && PlaybackService.Broadcasts.META_CHANGED.equals(action)) {
+            if (isAdded()) {
                 refreshNowPlayingState();
             }
         }
@@ -193,6 +192,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         // Listen for playback changes, so that we can update the now-playing indicator
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(PlaybackService.Broadcasts.META_CHANGED);
+        intentFilter.addAction(PlaybackService.Broadcasts.PLAYSTATE_CHANGED);
         getActivity().registerReceiver(mPlaybackStatusListener, intentFilter);
     }
 
