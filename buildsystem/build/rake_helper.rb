@@ -101,7 +101,7 @@ module Build
 
     def build
       if Build::Configuration.hockey.enabled? && Build.ci?
-        Build.version_code=(hockey.last_published_version)
+        Build.version_code=(hockey.last_published_version + 1)
       end
 
       mvn_task(:build).execute
