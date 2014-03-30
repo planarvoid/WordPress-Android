@@ -14,18 +14,23 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Sharing;
+import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.PlaylistStorage;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.exception.UnknownResourceException;
 import com.soundcloud.api.Request;
+import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.util.EntityUtils;
 import org.junit.Before;
@@ -44,7 +49,9 @@ import android.content.Context;
 import android.net.Uri;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistSyncHelperTest {
@@ -71,6 +78,8 @@ public class PlaylistSyncHelperTest {
     private Context context;
     @Mock
     private Playlist playlist;
+    @Mock
+    LocalCollection localCollection;
 
     @Before
     public void setup() {
@@ -87,8 +96,8 @@ public class PlaylistSyncHelperTest {
     @Test
     public void syncMePlaylistsShouldPostLocalPlaylistToApi() throws Exception {
         when(publicCloudAPI.readFullCollection(
-                argThat(isLegacyRequestToUrl("/me/playlists?representation=compact&limit=200")),
-                Matchers.<Class<CollectionHolder<Playlist>>>any())
+                        argThat(isLegacyRequestToUrl("/me/playlists?representation=compact&limit=200")),
+                        Matchers.<Class<CollectionHolder<Playlist>>>any())
         ).thenReturn(Collections.<Playlist>emptyList());
 
         when(playlistStorage.getLocalPlaylists()).thenReturn(Lists.newArrayList(playlist));
@@ -109,8 +118,8 @@ public class PlaylistSyncHelperTest {
     public void syncMePlaylistsShouldNotRemoveLocalPlaylistAfterUnknownResourceResponse() throws Exception {
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(publicCloudAPI.readFullCollection(
-                argThat(isLegacyRequestToUrl("/me/playlists?representation=compact&limit=200")),
-                Matchers.<Class<CollectionHolder<Playlist>>>any())
+                        argThat(isLegacyRequestToUrl("/me/playlists?representation=compact&limit=200")),
+                        Matchers.<Class<CollectionHolder<Playlist>>>any())
         ).thenReturn(Collections.<Playlist>emptyList());
 
         when(playlistStorage.getLocalPlaylists()).thenReturn(Lists.newArrayList(playlist));
@@ -131,8 +140,8 @@ public class PlaylistSyncHelperTest {
     public void syncMePlaylistsShouldUpdateLocalStateAfterPlaylistPush() throws Exception {
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(publicCloudAPI.readFullCollection(
-                argThat(isLegacyRequestToUrl("/me/playlists?representation=compact&limit=200")),
-                Matchers.<Class<CollectionHolder<Playlist>>>any())
+                        argThat(isLegacyRequestToUrl("/me/playlists?representation=compact&limit=200")),
+                        Matchers.<Class<CollectionHolder<Playlist>>>any())
         ).thenReturn(Collections.<Playlist>emptyList());
 
         when(playlistStorage.getLocalPlaylists()).thenReturn(Lists.newArrayList(playlist));
@@ -203,6 +212,104 @@ public class PlaylistSyncHelperTest {
         final HttpPost httpPost = request.buildRequest(HttpPost.class);
         expect(EntityUtils.toString(httpPost.getEntity())).toEqual("{\"playlist\":{\"tracks\":[{\"id\":1},{\"id\":2},{\"id\":3},{\"id\":4},{\"id\":5},{\"id\":6}]}}");
         expect(httpPost.getFirstHeader("Content-Type").getValue()).toEqual("application/json");
+    }
+
+    @Test
+    public void syncMePlaylistsShouldNotFetchTracksWithNoPlaylists() throws Exception {
+        final List<Playlist> playlists = Collections.emptyList();
+
+        when(publicCloudAPI.readFullCollection(
+                        argThat(isLegacyRequestToUrl("/me/playlists?representation=compact&limit=200")),
+                        Matchers.<Class<CollectionHolder<Playlist>>>any())
+        ).thenReturn(playlists);
+
+        playlistSyncHelper.pullRemotePlaylists(context, publicCloudAPI, syncStateManager);
+        verify(publicCloudAPI, never()).readList(Matchers.<Request>any());
+    }
+
+    @Test
+    public void syncMePlaylistsShouldNotSyncTracksOnUpToDatePlaylist() throws Exception {
+        when(localCollection.hasSyncedBefore()).thenReturn(true);
+        when(localCollection.shouldAutoRefresh()).thenReturn(false);
+        setupMyPlaylistsRemote(Lists.newArrayList(playlist));
+
+        playlistSyncHelper.pullRemotePlaylists(context, publicCloudAPI, syncStateManager);
+        verify(publicCloudAPI, never()).readList(Matchers.<Request>any());
+    }
+
+    @Test
+    public void syncMePlaylistsShouldNotSyncTracksOnStalePlaylistOffWifi() throws Exception {
+        when(localCollection.hasSyncedBefore()).thenReturn(true);
+        when(localCollection.shouldAutoRefresh()).thenReturn(true);
+        setupMyPlaylistsRemote(Lists.newArrayList(playlist));
+
+        playlistSyncHelper.pullRemotePlaylists(context, publicCloudAPI, syncStateManager);
+
+        verify(publicCloudAPI, never()).readList(Matchers.<Request>any());
+    }
+
+    @Test
+    public void syncMePlaylistsShouldSyncTracksOnStalePlaylistOnWifi() throws Exception {
+        TestHelper.connectedViaWifi(true);
+        when(localCollection.hasSyncedBefore()).thenReturn(true);
+        when(localCollection.shouldAutoRefresh()).thenReturn(true);
+        when(playlist.getId()).thenReturn(123L);
+        setupMyPlaylistsRemote(Lists.newArrayList(playlist));
+
+        // use Robolectir.application for wifi check to pass
+        playlistSyncHelper.pullRemotePlaylists(Robolectric.application, publicCloudAPI, syncStateManager);
+
+        verify(publicCloudAPI).readList(argThat(isLegacyRequestToUrl("/playlists/123/tracks")));
+    }
+
+    @Test
+    public void syncMePlaylistsShouldSyncTracksOnPlaylistThatHasNeverBeenSynced() throws Exception {
+        when(localCollection.hasSyncedBefore()).thenReturn(false);
+        when(localCollection.shouldAutoRefresh()).thenReturn(false);
+        when(playlist.getId()).thenReturn(123L);
+        setupMyPlaylistsRemote(Lists.newArrayList(playlist));
+
+        playlistSyncHelper.pullRemotePlaylists(context, publicCloudAPI, syncStateManager);
+
+        verify(publicCloudAPI).readList(argThat(isLegacyRequestToUrl("/playlists/123/tracks")));
+    }
+
+    @Test
+    public void syncMePlaylistsShouldNotSyncTracksOnPlaylistWithMoreThanMaxTracksToSync() throws Exception {
+        when(localCollection.hasSyncedBefore()).thenReturn(false);
+        when(localCollection.shouldAutoRefresh()).thenReturn(true);
+        when(playlist.getId()).thenReturn(123L);
+        when(playlist.getTrackCount()).thenReturn(PlaylistSyncer.MAX_MY_PLAYLIST_TRACK_COUNT_SYNC + 1);
+
+        setupMyPlaylistsRemote(Lists.newArrayList(playlist));
+
+        playlistSyncHelper.pullRemotePlaylists(context, publicCloudAPI, syncStateManager);
+
+        verify(publicCloudAPI, never()).readList(Matchers.<Request>any());
+    }
+
+    @Test
+    public void syncMePlaylistsShouldSyncChangedPlaylists() throws Exception {
+        when(localCollection.hasSyncedBefore()).thenReturn(true);
+        when(localCollection.shouldAutoRefresh()).thenReturn(false);
+        setupMyPlaylistsRemote(Lists.newArrayList(playlist));
+
+        final ArrayList<SoundAssociation> associations = Lists.newArrayList(new SoundAssociation(playlist));
+        when(soundAssociationStorage.syncToLocal(eq(associations), eq(Content.ME_PLAYLISTS.uri))).thenReturn(true);
+
+        ApiSyncResult result = playlistSyncHelper.pullRemotePlaylists(Robolectric.application, publicCloudAPI, syncStateManager);
+        expect(result.change).toEqual(ApiSyncResult.CHANGED);
+        expect(result.synced_at).toBeGreaterThan(0L);
+        expect(result.new_size).toBe(1);
+        expect(result.success).toBeTrue();
+    }
+
+    private void setupMyPlaylistsRemote(List<Playlist> playlists) throws java.io.IOException {
+        when(syncStateManager.fromContent(Matchers.<Uri>any())).thenReturn(localCollection);
+        when(publicCloudAPI.readFullCollection(
+                        argThat(isLegacyRequestToUrl("/me/playlists?representation=compact&limit=200")),
+                        Matchers.<Class<CollectionHolder<Playlist>>>any())
+        ).thenReturn(playlists);
     }
 
 }

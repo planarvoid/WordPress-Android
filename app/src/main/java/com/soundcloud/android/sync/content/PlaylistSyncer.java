@@ -4,18 +4,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.api.TempEndpoints;
-import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.SyncStateManager;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,8 +18,6 @@ import android.content.Context;
 import android.net.Uri;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class PlaylistSyncer extends SyncStrategy {
 
@@ -81,40 +73,7 @@ public class PlaylistSyncer extends SyncStrategy {
      */
     private ApiSyncResult syncMyPlaylists() throws IOException {
         mPlaylistSyncHelper.pushLocalPlaylists(mContext, mApi, mSyncStateManager);
-
-        final Request request = Request.to(Content.ME_PLAYLISTS.remoteUri)
-                .add("representation", "compact").with("limit", 200);
-
-        List<ScResource> resources = mApi.readFullCollection(request, ScResource.ScResourceHolder.class);
-
-        // manually build the sound association holder
-        List<SoundAssociation> associations = new ArrayList<SoundAssociation>();
-
-        for (ScResource resource : resources) {
-            Playlist playlist = (Playlist) resource;
-            associations.add(new SoundAssociation(playlist));
-            boolean onWifi = IOUtils.isWifiConnected(mContext);
-
-            // if we have never synced the playlist or are on wifi and past the stale time, fetch the tracks
-            final LocalCollection localCollection = mSyncStateManager.fromContent(playlist.toUri());
-            final boolean playlistStale = (localCollection.shouldAutoRefresh() && onWifi) || !localCollection.hasSyncedBefore();
-
-            if (playlistStale && playlist.getTrackCount() < MAX_MY_PLAYLIST_TRACK_COUNT_SYNC) {
-                try {
-                    playlist.tracks = mApi.readList(Request.to(TempEndpoints.PLAYLIST_TRACKS, playlist.getId()));
-                } catch (IOException e) {
-                    // don't let the track fetch fail the sync, it is just an optimization
-                    Log.e(TAG, "Failed to fetch playlist tracks for playlist " + playlist, e);
-                }
-            }
-        }
-
-        boolean changed = mPlaylistSyncHelper.syncMyNewPlaylists(associations);
-        ApiSyncResult result = new ApiSyncResult(Content.ME_PLAYLISTS.uri);
-        result.change = changed ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
-        result.setSyncData(System.currentTimeMillis(), associations.size());
-        result.success = true;
-        return result;
+        return mPlaylistSyncHelper.pullRemotePlaylists(mContext, mApi, mSyncStateManager);
 
     }
 

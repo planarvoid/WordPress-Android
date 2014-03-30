@@ -5,6 +5,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.TempEndpoints;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
@@ -16,14 +17,17 @@ import com.soundcloud.android.playlists.PlaylistApiUpdateObject;
 import com.soundcloud.android.storage.PlaylistStorage;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.exception.PlaylistUpdateException;
 import com.soundcloud.android.sync.exception.UnknownResourceException;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Request;
 
 import android.content.Context;
+import android.content.SyncResult;
 import android.net.Uri;
 
 import java.io.IOException;
@@ -86,6 +90,43 @@ class PlaylistSyncHelper {
         return playlistsToUpload.size();
     }
 
+    public ApiSyncResult pullRemotePlaylists(Context context, PublicCloudAPI api, SyncStateManager syncStateManager) throws IOException {
+
+        final Request request = Request.to(Content.ME_PLAYLISTS.remoteUri)
+                .add("representation", "compact").with("limit", 200);
+
+        List<ScResource> resources = api.readFullCollection(request, ScResource.ScResourceHolder.class);
+
+        // manually build the sound association holder
+        List<SoundAssociation> associations = new ArrayList<SoundAssociation>();
+        for (ScResource resource : resources) {
+            Playlist playlist = (Playlist) resource;
+            associations.add(new SoundAssociation(playlist));
+            boolean onWifi = IOUtils.isWifiConnected(context);
+
+            // if we have never synced the playlist or are on wifi and past the stale time, fetch the tracks
+            final LocalCollection localCollection = syncStateManager.fromContent(playlist.toUri());
+            final boolean shouldSyncTracks = (localCollection.shouldAutoRefresh() && onWifi)
+                    || !localCollection.hasSyncedBefore();
+
+            if (shouldSyncTracks && playlist.getTrackCount() < PlaylistSyncer.MAX_MY_PLAYLIST_TRACK_COUNT_SYNC) {
+                try {
+                    playlist.tracks = api.readList(Request.to(TempEndpoints.PLAYLIST_TRACKS, playlist.getId()));
+                } catch (IOException e) {
+                    // don't let the track fetch fail the sync, it is just an optimization
+                    Log.e(PlaylistSyncer.TAG, "Failed to fetch playlist tracks for playlist " + playlist, e);
+                }
+            }
+        }
+
+        boolean changed = mSoundAssociationStorage.syncToLocal(associations, Content.ME_PLAYLISTS.uri);
+        ApiSyncResult result = new ApiSyncResult(Content.ME_PLAYLISTS.uri);
+        result.change = changed ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
+        result.setSyncData(System.currentTimeMillis(), associations.size());
+        result.success = true;
+        return result;
+    }
+
     public String getApiCreateJson(Playlist playlist) throws JsonProcessingException {
         PlaylistApiCreateObject createObject = new PlaylistApiCreateObject(playlist);
 
@@ -99,10 +140,6 @@ class PlaylistSyncHelper {
             }
         }
         return createObject.toJson();
-    }
-
-    public boolean syncMyNewPlaylists(List<SoundAssociation> associations){
-        return mSoundAssociationStorage.syncToLocal(associations, Content.ME_PLAYLISTS.uri);
     }
 
     public void removePlaylist(Uri playlistUri){
