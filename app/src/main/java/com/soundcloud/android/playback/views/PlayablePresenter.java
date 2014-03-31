@@ -70,6 +70,12 @@ public class PlayablePresenter {
         return this;
     }
 
+    public PlayablePresenter setTextVisibility(int visibility) {
+        mTitleView.setVisibility(visibility);
+        mUsernameView.setVisibility(visibility);
+        return this;
+    }
+
     public PlayablePresenter setArtwork(ImageView artworkView, ImageSize artworkSize, int placeholderResId) {
         mArtworkView = artworkView;
         mArtworkSize = artworkSize;

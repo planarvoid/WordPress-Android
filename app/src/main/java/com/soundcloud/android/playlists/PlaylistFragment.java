@@ -275,11 +275,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     protected void refreshMetaData(Playlist playlist) {
         mPlayablePresenter.setPlayable(playlist);
         mEngagementsController.setPlayable(playlist);
-
-        final String trackCount = getResources().getQuantityString(
-                R.plurals.number_of_sounds, playlist.getTrackCount(), playlist.getTrackCount());
-        final String duration = ScTextUtils.formatTimestamp(playlist.duration);
-        mInfoHeaderText.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
+        mInfoHeaderText.setText(createHeaderText(playlist));
 
         // don't register clicks before we have a valid playlist
         final List<Track> tracks = playlist.getTracks();
@@ -292,7 +288,15 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
             mPlayToggle.setVisibility(View.GONE);
         }
 
+        mPlayablePresenter.setTextVisibility(View.VISIBLE);
         mHeaderUsernameText.setEnabled(true);
+    }
+
+    private String createHeaderText(Playlist playlist) {
+        final String trackCount = getResources().getQuantityString(
+                R.plurals.number_of_sounds, playlist.getTrackCount(), playlist.getTrackCount());
+        final String duration = ScTextUtils.formatTimestamp(playlist.duration);
+        return getString(R.string.playlist_info_header_text, trackCount, duration);
     }
 
     private void updateTracksAdapter(Playlist playlist) {

@@ -22,6 +22,7 @@
                                                 android:layout_above="@+id/title"
                                                 android:layout_marginLeft="@dimen/playlist_header_padding"
                                                 android:enabled="false"
+                                                android:visibility="invisible"
                                                 style="@style/BlackOverlayText.RegularSubtext.Clickable" />
 
     <com.soundcloud.android.view.JaggedTextView android:id="@+id/title"
@@ -30,6 +31,7 @@
                                                 android:layout_marginBottom="@dimen/playlist_header_padding"
                                                 android:layout_marginTop="4dp"
                                                 android:layout_alignBottom="@id/artwork_container"
+                                                android:visibility="invisible"
                                                 style="@style/BlackOverlayText.Regular" />
 
     <View
