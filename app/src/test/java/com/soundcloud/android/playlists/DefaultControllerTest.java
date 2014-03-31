@@ -27,7 +27,6 @@ public class DefaultControllerTest {
     @Mock
     private View layout;
 
-
     @Before
     public void setUp() throws Exception {
         controller = new DefaultController(inlinePlaylistTracksAdapter);
@@ -52,4 +51,11 @@ public class DefaultControllerTest {
         controller.setEmptyViewStatus(100);
         verify(inlinePlaylistTracksAdapter).setEmptyViewStatus(100);
     }
+
+    @Test
+    public void hasContentShouldCheckInternalAdapterItemCount() {
+        controller.hasContent();
+        verify(inlinePlaylistTracksAdapter).hasContentItems();
+    }
+
 }

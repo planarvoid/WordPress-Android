@@ -5,6 +5,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.EngagementsController;
@@ -27,6 +28,8 @@ import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
+import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -43,6 +46,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
@@ -50,7 +54,7 @@ import javax.inject.Provider;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
-public class PlaylistFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class PlaylistFragment extends Fragment implements AdapterView.OnItemClickListener, OnRefreshListener {
 
     @Inject
     PlaylistOperations mPlaylistOperations;
@@ -64,6 +68,8 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     EngagementsController mEngagementsController;
     @Inject
     Provider<PlaylistDetailsController> mControllerProvider;
+    @Inject
+    PullToRefreshController mPullToRefreshController;
 
     private PlaylistDetailsController mController;
 
@@ -115,16 +121,20 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     }
 
     @VisibleForTesting
-    PlaylistFragment(PlaybackOperations playbackOperations, PlaylistOperations playlistOperations,
+    PlaylistFragment(PlaybackOperations playbackOperations,
+                     PlaylistOperations playlistOperations,
                      PlaybackStateProvider playbackStateProvider,
                      ImageOperations imageOperations,
-                     EngagementsController engagementsController, Provider<PlaylistDetailsController> adapterProvider) {
+                     EngagementsController engagementsController,
+                     Provider<PlaylistDetailsController> adapterProvider,
+                     PullToRefreshController pullToRefreshController) {
         mPlaybackOperations = playbackOperations;
         mPlaylistOperations = playlistOperations;
         mPlaybackStateProvider = playbackStateProvider;
         mImageOperations = imageOperations;
         mEngagementsController = engagementsController;
         mControllerProvider = adapterProvider;
+        mPullToRefreshController = pullToRefreshController;
     }
 
     public static PlaylistFragment create(Uri playlistUri, Screen originScreen) {
@@ -168,11 +178,20 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         configureInfoViews(layout);
         mListView.setAdapter(mController.getAdapter());
 
+        PullToRefreshLayout mPullToRefreshLayout = (PullToRefreshLayout) layout.findViewById(R.id.ptr_layout);
+        mPullToRefreshController.attach(getActivity(), mPullToRefreshLayout, this);
+
         showContent(mListShown);
 
         mSubscription = mLoadPlaylist.subscribe(new PlaylistSubscriber());
     }
 
+    @Override
+    public void onRefreshStarted(View view) {
+        mSubscription = mPlaylistOperations.refreshPlaylist(getPlaylistId())
+                .observeOn(mainThread())
+                .subscribe(new RefreshSubscriber());
+    }
 
     @Override
     public void onResume() {
@@ -308,7 +327,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         adapter.notifyDataSetChanged();
     }
 
-    private final class PlaylistSubscriber extends DefaultSubscriber<Playlist> {
+    private class PlaylistSubscriber extends DefaultSubscriber<Playlist> {
         @Override
         public void onNext(Playlist playlist) {
             Log.d(PlaylistDetailActivity.LOG_TAG, "got playlist; track count = " + playlist.getTracks().size());
@@ -320,13 +339,28 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-            showContent(true);
             mController.setEmptyViewStatus(EmptyListView.Status.ERROR);
+            showContent(true);
+            mPullToRefreshController.stopRefreshing();
         }
 
         @Override
         public void onCompleted() {
             mController.setEmptyViewStatus(EmptyListView.Status.OK);
+            mPullToRefreshController.stopRefreshing();
         }
     }
+
+    private class RefreshSubscriber extends PlaylistSubscriber {
+        @Override
+        public void onError(Throwable e) {
+            if (mController.hasContent()) {
+                Toast.makeText(getActivity(), R.string.connection_list_error, Toast.LENGTH_SHORT).show();
+                mPullToRefreshController.stopRefreshing();
+            } else {
+                super.onError(e);
+            }
+        }
+    }
+
 }

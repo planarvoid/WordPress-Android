@@ -2,14 +2,17 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
+import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.collections.ItemAdapter;
@@ -23,6 +26,7 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyListView;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.shadows.ShadowToast;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +40,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
-import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.ToggleButton;
 
 import javax.inject.Provider;
@@ -63,6 +67,8 @@ public class PlaylistFragmentTest {
     private ItemAdapter<Track> adapter;
     @Mock
     private PlaylistDetailsController controller;
+    @Mock
+    private PullToRefreshController ptrController;
 
     private Provider<PlaylistDetailsController> controllerProvider = new Provider<PlaylistDetailsController>() {
         @Override
@@ -74,7 +80,7 @@ public class PlaylistFragmentTest {
     @Before
     public void setUp() throws Exception {
         fragment = new PlaylistFragment(playbackOperations, playlistOperations, playbackStateProvider,
-                imageOperations, engagementsController, controllerProvider);
+                imageOperations, engagementsController, controllerProvider, ptrController);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
 
@@ -109,7 +115,6 @@ public class PlaylistFragmentTest {
         ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
         expect(toggleButton.getVisibility()).toBe(View.GONE);
     }
-
 
     @Test
     public void shouldPlayPlaylistOnToggleToPlayState() throws Exception {
@@ -255,13 +260,67 @@ public class PlaylistFragmentTest {
         inOrder.verify(adapter).addItem(track2);
     }
 
+    @Test
+    public void updatesContentWhenRefreshIsSuccessful() {
+        final Track track1 = new Track(1L);
+        final Track track2 = new Track(2L);
+        playlist.tracks = Lists.newArrayList(track1);
+        Playlist playlist2 = new Playlist(playlist.getId());
+        playlist2.tracks = Lists.newArrayList(track2);
+        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
+        when(playlistOperations.refreshPlaylist(anyLong())).thenReturn(Observable.from(playlist2));
+
+        createFragmentView();
+        fragment.onRefreshStarted(mock(View.class));
+
+        InOrder inOrder = Mockito.inOrder(adapter);
+        inOrder.verify(adapter).addItem(track1);
+        inOrder.verify(adapter).clear();
+        inOrder.verify(adapter).addItem(track2);
+    }
+
+    @Test
+    public void showsToastErrorWhenContentAlreadyShownAndRefreshFails() {
+        when(playlistOperations.refreshPlaylist(anyLong())).thenReturn(Observable.<Playlist>error(new Exception("cannot refresh")));
+        when(controller.hasContent()).thenReturn(true);
+
+        createFragmentView();
+        fragment.onRefreshStarted(mock(View.class));
+
+        expect(ShadowToast.getTextOfLatestToast()).toEqual("There seems to be a connection problem. Please try again shortly.");
+    }
+
+    @Test
+    public void doesNotShowInlineErrorWhenContentWhenAlreadyShownAndRefreshFails() {
+        playlist.tracks = Lists.newArrayList(new Track(1L));
+        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
+        when(playlistOperations.refreshPlaylist(anyLong())).thenReturn(Observable.<Playlist>error(new Exception("cannot refresh")));
+        when(controller.hasContent()).thenReturn(true);
+
+        createFragmentView();
+        fragment.onRefreshStarted(mock(View.class));
+
+        verify(controller, times(1)).setEmptyViewStatus(anyInt());
+    }
+
+    @Test
+    public void hidesRefreshStateWhenRefreshFails() {
+        when(playlistOperations.refreshPlaylist(anyLong())).thenReturn(Observable.<Playlist>error(new Exception("cannot refresh")));
+        when(controller.hasContent()).thenReturn(true);
+
+        createFragmentView();
+        fragment.onRefreshStarted(mock(View.class));
+
+        verify(ptrController, times(2)).stopRefreshing();
+    }
+
     private View createFragmentView() {
         Bundle bundle = new Bundle();
         bundle.putParcelable(Playlist.EXTRA_URI, playlist.toUri());
         Screen.SIDE_MENU_STREAM.addToBundle(bundle);
         fragment.setArguments(bundle);
         fragment.onCreate(null);
-        View layout = fragment.onCreateView(activity.getLayoutInflater(), new FrameLayout(activity), null);
+        View layout = fragment.onCreateView(activity.getLayoutInflater(), new RelativeLayout(activity), null);
         fragment.onViewCreated(layout, null);
         return layout;
     }

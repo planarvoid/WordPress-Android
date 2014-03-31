@@ -26,6 +26,11 @@ class SplitScreenController implements PlaylistDetailsController {
     }
 
     @Override
+    public boolean hasContent() {
+        return !mAdapter.isEmpty();
+    }
+
+    @Override
     public void onViewCreated(View layout, Resources resources) {
         mEmptyView  = (EmptyListView) layout.findViewById(android.R.id.empty);
         mEmptyView.setMessageText(resources.getString(R.string.empty_playlist_description));

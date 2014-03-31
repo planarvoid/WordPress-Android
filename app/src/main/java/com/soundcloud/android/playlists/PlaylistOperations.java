@@ -81,6 +81,12 @@ public class PlaylistOperations {
                 .onErrorResumeNext(handlePlaylistNotFound(playlistId));
     }
 
+    public Observable<Playlist> refreshPlaylist(final long playlistId) {
+        Log.d(LOG_TAG, "Refreshing playlist " + playlistId);
+        return syncThenLoadPlaylist(playlistId)
+                .onErrorResumeNext(handlePlaylistNotFound(playlistId));
+    }
+
     /**
      * If a playlist cannot be found in local storage, returns a sync sequence for resume purposes, otherwise
      * simply propagates the error.

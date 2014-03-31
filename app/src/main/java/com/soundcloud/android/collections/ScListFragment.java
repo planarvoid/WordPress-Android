@@ -7,6 +7,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
@@ -117,7 +118,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
     private ImageOperations mImageOperations;
     private EventBus mEventBus;
-    private PullToRefreshLayout mPullToRefreshLayout;
+
+    private PullToRefreshController mPullToRefreshController;
 
     public static ScListFragment newInstance(Content content, Screen screen) {
         return newInstance(content.uri, screen);
@@ -181,14 +183,15 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         mKeepGoing = true;
         setupListAdapter();
         accountOperations = new AccountOperations(getActivity());
+        mPullToRefreshController = new PullToRefreshController();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mPullToRefreshLayout = (PullToRefreshLayout) inflater.inflate(R.layout.sc_list_fragment, null);
-        mListView = configureList((ScListView) mPullToRefreshLayout.findViewById(android.R.id.list));
+        PullToRefreshLayout pullToRefreshLayout = (PullToRefreshLayout) inflater.inflate(R.layout.sc_list_fragment, null);
+        mListView = configureList((ScListView) pullToRefreshLayout.findViewById(android.R.id.list));
         mListView.setOnScrollListener(mImageOperations.createScrollPauseListener(false, true, this));
 
         mEmptyListView = createEmptyView();
@@ -196,30 +199,21 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         mEmptyListView.setOnRetryListener(this);
         mListView.setEmptyView(mEmptyListView);
 
-        mPullToRefreshLayout.addView(mEmptyListView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+        pullToRefreshLayout.addView(mEmptyListView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        setupPullToRefresh();
+        mPullToRefreshController.attach(getActivity(), pullToRefreshLayout, this);
+        configurePullToRefreshState();
 
         if (isRefreshing() || waitingOnInitialSync()){
             final ScBaseAdapter listAdapter = getListAdapter();
             if (listAdapter == null || listAdapter.isEmpty()){
                 configureEmptyView();
             } else if (isRefreshing()){
-                mPullToRefreshLayout.setRefreshing(true);
+                mPullToRefreshController.startRefreshing();
             }
         }
-        return mPullToRefreshLayout;
-    }
-
-    private void setupPullToRefresh() {
-        ActionBarPullToRefresh.from(getActivity())
-                .theseChildrenArePullable(mListView, mEmptyListView)
-                .useViewDelegate(EmptyListView.class, new EmptyListDelegate())
-                .listener(this)
-                .setup(mPullToRefreshLayout);
-        ViewUtils.stylePtrProgress(getActivity(), mPullToRefreshLayout.getHeaderView());
-        configurePullToRefreshState();
+        return pullToRefreshLayout;
     }
 
     @Override
@@ -481,9 +475,9 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     private void configurePullToRefreshState() {
         if (isInLayout() && mListView != null && mLocalCollection != null) {
             if (mLocalCollection.isIdle()) {
-                if (mPullToRefreshLayout.isRefreshing()) mPullToRefreshLayout.setRefreshComplete();
-            } else if (!mPullToRefreshLayout.isRefreshing()) {
-                mPullToRefreshLayout.setRefreshing(true);
+                mPullToRefreshController.stopRefreshing();
+            } else {
+                mPullToRefreshController.startRefreshing();
             }
         }
     }
@@ -558,7 +552,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     protected void refresh(final boolean userRefresh) {
         log("Refresh [userRefresh: " + userRefresh + "]");
 
-        // this needs to happen regardless of context/adapter availability, it will setup a pending sync if needed
+        // this needs to happen regardless of context/adapter availability, it will attach a pending sync if needed
         if (isSyncable()) {
             requestSync();
         }
@@ -616,7 +610,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
             mRefreshTask.execute(getTaskParams(adapter, true));
         }
 
-        if (mListView != null && !mPullToRefreshLayout.isRefreshing()) {
+        if (mListView != null && !mPullToRefreshController.isRefreshing()) {
             configureEmptyView();
         }
     }
@@ -677,8 +671,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     }
 
     protected void doneRefreshing() {
-        if (mPullToRefreshLayout != null) {
-            mPullToRefreshLayout.setRefreshComplete();
+        if (mPullToRefreshController.isAttached()) {
+            mPullToRefreshController.stopRefreshing();
         }
     }
 
@@ -725,7 +719,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                 log("Auto refreshing content");
                 if (!isRefreshing()) {
                     refresh(false);
-                    if (mPullToRefreshLayout != null) mPullToRefreshLayout.setRefreshing(true);
+                    if (mPullToRefreshController.isAttached()) mPullToRefreshController.startRefreshing();
                 }
             } else {
                 log("Skipping auto refresh");

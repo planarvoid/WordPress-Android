@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyListView;
 import com.xtremelabs.robolectric.Robolectric;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -24,36 +25,35 @@ public class InlinePlaylistTracksAdapterTest {
     @Mock
     private ImageOperations imageOperations;
 
+    @Before
+    public void setUp() throws Exception {
+        adapter = new InlinePlaylistTracksAdapter(imageOperations);
+    }
+
     @Test
     public void reports2DifferentItemTypes() {
-        adapter = new InlinePlaylistTracksAdapter(imageOperations);
         expect(adapter.getViewTypeCount()).toBe(2);
     }
 
     @Test
     public void hasCountOf1WithNoDataAndInlineEmptyViews() throws Exception {
-        adapter = new InlinePlaylistTracksAdapter(imageOperations);
         expect(adapter.getCount()).toBe(1);
     }
 
-
     @Test
     public void getViewCreatesEmptyListViewWithNoData() throws Exception {
-        adapter = new InlinePlaylistTracksAdapter(imageOperations);
         View view = adapter.getView(0, null, new FrameLayout(Robolectric.application));
         expect(view).toBeInstanceOf(EmptyListView.class);
     }
 
     @Test
     public void getViewReturnsEmptyListViewWithWaitingStateByDefault() throws Exception {
-        adapter = new InlinePlaylistTracksAdapter(imageOperations);
         EmptyListView view = (EmptyListView) adapter.getView(0, null, new FrameLayout(Robolectric.application));
         expect(view.getStatus()).toEqual(Status.WAITING);
     }
 
     @Test
     public void getViewReturnsEmptyListViewWithErrorState() throws Exception {
-        adapter = new InlinePlaylistTracksAdapter(imageOperations);
         adapter.setEmptyViewStatus(Status.ERROR);
         EmptyListView view = (EmptyListView) adapter.getView(0, null, new FrameLayout(Robolectric.application));
         expect(view.getStatus()).toEqual(Status.ERROR);
@@ -61,7 +61,6 @@ public class InlinePlaylistTracksAdapterTest {
 
     @Test
     public void getViewReturnsEmptyListViewWithOkStateAndNoItemsOnAdapter() throws Exception {
-        adapter = new InlinePlaylistTracksAdapter(imageOperations);
         adapter.setEmptyViewStatus(Status.OK);
         EmptyListView view = (EmptyListView) adapter.getView(0, null, new FrameLayout(Robolectric.application));
         expect(view.getStatus()).toEqual(Status.OK);
@@ -69,9 +68,32 @@ public class InlinePlaylistTracksAdapterTest {
 
     @Test
     public void returnTrackRowWithData() throws Exception {
-        adapter = new InlinePlaylistTracksAdapter(imageOperations);
-        adapter.addItem(new Track(1L));
-
+        adapter.addItem(new Track(1));
         expect(adapter.getView(0, null, new FrameLayout(Robolectric.application))).toBeInstanceOf(PlayableRow.class);
     }
+
+    @Test
+    public void hadContentItemsShouldBeFalseWhenErrorStateIsShown() {
+        adapter.setEmptyViewStatus(Status.ERROR);
+        expect(adapter.hasContentItems()).toBeFalse();
+    }
+
+    @Test
+    public void hasContentItemsShouldBeFalseWhenNoItemsHaveBeenSet() {
+        expect(adapter.hasContentItems()).toBeFalse();
+    }
+
+    @Test
+    public void hasContentItemsShouldBeTrueOnceItemsHaveBeenAdded() {
+        adapter.addItem(new Track(1));
+        expect(adapter.hasContentItems()).toBeTrue();
+    }
+
+    @Test
+    public void hasContentItemsShouldBeTrueWhenItemsAddedAfterError() {
+        adapter.setEmptyViewStatus(Status.ERROR);
+        adapter.addItem(new Track(1));
+        expect(adapter.hasContentItems()).toBeTrue();
+    }
+
 }

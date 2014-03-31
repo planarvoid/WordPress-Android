@@ -99,7 +99,7 @@ public final class Consts {
     public interface ResourceStaleTimes {
         long user       =   86400000l;    //24*60*60*1000 = 24hr
         long track      =   14400000l;    //4*60*60*1000  = 4hr
-        long playlist   =   3600000l;    //1*60*60*1000  = 1hr
+        long playlist   =   14400000l;    //4*60*60*1000  = 4hr
         long activity   =   1200000l;     //20*60*1000    = 20 mins
     }
 

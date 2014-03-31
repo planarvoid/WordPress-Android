@@ -5,6 +5,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ExploreGenre;
@@ -14,21 +15,18 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
-import com.soundcloud.android.utils.ViewUtils;
-import com.soundcloud.android.view.EmptyListDelegate;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
-import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,7 +56,8 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     @Inject
     ImageOperations mImageOperations;
 
-    private PullToRefreshLayout mPullToRefreshLayout;
+    @Inject
+    PullToRefreshController mPullToRefreshController;
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
     private Subscription mSubscription = Subscriptions.empty();
@@ -147,15 +146,9 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     private void setupPullToRefresh(View view) {
         // Work around for child fragment issue where getActivity() returns previous instance after rotate
-        Activity actionBarOwner = getParentFragment() == null ? getActivity() : getParentFragment().getActivity();
-
-        mPullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.ptr_layout);
-        ActionBarPullToRefresh.from(actionBarOwner)
-                .allChildrenArePullable()
-                .useViewDelegate(EmptyListView.class, new EmptyListDelegate())
-                .listener(this)
-                .setup(mPullToRefreshLayout);
-        ViewUtils.stylePtrProgress(actionBarOwner, mPullToRefreshLayout.getHeaderView());
+        FragmentActivity actionBarOwner = getParentFragment() == null ? getActivity() : getParentFragment().getActivity();
+        PullToRefreshLayout pullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.ptr_layout);
+        mPullToRefreshController.attach(actionBarOwner, pullToRefreshLayout, this);
     }
 
     @Override
@@ -227,7 +220,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         }
 
         private void hidePullToRefreshView() {
-            mPullToRefreshLayout.setRefreshComplete();
+            mPullToRefreshController.stopRefreshing();
         }
     }
 }

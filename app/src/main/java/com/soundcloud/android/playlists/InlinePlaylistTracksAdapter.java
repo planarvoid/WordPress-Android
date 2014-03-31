@@ -57,6 +57,10 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<Track> implements EmptyVie
         }
     }
 
+    protected boolean hasContentItems() {
+        return !mItems.isEmpty();
+    }
+
     @Override
     public int getViewTypeCount() {
         return 2;

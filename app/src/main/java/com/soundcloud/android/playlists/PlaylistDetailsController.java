@@ -11,7 +11,10 @@ public interface PlaylistDetailsController extends EmptyViewAware {
 
     ItemAdapter<Track> getAdapter();
 
+    boolean hasContent();
+
     void onViewCreated(View layout, Resources resources);
 
     void setListShown(boolean show);
+
 }

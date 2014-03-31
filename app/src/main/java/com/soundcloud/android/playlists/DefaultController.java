@@ -27,6 +27,11 @@ class DefaultController implements PlaylistDetailsController {
     }
 
     @Override
+    public boolean hasContent() {
+        return mAdapter.hasContentItems();
+    }
+
+    @Override
     public void onViewCreated(View layout, Resources resources) {
         mListView = (ListView) layout.findViewById(android.R.id.list);
     }
