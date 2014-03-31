@@ -106,6 +106,7 @@
     <string name="empty_playlist_description">This playlist has no tracks yet</string>
 
     <string name="playlist_removed">This playlist was not found on SoundCloud</string>
+    <string name="playlist_load_error">Could not load this playlist</string>
 
     <string name="list_empty_user_playlists_message">%1$s currently has no playlist.</string>
     <string name="list_empty_you_playlists_message">Create Playlists to make mixes of your favorite sounds</string>

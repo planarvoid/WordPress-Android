@@ -10,6 +10,7 @@
               android:layout_height="wrap_content"
               android:textColor="@color/listTxtHeader"
               android:textSize="@dimen/list_txt_sub_size"
+              android:text="@string/playlist_load_error"
               android:padding="10dp"
               android:layout_marginLeft="6dp" />
 
