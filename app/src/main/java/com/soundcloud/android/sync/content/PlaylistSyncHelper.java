@@ -27,7 +27,6 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Request;
 
 import android.content.Context;
-import android.content.SyncResult;
 import android.net.Uri;
 
 import java.io.IOException;
@@ -101,6 +100,10 @@ class PlaylistSyncHelper {
         List<SoundAssociation> associations = new ArrayList<SoundAssociation>();
         for (ScResource resource : resources) {
             Playlist playlist = (Playlist) resource;
+
+            // update metadata in MM with mini mode to avoid overwriting local tracks
+            mModelManager.cache(playlist, ScResource.CacheUpdateMode.MINI);
+
             associations.add(new SoundAssociation(playlist));
             boolean onWifi = IOUtils.isWifiConnected(context);
 

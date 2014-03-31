@@ -429,6 +429,10 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                 if (nothingChanged && !isRefreshTaskActive()) {
                     doneRefreshing();
                     checkAllowInitalAppend();
+                    final ScBaseAdapter listAdapter = getListAdapter();
+                    if (listAdapter != null) {
+                        listAdapter.notifyDataSetChanged();
+                    }
 
                 } else if (!nothingChanged) {
                     // something was changed by the sync, if we aren't refreshing already, do it

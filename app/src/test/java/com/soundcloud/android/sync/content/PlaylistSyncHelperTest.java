@@ -17,6 +17,7 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Sharing;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
@@ -225,6 +226,14 @@ public class PlaylistSyncHelperTest {
 
         playlistSyncHelper.pullRemotePlaylists(context, publicCloudAPI, syncStateManager);
         verify(publicCloudAPI, never()).readList(Matchers.<Request>any());
+    }
+
+    @Test
+    public void syncMePlaylistsShouldStoreMiniRepresentationInModelManager() throws Exception {
+        setupMyPlaylistsRemote(Lists.newArrayList(playlist));
+
+        playlistSyncHelper.pullRemotePlaylists(context, publicCloudAPI, syncStateManager);
+        verify(modelManager).cache(playlist, ScResource.CacheUpdateMode.MINI);
     }
 
     @Test
