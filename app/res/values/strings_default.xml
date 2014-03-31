@@ -237,7 +237,7 @@
   <string name="pref_basic_settings">Basic settings</string>
   <string name="pref_change_log">Change Log</string>
   <string name="pref_change_log_desc">See the latest changes for this release</string>
-  <string name="pref_clear_cache">Clear Cache</string>
+  <string name="pref_clear_cache">Clear Image Cache</string>
   <string name="pref_clear_cache_desc">Clear the application cache to free up memory</string>
   <string name="pref_clear_stream_cache">Clear Stream Cache</string>
   <string name="pref_clear_stream_cache_desc">Clear the stream cache</string>
