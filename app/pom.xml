@@ -279,10 +279,10 @@
         </dependency>
         <dependency>
             <groupId>com.soundcloud.android</groupId>
-            <artifactId>android-crop-apklib</artifactId>
+            <artifactId>android-crop</artifactId>
             <version>0.9.7</version>
             <scope>compile</scope>
-            <type>apklib</type>
+            <type>aar</type>
         </dependency>
         <dependency>
             <groupId>com.github.chrisbanes.actionbarpulltorefresh</groupId>
