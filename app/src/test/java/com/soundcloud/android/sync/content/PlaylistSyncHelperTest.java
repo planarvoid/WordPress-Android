@@ -170,6 +170,15 @@ public class PlaylistSyncHelperTest {
         inOrder.verify(playlistStorage).removePlaylist(oldPlaylistUri);
     }
 
+    @Test
+    public void syncPlaylistCachesAndStoresUpdatedPlaylist() throws IOException {
+        when(publicCloudAPI.read(argThat(isLegacyRequestToUrl("/playlists/123")))).thenReturn(playlist);
+        when(playlistStorage.getUnpushedTracksForPlaylist(123L)).thenReturn(Collections.<Long>emptyList());
+        playlistSyncHelper.syncPlaylist(Content.PLAYLIST.forId(123L), publicCloudAPI);
+        verify(modelManager).cache(playlist, ScResource.CacheUpdateMode.FULL);
+        verify(playlistStorage).store(playlist);
+    }
+
     @Test(expected = UnknownResourceException.class)
     public void pushUnpushedTracksShouldThrowUnknownResourceExceptionWithUnexpectedResourceResponse() throws IOException {
         when(publicCloudAPI.read(argThat(isLegacyRequestToUrl("/playlists/123")))).thenReturn(Mockito.mock(UnknownResource.class));

@@ -157,8 +157,8 @@ class PlaylistSyncHelper {
      */
     public Playlist syncPlaylist(Uri playlistUri, /** inject this **/PublicCloudAPI apiWrapper) throws IOException {
         final Playlist playlist = resolvePlaylistWithAdditions(playlistUri, apiWrapper);
-        final Playlist store = mPlaylistStorage.store(playlist);
-        return store;
+        mModelManager.cache(playlist, ScResource.CacheUpdateMode.FULL);
+        return mPlaylistStorage.store(playlist);
     }
 
     private Playlist resolvePlaylistWithAdditions(Uri playlistUri, /** inject this **/PublicCloudAPI apiWrapper) throws IOException {
