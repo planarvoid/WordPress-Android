@@ -41,7 +41,8 @@ public class PlaceholderGenerator {
     }
 
     public Drawable generate(String indexerUrn) {
-        return mDrawables[Math.abs(indexerUrn.hashCode()) % mDrawables.length];
+        // What is going on here? See: http://findbugs.blogspot.de/2006/09/is-mathabs-broken.html
+        return mDrawables[(indexerUrn.hashCode() & Integer.MAX_VALUE) % mDrawables.length];
     }
 
     private GradientDrawable build(int[] colorIds) {
