@@ -80,7 +80,7 @@ public class SearchOperations {
         }
     };
 
-    private final Action1<PlaylistSummaryCollection> preCachePlaylistResults = new Action1<PlaylistSummaryCollection>() {
+    private final Action1<PlaylistSummaryCollection> mPreCachePlaylistResults = new Action1<PlaylistSummaryCollection>() {
         @Override
         public void call(PlaylistSummaryCollection collection) {
             final Function<PlaylistSummary, Playlist> function = new Function<PlaylistSummary, Playlist>() {
@@ -193,7 +193,7 @@ public class SearchOperations {
     private Observable<Page<PlaylistSummaryCollection>> getPlaylistResultsPage(
             String query, APIRequest<PlaylistSummaryCollection> request) {
         Observable<PlaylistSummaryCollection> source = mRxHttpClient.fetchModels(request);
-        source = source.doOnNext(preCachePlaylistResults).map(withSearchTag(query));
+        source = source.doOnNext(mPreCachePlaylistResults).map(withSearchTag(query));
         return Observable.create(paged(source, nextDiscoveryResultsPageGenerator(query)));
     }
 
