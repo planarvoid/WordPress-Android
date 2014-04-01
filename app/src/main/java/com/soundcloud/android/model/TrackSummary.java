@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Function;
 
 import android.os.Parcel;
 
@@ -25,6 +26,17 @@ public class TrackSummary extends ScModel {
     private Sharing         mSharing = Sharing.UNDEFINED;
 
     private TrackStats mStats;
+
+    /**
+     * While we're still using the model hierarchy from public API, we need
+     * to convert to these classes on a number of occasions
+     */
+    public static final Function<TrackSummary, Track> TO_TRACK = new Function<TrackSummary, Track>() {
+        @Override
+        public Track apply(TrackSummary input) {
+            return new Track(input);
+        }
+    };
 
     public TrackSummary() { /* for Deserialization */ }
 

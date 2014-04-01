@@ -5,7 +5,6 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import static rx.android.OperationPaged.Page;
 import static rx.android.OperationPaged.paged;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
@@ -16,7 +15,6 @@ import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.model.Link;
-import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.PlaylistSummaryCollection;
 import com.soundcloud.android.model.PlaylistTagsCollection;
@@ -83,13 +81,7 @@ public class SearchOperations {
     private final Action1<PlaylistSummaryCollection> mPreCachePlaylistResults = new Action1<PlaylistSummaryCollection>() {
         @Override
         public void call(PlaylistSummaryCollection collection) {
-            final Function<PlaylistSummary, Playlist> function = new Function<PlaylistSummary, Playlist>() {
-                @Override
-                public Playlist apply(PlaylistSummary input) {
-                    return new Playlist(input);
-                }
-            };
-            fireAndForget(mBulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), function)));
+            fireAndForget(mBulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), PlaylistSummary.TO_PLAYLIST)));
         }
     };
 

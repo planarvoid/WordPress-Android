@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.APIEndpoints;
@@ -12,7 +11,6 @@ import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.RelatedTracksCollection;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -46,13 +44,7 @@ public class PlayQueueOperations {
     private final Action1<RelatedTracksCollection> mCacheRelatedTracks = new Action1<RelatedTracksCollection>() {
         @Override
         public void call(RelatedTracksCollection collection) {
-            final Function<TrackSummary, Track> function = new Function<TrackSummary, Track>() {
-                @Override
-                public Track apply(TrackSummary input) {
-                    return new Track(input);
-                }
-            };
-            fireAndForget(mBulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), function)));
+            fireAndForget(mBulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), TrackSummary.TO_TRACK)));
         }
     };
 

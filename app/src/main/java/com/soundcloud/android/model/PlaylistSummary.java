@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Function;
 
 import java.util.Date;
 import java.util.List;
@@ -16,6 +17,17 @@ public class PlaylistSummary extends ScModel {
     private PlayableStats mStats;
     private int mDuration;
     private Sharing mSharing;
+
+    /**
+     * While we're still using the model hierarchy from public API, we need
+     * to convert to these classes on a number of occasions
+     */
+    public static final Function<PlaylistSummary, Playlist> TO_PLAYLIST = new Function<PlaylistSummary, Playlist>() {
+        @Override
+        public Playlist apply(PlaylistSummary input) {
+            return new Playlist(input);
+        }
+    };
 
     /**
      * Required for Jackson

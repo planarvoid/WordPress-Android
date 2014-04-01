@@ -4,7 +4,6 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import static rx.android.OperationPaged.Page;
 import static rx.android.OperationPaged.paged;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
@@ -17,7 +16,6 @@ import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;
 import com.soundcloud.android.model.Link;
 import com.soundcloud.android.model.SuggestedTracksCollection;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.BulkStorage;
@@ -36,13 +34,7 @@ class ExploreTracksOperations extends ScheduledOperations {
     private final Action1<SuggestedTracksCollection> mCacheSuggestedTracks = new Action1<SuggestedTracksCollection>() {
         @Override
         public void call(SuggestedTracksCollection collection) {
-            final Function<TrackSummary, Track> function = new Function<TrackSummary, Track>() {
-                @Override
-                public Track apply(TrackSummary input) {
-                    return new Track(input);
-                }
-            };
-            fireAndForget(mBulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), function)));
+            fireAndForget(mBulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), TrackSummary.TO_TRACK)));
         }
     };
 
