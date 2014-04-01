@@ -86,7 +86,8 @@ public class SoundAssociationOperations {
             public Observable<? extends SoundAssociation> call(Throwable throwable) {
                 if (throwable instanceof APIRequestException) {
                     APIRequestException requestException = (APIRequestException) throwable;
-                    if (requestException.response().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                    if (requestException.response() != null
+                            && requestException.response().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
                         Log.d(TAG, "not found; force removing association");
                         return fallbackRemovalFunction;
                     }
