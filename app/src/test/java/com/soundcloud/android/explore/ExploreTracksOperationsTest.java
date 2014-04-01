@@ -35,11 +35,13 @@ public class ExploreTracksOperationsTest {
     @Mock
     private SoundCloudRxHttpClient rxHttpClient;
     @Mock
+    private BulkStorage bulkStorage;
+    @Mock
     private Observer observer;
 
     @Before
     public void setUp() {
-        exploreTracksOperations = new ExploreTracksOperations(rxHttpClient);
+        exploreTracksOperations = new ExploreTracksOperations(rxHttpClient, bulkStorage);
     }
 
     @Test
@@ -77,4 +79,22 @@ public class ExploreTracksOperationsTest {
         verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", tracksUrl)));
     }
 
+    @Test
+    public void shouldWriteSuggestedTracksInLocalStorage() throws Exception {
+        SuggestedTracksCollection collection = buildSuggestedTracksResponse();
+
+        exploreTracksOperations.getSuggestedTracks(ExploreGenre.POPULAR_MUSIC_CATEGORY).subscribe(observer);
+
+        final List<Track> resources = Arrays.asList(new Track(collection.getCollection().get(0)));
+        verify(bulkStorage).bulkInsertAsync(resources);
+    }
+
+    private SuggestedTracksCollection buildSuggestedTracksResponse() throws CreateModelException {
+        TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
+        SuggestedTracksCollection collection = new SuggestedTracksCollection();
+        collection.setCollection(Arrays.asList(track));
+        when(rxHttpClient.<SuggestedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(
+                Observable.<SuggestedTracksCollection>from(collection));
+        return collection;
+    }
 }
