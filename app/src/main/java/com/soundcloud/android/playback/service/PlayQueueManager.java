@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
@@ -98,10 +97,6 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
 
     public String getOriginScreen() {
         return mPlaySessionSource.getOriginScreen();
-    }
-
-    private boolean isPlayingPlaylist() {
-        return getPlaylistId() > Playable.NOT_SET;
     }
 
     public boolean shouldReloadQueue(){
