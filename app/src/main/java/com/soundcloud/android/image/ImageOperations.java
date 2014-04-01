@@ -1,14 +1,18 @@
 package com.soundcloud.android.image;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Sets;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.view.View;
@@ -16,9 +20,13 @@ import android.widget.AbsListView;
 import android.widget.ImageView;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.io.FileNotFoundException;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Singleton
 public class ImageOperations {
 
     private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1024 * 1024; // available mem in bytes
@@ -28,6 +36,18 @@ public class ImageOperations {
     private final ImageLoader mImageLoader;
     private final ImageEndpointBuilder mImageEndpointBuilder;
     private final PlaceholderGenerator mPlaceholderGenerator;
+
+    private final Set<String> mNotFoundUris = Sets.newHashSet();
+
+    private final SimpleImageLoadingListener mNotFoundListener = new SimpleImageLoadingListener() {
+        @Override
+        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+            super.onLoadingFailed(imageUri, view, failReason);
+            if (failReason.getCause() instanceof FileNotFoundException){
+                mNotFoundUris.add(imageUri);
+            }
+        }
+    };
 
     @Inject
     public ImageOperations(ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator) {
@@ -65,39 +85,47 @@ public class ImageOperations {
 
     public void displayInAdapterView(String urn, ImageSize imageSize, ImageView imageView) {
         mImageLoader.displayImage(
-                mImageEndpointBuilder.imageUrl(urn, imageSize), new ImageViewAware(imageView, false),
-                ImageOptionsFactory.adapterView(mPlaceholderGenerator.generate(urn)));
+                buildUrlIfNotPreviouslyMissing(urn, imageSize),
+                new ImageViewAware(imageView, false),
+                        ImageOptionsFactory.adapterView(mPlaceholderGenerator.generate(urn)), mNotFoundListener);
     }
 
     public void displayWithPlaceholder(String urn, ImageSize imageSize, ImageView imageView, int defaultResId) {
         mImageLoader.displayImage(
-                mImageEndpointBuilder.imageUrl(urn, imageSize),
+                buildUrlIfNotPreviouslyMissing(urn, imageSize),
                 new ImageViewAware(imageView, false),
-                ImageOptionsFactory.placeholder(defaultResId));
+                ImageOptionsFactory.placeholder(defaultResId),
+                mNotFoundListener);
     }
 
     public void displayWithPlaceholder(String urn, ImageSize imageSize, ImageView imageView) {
         mImageLoader.displayImage(
-                mImageEndpointBuilder.imageUrl(urn, imageSize),
+                buildUrlIfNotPreviouslyMissing(urn, imageSize),
                 new ImageViewAware(imageView, false),
-                ImageOptionsFactory.placeholder(mPlaceholderGenerator.generate(urn)));
+                ImageOptionsFactory.placeholder(mPlaceholderGenerator.generate(urn)),
+                mNotFoundListener);
     }
 
     public void displayInPlayerView(String urn, ImageSize imageSize, ImageView imageView, View parentView,
                                     boolean priority, ImageListener imageListener) {
         mImageLoader.displayImage(
-                mImageEndpointBuilder.imageUrl(urn, imageSize),
+                buildUrlIfNotPreviouslyMissing(urn, imageSize),
                 new ImageViewAware(imageView, false),
                 ImageOptionsFactory.player(parentView, priority), new ImageListenerUILAdapter(imageListener));
     }
 
     public void displayInFullDialogView(String urn, ImageSize imageSize, ImageView imageView, ImageListener imageListener) {
-        mImageLoader.displayImage(mImageEndpointBuilder.imageUrl(urn, imageSize), new ImageViewAware(imageView, false),
-                ImageOptionsFactory.fullImageDialog(), new ImageListenerUILAdapter(imageListener));
+        mImageLoader.displayImage(
+                buildUrlIfNotPreviouslyMissing(urn, imageSize),
+                new ImageViewAware(imageView, false),
+                ImageOptionsFactory.fullImageDialog(),
+                new ImageListenerUILAdapter(imageListener));
     }
 
     public void load(String urn, ImageSize imageSize, ImageListener imageListener) {
-        mImageLoader.loadImage(mImageEndpointBuilder.imageUrl(urn, imageSize), new ImageListenerUILAdapter(imageListener));
+        mImageLoader.loadImage(
+                buildUrlIfNotPreviouslyMissing(urn, imageSize),
+                new ImageListenerUILAdapter(imageListener));
     }
 
     @Deprecated // use the variants that take URNs instead
@@ -143,5 +171,11 @@ public class ImageOperations {
             }
         }
         return url; // fallback to original url
+    }
+
+    @Nullable
+    private String buildUrlIfNotPreviouslyMissing(String urn, ImageSize imageSize){
+        final String imageUrl = mImageEndpointBuilder.imageUrl(urn, imageSize);
+        return mNotFoundUris.contains(imageUrl) ? null : imageUrl;
     }
 }

@@ -15,22 +15,29 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 
 @RunWith(SoundCloudTestRunner.class)
@@ -59,6 +66,8 @@ public class ImageOperationsTest {
     Drawable drawable;
     @Mock
     View parentView;
+    @Mock
+    FailReason failReason;
 
     @Captor
     ArgumentCaptor<ImageListenerUILAdapter> imageListenerUILAdapterCaptor;
@@ -66,24 +75,76 @@ public class ImageOperationsTest {
     ArgumentCaptor<ImageViewAware> imageViewAwareCaptor;
     @Captor
     ArgumentCaptor<DisplayImageOptions> displayOptionsCaptor;
+    @Captor
+    ArgumentCaptor<SimpleImageLoadingListener> simpleImageLoadingListenerCaptor;
 
     final private String URL = "https://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
     final private String ADJUSTED_URL = "http://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
     final private String URL_WITH_PARAMS = "https://api.soundcloud.com/resolve/image?url=soundcloud%3Ausers%3A1818488&client_id=40ccfee680a844780a41fbe23ea89934&size=t500x500";
     final private String ADJUSTED_URL_WITH_PARAMS = "http://api.soundcloud.com/resolve/image?url=soundcloud%3Ausers%3A1818488&client_id=40ccfee680a844780a41fbe23ea89934&size=t500x500";
 
+    final private static String RESOLVER_URL_LARGE = "http://api.soundcloud.com/app/mobileapps/images/soundcloud:tracks:1/large";
+    final private static String URN = "soundcloud:tracks:1";
+
     @Before
     public void setUp() throws Exception {
         imageOperations = new ImageOperations(imageLoader, imageEndpointBuilder, placeholderGenerator);
         when(imageLoader.getDiscCache()).thenReturn(diskCache);
+        when(imageEndpointBuilder.imageUrl(URN, ImageSize.LARGE)).thenReturn(RESOLVER_URL_LARGE);
+    }
+
+    @Test
+    public void NotFoundExceptionDuringAdapterViewLoadMakesNextLoadToPassNullPath() throws Exception {
+        when(failReason.getCause()).thenReturn(new FileNotFoundException());
+
+        // 1st load
+        imageOperations.displayInAdapterView(URN, ImageSize.LARGE, imageView);
+        InOrder inOrder = Mockito.inOrder(imageLoader);
+        inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageViewAware.class), any(DisplayImageOptions.class), simpleImageLoadingListenerCaptor.capture());
+        simpleImageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL_LARGE, imageView, failReason);
+
+        // 2nd load
+        imageOperations.displayInAdapterView(URN, ImageSize.LARGE, imageView);
+        inOrder.verify(imageLoader).displayImage((String) isNull(), any(ImageViewAware.class), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
+    }
+
+    @Test
+    public void IOExceptionDuringAdapterViewLoadAllowsRetryWithUrl() throws Exception {
+        when(failReason.getCause()).thenReturn(new IOException());
+
+        // 1st load
+        imageOperations.displayInAdapterView(URN, ImageSize.LARGE, imageView);
+        InOrder inOrder = Mockito.inOrder(imageLoader);
+        inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageViewAware.class), any(DisplayImageOptions.class), simpleImageLoadingListenerCaptor.capture());
+        simpleImageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL_LARGE, imageView, failReason);
+
+        // 2nd load
+        imageOperations.displayInAdapterView(URN, ImageSize.LARGE, imageView);
+        inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageViewAware.class), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
+    }
+
+
+    @Test
+    public void NotFoundExceptionDuringPlaceholderLoadMakesNextLoadToPassNullPath() throws Exception {
+        when(failReason.getCause()).thenReturn(new FileNotFoundException());
+
+        // 1st load
+        imageOperations.displayWithPlaceholder(URN, ImageSize.LARGE, imageView, R.drawable.tiny_cloud);
+        InOrder inOrder = Mockito.inOrder(imageLoader);
+        inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageViewAware.class), any(DisplayImageOptions.class), simpleImageLoadingListenerCaptor.capture());
+        simpleImageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL_LARGE, imageView, failReason);
+
+        // 2nd load
+        imageOperations.displayWithPlaceholder(URN, ImageSize.LARGE, imageView, R.drawable.tiny_cloud);
+        inOrder.verify(imageLoader).displayImage((String) isNull(), any(ImageViewAware.class), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
     }
 
     @Test
     public void shouldLoadImageByUrnWithHeadlessListener() throws Exception {
-        final String imageUrl = "http://api.soundcloud.com/app/mobileapps/images/soundcloud:tracks:1/large";
-        when(imageEndpointBuilder.imageUrl("soundcloud:tracks:1", ImageSize.LARGE)).thenReturn(imageUrl);
+        final String imageUrl = RESOLVER_URL_LARGE;
+        when(imageEndpointBuilder.imageUrl(URN, ImageSize.LARGE)).thenReturn(imageUrl);
 
-        imageOperations.load("soundcloud:tracks:1", ImageSize.LARGE, imageListener);
+        imageOperations.load(URN, ImageSize.LARGE, imageListener);
 
         verify(imageLoader).loadImage(eq(imageUrl), imageListenerUILAdapterCaptor.capture());
         verifyCapturedListener();
@@ -131,15 +192,14 @@ public class ImageOperationsTest {
         when(imageEndpointBuilder.imageUrl("soundcloud:tracks:1", ImageSize.LARGE)).thenReturn(imageUrl);
 
         imageOperations.displayInAdapterView("soundcloud:tracks:1", ImageSize.LARGE, imageView);
-
-        verify(imageLoader).displayImage(eq(imageUrl), any(ImageAware.class), any(DisplayImageOptions.class));
+        verify(imageLoader).displayImage(eq(imageUrl), any(ImageAware.class), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
     }
 
     @Test
     public void displayImageInAdapterViewShouldWrapAndForwardTheGivenImageView() {
         imageOperations.displayInAdapterView("soundcloud:tracks:1", ImageSize.LARGE, imageView);
 
-        verify(imageLoader).displayImage(anyString(), imageViewAwareCaptor.capture(), any(DisplayImageOptions.class));
+        verify(imageLoader).displayImage(anyString(), imageViewAwareCaptor.capture(), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
         expect(imageViewAwareCaptor.getValue().getWrappedView()).toBe(imageView);
     }
 
@@ -147,7 +207,7 @@ public class ImageOperationsTest {
     public void displayImageInAdapterViewShouldShouldUseCorrectDisplayOptions() {
         imageOperations.displayInAdapterView("soundcloud:tracks:1", ImageSize.LARGE, imageView);
 
-        verify(imageLoader).displayImage(anyString(), any(ImageAware.class), displayOptionsCaptor.capture());
+        verify(imageLoader).displayImage(anyString(), any(ImageAware.class), displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
         expect(displayOptionsCaptor.getValue().isResetViewBeforeLoading()).toBeTrue();
         expect(displayOptionsCaptor.getValue().getDisplayer()).toBeInstanceOf(PlaceholderTransitionDisplayer.class);
         verifyFullCacheOptions();
@@ -156,9 +216,9 @@ public class ImageOperationsTest {
     @Test
     public void displayInPlayerViewShouldCallDisplayWithAdjustedUrlImageViewAwarePlayerOptionsAndListener() throws Exception {
         final String imageUrl = "http://api.soundcloud.com/app/mobileapps/images/soundcloud:tracks:1/t500x500";
-        when(imageEndpointBuilder.imageUrl("soundcloud:tracks:1", ImageSize.T500)).thenReturn(imageUrl);
+        when(imageEndpointBuilder.imageUrl(URN, ImageSize.T500)).thenReturn(imageUrl);
 
-        imageOperations.displayInPlayerView("soundcloud:tracks:1", ImageSize.T500, imageView, parentView, false, imageListener);
+        imageOperations.displayInPlayerView(URN, ImageSize.T500, imageView, parentView, false, imageListener);
 
         verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(),
                 displayOptionsCaptor.capture(), imageListenerUILAdapterCaptor.capture());
@@ -172,9 +232,9 @@ public class ImageOperationsTest {
     @Test
     public void displayInFullDialogViewShouldLoadImageFromMobileImageResolver() throws Exception {
         final String imageUrl = "http://api.soundcloud.com/app/mobileapps/images/soundcloud:tracks:1/t500x500";
-        when(imageEndpointBuilder.imageUrl("soundcloud:tracks:1", ImageSize.T500)).thenReturn(imageUrl);
+        when(imageEndpointBuilder.imageUrl(URN, ImageSize.T500)).thenReturn(imageUrl);
 
-        imageOperations.displayInFullDialogView("soundcloud:tracks:1", ImageSize.T500, imageView, imageListener);
+        imageOperations.displayInFullDialogView(URN, ImageSize.T500, imageView, imageListener);
 
         verify(imageLoader).displayImage(
                 eq(imageUrl), any(ImageAware.class), any(DisplayImageOptions.class), any(ImageListenerUILAdapter.class));
@@ -182,7 +242,7 @@ public class ImageOperationsTest {
 
     @Test
     public void displayInFullDialogViewShouldWrapAndForwardTheGivenImageView() throws Exception {
-        imageOperations.displayInFullDialogView("soundcloud:tracks:1", ImageSize.T500, imageView, imageListener);
+        imageOperations.displayInFullDialogView(URN, ImageSize.T500, imageView, imageListener);
 
         verify(imageLoader).displayImage(
                 anyString(), imageViewAwareCaptor.capture(), any(DisplayImageOptions.class), any(ImageListenerUILAdapter.class));
@@ -191,7 +251,7 @@ public class ImageOperationsTest {
 
     @Test
     public void displayInFullDialogViewShouldUseCorrectImageListener() throws Exception {
-        imageOperations.displayInFullDialogView("soundcloud:tracks:1", ImageSize.T500, imageView, imageListener);
+        imageOperations.displayInFullDialogView(URN, ImageSize.T500, imageView, imageListener);
 
         verify(imageLoader).displayImage(
                 anyString(), any(ImageAware.class), any(DisplayImageOptions.class), imageListenerUILAdapterCaptor.capture());
@@ -200,7 +260,7 @@ public class ImageOperationsTest {
 
     @Test
     public void displayInFullDialogViewShouldUseCorrectDisplayOptions() throws Exception {
-        imageOperations.displayInFullDialogView("soundcloud:tracks:1", ImageSize.T500, imageView, imageListener);
+        imageOperations.displayInFullDialogView(URN, ImageSize.T500, imageView, imageListener);
 
         verify(imageLoader).displayImage(
                 anyString(), any(ImageAware.class), displayOptionsCaptor.capture(), any(ImageListenerUILAdapter.class));
@@ -211,12 +271,12 @@ public class ImageOperationsTest {
 
     @Test
     public void displayWithPlaceholderShouldLoadImageFromMobileApiAndPlaceholderOptions() throws Exception {
-        final String imageUrl = "http://api.soundcloud.com/app/mobileapps/images/soundcloud:tracks:1/large";
-        when(imageEndpointBuilder.imageUrl("soundcloud:tracks:1", ImageSize.LARGE)).thenReturn(imageUrl);
+        final String imageUrl = RESOLVER_URL_LARGE;
+        when(imageEndpointBuilder.imageUrl(URN, ImageSize.LARGE)).thenReturn(imageUrl);
 
-        imageOperations.displayWithPlaceholder("soundcloud:tracks:1", ImageSize.LARGE, imageView, RES_ID);
+        imageOperations.displayWithPlaceholder(URN, ImageSize.LARGE, imageView, RES_ID);
 
-        verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(), displayOptionsCaptor.capture());
+        verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(), displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
         expect(imageViewAwareCaptor.getValue().getWrappedView()).toBe(imageView);
         verifyFallbackDrawableOptions(RES_ID);
         verifyFullCacheOptions();
