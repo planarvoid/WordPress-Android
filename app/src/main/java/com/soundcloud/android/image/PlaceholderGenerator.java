@@ -28,8 +28,7 @@ public class PlaceholderGenerator {
     };
 
     private final Resources mResources;
-
-    private GradientDrawable[] mDrawables;
+    private final GradientDrawable[] mDrawables;
 
     @Inject
     PlaceholderGenerator(Resources resources) {
