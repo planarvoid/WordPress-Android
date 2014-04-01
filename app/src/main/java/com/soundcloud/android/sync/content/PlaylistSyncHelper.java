@@ -89,7 +89,7 @@ class PlaylistSyncHelper {
         return playlistsToUpload.size();
     }
 
-    public ApiSyncResult pullRemotePlaylists(Context context, PublicCloudAPI api, SyncStateManager syncStateManager) throws IOException {
+    public ApiSyncResult pullRemotePlaylists(PublicCloudAPI api) throws IOException {
 
         final Request request = Request.to(Content.ME_PLAYLISTS.remoteUri)
                 .add("representation", "compact").with("limit", 200);
@@ -103,14 +103,11 @@ class PlaylistSyncHelper {
 
             // update metadata in MM with mini mode to avoid overwriting local tracks
             mModelManager.cache(playlist, ScResource.CacheUpdateMode.MINI);
-
             associations.add(new SoundAssociation(playlist));
-            boolean onWifi = IOUtils.isWifiConnected(context);
 
-            // if we have never synced the playlist or are on wifi and past the stale time, fetch the tracks
-            final LocalCollection localCollection = syncStateManager.fromContent(playlist.toUri());
-            final boolean shouldSyncTracks = (localCollection.shouldAutoRefresh() && onWifi)
-                    || !localCollection.hasSyncedBefore();
+            final List<Long> trackIds = mPlaylistStorage.getPlaylistTrackIds(playlist.getId());
+            final int localTrackCount = trackIds == null ? 0 : trackIds.size();
+            final boolean shouldSyncTracks = localTrackCount != playlist.getTrackCount();
 
             if (shouldSyncTracks && playlist.getTrackCount() < PlaylistSyncer.MAX_MY_PLAYLIST_TRACK_COUNT_SYNC) {
                 try {

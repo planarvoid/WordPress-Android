@@ -59,7 +59,7 @@ public class PlaylistSyncerTest {
     @Test
     public void syncMePlaylistsShouldReturnResultFromSyncHelper() throws Exception {
         final ApiSyncResult result = Mockito.mock(ApiSyncResult.class);
-        when(syncHelper.pullRemotePlaylists(Robolectric.application, publicCloudAPI, syncStateManager)).thenReturn(result);
+        when(syncHelper.pullRemotePlaylists(publicCloudAPI)).thenReturn(result);
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         expect(playlistSyncer.syncContent(Content.ME_PLAYLISTS.uri)).toBe(result);
     }

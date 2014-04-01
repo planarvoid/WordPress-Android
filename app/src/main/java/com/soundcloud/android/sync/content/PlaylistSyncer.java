@@ -65,15 +65,11 @@ public class PlaylistSyncer extends SyncStrategy {
     }
 
     /**
-     * Pushes any locally created playlists to the server, fetches the user's playlists from the server,
-     * and fetches tracks for these playlists that are missing locally.
-     * <p/>
-     * This is specific because the Api does not return these as sound associations, otherwise
-     * we could use that path
+     * Pushes any locally created playlists to the server, fetches the user's playlists from the server.
      */
     private ApiSyncResult syncMyPlaylists() throws IOException {
         mPlaylistSyncHelper.pushLocalPlaylists(mContext, mApi, mSyncStateManager);
-        return mPlaylistSyncHelper.pullRemotePlaylists(mContext, mApi, mSyncStateManager);
+        return mPlaylistSyncHelper.pullRemotePlaylists(mApi);
 
     }
 
