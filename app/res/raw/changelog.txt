@@ -1,12 +1,16 @@
 $ 85
   % v 2.8.0
-  _ 2014-3-28
-  ! Playlist Discovery fixes
-    * Playlist tags and search result loading stability improved
-    * Send track information to peripherals
-    * Fixed endless loading spinner
-    * Pull to refresh on Playlist Page
-    * Better fallback for missing artwork
+  _ 2014-4-1
+  ! Playlist Discovery Release Candidate
+    * New placeholder images
+    * Fixed bug with reloading and interacting with Explore tracks
+    * Some image resolver optionization
+    * Some Random crashes fixed
+    - Playlist tags and search result loading stability improved
+    - Send track information to peripherals
+    - Fixed endless loading spinner
+    - Pull to refresh on Playlist Page
+    - Better fallback for missing artwork
     - Various smaller bug fixes
 
 $ 84
