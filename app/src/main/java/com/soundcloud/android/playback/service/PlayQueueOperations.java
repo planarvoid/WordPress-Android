@@ -1,27 +1,32 @@
 package com.soundcloud.android.playback.service;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.RelatedTracksCollection;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.storage.BulkStorage;
 import com.soundcloud.android.storage.PlayQueueStorage;
-import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.util.functions.Func1;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -35,12 +40,29 @@ public class PlayQueueOperations {
 
     private final SharedPreferences mSharedPreferences;
     private final PlayQueueStorage mPlayQueueStorage;
-    private RxHttpClient mRxHttpClient;
+    private final BulkStorage mBulkStorage;
+    private final RxHttpClient mRxHttpClient;
+
+    private final Action1<RelatedTracksCollection> mCacheRelatedTracks = new Action1<RelatedTracksCollection>() {
+        @Override
+        public void call(RelatedTracksCollection collection) {
+            final Function<TrackSummary, Track> function = new Function<TrackSummary, Track>() {
+                @Override
+                public Track apply(TrackSummary input) {
+                    return new Track(input);
+                }
+            };
+            fireAndForget(mBulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), function)));
+        }
+    };
+
 
     @Inject
-    public PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage, RxHttpClient rxHttpClient) {
+    public PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage,
+                               BulkStorage bulkStorage, RxHttpClient rxHttpClient) {
         mSharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         mPlayQueueStorage = playQueueStorage;
+        mBulkStorage = bulkStorage;
         mRxHttpClient = rxHttpClient;
     }
 
@@ -99,20 +121,11 @@ public class PlayQueueOperations {
 
     public Observable<RelatedTracksCollection> getRelatedTracks(long trackId) {
         final Urn urn = Urn.forTrack(trackId);
-        if (urn != null){
-            final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), urn.toEncodedString());
-            final APIRequest<RelatedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<RelatedTracksCollection>get(endpoint)
-                    .forPrivateAPI(1)
-                    .forResource(TypeToken.of(RelatedTracksCollection.class)).build();
+        final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), urn.toEncodedString());
+        final APIRequest<RelatedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<RelatedTracksCollection>get(endpoint)
+                .forPrivateAPI(1)
+                .forResource(TypeToken.of(RelatedTracksCollection.class)).build();
 
-            return mRxHttpClient.fetchModels(request);
-        } else {
-            Log.e(this, "Unable to parse client URI from id " + trackId);
-        }
-        return null;
-    }
-
-    private Uri extractUri(SharedPreferences sharedPreferences, String parameter) {
-        return Uri.parse(sharedPreferences.getString(parameter, ScTextUtils.EMPTY_STRING));
+        return mRxHttpClient.<RelatedTracksCollection>fetchModels(request).doOnNext(mCacheRelatedTracks);
     }
 }

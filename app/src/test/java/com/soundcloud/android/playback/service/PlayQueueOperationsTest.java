@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
@@ -18,17 +19,16 @@ import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.RelatedTracksCollection;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.storage.BulkStorage;
 import com.soundcloud.android.storage.PlayQueueStorage;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import dagger.Module;
-import dagger.ObjectGraph;
-import dagger.Provides;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,8 +41,6 @@ import rx.Observer;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -54,12 +52,14 @@ public class PlayQueueOperationsTest {
     private static final String ORIGIN_PAGE = "origin:page";
     private static final long SET_ID = 123L;
 
-    @Inject
-    PlayQueueOperations playQueueOperations;
+    private PlayQueueOperations playQueueOperations;
+
     @Mock
     private Context context;
     @Mock
     private PlayQueueStorage playQueueStorage;
+    @Mock
+    private BulkStorage bulkStorage;
     @Mock
     private SharedPreferences sharedPreferences;
     @Mock
@@ -78,7 +78,7 @@ public class PlayQueueOperationsTest {
     public void before() throws CreateModelException {
         when(context.getSharedPreferences(PlayQueueOperations.SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE)).thenReturn(sharedPreferences);
 
-        ObjectGraph.create(new TestModule()).inject(this);
+        playQueueOperations = new PlayQueueOperations(context, playQueueStorage, bulkStorage, rxHttpClient);
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
@@ -184,19 +184,16 @@ public class PlayQueueOperationsTest {
     }
 
     @Test
-    public void getRelatedTracksShouldEmitTracksFromSuggestions() {
-
+    public void getRelatedTracksShouldEmitTracksFromSuggestions() throws CreateModelException {
         Observer<ModelCollection<TrackSummary>> relatedObserver = Mockito.mock(Observer.class);
 
-        final ModelCollection<TrackSummary> collection = new ModelCollection<TrackSummary>();
-        final TrackSummary suggestion1 = new TrackSummary("soundcloud:sounds:1");
-        suggestion1.setUser(new UserSummary());
-        final TrackSummary suggestion2 = new TrackSummary("soundcloud:sounds:2");
-        suggestion2.setUser(new UserSummary());
-        final ArrayList<TrackSummary> collection1 = Lists.newArrayList(suggestion1, suggestion2);
-        collection.setCollection(collection1);
+        TrackSummary suggestion1 = TestHelper.getModelFactory().createModel(TrackSummary.class);
+        TrackSummary suggestion2 = TestHelper.getModelFactory().createModel(TrackSummary.class);
+        RelatedTracksCollection collection = createCollection(suggestion1, suggestion2);
 
-        when(rxHttpClient.<ModelCollection<TrackSummary>>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
+        when(rxHttpClient.<RelatedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
+        when(bulkStorage.bulkInsertAsync(anyCollection())).thenReturn(Observable.<Collection>empty());
+
         playQueueOperations.getRelatedTracks(123L).subscribe(relatedObserver);
 
         ArgumentCaptor<ModelCollection> argumentCaptor = ArgumentCaptor.forClass(ModelCollection.class);
@@ -209,23 +206,22 @@ public class PlayQueueOperationsTest {
 
     }
 
-    @Module(library = true, injects = PlayQueueOperationsTest.class)
-    class TestModule {
-        @Provides
-        Context provideContext(){
-            return context;
-        }
+    @Test
+    public void shouldWriteRelatedTracksInLocalStorage() throws Exception {
+        RelatedTracksCollection collection = createCollection(
+                TestHelper.getModelFactory().createModel(TrackSummary.class));
+        when(rxHttpClient.<RelatedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
 
-        @Provides
-        PlayQueueStorage providePlayQueueStorage(){
-            return playQueueStorage;
-        }
+        playQueueOperations.getRelatedTracks(1L).subscribe(observer);
 
-        @Provides
-        RxHttpClient provideRxHttpClient(){
-            return rxHttpClient;
-        }
+        final List<Track> resources = Arrays.asList(new Track(collection.getCollection().get(0)));
+        verify(bulkStorage).bulkInsertAsync(resources);
+    }
 
+    private RelatedTracksCollection createCollection(TrackSummary... suggestions) {
+        final RelatedTracksCollection collection = new RelatedTracksCollection();
+        collection.setCollection(Lists.newArrayList(suggestions));
+        return collection;
     }
 
 }
