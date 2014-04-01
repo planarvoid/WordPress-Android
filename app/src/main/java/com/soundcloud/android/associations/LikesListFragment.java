@@ -108,7 +108,9 @@ public class LikesListFragment extends ScListFragment {
     private class LikedIdsSubscriber extends DefaultSubscriber<List<Long>> {
         @Override
         public void onNext(List<Long> trackIds) {
-            updateShuffleHeader(trackIds);
+            if (isAdded()) {
+                updateShuffleHeader(trackIds);
+            }
         }
     }
 
