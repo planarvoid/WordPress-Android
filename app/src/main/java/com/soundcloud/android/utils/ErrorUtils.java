@@ -1,9 +1,8 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.android.api.http.PublicApiWrapper.UnauthorizedException;
-
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.APIRequestException;
+import com.soundcloud.android.sync.SyncInitiator;
 
 import java.io.IOException;
 
@@ -34,6 +33,6 @@ public class ErrorUtils {
     }
 
     private static boolean excludeFromReports(Throwable t) {
-        return t instanceof IOException || t instanceof APIRequestException;
+        return t instanceof IOException || t instanceof APIRequestException || t instanceof SyncInitiator.SyncFailedException;
     }
 }
