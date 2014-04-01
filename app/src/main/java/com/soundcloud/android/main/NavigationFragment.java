@@ -205,21 +205,20 @@ public class NavigationFragment extends Fragment {
         mProfileViewHolder.username = (TextView) view.findViewById(R.id.username);
         mProfileViewHolder.followers = (TextView) view.findViewById(R.id.followers_count);
 
-        Resources res = container == null ? getResources() : container.getResources();
-        updateProfileItem(((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser(), res);
+        updateProfileItem(((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser());
 
         return view;
     }
 
-    // XXX we are passing in resources to overcome Robolectric 1 null getResources in Fragments
-    // Can be removed once we migrate to RL2
-    public void updateProfileItem(User user, Resources resources) {
+    public void updateProfileItem(User user) {
         mProfileViewHolder.username.setText(user.getUsername());
         int followersCount = user.followers_count < 0 ? 0 : user.followers_count;
-        mProfileViewHolder.followers.setText(resources.getQuantityString(
+        mProfileViewHolder.followers.setText(getResources().getQuantityString(
                 R.plurals.number_of_followers, followersCount, followersCount));
 
-        mImageOperations.displayInListView(user.getUrn(), ImageSize.getFullImageSize(resources), mProfileViewHolder.imageView);
+        mImageOperations.displayWithPlaceholder(user.getUrn(),
+                ImageSize.getFullImageSize(getResources()),
+                mProfileViewHolder.imageView);
     }
 
     protected void selectItem(int position) {

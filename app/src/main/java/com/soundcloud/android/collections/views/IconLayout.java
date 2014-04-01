@@ -43,7 +43,9 @@ public abstract class IconLayout extends FrameLayout {
     protected abstract View addContent(AttributeSet attributeSet);
 
     protected void loadIcon() {
-        mImageOperations.displayInListView(getResourceUrn(), ImageSize.getListItemImageSize(getContext()), mIcon);
+        mImageOperations.displayInAdapterView(getResourceUrn(),
+                ImageSize.getListItemImageSize(getContext()),
+                mIcon);
     }
 
     @Nullable

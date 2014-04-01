@@ -9,6 +9,7 @@ import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.AnimUtils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -23,31 +24,13 @@ class ImageOptionsFactory {
     final static int DELAY_BEFORE_LOADING_HIGH_PRIORITY = 0;
     final static int DELAY_BEFORE_LOADING_LOW_PRIORITY = 200;
 
-    @Deprecated
-    public static DisplayImageOptions adapterView(int defaultIconResId){
+    static DisplayImageOptions adapterView(Drawable placeholderDrawable) {
         return fullCacheBuilder()
                 .resetViewBeforeLoading(true)
-                .showImageOnFail(defaultIconResId)
-                .showImageForEmptyUri(defaultIconResId)
-                .showImageOnLoading(defaultIconResId)
+                .showImageOnFail(placeholderDrawable)
+                .showImageForEmptyUri(placeholderDrawable)
+                .showImageOnLoading(placeholderDrawable)
                 .displayer(new PlaceholderTransitionDisplayer())
-                .build();
-    }
-
-    static DisplayImageOptions listView() {
-        return fullCacheBuilder()
-                .resetViewBeforeLoading(true)
-                .showImageOnFail(R.drawable.placeholder_cells)
-                .showImageForEmptyUri(R.drawable.placeholder_cells)
-                .showImageOnLoading(R.drawable.placeholder_cells)
-                .displayer(new PlaceholderTransitionDisplayer())
-                .build();
-    }
-
-    public static DisplayImageOptions gridView(){
-        return fullCacheBuilder()
-                .resetViewBeforeLoading(true)
-                .displayer(new BackgroundTransitionDisplayer())
                 .build();
     }
 
@@ -59,11 +42,19 @@ class ImageOptionsFactory {
                 .build();
     }
 
-    public static DisplayImageOptions placeholder(int defaultIconResId){
+    public static DisplayImageOptions placeholder(int defaultResId){
         return fullCacheBuilder()
-                .showImageForEmptyUri(defaultIconResId)
-                .showImageOnFail(defaultIconResId)
-                .showImageOnLoading(defaultIconResId)
+                .showImageForEmptyUri(defaultResId)
+                .showImageOnFail(defaultResId)
+                .showImageOnLoading(defaultResId)
+                .build();
+    }
+
+    public static DisplayImageOptions placeholder(Drawable defaultDrawable){
+        return fullCacheBuilder()
+                .showImageForEmptyUri(defaultDrawable)
+                .showImageOnFail(defaultDrawable)
+                .showImageOnLoading(defaultDrawable)
                 .build();
     }
 
@@ -133,20 +124,6 @@ class ImageOptionsFactory {
         @Override
         protected Drawable getTransitionFromDrawable(ImageView imageView) {
             return imageView.getDrawable();
-        }
-    }
-
-    @VisibleForTesting
-    static class BackgroundTransitionDisplayer extends BitmapTransitionDisplayer {
-        @Override
-        protected Drawable getTransitionFromDrawable(ImageView imageView) {
-            return imageView.getBackground();
-        }
-
-        @Override
-        protected void performDrawableTransition(Bitmap bitmap, ImageView imageView) {
-            super.performDrawableTransition(bitmap, imageView);
-            imageView.setBackgroundDrawable(null);
         }
     }
 

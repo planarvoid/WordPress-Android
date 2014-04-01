@@ -70,9 +70,7 @@ public class ImageOptionsFactoryTest {
     public void shouldCreateAdapterViewOptions() throws Exception {
         Resources resources = mock(Resources.class);
         Drawable drawable = mock(Drawable.class);
-        when(resources.getDrawable(123)).thenReturn(drawable);
-
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(123);
+        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable);
         expect(displayImageOptions.isCacheInMemory()).toBeTrue();
         expect(displayImageOptions.isCacheOnDisc()).toBeTrue();
         expect(displayImageOptions.getImageForEmptyUri(resources)).toBe(drawable);
@@ -82,36 +80,21 @@ public class ImageOptionsFactoryTest {
     }
 
     @Test
-    public void shouldCreateGridViewOptions() throws Exception {
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.gridView();
-        expect(displayImageOptions.isCacheInMemory()).toBeTrue();
-        expect(displayImageOptions.isCacheOnDisc()).toBeTrue();
-        expect(displayImageOptions.getDisplayer()).toBeInstanceOf(ImageOptionsFactory.BackgroundTransitionDisplayer.class);
-    }
-
-    @Test
     public void shouldNotTransitionIfLoadedViaMemory() throws Exception {
-        new ImageOptionsFactory.BackgroundTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.MEMORY_CACHE);
+        new ImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.MEMORY_CACHE);
         verify(imageView).setImageBitmap(bitmap);
     }
 
     @Test
     public void shouldTransitionIfLoadedFromDisc() throws Exception {
-        new ImageOptionsFactory.BackgroundTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.DISC_CACHE);
+        new ImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.DISC_CACHE);
         verify(imageView).setImageDrawable(any(TransitionDrawable.class));
     }
 
     @Test
     public void shouldTransitionIfLoadedFromNetwork() throws Exception {
-        new ImageOptionsFactory.BackgroundTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.NETWORK);
+        new ImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.NETWORK);
         verify(imageView).setImageDrawable(any(TransitionDrawable.class));
-    }
-
-    @Test
-    public void shouldUseBackgroundDrawableWithBackgroundTransition() throws Exception {
-        new ImageOptionsFactory.BackgroundTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.NETWORK);
-        verify(imageView).getBackground();
-        verify(imageView, never()).getDrawable();
     }
 
     @Test

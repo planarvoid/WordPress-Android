@@ -253,8 +253,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         mPlayablePresenter.setTitleView((TextView) detailsView.findViewById(R.id.title))
                 .setUsernameView((TextView) detailsView.findViewById(R.id.username))
                 .setArtwork((ImageView) detailsView.findViewById(R.id.artwork),
-                        ImageSize.getFullImageSize(getActivity().getResources()),
-                        R.drawable.placeholder_cells);
+                        ImageSize.getFullImageSize(getActivity().getResources()));
 
         mEngagementsController.bindView(detailsView, new OriginProvider() {
             @Override

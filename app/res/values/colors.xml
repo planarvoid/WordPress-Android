@@ -107,4 +107,9 @@
     <color name="overlay_text_background">#CC000000</color>
     <color name="overlay_text_background_pressed">#333333</color>
 
+    <color name="placeholder_image_purple">#846170</color>
+    <color name="placeholder_image_blue">#70929c</color>
+    <color name="placeholder_image_orange">#e6846e</color>
+    <color name="placeholder_image_beige">#8e8485</color>
+
 </resources>

@@ -144,7 +144,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
         mPlayablePresenter.setTitleView((TextView) findViewById(R.id.playable_title))
                 .setUsernameView((TextView) findViewById(R.id.playable_user))
-                .setAvatarView((ImageView) findViewById(R.id.icon), ImageSize.getListItemImageSize(this), R.drawable.avatar_badge)
+                .setAvatarView((ImageView) findViewById(R.id.icon), ImageSize.getListItemImageSize(this))
                 .setStatsView((StatsView) findViewById(R.id.stats), false)
                 .setCreatedAtView((TextView) findViewById(R.id.playable_created_at))
                 .setPrivacyIndicatorView((TextView) findViewById(R.id.playable_private_indicator));

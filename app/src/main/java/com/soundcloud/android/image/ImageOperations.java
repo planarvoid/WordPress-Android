@@ -27,17 +27,20 @@ public class ImageOperations {
 
     private final ImageLoader mImageLoader;
     private final ImageEndpointBuilder mImageEndpointBuilder;
+    private final PlaceholderGenerator mPlaceholderGenerator;
 
     @Inject
-    public ImageOperations(ImageEndpointBuilder imageEndpointBuilder) {
+    public ImageOperations(ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator) {
         mImageLoader = ImageLoader.getInstance();
         mImageEndpointBuilder = imageEndpointBuilder;
+        mPlaceholderGenerator = placeholderGenerator;
     }
 
     @VisibleForTesting
-    ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder) {
+    ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator) {
         mImageLoader = imageLoader;
         mImageEndpointBuilder = imageEndpointBuilder;
+        mPlaceholderGenerator = placeholderGenerator;
     }
 
     public void initialise(Context context, ApplicationProperties properties) {
@@ -60,17 +63,10 @@ public class ImageOperations {
         FileCache.installFileCache(IOUtils.getCacheDir(appContext));
     }
 
-    public void displayInListView(String urn, ImageSize imageSize, ImageView imageView) {
+    public void displayInAdapterView(String urn, ImageSize imageSize, ImageView imageView) {
         mImageLoader.displayImage(
                 mImageEndpointBuilder.imageUrl(urn, imageSize), new ImageViewAware(imageView, false),
-                ImageOptionsFactory.listView());
-    }
-
-    public void displayInGridView(String urn, ImageSize imageSize, final ImageView imageView) {
-        mImageLoader.displayImage(
-                mImageEndpointBuilder.imageUrl(urn, imageSize),
-                new ImageViewAware(imageView, false),
-                ImageOptionsFactory.gridView());
+                ImageOptionsFactory.adapterView(mPlaceholderGenerator.generate(urn)));
     }
 
     public void displayWithPlaceholder(String urn, ImageSize imageSize, ImageView imageView, int defaultResId) {
@@ -78,6 +74,13 @@ public class ImageOperations {
                 mImageEndpointBuilder.imageUrl(urn, imageSize),
                 new ImageViewAware(imageView, false),
                 ImageOptionsFactory.placeholder(defaultResId));
+    }
+
+    public void displayWithPlaceholder(String urn, ImageSize imageSize, ImageView imageView) {
+        mImageLoader.displayImage(
+                mImageEndpointBuilder.imageUrl(urn, imageSize),
+                new ImageViewAware(imageView, false),
+                ImageOptionsFactory.placeholder(mPlaceholderGenerator.generate(urn)));
     }
 
     public void displayInPlayerView(String urn, ImageSize imageSize, ImageView imageView, View parentView,
@@ -105,12 +108,6 @@ public class ImageOperations {
     @Deprecated // use the variants that take URNs instead
     public void display(String imageUrl, ImageView imageView) {
         mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false));
-    }
-
-    @Deprecated // use the variants that take URNs instead
-    public void displayWithPlaceholder(String imageUrl, ImageView imageView, int defaultResId) {
-        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false),
-                ImageOptionsFactory.placeholder(defaultResId));
     }
 
     @Deprecated // use the variants that take URNs instead

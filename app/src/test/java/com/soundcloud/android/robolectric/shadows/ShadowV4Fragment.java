@@ -5,6 +5,7 @@ import com.xtremelabs.robolectric.internal.Implementation;
 import com.xtremelabs.robolectric.internal.Implements;
 import com.xtremelabs.robolectric.shadows.ShadowFragment;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -35,6 +36,11 @@ public class ShadowV4Fragment extends ShadowFragment {
     @Implementation
     public View getView() {
         return mView;
+    }
+
+    @Implementation
+    public Resources getResources() {
+        return Robolectric.getShadowApplication().getResources();
     }
 
     public void setView(View view){

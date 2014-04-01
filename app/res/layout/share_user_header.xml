@@ -16,8 +16,7 @@
                 android:layout_width="@dimen/share_user_icon_width"
                 android:layout_height="@dimen/share_user_icon_height"
                 android:layout_marginRight="5dip"
-                android:id="@+id/icon"
-                android:background="@drawable/avatar_badge" />
+                android:id="@+id/icon" />
         <TextView
                 android:layout_toRightOf="@+id/icon"
                 android:id="@+id/share_header_username"

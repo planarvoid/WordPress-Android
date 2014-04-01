@@ -6,7 +6,6 @@
                 android:layout_height="wrap_content">
 
     <com.soundcloud.android.view.ParallaxImageView android:id="@+id/image"
-                                                   android:src="@drawable/placeholder_cells"
                                                    sc:focalPoint=".45"
                                                    style="@style/GridItemImageView" />
 

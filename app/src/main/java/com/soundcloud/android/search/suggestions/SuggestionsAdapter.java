@@ -349,7 +349,9 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
                 tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
             }
 
-            mImageOperations.displayInListView(urn, ImageSize.getListItemImageSize(mContext), tag.iv_icon);
+            mImageOperations.displayInAdapterView(urn,
+                    ImageSize.getListItemImageSize(mContext),
+                    tag.iv_icon);
         }
         return view;
     }

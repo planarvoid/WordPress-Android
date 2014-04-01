@@ -2,7 +2,6 @@
 <resources>
 
     <style name="BigProfileImage">
-        <item name="android:background">@drawable/placeholder_cells</item>
         <item name="android:scaleType">centerCrop</item>
         <item name="showGradient">true</item>
         <item name="gradientStart">.7</item>

@@ -87,9 +87,12 @@ class SuggestedUsersAdapter extends BaseAdapter {
             viewHolder.location.setText(location);
             viewHolder.location.setVisibility(View.VISIBLE);
         }
+
         Resources resources = viewHolder.imageView.getResources();
-        mImageOperations.displayInListView(
-                suggestedUser.getUrn(), ImageSize.getFullImageSize(resources), viewHolder.imageView);
+        mImageOperations.displayInAdapterView(
+                suggestedUser.getUrn(),
+                ImageSize.getFullImageSize(resources),
+                viewHolder.imageView);
     }
 
     private static class ItemViewHolder {

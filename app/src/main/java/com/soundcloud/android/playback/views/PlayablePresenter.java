@@ -40,9 +40,6 @@ public class PlayablePresenter {
     private ImageSize mArtworkSize = ImageSize.Unknown;
     private ImageSize mAvatarSize = ImageSize.Unknown;
 
-    private int mArtworkPlaceholderResId;
-    private int mAvatarPlaceholderResId;
-
     private Playable mPlayable;
     private ImageOperations mImageOperations;
 
@@ -76,17 +73,15 @@ public class PlayablePresenter {
         return this;
     }
 
-    public PlayablePresenter setArtwork(ImageView artworkView, ImageSize artworkSize, int placeholderResId) {
+    public PlayablePresenter setArtwork(ImageView artworkView, ImageSize artworkSize) {
         mArtworkView = artworkView;
         mArtworkSize = artworkSize;
-        mArtworkPlaceholderResId = placeholderResId;
         return this;
     }
 
-    public PlayablePresenter setAvatarView(ImageView avatarView, ImageSize avatarSize, int placeholderResId) {
+    public PlayablePresenter setAvatarView(ImageView avatarView, ImageSize avatarSize) {
         mAvatarView = avatarView;
         mAvatarSize = avatarSize;
-        mAvatarPlaceholderResId = placeholderResId;
         return this;
     }
 
@@ -120,12 +115,12 @@ public class PlayablePresenter {
 
         if (mArtworkView != null) {
             mImageOperations.displayWithPlaceholder(
-                    playable.getUrn(), mArtworkSize, mArtworkView, mArtworkPlaceholderResId);
+                    playable.getUrn(), mArtworkSize, mArtworkView);
         }
 
         if (mAvatarView != null && playable.getUser() != null) {
             mImageOperations.displayWithPlaceholder(
-                    playable.getUser().getUrn(), mAvatarSize, mAvatarView, mAvatarPlaceholderResId);
+                    playable.getUser().getUrn(), mAvatarSize, mAvatarView);
         }
 
         if (mStatsView != null) {

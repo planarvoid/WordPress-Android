@@ -100,7 +100,7 @@ public class PlayerTrackView extends FrameLayout implements
             });
 
             mPlayablePresenter.setPlayableRowView(this)
-                    .setAvatarView((ImageView) trackInfoBar.findViewById(R.id.icon), ImageSize.getListItemImageSize(context), R.drawable.avatar_badge)
+                    .setAvatarView((ImageView) trackInfoBar.findViewById(R.id.icon), ImageSize.getListItemImageSize(context))
                     .addTextShadowForGrayBg();
         }
     }

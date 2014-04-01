@@ -298,7 +298,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     }
 
     private void updateUser(User user) {
-        mNavigationFragment.updateProfileItem(user, mApplication.getResources());
+        mNavigationFragment.updateProfileItem(user);
         if (!user.isPrimaryEmailConfirmed()) {
             startActivityForResult(new Intent(this, EmailConfirmationActivity.class)
                     .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);

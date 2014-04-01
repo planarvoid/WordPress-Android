@@ -59,9 +59,8 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
         final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getStats().getPlaybackCount());
         viewHolder.playcount.setText(playcountWithCommas);
 
-        viewHolder.imageView.setBackgroundResource(R.drawable.placeholder_cells);
         final ImageSize imageSize = ImageSize.getFullImageSize(itemView.getResources());
-        mImageOperations.displayInGridView(track.getUrn(), imageSize, viewHolder.imageView);
+        mImageOperations.displayInAdapterView(track.getUrn(), imageSize, viewHolder.imageView);
     }
 
     @VisibleForTesting

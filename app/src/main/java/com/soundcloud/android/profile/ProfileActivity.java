@@ -52,7 +52,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -385,7 +384,9 @@ public class ProfileActivity extends ScActivity implements
             }
         }
 
-        mImageOperations.displayInListView(mUser.getUrn(), ImageSize.getFullImageSize(getResources()), mUserImage);
+        mImageOperations.displayWithPlaceholder(mUser.getUrn(),
+                ImageSize.getFullImageSize(getResources()),
+                mUserImage);
 
         supportInvalidateOptionsMenu();
     }
