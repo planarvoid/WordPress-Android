@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.os.Bundle;
 import android.os.Parcel;
@@ -8,6 +9,7 @@ import android.os.Parcelable;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ExploreGenre implements Parcelable {
@@ -29,8 +31,11 @@ public class ExploreGenre implements Parcelable {
         this.mTitle = title;
     }
 
+    @VisibleForTesting
     public ExploreGenre(String title, String suggestedTracksUrl) {
         this.mTitle = title;
+        mLinks = new HashMap<String, Link>();
+        mLinks.put(SUGGESTED_TRACKS_LINK_REL, new Link(suggestedTracksUrl));
     }
 
     public ExploreGenre(Parcel in) {

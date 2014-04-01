@@ -57,6 +57,9 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     ImageOperations mImageOperations;
 
     @Inject
+    ExploreTracksOperations mExploreTracksOperations;
+
+    @Inject
     PullToRefreshController mPullToRefreshController;
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
@@ -91,8 +94,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> buildSuggestedTracksObservable() {
         final ExploreGenre category = getExploreCategory();
-        final ExploreTracksOperations operations = new ExploreTracksOperations();
-        return operations.getSuggestedTracks(category).observeOn(mainThread()).replay();
+        return mExploreTracksOperations.getSuggestedTracks(category).observeOn(mainThread()).replay();
     }
 
     private ExploreGenre getExploreCategory() {
