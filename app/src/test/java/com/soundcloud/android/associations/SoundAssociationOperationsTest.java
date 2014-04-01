@@ -162,6 +162,19 @@ public class SoundAssociationOperationsTest {
     }
 
     @Test
+    public void whenUnlikingATrackFailsBecauseThereIsNoNetworkTheErrorShouldBePropagated() {
+        final Track track = new Track(1L);
+        APIResponse emptyResponse = mock(APIResponse.class);
+        when(emptyResponse.getStatusCode()).thenThrow(new NullPointerException());
+        when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_likes/1"))))
+                .thenReturn(Observable.<APIResponse>error(APIRequestException.badResponse(mock(APIRequest.class), emptyResponse)));
+
+        operations.unlike(track).subscribe(observer);
+
+        verify(observer).onError(any(Exception.class));
+    }
+
+    @Test
     public void likingAPlaylistShouldSendPUTRequestToApiAndThenStoreTheAssociation() throws Exception {
         final Playlist playlist = new Playlist(1L);
         final SoundAssociation like = new SoundAssociation(playlist);
