@@ -46,7 +46,7 @@ public class ImageOperations {
     private final PlaceholderGenerator mPlaceholderGenerator;
 
     private final Set<String> mNotFoundUris = Sets.newHashSet();
-    private final Cache<String, Drawable> mPlaceholderCache = CacheBuilder.newBuilder().weakValues().maximumSize(50).build();
+    private final Cache<String, Drawable> mPlaceholderCache;
 
     private final SimpleImageLoadingListener mNotFoundListener = new SimpleImageLoadingListener() {
 
@@ -77,16 +77,17 @@ public class ImageOperations {
 
     @Inject
     public ImageOperations(ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator) {
-        mImageLoader = ImageLoader.getInstance();
-        mImageEndpointBuilder = imageEndpointBuilder;
-        mPlaceholderGenerator = placeholderGenerator;
+        this(ImageLoader.getInstance(), imageEndpointBuilder, placeholderGenerator,
+                CacheBuilder.newBuilder().weakValues().maximumSize(50).<String, Drawable>build());
+
     }
 
     @VisibleForTesting
-    ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator) {
+    ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator, Cache<String, Drawable> placeholderCache) {
         mImageLoader = imageLoader;
         mImageEndpointBuilder = imageEndpointBuilder;
         mPlaceholderGenerator = placeholderGenerator;
+        mPlaceholderCache = placeholderCache;
     }
 
     public void initialise(Context context, ApplicationProperties properties) {
