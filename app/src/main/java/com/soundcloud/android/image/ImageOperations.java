@@ -1,7 +1,8 @@
 package com.soundcloud.android.image;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Sets;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -26,8 +27,9 @@ import android.widget.ImageView;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.FileNotFoundException;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,7 +46,7 @@ public class ImageOperations {
     private final PlaceholderGenerator mPlaceholderGenerator;
 
     private final Set<String> mNotFoundUris = Sets.newHashSet();
-    private final Map<String, Drawable> mPlaceholderDrawables = new MapMaker().weakValues().makeMap();
+    private final Cache<String, Drawable> mPlaceholderCache = CacheBuilder.newBuilder().weakValues().maximumSize(50).build();
 
     private final SimpleImageLoadingListener mNotFoundListener = new SimpleImageLoadingListener() {
 
@@ -194,16 +196,21 @@ public class ImageOperations {
     /**
      * We have to store these so so we don't animate on every load attempt. this prevents flickering
      */
+    @Nullable
     private Drawable getPlaceHolderDrawable(String urn, ImageViewAware imageViewAware) {
         final String key = String.format(PLACEHOLDER_KEY_BASE, urn,
                 String.valueOf(imageViewAware.getWidth()), String.valueOf(imageViewAware.getHeight()));
-
-        Drawable placeholder = mPlaceholderDrawables.get(key);
-        if (placeholder == null) {
-            placeholder = mPlaceholderGenerator.generate(key);
-            mPlaceholderDrawables.put(key, placeholder);
+        try {
+            return mPlaceholderCache.get(key, new Callable<Drawable>() {
+                @Override
+                public Drawable call() throws Exception {
+                    return mPlaceholderGenerator.generate(key);
+                }
+            });
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }
-        return placeholder;
+        return null;
     }
 
     @Nullable
