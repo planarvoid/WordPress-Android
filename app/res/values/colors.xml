@@ -97,10 +97,6 @@
     <color name="playlist_background_pressed">#fafafa</color>
     <color name="playlist_divider">#dddddd</color>
 
-    <color name="ptr_orange">#ff8800</color>
-    <color name="ptr_dark_orange">#ff5500</color>
-    <color name="ptr_blue">#33b5e5</color>
-
     <color name="overlay_text">#FFFFFF</color>
     <color name="overlay_subtext">#CCCCCC</color>
     <color name="overlay_subtext_pressed">#FFFFFF</color>
@@ -111,5 +107,9 @@
     <color name="placeholder_image_blue">#70929c</color>
     <color name="placeholder_image_orange">#e6846e</color>
     <color name="placeholder_image_beige">#8e8485</color>
+
+    <color name="ptr_orange">#ff5500</color>
+    <color name="ptr_blue">@color/placeholder_image_blue</color>
+    <color name="ptr_purple">@color/placeholder_image_purple</color>
 
 </resources>
