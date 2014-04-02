@@ -34,7 +34,7 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
     private final TextView mTitle;
     private final TextView mCreatedAt;
 
-    private Drawable mDrawable, mPressedDrawable;
+    private Drawable mDrawable;
     protected SpannableStringBuilder mSpanBuilder;
 
     public ActivityRow(Context context, ImageOperations imageOperations) {
