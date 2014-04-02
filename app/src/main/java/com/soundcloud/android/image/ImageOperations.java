@@ -114,7 +114,7 @@ public class ImageOperations {
         mImageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, imageSize),
                 imageAware,
-                ImageOptionsFactory.adapterView(getPlaceHolderDrawable(urn, imageAware)), mNotFoundListener);
+                ImageOptionsFactory.adapterView(getPlaceholderDrawable(urn, imageAware)), mNotFoundListener);
     }
 
     public void displayWithPlaceholder(String urn, ImageSize imageSize, ImageView imageView) {
@@ -122,7 +122,7 @@ public class ImageOperations {
         mImageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, imageSize),
                 imageAware,
-                ImageOptionsFactory.placeholder(getPlaceHolderDrawable(urn, imageAware)),
+                ImageOptionsFactory.placeholder(getPlaceholderDrawable(urn, imageAware)),
                 mNotFoundListener);
     }
 
@@ -197,14 +197,14 @@ public class ImageOperations {
      * We have to store these so so we don't animate on every load attempt. this prevents flickering
      */
     @Nullable
-    private Drawable getPlaceHolderDrawable(String urn, ImageViewAware imageViewAware) {
+    private Drawable getPlaceholderDrawable(final String urn, ImageViewAware imageViewAware) {
         final String key = String.format(PLACEHOLDER_KEY_BASE, urn,
                 String.valueOf(imageViewAware.getWidth()), String.valueOf(imageViewAware.getHeight()));
         try {
             return mPlaceholderCache.get(key, new Callable<Drawable>() {
                 @Override
                 public Drawable call() throws Exception {
-                    return mPlaceholderGenerator.generate(key);
+                    return mPlaceholderGenerator.generate(urn);
                 }
             });
         } catch (ExecutionException e) {
