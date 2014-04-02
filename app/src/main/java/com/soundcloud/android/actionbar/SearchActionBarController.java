@@ -23,6 +23,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 
 import java.lang.reflect.Field;
@@ -111,6 +112,7 @@ public class SearchActionBarController extends ActionBarController {
         mSearchView.setIconifiedByDefault(false);
         mSearchView.setIconified(false);
         mSearchView.setQueryHint(mOwner.getActivity().getString(R.string.search_hint));
+        mSearchView.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 
         mSuggestionsAdapter = new SuggestionsAdapter(mActivity, mPublicCloudAPI, mActivity.getContentResolver());
         mSearchView.setSuggestionsAdapter(mSuggestionsAdapter);
