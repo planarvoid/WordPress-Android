@@ -7,6 +7,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,7 +20,6 @@ import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
-import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +34,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import java.io.FileNotFoundException;
@@ -91,6 +92,7 @@ public class ImageOperationsTest {
         imageOperations = new ImageOperations(imageLoader, imageEndpointBuilder, placeholderGenerator);
         when(imageLoader.getDiscCache()).thenReturn(diskCache);
         when(imageEndpointBuilder.imageUrl(URN, ImageSize.LARGE)).thenReturn(RESOLVER_URL_LARGE);
+        when(placeholderGenerator.generate(any(String.class))).thenReturn(drawable);
     }
 
     @Test
@@ -123,19 +125,18 @@ public class ImageOperationsTest {
         inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageViewAware.class), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
     }
 
-
     @Test
     public void NotFoundExceptionDuringPlaceholderLoadMakesNextLoadToPassNullPath() throws Exception {
         when(failReason.getCause()).thenReturn(new FileNotFoundException());
 
         // 1st load
-        imageOperations.displayWithPlaceholder(URN, ImageSize.LARGE, imageView, R.drawable.tiny_cloud);
+        imageOperations.displayWithPlaceholder(URN, ImageSize.LARGE, imageView);
         InOrder inOrder = Mockito.inOrder(imageLoader);
         inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageViewAware.class), any(DisplayImageOptions.class), simpleImageLoadingListenerCaptor.capture());
         simpleImageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL_LARGE, imageView, failReason);
 
         // 2nd load
-        imageOperations.displayWithPlaceholder(URN, ImageSize.LARGE, imageView, R.drawable.tiny_cloud);
+        imageOperations.displayWithPlaceholder(URN, ImageSize.LARGE, imageView);
         inOrder.verify(imageLoader).displayImage((String) isNull(), any(ImageViewAware.class), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
     }
 
@@ -274,7 +275,7 @@ public class ImageOperationsTest {
         final String imageUrl = RESOLVER_URL_LARGE;
         when(imageEndpointBuilder.imageUrl(URN, ImageSize.LARGE)).thenReturn(imageUrl);
 
-        imageOperations.displayWithPlaceholder(URN, ImageSize.LARGE, imageView, RES_ID);
+        imageOperations.displayWithPlaceholder(URN, ImageSize.LARGE, imageView);
 
         verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(), displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
         expect(imageViewAwareCaptor.getValue().getWrappedView()).toBe(imageView);
@@ -288,6 +289,36 @@ public class ImageOperationsTest {
         verify(imageLoader).loadImage(eq(ADJUSTED_URL), displayOptionsCaptor.capture(), isNull(ImageLoadingListener.class));
         expect(displayOptionsCaptor.getValue().isCacheInMemory()).toBeFalse();
         expect(displayOptionsCaptor.getValue().isCacheOnDisc()).toBeTrue();
+    }
+
+    @Test
+    public void displayImageInAdapterViewShouldReUseSamePlaceholderSecondTime() {
+        imageOperations.displayInAdapterView("soundcloud:tracks:1", ImageSize.LARGE, imageView);
+        imageOperations.displayInAdapterView("soundcloud:tracks:1", ImageSize.LARGE, imageView);
+        verify(placeholderGenerator).generate(anyString());
+    }
+
+    @Test
+    public void displayImageInAdapterViewShouldNotReUseSamePlaceholderSecondTimeIfImageViewSizeDifferent() {
+        imageOperations.displayInAdapterView("soundcloud:tracks:1", ImageSize.LARGE, imageView);
+        when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
+        imageOperations.displayInAdapterView("soundcloud:tracks:1", ImageSize.LARGE, imageView);
+        verify(placeholderGenerator, times(2)).generate(anyString());
+    }
+
+    @Test
+    public void displayWithPlaceHolderShouldReUseSamePlaceholderSecondTime() {
+        imageOperations.displayWithPlaceholder("soundcloud:tracks:1", ImageSize.LARGE, imageView);
+        imageOperations.displayWithPlaceholder("soundcloud:tracks:1", ImageSize.LARGE, imageView);
+        verify(placeholderGenerator).generate(anyString());
+    }
+
+    @Test
+    public void displayWithPlaceHolderShouldNotReUseSamePlaceholderSecondTimeIfImageViewSizeDifferent() {
+        imageOperations.displayWithPlaceholder("soundcloud:tracks:1", ImageSize.LARGE, imageView);
+        when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
+        imageOperations.displayWithPlaceholder("soundcloud:tracks:1", ImageSize.LARGE, imageView);
+        verify(placeholderGenerator, times(2)).generate(anyString());
     }
 
     private void verifyCapturedListener(){

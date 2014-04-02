@@ -1,6 +1,7 @@
 package com.soundcloud.android.image;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.MapMaker;
 import com.google.common.collect.Sets;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -12,9 +13,12 @@ import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ImageView;
@@ -22,6 +26,7 @@ import android.widget.ImageView;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.FileNotFoundException;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,19 +37,38 @@ public class ImageOperations {
     private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1024 * 1024; // available mem in bytes
     private static final Pattern PATTERN = Pattern.compile("^https?://(.+)");
     private static final String URL_BASE = "http://%s";
+    private static final String PLACEHOLDER_KEY_BASE = "%s_%s_%s";
 
     private final ImageLoader mImageLoader;
     private final ImageEndpointBuilder mImageEndpointBuilder;
     private final PlaceholderGenerator mPlaceholderGenerator;
 
     private final Set<String> mNotFoundUris = Sets.newHashSet();
+    private final Map<String, Drawable> mPlaceholderDrawables = new MapMaker().weakValues().makeMap();
 
     private final SimpleImageLoadingListener mNotFoundListener = new SimpleImageLoadingListener() {
+
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            super.onLoadingComplete(imageUri, view, loadedImage);
+            if (loadedImage == null) {
+                animatePlaceholder(view);
+            }
+        }
+
         @Override
         public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
             super.onLoadingFailed(imageUri, view, failReason);
             if (failReason.getCause() instanceof FileNotFoundException){
                 mNotFoundUris.add(imageUri);
+            }
+            animatePlaceholder(view);
+        }
+
+        private void animatePlaceholder(View view) {
+            if (view instanceof ImageView && ((ImageView) view).getDrawable() instanceof OneShotTransitionDrawable){
+                final OneShotTransitionDrawable transitionDrawable = (OneShotTransitionDrawable) ((ImageView) view).getDrawable();
+                transitionDrawable.startTransition(ImageUtils.DEFAULT_TRANSITION_DURATION);
             }
         }
     };
@@ -84,25 +108,19 @@ public class ImageOperations {
     }
 
     public void displayInAdapterView(String urn, ImageSize imageSize, ImageView imageView) {
+        final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         mImageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, imageSize),
-                new ImageViewAware(imageView, false),
-                        ImageOptionsFactory.adapterView(mPlaceholderGenerator.generate(urn)), mNotFoundListener);
-    }
-
-    public void displayWithPlaceholder(String urn, ImageSize imageSize, ImageView imageView, int defaultResId) {
-        mImageLoader.displayImage(
-                buildUrlIfNotPreviouslyMissing(urn, imageSize),
-                new ImageViewAware(imageView, false),
-                ImageOptionsFactory.placeholder(defaultResId),
-                mNotFoundListener);
+                imageAware,
+                ImageOptionsFactory.adapterView(getPlaceHolderDrawable(urn, imageAware)), mNotFoundListener);
     }
 
     public void displayWithPlaceholder(String urn, ImageSize imageSize, ImageView imageView) {
+        final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         mImageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, imageSize),
-                new ImageViewAware(imageView, false),
-                ImageOptionsFactory.placeholder(mPlaceholderGenerator.generate(urn)),
+                imageAware,
+                ImageOptionsFactory.placeholder(getPlaceHolderDrawable(urn, imageAware)),
                 mNotFoundListener);
     }
 
@@ -171,6 +189,21 @@ public class ImageOperations {
             }
         }
         return url; // fallback to original url
+    }
+
+    /**
+     * We have to store these so so we don't animate on every load attempt. this prevents flickering
+     */
+    private Drawable getPlaceHolderDrawable(String urn, ImageViewAware imageViewAware) {
+        final String key = String.format(PLACEHOLDER_KEY_BASE, urn,
+                String.valueOf(imageViewAware.getWidth()), String.valueOf(imageViewAware.getHeight()));
+
+        Drawable placeholder = mPlaceholderDrawables.get(key);
+        if (placeholder == null) {
+            placeholder = mPlaceholderGenerator.generate(key);
+            mPlaceholderDrawables.put(key, placeholder);
+        }
+        return placeholder;
     }
 
     @Nullable

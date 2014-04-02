@@ -53,20 +53,6 @@ public class ImageOptionsFactoryTest {
     }
 
     @Test
-    public void shouldCreatePlaceholderOptions() throws Exception {
-        Resources resources = mock(Resources.class);
-        Drawable drawable = mock(Drawable.class);
-        when(resources.getDrawable(123)).thenReturn(drawable);
-
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.placeholder(123);
-        expect(displayImageOptions.isCacheInMemory()).toBeTrue();
-        expect(displayImageOptions.isCacheOnDisc()).toBeTrue();
-        expect(displayImageOptions.getImageForEmptyUri(resources)).toBe(drawable);
-        expect(displayImageOptions.getImageOnFail(resources)).toBe(drawable);
-        expect(displayImageOptions.getImageOnLoading(resources)).toBe(drawable);
-    }
-
-    @Test
     public void shouldCreateAdapterViewOptions() throws Exception {
         Resources resources = mock(Resources.class);
         Drawable drawable = mock(Drawable.class);

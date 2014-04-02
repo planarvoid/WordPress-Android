@@ -1,15 +1,14 @@
 package com.soundcloud.android.image;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
-@Singleton
 public class PlaceholderGenerator {
 
     private static final int[][] COLOR_COMBINATIONS = new int[][] {
@@ -28,20 +27,16 @@ public class PlaceholderGenerator {
     };
 
     private final Resources mResources;
-    private final GradientDrawable[] mDrawables;
 
     @Inject
     PlaceholderGenerator(Resources resources) {
         mResources = resources;
-        mDrawables = new GradientDrawable[COLOR_COMBINATIONS.length];
-        for (int i = 0; i < COLOR_COMBINATIONS.length; i ++) {
-            mDrawables[i] = build(COLOR_COMBINATIONS[i]);
-        }
     }
 
-    public Drawable generate(String indexerUrn) {
+    public Drawable generate(String key) {
         // What is going on here? See: http://findbugs.blogspot.de/2006/09/is-mathabs-broken.html
-        return mDrawables[(indexerUrn.hashCode() & Integer.MAX_VALUE) % mDrawables.length];
+        final GradientDrawable gradientDrawable = build(COLOR_COMBINATIONS[(key.hashCode() & Integer.MAX_VALUE) % COLOR_COMBINATIONS.length]);
+        return ImageUtils.createTransitionDrawable(mResources.getDrawable(R.drawable.placeholder), gradientDrawable);
     }
 
     private GradientDrawable build(int[] colorIds) {

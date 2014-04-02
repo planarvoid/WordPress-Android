@@ -4,6 +4,7 @@ package com.soundcloud.android.utils.images;
 import com.soundcloud.android.R;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.image.ImageListener;
+import com.soundcloud.android.image.OneShotTransitionDrawable;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
@@ -20,11 +21,15 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.ContactsContract;
@@ -45,7 +50,7 @@ import java.util.Locale;
 
 public final class ImageUtils {
     private static final String TAG = ImageUtils.class.getSimpleName();
-    public static final int GRAPHIC_DIMENSIONS_BADGE = 47;
+    public static final int DEFAULT_TRANSITION_DURATION = 200;
     public static final int RECOMMENDED_IMAGE_SIZE = 2048;
 
     private ImageUtils() {}
@@ -486,6 +491,16 @@ public final class ImageUtils {
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeResource(res, resId, options);
+    }
+
+    public static TransitionDrawable createTransitionDrawable(Drawable from, Drawable to) {
+        TransitionDrawable tDrawable = new OneShotTransitionDrawable(
+                new Drawable[]{
+                        from == null ? new ColorDrawable(Color.TRANSPARENT) : from,
+                        to
+                });
+        tDrawable.setCrossFadeEnabled(true);
+        return tDrawable;
     }
 
     /**

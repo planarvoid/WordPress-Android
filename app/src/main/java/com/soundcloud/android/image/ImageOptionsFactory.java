@@ -7,6 +7,7 @@ import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -25,9 +26,9 @@ class ImageOptionsFactory {
     static DisplayImageOptions adapterView(Drawable placeholderDrawable) {
         return fullCacheBuilder()
                 .resetViewBeforeLoading(true)
+                .showImageOnLoading(placeholderDrawable)
                 .showImageOnFail(placeholderDrawable)
                 .showImageForEmptyUri(placeholderDrawable)
-                .showImageOnLoading(placeholderDrawable)
                 .displayer(new PlaceholderTransitionDisplayer())
                 .build();
     }
@@ -40,19 +41,11 @@ class ImageOptionsFactory {
                 .build();
     }
 
-    public static DisplayImageOptions placeholder(int defaultResId){
+    public static DisplayImageOptions placeholder(Drawable placeholderDrawable){
         return fullCacheBuilder()
-                .showImageForEmptyUri(defaultResId)
-                .showImageOnFail(defaultResId)
-                .showImageOnLoading(defaultResId)
-                .build();
-    }
-
-    public static DisplayImageOptions placeholder(Drawable defaultDrawable){
-        return fullCacheBuilder()
-                .showImageForEmptyUri(defaultDrawable)
-                .showImageOnFail(defaultDrawable)
-                .showImageOnLoading(defaultDrawable)
+                .showImageOnLoading(placeholderDrawable)
+                .showImageForEmptyUri(placeholderDrawable)
+                .showImageOnFail(placeholderDrawable)
                 .build();
     }
 
@@ -145,12 +138,9 @@ class ImageOptionsFactory {
 
         protected void performDrawableTransition(Bitmap bitmap, final ImageView imageView) {
             final Drawable from = getTransitionFromDrawable(imageView);
-            TransitionDrawable tDrawable = new TransitionDrawable(
-                    new Drawable[]{
-                            from == null ? new BitmapDrawable(imageView.getResources()) : from,
-                            new BitmapDrawable(imageView.getResources(), bitmap)
-                    });
-            tDrawable.setCrossFadeEnabled(true);
+            final BitmapDrawable to = new BitmapDrawable(imageView.getResources(), bitmap);
+
+            TransitionDrawable tDrawable = ImageUtils.createTransitionDrawable(from, to);
             tDrawable.setCallback(new Drawable.Callback() {
                 @Override
                 public void scheduleDrawable(Drawable drawable, Runnable runnable, long l) {
@@ -165,7 +155,7 @@ class ImageOptionsFactory {
                     imageView.invalidate();
                 }
             });
-            tDrawable.startTransition(200);
+            tDrawable.startTransition(ImageUtils.DEFAULT_TRANSITION_DURATION);
             imageView.setImageDrawable(tDrawable);
         }
     }
