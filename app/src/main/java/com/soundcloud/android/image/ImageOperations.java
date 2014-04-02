@@ -209,8 +209,9 @@ public class ImageOperations {
             });
         } catch (ExecutionException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
+
     }
 
     @Nullable
