@@ -35,7 +35,7 @@ class SlidingTabStrip extends LinearLayout {
     private static final int DEFAULT_BOTTOM_BORDER_THICKNESS_DIPS = 1;
     private static final byte DEFAULT_BOTTOM_BORDER_COLOR_ALPHA = 0x26;
     private static final int SELECTED_INDICATOR_THICKNESS_DIPS = 5;
-    private static final int DEFAULT_SELECTED_INDICATOR_COLOR = 0xFFFF6600;
+    private static final int DEFAULT_SELECTED_INDICATOR_COLOR = 0xFFFF5500;
 
     private static final int DEFAULT_DIVIDER_THICKNESS_DIPS = 1;
     private static final int DEFAULT_DIVIDER_COLOR = 0xFFD8D8D8;
@@ -67,8 +67,7 @@ class SlidingTabStrip extends LinearLayout {
         context.getTheme().resolveAttribute(R.attr.colorForeground, outValue, true);
         final int themeForegroundColor = outValue.data;
 
-        int defaultBottomBorderColor = setColorAlpha(themeForegroundColor,
-                DEFAULT_BOTTOM_BORDER_COLOR_ALPHA);
+        int defaultBottomBorderColor = setColorAlpha(themeForegroundColor, DEFAULT_BOTTOM_BORDER_COLOR_ALPHA);
 
         mBottomBorderThickness = (int) (DEFAULT_BOTTOM_BORDER_THICKNESS_DIPS * density);
         mBottomBorderPaint = new Paint();
