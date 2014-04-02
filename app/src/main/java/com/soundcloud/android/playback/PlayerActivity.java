@@ -254,7 +254,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     @Override
     public void onAddToPlaylist(Track track) {
-        if (track != null && isForeground()) {
+        if (mPlaybackService != null && track != null && isForeground()) {
             AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track, mPlaybackService.getPlayQueueOriginScreen());
             from.show(getSupportFragmentManager(), "playlist_dialog");
         }
