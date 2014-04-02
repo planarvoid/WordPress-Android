@@ -21,6 +21,7 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -312,6 +313,30 @@ public class PlaylistFragmentTest {
         fragment.onRefreshStarted(mock(View.class));
 
         verify(ptrController, times(2)).stopRefreshing();
+    }
+
+    @Test
+    public void shouldSetPlayingStateWhenPlaybackStateChanges() throws Exception {
+        when(playbackStateProvider.isPlaylistPlaying(playlist.getId())).thenReturn(true);
+        View layout = createFragmentView();
+        fragment.onStart();
+
+        Robolectric.getShadowApplication().sendBroadcast(new Intent(PlaybackService.Broadcasts.PLAYSTATE_CHANGED));
+
+        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
+        expect(toggleButton.isChecked()).toBeTrue();
+    }
+
+    @Test
+    public void shouldSetPlayingStateWhenPlaybackMetaChanges() throws Exception {
+        when(playbackStateProvider.isPlaylistPlaying(playlist.getId())).thenReturn(false);
+        View layout = createFragmentView();
+        fragment.onStart();
+
+        Robolectric.getShadowApplication().sendBroadcast(new Intent(PlaybackService.Broadcasts.META_CHANGED));
+
+        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
+        expect(toggleButton.isChecked()).toBeFalse();
     }
 
     private View createFragmentView() {
