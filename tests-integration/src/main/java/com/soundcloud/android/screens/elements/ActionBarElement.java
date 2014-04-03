@@ -57,6 +57,7 @@ public class ActionBarElement {
     }
 
     private AutoCompleteTextView getSearchView() {
+        waiter.waitForElement(AutoCompleteTextView.class);
         solo.getSolo().waitForView(AutoCompleteTextView.class);
         List<AutoCompleteTextView> views = solo.getSolo().getCurrentViews(AutoCompleteTextView.class);
         assertEquals("Expected to find just one search view", 1, views.size());

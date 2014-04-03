@@ -18,7 +18,6 @@ public abstract class Screen {
     public Screen(Han solo) {
         this.solo = solo;
         this.waiter = new Waiter(solo);
-        this.actionBar = new ActionBarElement(solo);
         waiter.waitForActivity(getActivity());
         waiter.waitForElement(CONTENT_ROOT);
     }
@@ -46,7 +45,7 @@ public abstract class Screen {
     }
 
     public ActionBarElement actionBar() {
-        return actionBar;
+        return new ActionBarElement(solo);
     }
 
     abstract protected Class getActivity();

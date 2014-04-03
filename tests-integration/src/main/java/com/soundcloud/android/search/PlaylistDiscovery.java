@@ -26,7 +26,6 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
         super.setUp();
 
         mainScreen = new MainScreen(solo);
-        waiter.waitForContentAndRetryIfLoadingFailed();
         playlistTagsScreen = mainScreen.actionBar().clickSearchButton();
     }
 

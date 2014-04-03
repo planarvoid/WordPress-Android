@@ -6,13 +6,17 @@ import com.soundcloud.android.main.NavigationDrawerFragment;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.Log;
 
+import android.content.Context;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class Waiter {
@@ -120,6 +124,10 @@ public class Waiter {
         return solo.waitForCondition(new VisibleElementCondition(content), this.TIMEOUT);
     }
 
+    public boolean waitForElement(final Class<? extends View> viewClass) {
+        return solo.waitForCondition(new ByClassCondition(viewClass), this.TIMEOUT);
+    }
+
     private class VisibleElementCondition implements Condition {
         private int viewId;
 
@@ -130,10 +138,28 @@ public class Waiter {
         VisibleElementCondition(View view) {
             viewId = view.getId();
         }
+
         @Override
         public boolean isSatisfied() {
             Log.i(TAG, String.format("ViewID visibility: %d", solo.getView(viewId).getVisibility()));
             return ( solo.getView(viewId).isShown());
+        }
+    }
+
+    private class ByClassCondition implements Condition {
+        private Class <? extends View> viewClass;
+
+        ByClassCondition(Class<? extends View> viewClass) {
+            this.viewClass = viewClass;
+        }
+
+
+        @Override
+        public boolean isSatisfied() {
+            Log.i(TAG, "FindViewByClass");
+            ArrayList<? extends View> views = solo.getSolo().getCurrentViews(viewClass);
+
+            return ( !views.isEmpty() && views.get(0).isShown());
         }
     }
 
@@ -152,7 +178,11 @@ public class Waiter {
             progressBars = solo.getSolo().getCurrentViews(PROGRESS_CLASS);
 
             for(View progressBar : progressBars ){
-                if(progressBar.isShown() && progressBar.getVisibility() == View.VISIBLE) {
+                if  (progressBar.isShown() &&
+                        progressBar.getVisibility() == View.VISIBLE &&
+                        isOnScreen(progressBar) &&
+                        progressBar.getClass().getSimpleName().toString().equals("ProgressBar")
+                    ) {
                     Log.i(TAG, String.format("[ %s ] Spinner view found",
                            new Timestamp( new java.util.Date().getTime())));
                     progressBarNotDisplayed = progressBarNotDisplayed && false;
@@ -160,6 +190,35 @@ public class Waiter {
             }
             return progressBarNotDisplayed;
         }
+
+        private boolean isOnScreen(View progressBar) {
+            boolean isOn = getLocation(progressBar)[0] >= 0 &&
+                    getLocation(progressBar)[0] <= getScreenHeight() &&
+                    getLocation(progressBar)[1] >= 0 &&
+                    getLocation(progressBar)[1] <= getScreenWidth();
+
+            Log.i(TAG, String.format("Onscreen: %b", isOn));
+            return isOn;
+        }
+        private int[] getLocation(View view) {
+            int[] locationOnScreen = new int [2];
+            view.getLocationOnScreen(locationOnScreen);
+            return locationOnScreen;
+        }
+        private int getScreenWidth() {
+            return getDisplay().getWidth();
+        }
+
+        private int getScreenHeight() {
+            return getDisplay().getHeight();
+        }
+
+        private Display getDisplay() {
+            return ((WindowManager) solo.getCurrentActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        }
+
+
+
     };
 
     private class NoTextCondition implements Condition {
