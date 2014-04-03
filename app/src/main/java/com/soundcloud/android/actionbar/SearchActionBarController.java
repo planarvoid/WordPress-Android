@@ -112,7 +112,7 @@ public class SearchActionBarController extends ActionBarController {
         mSearchView.setIconifiedByDefault(false);
         mSearchView.setIconified(false);
         mSearchView.setQueryHint(mOwner.getActivity().getString(R.string.search_hint));
-        mSearchView.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        mSearchView.setImeOptions(EditorInfo.IME_ACTION_SEARCH | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 
         mSuggestionsAdapter = new SuggestionsAdapter(mActivity, mPublicCloudAPI, mActivity.getContentResolver());
         mSearchView.setSuggestionsAdapter(mSuggestionsAdapter);
