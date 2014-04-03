@@ -115,6 +115,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     public void clearAll(){
         mPlayQueueOperations.clear();
         mPlayQueue = PlayQueue.empty();
+        mPlaySessionSource = PlaySessionSource.EMPTY;
     }
 
     public PlayQueue getCurrentPlayQueue() {

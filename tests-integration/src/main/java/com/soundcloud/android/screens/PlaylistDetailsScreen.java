@@ -46,6 +46,7 @@ public class PlaylistDetailsScreen extends Screen {
 
     public PlayerScreen clickHeaderPlay() {
         solo.clickOnView(R.id.toggle_play_pause);
+        waiter.waitForPlayerPlaying();
         return new PlayerScreen(solo);
     }
 

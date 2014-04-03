@@ -1,11 +1,15 @@
 $ 85
   % v 2.8.0
-  _ 2014-4-1
+  _ 2014-4-3
   ! Playlist Discovery Release Candidate
-    * New placeholder images
-    * Fixed bug with reloading and interacting with Explore tracks
-    * Some image resolver optionization
-    * Some Random crashes fixed
+    * Playlist Search: discover popular playlists using hashtags in your searches
+    * Improved search results and Explore
+    * Enhanced visual layout for playlist pages
+    * Swipe to refresh
+    - New placeholder images
+    - Fixed bug with reloading and interacting with Explore tracks
+    - Some image resolver optionization
+    - Some Random crashes fixed
     - Playlist tags and search result loading stability improved
     - Send track information to peripherals
     - Fixed endless loading spinner

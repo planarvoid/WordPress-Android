@@ -55,7 +55,6 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
         if (solo != null) {
             solo.finishOpenedActivities();
         }
-        super.tearDown();
         AccountAssistant.logOut(getInstrumentation());
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
         solo = null;

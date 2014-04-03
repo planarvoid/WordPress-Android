@@ -1,33 +1,38 @@
 package com.soundcloud.android.playlist;
 
-import com.soundcloud.android.main.MainActivity;
+import static com.soundcloud.android.tests.TestUser.playlistUser;
+
+import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.MainScreen;
+import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.search.PlaylistTagsScreen;
-import com.soundcloud.android.screens.search.SearchResultsScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
-import com.soundcloud.android.tests.TestUser;
 
-public class PlaylistDetails extends ActivityTestCase<MainActivity> {
+public class PlaylistDetails extends ActivityTestCase<LauncherActivity> {
 
     private PlaylistDetailsScreen playlistDetailsScreen;
 
     public PlaylistDetails() {
-        super(MainActivity.class);
+        super(LauncherActivity.class);
     }
 
     @Override
     public void setUp() throws Exception {
-        TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
+        playlistUser.logIn(getInstrumentation().getTargetContext());
 
         super.setUp();
 
-        MainScreen mainScreen = new MainScreen(solo);
-        PlaylistTagsScreen playlistTagsScreen = mainScreen.actionBar().clickSearchButton();
-        SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("dub");
-        resultsScreen.touchPlaylistsTab();
-        playlistDetailsScreen = resultsScreen.clickFirstPlaylistItem();
+        menuScreen = new MenuScreen(solo);
+        //FIXME: This is a workaround for #1487
+        waiter.waitForContentAndRetryIfLoadingFailed();
+
+        waiter.waitForItemCountToIncrease(solo.getCurrentListView().getAdapter(),0);
+        menuScreen.open().clickPlaylist();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        solo.clickInList(0);
+
+        playlistDetailsScreen = new PlaylistDetailsScreen(solo);
     }
 
     public void testPlaylistDetailsScreenShouldBeVisibleOnPlaylistClick() {
@@ -43,8 +48,8 @@ public class PlaylistDetails extends ActivityTestCase<MainActivity> {
     }
 
     public void testToggleStateIsNotCheckedAfterPausingPlayer() {
-        PlayerScreen playerScreen = playlistDetailsScreen.clickHeaderPlay();
-        playerScreen.stopPlayback();
+        playlistDetailsScreen.clickHeaderPlay();
+        playlistDetailsScreen.clickHeaderPause();
 
         assertEquals("Play toggle button should not be checked", false, playlistDetailsScreen.isPlayToggleChecked());
     }
