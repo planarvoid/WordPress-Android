@@ -248,7 +248,15 @@ public class PlayQueueManagerTest {
         expect(playQueueManager.getCurrentPlayQueue()).not.toEqual(PlayQueue.empty());
         playQueueManager.clearAll();
         expect(playQueueManager.getCurrentPlayQueue()).toEqual(PlayQueue.empty());
+    }
 
+    @Test
+    public void clearAllClearsPlaylistId() throws Exception {
+        when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L), 0, playSessionSource), playSessionSource);
+        expect(playQueueManager.getPlaylistId()).not.toEqual((long) Playlist.NOT_SET);
+        playQueueManager.clearAll();
+        expect(playQueueManager.getPlaylistId()).toEqual((long) Playlist.NOT_SET);
     }
 
     @Test
