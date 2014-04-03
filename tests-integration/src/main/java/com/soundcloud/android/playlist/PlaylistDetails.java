@@ -3,6 +3,7 @@ package com.soundcloud.android.playlist;
 import static com.soundcloud.android.tests.TestUser.playlistUser;
 
 import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -25,9 +26,11 @@ public class PlaylistDetails extends ActivityTestCase<LauncherActivity> {
         menuScreen = new MenuScreen(solo);
         //FIXME: This is a workaround for #1487
         waiter.waitForContentAndRetryIfLoadingFailed();
-        menuScreen.open().clickPlaylist();
 
-        solo.clickOnText("exp");
+        waiter.waitForItemCountToIncrease(solo.getCurrentListView().getAdapter(),0);
+        menuScreen.open().clickPlaylist();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        solo.clickInList(0);
 
         playlistDetailsScreen = new PlaylistDetailsScreen(solo);
     }
