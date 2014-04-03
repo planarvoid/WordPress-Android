@@ -109,7 +109,5 @@
     <color name="placeholder_image_beige">#8e8485</color>
 
     <color name="ptr_orange">#ff5500</color>
-    <color name="ptr_blue">@color/placeholder_image_blue</color>
-    <color name="ptr_purple">@color/placeholder_image_purple</color>
 
 </resources>

@@ -74,10 +74,4 @@
         <item>private_leave_feedback</item>
     </string-array>
 
-    <integer-array name="ptr_colors">
-        <item>@color/ptr_blue</item>
-        <item>@color/ptr_purple</item>
-        <item>@color/ptr_orange</item>
-    </integer-array>
-
 </resources>

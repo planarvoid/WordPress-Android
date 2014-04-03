@@ -11,7 +11,7 @@ import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
-import android.view.animation.DecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 
 import javax.inject.Inject;
 
@@ -39,14 +39,11 @@ public class PullToRefreshController {
 
     private SmoothProgressDrawable buildCustomProgressDrawable(Context context) {
        return new SmoothProgressDrawable.Builder(context)
-                .interpolator(new DecelerateInterpolator())
-                .sectionsCount(3)
-                .separatorLength(0)
+                .interpolator(new AccelerateInterpolator())
+                .separatorLength(context.getResources().getDimensionPixelSize(R.dimen.ptr_thickness))
                 .strokeWidth(context.getResources().getDimensionPixelSize(R.dimen.ptr_thickness))
-                .speed(1f)
-                .reversed(true)
-                .mirrorMode(true)
-                .colors(context.getResources().getIntArray(R.array.ptr_colors))
+                .speed(.8f)
+                .color(context.getResources().getColor(R.color.ptr_orange))
                 .build();
     }
 
