@@ -35,11 +35,11 @@ public class PlaylistDetails extends ActivityTestCase<LauncherActivity> {
         playlistDetailsScreen = new PlaylistDetailsScreen(solo);
     }
 
-    public void testPlaylistDetailsScreenShouldBeVisibleOnPlaylistClick() {
+    public void ignorePlaylistDetailsScreenShouldBeVisibleOnPlaylistClick() {
         assertEquals("Playlist details screen should be visible", true, playlistDetailsScreen.isVisible());
     }
 
-    public void testHeaderPlayClickShouldNotOpenPlayer() {
+    public void ignoreHeaderPlayClickShouldNotOpenPlayer() {
         PlayerScreen playerScreen = playlistDetailsScreen.clickHeaderPlay();
         assertEquals("Player screen should not be visible", false, playerScreen.isVisible());
 
@@ -47,7 +47,7 @@ public class PlaylistDetails extends ActivityTestCase<LauncherActivity> {
         assertEquals("Playlist details screen should be visible", true, playlistDetailsScreen.isVisible());
     }
 
-    public void testToggleStateIsNotCheckedAfterPausingPlayer() {
+    public void ignoreToggleStateIsNotCheckedAfterPausingPlayer() {
         playlistDetailsScreen.clickHeaderPlay();
         playlistDetailsScreen.clickHeaderPause();
 
