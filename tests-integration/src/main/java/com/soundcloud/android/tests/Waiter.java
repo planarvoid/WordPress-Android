@@ -141,8 +141,9 @@ public class Waiter {
 
         @Override
         public boolean isSatisfied() {
-            Log.i(TAG, String.format("ViewID visibility: %d", solo.getView(viewId).getVisibility()));
-            return ( solo.getView(viewId).isShown());
+            View view = solo.getView(viewId);
+            Log.i(TAG, "ViewID searched");
+            return ( view != null && solo.getView(viewId).isShown());
         }
     }
 

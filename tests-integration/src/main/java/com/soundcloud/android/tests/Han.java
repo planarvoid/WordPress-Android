@@ -11,6 +11,7 @@ import com.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.R.id;
 import com.soundcloud.android.main.NavigationDrawerFragment;
+import junit.framework.AssertionFailedError;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -295,8 +296,12 @@ public class Han  {
 
 
     public View getView(int id) {
-        View view = solo.getView(id);
-        assertNotNull("view is null", view);
+        View view = null;
+        try {
+            view = solo.getView(id);
+        } catch(AssertionFailedError ignored) {
+
+        }
         return view;
     }
 

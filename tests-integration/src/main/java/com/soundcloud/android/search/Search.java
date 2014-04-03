@@ -27,6 +27,7 @@ public class Search extends ActivityTestCase<MainActivity> {
 
         mainScreen = new MainScreen(solo);
         playlistTagsScreen = mainScreen.actionBar().clickSearchButton();
+        playlistTagsScreen = mainScreen.actionBar().clickSearchButton();
     }
 
     public void testTappingSearchIconOpensFullPageSearch() {
@@ -64,6 +65,7 @@ public class Search extends ActivityTestCase<MainActivity> {
     public void testSearchingFromSuggestionShortcutShowsSearchResults() {
         playlistTagsScreen.actionBar().setSearchQuery("dubstep");
         //TODO: That should actually be handled buy SearchSuggestionsElement class
+        solo.waitForText("Search for", 1, 1000, false);
         solo.clickOnText("Search for");
 
         SearchResultsScreen resultsScreen = new SearchResultsScreen(solo);
