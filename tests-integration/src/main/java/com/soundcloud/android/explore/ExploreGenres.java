@@ -8,6 +8,7 @@ import com.soundcloud.android.screens.explore.ExploreGenreCategoryScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
+import com.soundcloud.android.tests.TestUser;
 
 public class ExploreGenres extends ActivityTestCase<MainActivity> {
     private MainScreen mainScreen;
@@ -20,7 +21,7 @@ public class ExploreGenres extends ActivityTestCase<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        AccountAssistant.loginAs(getInstrumentation(), testUser.getUsername(), testUser.getPassword());
+        TestUser.testUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
         mainScreen = new MainScreen(solo);
         exploreScreen = mainScreen.openExploreFromMenu();
