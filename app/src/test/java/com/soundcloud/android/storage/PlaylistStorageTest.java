@@ -3,6 +3,7 @@ package com.soundcloud.android.storage;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,6 +12,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.activities.Activity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -72,6 +74,7 @@ public class PlaylistStorageTest {
         Playlist playlist = new Playlist(1L);
         when(playlistDAO.queryById(1L)).thenReturn(playlist);
         when(modelManager.cache(playlist)).thenReturn(playlist);
+        when(modelManager.cache(playlist, ScResource.CacheUpdateMode.FULL)).thenReturn(playlist);
         when(trackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forQuery("1"))).thenReturn(Arrays.asList(new Track()));
 
         Playlist loadedPlaylist = storage.loadPlaylistWithTracks(1L);
@@ -82,10 +85,11 @@ public class PlaylistStorageTest {
     }
 
     @Test
-    public void shouldCachePlaylistTracksAfterLoading() throws NotFoundException {
+    public void shouldCachePlaylistAndTracksAfterLoading() throws NotFoundException {
         Playlist playlist = new Playlist(1L);
         when(playlistDAO.queryById(1L)).thenReturn(playlist);
         when(modelManager.cache(playlist)).thenReturn(playlist);
+        when(modelManager.cache(playlist, ScResource.CacheUpdateMode.FULL)).thenReturn(playlist);
         final Track track = new Track();
         when(trackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forQuery("1"))).thenReturn(Arrays.asList(track));
 
@@ -93,6 +97,7 @@ public class PlaylistStorageTest {
         loadedPlaylist.getTracks().get(0); // access the first track should trigger the cache
 
         verify(modelManager).cache(track);
+        verify(modelManager).cache(playlist, ScResource.CacheUpdateMode.FULL);
     }
 
     @Test
@@ -103,6 +108,7 @@ public class PlaylistStorageTest {
         when(playlistDAO.queryById(1L)).thenReturn(playlist);
         when(modelManager.cache(track)).thenReturn(track);
         when(modelManager.cache(playlist)).thenReturn(playlist);
+        when(modelManager.cache(playlist, ScResource.CacheUpdateMode.FULL)).thenReturn(playlist);
         when(trackDAO.queryAllByUri(eq(Content.PLAYLIST_TRACKS.forId(1L)))).thenReturn(Arrays.asList(track));
 
         Playlist loadedPlaylist = storage.loadPlaylistWithTracks(1L);
