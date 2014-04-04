@@ -11,6 +11,7 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.SearchManager;
@@ -185,18 +186,24 @@ public class SearchActionBarController extends ActionBarController {
         }
     }
 
-    public boolean isInitialised() {
+    private boolean isInitialised() {
         return mSearchView != null;
     }
 
-    public void setQuery(String query) {
-        mSearchView.setQuery(query, false);
-        mSearchView.setSuggestionsAdapter(null);
-        clearFocus();
+    public String getQuery() {
+        if (isInitialised()) {
+            return mSearchView.getQuery().toString();
+        } else {
+            return ScTextUtils.EMPTY_STRING;
+        }
     }
 
-    public String getQuery() {
-        return mSearchView.getQuery().toString();
+    public void setQuery(String query) {
+        if (isInitialised()) {
+            mSearchView.setQuery(query, false);
+            mSearchView.setSuggestionsAdapter(null);
+            clearFocus();
+        }
     }
 
     public void clearQuery() {

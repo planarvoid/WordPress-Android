@@ -98,9 +98,7 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        if (mActionBarController.isInitialised()) {
-            outState.putString(STATE_QUERY, mActionBarController.getQuery());
-        }
+        outState.putString(STATE_QUERY, mActionBarController.getQuery());
         super.onSaveInstanceState(outState);
     }
 
