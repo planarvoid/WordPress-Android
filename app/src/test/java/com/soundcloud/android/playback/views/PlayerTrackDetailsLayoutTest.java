@@ -25,7 +25,7 @@ public class PlayerTrackDetailsLayoutTest {
     }
 
     @Test
-    public void showLikesRowWhenTrackHasComments() throws Exception {
+    public void showLikesRowWhenTrackHasLikes() throws Exception {
         Track track = new Track(1L);
         track.likes_count = 1;
         detailsLayout.setTrack(track);
@@ -35,7 +35,7 @@ public class PlayerTrackDetailsLayoutTest {
     }
 
     @Test
-    public void hideLikesRowWhenTrackHasNoComments() throws Exception {
+    public void hideLikesRowWhenTrackHasNoLikes() throws Exception {
         Track track = new Track(1L);
         track.likes_count = 0;
         detailsLayout.setTrack(track);
@@ -45,7 +45,7 @@ public class PlayerTrackDetailsLayoutTest {
     }
 
     @Test
-    public void showRepostsRowWhenTrackHasComments() throws Exception {
+    public void showRepostsRowWhenTrackHasReposts() throws Exception {
         Track track = new Track(1L);
         track.reposts_count = 1;
         detailsLayout.setTrack(track);
@@ -55,7 +55,7 @@ public class PlayerTrackDetailsLayoutTest {
     }
 
     @Test
-    public void hideRepostsRowWhenTrackHasNoComments() throws Exception {
+    public void hideRepostsRowWhenTrackHasNoReposts() throws Exception {
         Track track = new Track(1L);
         track.reposts_count = 0;
         detailsLayout.setTrack(track);
