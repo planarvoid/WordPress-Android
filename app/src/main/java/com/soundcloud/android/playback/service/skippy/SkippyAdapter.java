@@ -4,6 +4,7 @@ import static com.soundcloud.android.skippy.Skippy.Reason.BUFFERING;
 import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.Playa;
@@ -140,6 +141,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
         Message msg = mStateHandler.obtainMessage(0, new StateTransition(getTranslatedState(), getTranslatedReason()));
         mStateHandler.sendMessage(msg);
+
     }
 
     private PlayaState getTranslatedState() {
@@ -157,6 +159,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         if (mLastReason == ERROR) {
             switch (mLastError) {
                 case FAILED:
+                case TIMEOUT:
                     return Reason.ERROR_FAILED;
                 case FORBIDDEN:
                     return Reason.ERROR_FORBIDDEN;
@@ -182,7 +185,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void onErrorMessage(String category, String errorMsg) {
-
+        SoundCloudApplication.handleSilentException(errorMsg, new SkippyException(category));
     }
 
     static class StateChangeHandler extends Handler {
@@ -221,5 +224,24 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             return url;
         }
 
+    }
+
+    private class SkippyException extends Exception {
+        private String category;
+
+        public SkippyException(String category){
+            this.category = category;
+        }
+
+        @Override
+        public String getMessage(){
+            return this.category;
+
+        }
+        @Override
+        public StackTraceElement[] getStackTrace(){
+            StackTraceElement[] stack = new StackTraceElement[]{new StackTraceElement(this.category.replace("/", "."),"","skippy.c",1)};
+            return stack;
+        }
     }
 }

@@ -312,6 +312,7 @@ public class SoundCloudApplication extends Application {
     public static void handleSilentException(@Nullable String message, Throwable e) {
         if (ApplicationProperties.shouldReportCrashes()) {
             Log.e(TAG, "Handling silent exception: " + message, e);
+            Crashlytics.setString("message", message);
             Crashlytics.logException(e);
         }
     }
