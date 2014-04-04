@@ -126,7 +126,7 @@ class ImageOptionsFactory {
         @Override
         public Bitmap display(Bitmap bitmap, ImageAware imageAware, LoadedFrom loadedFrom) {
             ImageView wrappedImageView = (ImageView) imageAware.getWrappedView();
-            if (bitmap != null) {
+            if (wrappedImageView != null && bitmap != null) {
                 if (loadedFrom != LoadedFrom.MEMORY_CACHE) {
                     performDrawableTransition(bitmap, wrappedImageView);
                 } else {

@@ -5,7 +5,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.LoadedFrom;
@@ -88,5 +87,10 @@ public class ImageOptionsFactoryTest {
         new ImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.NETWORK);
         verify(imageView).getDrawable();
         verify(imageView, never()).getBackground();
+    }
+
+    @Test
+    public void shouldHandleNullImageViewGracefullySinceImageAwareKeepsWeakReferences() {
+        new ImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, new ImageViewAware(null), LoadedFrom.NETWORK);
     }
 }
