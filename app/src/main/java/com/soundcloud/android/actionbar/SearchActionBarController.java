@@ -195,15 +195,20 @@ public class SearchActionBarController extends ActionBarController {
         clearFocus();
     }
 
-    public void clearQuery() {
-        mSearchView.setQuery("", false);
-    }
-
     public String getQuery() {
         return mSearchView.getQuery().toString();
     }
 
-    public void clearFocus() {
-        mSearchView.clearFocus();
+    public void clearQuery() {
+        if (isInitialised()) {
+            mSearchView.setQuery("", false);
+        }
     }
+
+    public void clearFocus() {
+        if (isInitialised()) {
+            mSearchView.clearFocus();
+        }
+    }
+
 }
