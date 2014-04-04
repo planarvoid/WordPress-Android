@@ -148,7 +148,7 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
             mRepostersRow.setVisibility(View.GONE);
         }
 
-        if (track.reposts_count > 0){
+        if (track.comment_count > 0){
             mCommentersText.setText(getResources().getQuantityString(R.plurals.track_info_commenters,
                     ((int) track.comment_count),
                     ((int) track.comment_count)));
