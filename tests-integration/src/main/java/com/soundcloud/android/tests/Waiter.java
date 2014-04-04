@@ -53,21 +53,24 @@ public class Waiter {
         return true;
     }
 
+    public boolean waitForKeyboardToBeShown() {
+        return solo.waitForCondition(new KeyboardShownCondition(), ELEMENT_TIMEOUT);
+    }
+
     private boolean waitForListContent() {
         return solo.waitForCondition(new NoProgressBarCondition(), this.NETWORK_TIMEOUT);
     }
 
     public boolean waitForContentAndRetryIfLoadingFailed() {
         boolean success = waitForListContent();
-        if(!success) {
-            success = retryIfFailed();
-        }
+        success = retryIfFailed();
+
         return success;
     }
 
     //TODO: We should have an error screen class defined
     private boolean retryIfFailed() {
-        View retryButton = solo.waitForViewId(R.id.btn_retry, ELEMENT_TIMEOUT, false);
+        View retryButton = solo.waitForViewId(R.id.btn_retry, 1, false);
         if(retryButton != null){
             solo.clickOnView(retryButton);
             waitForListContent();
@@ -198,7 +201,7 @@ public class Waiter {
                     getLocation(progressBar)[1] >= 0 &&
                     getLocation(progressBar)[1] <= getScreenWidth();
 
-            Log.i(TAG, String.format("Onscreen: %b", isOn));
+            Log.i(TAG, String.format("Onscreen: %b, Class: %s", isOn, progressBar.getClass().getSimpleName()));
             return isOn;
         }
         private int[] getLocation(View view) {
@@ -255,6 +258,13 @@ public class Waiter {
         @Override
         public boolean isSatisfied() {
             return state && navigationDrawerFragment.isDrawerOpen();
+        }
+    }
+
+    private class KeyboardShownCondition implements Condition {
+        @Override
+        public boolean isSatisfied() {
+            return solo.isKeyboardShown();
         }
     }
 }
