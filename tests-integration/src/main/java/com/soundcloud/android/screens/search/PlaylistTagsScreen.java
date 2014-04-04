@@ -37,10 +37,6 @@ public class PlaylistTagsScreen extends Screen {
         return getTagStringsFromContainer(R.id.recent_tags);
     }
 
-    public boolean isKeyboardShown() {
-        return waiter.waitForKeyboardToBeShown();
-    }
-
     public boolean isDisplayingTags() {
         return !getTagViews(R.id.all_tags).isEmpty();
     }

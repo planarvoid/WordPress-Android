@@ -27,6 +27,7 @@ public class Search extends ActivityTestCase<MainActivity> {
 
         mainScreen = new MainScreen(solo);
         playlistTagsScreen = mainScreen.actionBar().clickSearchButton();
+        playlistTagsScreen = mainScreen.actionBar().clickSearchButton();
     }
 
     public void testTappingSearchIconOpensFullPageSearch() {
@@ -136,12 +137,12 @@ public class Search extends ActivityTestCase<MainActivity> {
     }
 
     public void testShowKeyboardWhenEnteringSearch() {
-        assertEquals("Keyboard should be visible when entering search", true, playlistTagsScreen.isKeyboardShown());
+        assertEquals("Keyboard should be visible when entering search", true, solo.isKeyboardShown());
     }
 
     public void testShouldHideSoftKeyboardWhenScrollingTagsVertically() {
         solo.getSolo().scrollDown();
-        assertEquals("Keyboard should be hidden when scrolling", false, playlistTagsScreen.isKeyboardShown());
+        assertEquals("Keyboard should be hidden when scrolling", false, solo.isKeyboardShown());
     }
 
 }
