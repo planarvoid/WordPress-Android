@@ -52,6 +52,7 @@ public class LoginScreen extends Screen {
     }
 
     public RecoverPasswordScreen clickForgotPassword() {
+        waiter.waitForElement(R.id.txt_i_forgot_my_password);
         solo.clickOnView(R.id.txt_i_forgot_my_password);
         return new RecoverPasswordScreen(solo);
     }
