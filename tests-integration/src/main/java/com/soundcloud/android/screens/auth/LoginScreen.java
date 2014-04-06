@@ -7,6 +7,7 @@ import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
 
 import android.R.id;
+import android.view.View;
 import android.widget.EditText;
 
 public class LoginScreen extends Screen {

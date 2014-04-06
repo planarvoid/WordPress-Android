@@ -26,7 +26,9 @@ public class MenuScreen {
     }
 
     public HomeScreen logout() {
+        solo.openSystemMenu();
         solo.clickOnActionBarItem(R.id.action_settings);
+        new SettingsScreen(solo);
         solo.clickOnText(R.string.pref_revoke_access);
         solo.assertText(R.string.menu_clear_user_title);
         solo.clickOnOK();
