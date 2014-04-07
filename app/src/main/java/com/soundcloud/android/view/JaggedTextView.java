@@ -48,6 +48,10 @@ public class JaggedTextView extends CustomFontTextView {
         }
 
         Layout layout = getLayout();
+        if (layout == null) {
+            return; // Still no reference to layout, so we can't draw the background on this pass
+        }
+
         canvas.translate(getPaddingLeft(), getPaddingTop());
         for (int line = 0; line < layout.getLineCount(); line++) {
             float left   = layout.getLineLeft(line);
