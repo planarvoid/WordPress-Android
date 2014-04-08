@@ -55,9 +55,16 @@ public class ScContentProvider extends ContentProvider {
 
     private DBHelper dbHelper;
 
+    public ScContentProvider() {
+        dbHelper = DBHelper.getInstance(getContext());
+    }
+
+    public ScContentProvider(DBHelper dbHelper) {
+        this.dbHelper = dbHelper;
+    }
+
     @Override
     public boolean onCreate() {
-        dbHelper = DBHelper.getInstance(getContext());
         return true;
     }
 
