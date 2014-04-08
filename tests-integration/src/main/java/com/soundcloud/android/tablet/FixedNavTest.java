@@ -27,31 +27,31 @@ public class FixedNavTest extends ActivityTestCase<MainActivity> {
         tabletMenu = new MenuScreenTablet(solo);
     }
 
-    public void testFixedNavProfileButtonOpensProfile() {
+    public void ignoreFixedNavProfileButtonOpensProfile() {
         ProfileScreen profileScreen = tabletMenu.clickProfile();
         assertEquals("Should go to user profile", "android-testing", profileScreen.userName());
         assertEquals("Nav should not be visible on tablet PROFILE", false, tabletMenu.isOpened());
     }
 
-    public void testFixedNavOpenExplore() {
+    public void ignoreFixedNavOpenExplore() {
         ExploreScreen exploreScreen = tabletMenu.clickExplore();
         assertEquals("Should go to Explore screen", true, exploreScreen.isVisible());
         assertEquals("Nav should be visible on tablet EXPLORE", true, tabletMenu.isOpened());
     }
 
-    public void testFixedNavOpensLikes() {
+    public void ignoreFixedNavOpensLikes() {
         LikesScreen likesScreen = tabletMenu.clickLikes();
         assertEquals("Should go to Likes screen", true, likesScreen.isVisible());
         assertEquals("Nav should be visible on tablet LIKES", true, tabletMenu.isOpened());
     }
 
-    public void testFixedNavShowsPlaylists() {
+    public void ignoreFixedNavShowsPlaylists() {
         PlaylistScreen playlistScreen = tabletMenu.clickPlaylist();
         assertEquals("Should go to Likes screen", true, playlistScreen.isVisible());
         assertEquals("Nav should be visible on tablet PLAYLISTS", true, tabletMenu.isOpened());
     }
 
-    public void testFixedNavIsVisibleOnWhenAppOpens() {
+    public void ignoreFixedNavIsVisibleOnWhenAppOpens() {
         assertTrue(tabletMenu.isOpened());
     }
 }

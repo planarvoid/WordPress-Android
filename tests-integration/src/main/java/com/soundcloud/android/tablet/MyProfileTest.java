@@ -24,11 +24,11 @@ public class MyProfileTest extends ActivityTestCase<MainActivity> {
         profileScreen = new MenuScreenTablet(solo).clickProfile();
     }
 
-    public void testFollowButtonIsNotVisibleOnOwnProfile() {
+    public void ignoreFollowButtonIsNotVisibleOnOwnProfile() {
         assertEquals("User profile should not have FOLLOW button", false, profileScreen.isFollowButtonVisible());
     }
 
-    public void testLocationIsShown() {
+    public void ignoreLocationIsShown() {
         assertEquals("Testville, United States", profileScreen.location());
     }
 

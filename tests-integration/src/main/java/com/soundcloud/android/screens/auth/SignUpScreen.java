@@ -48,11 +48,6 @@ public class SignUpScreen {
         solo.waitForViewId(R.id.btn_signup, 5000);
     }
 
-    public void clickLogInButton() {
-        solo.clickOnButtonResId(R.string.authentication_log_in);
-        waiter.waitForText(solo.getString(string.done));
-    }
-
     public void signup() {
         solo.clickOnView(R.id.btn_signup);
         solo.waitForViewId(R.id.btn_accept_terms, 1000);
@@ -69,7 +64,6 @@ public class SignUpScreen {
     }
 
     public SuggestedUsersScreen waitForSuggestedUsers() {
-        solo.waitForActivity(SuggestedUsersActivity.class);
         waiter.waitForContentAndRetryIfLoadingFailed();
         return new SuggestedUsersScreen(solo);
     }
