@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import java.util.Set;
 
@@ -48,11 +49,11 @@ public class SuggestedUsersCategoryScreen extends Screen {
     }
 
     public boolean hasAllUsersSelected() {
-        return testAll(true);
+        return testAll() == true;
     }
 
     public boolean hasNoUsersSelected() {
-        return testAll(false);
+        return testAll() == false;
     }
 
     public void selectAll() {
@@ -63,17 +64,17 @@ public class SuggestedUsersCategoryScreen extends Screen {
         solo.clickOnActionBarItem(R.id.menu_deselect_all);
     }
 
-    private boolean testAll(boolean isFollowing){
+    private boolean testAll(){
         waitForUsers();
-        ListAdapter adapter = suggestedUsersGrid().getAdapter();
-        Set<Long> followingIds = new FollowingOperations().getFollowedUserIds();
-        for (int i = 0; i < adapter.getCount(); i++){
-            final boolean actual = followingIds.contains(((SuggestedUser) adapter.getItem(i)).getId());
-            if ((isFollowing && !actual) || (!isFollowing && actual)){
-                return false;
+        GridView list = suggestedUsersGrid();
+
+        for (int i = 0; i < list.getCount(); i++) {
+            ToggleButton button = (ToggleButton) list.getChildAt(0).findViewById(R.id.toggle_btn_follow);
+            if (button.isChecked()) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public void waitForUsers() {

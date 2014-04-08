@@ -54,8 +54,9 @@ public class SuggestedUsersScreen extends Screen {
         return ((TextView) categoryRow.findViewById(android.R.id.text2)).getText().toString();
     }
 
-    public void clickToggleCategoryCheckmark(int visibleIndex){
+    public SuggestedUsersScreen clickToggleCategoryCheckmark(int visibleIndex){
         clickOnCategoryElement(visibleIndex, R.id.btn_user_bucket_select_all);
+        return new SuggestedUsersScreen(solo);
     }
 
     public SuggestedUsersCategoryScreen clickCategory(int visibleIndex) {
