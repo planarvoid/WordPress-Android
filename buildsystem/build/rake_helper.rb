@@ -160,6 +160,7 @@ module Build
           desc "bumps #{name} version \t# Does not push the change to remote repo #"
           task(name) do
             check_git
+            Build.version_code.to_i + 1
             bump_version(name)
           end
         end
@@ -173,7 +174,7 @@ module Build
       Build.version.bump!(part)
 
       Mvn.update_version.execute
-      Mvn.update_manifest.execute
+      Mvn.update_manifest.set_version_code(Build.version_code.to_i + 1).execute
 
       message = "Version: #{current} bumped to: #{Build.version}"
 
