@@ -57,7 +57,7 @@ public class ScContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        dbHelper = new DBHelper(getContext());
+        dbHelper = DBHelper.getInstance(getContext());
         return true;
     }
 

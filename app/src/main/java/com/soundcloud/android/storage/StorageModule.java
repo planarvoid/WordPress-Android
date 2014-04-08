@@ -1,12 +1,14 @@
 package com.soundcloud.android.storage;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.storage.provider.DBHelper;
 import dagger.Module;
 import dagger.Provides;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 
 import javax.inject.Named;
 
@@ -20,8 +22,21 @@ public class StorageModule {
         return application.getContentResolver();
     }
 
-    @Provides @Named("PlaylistTags")
+    @Provides
+    @Named("PlaylistTags")
     public SharedPreferences provideSharedPreferences(SoundCloudApplication application) {
         return application.getSharedPreferences(PLAYLIST_TAGS, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named("read-only")
+    public SQLiteDatabase provideReadableDatabase(Context context) {
+        return DBHelper.getInstance(context).getReadableDatabase();
+    }
+
+    @Provides
+    @Named("read-write")
+    public SQLiteDatabase provideWritableDatabase(Context context) {
+        return DBHelper.getInstance(context).getWritableDatabase();
     }
 }
