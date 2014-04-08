@@ -804,7 +804,7 @@ public class ScContentProvider extends ContentProvider {
             // Let's keep this in and see if this fixes it.
             // https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/533f1439fabb27481b264056
             // Otherwise, feel free to remove again.
-            if (!db.inTransaction()) {
+            if (db.inTransaction()) {
                 db.endTransaction();
             }
         }
