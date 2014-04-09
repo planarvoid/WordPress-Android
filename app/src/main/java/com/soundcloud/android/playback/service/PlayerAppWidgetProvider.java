@@ -65,11 +65,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
         String action = intent.getAction();
         if (hasInstances(context)) {
             if (action.equals(Broadcasts.META_CHANGED) ||
-                    action.equals(Broadcasts.PLAYBACK_COMPLETE) ||
-                    action.equals(Broadcasts.PLAYSTATE_CHANGED) ||
-                    action.equals(Broadcasts.BUFFERING) ||
-                    action.equals(Broadcasts.BUFFERING_COMPLETE) ||
-                    action.equals(Broadcasts.PLAYBACK_ERROR)) {
+                    action.equals(Broadcasts.PLAYSTATE_CHANGED)) {
 
                 final WidgetPlaybackRemoteViews.Args args = new WidgetPlaybackRemoteViews.Args(context, intent);
                 pushUpdate(context, new WidgetPlaybackRemoteViews(args), new int[0]);

@@ -9,16 +9,13 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.image.PlayerArtworkLoadListener;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.utils.AnimUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -85,7 +82,7 @@ public class ArtworkTrackView extends PlayerTrackView {
             onTrackDetailsFlip(mTrackFlipper, false);
         }
         if (mTrackDetailsView != null) {
-            mTrackDetailsView.setTrack(mTrack);
+            mTrackDetailsView.setTrack(mTrack, mTrackLoadingState);
         }
     }
 
@@ -143,24 +140,8 @@ public class ArtworkTrackView extends PlayerTrackView {
                 trackFlipper.addView(mTrackDetailsView);
             }
 
-            // according to this logic, we will only load the info if we haven't yet or there was an error
-            // there is currently no manual or stale refresh logic
-            if (mTrack.shouldLoadInfo()) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        final Context context = getContext();
-                        if (context != null){
-                            context.startService(new Intent(PlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.getId()));
-                        }
-                    }
-                }, 400); //flipper animation time is 250, so this should be enough to allow the animation to end
 
-                mTrackDetailsView.setTrack(mTrack, true);
-            } else {
-                mTrackDetailsView.setTrack(mTrack);
-            }
-
+            mTrackDetailsView.setTrack(mTrack, mTrackLoadingState);
             trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.fade_in));
             trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
             trackFlipper.showNext();
@@ -173,13 +154,6 @@ public class ArtworkTrackView extends PlayerTrackView {
             trackFlipper.showPrevious();
         }
         if (mToggleInfo != null) mToggleInfo.setChecked(showDetails);
-    }
-
-    @Override
-    protected void onTrackInfoChanged() {
-        if (mTrackDetailsView != null) {
-            mTrackDetailsView.setTrack(mTrack);
-        }
     }
 
     private void updateArtwork(boolean priority) {

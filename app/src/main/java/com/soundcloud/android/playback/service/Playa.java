@@ -1,0 +1,185 @@
+package com.soundcloud.android.playback.service;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Objects;
+import com.soundcloud.android.model.Track;
+
+import android.content.Intent;
+
+import java.util.EnumSet;
+
+public interface Playa {
+
+    public void play(Track track);
+    public void play(Track track, long fromPos);
+    public boolean resume();
+    public void pause();
+    public long seek(long ms, boolean performSeek);
+    public long getProgress();
+    public void setVolume(float v);
+    public void stop();
+    public void destroy();
+    public void setListener(PlayaListener playaListener);
+    public  StateTransition getLastStateTransition();
+    public PlayaState getState();
+    // MediaPlayer specific. We can drop these when we drop mediaplayer, as they will be constant booleans in skippy
+    public boolean isSeekable();
+    public boolean isNotSeekablePastBuffer();
+    public boolean isPlaying();
+
+    public boolean isPlayerPlaying();
+    public boolean isBuffering();
+
+
+    public static class StateTransition {
+        private PlayaState mNewState;
+        private Reason mReason;
+
+        public StateTransition(PlayaState newState, Reason reason) {
+            mNewState = newState;
+            mReason = reason;
+        }
+
+        public PlayaState getNewState() {
+            return mNewState;
+        }
+
+        public Reason getReason() {
+            return mReason;
+        }
+
+        public boolean isPlaying(){
+            return mNewState.isPlaying();
+        }
+
+        public boolean playbackHasStopped(){
+            return Reason.PLAYBACK_STOPPED.contains(mReason);
+        }
+
+        public boolean wasError(){
+            return Reason.ERRORS.contains(mReason);
+        }
+
+        public boolean trackEnded() {
+            return mNewState == Playa.PlayaState.IDLE && mReason == Reason.COMPLETE;
+        }
+
+        public void addToIntent(Intent intent) {
+            mNewState.addToIntent(intent);
+            mReason.addToIntent(intent);
+        }
+
+        public static StateTransition fromIntent(Intent intent) {
+            return new StateTransition(PlayaState.fromIntent(intent), Reason.fromIntent(intent));
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            StateTransition that = (StateTransition) o;
+            return Objects.equal(mNewState, that.mNewState) && Objects.equal(mReason, that.mReason);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = mNewState.hashCode();
+            result = 31 * result + mReason.hashCode();
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "StateTransition{" +
+                    "mNewState=" + mNewState +
+                    ", mReason=" + mReason +
+                    '}';
+        }
+    }
+
+    /**
+     * PLAYING : the internal player is currently playing
+     * IDLE : this internal player is not playing, nor is there intent to play
+     * BUFFERING : there is intent to play, but sound is not coming out of the speakers
+     * Note : there is no state for buffering with no intent to play. We should just report that as IDLE
+     */
+    public enum PlayaState {
+        BUFFERING, PLAYING, IDLE;
+
+        @VisibleForTesting
+        static final String PLAYER_STATE_EXTRA = "PLAYER_STATE_EXTRA";
+
+        /** User Intent. e.g., should we show the play button or pause button **/
+        public boolean isPlaying(){
+            return this == PLAYING || this == BUFFERING;
+        }
+
+        public boolean isIdle() {
+            return this == IDLE;
+        }
+
+        /** Actual playback state. Is there sound coming out of the speakers or not **/
+        public boolean isPlayerPlaying() {
+            return this == PLAYING;
+        }
+
+        public boolean isBuffering() {
+            return this == BUFFERING;
+        }
+
+        private void addToIntent(Intent intent) {
+            intent.putExtra(PLAYER_STATE_EXTRA, ordinal());
+        }
+
+        private static PlayaState fromIntent(Intent intent) {
+            if (!intent.hasExtra(PLAYER_STATE_EXTRA)){
+                throw new IllegalStateException("No state ordinal found in intent");
+            }
+            final int reasonOrdinal = intent.getIntExtra(PLAYER_STATE_EXTRA, -1);
+            if (reasonOrdinal < 0 || reasonOrdinal >= values().length){
+                throw new IllegalStateException("Ordinal of player transition state is out of bounds");
+            }
+            return values()[intent.getIntExtra(PLAYER_STATE_EXTRA, -1)];
+        }
+    }
+
+    public enum Reason {
+        NONE, COMPLETE, ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN;
+
+        public static final EnumSet<Reason> ERRORS =
+                EnumSet.of(ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN);
+
+        public static final EnumSet<Reason> PLAYBACK_STOPPED =
+                EnumSet.of(COMPLETE, ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN);
+
+        @VisibleForTesting
+        static final String PLAYER_REASON_EXTRA = "PLAYER_REASON_EXTRA";
+
+        private void addToIntent(Intent intent) {
+            intent.putExtra(PLAYER_REASON_EXTRA, ordinal());
+        }
+
+        private static Reason fromIntent(Intent intent) {
+            if (!intent.hasExtra(PLAYER_REASON_EXTRA)){
+                throw new IllegalStateException("No reason ordinal found in intent");
+            }
+            final int reasonOrdinal = intent.getIntExtra(PLAYER_REASON_EXTRA, -1);
+            if (reasonOrdinal < 0 || reasonOrdinal >= values().length){
+                throw new IllegalStateException("Ordinal of player transition reason is out of bounds");
+            }
+            return values()[reasonOrdinal];
+        }
+    }
+
+    public interface PlayaListener {
+        void onPlaystateChanged(StateTransition stateTransition);
+        // we might be able to get rid of this, if we just request focus before setting data source, however this is a change in behavior
+        boolean requestAudioFocus();
+    }
+
+    public static enum Error{
+        FAILED,
+        MEDIA_NOT_FOUND,
+        FORBIDDEN
+    }
+}

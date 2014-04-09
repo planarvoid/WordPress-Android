@@ -164,6 +164,12 @@
         </repository>
 
         <repository>
+            <id>soundcloud.internal.snapshots</id>
+            <name>SoundCloud Internal Snapshots</name>
+            <url>http://maven.int.s-cloud.net/content/repositories/snapshots</url>
+        </repository>
+
+        <repository>
             <id>sonatypesnapshots</id>
             <name>sonatype snapshots</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>

@@ -8,8 +8,6 @@ import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
-import com.soundcloud.android.playback.PlayerActivity;
-import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
@@ -19,7 +17,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -103,11 +100,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     protected boolean mShowComment;
     private static final long MIN_COMMENT_DISPLAY_TIME = 2000;
 
-    // only allow smooth progress updates on 9 or greater because they have buffering events for proper displaying
-    public static final int MINIMUM_SMOOTH_PROGRESS_SDK = 9;
-    private static final long MINIMUM_PROGRESS_PERIOD = 40;
-    private boolean mShowingSmoothProgress;
-    private boolean mIsBuffering, mWaitingForSeekComplete;
+    private boolean mIsBuffering;
     private int mTouchSlop;
     private int mWaveformColor;
 
@@ -192,27 +185,10 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     };
 
     public void setPlaybackStatus(boolean isPlaying, long pos){
-        if (mShowingSmoothProgress != isPlaying){
-            stopSmoothProgress();
-            setProgress(pos);
-            if (Build.VERSION.SDK_INT >= MINIMUM_SMOOTH_PROGRESS_SDK && isPlaying && mProgressPeriod < PlayerActivity.REFRESH_DELAY){
-                startSmoothProgress();
-            }
-        }
+        setProgress(pos);
         if (!isPlaying) {
-            mWaitingForSeekComplete = false;
             setBufferingState(false);
         }
-    }
-
-    private void startSmoothProgress(){
-        mShowingSmoothProgress = true;
-        mHandler.postDelayed(mSmoothProgress, 0);
-    }
-
-    private void stopSmoothProgress(){
-        mShowingSmoothProgress = false;
-        mHandler.removeCallbacks(mSmoothProgress);
     }
 
     @Override
@@ -224,14 +200,11 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
                     c.calculateXPos(getWidth(), mDuration);
                 }
             }
-            if (mTrack != null) {
-                determineProgressInterval();
-            }
         }
     }
 
     public void reset(boolean hide){
-        mWaitingForSeekComplete = mIsBuffering = false;
+        mIsBuffering = false;
         setProgressInternal(0);
         setSecondaryProgress(0);
         onStop(false);
@@ -244,8 +217,6 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     }
 
      public void onStop(boolean killLoading) {
-         // timed events
-         stopSmoothProgress();
         cancelAutoCloseComment();
 
          // comment states
@@ -280,37 +251,22 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     public void setBufferingState(boolean isBuffering) {
         mIsBuffering = isBuffering;
         if (mIsBuffering){
-            stopSmoothProgress();
             showWaiting();
-        } else if (mWaveformState != WaveformState.LOADING && !mWaitingForSeekComplete){
+        } else if (mWaveformState != WaveformState.LOADING){
             hideWaiting();
         }
     }
 
     public void onSeek(long seekTime){
         setProgressInternal(seekTime);
-        setProgress(seekTime);
-        stopSmoothProgress();
-        mWaitingForSeekComplete = true;
-        mHandler.postDelayed(mShowWaiting,500);
-    }
-
-    public void onSeekComplete(){
-        stopSmoothProgress();
-        mWaitingForSeekComplete = false;
-        if (mWaveformState != WaveformState.LOADING) {
-            hideWaiting();
-        }
     }
 
     private void showWaiting() {
         mWaveformHolder.showWaitingLayout(true);
-        mHandler.removeCallbacks(mShowWaiting);
         invalidate();
     }
 
     private void hideWaiting() {
-        mHandler.removeCallbacks(mShowWaiting);
         mWaveformHolder.hideWaitingLayout();
         invalidate();
 
@@ -334,13 +290,26 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         }
     }
 
+    public void setProgress(long pos, float loadPercent) {
+        setProgress(pos);
+        if (mDuration > 0){
+            setSecondaryProgress((int) (loadPercent * 10));
+        } else {
+            setSecondaryProgress(0);
+        }
+    }
+
     public void setProgress(long pos) {
         if (pos < 0) return;
 
-        lastProgressTimestamp = System.currentTimeMillis();
-        lastTrackTime = pos;
-        if (mode != TOUCH_MODE_SEEK_DRAG){
-            setProgressInternal(pos);
+        if (mDuration > 0){
+            lastProgressTimestamp = System.currentTimeMillis();
+            lastTrackTime = pos;
+            if (mode != TOUCH_MODE_SEEK_DRAG){
+                setProgressInternal(pos);
+            }
+        } else {
+            setProgressInternal(0);
         }
     }
 
@@ -391,17 +360,6 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         }
     }
 
-    public void setSmoothProgress(boolean showSmoothProgress){
-        if (mShowingSmoothProgress != showSmoothProgress){
-            mShowingSmoothProgress = showSmoothProgress;
-            if (mShowingSmoothProgress){
-                startSmoothProgress();
-            } else {
-                stopSmoothProgress();
-            }
-        }
-    }
-
     protected void autoShowComment(Comment c) {
         autoCloseComment();
         cancelAutoCloseComment();
@@ -422,15 +380,6 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         mProgressBar.setSecondaryProgress(percent);
     }
 
-    private void determineProgressInterval(){
-        if (getWidth() == 0) return;
-        mProgressPeriod = Math.max(MINIMUM_PROGRESS_PERIOD,mDuration/getWidth());
-        if (mProgressPeriod >= PlayerActivity.REFRESH_DELAY){
-            // don't bother with the extra refreshes, will happen at the regular intervals anyways
-            stopSmoothProgress();
-        }
-    }
-
     public void updateTrack(@Nullable Track track, int queuePosition, boolean visibleNow) {
         mQueuePosition = queuePosition;
         if (track == null || (mTrack != null
@@ -448,9 +397,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         if (changed) {
             hideWaiting();
             clearTrackComments();
-            setProgress(0);
-            stopSmoothProgress();
-            determineProgressInterval();
+            setProgress(0, 0);
         }
 
         if (!track.hasWaveform()) {
@@ -543,12 +490,6 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     protected void cancelAutoCloseComment() {
         mHandler.removeCallbacks(mAutoCloseComment);
     }
-
-    final Runnable mShowWaiting = new Runnable() {
-        public void run() {
-            showWaiting();
-        }
-    };
 
     final Runnable mAutoCloseComment = new Runnable() {
         public void run() {
@@ -836,10 +777,11 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
                 break;
 
             case UI_SEND_SEEK:
+                onSeek((long) (seekPercent * mDuration));
                 if (mListener != null) {
                     mListener.sendSeek(seekPercent);
                 }
-                mPlayerTouchBar.clearSeek();
+                mPlayerTouchBar.clearSeek(); 
                 break;
 
             case UI_CLEAR_SEEK:

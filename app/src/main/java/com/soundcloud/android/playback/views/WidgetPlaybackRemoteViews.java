@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -122,7 +123,7 @@ public class WidgetPlaybackRemoteViews extends PlaybackRemoteViews {
             title = intent.getStringExtra(PlaybackService.BroadcastExtras.TITLE);
             username = intent.getStringExtra(PlaybackService.BroadcastExtras.USERNAME);
             isLiked = intent.getBooleanExtra(PlaybackService.BroadcastExtras.IS_LIKE, false);
-            isPlaying = intent.getBooleanExtra(PlaybackService.BroadcastExtras.IS_SUPPOSED_TO_BE_PLAYING, false);
+            isPlaying = Playa.StateTransition.fromIntent(intent).getNewState().isPlaying();
         }
     }
 }

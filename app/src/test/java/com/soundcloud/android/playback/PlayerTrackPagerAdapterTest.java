@@ -5,6 +5,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.app.Activity;
 import android.content.Context;
@@ -58,7 +60,7 @@ public class PlayerTrackPagerAdapterTest {
         when(playQueue.isLoading()).thenReturn(false);
         when(playQueue.lastLoadWasEmpty()).thenReturn(false);
         when(playQueue.lastLoadFailed()).thenReturn(false);
-        when(trackOperations.loadCompleteTrack(any(Activity.class), anyLong())).thenReturn(Observable.just(new Track()));
+        when(trackOperations.loadSyncedTrack(anyLong(), same(AndroidSchedulers.mainThread()))).thenReturn(Observable.just(new Track()));
     }
 
     @Test
@@ -92,12 +94,12 @@ public class PlayerTrackPagerAdapterTest {
     }
 
     @Test
-    public void shouldLoadCompleteTrackByIdFromPlayQueueItem() {
+    public void shouldLoadSyncedTrackByIdFromPlayQueueItem() {
         final ViewGroup viewGroup = mock(ViewGroup.class);
         final Activity activity = mock(Activity.class);
         when(viewGroup.getContext()).thenReturn(activity);
         expect((PlayerQueueView) adapter.getView(123L, null, viewGroup)).toBe(playerQueueView);
-        verify(trackOperations).loadCompleteTrack(activity, 123L);
+        verify(trackOperations).loadSyncedTrack(123L, AndroidSchedulers.mainThread());
     }
 
     @Test

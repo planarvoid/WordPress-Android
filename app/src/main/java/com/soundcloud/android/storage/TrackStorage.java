@@ -1,15 +1,18 @@
 package com.soundcloud.android.storage;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscriber;
 
 import android.content.ContentResolver;
@@ -37,7 +40,12 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
 
     @Inject
     public TrackStorage(ContentResolver contentResolver, TrackDAO trackDAO, ScModelManager modelManager){
-        super(ScSchedulers.STORAGE_SCHEDULER);
+        this(contentResolver, trackDAO, modelManager, ScSchedulers.STORAGE_SCHEDULER);
+    }
+
+    @VisibleForTesting
+    TrackStorage(ContentResolver contentResolver, TrackDAO trackDAO, ScModelManager modelManager, Scheduler scheduler){
+        super(scheduler);
         mResolver = contentResolver;
         mTrackDAO = trackDAO;
         mModelManager = modelManager;
@@ -63,6 +71,7 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
 
     @Override
     public Track store(Track track) {
+        mModelManager.cache(track, ScResource.CacheUpdateMode.FULL);
         mTrackDAO.create(track);
         return track;
     }
@@ -102,15 +111,28 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
         return schedule(Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
             public void call(Subscriber<? super Track> observer) {
-                final Track cachedTrack = mModelManager.getCachedTrack(id);
-                if (cachedTrack != null){
-                    observer.onNext(cachedTrack);
-                } else {
-                    observer.onNext(mTrackDAO.queryById(id));
+                try {
+                    final Track cachedTrack = mModelManager.getCachedTrack(id);
+                    if (cachedTrack != null){
+                        observer.onNext(cachedTrack);
+                    } else {
+                        observer.onNext(getTrack(id));
+                    }
+                    observer.onCompleted();
+                } catch (NotFoundException e) {
+                    observer.onError(e);
                 }
-                observer.onCompleted();
             }
         }));
+    }
+
+    public Track getTrack(long id) throws NotFoundException {
+        final Track track = mTrackDAO.queryById(id);
+        if (track == null) {
+            throw new NotFoundException(id);
+        } else {
+            return mModelManager.cache(track);
+        }
     }
 
     // TODO: this should not depend on content URIs, since we're trying to move away from it. Difficult to do without

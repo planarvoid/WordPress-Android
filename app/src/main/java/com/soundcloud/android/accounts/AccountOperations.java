@@ -9,6 +9,7 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.utils.IOUtils;
@@ -17,8 +18,6 @@ import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -197,6 +196,10 @@ public class AccountOperations {
         }
 
         return null;
+    }
+
+    public long getLoggedInUserId(){
+        return SoundCloudApplication.getUserId();
     }
 
     public void invalidateSoundCloudToken(Token token) {

@@ -239,7 +239,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
         IntentFilter playbackFilter = new IntentFilter();
         playbackFilter.addAction(Broadcasts.META_CHANGED);
-        playbackFilter.addAction(Broadcasts.PLAYBACK_COMPLETE);
         playbackFilter.addAction(Broadcasts.PLAYSTATE_CHANGED);
         getActivity().registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
@@ -801,7 +800,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
             final String action = intent.getAction();
             if (Broadcasts.META_CHANGED.equals(action)
-                || Broadcasts.PLAYBACK_COMPLETE.equals(action)
                 || Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
 
                 adapter.notifyDataSetChanged();

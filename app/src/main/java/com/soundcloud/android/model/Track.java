@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.http.json.Views;
 import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.playback.LoadCommentsTask;
@@ -18,12 +17,7 @@ import com.soundcloud.android.playback.streaming.StreamItem;
 import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
-import com.soundcloud.android.tasks.FetchModelTask;
-import com.soundcloud.android.tasks.FetchTrackTask;
-import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
@@ -101,7 +95,6 @@ public class Track extends Playable {
     @JsonIgnore public List<Comment> comments;
     @JsonIgnore public int local_user_playback_count;
     @JsonIgnore public boolean local_cached;
-    @JsonIgnore public FetchModelTask<Track> load_info_task;
     @JsonIgnore public LoadCommentsTask load_comments_task;
     @JsonIgnore public int last_playback_error = -1;
 
@@ -399,18 +392,6 @@ public class Track extends Playable {
         return state != null && created_at != null && duration > 0;
     }
 
-    // TODO, THIS SUCKS
-    public FetchModelTask<Track> refreshInfoAsync(PublicCloudAPI api, FetchModelTask.Listener<Track> listener) {
-        if (load_info_task == null && AndroidUtils.isTaskFinished(load_info_task)) {
-            load_info_task = new FetchTrackTask(api, getId());
-        }
-        load_info_task.addListener(listener);
-        if (AndroidUtils.isTaskPending(load_info_task)) {
-            load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, getId()));
-        }
-        return load_info_task;
-    }
-
     public String getUserName() {
         return user != null ? user.username : null;
     }
@@ -602,14 +583,6 @@ public class Track extends Playable {
     @Override
     public int getTypeId() {
         return DB_TYPE_TRACK;
-    }
-
-    public boolean shouldLoadInfo(){
-        return load_info_task == null || load_info_task.wasError();
-    }
-
-    public boolean isLoadingInfo() {
-        return !AndroidUtils.isTaskFinished(load_info_task);
     }
 
     public String getStreamUrlWithAppendedId(){

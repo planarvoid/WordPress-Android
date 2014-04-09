@@ -1,16 +1,19 @@
-package com.soundcloud.android.playback.service;
+package com.soundcloud.android.playback.service.mediaplayer;
 
-import static org.mockito.Matchers.eq;
+import static com.soundcloud.android.playback.service.Playa.PlayaState;
+import static com.soundcloud.android.playback.service.Playa.Reason;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import android.media.MediaPlayer;
@@ -22,9 +25,7 @@ public class TrackCompletionListenerTest {
     private TrackCompletionListener trackCompletionListener;
 
     @Mock
-    PlaybackService playbackService;
-    @Mock
-    PlayQueue playQueue;
+    MediaPlayerAdapter mediaPlayerAdapter;
     @Mock
     MediaPlayer mediaPlayer;
 
@@ -36,69 +37,66 @@ public class TrackCompletionListenerTest {
         // Default to JellyBean for normal functionality
         TestHelper.setSdkVersion(Build.VERSION_CODES.JELLY_BEAN);
 
-        trackCompletionListener = new TrackCompletionListener(playbackService);
-        when(playbackService.getDuration()).thenReturn(DURATION);
-        when(playbackService._isSeekable()).thenReturn(true);
-        when(playbackService.getPlayQueueInternal()).thenReturn(playQueue);
-        when(playQueue.getCurrentTrackId()).thenReturn(TRACK_ID);
+        trackCompletionListener = new TrackCompletionListener(mediaPlayerAdapter);
+        when(mediaPlayer.getDuration()).thenReturn(DURATION);
+        when(mediaPlayerAdapter.isSeekable()).thenReturn(true);
     }
 
     @Test
     public void shouldInvokeOnTrackEndInResetPositionInPlayingStateWithNoSeekPosition() {
-        when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.PLAYING);
-
+        when(mediaPlayerAdapter.getLastStateTransition()).thenReturn(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE));
+        when(mediaPlayerAdapter.getState()).thenReturn(PlayaState.PLAYING);
         trackCompletionListener.onCompletion(mediaPlayer);
 
-        verify(playbackService).onTrackEnded();
+        verify(mediaPlayerAdapter).onTrackEnded();
     }
 
     @Test
     public void shouldInvokeOnTrackEndAtEndOfTrackInPlayingStateWithNoSeekPosition() {
-        when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.PLAYING);
+        when(mediaPlayerAdapter.getLastStateTransition()).thenReturn(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE));
         when(mediaPlayer.getCurrentPosition()).thenReturn(DURATION);
 
         trackCompletionListener.onCompletion(mediaPlayer);
 
-        verify(playbackService).onTrackEnded();
+        verify(mediaPlayerAdapter).onTrackEnded();
     }
 
     @Test
     public void shouldInvokeOnTrackEndAtEndOfTrackWithToleranceInPlayingStateWithNoSeekPosition() {
-        when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.PLAYING);
+        when(mediaPlayerAdapter.getLastStateTransition()).thenReturn(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE));
         when(mediaPlayer.getCurrentPosition()).thenReturn(DURATION - TrackCompletionListener.COMPLETION_TOLERANCE_MS);
 
         trackCompletionListener.onCompletion(mediaPlayer);
 
-        verify(playbackService).onTrackEnded();
+        verify(mediaPlayerAdapter).onTrackEnded();
     }
 
     @Test
     public void shouldInvokeRetryIfCurrentPositionOutsideTolerance() {
         final int resumeTime = DURATION - TrackCompletionListener.COMPLETION_TOLERANCE_MS - 1;
-        when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.PLAYING);
+        when(mediaPlayerAdapter.getState()).thenReturn(PlayaState.PLAYING);
         when(mediaPlayer.getCurrentPosition()).thenReturn(resumeTime);
         trackCompletionListener.onCompletion(mediaPlayer);
 
-        verify(playbackService).setResumeTimeAndInvokeErrorListener(same(mediaPlayer), eq(new PlaybackProgressInfo(TRACK_ID, resumeTime)));
-        verify(playbackService, never()).onTrackEnded();
+        verify(mediaPlayerAdapter).setResumeTimeAndInvokeErrorListener(same(mediaPlayer), Matchers.eq((long) resumeTime));
+        verify(mediaPlayerAdapter, never()).onTrackEnded();
     }
 
     @Test
     public void shouldInvokeOnCompleteIfBuildAfterJellyBeanAndNotSeekingOrResuming() {
         TestHelper.setSdkVersion(Build.VERSION_CODES.JELLY_BEAN + 1);
-        when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.PLAYING);
+        when(mediaPlayerAdapter.getLastStateTransition()).thenReturn(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE));
         trackCompletionListener.onCompletion(mediaPlayer);
-        verify(playbackService).onTrackEnded();
+        verify(mediaPlayerAdapter).onTrackEnded();
     }
 
     @Test
     public void shouldInvokeStopInErrorState() {
-        when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.ERROR);
+        when(mediaPlayerAdapter.getLastStateTransition()).thenReturn(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED));
         when(mediaPlayer.getCurrentPosition()).thenReturn(DURATION);
 
         trackCompletionListener.onCompletion(mediaPlayer);
-
-        verify(playbackService).stop();
+        verify(mediaPlayerAdapter).stop(mediaPlayer);
     }
 
 }

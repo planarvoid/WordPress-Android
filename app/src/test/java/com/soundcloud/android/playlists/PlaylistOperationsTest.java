@@ -111,7 +111,7 @@ public class PlaylistOperationsTest {
 
         ArgumentCaptor<ResultReceiver> resultReceiver = ArgumentCaptor.forClass(ResultReceiver.class);
         InOrder callbacks = inOrder(observer, syncInitiator);
-        callbacks.verify(syncInitiator).syncPlaylist(eq(playlist.toUri()), resultReceiver.capture());
+        callbacks.verify(syncInitiator).syncResource(eq(playlist.toUri()), resultReceiver.capture());
         forwardSyncResult(ApiSyncService.STATUS_SYNC_FINISHED, resultReceiver);
         callbacks.verify(observer).onNext(playlist);
         callbacks.verify(observer).onCompleted();
@@ -155,8 +155,7 @@ public class PlaylistOperationsTest {
     @Test
     public void loadPlaylistShouldEmitPlaylistThenTriggerSyncIfPlaylistExistsButNeedsSyncing() {
         final Playlist storedPlaylist = new Playlist(1L);
-        // Ids wouldn't actually change, but in-order verification didn't work on objects with identical IDs?
-        final Playlist syncedPlaylist = new Playlist(2L);
+        final Playlist syncedPlaylist = new Playlist(1L);
 
         when(syncState.isSyncDue()).thenReturn(true);
         when(syncStateManager.fromContent(storedPlaylist.toUri())).thenReturn(syncState);
@@ -168,7 +167,7 @@ public class PlaylistOperationsTest {
         ArgumentCaptor<ResultReceiver> resultReceiver = ArgumentCaptor.forClass(ResultReceiver.class);
         InOrder callbacks = inOrder(observer, syncInitiator);
         callbacks.verify(observer).onNext(storedPlaylist);
-        callbacks.verify(syncInitiator).syncPlaylist(eq(storedPlaylist.toUri()), resultReceiver.capture());
+        callbacks.verify(syncInitiator).syncResource(eq(storedPlaylist.toUri()), resultReceiver.capture());
         forwardSyncResult(ApiSyncService.STATUS_SYNC_FINISHED, resultReceiver);
         callbacks.verify(observer).onNext(syncedPlaylist);
         callbacks.verify(observer).onCompleted();
@@ -212,7 +211,7 @@ public class PlaylistOperationsTest {
         ArgumentCaptor<ResultReceiver> resultReceiver = ArgumentCaptor.forClass(ResultReceiver.class);
         InOrder callbacks = inOrder(observer, syncInitiator);
         callbacks.verify(observer).onNext(playlist);
-        callbacks.verify(syncInitiator).syncPlaylist(eq(playlist.toUri()), resultReceiver.capture());
+        callbacks.verify(syncInitiator).syncResource(eq(playlist.toUri()), resultReceiver.capture());
         forwardSyncResult(ApiSyncService.STATUS_SYNC_ERROR, resultReceiver);
         callbacks.verify(observer).onError(any(SyncInitiator.SyncFailedException.class));
         callbacks.verifyNoMoreInteractions();

@@ -7,7 +7,7 @@ import static java.lang.Math.min;
 import com.soundcloud.android.cache.WaveformCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
-import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.WaveformControllerLayout;
 import org.jetbrains.annotations.Nullable;
@@ -255,14 +255,12 @@ public class NowPlayingProgressBar extends ProgressBar {
                 setCurrentTrack();
 
             } else if (action.equals(Broadcasts.PLAYSTATE_CHANGED)) {
-              if (intent.getBooleanExtra(PlaybackService.BroadcastExtras.IS_PLAYING, false)){
-                  startRefreshing();
-              } else {
-                  stopRefreshing();
-              }
+                if (Playa.StateTransition.fromIntent(intent).getNewState().isPlaying()) {
+                    startRefreshing();
+                } else {
+                    stopRefreshing();
+                }
 
-            } else if (action.equals(Broadcasts.SEEK_COMPLETE) || action.equals(Broadcasts.SEEKING)) {
-                if (mPlaybackStateProvider.isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
             }
         }
     };

@@ -28,7 +28,7 @@ public class PlayerTrackDetailsLayoutTest {
     public void showLikesRowWhenTrackHasLikes() throws Exception {
         Track track = new Track(1L);
         track.likes_count = 1;
-        detailsLayout.setTrack(track);
+        detailsLayout.setTrack(track, PlayerTrackView.TrackLoadingState.DONE);
 
         View likersRow = detailsLayout.findViewById(R.id.likers_row);
         expect(likersRow.getVisibility()).toBe(View.VISIBLE);
@@ -38,7 +38,7 @@ public class PlayerTrackDetailsLayoutTest {
     public void hideLikesRowWhenTrackHasNoLikes() throws Exception {
         Track track = new Track(1L);
         track.likes_count = 0;
-        detailsLayout.setTrack(track);
+        detailsLayout.setTrack(track, PlayerTrackView.TrackLoadingState.DONE);
 
         View likersRow = detailsLayout.findViewById(R.id.likers_row);
         expect(likersRow.getVisibility()).toBe(View.GONE);
@@ -48,7 +48,7 @@ public class PlayerTrackDetailsLayoutTest {
     public void showRepostsRowWhenTrackHasReposts() throws Exception {
         Track track = new Track(1L);
         track.reposts_count = 1;
-        detailsLayout.setTrack(track);
+        detailsLayout.setTrack(track, PlayerTrackView.TrackLoadingState.DONE);
 
         View repostersRow = detailsLayout.findViewById(R.id.reposters_row);
         expect(repostersRow.getVisibility()).toBe(View.VISIBLE);
@@ -58,7 +58,7 @@ public class PlayerTrackDetailsLayoutTest {
     public void hideRepostsRowWhenTrackHasNoReposts() throws Exception {
         Track track = new Track(1L);
         track.reposts_count = 0;
-        detailsLayout.setTrack(track);
+        detailsLayout.setTrack(track, PlayerTrackView.TrackLoadingState.DONE);
 
         View repostersRow = detailsLayout.findViewById(R.id.reposters_row);
         expect(repostersRow.getVisibility()).toBe(View.GONE);
@@ -69,7 +69,7 @@ public class PlayerTrackDetailsLayoutTest {
         Track track = new Track(1L);
         track.comments = Lists.newArrayList(new Comment());
         track.comment_count = 1;
-        detailsLayout.setTrack(track);
+        detailsLayout.setTrack(track, PlayerTrackView.TrackLoadingState.DONE);
 
         View commentRow = detailsLayout.findViewById(R.id.comments_row);
         expect(commentRow.getVisibility()).toBe(View.VISIBLE);
@@ -80,7 +80,7 @@ public class PlayerTrackDetailsLayoutTest {
         Track track = new Track(1L);
         track.comments = Lists.newArrayList();
         track.comment_count = 0;
-        detailsLayout.setTrack(track);
+        detailsLayout.setTrack(track, PlayerTrackView.TrackLoadingState.DONE);
 
         View commentRow = detailsLayout.findViewById(R.id.comments_row);
         expect(commentRow.getVisibility()).toBe(View.GONE);

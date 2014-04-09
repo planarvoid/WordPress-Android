@@ -74,8 +74,6 @@ public class NowPlayingActionBarController extends ActionBarController implement
             IntentFilter f = new IntentFilter();
             f.addAction(Broadcasts.PLAYSTATE_CHANGED);
             f.addAction(Broadcasts.META_CHANGED);
-            f.addAction(Broadcasts.SEEK_COMPLETE);
-            f.addAction(Broadcasts.SEEKING);
             mOwner.getActivity().registerReceiver(mStatusListener, new IntentFilter(f));
         }
     }

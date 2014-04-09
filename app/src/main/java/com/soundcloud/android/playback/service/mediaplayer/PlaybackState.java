@@ -1,34 +1,34 @@
-package com.soundcloud.android.playback.service;
+package com.soundcloud.android.playback.service.mediaplayer;
 
 import java.util.EnumSet;
 /**
  * States the mediaplayer can be in - we need to track these manually.
  */
-    public enum PlaybackState {
+    enum PlaybackState {
     STOPPED,            // initial state, or stopped
     ERROR,              // onError() was called
     ERROR_RETRYING,     // onError() + retry
     PREPARING,          // initial buffering
-    PREPARED,           // initial buffering finished
     PLAYING,            // currently playing
     PAUSED,             // paused by user
     PAUSED_FOR_BUFFERING, // paused by framework
-    PAUSED_FOCUS_LOST,    // paused because the focus got lost
-    COMPLETED,            // onComplete() was called
-    WAITING_FOR_PLAYLIST;       // got told to play but playlist was empty
+    COMPLETED;            // onComplete() was called
 
     // see Valid and invalid states on http://developer.android.com/reference/android/media/MediaPlayer.html
     public static final EnumSet<PlaybackState> SEEKABLE =
-            EnumSet.of(PREPARED, PLAYING, PAUSED, PAUSED_FOR_BUFFERING, PAUSED_FOCUS_LOST, COMPLETED);
+            EnumSet.of(PLAYING, PAUSED, PAUSED_FOR_BUFFERING, COMPLETED);
 
     public static final EnumSet<PlaybackState> STARTABLE =
-            EnumSet.of(PREPARED, PLAYING, PAUSED, PAUSED_FOR_BUFFERING, PAUSED_FOCUS_LOST, COMPLETED);
+            EnumSet.of(PLAYING, PAUSED, PAUSED_FOR_BUFFERING, COMPLETED);
 
     public static final EnumSet<PlaybackState> STOPPABLE =
-            EnumSet.of(PREPARED, PLAYING, STOPPED, PAUSED, PAUSED_FOR_BUFFERING, PAUSED_FOCUS_LOST, COMPLETED);
+            EnumSet.of(PLAYING, STOPPED, PAUSED, PAUSED_FOR_BUFFERING, COMPLETED);
 
     public static final EnumSet<PlaybackState> PAUSEABLE =
-            EnumSet.of(PLAYING, PAUSED_FOR_BUFFERING, PAUSED_FOCUS_LOST, PAUSED);
+            EnumSet.of(PLAYING, PAUSED_FOR_BUFFERING, PAUSED);
+
+    public static final EnumSet<PlaybackState> LOADING =
+            EnumSet.of(PAUSED_FOR_BUFFERING, PREPARING);
 
     public boolean isPausable() {
         return PAUSEABLE.contains(this);
@@ -46,13 +46,17 @@ import java.util.EnumSet;
         return STOPPABLE.contains(this);
     }
 
+    public boolean isLoading() {
+        return LOADING.contains(this);
+    }
+
     public boolean isError() {
         return this == ERROR || this == ERROR_RETRYING;
     }
 
     // is the service currently playing, or about to play soon?
     public boolean isSupposedToBePlaying() {
-        return this == PREPARING || this == PLAYING || this == PAUSED_FOR_BUFFERING || this == WAITING_FOR_PLAYLIST;
+        return this == PREPARING || this == PLAYING || this == PAUSED_FOR_BUFFERING;
     }
 
     public boolean isInIdleState() {

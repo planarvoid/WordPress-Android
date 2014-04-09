@@ -41,28 +41,28 @@ public class PlaybackStateProvider implements OriginProvider {
     }
 
     public int getLoadingPercent() {
-        final PlaybackService instance = PlaybackService.instance;
-        return instance == null ? -1 : instance.loadPercent();
+        //Need to still implement this for skippy but add it to the media player adapter
+        return -1;
     }
 
     public boolean isBuffering() {
         final PlaybackService instance = PlaybackService.instance;
-        return instance != null && instance._isBuffering();
+        return instance != null && instance.isBuffering();
     }
 
     public boolean isSeekable() {
         final PlaybackService instance = PlaybackService.instance;
-        return instance != null && instance._isSeekable();
+        return instance != null && instance.isSeekable();
     }
 
     public boolean isPlaying() {
         final PlaybackService instance = PlaybackService.instance;
-        return getPlaybackState(instance).equals(PlaybackState.PLAYING);
+        return instance != null && instance.isPlayerPlaying();
     }
 
     public boolean isSupposedToBePlaying() {
         final PlaybackService instance = PlaybackService.instance;
-        return getPlaybackState(instance).isSupposedToBePlaying();
+        return instance != null && instance.isPlaying();
     }
 
     public long getPlayQueuePlaylistId() {
@@ -78,9 +78,5 @@ public class PlaybackStateProvider implements OriginProvider {
     public String getScreenTag() {
         final PlaybackService instance = PlaybackService.instance;
         return instance == null ? Screen.UNKNOWN.get() : instance.getPlayQueueOriginScreen();
-    }
-
-    private PlaybackState getPlaybackState(@Nullable PlaybackService instance) {
-        return (instance == null ? PlaybackState.STOPPED : instance.getPlaybackStateInternal());
     }
 }

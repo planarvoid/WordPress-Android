@@ -4,7 +4,6 @@ package com.soundcloud.android.playback.views;
 import static com.soundcloud.android.playback.service.PlaybackService.BroadcastExtras;
 import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.OriginProvider;
@@ -18,6 +17,7 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.playback.PlayerActivity;
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -26,6 +26,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
@@ -63,11 +64,15 @@ public class PlayerTrackView extends FrameLayout implements
     private PlayablePresenter mPlayablePresenter;
     private EngagementsController mEngagementsController;
 
+    protected TrackLoadingState mTrackLoadingState;
+    public enum TrackLoadingState {
+        WAITING, ERROR, DONE;
+    }
     public interface PlayerTrackViewListener extends WaveformControllerLayout.WaveformListener {
         void onAddToPlaylist(Track track);
+        void onTrackSyncComplete(int queuePosition);
         void onCloseCommentMode();
     }
-
     public PlayerTrackView(final Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -129,14 +134,31 @@ public class PlayerTrackView extends FrameLayout implements
         mWaveformController.setOnScreen(onScreen);
     }
 
+    public TrackLoadingState getTrackLoadingState() {
+        return mTrackLoadingState;
+    }
+
     public void setPlayQueueItem(Observable<Track> trackObservable, int queuePosition){
         mQueuePosition = queuePosition;
         mTrackSubscription.unsubscribe(); // unsubscribe from old subscription which may be in flight
-        mTrackSubscription = trackObservable.subscribe(new DefaultSubscriber<Track>() {
+        mTrackLoadingState = TrackLoadingState.WAITING;
+        mTrackSubscription = trackObservable.observeOn(AndroidSchedulers.mainThread()).subscribe(new DefaultSubscriber<Track>() {
             @Override
             public void onNext(Track args) {
                 // GET RID OF PRIORITY OR IMPLEMENT IT PROPERLY
                 setTrackInternal(args, true);
+            }
+
+            @Override
+            public void onCompleted() {
+                mTrackLoadingState = TrackLoadingState.DONE;
+                mListener.onTrackSyncComplete(mQueuePosition);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                mTrackLoadingState = TrackLoadingState.ERROR;
+                mListener.onTrackSyncComplete(mQueuePosition);
             }
         });
     }
@@ -180,8 +202,7 @@ public class PlayerTrackView extends FrameLayout implements
         mEngagementsController.setPlayable(track);
 
         if (mQueuePosition == mPlaybackStateProvider.getPlayPosition()) {
-            setProgress(mPlaybackStateProvider.getPlayProgress(), mPlaybackStateProvider.getLoadingPercent(),
-                    Consts.SdkSwitches.useSmoothProgress && mPlaybackStateProvider.isPlaying());
+            setProgress(mPlaybackStateProvider.getPlayProgress(), mPlaybackStateProvider.getLoadingPercent());
         }
     }
 
@@ -290,58 +311,39 @@ public class PlayerTrackView extends FrameLayout implements
 
         String action = intent.getAction();
         if (Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
-            if (intent.getBooleanExtra(BroadcastExtras.IS_SUPPOSED_TO_BE_PLAYING, false)) {
+
+            final Playa.StateTransition stateTransition = Playa.StateTransition.fromIntent(intent);
+            final Playa.PlayaState playaState = stateTransition.getNewState();
+
+            if (playaState.isPlaying()) {
                 hideUnplayable();
                 mTrack.last_playback_error = -1;
             } else {
                 mWaveformController.setPlaybackStatus(false, intent.getLongExtra(BroadcastExtras.POSITION, 0));
+
+                if (stateTransition.wasError()){
+                    // I realize how horrible it is to store error state on the model.
+                    // This is not new code and will go away with Player UI refactor
+                    mTrack.last_playback_error = PlayerActivity.PlayerError.PLAYBACK_ERROR;
+                    onUnplayable(intent);
+                }
             }
+            setBufferingState(playaState.isBuffering());
+
+
         } else if (Playable.COMMENTS_UPDATED.equals(action)) {
             if (mTrack.getId() == intent.getLongExtra(BroadcastExtras.ID, -1)) {
                 onCommentsChanged();
             }
 
-        } else if (Playable.ACTION_SOUND_INFO_UPDATED.equals(action)) {
-            Track t = SoundCloudApplication.sModelManager.getTrack(intent.getLongExtra(BroadcastExtras.ID, -1));
-            if (t != null) {
-                setTrackInternal(t, mOnScreen);
-                onTrackInfoChanged();
-            }
-
-        } else if (Playable.ACTION_SOUND_INFO_ERROR.equals(action)) {
-            onTrackInfoChanged();
-
-        } else if (Broadcasts.BUFFERING.equals(action)) {
-            setBufferingState(true);
-        } else if (Broadcasts.BUFFERING_COMPLETE.equals(action)) {
-            setBufferingState(false);
-            mWaveformController.setPlaybackStatus(intent.getBooleanExtra(BroadcastExtras.IS_PLAYING, false),
-                    intent.getLongExtra(BroadcastExtras.POSITION, 0));
-
-        } else if (Broadcasts.PLAYBACK_ERROR.equals(action)) {
-            mTrack.last_playback_error = PlayerActivity.PlayerError.PLAYBACK_ERROR;
-            onUnplayable(intent);
-        } else if (Broadcasts.STREAM_DIED.equals(action)) {
-            mTrack.last_playback_error = PlayerActivity.PlayerError.STREAM_ERROR;
-            onUnplayable(intent);
-        } else if (Broadcasts.TRACK_UNAVAILABLE.equals(action)) {
-            mTrack.last_playback_error = PlayerActivity.PlayerError.TRACK_UNAVAILABLE;
-            onUnplayable(intent);
         } else if (Broadcasts.COMMENTS_LOADED.equals(action)) {
             mWaveformController.setComments(mTrack.comments, true);
-        } else if (Broadcasts.SEEKING.equals(action)) {
-            mWaveformController.onSeek(intent.getLongExtra(BroadcastExtras.POSITION, -1));
-        } else if (Broadcasts.SEEK_COMPLETE.equals(action)) {
-            mWaveformController.onSeekComplete();
         }
-    }
-
-    protected void onTrackInfoChanged() {
     }
 
     private void onUnplayable(Intent intent) {
         mWaveformController.setBufferingState(false);
-        mWaveformController.setPlaybackStatus(intent.getBooleanExtra(BroadcastExtras.IS_PLAYING, false),
+        mWaveformController.setPlaybackStatus(Playa.StateTransition.fromIntent(intent).getNewState().isPlayerPlaying(),
                 intent.getLongExtra(BroadcastExtras.POSITION, 0));
 
         showUnplayable();
@@ -358,15 +360,8 @@ public class PlayerTrackView extends FrameLayout implements
         if (mTrack != null && mTrack.comments != null) mWaveformController.setComments(mTrack.comments, false, true);
     }
 
-    public void setProgress(long pos, int loadPercent, boolean showSmoothProgress) {
-        if (pos >= 0 && mDuration > 0) {
-            mWaveformController.setProgress(pos);
-            mWaveformController.setSecondaryProgress(loadPercent * 10);
-        } else {
-            mWaveformController.setProgress(0);
-            mWaveformController.setSecondaryProgress(0);
-        }
-        mWaveformController.setSmoothProgress(showSmoothProgress);
+    public void setProgress(long pos, int loadPercent) {
+        mWaveformController.setProgress(pos, loadPercent);
     }
 
     public void onStop(boolean killLoading) {
@@ -382,10 +377,6 @@ public class PlayerTrackView extends FrameLayout implements
             // TODO: this needs to happen in the service, this should be UI only here
             if (mTrack != null) mTrack.last_playback_error = -1;
         }
-    }
-
-    public void setPlaybackStatus(boolean isPlaying, long position) {
-        mWaveformController.setPlaybackStatus(isPlaying, position);
     }
 
     public long getTrackId() {

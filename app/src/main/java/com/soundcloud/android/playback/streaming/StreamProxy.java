@@ -1,8 +1,6 @@
 package com.soundcloud.android.playback.streaming;
 
 
-import android.content.Context;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -19,10 +17,12 @@ import rx.Observable;
 import rx.subjects.ReplaySubject;
 import rx.util.functions.Func1;
 
+import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
+import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -77,10 +77,10 @@ public class StreamProxy {
     private final StreamLoader loader;
     private final StreamStorage storage;
 
-
+    @Inject
     public StreamProxy(Context context) {
-        storage = new StreamStorage(context, Consts.EXTERNAL_STREAM_DIRECTORY);
-        loader = new StreamLoader(context, storage);
+        storage = new StreamStorage(context.getApplicationContext(), Consts.EXTERNAL_STREAM_DIRECTORY);
+        loader = new StreamLoader(context.getApplicationContext(), storage);
     }
 
     public StreamProxy start() {

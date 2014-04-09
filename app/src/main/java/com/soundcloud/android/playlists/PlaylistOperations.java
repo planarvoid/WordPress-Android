@@ -119,7 +119,7 @@ public class PlaylistOperations {
                     mSyncInitiator.syncLocalPlaylists(resultReceiver);
                 } else {
                     Log.d(LOG_TAG, "Sending intent to sync playlist " + playlistId);
-                    mSyncInitiator.syncPlaylist(Content.PLAYLIST.forId(playlistId), resultReceiver);
+                    mSyncInitiator.syncResource(Content.PLAYLIST.forId(playlistId), resultReceiver);
                 }
 
             }

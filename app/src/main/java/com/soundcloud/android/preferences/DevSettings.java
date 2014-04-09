@@ -27,6 +27,7 @@ import java.net.URL;
 public final class DevSettings {
     public static final String PREF_KEY = "dev-settings";
 
+    public static final String DEV_ENABLE_SKIPPY        = "dev.enableSkippy";
     public static final String DEV_CLEAR_NOTIFICATIONS  = "dev.clearNotifications";
     public static final String DEV_REWIND_NOTIFICATIONS = "dev.rewindNotifications";
     public static final String DEV_SYNC_NOW             = "dev.syncNow";

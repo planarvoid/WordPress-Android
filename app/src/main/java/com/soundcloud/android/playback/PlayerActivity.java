@@ -5,7 +5,6 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarController;
@@ -31,6 +30,7 @@ import com.soundcloud.android.playback.views.TransportBarView;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.service.LocalBinder;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
@@ -261,6 +261,13 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     }
 
     @Override
+    public void onTrackSyncComplete(int queuePosition) {
+        if (queuePosition == getCurrentDisplayedTrackPosition()){
+            updatePlayerInfoPanelFromTrackPager();
+        }
+    }
+
+    @Override
     public void onCloseCommentMode() {
         setCommentMode(false, true);
     }
@@ -373,17 +380,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         f.addAction(Broadcasts.RELATED_LOAD_STATE_CHANGED);
         f.addAction(Broadcasts.PLAYSTATE_CHANGED);
         f.addAction(Broadcasts.META_CHANGED);
-        f.addAction(Broadcasts.PLAYBACK_ERROR);
-        f.addAction(Broadcasts.TRACK_UNAVAILABLE);
-        f.addAction(Broadcasts.STREAM_DIED);
-        f.addAction(Broadcasts.PLAYBACK_COMPLETE);
-        f.addAction(Broadcasts.BUFFERING);
-        f.addAction(Broadcasts.BUFFERING_COMPLETE);
         f.addAction(Broadcasts.COMMENTS_LOADED);
-        f.addAction(Broadcasts.SEEKING);
-        f.addAction(Broadcasts.SEEK_COMPLETE);
-        f.addAction(Playable.ACTION_SOUND_INFO_UPDATED);
-        f.addAction(Playable.ACTION_SOUND_INFO_ERROR);
         f.addAction(Playable.COMMENT_ADDED);
         f.addAction(Playable.COMMENTS_UPDATED);
         f.addAction(Comment.ACTION_CREATE_COMMENT);
@@ -420,26 +417,23 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     }
 
     private void updatePlayerInfoPanelFromTrackPager() {
-        final Track track = SoundCloudApplication.sModelManager.getTrack(getCurrentDisplayedTrackId());
-        if (track != null) {
-            if (mIsTabletLandscapeLayout) {
-                updateFixedPlayableInfo(track);
-            }
-            if (mPlayablePresenter != null) {
-                mPlayablePresenter.setPlayable(track);
-                mEngagementsController.setPlayable(track);
+        final PlayerTrackView playerTrackView = getCurrentDisplayedTrackView();
+        if (playerTrackView != null){
+            final Track track = playerTrackView.getTrack();
+            if (track != null) {
+                if (mIsTabletLandscapeLayout) {
+                    updateFixedPlayableInfo(track, playerTrackView.getTrackLoadingState());
+                }
+                if (mPlayablePresenter != null) {
+                    mPlayablePresenter.setPlayable(track);
+                    mEngagementsController.setPlayable(track);
+                }
             }
         }
     }
 
-    private void updateFixedPlayableInfo(final Track track) {
-        if (track.shouldLoadInfo()) {
-            startService(new Intent(PlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, track.getId()));
-            mTrackDetailsView.setTrack(track, true);
-        } else {
-            mTrackDetailsView.setTrack(track);
-        }
-
+    private void updateFixedPlayableInfo( final Track track, PlayerTrackView.TrackLoadingState trackLoadingState) {
+        mTrackDetailsView.setTrack(track, trackLoadingState);
         mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 ProfileActivity.startFromPlayable(PlayerActivity.this, track);
@@ -565,8 +559,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         if (mPlaybackService != null){
             final PlayerTrackView ptv = getTrackView(mPlayQueue.getPosition());
             if (ptv != null) {
-                ptv.setProgress(progress, mPlaybackStateProvider.getLoadingPercent(),
-                        Consts.SdkSwitches.useSmoothProgress && mPlaybackStateProvider.isPlaying());
+                ptv.setProgress(progress, mPlaybackStateProvider.getLoadingPercent());
             }
         }
         long remaining = REFRESH_DELAY - (progress % REFRESH_DELAY);
@@ -669,21 +662,13 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 }
 
             } else {
-                if (Broadcasts.PLAYBACK_COMPLETE.equals(action) || action.equals(Broadcasts.PLAYSTATE_CHANGED)) {
+                if (action.equals(Broadcasts.PLAYSTATE_CHANGED)) {
                     setPlaybackState();
                     final PlayerTrackView trackView = getTrackView(queuePos);
                     if (trackView != null) {
-                        if (action.equals(Broadcasts.PLAYBACK_COMPLETE)){
-                            trackView.setPlaybackStatus(false, intent.getLongExtra(PlaybackService.BroadcastExtras.POSITION, 0));
-                        } else {
-                            trackView.handleStatusIntent(intent);
-                        }
+                        trackView.handleStatusIntent(intent);
                     }
                 } else {
-                    if (Playable.ACTION_SOUND_INFO_UPDATED.equals(action)
-                            && intent.getLongExtra(PlaybackService.BroadcastExtras.ID, -1) == getCurrentDisplayedTrackId()){
-                        updatePlayerInfoPanelFromTrackPager();
-                    }
                     // unhandled here, pass along to trackviews who may be interested
                     for (PlayerTrackView ptv : mTrackPagerAdapter.getPlayerTrackViews()) {
                         ptv.handleIdBasedIntent(intent);
@@ -730,7 +715,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         setCommentMode(false, false);
         setBufferingState();
         setPlaybackState();
-        updatePlayerInfoPanelFromTrackPager();
     }
 
     private void setBufferingState() {

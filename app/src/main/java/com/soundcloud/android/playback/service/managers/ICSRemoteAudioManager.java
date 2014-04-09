@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.service.managers;
 
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.playback.service.PlaybackState;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -39,9 +38,8 @@ public class ICSRemoteAudioManager extends FroyoRemoteAudioManager {
     }
 
     @Override
-    public void setPlaybackState(PlaybackState state) {
-        super.setPlaybackState(state);
-        final int playbackState = translateState(state);
+    public void setPlaybackState(boolean isSupposedToBePlaying) {
+        final int playbackState = translateState(isSupposedToBePlaying);
         client.setPlaybackState(playbackState);
     }
 
@@ -89,7 +87,7 @@ public class ICSRemoteAudioManager extends FroyoRemoteAudioManager {
         return client;
     }
 
-    private static int translateState(PlaybackState playbackState) {
-        return playbackState.isSupposedToBePlaying() ? RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED;
+    private static int translateState(boolean isSupposedToBePlaying) {
+        return isSupposedToBePlaying ? RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED;
     }
 }

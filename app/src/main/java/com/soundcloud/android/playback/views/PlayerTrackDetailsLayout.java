@@ -4,9 +4,9 @@ import static com.soundcloud.android.associations.PlayableInteractionActivity.EX
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.TrackInteractionActivity;
-import com.soundcloud.android.search.SearchByTagActivity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.search.SearchByTagActivity;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -103,25 +103,33 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
         mTxtInfo = (TextView) findViewById(R.id.txtInfo);
     }
 
-    public void setTrack(Track track) {
-        setTrack(track, false);
+    public void setTrack(Track mTrack, PlayerTrackView.TrackLoadingState mTrackLoadingState) {
+        fillTrackDetails(mTrack);
+
+        switch(mTrackLoadingState){
+            case WAITING :
+                showLoadingState();
+                break;
+            default:
+                hideLoadingState();
+                break;
+        }
     }
 
-    public void setTrack(Track track, boolean forceLoadingState) {
-        if (forceLoadingState || track.isLoadingInfo()){
-            mInfoView.setVisibility(View.GONE);
-            if (findViewById(R.id.loading_layout) != null) {
-                findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
-            } else {
-                findViewById(R.id.stub_loading).setVisibility(View.VISIBLE);
-            }
+    private void showLoadingState(){
+        mInfoView.setVisibility(View.GONE);
+        if (findViewById(R.id.loading_layout) != null) {
+            findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
         } else {
-            mInfoView.setVisibility(View.VISIBLE);
-            if (findViewById(R.id.loading_layout) != null) {
-                findViewById(R.id.loading_layout).setVisibility(View.GONE);
-            }
+            findViewById(R.id.stub_loading).setVisibility(View.VISIBLE);
         }
-        fillTrackDetails(track);
+    }
+
+    private void hideLoadingState(){
+        mInfoView.setVisibility(View.VISIBLE);
+        if (findViewById(R.id.loading_layout) != null) {
+            findViewById(R.id.loading_layout).setVisibility(View.GONE);
+        }
     }
 
     private void fillTrackDetails(Track track) {
@@ -195,7 +203,7 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
                 mTxtInfo.setMovementMethod(LinkMovementMethod.getInstance());
             }
         } else {
-            mTxtInfo.setVisibility(View.VISIBLE);
+            mTxtInfo.setVisibility(View.GONE);
         }
     }
 

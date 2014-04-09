@@ -1,38 +1,40 @@
 package com.soundcloud.android.track;
 
-import static rx.android.observables.AndroidObservable.fromActivity;
-
-import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.api.http.SoundCloudAPIRequest;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.api.Endpoints;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
-import android.app.Activity;
+import android.os.ResultReceiver;
 
 import javax.inject.Inject;
-import java.util.Locale;
 
 public class TrackOperations {
 
+    private static final String LOG_TAG = "TrackOperations";
+
     private final ScModelManager mModelManager;
     private final TrackStorage mTrackStorage;
-    private final RxHttpClient mRxHttpClient;
+    private final SyncStateManager mSyncStateManager;
+    private final SyncInitiator mSyncInitiator;
 
     @Inject
-    public TrackOperations(ScModelManager modelManager, TrackStorage trackStorage, RxHttpClient rxHttpClient) {
+    public TrackOperations(ScModelManager modelManager, TrackStorage trackStorage,
+                           SyncInitiator syncInitiator, SyncStateManager syncStateManager) {
         mModelManager = modelManager;
         mTrackStorage = trackStorage;
-        mRxHttpClient = rxHttpClient;
+        mSyncInitiator = syncInitiator;
+        mSyncStateManager = syncStateManager;
     }
 
     public Observable<Track> loadTrack(final long trackId, Scheduler observeOn) {
@@ -45,29 +47,78 @@ public class TrackOperations {
         }
     }
 
+    public Observable<Track> loadSyncedTrack(final long trackId, Scheduler observeOn) {
+        return loadTrack(trackId, observeOn).mergeMap(mSyncIfStale)
+                .onErrorResumeNext(handleTrackNotFound(trackId));
+    }
+
+    public Observable<Track> loadStreamableTrack(final long trackId,  Scheduler observeOn) {
+        return loadTrack(trackId, observeOn).mergeMap(mSyncIfNotStreamable)
+                .onErrorResumeNext(handleTrackNotFound(trackId));
+    }
+
+    private final Func1<Track, Observable<Track>> mSyncIfStale = new Func1<Track, Observable<Track>>() {
+        @Override
+        public Observable<Track> call(Track track) {
+            LocalCollection syncState = mSyncStateManager.fromContent(track.toUri());
+            if (syncState.isSyncDue()) {
+                Log.d(LOG_TAG, "Checking track sync state: stale = " + syncState.isSyncDue());
+                return Observable.concat(Observable.just(track), syncThenLoadTrack(track.getId()));
+            }
+            Log.d(LOG_TAG, "Track up to date, emitting directly");
+            return Observable.just(track);
+        }
+    };
+
+    private final Func1<Track, Observable<Track>> mSyncIfNotStreamable = new Func1<Track, Observable<Track>>() {
+        @Override
+        public Observable<Track> call(Track track) {
+            if (!track.isStreamable()) {
+                Log.d(LOG_TAG, "Syncing unstreamable track = " + track);
+                return syncThenLoadTrack(track.getId());
+            }
+            Log.d(LOG_TAG, "Track is streamable, emitting directly");
+            return Observable.just(track);
+        }
+    };
+
     /**
-     * Load the track from storage and fallback to the api if the stored track is incomplete : {@link com.soundcloud.android.model.Track#isIncomplete()}
-     * Note: this will call onNext twice on an incomplete track, so this must be accounted for by the caller
+     * Performs a sync on the given track, then reloads it from local storage.
+     * @param trackId
      */
-    public Observable<Track> loadCompleteTrack(final Activity activity, final long trackId) {
-        return loadTrack(trackId, AndroidSchedulers.mainThread()).mergeMap(new Func1<Track, Observable<? extends Track>>() {
+    private Observable<Track> syncThenLoadTrack(final long trackId) {
+        return Observable.create(new Observable.OnSubscribe<Long>() {
             @Override
-            public Observable<? extends Track> call(final Track track) {
-                return Observable.create(new Observable.OnSubscribe<Track>() {
-                    @Override
-                    public void call(Subscriber<? super Track> subscriber) {
-                        subscriber.onNext(track);
-                        if (track.isIncomplete() && !subscriber.isUnsubscribed()) {
-                            subscriber.add(fromActivity(activity, getCompleteTrackFromApi(trackId)
-                                    .map(cacheAndStoreTrack(trackId, ScResource.CacheUpdateMode.FULL)))
-                                    .subscribe(subscriber));
-                        } else {
-                            subscriber.onCompleted();
-                        }
-                    }
-                });
+            public void call(final Subscriber<? super Long> subscriber) {
+                final ResultReceiver resultReceiver = new SyncInitiator.ResultReceiverAdapter<Long>(subscriber, trackId);
+                    Log.d(LOG_TAG, "Sending intent to sync track " + trackId);
+                    mSyncInitiator.syncResource(Content.TRACK.forId(trackId), resultReceiver);
+            }
+        }).mergeMap(new Func1<Long, Observable<Track>>() {
+            @Override
+            public Observable<Track> call(Long trackId) {
+                Log.d(LOG_TAG, "Reloading track from local storage: " + trackId);
+                return mTrackStorage.getTrackAsync(trackId);
             }
         });
+    }
+
+    /**
+     * If a track cannot be found in local storage, returns a sync sequence for resume purposes, otherwise
+     * simply propagates the error.
+     */
+    private Func1<Throwable, Observable<? extends Track>> handleTrackNotFound(final long trackId) {
+        return new Func1<Throwable, Observable<? extends Track>>() {
+            @Override
+            public Observable<? extends Track> call(Throwable throwable) {
+                if (throwable instanceof NotFoundException) {
+                    Log.d(LOG_TAG, "Track missing from local storage, will sync " + trackId);
+                    return syncThenLoadTrack(trackId);
+                }
+                Log.d(LOG_TAG, "Caught error, forwarding to observer: " + throwable);
+                return Observable.error(throwable);
+            }
+        };
     }
 
     public Observable<Track> markTrackAsPlayed(Track track) {
@@ -81,24 +132,5 @@ public class TrackOperations {
                 return mModelManager.cache(nullableTrack == null ? new Track(trackId) : nullableTrack, updateMode);
             }
         };
-    }
-
-    private Func1<Track, Track> cacheAndStoreTrack(final long trackId, final ScResource.CacheUpdateMode updateMode){
-        return new Func1<Track, Track>() {
-            @Override
-            public Track call(Track nullableTrack) {
-                final Track track = mModelManager.cache(nullableTrack == null ? new Track(trackId) : nullableTrack, updateMode);
-                mTrackStorage.createOrUpdate(track);
-                return track;
-            }
-        };
-    }
-
-    private Observable<Track> getCompleteTrackFromApi(long trackId) {
-        String trackEndpoint = String.format(Locale.US, Endpoints.TRACK_DETAILS, trackId);
-        APIRequest<Track> request = SoundCloudAPIRequest.RequestBuilder.<Track>get(trackEndpoint)
-                .forPublicAPI()
-                .forResource(TypeToken.of(Track.class)).build();
-        return mRxHttpClient.fetchModels(request);
     }
 }

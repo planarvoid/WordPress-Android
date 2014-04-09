@@ -5,12 +5,10 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 import static com.soundcloud.android.playback.service.PlaybackService.PlayExtras;
 
 import com.google.common.primitives.Longs;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.Log;
 
 import android.content.BroadcastReceiver;
@@ -69,23 +67,11 @@ class PlaybackReceiver extends BroadcastReceiver {
             } else if (Actions.RETRY_RELATED_TRACKS.equals(action)) {
                 mPlayQueueManager.retryRelatedTracksFetch();
             } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
-                if (mPlaybackService.getPlaybackStateInternal() == PlaybackState.WAITING_FOR_PLAYLIST) {
+                if (mPlaybackService.isWaitingForPlaylist()) {
                     mPlaybackService.openCurrent();
                 }
-            } else if (Actions.LOAD_TRACK_INFO.equals(action)) {
-                // I inlined this lookup from a method I removed from the Track class, since I wanted to get rid of
-                // the dependency to ScModelManager in Track.java
-                Track track = intent.getParcelableExtra(Track.EXTRA);
-                if (track == null) {
-                    track = SoundCloudApplication.sModelManager.getTrack(intent.getLongExtra(Track.EXTRA_ID, 0));
-                }
-                if (track != null) {
-                    track.refreshInfoAsync(mPlaybackService.getOldCloudApi(), mPlaybackService.getInfoListener());
-                } else {
-                    mPlaybackService.getInfoListener().onError(intent.getLongExtra(Track.EXTRA_ID, -1L));
-                }
             } else if (Actions.STOP_ACTION.equals(action)) {
-                if (mPlaybackService.getPlaybackStateInternal().isSupposedToBePlaying()) {
+                if (mPlaybackService.isSupposedToBePlaying()) {
                     mPlaybackService.saveProgressAndStop();
                 } else {
                     // make sure we go to a stopped stat. No-op if there already

@@ -66,7 +66,7 @@ public class SyncInitiatorTest {
     @Test
     public void shouldCreateIntentForSyncingSinglePlaylist() throws Exception {
         final Uri playlistUri = Content.PLAYLISTS.forQuery(String.valueOf(1L));
-        initiator.syncPlaylist(playlistUri, resultReceiver);
+        initiator.syncResource(playlistUri, resultReceiver);
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedService();
         expect(intent).not.toBeNull();

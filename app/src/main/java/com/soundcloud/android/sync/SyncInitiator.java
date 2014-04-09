@@ -50,11 +50,11 @@ public class SyncInitiator {
                 .setData(Content.ME_PLAYLISTS.uri));
     }
 
-    public void syncPlaylist(Uri playlistUri, ResultReceiver resultReceiver) {
+    public void syncResource(Uri resourceUri, ResultReceiver resultReceiver) {
         mContext.startService(new Intent(mContext, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                .setData(playlistUri));
+                .setData(resourceUri));
     }
 
     public static class ResultReceiverAdapter<T> extends ResultReceiver {

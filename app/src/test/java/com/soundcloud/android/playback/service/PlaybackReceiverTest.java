@@ -13,16 +13,13 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.tasks.FetchModelTask;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
@@ -98,17 +95,6 @@ public class PlaybackReceiverTest {
     }
 
     @Test
-    public void loadInfoShouldCallLoadErrorWhenIdHasNoLocalTrack() {
-        final Intent intent = new Intent(PlaybackService.Actions.LOAD_TRACK_INFO);
-        intent.putExtra(Track.EXTRA_ID, 100L);
-        final FetchModelTask.Listener listener = Mockito.mock(FetchModelTask.Listener.class);
-        when(playbackService.getInfoListener()).thenReturn(listener);
-
-        playbackReceiver.onReceive(Robolectric.application, intent);
-        verify(listener).onError(100L);
-    }
-
-    @Test
     public void updateAppWidgetProviderActionShouldCallUpdateOnAppWidgetProviderWithPlaystateChangedAction(){
         Intent intent = new Intent(PlaybackService.Broadcasts.UPDATE_WIDGET_ACTION);
         final int[] ids = {1, 2, 3};
@@ -162,12 +148,12 @@ public class PlaybackReceiverTest {
         Intent intent = new Intent(PlaybackService.Actions.RESET_ALL);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).resetAll();
-        //verify(playQueue).clear();
+        verify(playQueueManager).clearAll();
     }
 
     @Test
     public void shouldCallSaveProgressAndStopOnStopActionIfPlaying(){
-        when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.PLAYING);
+        when(playbackService.isSupposedToBePlaying()).thenReturn(true);
         Intent intent = new Intent(PlaybackService.Actions.STOP_ACTION);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).saveProgressAndStop();
@@ -175,7 +161,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void shouldCallStopOnStopActionIfNotPlaying(){
-        when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.PAUSED);
+        when(playbackService.isSupposedToBePlaying()).thenReturn(false);
         Intent intent = new Intent(PlaybackService.Actions.STOP_ACTION);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).stop();
@@ -183,7 +169,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void shouldNotCallSaveProgressAndStopOnStopActionIfNotPlaying(){
-        when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.STOPPED);
+        when(playbackService.isSupposedToBePlaying()).thenReturn(false);
         Intent intent = new Intent(PlaybackService.Actions.STOP_ACTION);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService, never()).saveProgressAndStop();
@@ -194,13 +180,13 @@ public class PlaybackReceiverTest {
         Intent intent = new Intent(PlaybackService.Actions.RESET_ALL);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).resetAll();
-        //verify(playQueue).clear();
+        verify(playQueueManager).clearAll();
         verifyZeroInteractions(accountOperations);
     }
 
     @Test
     public void shouldOpenCurrentIfPlayQueueChangedFromEmptyPlaylist(){
-        when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.WAITING_FOR_PLAYLIST);
+        when(playbackService.isWaitingForPlaylist()).thenReturn(true);
         Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService, never()).saveProgressAndStop();

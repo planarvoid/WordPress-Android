@@ -103,6 +103,13 @@
     <PreferenceCategory android:key="dev-settings"
                         android:title="@string/pref_dev_settings">
 
+        <CheckBoxPreference
+                android:key="dev.enableSkippy"
+                android:title="@string/pref_skippy"
+                android:summary="@string/pref_skippy_desc"
+                android:defaultValue="false"
+                />
+
         <ListPreference
             android:title="@string/pref_dev_record_type"
             android:summary="@string/pref_dev_record_type_desc"

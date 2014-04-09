@@ -6,7 +6,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.HashBiMap;
-import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.collections.BasePagerAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlayQueueView;
@@ -15,6 +14,7 @@ import com.soundcloud.android.playback.views.PlayerQueueView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.track.TrackOperations;
 import org.jetbrains.annotations.Nullable;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.app.Activity;
 import android.content.Context;
@@ -139,7 +139,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
             queueView.showEmptyViewWithState(mPlayQueue.getAppendState());
         } else {
             playQueuePosition = mPlayQueue.getPositionOfTrackId(id);
-            queueView.showTrack(mTrackOperations.loadCompleteTrack(playerActivity, id),
+            queueView.showTrack(mTrackOperations.loadSyncedTrack(id, AndroidSchedulers.mainThread()),
                     playQueuePosition, mCommentingPosition == playQueuePosition, mPlaybackState);
         }
         mQueueViewsByPosition.forcePut(queueView, playQueuePosition);
@@ -189,7 +189,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
             if (id == EMPTY_VIEW_ID) {
                 playerQueueView.showEmptyViewWithState(mPlayQueue.getAppendState());
             } else {
-                playerQueueView.showTrack(mTrackOperations.loadCompleteTrack(playerActivity, id),
+                playerQueueView.showTrack(mTrackOperations.loadSyncedTrack(id, AndroidSchedulers.mainThread()),
                         position, mCommentingPosition == position, mPlaybackState);
             }
         }

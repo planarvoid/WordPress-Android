@@ -34,9 +34,6 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
     public static final int DB_TYPE_TRACK    = 0; // TODO should not be exposed
     public static final int DB_TYPE_PLAYLIST = 1;
 
-    public static final String ACTION_PLAYABLE_ASSOCIATION_CHANGED  = "com.soundcloud.android.playable.association_changed";
-    public static final String ACTION_SOUND_INFO_UPDATED            = "com.soundcloud.android.playable.info_updated";
-    public static final String ACTION_SOUND_INFO_ERROR              = "com.soundcloud.android.playable.info_error";
     public static final String COMMENT_ADDED                        = "com.soundcloud.android.playable.commentadded";
     public static final String COMMENTS_UPDATED                     = "com.soundcloud.android.playable.commentsupdated";
 
