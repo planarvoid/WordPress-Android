@@ -187,30 +187,28 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             Log.d(TAG, "onInfo(" + what + "," + extra + ", state=" + mInternalState + ")");
         }
 
-        switch (what) {
-            case MediaPlayer.MEDIA_INFO_BUFFERING_START:
-                setInternalState(PlaybackState.PAUSED_FOR_BUFFERING);
+        if (MediaPlayer.MEDIA_INFO_BUFFERING_START == what){
+            setInternalState(PlaybackState.PAUSED_FOR_BUFFERING);
+            mPlayerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
+            return true;
+
+        } else if (MediaPlayer.MEDIA_INFO_BUFFERING_END == what){
+            if (mSeekPos != -1 && !mWaitingForSeek) {
                 mPlayerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
-                break;
+                mPlayerHandler.sendEmptyMessageDelayed(PlayerHandler.CLEAR_LAST_SEEK, 3000);
+            } else if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Not clearing seek, waiting for seek to finish");
+            }
 
-            case MediaPlayer.MEDIA_INFO_BUFFERING_END:
-                if (mSeekPos != -1 && !mWaitingForSeek) {
-                    mPlayerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
-                    mPlayerHandler.sendEmptyMessageDelayed(PlayerHandler.CLEAR_LAST_SEEK, 3000);
-                } else if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.d(TAG, "Not clearing seek, waiting for seek to finish");
-                }
-
-                if (!mInternalState.isSupposedToBePlaying()) {
-                    pause();
-                } else {
-                    // still playing back, set proper state after buffering state
-                    setInternalState(PlaybackState.PLAYING);
-                }
-                break;
-            default:
+            if (!mInternalState.isSupposedToBePlaying()) {
+                pause();
+            } else {
+                // still playing back, set proper state after buffering state
+                setInternalState(PlaybackState.PLAYING);
+            }
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override

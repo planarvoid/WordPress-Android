@@ -106,13 +106,10 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
     public void setTrack(Track mTrack, PlayerTrackView.TrackLoadingState mTrackLoadingState) {
         fillTrackDetails(mTrack);
 
-        switch(mTrackLoadingState){
-            case WAITING :
-                showLoadingState();
-                break;
-            default:
-                hideLoadingState();
-                break;
+        if (mTrackLoadingState == PlayerTrackView.TrackLoadingState.WAITING){
+            showLoadingState();
+        } else {
+            hideLoadingState();
         }
     }
 
