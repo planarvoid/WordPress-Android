@@ -800,7 +800,13 @@ public class ScContentProvider extends ContentProvider {
 
             if (!failed) db.setTransactionSuccessful();
         } finally {
-            db.endTransaction();
+            // We had crashes on Samsung devices where the transaction was not open at this point.
+            // Let's keep this in and see if this fixes it.
+            // https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/533f1439fabb27481b264056
+            // Otherwise, feel free to remove again.
+            if (db.inTransaction()) {
+                db.endTransaction();
+            }
         }
         getContext().getContentResolver().notifyChange(uri, null, false);
         return values.length;
