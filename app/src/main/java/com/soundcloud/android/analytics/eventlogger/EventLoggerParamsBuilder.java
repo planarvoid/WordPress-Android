@@ -55,8 +55,8 @@ public class EventLoggerParamsBuilder {
         final Uri.Builder builder = new Uri.Builder();
         builder.appendQueryParameter("ts", String.valueOf(eventData.getTimeStamp()));
         builder.appendQueryParameter("latency", String.valueOf(eventData.getMetricValue()));
-        builder.appendQueryParameter("protocol", eventData.getProtocol());
-        builder.appendQueryParameter("player_type", eventData.getPlayerType());
+        builder.appendQueryParameter("protocol", eventData.getProtocol().getValue());
+        builder.appendQueryParameter("player_type", eventData.getPlayerType().getValue());
         builder.appendQueryParameter("type", getPerformanceEventType(eventData.getMetric()));
         builder.appendQueryParameter("host", Uri.parse(eventData.getUri()).getHost());
         return builder.build().getQuery();

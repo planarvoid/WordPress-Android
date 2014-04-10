@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.service.skippy;
 
+import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
+import static com.soundcloud.android.events.PlaybackPerformanceEvent.Protocol;
 import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason.BUFFERING;
 import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
@@ -29,8 +31,6 @@ import javax.inject.Inject;
 public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private static final String TAG = "SkippyAdapter";
-    public static final String HLS_PROTOCOL = "hls";
-    public static final String SKIPPY_PLAYER_TYPE = "Skippy";
 
     private final Skippy mSkippy;
     private final AccountOperations mAccountOperations;
@@ -191,15 +191,15 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private PlaybackPerformanceEvent createPerformanceEvent(PlaybackMetric metric, long value, String cdnUri) {
         switch (metric) {
             case TIME_TO_PLAY:
-                return PlaybackPerformanceEvent.timeToPlay(value, HLS_PROTOCOL, SKIPPY_PLAYER_TYPE, cdnUri);
+                return PlaybackPerformanceEvent.timeToPlay(value, Protocol.HLS, PlayerType.SKIPPY, cdnUri);
             case TIME_TO_BUFFER:
-                return PlaybackPerformanceEvent.timeToBuffer(value, HLS_PROTOCOL, SKIPPY_PLAYER_TYPE, cdnUri);
+                return PlaybackPerformanceEvent.timeToBuffer(value, Protocol.HLS, PlayerType.SKIPPY, cdnUri);
             case TIME_TO_GET_PLAYLIST:
-                return PlaybackPerformanceEvent.timeToPlaylist(value, HLS_PROTOCOL, SKIPPY_PLAYER_TYPE, cdnUri);
+                return PlaybackPerformanceEvent.timeToPlaylist(value, Protocol.HLS, PlayerType.SKIPPY, cdnUri);
             case TIME_TO_SEEK:
-                return PlaybackPerformanceEvent.timeToSeek(value, HLS_PROTOCOL, SKIPPY_PLAYER_TYPE, cdnUri);
+                return PlaybackPerformanceEvent.timeToSeek(value, Protocol.HLS, PlayerType.SKIPPY, cdnUri);
             case FRAGMENT_DOWNLOAD_RATE:
-                return PlaybackPerformanceEvent.fragmentDownloadRate(value, HLS_PROTOCOL, SKIPPY_PLAYER_TYPE, cdnUri);
+                return PlaybackPerformanceEvent.fragmentDownloadRate(value, Protocol.HLS, PlayerType.SKIPPY, cdnUri);
             default:
                 throw new IllegalArgumentException("Unexpected performance metric : " + metric);
         }

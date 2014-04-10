@@ -1,14 +1,16 @@
 package com.soundcloud.android.events;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
+import static com.soundcloud.android.events.PlaybackPerformanceEvent.Protocol;
 
 import org.junit.Test;
 
 public class PlaybackPerformanceEventTest {
 
     public static final String URI = "http://ec-media.com/asdf?p=1";
-    public static final String PLAYER_TYPE = "player1";
-    public static final String PROTOCOL = "hls";
+    public static final PlayerType PLAYER_TYPE = PlayerType.MEDIA_PLAYER;
+    public static final Protocol PROTOCOL = Protocol.HLS;
 
     @Test
     public void createTimeToPlayEvent() throws Exception {
