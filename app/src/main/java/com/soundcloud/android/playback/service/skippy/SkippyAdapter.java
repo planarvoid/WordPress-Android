@@ -48,7 +48,9 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @VisibleForTesting
     SkippyAdapter(Context context, SkippyFactory skippyFactory, AccountOperations accountOperations, EventBus eventBus) {
-        mSkippy = skippyFactory.create(context, this);
+        mSkippy = skippyFactory.create(this);
+        mSkippy.init(context);
+
         mAccountOperations = accountOperations;
         mEventBus = eventBus;
     }
@@ -238,8 +240,8 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @VisibleForTesting
     static class SkippyFactory {
-        public Skippy create(Context context, Skippy.PlayListener listener) {
-            return new Skippy(context, listener);
+        public Skippy create(Skippy.PlayListener listener) {
+            return new Skippy(listener);
         }
     }
 
