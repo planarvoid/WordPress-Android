@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 @RunWith(SoundCloudTestRunner.class)
 public class EventLoggerAnalyticsProviderTest {
@@ -48,8 +47,7 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Test
     public void shouldTrackPlaybackPerformanceEventAsEventLoggerEvent() throws Exception {
-        PlaybackPerformanceEvent event = Mockito.mock(PlaybackPerformanceEvent.class);
-        when(event.getTimeStamp()).thenReturn(1000L);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, "http", "player", "uri");
         when(eventLoggerParamsBuilder.buildFromPlaybackPerformanceEvent(event)).thenReturn("event-params");
 
         eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);
@@ -57,7 +55,7 @@ public class EventLoggerAnalyticsProviderTest {
         ArgumentCaptor<EventLoggerEvent> captor = ArgumentCaptor.forClass(EventLoggerEvent.class);
         verify(eventLogger).trackEvent(captor.capture());
         expect(captor.getValue().getParams()).toEqual("event-params");
-        expect(captor.getValue().getTimeStamp()).toEqual(1000L);
+        expect(captor.getValue().getTimeStamp()).toEqual(event.getTimeStamp());
         expect(captor.getValue().getPath()).toEqual("audio_performance");
     }
 
