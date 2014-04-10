@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-public class PlaybackPerformanceEvent {
+public final class PlaybackPerformanceEvent {
 
     public static final int METRIC_TIME_TO_PLAY = 0;
     public static final int METRIC_TIME_TO_PLAYLIST = 1;
