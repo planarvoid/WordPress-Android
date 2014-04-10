@@ -17,6 +17,7 @@ import com.soundcloud.android.utils.Log;
 import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
 
+@SuppressWarnings("PMD.UncommentedEmptyMethod")
 public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
 

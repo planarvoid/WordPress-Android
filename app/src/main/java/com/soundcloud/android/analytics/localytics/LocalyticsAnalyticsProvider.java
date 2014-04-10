@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@SuppressWarnings("PMD.UncommentedEmptyMethod")
 public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     public static final String TAG = "LocalyticsProvider";

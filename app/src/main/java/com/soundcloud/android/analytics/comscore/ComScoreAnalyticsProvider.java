@@ -14,7 +14,9 @@ import com.soundcloud.android.events.UIEvent;
 
 import android.content.Context;
 
+@SuppressWarnings("PMD.UncommentedEmptyMethod")
 public class ComScoreAnalyticsProvider implements AnalyticsProvider {
+
 
     public ComScoreAnalyticsProvider(Context context) {
         comScore.setAppContext(context.getApplicationContext());
