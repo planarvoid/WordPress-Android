@@ -96,7 +96,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             mConnectRetries = 0;
             if (mPlayaListener != null && mPlayaListener.requestAudioFocus()) {
                 play();
-                if (mResumePos != POS_NOT_SET) {
+                if (mResumePos > 0) {
                     seek(mResumePos, true);
                 }
             } else {

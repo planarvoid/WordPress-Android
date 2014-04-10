@@ -408,6 +408,13 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
+    public void shouldNotSeekIfPlayFromPositionIsZero() throws Exception {
+        mediaPlayerAdapter.play(track, 0L);
+        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        verify(mediaPlayer, never()).seekTo(anyInt());
+    }
+
+    @Test
     public void shouldResumePlaybackAtSpecifiedTime() throws Exception {
         mediaPlayerAdapter.play(track, 123L);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
