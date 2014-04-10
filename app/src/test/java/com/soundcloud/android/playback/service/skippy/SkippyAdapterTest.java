@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.service.skippy;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.skippy.Skippy.Error;
+import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason;
 import static com.soundcloud.android.skippy.Skippy.State;
 import static org.mockito.Matchers.any;
@@ -10,8 +11,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.api.Token;
@@ -25,6 +30,7 @@ import android.content.Context;
 @RunWith(SoundCloudTestRunner.class)
 public class SkippyAdapterTest {
 
+    public static final String CDN_URI = "http://ec-rtmp-media.soundcloud.com/123456?param=1";
     private SkippyAdapter skippyAdapter;
 
     @Mock
@@ -37,6 +43,8 @@ public class SkippyAdapterTest {
     private Playa.PlayaListener listener;
     @Mock
     private AccountOperations accountOperations;
+    @Mock
+    private EventBus eventBus;
 
     private Token token = new Token("access", "refresh");
 
@@ -44,7 +52,7 @@ public class SkippyAdapterTest {
     public void setUp() throws Exception {
         when(skippyFactory.create(any(Context.class), any(Skippy.PlayListener.class))).thenReturn(skippy);
         when(accountOperations.getSoundCloudToken()).thenReturn(token);
-        skippyAdapter = new SkippyAdapter(context, skippyFactory, accountOperations);
+        skippyAdapter = new SkippyAdapter(context, skippyFactory, accountOperations, eventBus);
         skippyAdapter.setListener(listener);
     }
 
@@ -177,4 +185,75 @@ public class SkippyAdapterTest {
         verify(listener).onPlaystateChanged(expected);
         expect(skippyAdapter.getLastStateTransition()).toEqual(expected);
     }
+
+    @Test
+    public void performanceMetricPublishesTimeToPlayEventEvent() throws Exception {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
+        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY, 1000L, CDN_URI);
+
+        final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
+        expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
+        expect(event.getMetricValue()).toEqual(1000L);
+        expect(event.getUri()).toEqual(CDN_URI);
+        expect(event.getPlayerType()).toEqual("Skippy");
+        expect(event.getProtocol()).toEqual("hls");
+    }
+
+    @Test
+    public void performanceMetricPublishesTimeToBufferEvent() throws Exception {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
+        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_BUFFER, 1000L, CDN_URI);
+
+        final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
+        expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_BUFFER);
+        expect(event.getMetricValue()).toEqual(1000L);
+        expect(event.getUri()).toEqual(CDN_URI);
+        expect(event.getPlayerType()).toEqual("Skippy");
+        expect(event.getProtocol()).toEqual("hls");
+    }
+
+    @Test
+    public void performanceMetricPublishesTimeToPlaylistEvent() throws Exception {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
+        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_GET_PLAYLIST, 1000L, CDN_URI);
+
+        final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
+        expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST);
+        expect(event.getMetricValue()).toEqual(1000L);
+        expect(event.getUri()).toEqual(CDN_URI);
+        expect(event.getPlayerType()).toEqual("Skippy");
+        expect(event.getProtocol()).toEqual("hls");
+    }
+
+    @Test
+    public void performanceMetricPublishesTimeToSeekEvent() throws Exception {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
+        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_SEEK, 1000L, CDN_URI);
+
+        final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
+        expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK);
+        expect(event.getMetricValue()).toEqual(1000L);
+        expect(event.getUri()).toEqual(CDN_URI);
+        expect(event.getPlayerType()).toEqual("Skippy");
+        expect(event.getProtocol()).toEqual("hls");
+    }
+
+    @Test
+    public void performanceMetricPublishesFragmentDownloadRateEvent() throws Exception {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
+        skippyAdapter.onPerformanceMeasured(PlaybackMetric.FRAGMENT_DOWNLOAD_RATE, 1000L, CDN_URI);
+
+        final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
+        expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE);
+        expect(event.getMetricValue()).toEqual(1000L);
+        expect(event.getUri()).toEqual(CDN_URI);
+        expect(event.getPlayerType()).toEqual("Skippy");
+        expect(event.getProtocol()).toEqual("hls");
+    }
+
 }

@@ -2,11 +2,10 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import static android.os.Process.THREAD_PRIORITY_LOWEST;
 
-import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.utils.Log;
 
 import android.os.HandlerThread;
 import android.os.Message;
-import android.util.Log;
 
 import javax.inject.Inject;
 
@@ -21,15 +20,15 @@ public class EventLogger {
         mEventLoggerHandlerFactory = eventLoggerHandlerFactory;
     }
 
-    public void trackEvent(PlaybackEvent playbackEvent) {
+    public void trackEvent(EventLoggerEvent event) {
         if (mHandler == null) {
             HandlerThread thread = new HandlerThread("EventLogger", THREAD_PRIORITY_LOWEST);
             thread.start();
             mHandler = mEventLoggerHandlerFactory.create(thread.getLooper());
         }
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + playbackEvent.toString());
-        Message insert = mHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent);
+        Log.d(TAG, "new tracking event: " + event.toString());
+        Message insert = mHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, event);
         mHandler.removeMessages(EventLoggerHandler.FINISH_TOKEN);
         mHandler.sendMessage(insert);
     }

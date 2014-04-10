@@ -46,7 +46,7 @@ public class EventLoggerHandler extends Handler {
         switch (msg.what) {
             case INSERT_TOKEN:
                 try {
-                    if (mStorage.insertEvent((PlaybackEvent) msg.obj) < 0) {
+                    if (mStorage.insertEvent((EventLoggerEvent) msg.obj) < 0) {
                         Log.w(EventLogger.TAG, "error inserting tracking event");
                     }
                 } catch (UnsupportedEncodingException e) {

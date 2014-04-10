@@ -8,24 +8,32 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.utils.Log;
 
 import javax.inject.Inject;
+import java.io.UnsupportedEncodingException;
 
 public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
+
     @Inject
     EventLogger mEventLogger;
+    @Inject
+    EventLoggerParamsBuilder mEventLoggerParamsBuilder;
 
+    @Inject
     public EventLoggerAnalyticsProvider() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting
-    protected EventLoggerAnalyticsProvider(EventLogger eventLogger) {
+    protected EventLoggerAnalyticsProvider(EventLogger eventLogger, EventLoggerParamsBuilder eventLoggerParamsBuilder) {
         mEventLogger = eventLogger;
+        mEventLoggerParamsBuilder = eventLoggerParamsBuilder;
     }
 
     @Override
@@ -64,8 +72,23 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     public void handleSearchEvent(SearchEvent searchEvent) {}
 
     @Override
-    public void handlePlaybackEvent(PlaybackEvent eventData) {
-        mEventLogger.trackEvent(eventData);
+    public void handlePlaybackEvent(final PlaybackEvent eventData) {
+        try {
+            final String params = mEventLoggerParamsBuilder.buildFromPlaybackEvent(eventData);
+            final EventLoggerEvent event = new EventLoggerEvent(eventData.getTimeStamp(), EventLoggerEventTypes.PLAYBACK.getPath(), params);
+            mEventLogger.trackEvent(event);
+
+        } catch (UnsupportedEncodingException e) {
+            Log.e(EventLogger.TAG, "Unable to process playback event ", e);
+        }
+
+    }
+
+    @Override
+    public void handlePlaybackPerformanceEvent(final PlaybackPerformanceEvent eventData) {
+        final String params = mEventLoggerParamsBuilder.buildFromPlaybackPerformanceEvent(eventData);
+        final EventLoggerEvent event = new EventLoggerEvent(eventData.getTimeStamp(), EventLoggerEventTypes.PLAYBACK_PERFORMANCE.getPath(), params);
+        mEventLogger.trackEvent(event);
     }
 
     @Override

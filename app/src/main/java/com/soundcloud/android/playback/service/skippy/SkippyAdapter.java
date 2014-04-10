@@ -1,11 +1,15 @@
 package com.soundcloud.android.playback.service.skippy;
 
+import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason.BUFFERING;
 import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.skippy.Skippy;
@@ -25,24 +29,28 @@ import javax.inject.Inject;
 public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private static final String TAG = "SkippyAdapter";
+    public static final String HLS_PROTOCOL = "hls";
+    public static final String SKIPPY_PLAYER_TYPE = "Skippy";
 
     private final Skippy mSkippy;
     private final AccountOperations mAccountOperations;
     private final StateChangeHandler mStateHandler = new StateChangeHandler();
+    private final EventBus mEventBus;
 
     private Skippy.State mLastState = Skippy.State.IDLE;
     private Skippy.Reason mLastReason = Skippy.Reason.NOTHING;
     private Skippy.Error mLastError = Skippy.Error.OK;
 
     @Inject
-    public SkippyAdapter(Context context, AccountOperations accountOperations) {
-        this(context, new SkippyFactory(), accountOperations);
+    public SkippyAdapter(Context context, AccountOperations accountOperations, EventBus eventBus) {
+        this(context, new SkippyFactory(), accountOperations, eventBus);
     }
 
     @VisibleForTesting
-    SkippyAdapter(Context context, SkippyFactory skippyFactory, AccountOperations accountOperations) {
+    SkippyAdapter(Context context, SkippyFactory skippyFactory, AccountOperations accountOperations, EventBus eventBus) {
         mSkippy = skippyFactory.create(context, this);
         mAccountOperations = accountOperations;
+        mEventBus = eventBus;
     }
 
     @Override
@@ -144,6 +152,12 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     }
 
+    @Override
+    public void onPerformanceMeasured(PlaybackMetric metric, long value, String uri) {
+        final PlaybackPerformanceEvent event = createPerformanceEvent(metric, value, uri);
+        mEventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
+    }
+
     private PlayaState getTranslatedState() {
         switch (mLastState) {
             case IDLE:
@@ -173,9 +187,22 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         }
     }
 
-    @Override
-    public void onPerformanceMeasured(Skippy.PlaybackMetric metric, long value, String uri) {
-        Log.i(TAG, "Performance Metric : " + metric + " : " + value);
+    @Nullable
+    private PlaybackPerformanceEvent createPerformanceEvent(PlaybackMetric metric, long value, String cdnUri) {
+        switch (metric) {
+            case TIME_TO_PLAY:
+                return PlaybackPerformanceEvent.timeToPlay(value, HLS_PROTOCOL, SKIPPY_PLAYER_TYPE, cdnUri);
+            case TIME_TO_BUFFER:
+                return PlaybackPerformanceEvent.timeToBuffer(value, HLS_PROTOCOL, SKIPPY_PLAYER_TYPE, cdnUri);
+            case TIME_TO_GET_PLAYLIST:
+                return PlaybackPerformanceEvent.timeToPlaylist(value, HLS_PROTOCOL, SKIPPY_PLAYER_TYPE, cdnUri);
+            case TIME_TO_SEEK:
+                return PlaybackPerformanceEvent.timeToSeek(value, HLS_PROTOCOL, SKIPPY_PLAYER_TYPE, cdnUri);
+            case FRAGMENT_DOWNLOAD_RATE:
+                return PlaybackPerformanceEvent.fragmentDownloadRate(value, HLS_PROTOCOL, SKIPPY_PLAYER_TYPE, cdnUri);
+            default:
+                throw new IllegalArgumentException("Unexpected performance metric : " + metric);
+        }
     }
 
     @Override

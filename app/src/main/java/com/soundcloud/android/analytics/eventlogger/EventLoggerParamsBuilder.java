@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import com.integralblue.httpresponsecache.compat.Charsets;
 import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -30,7 +31,7 @@ public class EventLoggerParamsBuilder {
 
         TrackSourceInfo trackSourceInfo = playbackEvent.getTrackSourceInfo();
 
-        if (trackSourceInfo.getIsUserTriggered()){
+        if (trackSourceInfo.getIsUserTriggered()) {
             builder.appendQueryParameter(EventLoggerParams.Keys.TRIGGER, EventLoggerParams.Trigger.MANUAL);
         } else {
             builder.appendQueryParameter(EventLoggerParams.Keys.TRIGGER, EventLoggerParams.Trigger.AUTO);
@@ -49,6 +50,18 @@ public class EventLoggerParamsBuilder {
         return builder.build().getQuery();
     }
 
+
+    public String buildFromPlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
+        final Uri.Builder builder = new Uri.Builder();
+        builder.appendQueryParameter("ts", String.valueOf(eventData.getTimeStamp()));
+        builder.appendQueryParameter("latency", String.valueOf(eventData.getMetricValue()));
+        builder.appendQueryParameter("protocol", eventData.getProtocol());
+        builder.appendQueryParameter("player_type", eventData.getPlayerType());
+        builder.appendQueryParameter("type", getPerformanceEventType(eventData.getMetric()));
+        builder.appendQueryParameter("host", Uri.parse(eventData.getUri()).getHost());
+        return builder.build().getQuery();
+    }
+
     private String formatOriginUrl(String originUrl) {
         try {
             return URLEncoder.encode(originUrl.toLowerCase(Locale.ENGLISH).replace(" ", "_"), "utf-8");
@@ -56,5 +69,23 @@ public class EventLoggerParamsBuilder {
             e.printStackTrace();
         }
         return ScTextUtils.EMPTY_STRING;
+    }
+
+
+    private String getPerformanceEventType(int type) {
+        switch (type) {
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY:
+                return "time-to-play";
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_BUFFER:
+                return "time-to-buffer";
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST:
+                return "time-to-get-playlist";
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK:
+                return "time-to-seek";
+            case PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE:
+                return "fragment-download-rate";
+            default:
+                throw new IllegalArgumentException("Unexpected metric type " + type);
+        }
     }
 }

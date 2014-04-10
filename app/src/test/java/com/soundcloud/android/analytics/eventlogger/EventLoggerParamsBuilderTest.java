@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -23,6 +24,7 @@ public class EventLoggerParamsBuilderTest {
     private Track track;
     @Mock
     private TrackSourceInfo trackSourceInfo;
+    private EventLoggerParamsBuilder eventLoggerParamsBuilder = new EventLoggerParamsBuilder();
 
     @Before
     public void setUp() throws Exception {
@@ -62,8 +64,43 @@ public class EventLoggerParamsBuilderTest {
         checkUrl("ts=321&action=play&duration=0&sound=soundcloud%3Asounds%3A0&user=soundcloud%3Ausers%3A1&trigger=manual&context=origin&source=source1&source_version=version1&set_id=123&set_position=2");
     }
 
+    @Test
+    public void createsPlaybackPerformanceParametersForPlayEvent() throws Exception {
+        PlaybackPerformanceEvent playbackPerformanceEvent = PlaybackPerformanceEvent.timeToPlay(1000L, "HTTP", "MediaPlayer", "http://host.com/track.mp3");
+        final String actualQueryString = eventLoggerParamsBuilder.buildFromPlaybackPerformanceEvent(playbackPerformanceEvent);
+        assertThat(actualQueryString, is(queryStringEqualTo("protocol=HTTP&player_type=MediaPlayer&latency=1000&host=host.com&type=play&ts=" + playbackPerformanceEvent.getTimeStamp())));
+    }
+
+    @Test
+    public void createsPlaybackPerformanceParametersForBufferEvent() throws Exception {
+        PlaybackPerformanceEvent playbackPerformanceEvent = PlaybackPerformanceEvent.timeToBuffer(1000L, "HTTP", "MediaPlayer", "http://host.com/track.mp3");
+        final String actualQueryString = eventLoggerParamsBuilder.buildFromPlaybackPerformanceEvent(playbackPerformanceEvent);
+        assertThat(actualQueryString, is(queryStringEqualTo("protocol=HTTP&player_type=MediaPlayer&latency=1000&host=host.com&type=buffer&ts=" + playbackPerformanceEvent.getTimeStamp())));
+    }
+
+    @Test
+    public void createsPlaybackPerformanceParametersForPlaylistEvent() throws Exception {
+        PlaybackPerformanceEvent playbackPerformanceEvent = PlaybackPerformanceEvent.timeToPlaylist(1000L, "HTTP", "MediaPlayer", "http://host.com/track.mp3");
+        final String actualQueryString = eventLoggerParamsBuilder.buildFromPlaybackPerformanceEvent(playbackPerformanceEvent);
+        assertThat(actualQueryString, is(queryStringEqualTo("protocol=HTTP&player_type=MediaPlayer&latency=1000&host=host.com&type=playlist&ts=" + playbackPerformanceEvent.getTimeStamp())));
+    }
+
+    @Test
+    public void createsPlaybackPerformanceParametersForSeekEvent() throws Exception {
+        PlaybackPerformanceEvent playbackPerformanceEvent = PlaybackPerformanceEvent.timeToSeek(1000L, "HTTP", "MediaPlayer", "http://host.com/track.mp3");
+        final String actualQueryString = eventLoggerParamsBuilder.buildFromPlaybackPerformanceEvent(playbackPerformanceEvent);
+        assertThat(actualQueryString, is(queryStringEqualTo("protocol=HTTP&player_type=MediaPlayer&latency=1000&host=host.com&type=seek&ts=" + playbackPerformanceEvent.getTimeStamp())));
+    }
+
+    @Test
+    public void createsPlaybackPerformanceParametersForFragmentDownloadRateEvent() throws Exception {
+        PlaybackPerformanceEvent playbackPerformanceEvent = PlaybackPerformanceEvent.fragmentDownloadRate(1000L, "HTTP", "MediaPlayer", "http://host.com/track.mp3");
+        final String actualQueryString = eventLoggerParamsBuilder.buildFromPlaybackPerformanceEvent(playbackPerformanceEvent);
+        assertThat(actualQueryString, is(queryStringEqualTo("protocol=HTTP&player_type=MediaPlayer&latency=1000&host=host.com&type=fragment&ts=" + playbackPerformanceEvent.getTimeStamp())));
+    }
+
     private void checkUrl(String expected) throws UnsupportedEncodingException {
-        final String actualQueryString = new EventLoggerParamsBuilder().buildFromPlaybackEvent(PlaybackEvent.forPlay(track, 1L, trackSourceInfo, 321L));
+        final String actualQueryString = eventLoggerParamsBuilder.buildFromPlaybackEvent(PlaybackEvent.forPlay(track, 1L, trackSourceInfo, 321L));
         assertThat(actualQueryString, is(queryStringEqualTo(expected)));
     }
 }

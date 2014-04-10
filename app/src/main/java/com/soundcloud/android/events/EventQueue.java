@@ -14,4 +14,5 @@ public final class EventQueue {
     public static final QueueDescriptor<OnboardingEvent> ONBOARDING = create(OnboardingEvent.class);
     public static final QueueDescriptor<SearchEvent> SEARCH = create(SearchEvent.class);
     public static final QueueDescriptor<PlayControlEvent> PLAY_CONTROL = create(PlayControlEvent.class);
+    public static final QueueDescriptor<PlaybackPerformanceEvent> PLAYBACK_PERFORMANCE = create(PlaybackPerformanceEvent.class);
 }

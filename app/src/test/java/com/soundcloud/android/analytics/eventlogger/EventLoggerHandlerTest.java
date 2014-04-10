@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -16,7 +15,9 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import android.content.Context;
 import android.util.Pair;
@@ -48,14 +49,15 @@ public class EventLoggerHandlerTest {
     public void shouldInsertTrackingEventsIntoDatabase() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
 
-        final PlaybackEvent playbackEvent1 = PlaybackEvent.forPlay(track, 1l, trackSourceInfo);
-        final PlaybackEvent playbackEvent2 = PlaybackEvent.forStop(track, 2l, trackSourceInfo, playbackEvent1, PlaybackEvent.STOP_REASON_PAUSE);
+        final EventLoggerEvent event1 = Mockito.mock(EventLoggerEvent.class);
+        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, event1));
 
-        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent1));
-        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent2));
+        final EventLoggerEvent event2 = Mockito.mock(EventLoggerEvent.class);
+        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, event2));
 
-        verify(storage).insertEvent(playbackEvent1);
-        verify(storage).insertEvent(playbackEvent2);
+        InOrder inOrder = Mockito.inOrder(storage);
+        inOrder.verify(storage).insertEvent(event1);
+        inOrder.verify(storage).insertEvent(event2);
     }
 
     @Test

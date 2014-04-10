@@ -5,9 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,12 +18,13 @@ import android.os.Message;
 @RunWith(SoundCloudTestRunner.class)
 public class EventLoggerTest {
     private EventLogger eventLogger;
-    private PlaybackEvent playbackEvent;
 
     @Mock
     EventLoggerHandlerFactory eventLoggerHandlerFactory;
     @Mock
     EventLoggerHandler handler;
+    @Mock
+    EventLoggerEvent event;
     @Mock
     Message message;
     @Mock
@@ -38,8 +37,6 @@ public class EventLoggerTest {
         eventLogger = new EventLogger(eventLoggerHandlerFactory);
         when(eventLoggerHandlerFactory.create(any(Looper.class))).thenReturn(handler);
         when(handler.obtainMessage(EventLoggerHandler.FINISH_TOKEN)).thenReturn(finishMessage);
-
-        playbackEvent = TestHelper.getModelFactory().createModel(PlaybackEvent.class);
     }
 
     @After
@@ -49,20 +46,20 @@ public class EventLoggerTest {
 
     @Test
     public void shouldCreateNewEventLoggerOnTrackEvent() throws Exception {
-        eventLogger.trackEvent(playbackEvent);
+        eventLogger.trackEvent(event);
         verify(eventLoggerHandlerFactory).create(any(Looper.class));
     }
 
     @Test
     public void shouldSendTrackingEventToHandler() throws Exception {
-        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent)).thenReturn(message);
-        eventLogger.trackEvent(playbackEvent);
+        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, event)).thenReturn(message);
+        eventLogger.trackEvent(event);
         verify(handler).sendMessage(message);
     }
 
     @Test
     public void shouldSendFlushEventToHandler() {
-        eventLogger.trackEvent(playbackEvent); // make sure handler is alive
+        eventLogger.trackEvent(event); // make sure handler is alive
 
         when(handler.obtainMessage(EventLoggerHandler.FLUSH_TOKEN)).thenReturn(flushMessage);
         eventLogger.flush();
@@ -71,16 +68,16 @@ public class EventLoggerTest {
 
     @Test
     public void shouldRemoveFinishTokenOnTrackEvent() throws Exception {
-        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent)).thenReturn(message);
-        eventLogger.trackEvent(playbackEvent);
+        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, event)).thenReturn(message);
+        eventLogger.trackEvent(event);
         verify(handler).removeMessages(EventLoggerHandler.FINISH_TOKEN);
     }
 
     @Test
     public void shouldSendFinishMessageWhenCallingStop() throws Exception {
         // send event to start handler
-        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent)).thenReturn(message);
-        eventLogger.trackEvent(playbackEvent);
+        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, event)).thenReturn(message);
+        eventLogger.trackEvent(event);
 
         eventLogger.stop();
 
@@ -89,10 +86,10 @@ public class EventLoggerTest {
 
     @Test
     public void shouldCreateNewHandlerAfterShutDown() throws Exception {
-        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEvent)).thenReturn(message);
-        eventLogger.trackEvent(playbackEvent);
+        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, event)).thenReturn(message);
+        eventLogger.trackEvent(event);
         eventLogger.stop();
-        eventLogger.trackEvent(playbackEvent);
+        eventLogger.trackEvent(event);
         verify(eventLoggerHandlerFactory, times(2)).create(any(Looper.class));
     }
 }
