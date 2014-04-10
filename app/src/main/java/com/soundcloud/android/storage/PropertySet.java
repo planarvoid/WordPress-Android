@@ -1,13 +1,9 @@
 package com.soundcloud.android.storage;
 
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashCodes;
-import com.google.common.hash.Hashing;
+import com.google.common.base.Objects;
 import org.jetbrains.annotations.Nullable;
 
 import android.util.SparseArray;
-
-import java.util.ArrayList;
 
 public final class PropertySet {
 
@@ -45,8 +41,12 @@ public final class PropertySet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         PropertySet that = (PropertySet) o;
 
@@ -64,12 +64,11 @@ public final class PropertySet {
 
     @Override
     public int hashCode() {
-        ArrayList<HashCode> hashCodes = new ArrayList<HashCode>(table.size());
+        final Property.Binding<?>[] bindings = new Property.Binding[table.size()];
         for (int i = 0; i < table.size(); i++) {
-            final Property.Binding<?> binding = table.get(table.keyAt(i));
-            hashCodes.add(HashCodes.fromInt(binding.hashCode()));
+            bindings[i] = table.get(table.keyAt(i));
         }
-        return Hashing.combineOrdered(hashCodes).asInt();
+        return Objects.hashCode(bindings);
     }
 
     @Override
@@ -77,9 +76,9 @@ public final class PropertySet {
         StringBuilder sb = new StringBuilder("PropertySet{");
         for (int i = 0; i < table.size(); i++) {
             sb.append(table.get(table.keyAt(i)).toString());
-            sb.append(";");
+            sb.append(';');
         }
-        sb.append("}");
+        sb.append('}');
         return sb.toString();
     }
 }

@@ -1,5 +1,7 @@
 package com.soundcloud.android.storage;
 
+import com.google.common.base.Objects;
+
 public final class Property<T> {
 
     final Class<T> type;
@@ -27,22 +29,19 @@ public final class Property<T> {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             Binding binding = (Binding) o;
-
-            if (property != null ? !property.equals(binding.property) : binding.property != null) return false;
-            if (value != null ? !value.equals(binding.value) : binding.value != null) return false;
-
-            return true;
+            return Objects.equal(this.property, binding.property) && Objects.equal(this.value, binding.value);
         }
 
         @Override
         public int hashCode() {
-            int result = property != null ? property.hashCode() : 0;
-            result = 31 * result + (value != null ? value.hashCode() : 0);
-            return result;
+            return Objects.hashCode(property, value);
         }
 
         @Override
