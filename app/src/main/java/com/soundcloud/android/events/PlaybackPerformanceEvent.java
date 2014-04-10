@@ -8,6 +8,13 @@ public final class PlaybackPerformanceEvent {
     public static final int METRIC_TIME_TO_SEEK = 3;
     public static final int METRIC_FRAGMENT_DOWNLOAD_RATE = 4;
 
+    private final long timestamp;
+    private final int metric;
+    private final long metricValue;
+    private final Protocol protocol;
+    private final PlayerType playerType;
+    private final String uri;
+
     public static enum PlayerType {
         SKIPPY("Skippy"), MEDIA_PLAYER("MediaPlayer");
 
@@ -35,14 +42,6 @@ public final class PlaybackPerformanceEvent {
             return value;
         }
     }
-
-
-    private final long timestamp;
-    private final int metric;
-    private final long metricValue;
-    private final Protocol protocol;
-    private final PlayerType playerType;
-    private final String uri;
 
     private PlaybackPerformanceEvent(int metric, long value, Protocol protocol, PlayerType playerType, String uri) {
         this.metric = metric;
