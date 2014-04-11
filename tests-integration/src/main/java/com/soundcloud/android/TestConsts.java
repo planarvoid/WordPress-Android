@@ -29,4 +29,6 @@ public final class TestConsts {
     public static final Uri UNRESOLVABLE_SC_USER_URI = Uri.parse("soundcloud:users:99999999999");
 
     public static final Uri JOBS_PAGE = Uri.parse("http://soundcloud.com/jobs");
+
+    public static final Uri BROKEN_LINK = Uri.parse("soundcloud:sounds:274334> Track</a></td>");
 }
