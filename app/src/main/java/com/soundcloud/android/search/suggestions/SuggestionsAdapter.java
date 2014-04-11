@@ -3,6 +3,7 @@ package com.soundcloud.android.search.suggestions;
 import static android.os.Process.THREAD_PRIORITY_DEFAULT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicCloudAPI;
@@ -15,6 +16,7 @@ import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -109,6 +111,11 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         mSuggestionsHandlerThread.getLooper().quit();
     }
 
+    @VisibleForTesting
+    Looper getApiTaskLooper() {
+        return mSuggestionsHandlerThread.getLooper();
+    }
+
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         return createViewFromResource(cursor, null, parent);
@@ -163,19 +170,21 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     @Override
     public Cursor runQueryOnBackgroundThread(@Nullable final CharSequence constraint) {
-        if (constraint != null && !TextUtils.isEmpty(constraint)) {
-            mCurrentConstraint = constraint.toString();
+        mSuggestionsHandler.removeMessages(0);
+        final String searchQuery = ScTextUtils.safeToString(constraint).trim();
+        if (!TextUtils.isEmpty(searchQuery)) {
+            mCurrentConstraint = searchQuery;
             mCurrentPattern = getHighlightPattern(mCurrentConstraint);
 
             mLocalSuggestions = fetchLocalSuggestions(mCurrentConstraint, MAX_LOCAL);
 
-            mSuggestionsHandler.removeMessages(0);
-            mSuggestionsHandler.obtainMessage(0, constraint).sendToTarget();
+            final Message message = mSuggestionsHandler.obtainMessage(0, mCurrentConstraint);
+            mSuggestionsHandler.sendMessageDelayed(message, 300);
             return getMixedCursor();
 
         } else {
             mLocalSuggestions = SearchSuggestions.EMPTY;
-            return super.runQueryOnBackgroundThread(constraint);
+            return super.runQueryOnBackgroundThread(searchQuery);
         }
     }
 
