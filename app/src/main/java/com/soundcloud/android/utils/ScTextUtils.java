@@ -239,6 +239,10 @@ public class ScTextUtils {
         return r.getQuantityString(R.plurals.followers_message, followers, formatNumberWithCommas(followers));
     }
 
+    public static boolean isNotBlank(CharSequence sequence) {
+        return sequence != null && isNotBlank(sequence.toString());
+    }
+
     public static class ClickSpan extends ClickableSpan {
         private OnClickListener mListener;
         private boolean mUnderline;
