@@ -2,7 +2,6 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.sync.SyncInitiator.ResultReceiverAdapter;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
@@ -11,18 +10,13 @@ import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.android.storage.PlaylistStorage;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.Subscriber;
-import rx.functions.Action0;
 import rx.functions.Func1;
 
-import android.accounts.Account;
-import android.content.ContentResolver;
-import android.os.Bundle;
 import android.os.ResultReceiver;
 
 import javax.inject.Inject;
@@ -35,7 +29,6 @@ public class PlaylistOperations {
     private final SoundAssociationStorage mSoundAssocStorage;
     private final SyncInitiator mSyncInitiator;
     private final SyncStateManager mSyncStateManager;
-    private final AccountOperations mAccountOperations;
 
     /**
      * Function which tests whether a playlist has to be synced (e.g. because it has become stale), or if not
@@ -45,25 +38,27 @@ public class PlaylistOperations {
         @Override
         public Observable<Playlist> call(Playlist playlist) {
             LocalCollection syncState = mSyncStateManager.fromContent(playlist.toUri());
-            boolean isLocalPlaylist = Playlist.isLocal(playlist.getId());
-            if (isLocalPlaylist || syncState.isSyncDue()) {
-                Log.d(LOG_TAG, "Checking playlist sync state: local = " + isLocalPlaylist + "; stale = " + syncState.isSyncDue());
+            if (Playlist.isLocal(playlist.getId())) {
+                Log.d(LOG_TAG, "Requesting sync on local playlist " + playlist);
+                mSyncInitiator.syncLocalPlaylists();
+                return Observable.just(playlist);
+            } else if (syncState.isSyncDue()) {
+                Log.d(LOG_TAG, "Checking playlist sync state: stale = " + syncState.isSyncDue());
                 return Observable.concat(Observable.just(playlist), syncThenLoadPlaylist(playlist.getId()));
+            } else {
+                Log.d(LOG_TAG, "Playlist up to date, emitting directly");
+                return Observable.just(playlist);
             }
-            Log.d(LOG_TAG, "Playlist up to date, emitting directly");
-            return Observable.just(playlist);
         }
     };
 
     @Inject
     public PlaylistOperations(PlaylistStorage playlistStorage, SoundAssociationStorage soundAssocStorage,
-                              SyncInitiator syncInitiator, SyncStateManager syncStateManager,
-                              AccountOperations accountOperations) {
+                              SyncInitiator syncInitiator, SyncStateManager syncStateManager) {
         this.mPlaylistStorage = playlistStorage;
         this.mSoundAssocStorage = soundAssocStorage;
         this.mSyncInitiator = syncInitiator;
         this.mSyncStateManager = syncStateManager;
-        this.mAccountOperations = accountOperations;
     }
 
     public Observable<Playlist> createNewPlaylist(
@@ -83,8 +78,7 @@ public class PlaylistOperations {
 
     public Observable<Playlist> refreshPlaylist(final long playlistId) {
         Log.d(LOG_TAG, "Refreshing playlist " + playlistId);
-        return syncThenLoadPlaylist(playlistId)
-                .onErrorResumeNext(handlePlaylistNotFound(playlistId));
+        return syncThenLoadPlaylist(playlistId);
     }
 
     /**
@@ -107,6 +101,7 @@ public class PlaylistOperations {
 
     /**
      * Performs a sync on the given playlist, then reloads it from local storage.
+     *
      * @param playlistId
      */
     private Observable<Playlist> syncThenLoadPlaylist(final long playlistId) {
@@ -114,14 +109,8 @@ public class PlaylistOperations {
             @Override
             public void call(final Subscriber<? super Long> subscriber) {
                 final ResultReceiver resultReceiver = new ResultReceiverAdapter<Long>(subscriber, playlistId);
-                if (Playlist.isLocal(playlistId)) {
-                    Log.d(LOG_TAG, "Sending intent to sync all local playlists");
-                    mSyncInitiator.syncLocalPlaylists(resultReceiver);
-                } else {
-                    Log.d(LOG_TAG, "Sending intent to sync playlist " + playlistId);
-                    mSyncInitiator.syncPlaylist(Content.PLAYLIST.forId(playlistId), resultReceiver);
-                }
-
+                Log.d(LOG_TAG, "Sending intent to sync playlist " + playlistId);
+                mSyncInitiator.syncPlaylist(Content.PLAYLIST.forId(playlistId), resultReceiver);
             }
         }).mergeMap(new Func1<Long, Observable<Playlist>>() {
             @Override
@@ -143,13 +132,12 @@ public class PlaylistOperations {
     }
 
     private Func1<SoundAssociation, Observable<? extends Playlist>> handlePlaylistCreationStored() {
-        final Account account = mAccountOperations.getSoundCloudAccount();
         return new Func1<SoundAssociation, Observable<? extends Playlist>>() {
             @Override
             public Observable<? extends Playlist> call(SoundAssociation soundAssociation) {
                 // force to stale so we know to update the playlists next time it is viewed
                 mSyncStateManager.forceToStale(Content.ME_PLAYLISTS);
-                ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, new Bundle());
+                mSyncInitiator.requestSystemSync();
                 return Observable.from((Playlist) soundAssociation.getPlayable());
             }
         };
@@ -161,16 +149,7 @@ public class PlaylistOperations {
             public Playlist call(Playlist playlist) {
                 return mPlaylistStorage.addTrackToPlaylist(playlist, trackId);
             }
-        }).doOnCompleted(syncUpdatedPlaylist());
+        }).doOnCompleted(mSyncInitiator.requestSystemSyncAction);
     }
 
-    private Action0 syncUpdatedPlaylist() {
-        return new Action0() {
-            @Override
-            public void call() {
-                ContentResolver.requestSync(
-                        mAccountOperations.getSoundCloudAccount(), ScContentProvider.AUTHORITY, new Bundle());
-            }
-        };
-    }
 }

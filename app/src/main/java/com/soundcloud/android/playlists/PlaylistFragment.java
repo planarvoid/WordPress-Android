@@ -12,6 +12,7 @@ import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.collections.ItemAdapter;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -230,6 +231,13 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     }
 
     private long getPlaylistId() {
+        // if possible, use the instance to get the ID as it can change during syncing
+        if (mPlayablePresenter != null) {
+            final Playable playable = mPlayablePresenter.getPlayable();
+            if (playable != null) {
+                return playable.getId();
+            }
+        }
         final Uri playlistUri = getArguments().getParcelable(Playlist.EXTRA_URI);
         return UriUtils.getLastSegmentAsLong(playlistUri);
     }
