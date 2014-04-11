@@ -216,7 +216,7 @@ public class PlaylistOperationsTest {
 
         ArgumentCaptor<ResultReceiver> resultReceiver = ArgumentCaptor.forClass(ResultReceiver.class);
         InOrder callbacks = inOrder(observer, syncInitiator);
-        callbacks.verify(syncInitiator).syncPlaylist(eq(playlist.toUri()), resultReceiver.capture());
+        callbacks.verify(syncInitiator).syncResource(eq(playlist.toUri()), resultReceiver.capture());
         forwardSyncResult(ApiSyncService.STATUS_SYNC_FINISHED, resultReceiver);
         callbacks.verify(observer).onNext(playlist);
         callbacks.verify(observer).onCompleted();

@@ -6,7 +6,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
 import com.soundcloud.android.preferences.DevSettings;
-import com.soundcloud.android.utils.SharedPreferencesUtils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -192,11 +191,11 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
         currentPlaya.setListener(this);
 
         if (currentPlaya == skippyPlayaDelegate){
-            SharedPreferencesUtils.apply(playbackPreferences.edit().putInt(PLAYS_SINCE_SKIPPY, 0));
+            playbackPreferences.edit().putInt(PLAYS_SINCE_SKIPPY, 0).apply();
             Log.i(TAG, "Configuring Playa to SkippyPlaya");
         } else {
             int plays = playbackPreferences.getInt(PLAYS_SINCE_SKIPPY, 0);
-            SharedPreferencesUtils.apply(playbackPreferences.edit().putInt(PLAYS_SINCE_SKIPPY, plays + 1));
+            playbackPreferences.edit().putInt(PLAYS_SINCE_SKIPPY, plays + 1).apply();
             Log.i(TAG, "Configuring Playa to MediaPlaya");
         }
     }
