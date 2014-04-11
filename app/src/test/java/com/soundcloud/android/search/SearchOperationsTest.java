@@ -5,6 +5,7 @@ import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequ
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -337,6 +338,24 @@ public class SearchOperationsTest {
         PlaylistSummary playlistSummary = (PlaylistSummary) Lists.newArrayList(
                 resultCaptor.getValue().getPagedCollection()).get(0);
         expect(playlistSummary.getTags()).toContainExactly("ag2", "tag1", "tag2", "tag3");
+    }
+
+    @Test
+    public void addsSearchedTagToRecentTagsStorage() throws CreateModelException {
+        buildPlaylistSummariesResponse();
+
+        searchOperations.getPlaylistResults("#electronic").subscribe(observer);
+
+        verify(tagStorage).addRecentTag(eq("#electronic"));
+    }
+
+    @Test
+    public void addsSearchedTagToRecentTagsStorageWhenRequestFails() {
+        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.error(new Exception()));
+
+        searchOperations.getPlaylistResults("#electronic").subscribe(observer);
+
+        verify(tagStorage).addRecentTag(eq("#electronic"));
     }
 
 }
