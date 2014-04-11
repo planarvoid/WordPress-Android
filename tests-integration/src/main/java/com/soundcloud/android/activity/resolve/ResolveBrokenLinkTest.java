@@ -1,7 +1,6 @@
 package com.soundcloud.android.activity.resolve;
 
 import com.soundcloud.android.TestConsts;
-import com.soundcloud.android.screens.MainScreen;
 
 import android.net.Uri;
 
@@ -12,7 +11,7 @@ public class ResolveBrokenLinkTest extends ResolveBaseTest {
         return TestConsts.BROKEN_LINK;
     }
 
-    public void ignoretestShouldResolveBrokenLinks() {
-        assertTrue("Stream should be visible", new MainScreen(solo).isVisible());
+    public void testShouldResolveBrokenLinks() {
+        solo.assertText("There was a problem loading that url");
     }
 }

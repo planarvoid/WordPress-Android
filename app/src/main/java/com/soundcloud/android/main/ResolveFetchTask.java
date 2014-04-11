@@ -50,19 +50,28 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
 
         Uri resolvedUri = new ResolveTask(mApi).resolve(uri);
         if (resolvedUri != null) {
-            final Request request = Request.to(resolvedUri.getPath() +
-                (resolvedUri.getQuery() != null ? ("?"+resolvedUri.getQuery()) : ""));
-
-            return new FetchModelTask(mApi){
-                @Override
-                protected void persist(ScResource scResource) {
-                    // TODO: since we don't know which type of resource we're fetching, not sure how to persist it
-                }
-            }.resolve(request);
+            try {
+                return fetchResource(resolvedUri);
+            } catch (IllegalArgumentException e) {
+                mUnresolvedUrl = uri;
+                return null;
+            }
         } else {
             mUnresolvedUrl = uri;
             return null;
         }
+    }
+
+    private ScResource fetchResource(Uri resolvedUri) {
+        final Request request = Request.to(resolvedUri.getPath() +
+            (resolvedUri.getQuery() != null ? ("?"+resolvedUri.getQuery()) : ""));
+
+        return new FetchModelTask(mApi){
+            @Override
+            protected void persist(ScResource scResource) {
+                // TODO: since we don't know which type of resource we're fetching, not sure how to persist it
+            }
+        }.resolve(request);
     }
 
     @Override
