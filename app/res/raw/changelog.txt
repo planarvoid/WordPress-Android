@@ -1,5 +1,17 @@
+$ 87
+  % v 2.8.2
+  _ 2014-4-11
+  ! Maintenance
+    * Fixed some sync issues when creating playlists while offline
+    * Recent Playlist Discovery tags now show if searching while offline
+    * search suggestions sent with a delay to increase search field responsiveness
+    * Fixed some home activity title visibility issues
+    * various other smaller fixes
+
+
+
 $ 85
-  % v 2.8.0
+  % v 2.8.1
   _ 2014-4-3
   ! Playlist Discovery Release Candidate
     * Playlist Search: discover popular playlists using hashtags in your searches
