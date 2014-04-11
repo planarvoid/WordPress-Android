@@ -26,6 +26,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.service.PlayerWidgetController;
+import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.storage.provider.Content;
@@ -122,7 +123,8 @@ public class SoundCloudApplication extends Application {
             setupStrictMode();
         }
 
-        if (ApplicationProperties.shouldReportCrashes()) {
+        if (ApplicationProperties.shouldReportCrashes() &&
+                mSharedPreferences.getBoolean(SettingsActivity.CRASH_REPORTING_ENABLED, false)) {
             Crashlytics.start(this);
             setupOOMInterception();
         }
