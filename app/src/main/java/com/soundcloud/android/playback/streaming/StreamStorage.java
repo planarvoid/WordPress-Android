@@ -8,7 +8,6 @@ import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
@@ -202,7 +201,7 @@ public class StreamStorage {
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
             final int currentCount = prefs.getInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, 0) + 1;
 
-            SharedPreferencesUtils.apply(prefs.edit().putInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, currentCount));
+            prefs.edit().putInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, currentCount).apply();
 
             if (currentCount >= mCleanupInterval) {
                 if (cleanup(calculateUsableSpace())) {
@@ -382,9 +381,10 @@ public class StreamStorage {
             return false;
         }
         // reset counter
-        SharedPreferencesUtils.apply(PreferenceManager.getDefaultSharedPreferences(mContext)
+        PreferenceManager.getDefaultSharedPreferences(mContext)
                 .edit()
-                .putInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, 0));
+                .putInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, 0)
+                .apply();
 
         final long spaceToClean = getUsedSpace() - usableSpace;
         if (spaceToClean > 0) {

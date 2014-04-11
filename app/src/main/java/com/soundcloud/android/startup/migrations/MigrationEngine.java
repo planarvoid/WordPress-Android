@@ -1,6 +1,5 @@
 package com.soundcloud.android.startup.migrations;
 
-import static android.content.SharedPreferences.Editor;
 import static com.google.common.collect.Lists.newArrayList;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -10,6 +9,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 
 import java.util.Collections;
@@ -57,9 +57,8 @@ public class MigrationEngine {
     private void updateVersionKey() {
        Editor editor = mSharedPreferences.edit();
        editor.putInt(VERSION_KEY, mCurrentVersion);
-       editor.commit();
+       editor.apply();
     }
-
 
     private static class ApplicableMigrationsPredicate implements Predicate<Migration>{
 

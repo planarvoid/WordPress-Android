@@ -15,4 +15,8 @@ public class ResolveBrokenLinkTest extends ResolveBaseTest {
     public void ignoretestShouldResolveBrokenLinks() {
         assertTrue("Stream should be visible", new MainScreen(solo).isVisible());
     }
+    
+    public void testShouldResolveBrokenLinks() {
+        solo.assertText("There was a problem loading that url");
+    }
 }

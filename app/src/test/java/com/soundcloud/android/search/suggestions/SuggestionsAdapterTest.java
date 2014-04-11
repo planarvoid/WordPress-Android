@@ -1,6 +1,7 @@
 package com.soundcloud.android.search.suggestions;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -15,6 +16,9 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.api.Request;
+import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.shadows.ShadowHandler;
+import com.xtremelabs.robolectric.shadows.ShadowLooper;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.HttpResponse;
 import org.junit.Before;
@@ -82,6 +86,7 @@ public class SuggestionsAdapterTest {
         createAdapter();
 
         adapter.runQueryOnBackgroundThread("foo");
+        shadowOf(adapter.getApiTaskLooper()).runToEndOfTasks();
 
         ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
         verify(mockApi).get(requestCaptor.capture());
@@ -103,6 +108,7 @@ public class SuggestionsAdapterTest {
         createAdapter();
 
         adapter.runQueryOnBackgroundThread("foo");
+        shadowOf(adapter.getApiTaskLooper()).runToEndOfTasks();
 
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(context).startService(intentCaptor.capture());

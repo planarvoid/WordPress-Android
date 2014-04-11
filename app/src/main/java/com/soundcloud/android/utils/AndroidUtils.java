@@ -113,7 +113,7 @@ public final class AndroidUtils {
                 @Override
                 public void run() {
                     fun.run();
-                    prefs.edit().putBoolean(k, true).commit();
+                    prefs.edit().putBoolean(k, true).apply();
                 }
             }.start();
             return true;

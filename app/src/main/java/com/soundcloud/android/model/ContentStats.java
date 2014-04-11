@@ -3,7 +3,6 @@ package com.soundcloud.android.model;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.SharedPreferencesUtils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -70,8 +69,7 @@ public class ContentStats {
 
     public static void setTimestamp(Context context, String key, Content content, long timestamp) {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-        editor.putLong(prefKey(content, key), timestamp);
-        SharedPreferencesUtils.apply(editor);
+        editor.putLong(prefKey(content, key), timestamp).apply();
     }
 
     public static void updateCount(Context context, Content content, int count) {

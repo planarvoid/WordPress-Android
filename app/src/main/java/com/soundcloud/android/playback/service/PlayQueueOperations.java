@@ -16,7 +16,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.BulkStorage;
 import com.soundcloud.android.storage.PlayQueueStorage;
-import com.soundcloud.android.utils.SharedPreferencesUtils;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -96,7 +95,7 @@ public class PlayQueueOperations {
 
         playSessionSource.saveToPreferences(editor);
 
-        SharedPreferencesUtils.apply(editor);
+        editor.apply();
 
         return DefaultSubscriber.fireAndForget(mPlayQueueStorage.storeCollectionAsync(playQueue.getItems()));
     }
@@ -107,7 +106,7 @@ public class PlayQueueOperations {
         editor.remove(Keys.PLAY_POSITION.name());
         editor.remove(Keys.SEEK_POSITION.name());
         PlaySessionSource.clearPreferenceKeys(editor);
-        SharedPreferencesUtils.apply(editor);
+        editor.apply();
         mPlayQueueStorage.clearState();
     }
 

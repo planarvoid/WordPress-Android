@@ -86,7 +86,7 @@ public class ApiSyncer extends SyncStrategy {
                     PreferenceManager.getDefaultSharedPreferences(mContext)
                             .edit()
                             .putLong(Consts.PrefKeys.LAST_USER_SYNC, System.currentTimeMillis())
-                            .commit();
+                            .apply();
 
                     break;
                 case ME_ALL_ACTIVITIES:

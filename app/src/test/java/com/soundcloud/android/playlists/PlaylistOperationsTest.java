@@ -12,7 +12,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
@@ -58,8 +57,6 @@ public class PlaylistOperationsTest {
     @Mock
     private ScModelManager modelManager;
     @Mock
-    private AccountOperations accountOperations;
-    @Mock
     private Account account;
     @Mock
     private Observer<Playlist> observer;
@@ -67,7 +64,7 @@ public class PlaylistOperationsTest {
     @Before
     public void setup() {
         playlistOperations = new PlaylistOperations(playlistStorage, soundAssociationStorage,
-                syncInitiator, syncStateManager, accountOperations);
+                syncInitiator, syncStateManager);
         playlist = new Playlist(123L);
 
         Observable<Playlist> storageObservable = Observable.from(playlist);
@@ -83,7 +80,6 @@ public class PlaylistOperationsTest {
                 currentUser, "new playlist", false, firstTrackId)).thenReturn(Observable.just(playlist));
         SoundAssociation playlistCreation = new SoundAssociation(playlist);
         when(soundAssociationStorage.addCreationAsync(refEq(playlist))).thenReturn(Observable.just(playlistCreation));
-        when(accountOperations.getSoundCloudAccount()).thenReturn(account);
 
         playlistOperations.createNewPlaylist(currentUser, "new playlist", false, firstTrackId).subscribe(observer);
 
@@ -175,25 +171,19 @@ public class PlaylistOperationsTest {
     }
 
     @Test
-    public void loadPlaylistShouldEmitPlaylistThenTriggerSyncIfPlaylistExistsButIsALocalPlaylist() {
+    public void loadPlaylistTriggersSyncAndEmitsPlaylistIfPlaylistExistsButIsALocalPlaylist() {
         final Playlist storedPlaylist = new Playlist(-123L);
         expect(Playlist.isLocal(storedPlaylist.getId())).toBeTrue();
 
-        final Playlist syncedPlaylist = new Playlist(123L);
-
         when(syncState.isSyncDue()).thenReturn(false);
         when(syncStateManager.fromContent(storedPlaylist.toUri())).thenReturn(syncState);
-        when(playlistStorage.loadPlaylistWithTracksAsync(storedPlaylist.getId())).thenReturn(
-                MockObservable.just(storedPlaylist), MockObservable.just(syncedPlaylist));
+        when(playlistStorage.loadPlaylistWithTracksAsync(storedPlaylist.getId())).thenReturn(MockObservable.just(storedPlaylist));
 
         playlistOperations.loadPlaylist(storedPlaylist.getId()).subscribe(observer);
 
-        ArgumentCaptor<ResultReceiver> resultReceiver = ArgumentCaptor.forClass(ResultReceiver.class);
         InOrder callbacks = inOrder(observer, syncInitiator);
+        callbacks.verify(syncInitiator).syncLocalPlaylists();
         callbacks.verify(observer).onNext(storedPlaylist);
-        callbacks.verify(syncInitiator).syncLocalPlaylists(resultReceiver.capture());
-        forwardSyncResult(ApiSyncService.STATUS_SYNC_FINISHED, resultReceiver);
-        callbacks.verify(observer).onNext(syncedPlaylist);
         callbacks.verify(observer).onCompleted();
         callbacks.verifyNoMoreInteractions();
     }
@@ -215,6 +205,23 @@ public class PlaylistOperationsTest {
         forwardSyncResult(ApiSyncService.STATUS_SYNC_ERROR, resultReceiver);
         callbacks.verify(observer).onError(any(SyncInitiator.SyncFailedException.class));
         callbacks.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void refreshPlaylistSyncsAndEmitsPlaylistFromLocalStorage() throws Exception {
+        final Playlist playlist = new Playlist(1L);
+        when(playlistStorage.loadPlaylistWithTracksAsync(playlist.getId())).thenReturn(Observable.just(playlist));
+
+        playlistOperations.refreshPlaylist(playlist.getId()).subscribe(observer);
+
+        ArgumentCaptor<ResultReceiver> resultReceiver = ArgumentCaptor.forClass(ResultReceiver.class);
+        InOrder callbacks = inOrder(observer, syncInitiator);
+        callbacks.verify(syncInitiator).syncPlaylist(eq(playlist.toUri()), resultReceiver.capture());
+        forwardSyncResult(ApiSyncService.STATUS_SYNC_FINISHED, resultReceiver);
+        callbacks.verify(observer).onNext(playlist);
+        callbacks.verify(observer).onCompleted();
+        callbacks.verifyNoMoreInteractions();
+
     }
 
     private void forwardSyncResult(int syncOutcome, ArgumentCaptor<ResultReceiver> resultReceiver) {

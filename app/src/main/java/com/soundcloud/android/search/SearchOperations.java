@@ -163,7 +163,7 @@ public class SearchOperations {
                         .addQueryParameters("tag", query)
                         .build();
 
-        return getPlaylistResultsPage(query, request).doOnCompleted(new Action0() {
+        return getPlaylistResultsPage(query, request).finallyDo(new Action0() {
             @Override
             public void call() {
                 mTagStorage.addRecentTag(query);

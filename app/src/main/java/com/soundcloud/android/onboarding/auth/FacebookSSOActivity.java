@@ -1,7 +1,5 @@
 package com.soundcloud.android.onboarding.auth;
 
-import static android.content.SharedPreferences.Editor;
-
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.TempEndpoints;
@@ -27,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -402,7 +401,7 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
             SharedPreferences prefs = context.getSharedPreferences(PREF_KEY, Context.MODE_PRIVATE);
             Editor editor = prefs.edit();
             editor.clear();
-            editor.commit();
+            editor.apply();
         }
 
         public @Nullable static FBToken fromIntent(@NotNull Intent intent) {

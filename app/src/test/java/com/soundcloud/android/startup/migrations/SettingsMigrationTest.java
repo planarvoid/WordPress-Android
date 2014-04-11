@@ -32,7 +32,7 @@ public class SettingsMigrationTest {
         new SettingsMigration(sharedPreferences).applyMigration();
         verify(editor).putBoolean("analytics_enabled", true);
         verify(editor).putBoolean("acra.enable", false);
-        verify(editor).commit();
+        verify(editor).apply();
     }
 
     @Test

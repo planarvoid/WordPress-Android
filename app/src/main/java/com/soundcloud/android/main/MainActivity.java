@@ -1,5 +1,6 @@
 package com.soundcloud.android.main;
 
+import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 import static rx.android.observables.AndroidObservable.fromActivity;
 
 import com.soundcloud.android.Consts;
@@ -103,9 +104,12 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        mNavigationFragment.handleIntent(intent);
-        // the title/selection may have changed as a result of this intent, so store the new title to prevent overwriting
-        mLastTitle = getSupportActionBar().getTitle();
+
+        final boolean setFragmentViaIntent = mNavigationFragment.handleIntent(intent);
+        if (setFragmentViaIntent && isNotBlank(getSupportActionBar().getTitle())) {
+            // the title/selection changed as a result of this intent, so store the new title to prevent overwriting
+            mLastTitle = getSupportActionBar().getTitle();
+        }
     }
 
     @Override

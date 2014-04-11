@@ -3,8 +3,10 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
+import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscriber;
+import rx.functions.Action0;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
@@ -19,6 +21,13 @@ import android.os.ResultReceiver;
 import javax.inject.Inject;
 
 public class SyncInitiator {
+
+    public final Action0 requestSystemSyncAction = new Action0() {
+        @Override
+        public void call() {
+            requestSystemSync();
+        }
+    };
 
     private final Context mContext;
     private final AccountOperations mAccountOperations;
@@ -43,11 +52,29 @@ public class SyncInitiator {
 
     }
 
+    public boolean requestSystemSync() {
+        final Account soundCloudAccount = mAccountOperations.getSoundCloudAccount();
+        if (soundCloudAccount != null){
+            ContentResolver.requestSync(soundCloudAccount, ScContentProvider.AUTHORITY, new Bundle());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void syncLocalPlaylists() {
+        syncLocalPlaylists(null);
+    }
+
     public void syncLocalPlaylists(ResultReceiver resultReceiver) {
-        mContext.startService(new Intent(mContext, ApiSyncService.class)
+        final Intent intent = new Intent(mContext, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                .setData(Content.ME_PLAYLISTS.uri));
+                .setData(Content.ME_PLAYLISTS.uri);
+
+        if (resultReceiver != null){
+            intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver);
+        }
+        mContext.startService(intent);
     }
 
     public void syncResource(Uri resourceUri, ResultReceiver resultReceiver) {

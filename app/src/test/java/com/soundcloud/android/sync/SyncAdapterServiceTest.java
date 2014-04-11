@@ -92,7 +92,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
         PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
                 .edit()
                 .putBoolean(Consts.PrefKeys.NOTIFICATIONS_WIFI_ONLY, true)
-                .commit();
+                .apply();
         SyncOutcome result = doPerformSyncWithValidToken(DefaultTestRunner.application, false, null);
         expect(result.notifications).toBeEmpty();
     }

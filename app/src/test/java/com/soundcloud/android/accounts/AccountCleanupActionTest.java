@@ -70,7 +70,6 @@ public class AccountCleanupActionTest {
     @Mock
     private EventBus eventBus;
 
-
     @Before
     public void setup() {
         action = new AccountCleanupAction(eventBus, context, syncStateManager,

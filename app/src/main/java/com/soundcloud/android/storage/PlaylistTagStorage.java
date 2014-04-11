@@ -5,7 +5,6 @@ import com.google.common.base.Joiner;
 import com.soundcloud.android.model.PlaylistTagsCollection;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.utils.SharedPreferencesUtils;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -44,7 +43,7 @@ public class PlaylistTagStorage extends ScheduledOperations {
         }
         recentTags.addFirst(sanitizeTag(tag));
 
-        SharedPreferencesUtils.apply(mSharedPreferences.edit().putString(KEY_RECENT_TAGS, serialize(recentTags)));
+        mSharedPreferences.edit().putString(KEY_RECENT_TAGS, serialize(recentTags)).apply();
     }
 
     public Observable<PlaylistTagsCollection> getRecentTagsAsync() {
@@ -58,7 +57,7 @@ public class PlaylistTagStorage extends ScheduledOperations {
     }
 
     public void clear() {
-        mSharedPreferences.edit().clear().commit();
+        mSharedPreferences.edit().clear().apply();
     }
 
     @VisibleForTesting

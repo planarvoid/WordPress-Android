@@ -343,7 +343,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                 .remove(PREF_REG_ID)
                 .remove(PREF_REG_LAST_TRY)
                 .remove(Consts.PrefKeys.C2DM_DEVICE_URL)
-                .commit();
+                .apply();
     }
 
     private static boolean isEnabled() {
