@@ -61,7 +61,7 @@ public abstract class SyncAdapterServiceTestBase {
         PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
                 .edit()
                 .putString(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY, 0+"")
-                .commit();
+                .apply();
 
     }
 

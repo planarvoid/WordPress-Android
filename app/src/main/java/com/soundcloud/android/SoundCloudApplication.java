@@ -155,7 +155,7 @@ public class SoundCloudApplication extends Application {
             AndroidUtils.doOnce(this, "reset.c2dm.reg_id", new Runnable() {
                 @Override
                 public void run() {
-                    mSharedPreferences.edit().remove(Consts.PrefKeys.C2DM_DEVICE_URL).commit();
+                    mSharedPreferences.edit().remove(Consts.PrefKeys.C2DM_DEVICE_URL).apply();
                 }
             });
             // delete old cache dir

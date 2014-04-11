@@ -99,8 +99,7 @@ public class MigrationEngineTest {
         InOrder inOrder = inOrder(migrationOne, editor);
         inOrder.verify(migrationOne).applyMigration();
         inOrder.verify(editor).putInt("changeLogVersionCode", 57);
-        inOrder.verify(editor).commit();
+        inOrder.verify(editor).apply();
     }
-
 
 }

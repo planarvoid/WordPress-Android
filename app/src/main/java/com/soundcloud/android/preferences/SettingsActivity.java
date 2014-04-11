@@ -18,7 +18,6 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.SharedPreferencesUtils;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.annotation.TargetApi;
@@ -226,7 +225,7 @@ public class SettingsActivity extends ScSettingsActivity {
     private void togglePlaybackDebugMode() {
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         final boolean enabled = !preferences.getBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false);
-        SharedPreferencesUtils.apply(preferences.edit().putBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, enabled));
+        preferences.edit().putBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, enabled).apply();
 
         Log.d(PlaybackService.TAG, "toggling error reporting (enabled=" + enabled + ")");
         AndroidUtils.showToast(this, getString(R.string.playback_error_logging, getText(enabled ? R.string.enabled : R.string.disabled)));

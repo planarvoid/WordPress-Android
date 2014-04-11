@@ -29,7 +29,7 @@ class SettingsMigration implements Migration {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putBoolean(SettingsActivity.ANALYTICS_ENABLED, mSharedPreferences.getBoolean(SettingsActivity.CRASH_REPORTING_ENABLED, true));
         editor.putBoolean(SettingsActivity.CRASH_REPORTING_ENABLED, mSharedPreferences.getBoolean(CRASHLOGS_OLD_KEY, true));
-        editor.commit();
+        editor.apply();
     }
 
     @Override
