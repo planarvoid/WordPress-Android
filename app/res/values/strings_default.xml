@@ -202,7 +202,7 @@
   <string name="from">from</string>
   <string name="image_load_error">There was a problem loading the image</string>
   <string name="image_where">How would you like to add an image?</string>
-  <string name="info_empty_other_message">This person hasn\'t added\na profile description yet.</string>
+  <string name="info_empty_other_message">This person hasn\'t added a profile description yet.</string>
   <string name="info_empty_you_message">Your profile is empty</string>
   <string name="info_empty_you_secondary">Please log in to SoundCloud on your desktop to edit your profile</string>
   <string name="list_empty_activity_message">You don\'t have any activities yet</string>
