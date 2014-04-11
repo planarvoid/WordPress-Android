@@ -54,7 +54,7 @@ public class SkippyAdapterTest {
     public void setUp() throws Exception {
         when(skippyFactory.create(any(Skippy.PlayListener.class))).thenReturn(skippy);
         when(accountOperations.getSoundCloudToken()).thenReturn(token);
-        skippyAdapter = new SkippyAdapter(context, skippyFactory, accountOperations, eventBus);
+        skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, eventBus);
         skippyAdapter.setListener(listener);
     }
 

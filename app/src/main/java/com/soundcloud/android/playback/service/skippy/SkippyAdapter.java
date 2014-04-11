@@ -42,17 +42,19 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private Skippy.Error mLastError = Skippy.Error.OK;
 
     @Inject
-    public SkippyAdapter(Context context, AccountOperations accountOperations, EventBus eventBus) {
-        this(context, new SkippyFactory(), accountOperations, eventBus);
+    public SkippyAdapter(AccountOperations accountOperations, EventBus eventBus) {
+        this(new SkippyFactory(), accountOperations, eventBus);
     }
 
     @VisibleForTesting
-    SkippyAdapter(Context context, SkippyFactory skippyFactory, AccountOperations accountOperations, EventBus eventBus) {
+    SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, EventBus eventBus) {
         mSkippy = skippyFactory.create(this);
-        mSkippy.init(context);
-
         mAccountOperations = accountOperations;
         mEventBus = eventBus;
+    }
+
+    public boolean init(Context context){
+        return mSkippy.init(context);
     }
 
     @Override

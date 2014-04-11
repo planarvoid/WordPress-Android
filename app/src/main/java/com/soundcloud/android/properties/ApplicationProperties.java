@@ -85,7 +85,6 @@ public class ApplicationProperties {
                 add("isEmulator", mIsRunningOnEmulator).toString();
     }
 
-    //DO NOT USE THIS - Temporary until we remove ATInternet stuff
     public static boolean shouldReportCrashes(){
         return !mIsRunningOnEmulator && mIsRunningOnDalvik && !BuildType.DEBUG.equals(BUILD_TYPE);
     }
