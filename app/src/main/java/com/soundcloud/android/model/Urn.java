@@ -59,7 +59,7 @@ public class Urn {
         }
         final String specific = uri.getSchemeSpecificPart();
         final String[] components = specific.split(":", 2);
-        if (components != null && components.length == 2) {
+        if (components.length == 2) {
             type = fixType(components[0]);
             id = components[1];
             long n = -1;

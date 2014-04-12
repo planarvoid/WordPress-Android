@@ -1,7 +1,6 @@
 package com.soundcloud.android.storage;
 
 import com.google.common.base.Objects;
-import org.jetbrains.annotations.Nullable;
 
 import android.util.SparseArray;
 
@@ -29,13 +28,12 @@ public final class PropertySet {
         table.put(property.hashCode(), property.bind(value));
     }
 
-    @Nullable
     public <V> V get(Property<V> property) {
         final Property.Binding<?> binding = table.get(property.hashCode());
         if (binding != null) {
             return property.type.cast(binding.value);
         } else {
-            return null;
+            throw new AssertionError("Attempt to read a property that doesn't exist: " + property);
         }
     }
 

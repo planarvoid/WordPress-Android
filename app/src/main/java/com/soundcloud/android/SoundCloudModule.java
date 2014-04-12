@@ -9,6 +9,7 @@ import com.soundcloud.android.playback.PlaybackModule;
 import com.soundcloud.android.playlists.PlaylistsModule;
 import com.soundcloud.android.search.SearchModule;
 import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.android.stream.SoundStreamModule;
 import dagger.Module;
 
 @Module(includes = {
@@ -21,7 +22,8 @@ import dagger.Module;
         LikesModule.class,
         MainModule.class,
         PlaybackModule.class,
-        PlaylistsModule.class
+        PlaylistsModule.class,
+        SoundStreamModule.class
 }, addsTo = ApplicationModule.class)
 public class SoundCloudModule {
 }

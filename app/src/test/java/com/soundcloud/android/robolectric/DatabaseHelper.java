@@ -91,45 +91,49 @@ public class DatabaseHelper {
         return insertInto(Table.COLLECTION_ITEMS, cv);
     }
 
-    public long insertTrackPost(TrackSummary track) throws CreateModelException {
+    public long insertTrackPost(TrackSummary track, long timestamp) throws CreateModelException {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Activities.SOUND_ID, track.getId());
         cv.put(DBHelper.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
         cv.put(DBHelper.Activities.TYPE, "track");
         cv.put(DBHelper.Activities.USER_ID, track.getUser().getId());
+        cv.put(DBHelper.Activities.CREATED_AT, timestamp);
         return insertInto(Table.ACTIVITIES, cv);
     }
 
-    public long insertTrackRepost(TrackSummary track) throws CreateModelException {
+    public long insertTrackRepost(TrackSummary track, long timestamp) throws CreateModelException {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Activities.SOUND_ID, track.getId());
         cv.put(DBHelper.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
         cv.put(DBHelper.Activities.TYPE, "track-repost");
         cv.put(DBHelper.Activities.USER_ID, track.getUser().getId());
+        cv.put(DBHelper.Activities.CREATED_AT, timestamp);
         return insertInto(Table.ACTIVITIES, cv);
     }
 
-    public long insertPlaylistPost(PlaylistSummary playlist) throws CreateModelException {
+    public long insertPlaylistPost(PlaylistSummary playlist, long timestamp) throws CreateModelException {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Activities.SOUND_ID, playlist.getId());
         cv.put(DBHelper.Activities.SOUND_TYPE, Playable.DB_TYPE_PLAYLIST);
         cv.put(DBHelper.Activities.TYPE, "playlist");
         cv.put(DBHelper.Activities.USER_ID, playlist.getUser().getId());
+        cv.put(DBHelper.Activities.CREATED_AT, timestamp);
         return insertInto(Table.ACTIVITIES, cv);
     }
 
-    public long insertPlaylistRepost(PlaylistSummary playlist) throws CreateModelException {
+    public long insertPlaylistRepost(PlaylistSummary playlist, long timestamp) throws CreateModelException {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Activities.SOUND_ID, playlist.getId());
         cv.put(DBHelper.Activities.SOUND_TYPE, Playable.DB_TYPE_PLAYLIST);
         cv.put(DBHelper.Activities.TYPE, "playlist-repost");
         cv.put(DBHelper.Activities.USER_ID, playlist.getUser().getId());
+        cv.put(DBHelper.Activities.CREATED_AT, timestamp);
         return insertInto(Table.ACTIVITIES, cv);
     }
 
     private long insertInto(Table table, ContentValues cv) {
         final long id = database.insert(table.name, null, cv);
-        assertThat(id, Matchers.greaterThanOrEqualTo(1L));
+        assertThat(id, Matchers.greaterThanOrEqualTo(0L));
         return id;
     }
 }

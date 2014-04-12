@@ -29,10 +29,9 @@ public class PropertySetTest {
         expect(propertySet.get(TEST_PROP_INT)).toEqual(1);
     }
 
-    @Test
-    public void aPropertySetReturnsNullWhenGettingPropertyThatDoesNotExist() {
-        PropertySet set = PropertySet.create(2);
-        expect(set.get(TEST_PROP_STRING)).toBeNull();
+    @Test(expected = AssertionError.class)
+    public void aPropertySetThrowsExceptionWhenGettingPropertyThatDoesNotExist() {
+        PropertySet.create(1).get(TEST_PROP_STRING);
     }
 
     @Test
