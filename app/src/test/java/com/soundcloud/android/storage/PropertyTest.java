@@ -9,6 +9,8 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.os.Parcel;
+
 @RunWith(SoundCloudTestRunner.class)
 public class PropertyTest {
 
@@ -27,9 +29,13 @@ public class PropertyTest {
     }
 
     @Test
-    public void aPropertyDefinesEqualityOverObjectIdentity() {
+    public void twoPropertiesAreEqualIfTheirInternalIdMatches() {
         Property<String> property1 = Property.of(String.class);
         Property<String> property2 = Property.of(String.class);
+
+        assertThat(property1, equalTo(property1));
+        assertThat(property1.hashCode(), equalTo(property1.hashCode()));
+
         assertThat(property1, not(equalTo(property2)));
         assertThat(property1.hashCode(), not(equalTo(property2.hashCode())));
     }
@@ -61,5 +67,26 @@ public class PropertyTest {
         Property<String> property = Property.of(String.class);
         assertThat(property.bind("test").toString(),
                 equalTo("Property.of(String.class)@" + property.hashCode() + "=>[test]"));
+    }
+
+    @Test
+    public void aPropertyIsParcelable() {
+        Parcel parcel = Parcel.obtain();
+        Property property = Property.of(String.class);
+        property.writeToParcel(parcel, 0);
+
+        Property restored = Property.CREATOR.createFromParcel(parcel);
+        assertThat(restored, equalTo(property));
+    }
+
+    @Test
+    public void aPropertyBindingIsParcelable() {
+        Parcel parcel = Parcel.obtain();
+        Property.Binding binding = Property.of(String.class).bind("test");
+        binding.writeToParcel(parcel, 0);
+
+        Property.Binding restored = Property.Binding.CREATOR.createFromParcel(parcel);
+        assertThat(restored.property, equalTo(binding.property));
+        assertThat(restored.value, equalTo(binding.value));
     }
 }

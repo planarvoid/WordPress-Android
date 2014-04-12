@@ -2,9 +2,30 @@ package com.soundcloud.android.storage;
 
 import com.google.common.base.Objects;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.SparseArray;
 
-public final class PropertySet {
+/**
+ * A PropertySet represents a set of {@link com.soundcloud.android.storage.Property.Binding}s.
+ * It can be understood as a fluent way of representing a SoundCloud business object such as
+ * a track or user in a type safe fashion, without having to define various model classes
+ * representing different combinations of fields.
+ */
+public final class PropertySet implements Parcelable {
+
+    public static final Creator<PropertySet> CREATOR = new Creator<PropertySet>() {
+        @Override
+        public PropertySet createFromParcel(Parcel source) {
+            final SparseArray sparseArray = source.readSparseArray(PropertySet.class.getClassLoader());
+            return new PropertySet(sparseArray);
+        }
+
+        @Override
+        public PropertySet[] newArray(int size) {
+            return new PropertySet[size];
+        }
+    };
 
     private final SparseArray<Property.Binding<?>> table;
 
@@ -15,7 +36,7 @@ public final class PropertySet {
     public static PropertySet from(Property.Binding<?>... bindings) {
         final PropertySet propertySet = PropertySet.create(bindings.length);
         for (Property.Binding<?> binding : bindings) {
-            propertySet.table.put(binding.property.hashCode(), binding);
+            propertySet.addBinding(binding);
         }
         return propertySet;
     }
@@ -24,8 +45,16 @@ public final class PropertySet {
         table = new SparseArray<Property.Binding<?>>(capacity);
     }
 
+    private PropertySet(SparseArray<Property.Binding<?>> sparseArray) {
+        this.table = sparseArray;
+    }
+
+    private void addBinding(Property.Binding<?> binding) {
+        table.put(binding.property.id, binding);
+    }
+
     public <T> void add(Property<T> property, T value) {
-        table.put(property.hashCode(), property.bind(value));
+        addBinding(property.bind(value));
     }
 
     public <V> V get(Property<V> property) {
@@ -35,6 +64,10 @@ public final class PropertySet {
         } else {
             throw new AssertionError("Attempt to read a property that doesn't exist: " + property);
         }
+    }
+
+    public <T> boolean contains(Property<T> property) {
+        return table.indexOfKey(property.id) >= 0;
     }
 
     @Override
@@ -48,11 +81,13 @@ public final class PropertySet {
 
         PropertySet that = (PropertySet) o;
 
+        if (table.size() != that.table.size()) {
+            return false;
+        }
+
         for (int i = 0; i < table.size(); i++) {
             final Property.Binding<?> thisBinding = table.get(table.keyAt(i));
-            final Object value = that.get(thisBinding.property);
-            // null means the property didn't exist in the other set
-            if (value == null || !value.equals(thisBinding.value)) {
+            if (!that.contains(thisBinding.property) || !thisBinding.value.equals(that.get(thisBinding.property))) {
                 return false;
             }
         }
@@ -78,5 +113,15 @@ public final class PropertySet {
         }
         sb.append('}');
         return sb.toString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeSparseArray((SparseArray) table);
     }
 }

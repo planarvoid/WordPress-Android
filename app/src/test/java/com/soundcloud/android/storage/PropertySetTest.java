@@ -12,6 +12,8 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.os.Parcel;
+
 @SuppressWarnings("ConstantConditions")
 @RunWith(SoundCloudTestRunner.class)
 public class PropertySetTest {
@@ -27,6 +29,24 @@ public class PropertySetTest {
 
         expect(propertySet.get(TEST_PROP_STRING)).toEqual("Test");
         expect(propertySet.get(TEST_PROP_INT)).toEqual(1);
+    }
+
+    @Test
+    public void containsReturnsWhetherOrNotAPropertyIsPartOfTheSet() {
+        PropertySet propertySet = PropertySet.create(2);
+        propertySet.add(TEST_PROP_STRING, "Test");
+
+        expect(propertySet.contains(TEST_PROP_STRING)).toBeTrue();
+        expect(propertySet.contains(TEST_PROP_INT)).toBeFalse();
+    }
+
+    @Test
+    public void addingAPropertyMoreThanOnceOverwritesAnyExistingBinding() {
+        PropertySet propertySet = PropertySet.create(2);
+        propertySet.add(TEST_PROP_STRING, "Test1");
+        propertySet.add(TEST_PROP_STRING, "Test2");
+
+        expect(propertySet.get(TEST_PROP_STRING)).toEqual("Test2");
     }
 
     @Test(expected = AssertionError.class)
@@ -74,5 +94,18 @@ public class PropertySetTest {
         assertThat(propertySet.toString(), endsWith("}"));
         assertThat(propertySet.toString(), containsString(binding1.toString()));
         assertThat(propertySet.toString(), containsString(binding2.toString()));
+    }
+
+    @Test
+    public void aPropertySetIsParcelable() {
+        final Property.Binding<String> binding1 = TEST_PROP_STRING.bind("Test");
+        final Property.Binding<Integer> binding2 = TEST_PROP_INT.bind(1);
+        PropertySet propertySet = PropertySet.from(binding1, binding2);
+
+        Parcel parcel = Parcel.obtain();
+        propertySet.writeToParcel(parcel, 0);
+
+        PropertySet restored = PropertySet.CREATOR.createFromParcel(parcel);
+        assertThat(restored, equalTo(propertySet));
     }
 }
