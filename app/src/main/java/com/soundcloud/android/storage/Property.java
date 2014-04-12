@@ -20,13 +20,13 @@ public final class Property<T> implements Parcelable {
     public static final Creator<Property> CREATOR = new Creator<Property>() {
         @Override
         public Property createFromParcel(Parcel source) {
-            final int id = source.readInt();
             final Class<?> type;
             try {
                 type = Class.forName(source.readString());
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException("Unable to restore parceled property type\n" + e);
             }
+            final int id = source.readInt();
             return new Property(type, id);
         }
 
@@ -47,7 +47,7 @@ public final class Property<T> implements Parcelable {
         return new Property<T>(type, runningPropertyId++);
     }
 
-    private Property(Class<T> type, int id) {
+    Property(Class<T> type, int id) {
         this.type = type;
         this.id = id;
     }
@@ -66,7 +66,7 @@ public final class Property<T> implements Parcelable {
         }
 
         Property property = (Property) o;
-        return (id == property.id);
+        return id == property.id;
     }
 
     @Override
@@ -81,8 +81,8 @@ public final class Property<T> implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
         dest.writeString(type.getCanonicalName());
+        dest.writeInt(id);
     }
 
     @Override

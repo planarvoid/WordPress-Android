@@ -59,10 +59,10 @@ public final class PropertySet implements Parcelable {
 
     public <V> V get(Property<V> property) {
         final Property.Binding<?> binding = table.get(property.hashCode());
-        if (binding != null) {
-            return property.type.cast(binding.value);
-        } else {
+        if (binding == null) {
             throw new AssertionError("Attempt to read a property that doesn't exist: " + property);
+        } else {
+            return property.type.cast(binding.value);
         }
     }
 
@@ -106,10 +106,11 @@ public final class PropertySet implements Parcelable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("PropertySet{");
+        StringBuilder sb = new StringBuilder("PropertySet{\n");
         for (int i = 0; i < table.size(); i++) {
+            sb.append('\t');
             sb.append(table.get(table.keyAt(i)).toString());
-            sb.append(';');
+            sb.append('\n');
         }
         sb.append('}');
         return sb.toString();
