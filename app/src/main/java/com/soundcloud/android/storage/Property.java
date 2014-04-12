@@ -118,7 +118,7 @@ public final class Property<T> implements Parcelable {
         final Property<T> property;
         final T value;
 
-        private Binding(Property<T> property, T value) {
+        Binding(Property<T> property, T value) {
             this.property = property;
             this.value = value;
         }
