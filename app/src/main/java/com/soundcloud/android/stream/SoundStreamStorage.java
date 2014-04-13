@@ -71,8 +71,6 @@ class SoundStreamStorage extends ScheduledOperations {
                     subscriber.onNext(propertySet);
                 }
                 subscriber.onCompleted();
-            } catch (Exception t) {
-                subscriber.onError(t);
             } finally {
                 cursor.close();
             }
