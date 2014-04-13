@@ -2,6 +2,7 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.storage.provider.DBHelper.ActivityView;
 import static com.soundcloud.android.storage.provider.DBHelper.CollectionItems;
+import static com.soundcloud.android.storage.provider.DBHelper.SoundView;
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.LIKE;
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.REPOST;
 
@@ -11,7 +12,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.PropertySet;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.storage.provider.Table;
 import rx.Observable;
 import rx.Scheduler;
@@ -46,9 +46,14 @@ class SoundStreamStorage extends ScheduledOperations {
                 final Table table = Table.ACTIVITY_VIEW;
 
                 final String[] projection = {
-                        table.name + ".*",
-                        userAssociationProjection(LIKE, userUrn.numericId, DBHelper.SoundView.USER_LIKE),
-                        userAssociationProjection(REPOST, userUrn.numericId, DBHelper.SoundView.USER_REPOST)
+                        ActivityView.SOUND_ID,
+                        ActivityView.SOUND_TYPE,
+                        SoundView.TITLE,
+                        ActivityView.CREATED_AT,
+                        ActivityView.TYPE,
+                        ActivityView.USER_USERNAME,
+                        userAssociationProjection(LIKE, userUrn.numericId, SoundView.USER_LIKE),
+                        userAssociationProjection(REPOST, userUrn.numericId, SoundView.USER_REPOST)
                 };
                 final Cursor cursor = database.query(table.name, projection, null, null, null, null, null);
                 emitToSubscriber(subscriber, cursor);
@@ -91,7 +96,7 @@ class SoundStreamStorage extends ScheduledOperations {
     }
 
     private String readSoundTitle(Cursor cursor) {
-        return cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.TITLE));
+        return cursor.getString(cursor.getColumnIndex(SoundView.TITLE));
     }
 
     private String readSoundUrn(Cursor cursor) {
