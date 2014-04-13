@@ -6,7 +6,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * A Property represents a uniquely identifiable, typed, storeable and parcelable value of an entity in
+ * A Property represents a uniquely identifiable, typed, storeable and parcelable field of an entity in
  * the SoundCloud business domain. Examples include: a track title, a playlist URN, number of likes, etc.
  * <p/>
  * Properties can be bound to concrete values via bindings, accessible through the {@link #bind} method.
