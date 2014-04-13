@@ -9,7 +9,10 @@
     <rule ref="rulesets/java/android.xml"/>
     <rule ref="rulesets/java/basic.xml"/>
     <rule ref="rulesets/java/braces.xml"/>
-    <rule ref="rulesets/java/codesize.xml"/>
+    <rule ref="rulesets/java/codesize.xml">
+        <!-- This was too strict, doesn't account for ctors, equals, hashCode, to String, etc. -->
+        <exclude name="TooManyMethods"/>
+    </rule>
     <rule ref="rulesets/java/design.xml"/>
     <rule ref="rulesets/java/empty.xml"/>
 <!--
