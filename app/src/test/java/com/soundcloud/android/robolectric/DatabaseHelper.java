@@ -6,8 +6,8 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.UserSummary;
+import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.storage.Table;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.hamcrest.Matchers;
@@ -79,7 +79,7 @@ public class DatabaseHelper {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.CollectionItems.ITEM_ID, soundId);
         cv.put(TableColumns.CollectionItems.USER_ID, userId);
-        cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, ScContentProvider.CollectionItemTypes.LIKE);
+        cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, CollectionStorage.CollectionItemTypes.LIKE);
         return insertInto(Table.COLLECTION_ITEMS, cv);
     }
 

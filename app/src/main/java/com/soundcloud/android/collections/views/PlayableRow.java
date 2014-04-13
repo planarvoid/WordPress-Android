@@ -17,7 +17,7 @@ import com.soundcloud.android.model.behavior.Repost;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.storage.provider.ScContentProvider;
+import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.collections.ListRow;
 import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
@@ -204,7 +204,7 @@ public class PlayableRow extends IconLayout implements ListRow {
 
         } else if (mPlayableHolder instanceof SoundAssociation) {
             SoundAssociation sa = (SoundAssociation) mPlayableHolder;
-            if (sa.associationType == ScContentProvider.CollectionItemTypes.REPOST) {
+            if (sa.associationType == CollectionStorage.CollectionItemTypes.REPOST) {
                 mReposter.setVisibility(VISIBLE);
                 User reposter = null;
 

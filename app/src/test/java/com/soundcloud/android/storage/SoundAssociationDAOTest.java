@@ -1,7 +1,7 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes;
+import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes;
 import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
 import com.soundcloud.android.model.Like;

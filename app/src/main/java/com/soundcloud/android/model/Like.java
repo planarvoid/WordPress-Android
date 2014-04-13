@@ -1,6 +1,6 @@
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.storage.provider.ScContentProvider;
+import com.soundcloud.android.storage.CollectionStorage;
 
 import android.database.Cursor;
 
@@ -12,11 +12,11 @@ import android.database.Cursor;
 public class Like extends SoundAssociation {
     public Like() {
         super();
-        associationType = ScContentProvider.CollectionItemTypes.LIKE;
+        associationType = CollectionStorage.CollectionItemTypes.LIKE;
     }
 
     public Like(Cursor cursor) {
         super(cursor);
-        associationType = ScContentProvider.CollectionItemTypes.LIKE;
+        associationType = CollectionStorage.CollectionItemTypes.LIKE;
     }
 }

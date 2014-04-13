@@ -1,10 +1,9 @@
 package com.soundcloud.android.storage;
 
-import android.content.Context;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
@@ -13,6 +12,7 @@ import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.provider.BaseColumns;
 
 import java.io.IOException;
@@ -107,5 +107,20 @@ public class CollectionStorage {
                 return content;
             }
         };
+    }
+
+    /**
+     * Roughly corresponds to locally synced collections.
+     */
+    public interface CollectionItemTypes {
+        int TRACK           = 0;
+        int LIKE            = 1;
+        int FOLLOWING       = 2;
+        int FOLLOWER        = 3;
+        int FRIEND          = 4;
+        //int SUGGESTED_USER  = 5; //unused
+        //int SEARCH          = 6; //unused
+        int REPOST          = 7;
+        int PLAYLIST        = 8;
     }
 }

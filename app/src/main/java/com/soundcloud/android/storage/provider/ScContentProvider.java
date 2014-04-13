@@ -1,14 +1,15 @@
 package com.soundcloud.android.storage.provider;
 
-import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.FOLLOWER;
-import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.FOLLOWING;
-import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.LIKE;
+import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.FOLLOWER;
+import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.FOLLOWING;
+import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.LIKE;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.activities.Activity;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.SQLiteErrors;
 import com.soundcloud.android.storage.Table;
@@ -132,7 +133,7 @@ public class ScContentProvider extends ContentProvider {
                 } else if (_columns == null) _columns = formatWithUser(getSoundViewColumns(Table.SOUND_ASSOCIATION_VIEW), userId);
 
                 makeSoundAssociationSelection(qb, String.valueOf(userId),
-                        new int[]{CollectionItemTypes.TRACK, CollectionItemTypes.REPOST, CollectionItemTypes.PLAYLIST});
+                        new int[]{CollectionStorage.CollectionItemTypes.TRACK, CollectionStorage.CollectionItemTypes.REPOST, CollectionStorage.CollectionItemTypes.PLAYLIST});
 
 
                 _sortOrder = makeCollectionSort(uri, TableColumns.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC");
@@ -143,7 +144,7 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(Table.SOUND_ASSOCIATION_VIEW.name);
                 if (_columns == null) _columns = formatWithUser(getSoundViewColumns(Table.SOUND_ASSOCIATION_VIEW), userId);
 
-                makeSoundAssociationSelection(qb, String.valueOf(userId),new int[]{CollectionItemTypes.PLAYLIST});
+                makeSoundAssociationSelection(qb, String.valueOf(userId),new int[]{CollectionStorage.CollectionItemTypes.PLAYLIST});
                 qb.appendWhere(" AND " + TableColumns.SoundView._TYPE + "= " + Playable.DB_TYPE_PLAYLIST);
                 _sortOrder = makeCollectionSort(uri, TableColumns.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC");
                 break;
@@ -531,7 +532,7 @@ public class ScContentProvider extends ContentProvider {
                 // add userId
                 String whereAppend = Table.COLLECTION_ITEMS.name + "." + TableColumns.CollectionItems.USER_ID + " = " + userIdFromContext;
                 // append possible types
-                int[] collectionType = new int[]{CollectionItemTypes.TRACK, CollectionItemTypes.REPOST, CollectionItemTypes.PLAYLIST};
+                int[] collectionType = new int[]{CollectionStorage.CollectionItemTypes.TRACK, CollectionStorage.CollectionItemTypes.REPOST, CollectionStorage.CollectionItemTypes.PLAYLIST};
                 for (int i = 0; i < collectionType.length; i++) {
                     whereAppend += (i == 0 ? " AND " + TableColumns.CollectionItems.COLLECTION_TYPE + " IN (" : ", ")
                             + collectionType[i]
@@ -574,7 +575,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_PLAYLIST:
                 whereAppend = Table.COLLECTION_ITEMS.name + "." + TableColumns.CollectionItems.USER_ID + " = " + userIdFromContext
-                + " AND " + TableColumns.CollectionItems.COLLECTION_TYPE + " = " +CollectionItemTypes.PLAYLIST + " " ;
+                + " AND " + TableColumns.CollectionItems.COLLECTION_TYPE + " = " + CollectionStorage.CollectionItemTypes.PLAYLIST + " " ;
                 where += " AND " + TableColumns.CollectionItems.ITEM_ID + " = " + uri.getLastPathSegment();
                 where += " AND " + whereAppend;
                 break;
@@ -661,7 +662,7 @@ public class ScContentProvider extends ContentProvider {
                     where = "_id NOT IN (SELECT DISTINCT " + TableColumns.Sounds.USER_ID + " FROM "+ Table.SOUNDS.name + " UNION "
                                     + "SELECT _id FROM "+ Table.USERS.name + " WHERE EXISTS("
                                         + "SELECT 1 FROM CollectionItems WHERE "
-                                        + TableColumns.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.FOLLOWER+ " ," + CollectionItemTypes.FOLLOWING+ " ," + CollectionItemTypes.FRIEND+ ") "
+                                        + TableColumns.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionStorage.CollectionItemTypes.FOLLOWER+ " ," + CollectionStorage.CollectionItemTypes.FOLLOWING+ " ," + CollectionStorage.CollectionItemTypes.FRIEND+ ") "
                                         + " AND " + TableColumns.CollectionItems.USER_ID + " = " + userId
                                         + " AND  " + TableColumns.CollectionItems.ITEM_ID + " = " + Table.USERS.id
                                     + " UNION SELECT DISTINCT " + TableColumns.ActivityView.USER_ID + " FROM "+ Table.ACTIVITIES.name
@@ -697,12 +698,12 @@ public class ScContentProvider extends ContentProvider {
     }
 
     private String getTrackAssociationsSelect(long userId) {
-        return String.format(selectAssociationsAndActivities, String.valueOf(CollectionItemTypes.TRACK),
+        return String.format(selectAssociationsAndActivities, String.valueOf(CollectionStorage.CollectionItemTypes.TRACK),
                 userId, Playable.DB_TYPE_TRACK, Playable.DB_TYPE_TRACK);
     }
 
     private String getPlaylistAssociationsSelect(long userId) {
-        return String.format(selectAssociationsAndActivities, String.valueOf(CollectionItemTypes.PLAYLIST),
+        return String.format(selectAssociationsAndActivities, String.valueOf(CollectionStorage.CollectionItemTypes.PLAYLIST),
                 userId, Playable.DB_TYPE_PLAYLIST, Playable.DB_TYPE_PLAYLIST);
     }
 
@@ -997,7 +998,7 @@ public class ScContentProvider extends ContentProvider {
                 "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS + ", " + Table.SOUNDS.name
                         + " WHERE " + idCol + " = " + TableColumns.CollectionItems.ITEM_ID
                         + " AND " + typeCol + " = " + TableColumns.CollectionItems.RESOURCE_TYPE
-                        + " AND " + TableColumns.CollectionItems.COLLECTION_TYPE + " = " + CollectionItemTypes.REPOST
+                        + " AND " + TableColumns.CollectionItems.COLLECTION_TYPE + " = " + CollectionStorage.CollectionItemTypes.REPOST
                         + " AND " + Table.COLLECTION_ITEMS.name + "." +  TableColumns.CollectionItems.USER_ID + " = $$$)"
                         + " AS " + TableColumns.SoundView.USER_REPOST
         };
@@ -1020,28 +1021,13 @@ public class ScContentProvider extends ContentProvider {
     private static String selectAssociationsAndActivities =
         "SELECT 1 FROM CollectionItems WHERE "
             + TableColumns.CollectionItems.COLLECTION_TYPE + " IN (%s,"
-                + CollectionItemTypes.LIKE + " ," + CollectionItemTypes.REPOST + ") "
+                + CollectionStorage.CollectionItemTypes.LIKE + " ," + CollectionStorage.CollectionItemTypes.REPOST + ") "
             + " AND " + TableColumns.CollectionItems.USER_ID + " = %s"
             + " AND  " + TableColumns.CollectionItems.ITEM_ID + " =  " + TableColumns.Sounds._ID
             + " AND  " + TableColumns.CollectionItems.RESOURCE_TYPE + " =  %s"
         + ")"
         + " UNION SELECT DISTINCT " + TableColumns.Activities.SOUND_ID + " FROM " + Table.ACTIVITIES.name
         + " WHERE " + TableColumns.Activities.SOUND_TYPE + " = %s";
-
-    /**
-     * Roughly corresponds to locally synced collections.
-     */
-    public interface CollectionItemTypes {
-        int TRACK           = 0;
-        int LIKE            = 1;
-        int FOLLOWING       = 2;
-        int FOLLOWER        = 3;
-        int FRIEND          = 4;
-        //int SUGGESTED_USER  = 5; //unused
-        //int SEARCH          = 6; //unused
-        int REPOST          = 7;
-        int PLAYLIST        = 8;
-    }
 
     private static void log(String message) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {

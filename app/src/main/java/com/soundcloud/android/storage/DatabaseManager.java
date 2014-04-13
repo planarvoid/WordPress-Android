@@ -2,7 +2,6 @@ package com.soundcloud.android.storage;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.storage.provider.ScContentProvider;
 
 import android.content.Context;
 import android.database.SQLException;
@@ -12,7 +11,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.Locale;
-
 
 public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
@@ -404,9 +402,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                     TableColumns.CollectionItems.CREATED_AT
             };
             String[] userTypes = new String[]{
-                    String.valueOf(ScContentProvider.CollectionItemTypes.FOLLOWER),
-                    String.valueOf(ScContentProvider.CollectionItemTypes.FOLLOWING),
-                    String.valueOf(ScContentProvider.CollectionItemTypes.FRIEND)
+                    String.valueOf(CollectionStorage.CollectionItemTypes.FOLLOWER),
+                    String.valueOf(CollectionStorage.CollectionItemTypes.FOLLOWING),
+                    String.valueOf(CollectionStorage.CollectionItemTypes.FRIEND)
             };
 
             String sql = String.format(Locale.ENGLISH,

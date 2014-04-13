@@ -1,9 +1,9 @@
 package com.soundcloud.android.storage.provider;
 
-import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.FOLLOWER;
-import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.FOLLOWING;
-import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.LIKE;
-import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.REPOST;
+import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.FOLLOWER;
+import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.FOLLOWING;
+import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.LIKE;
+import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
 
 import com.soundcloud.android.api.TempEndpoints;
 import com.soundcloud.android.model.Comment;
@@ -20,6 +20,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.api.Endpoints;
@@ -45,10 +46,10 @@ public enum Content  {
     ME_LIKES("me/likes", TempEndpoints.e1.USER_LIKES, 107, SoundAssociation.class, LIKE, Table.COLLECTION_ITEMS),
     ME_LIKE("me/likes/#", null, 108, Track.class, LIKE, null),
     ME_REPOSTS("me/reposts", null, 109, null, REPOST, Table.COLLECTION_ITEMS),
-    ME_PLAYLISTS("me/playlists", TempEndpoints.MY_PLAYLISTS, 110, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
+    ME_PLAYLISTS("me/playlists", TempEndpoints.MY_PLAYLISTS, 110, Playlist.class, CollectionStorage.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
     ME_USERID("me/userid", null, 111, null, -1, null),
 
-    ME_PLAYLIST("me/playlists/*", null, 112, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
+    ME_PLAYLIST("me/playlists/*", null, 112, Playlist.class, CollectionStorage.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
 
     ME_SHORTCUT("me/shortcuts/#", TempEndpoints.i1.MY_SHORTCUTS, 115, Shortcut.class, -1, Table.SUGGESTIONS),
     ME_SHORTCUTS("me/shortcuts", TempEndpoints.i1.MY_SHORTCUTS, 116, Shortcut.class, -1, Table.SUGGESTIONS),
@@ -73,7 +74,7 @@ public enum Content  {
 
     SOUNDS("sounds", null, 200, Playable.class, -1, Table.SOUNDS),
 
-    TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.SOUNDS),
+    TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, CollectionStorage.CollectionItemTypes.TRACK, Table.SOUNDS),
     TRACK("tracks/#", Endpoints.TRACK_DETAILS, 202, Track.class, -1, Table.SOUNDS),
     TRACK_ARTWORK("tracks/#/artwork", null, 203, null, -1, Table.SOUNDS),
     TRACK_COMMENTS("tracks/#/comments", Endpoints.TRACK_COMMENTS, 204, Comment.class, -1, Table.COMMENTS),
@@ -100,9 +101,9 @@ public enum Content  {
     COMMENT("comments/#", null, 401, Comment.class, -1, Table.COMMENTS),
 
     /* Use string wildcards here since we use negative numbers for local playlists, which breaks with number wildcards */
-    PLAYLISTS("playlists", TempEndpoints.PLAYLISTS, 501, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
+    PLAYLISTS("playlists", TempEndpoints.PLAYLISTS, 501, Playlist.class, CollectionStorage.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
     PLAYLIST_ALL_TRACKS("playlists/tracks", null, 502, Track.class, -1, Table.PLAYLIST_TRACKS), // used for sync service
-    PLAYLIST("playlists/*", TempEndpoints.PLAYLIST_DETAILS, 503, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
+    PLAYLIST("playlists/*", TempEndpoints.PLAYLIST_DETAILS, 503, Playlist.class, CollectionStorage.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
     PLAYLIST_TRACKS("playlists/*/tracks", TempEndpoints.PLAYLIST_TRACKS, 532, Track.class, -1, Table.PLAYLIST_TRACKS),
     PLAYLIST_LIKERS("playlists/*/likers", TempEndpoints.e1.PLAYLIST_LIKERS, 533, User.class, -1, Table.USERS),
     PLAYLIST_REPOSTERS("playlists/*/reposters", TempEndpoints.e1.PLAYLIST_REPOSTERS, 534, User.class, -1, Table.USERS),
@@ -158,7 +159,7 @@ public enum Content  {
         this.table = table;
     }
 
-    /** one of {@link com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes} */
+    /** one of {@link com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes} */
     public final int collectionType;
     public final int id;
     public final

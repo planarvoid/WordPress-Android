@@ -3,8 +3,8 @@ package com.soundcloud.android.stream;
 import static com.soundcloud.android.storage.TableColumns.ActivityView;
 import static com.soundcloud.android.storage.TableColumns.CollectionItems;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
-import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.LIKE;
-import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.REPOST;
+import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.LIKE;
+import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.model.Playable;
