@@ -33,9 +33,9 @@ import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.model.activities.Activities;
 import com.soundcloud.android.model.behavior.Identifiable;
 import com.soundcloud.android.model.behavior.Persisted;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
@@ -289,8 +289,8 @@ public class TestHelper {
     }
 
     public static UserAssociation getUserAssociationByTargetId(Uri contentUri, long targetUserId){
-        String where = DBHelper.UserAssociationView._ID + " = ? AND " +
-                DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = ?";
+        String where = TableColumns.UserAssociationView._ID + " = ? AND " +
+                TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE + " = ?";
 
         ContentResolver resolver = Robolectric.application.getContentResolver();
         Cursor cursor = resolver.query(contentUri, null, where,
@@ -361,12 +361,12 @@ public class TestHelper {
             r.putFullContentValues(map);
             ContentValues contentValues = new ContentValues();
 
-            contentValues.put(DBHelper.UserAssociations.POSITION, i);
-            contentValues.put(DBHelper.UserAssociations.TARGET_ID, r.getId());
-            contentValues.put(DBHelper.UserAssociations.OWNER_ID, userId);
-            contentValues.put(DBHelper.UserAssociations.ADDED_AT, addedAt == null ? null : addedAt.getTime());
-            contentValues.put(DBHelper.UserAssociations.REMOVED_AT, removedAt == null ? null : removedAt.getTime());
-            contentValues.put(DBHelper.UserAssociations.TOKEN, token);
+            contentValues.put(TableColumns.UserAssociations.POSITION, i);
+            contentValues.put(TableColumns.UserAssociations.TARGET_ID, r.getId());
+            contentValues.put(TableColumns.UserAssociations.OWNER_ID, userId);
+            contentValues.put(TableColumns.UserAssociations.ADDED_AT, addedAt == null ? null : addedAt.getTime());
+            contentValues.put(TableColumns.UserAssociations.REMOVED_AT, removedAt == null ? null : removedAt.getTime());
+            contentValues.put(TableColumns.UserAssociations.TOKEN, token);
             map.add(collectionUri, contentValues);
         }
         ContentResolver resolver = application.getContentResolver();
@@ -377,9 +377,9 @@ public class TestHelper {
         ContentValues[] cv = new ContentValues[count];
         for (int i = 0; i < count; i++) {
             cv[i] = new ContentValues();
-            cv[i].put(DBHelper.UserAssociations.POSITION, i);
-            cv[i].put(DBHelper.UserAssociations.TARGET_ID, i);
-            cv[i].put(DBHelper.UserAssociations.OWNER_ID, userId);
+            cv[i].put(TableColumns.UserAssociations.POSITION, i);
+            cv[i].put(TableColumns.UserAssociations.TARGET_ID, i);
+            cv[i].put(TableColumns.UserAssociations.OWNER_ID, userId);
         }
         ContentResolver resolver = Robolectric.application.getContentResolver();
         return resolver.bulkInsert(collectionUri, cv);
@@ -410,13 +410,13 @@ public class TestHelper {
     }
 
     public static UserAssociation loadUserAssociation(final Content content, long targetId) throws Exception {
-        String where = DBHelper.UserAssociationView._ID + " = " + targetId + " AND " +
-                DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType;
+        String where = TableColumns.UserAssociationView._ID + " = " + targetId + " AND " +
+                TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType;
         return loadLocalContentItem(content.uri, UserAssociation.class, where);
     }
 
     public static List<UserAssociation> loadUserAssociations(final Content content) throws Exception {
-        String where = DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType;
+        String where = TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType;
         return loadLocalContent(content.uri, UserAssociation.class, where);
     }
 

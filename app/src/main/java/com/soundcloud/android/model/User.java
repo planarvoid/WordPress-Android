@@ -12,17 +12,14 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.api.http.json.Views;
 import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
-import com.soundcloud.android.storage.provider.DBHelper.Users;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -132,41 +129,41 @@ public class User extends ScResource implements UserHolder {
     }
 
     public User updateFromCursor(Cursor cursor) {
-        setId(cursor.getLong(cursor.getColumnIndex(Users._ID)));
-        permalink = cursor.getString(cursor.getColumnIndex(Users.PERMALINK));
-        permalink_url = cursor.getString(cursor.getColumnIndex(Users.PERMALINK_URL));
-        username = cursor.getString(cursor.getColumnIndex(Users.USERNAME));
-        track_count = cursor.getInt(cursor.getColumnIndex(Users.TRACK_COUNT));
-        discogs_name = cursor.getString(cursor.getColumnIndex(Users.DISCOGS_NAME));
-        city = cursor.getString(cursor.getColumnIndex(Users.CITY));
-        avatar_url = cursor.getString(cursor.getColumnIndex(Users.AVATAR_URL));
-        full_name = cursor.getString(cursor.getColumnIndex(Users.FULL_NAME));
-        followers_count = cursor.getInt(cursor.getColumnIndex(Users.FOLLOWERS_COUNT));
-        followings_count = cursor.getInt(cursor.getColumnIndex(Users.FOLLOWINGS_COUNT));
-        myspace_name = cursor.getString(cursor.getColumnIndex(Users.MYSPACE_NAME));
-        country = cursor.getString(cursor.getColumnIndex(Users.COUNTRY));
-        user_follower = cursor.getInt(cursor.getColumnIndex(Users.USER_FOLLOWER)) == 1;
-        user_following = cursor.getInt(cursor.getColumnIndex(Users.USER_FOLLOWING)) == 1;
-        last_updated = cursor.getLong(cursor.getColumnIndex(Users.LAST_UPDATED));
-        description = cursor.getString(cursor.getColumnIndex(Users.DESCRIPTION));
-        plan = cursor.getString(cursor.getColumnIndex(Users.PLAN));
-        website = cursor.getString(cursor.getColumnIndex(Users.WEBSITE));
-        website_title = cursor.getString(cursor.getColumnIndex(Users.WEBSITE_TITLE));
-        primary_email_confirmed = cursor.getInt(cursor.getColumnIndex(Users.PRIMARY_EMAIL_CONFIRMED)) == 1;
-        public_likes_count = cursor.getInt(cursor.getColumnIndex(Users.PUBLIC_LIKES_COUNT));
-        private_tracks_count = cursor.getInt(cursor.getColumnIndex(Users.PRIVATE_TRACKS_COUNT));
+        setId(cursor.getLong(cursor.getColumnIndex(TableColumns.Users._ID)));
+        permalink = cursor.getString(cursor.getColumnIndex(TableColumns.Users.PERMALINK));
+        permalink_url = cursor.getString(cursor.getColumnIndex(TableColumns.Users.PERMALINK_URL));
+        username = cursor.getString(cursor.getColumnIndex(TableColumns.Users.USERNAME));
+        track_count = cursor.getInt(cursor.getColumnIndex(TableColumns.Users.TRACK_COUNT));
+        discogs_name = cursor.getString(cursor.getColumnIndex(TableColumns.Users.DISCOGS_NAME));
+        city = cursor.getString(cursor.getColumnIndex(TableColumns.Users.CITY));
+        avatar_url = cursor.getString(cursor.getColumnIndex(TableColumns.Users.AVATAR_URL));
+        full_name = cursor.getString(cursor.getColumnIndex(TableColumns.Users.FULL_NAME));
+        followers_count = cursor.getInt(cursor.getColumnIndex(TableColumns.Users.FOLLOWERS_COUNT));
+        followings_count = cursor.getInt(cursor.getColumnIndex(TableColumns.Users.FOLLOWINGS_COUNT));
+        myspace_name = cursor.getString(cursor.getColumnIndex(TableColumns.Users.MYSPACE_NAME));
+        country = cursor.getString(cursor.getColumnIndex(TableColumns.Users.COUNTRY));
+        user_follower = cursor.getInt(cursor.getColumnIndex(TableColumns.Users.USER_FOLLOWER)) == 1;
+        user_following = cursor.getInt(cursor.getColumnIndex(TableColumns.Users.USER_FOLLOWING)) == 1;
+        last_updated = cursor.getLong(cursor.getColumnIndex(TableColumns.Users.LAST_UPDATED));
+        description = cursor.getString(cursor.getColumnIndex(TableColumns.Users.DESCRIPTION));
+        plan = cursor.getString(cursor.getColumnIndex(TableColumns.Users.PLAN));
+        website = cursor.getString(cursor.getColumnIndex(TableColumns.Users.WEBSITE));
+        website_title = cursor.getString(cursor.getColumnIndex(TableColumns.Users.WEBSITE_TITLE));
+        primary_email_confirmed = cursor.getInt(cursor.getColumnIndex(TableColumns.Users.PRIMARY_EMAIL_CONFIRMED)) == 1;
+        public_likes_count = cursor.getInt(cursor.getColumnIndex(TableColumns.Users.PUBLIC_LIKES_COUNT));
+        private_tracks_count = cursor.getInt(cursor.getColumnIndex(TableColumns.Users.PRIVATE_TRACKS_COUNT));
 
-        final String tempDesc = cursor.getString(cursor.getColumnIndex(Users.DESCRIPTION));
+        final String tempDesc = cursor.getString(cursor.getColumnIndex(TableColumns.Users.DESCRIPTION));
         if (TextUtils.isEmpty(tempDesc)) description = tempDesc;
         return this;
     }
 
     public static User fromActivityView(Cursor c) {
         User u = new User();
-        u.setId(c.getLong(c.getColumnIndex(DBHelper.ActivityView.USER_ID)));
-        u.username = c.getString(c.getColumnIndex(DBHelper.ActivityView.USER_USERNAME));
-        u.permalink = c.getString(c.getColumnIndex(DBHelper.ActivityView.USER_PERMALINK));
-        u.avatar_url = c.getString(c.getColumnIndex(DBHelper.ActivityView.USER_AVATAR_URL));
+        u.setId(c.getLong(c.getColumnIndex(TableColumns.ActivityView.USER_ID)));
+        u.username = c.getString(c.getColumnIndex(TableColumns.ActivityView.USER_USERNAME));
+        u.permalink = c.getString(c.getColumnIndex(TableColumns.ActivityView.USER_PERMALINK));
+        u.avatar_url = c.getString(c.getColumnIndex(TableColumns.ActivityView.USER_AVATAR_URL));
         return u;
     }
 
@@ -183,30 +180,30 @@ public class User extends ScResource implements UserHolder {
     public ContentValues buildContentValues(){
         ContentValues cv = super.buildContentValues();
         // account for partial objects, don't overwrite local full objects
-        if (username != null) cv.put(Users.USERNAME, username);
-        if (permalink != null) cv.put(Users.PERMALINK, permalink);
-        if (avatar_url != null) cv.put(Users.AVATAR_URL, avatar_url);
-        if (permalink_url != null) cv.put(Users.PERMALINK_URL, permalink_url);
-        if (track_count != NOT_SET) cv.put(Users.TRACK_COUNT, track_count);
-        if (public_likes_count != NOT_SET) cv.put(Users.PUBLIC_LIKES_COUNT, public_likes_count);
-        if (city != null) cv.put(Users.CITY, city);
-        if (country != null) cv.put(Users.COUNTRY, country);
-        if (discogs_name != null) cv.put(Users.DISCOGS_NAME, discogs_name);
-        if (full_name != null) cv.put(Users.FULL_NAME, full_name);
-        if (myspace_name != null) cv.put(Users.MYSPACE_NAME, myspace_name);
-        if (followers_count != NOT_SET) cv.put(Users.FOLLOWERS_COUNT, followers_count);
-        if (followings_count != NOT_SET)cv.put(Users.FOLLOWINGS_COUNT, followings_count);
-        if (track_count != -1)cv.put(Users.TRACK_COUNT, track_count);
-        if (website != null) cv.put(Users.WEBSITE, website);
-        if (website_title != null) cv.put(Users.WEBSITE_TITLE, website_title);
-        if (plan != null) cv.put(Users.PLAN, plan);
-        if (private_tracks_count != NOT_SET) cv.put(Users.PRIVATE_TRACKS_COUNT, private_tracks_count);
-        if (primary_email_confirmed != null) cv.put(Users.PRIMARY_EMAIL_CONFIRMED, primary_email_confirmed  ? 1 : 0);
+        if (username != null) cv.put(TableColumns.Users.USERNAME, username);
+        if (permalink != null) cv.put(TableColumns.Users.PERMALINK, permalink);
+        if (avatar_url != null) cv.put(TableColumns.Users.AVATAR_URL, avatar_url);
+        if (permalink_url != null) cv.put(TableColumns.Users.PERMALINK_URL, permalink_url);
+        if (track_count != NOT_SET) cv.put(TableColumns.Users.TRACK_COUNT, track_count);
+        if (public_likes_count != NOT_SET) cv.put(TableColumns.Users.PUBLIC_LIKES_COUNT, public_likes_count);
+        if (city != null) cv.put(TableColumns.Users.CITY, city);
+        if (country != null) cv.put(TableColumns.Users.COUNTRY, country);
+        if (discogs_name != null) cv.put(TableColumns.Users.DISCOGS_NAME, discogs_name);
+        if (full_name != null) cv.put(TableColumns.Users.FULL_NAME, full_name);
+        if (myspace_name != null) cv.put(TableColumns.Users.MYSPACE_NAME, myspace_name);
+        if (followers_count != NOT_SET) cv.put(TableColumns.Users.FOLLOWERS_COUNT, followers_count);
+        if (followings_count != NOT_SET)cv.put(TableColumns.Users.FOLLOWINGS_COUNT, followings_count);
+        if (track_count != -1)cv.put(TableColumns.Users.TRACK_COUNT, track_count);
+        if (website != null) cv.put(TableColumns.Users.WEBSITE, website);
+        if (website_title != null) cv.put(TableColumns.Users.WEBSITE_TITLE, website_title);
+        if (plan != null) cv.put(TableColumns.Users.PLAN, plan);
+        if (private_tracks_count != NOT_SET) cv.put(TableColumns.Users.PRIVATE_TRACKS_COUNT, private_tracks_count);
+        if (primary_email_confirmed != null) cv.put(TableColumns.Users.PRIMARY_EMAIL_CONFIRMED, primary_email_confirmed  ? 1 : 0);
 
         if (getId() != -1 && getId() == SoundCloudApplication.getUserId()) {
-            if (description != null) cv.put(Users.DESCRIPTION, description);
+            if (description != null) cv.put(TableColumns.Users.DESCRIPTION, description);
         }
-        cv.put(Users.LAST_UPDATED, System.currentTimeMillis());
+        cv.put(TableColumns.Users.LAST_UPDATED, System.currentTimeMillis());
         return cv;
     }
 
@@ -266,10 +263,10 @@ public class User extends ScResource implements UserHolder {
 
     public static User fromSoundView(Cursor cursor) {
         User u = new User();
-        u.setId(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.USER_ID)));
-        u.username = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USERNAME));
-        u.permalink = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USER_PERMALINK));
-        u.avatar_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USER_AVATAR_URL));
+        u.setId(cursor.getLong(cursor.getColumnIndex(TableColumns.SoundView.USER_ID)));
+        u.username = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.USERNAME));
+        u.permalink = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.USER_PERMALINK));
+        u.avatar_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.USER_AVATAR_URL));
         return u;
     }
 

@@ -8,7 +8,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -191,8 +190,8 @@ public class SoundAssociationStorage extends ScheduledOperations {
 
     public List<Long> getTrackLikesAsIds() {
         return mLikesDAO.buildQuery()
-                .select(DBHelper.SoundAssociationView._ID)
-                .where(DBHelper.SoundAssociationView._TYPE + " = ?", String.valueOf(Track.DB_TYPE_TRACK))
+                .select(TableColumns.SoundAssociationView._ID)
+                .where(TableColumns.SoundAssociationView._TYPE + " = ?", String.valueOf(Track.DB_TYPE_TRACK))
                 .queryIds();
     }
 
@@ -217,8 +216,8 @@ public class SoundAssociationStorage extends ScheduledOperations {
     public boolean syncToLocal(List<SoundAssociation> soundAssociations, Uri contentUri) {
         // get current local id and types for this uri
         Cursor c = mResolver.query(contentUri,
-                new String[]{DBHelper.SoundAssociationView._ID, DBHelper.SoundAssociationView._TYPE,
-                        DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE}, null, null, null);
+                new String[]{TableColumns.SoundAssociationView._ID, TableColumns.SoundAssociationView._TYPE,
+                        TableColumns.SoundAssociationView.SOUND_ASSOCIATION_TYPE}, null, null, null);
 
         boolean changed = true; // assume changed by default
         if (c != null) {
@@ -254,7 +253,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
                 for (Integer type : deletions.keySet()) {
                     for (Long id : deletions.get(type)) {
                         mResolver.delete(contentUri,
-                                DBHelper.CollectionItems.ITEM_ID + " = ? AND " + DBHelper.CollectionItems.RESOURCE_TYPE + " = ?",
+                                TableColumns.CollectionItems.ITEM_ID + " = ? AND " + TableColumns.CollectionItems.RESOURCE_TYPE + " = ?",
                                 new String[]{String.valueOf(id), String.valueOf(type)});
                     }
                 }

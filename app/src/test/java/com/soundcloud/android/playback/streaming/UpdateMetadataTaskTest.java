@@ -3,8 +3,8 @@ package com.soundcloud.android.playback.streaming;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,12 +29,12 @@ public class UpdateMetadataTaskTest {
         expect(c.getCount()).toEqual(1);
         expect(c.moveToFirst()).toBeTrue();
 
-        expect(c.getLong(c.getColumnIndex(DBHelper.TrackMetadata.SIZE))).toEqual(123l);
-        expect(c.getString(c.getColumnIndex(DBHelper.TrackMetadata.ETAG))).toEqual("4748cdb4de48635e843db0670e1ad47a");
-        expect(c.getString(c.getColumnIndex(DBHelper.TrackMetadata.URL_HASH))).toEqual(item.urlHash);
-        expect(c.getInt(c.getColumnIndex(DBHelper.TrackMetadata.CACHED))).toEqual(1);
-        expect(c.getInt(c.getColumnIndex(DBHelper.TrackMetadata.BITRATE))).toEqual(0);
-        expect(c.getInt(c.getColumnIndex(DBHelper.TrackMetadata.TYPE))).toEqual(0);
-        expect(c.getInt(c.getColumnIndex(DBHelper.TrackMetadata.PLAY_COUNT))).toEqual(0);
+        expect(c.getLong(c.getColumnIndex(TableColumns.TrackMetadata.SIZE))).toEqual(123l);
+        expect(c.getString(c.getColumnIndex(TableColumns.TrackMetadata.ETAG))).toEqual("4748cdb4de48635e843db0670e1ad47a");
+        expect(c.getString(c.getColumnIndex(TableColumns.TrackMetadata.URL_HASH))).toEqual(item.urlHash);
+        expect(c.getInt(c.getColumnIndex(TableColumns.TrackMetadata.CACHED))).toEqual(1);
+        expect(c.getInt(c.getColumnIndex(TableColumns.TrackMetadata.BITRATE))).toEqual(0);
+        expect(c.getInt(c.getColumnIndex(TableColumns.TrackMetadata.TYPE))).toEqual(0);
+        expect(c.getInt(c.getColumnIndex(TableColumns.TrackMetadata.PLAY_COUNT))).toEqual(0);
     }
 }

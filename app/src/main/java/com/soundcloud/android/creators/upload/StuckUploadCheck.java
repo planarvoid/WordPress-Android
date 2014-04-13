@@ -1,8 +1,8 @@
 package com.soundcloud.android.creators.upload;
 
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -24,7 +24,7 @@ public class StuckUploadCheck implements Runnable {
         Log.d(UploadService.TAG, "checking for stuck uploads");
 
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Recordings.UPLOAD_STATUS, Recording.Status.NOT_YET_UPLOADED);
+        cv.put(TableColumns.Recordings.UPLOAD_STATUS, Recording.Status.NOT_YET_UPLOADED);
         final int changed = mContext.getContentResolver().update(
                 Content.RECORDINGS.uri,
                 cv,

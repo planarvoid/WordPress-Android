@@ -5,9 +5,8 @@ import static com.soundcloud.android.model.SearchSuggestions.Query;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -157,10 +156,10 @@ public class SearchSuggestionsTest {
         Cursor c = suggestions.asCursor();
         expect(c.moveToNext()).toBeTrue();
         expect(c.getLong(c.getColumnIndex(BaseColumns._ID))).toEqual(-1l);
-        expect(c.getLong(c.getColumnIndex(DBHelper.Suggestions.ID))).toEqual(123l);
+        expect(c.getLong(c.getColumnIndex(TableColumns.Suggestions.ID))).toEqual(123l);
         expect(c.getString(c.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("foo user");
         expect(c.getString(c.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual(Content.USER.forId(123).toString());
-        expect(c.getString(c.getColumnIndex(DBHelper.Suggestions.ICON_URL))).toBeNull();
+        expect(c.getString(c.getColumnIndex(TableColumns.Suggestions.ICON_URL))).toBeNull();
         expect(c.moveToNext()).toBeFalse();
     }
 

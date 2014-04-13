@@ -7,9 +7,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.api.http.json.Views;
 import com.soundcloud.android.model.behavior.RelatesToPlayable;
 import com.soundcloud.android.model.behavior.RelatesToUser;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -104,20 +104,20 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
 
     public Comment(Cursor c, boolean view) {
         if (view) {
-            setId(c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_ID)));
-            track_id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
-            user_id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.USER_ID));
+            setId(c.getLong(c.getColumnIndex(TableColumns.ActivityView.COMMENT_ID)));
+            track_id = c.getLong(c.getColumnIndex(TableColumns.ActivityView.SOUND_ID));
+            user_id = c.getLong(c.getColumnIndex(TableColumns.ActivityView.USER_ID));
             user = User.fromActivityView(c);
-            body = c.getString(c.getColumnIndex(DBHelper.ActivityView.COMMENT_BODY));
-            timestamp = c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_TIMESTAMP));
-            created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_CREATED_AT)));
+            body = c.getString(c.getColumnIndex(TableColumns.ActivityView.COMMENT_BODY));
+            timestamp = c.getLong(c.getColumnIndex(TableColumns.ActivityView.COMMENT_TIMESTAMP));
+            created_at = new Date(c.getLong(c.getColumnIndex(TableColumns.ActivityView.COMMENT_CREATED_AT)));
         } else {
-            setId(c.getLong(c.getColumnIndex(DBHelper.Comments._ID)));
-            track_id = c.getLong(c.getColumnIndex(DBHelper.Comments.TRACK_ID));
-            user_id = c.getLong(c.getColumnIndex(DBHelper.Comments.USER_ID));
-            body = c.getString(c.getColumnIndex(DBHelper.Comments.BODY));
-            timestamp = c.getLong(c.getColumnIndex(DBHelper.Comments.TIMESTAMP));
-            created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.Comments.CREATED_AT)));
+            setId(c.getLong(c.getColumnIndex(TableColumns.Comments._ID)));
+            track_id = c.getLong(c.getColumnIndex(TableColumns.Comments.TRACK_ID));
+            user_id = c.getLong(c.getColumnIndex(TableColumns.Comments.USER_ID));
+            body = c.getString(c.getColumnIndex(TableColumns.Comments.BODY));
+            timestamp = c.getLong(c.getColumnIndex(TableColumns.Comments.TIMESTAMP));
+            created_at = new Date(c.getLong(c.getColumnIndex(TableColumns.Comments.CREATED_AT)));
         }
     }
 
@@ -130,11 +130,11 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
     @Override
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
-        cv.put(DBHelper.Comments.CREATED_AT, created_at.getTime());
-        cv.put(DBHelper.Comments.BODY, body);
-        cv.put(DBHelper.Comments.USER_ID, user_id);
-        cv.put(DBHelper.Comments.TRACK_ID, track_id);
-        cv.put(DBHelper.Comments.TIMESTAMP, timestamp);
+        cv.put(TableColumns.Comments.CREATED_AT, created_at.getTime());
+        cv.put(TableColumns.Comments.BODY, body);
+        cv.put(TableColumns.Comments.USER_ID, user_id);
+        cv.put(TableColumns.Comments.TRACK_ID, track_id);
+        cv.put(TableColumns.Comments.TIMESTAMP, timestamp);
         return cv;
     }
 

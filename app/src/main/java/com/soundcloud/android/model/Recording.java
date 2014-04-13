@@ -12,10 +12,9 @@ import com.soundcloud.android.creators.record.PlaybackStream;
 import com.soundcloud.android.creators.record.reader.VorbisReader;
 import com.soundcloud.android.creators.record.reader.WavReader;
 import com.soundcloud.android.storage.RecordingStorage;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
-import com.soundcloud.android.storage.provider.DBHelper.Recordings;
 import com.soundcloud.android.creators.record.AmplitudeData;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.creators.upload.UploadService;
@@ -140,32 +139,32 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     public Recording(Cursor c) {
-        setId(c.getLong(c.getColumnIndex(Recordings._ID)));
-        user_id = c.getLong(c.getColumnIndex(Recordings.USER_ID));
-        longitude = c.getDouble(c.getColumnIndex(Recordings.LONGITUDE));
-        latitude = c.getDouble(c.getColumnIndex(Recordings.LATITUDE));
-        what_text = c.getString(c.getColumnIndex(Recordings.WHAT_TEXT));
-        where_text = c.getString(c.getColumnIndex(Recordings.WHERE_TEXT));
-        final String artwork = c.getString(c.getColumnIndex(Recordings.ARTWORK_PATH));
+        setId(c.getLong(c.getColumnIndex(TableColumns.Recordings._ID)));
+        user_id = c.getLong(c.getColumnIndex(TableColumns.Recordings.USER_ID));
+        longitude = c.getDouble(c.getColumnIndex(TableColumns.Recordings.LONGITUDE));
+        latitude = c.getDouble(c.getColumnIndex(TableColumns.Recordings.LATITUDE));
+        what_text = c.getString(c.getColumnIndex(TableColumns.Recordings.WHAT_TEXT));
+        where_text = c.getString(c.getColumnIndex(TableColumns.Recordings.WHERE_TEXT));
+        final String artwork = c.getString(c.getColumnIndex(TableColumns.Recordings.ARTWORK_PATH));
         artwork_path = TextUtils.isEmpty(artwork) ? null : new File(artwork);
-        final String audio = c.getString(c.getColumnIndex(Recordings.AUDIO_PATH));
+        final String audio = c.getString(c.getColumnIndex(TableColumns.Recordings.AUDIO_PATH));
         if (audio == null) throw new IllegalArgumentException("audio is null");
         audio_path = new File(audio);
-        duration = c.getLong(c.getColumnIndex(Recordings.DURATION));
-        description = c.getString(c.getColumnIndex(Recordings.DESCRIPTION));
-        four_square_venue_id = c.getString(c.getColumnIndex(Recordings.FOUR_SQUARE_VENUE_ID));
-        shared_emails = c.getString(c.getColumnIndex(Recordings.SHARED_EMAILS));
-        shared_ids = c.getString(c.getColumnIndex(Recordings.SHARED_IDS));
-        recipient_user_id = c.getLong(c.getColumnIndex(Recordings.PRIVATE_USER_ID));
-        int usernameIdx = c.getColumnIndex(DBHelper.Users.USERNAME);
+        duration = c.getLong(c.getColumnIndex(TableColumns.Recordings.DURATION));
+        description = c.getString(c.getColumnIndex(TableColumns.Recordings.DESCRIPTION));
+        four_square_venue_id = c.getString(c.getColumnIndex(TableColumns.Recordings.FOUR_SQUARE_VENUE_ID));
+        shared_emails = c.getString(c.getColumnIndex(TableColumns.Recordings.SHARED_EMAILS));
+        shared_ids = c.getString(c.getColumnIndex(TableColumns.Recordings.SHARED_IDS));
+        recipient_user_id = c.getLong(c.getColumnIndex(TableColumns.Recordings.PRIVATE_USER_ID));
+        int usernameIdx = c.getColumnIndex(TableColumns.Users.USERNAME);
         if (usernameIdx != -1) { // gets joined in
             recipient_username = c.getString(usernameIdx);
         }
-        tip_key = c.getString(c.getColumnIndex(Recordings.TIP_KEY));
-        service_ids = c.getString(c.getColumnIndex(Recordings.SERVICE_IDS));
-        is_private = c.getInt(c.getColumnIndex(Recordings.IS_PRIVATE)) == 1;
-        external_upload = c.getInt(c.getColumnIndex(Recordings.EXTERNAL_UPLOAD)) == 1;
-        upload_status = c.getInt(c.getColumnIndex(Recordings.UPLOAD_STATUS));
+        tip_key = c.getString(c.getColumnIndex(TableColumns.Recordings.TIP_KEY));
+        service_ids = c.getString(c.getColumnIndex(TableColumns.Recordings.SERVICE_IDS));
+        is_private = c.getInt(c.getColumnIndex(TableColumns.Recordings.IS_PRIVATE)) == 1;
+        external_upload = c.getInt(c.getColumnIndex(TableColumns.Recordings.EXTERNAL_UPLOAD)) == 1;
+        upload_status = c.getInt(c.getColumnIndex(TableColumns.Recordings.UPLOAD_STATUS));
         if (!external_upload) mPlaybackStream = initializePlaybackStream(c);
     }
 
@@ -262,17 +261,17 @@ public class Recording extends ScResource implements Comparable<Recording> {
 
     public ContentValues buildContentValues(){
         ContentValues cv = buildBaseContentValues();
-        cv.put(Recordings.LONGITUDE, longitude);
-        cv.put(Recordings.LATITUDE, latitude);
-        cv.put(Recordings.WHAT_TEXT, what_text);
-        cv.put(Recordings.WHERE_TEXT, where_text);
-        cv.put(Recordings.DESCRIPTION, description);
-        cv.put(Recordings.ARTWORK_PATH, artwork_path == null ? "" : artwork_path.getAbsolutePath());
-        cv.put(Recordings.FOUR_SQUARE_VENUE_ID, four_square_venue_id);
-        cv.put(Recordings.SHARED_EMAILS, shared_emails);
-        cv.put(Recordings.SHARED_IDS, shared_ids);
-        cv.put(Recordings.SERVICE_IDS, service_ids);
-        cv.put(Recordings.IS_PRIVATE, is_private);
+        cv.put(TableColumns.Recordings.LONGITUDE, longitude);
+        cv.put(TableColumns.Recordings.LATITUDE, latitude);
+        cv.put(TableColumns.Recordings.WHAT_TEXT, what_text);
+        cv.put(TableColumns.Recordings.WHERE_TEXT, where_text);
+        cv.put(TableColumns.Recordings.DESCRIPTION, description);
+        cv.put(TableColumns.Recordings.ARTWORK_PATH, artwork_path == null ? "" : artwork_path.getAbsolutePath());
+        cv.put(TableColumns.Recordings.FOUR_SQUARE_VENUE_ID, four_square_venue_id);
+        cv.put(TableColumns.Recordings.SHARED_EMAILS, shared_emails);
+        cv.put(TableColumns.Recordings.SHARED_IDS, shared_ids);
+        cv.put(TableColumns.Recordings.SERVICE_IDS, service_ids);
+        cv.put(TableColumns.Recordings.IS_PRIVATE, is_private);
         return cv;
     }
 
@@ -283,19 +282,19 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     private void addBaseContentValues(ContentValues cv) {
-        cv.put(Recordings.USER_ID, user_id > 0 ? user_id : SoundCloudApplication.getUserId());
-        cv.put(Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
-        cv.put(Recordings.PRIVATE_USER_ID, recipient_user_id);
-        cv.put(Recordings.TIMESTAMP, lastModified());
-        cv.put(Recordings.DURATION, duration);
-        cv.put(Recordings.EXTERNAL_UPLOAD, external_upload);
-        cv.put(Recordings.TIP_KEY, tip_key);
-        cv.put(Recordings.UPLOAD_STATUS, upload_status);
+        cv.put(TableColumns.Recordings.USER_ID, user_id > 0 ? user_id : SoundCloudApplication.getUserId());
+        cv.put(TableColumns.Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
+        cv.put(TableColumns.Recordings.PRIVATE_USER_ID, recipient_user_id);
+        cv.put(TableColumns.Recordings.TIMESTAMP, lastModified());
+        cv.put(TableColumns.Recordings.DURATION, duration);
+        cv.put(TableColumns.Recordings.EXTERNAL_UPLOAD, external_upload);
+        cv.put(TableColumns.Recordings.TIP_KEY, tip_key);
+        cv.put(TableColumns.Recordings.UPLOAD_STATUS, upload_status);
         if (mPlaybackStream != null) {
-            cv.put(Recordings.TRIM_LEFT,  mPlaybackStream.getStartPos());
-            cv.put(Recordings.TRIM_RIGHT, mPlaybackStream.getEndPos());
-            cv.put(Recordings.OPTIMIZE,   mPlaybackStream.isOptimized() ? 1 : 0);
-            cv.put(Recordings.FADING,     mPlaybackStream.isFading() ? 1 : 0);
+            cv.put(TableColumns.Recordings.TRIM_LEFT,  mPlaybackStream.getStartPos());
+            cv.put(TableColumns.Recordings.TRIM_RIGHT, mPlaybackStream.getEndPos());
+            cv.put(TableColumns.Recordings.OPTIMIZE,   mPlaybackStream.isOptimized() ? 1 : 0);
+            cv.put(TableColumns.Recordings.FADING,     mPlaybackStream.isFading() ? 1 : 0);
         }
     }
 
@@ -773,14 +772,14 @@ public class Recording extends ScResource implements Comparable<Recording> {
 
             PlaybackStream stream = new PlaybackStream(reader);
             if (c != null) {
-                long startPos = c.getLong(c.getColumnIndex(Recordings.TRIM_LEFT));
-                long endPos   = c.getLong(c.getColumnIndex(Recordings.TRIM_RIGHT));
+                long startPos = c.getLong(c.getColumnIndex(TableColumns.Recordings.TRIM_LEFT));
+                long endPos   = c.getLong(c.getColumnIndex(TableColumns.Recordings.TRIM_RIGHT));
 
                 // validate, can happen after migration
                 if (endPos <= startPos) endPos = duration;
 
-                boolean optimize  = c.getInt(c.getColumnIndex(Recordings.OPTIMIZE)) == 1;
-                boolean fade  = c.getInt(c.getColumnIndex(Recordings.FADING)) == 1;
+                boolean optimize  = c.getInt(c.getColumnIndex(TableColumns.Recordings.OPTIMIZE)) == 1;
+                boolean fade  = c.getInt(c.getColumnIndex(TableColumns.Recordings.FADING)) == 1;
 
                 stream.setFading(fade);
                 stream.setOptimize(optimize);

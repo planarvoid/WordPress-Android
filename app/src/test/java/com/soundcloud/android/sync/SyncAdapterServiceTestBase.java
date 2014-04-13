@@ -8,8 +8,8 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ContentStats;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.api.Token;
@@ -52,8 +52,8 @@ public abstract class SyncAdapterServiceTestBase {
 
         // the current sc user, assumed to be already in the db
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Users._ID, 133201L);
-        cv.put(DBHelper.Users.USERNAME, "Foo Bar");
+        cv.put(TableColumns.Users._ID, 133201L);
+        cv.put(TableColumns.Users.USERNAME, "Foo Bar");
         Robolectric.application.getContentResolver().insert(Content.USERS.uri, cv);
         TestHelper.setUserId(133201L);
 

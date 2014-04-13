@@ -1,8 +1,8 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.storage.provider.DBHelper.ActivityView;
-import static com.soundcloud.android.storage.provider.DBHelper.CollectionItems;
-import static com.soundcloud.android.storage.provider.DBHelper.SoundView;
+import static com.soundcloud.android.storage.TableColumns.ActivityView;
+import static com.soundcloud.android.storage.TableColumns.CollectionItems;
+import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.LIKE;
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.REPOST;
 
@@ -12,7 +12,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.PropertySet;
-import com.soundcloud.android.storage.provider.Table;
+import com.soundcloud.android.storage.Table;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;

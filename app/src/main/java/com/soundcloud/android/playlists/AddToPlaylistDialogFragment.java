@@ -11,13 +11,12 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.NotFoundException;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
-import com.soundcloud.android.storage.provider.Table;
+import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.utils.ScTextUtils;
 import eu.inmite.android.lib.dialogs.BaseDialogFragment;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -127,19 +126,19 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
             @Override
             public Cursor loadInBackground() {
                 final String existsCol = "EXISTS (SELECT 1 FROM " + Table.PLAYLIST_TRACKS
-                        + " WHERE " + DBHelper.PlaylistTracks.TRACK_ID + " = " + getArguments().getLong(KEY_TRACK_ID) + " AND " +
-                        DBHelper.PlaylistTracks.PLAYLIST_ID + " = " + DBHelper.PlaylistTracksView._ID + ") as " + COL_ALREADY_ADDED;
+                        + " WHERE " + TableColumns.PlaylistTracks.TRACK_ID + " = " + getArguments().getLong(KEY_TRACK_ID) + " AND " +
+                        TableColumns.PlaylistTracks.PLAYLIST_ID + " = " + TableColumns.PlaylistTracksView._ID + ") as " + COL_ALREADY_ADDED;
 
                 Cursor dbCursor = getContext().getContentResolver().query(
                         Content.ME_PLAYLISTS.uri,
-                        new String[]{DBHelper.PlaylistTracksView._ID,
-                                DBHelper.PlaylistTracksView.TITLE,
-                                DBHelper.PlaylistTracksView.TRACK_COUNT,
+                        new String[]{TableColumns.PlaylistTracksView._ID,
+                                TableColumns.PlaylistTracksView.TITLE,
+                                TableColumns.PlaylistTracksView.TRACK_COUNT,
                                 existsCol},
                         null, null, null);
 
-                MatrixCursor extras = new MatrixCursor(new String[]{DBHelper.PlaylistTracksView._ID,
-                        DBHelper.PlaylistTracksView.TITLE, DBHelper.PlaylistTracksView.TRACK_COUNT, COL_ALREADY_ADDED});
+                MatrixCursor extras = new MatrixCursor(new String[]{TableColumns.PlaylistTracksView._ID,
+                        TableColumns.PlaylistTracksView.TITLE, TableColumns.PlaylistTracksView.TRACK_COUNT, COL_ALREADY_ADDED});
 
                 extras.addRow(new Object[]{NEW_PLAYLIST_ITEM, getContext().getString(R.string.create_new_playlist), -1, 0});
 
@@ -213,7 +212,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
 
         public long getItemId(int position) {
             if (mCursor != null && mCursor.moveToPosition(position)) {
-                return mCursor.getLong(mCursor.getColumnIndex(DBHelper.PlaylistTracksView._ID));
+                return mCursor.getLong(mCursor.getColumnIndex(TableColumns.PlaylistTracksView._ID));
             } else {
                 return 0;
             }
@@ -242,8 +241,8 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
                 final boolean alreadyAdded = (mCursor.getInt(mCursor.getColumnIndex(COL_ALREADY_ADDED)) == 1);
                 txtTitle.setEnabled(!alreadyAdded);
 
-                txtTitle.setText(mCursor.getString(mCursor.getColumnIndex(DBHelper.PlaylistTracksView.TITLE)));
-                final int trackCount = mCursor.getInt(mCursor.getColumnIndex(DBHelper.PlaylistTracksView.TRACK_COUNT));
+                txtTitle.setText(mCursor.getString(mCursor.getColumnIndex(TableColumns.PlaylistTracksView.TITLE)));
+                final int trackCount = mCursor.getInt(mCursor.getColumnIndex(TableColumns.PlaylistTracksView.TRACK_COUNT));
                 if (trackCount == -1) {
                     txtTrackCount.setCompoundDrawablesWithIntrinsicBounds(
                             null, null, mContext.getResources().getDrawable(R.drawable.ic_plus), null);

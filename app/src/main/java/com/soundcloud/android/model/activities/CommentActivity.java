@@ -7,7 +7,7 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.behavior.Refreshable;
-import com.soundcloud.android.storage.provider.DBHelper;
+import com.soundcloud.android.storage.TableColumns;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -53,7 +53,7 @@ public class CommentActivity extends Activity {
     @Override
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
-        cv.put(DBHelper.Activities.COMMENT_ID, comment.getId());
+        cv.put(TableColumns.Activities.COMMENT_ID, comment.getId());
         return cv;
     }
 

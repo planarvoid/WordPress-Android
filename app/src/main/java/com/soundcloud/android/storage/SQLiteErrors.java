@@ -1,4 +1,4 @@
-package com.soundcloud.android.storage.provider;
+package com.soundcloud.android.storage;
 
 import android.database.sqlite.SQLiteDiskIOException;
 import android.text.TextUtils;

@@ -5,7 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.playback.streaming.StreamItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.storage.provider.DBHelper;
+import com.soundcloud.android.storage.TableColumns;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -143,7 +143,7 @@ public class TrackTest {
         t.setId(1000);
         ContentValues v = t.buildContentValues();
         expect(v).not.toBeNull();
-        expect(v.getAsLong(DBHelper.Sounds._ID)).toEqual(1000L);
+        expect(v.getAsLong(TableColumns.Sounds._ID)).toEqual(1000L);
     }
 
     @Test
@@ -151,16 +151,16 @@ public class TrackTest {
         Track t = new Track();
         t.setId(1000);
         ContentValues v = t.buildContentValues();
-        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).toBeNull();
+        expect(v.get(TableColumns.Sounds.LAST_UPDATED)).toBeNull();
         t.created_at = new Date(System.currentTimeMillis());
         v = t.buildContentValues();
-        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).toBeNull();
+        expect(v.get(TableColumns.Sounds.LAST_UPDATED)).toBeNull();
         t.duration = 1000;
         v = t.buildContentValues();
-        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).toBeNull();
+        expect(v.get(TableColumns.Sounds.LAST_UPDATED)).toBeNull();
         t.state = Track.State.FINISHED;
         v = t.buildContentValues();
-        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).not.toBeNull();
+        expect(v.get(TableColumns.Sounds.LAST_UPDATED)).not.toBeNull();
     }
 
     @Test

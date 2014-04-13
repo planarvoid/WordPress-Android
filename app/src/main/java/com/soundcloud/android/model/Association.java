@@ -6,9 +6,9 @@ import com.soundcloud.android.model.behavior.Creation;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.model.behavior.RelatesToUser;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
@@ -51,9 +51,9 @@ public abstract class Association extends ScResource implements PlayableHolder, 
     public Association() {}
 
     public Association(Cursor cursor){
-        owner = SoundCloudApplication.sModelManager.getUser(cursor.getLong(cursor.getColumnIndex(DBHelper.AssociationView.ASSOCIATION_OWNER_ID)));
-        created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.AssociationView.ASSOCIATION_TIMESTAMP)));
-        associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.AssociationView.ASSOCIATION_TYPE));
+        owner = SoundCloudApplication.sModelManager.getUser(cursor.getLong(cursor.getColumnIndex(TableColumns.AssociationView.ASSOCIATION_OWNER_ID)));
+        created_at = new Date(cursor.getLong(cursor.getColumnIndex(TableColumns.AssociationView.ASSOCIATION_TIMESTAMP)));
+        associationType = cursor.getInt(cursor.getColumnIndex(TableColumns.AssociationView.ASSOCIATION_TYPE));
     }
 
     public Association(int associationType) {
@@ -74,11 +74,11 @@ public abstract class Association extends ScResource implements PlayableHolder, 
     @Override
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.CollectionItems.ITEM_ID, getItemId());
-        cv.put(DBHelper.CollectionItems.USER_ID, SoundCloudApplication.getUserId());
-        cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, associationType);
-        cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, getResourceType());
-        cv.put(DBHelper.CollectionItems.CREATED_AT, created_at.getTime());
+        cv.put(TableColumns.CollectionItems.ITEM_ID, getItemId());
+        cv.put(TableColumns.CollectionItems.USER_ID, SoundCloudApplication.getUserId());
+        cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, associationType);
+        cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, getResourceType());
+        cv.put(TableColumns.CollectionItems.CREATED_AT, created_at.getTime());
         return cv;
     }
 

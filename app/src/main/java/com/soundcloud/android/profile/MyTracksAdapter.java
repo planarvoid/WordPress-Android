@@ -10,8 +10,8 @@ import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper.Recordings;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.collections.views.IconLayout;
 import com.soundcloud.android.collections.views.PlayableRow;
@@ -88,9 +88,9 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
 
     private void refreshCursor(ContentResolver contentResolver) {
         mCursor = contentResolver.query(Content.RECORDINGS.uri, null,
-                Recordings.UPLOAD_STATUS + " < " + Recording.Status.UPLOADED + " OR " + Recordings.UPLOAD_STATUS + " = " + Recording.Status.ERROR,
+                TableColumns.Recordings.UPLOAD_STATUS + " < " + Recording.Status.UPLOADED + " OR " + TableColumns.Recordings.UPLOAD_STATUS + " = " + Recording.Status.ERROR,
                 null,
-                Recordings.TIMESTAMP + " DESC");
+                TableColumns.Recordings.TIMESTAMP + " DESC");
 
         if (mCursor != null) {
             mDataValid = true;

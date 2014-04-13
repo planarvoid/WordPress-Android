@@ -6,9 +6,9 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.UserSummary;
-import com.soundcloud.android.storage.provider.DBHelper;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.ScContentProvider;
-import com.soundcloud.android.storage.provider.Table;
+import com.soundcloud.android.storage.Table;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.hamcrest.Matchers;
 
@@ -32,9 +32,9 @@ public class DatabaseHelper {
 
     public long insertTrack(TrackSummary track) {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Sounds._ID, track.getId());
-        cv.put(DBHelper.Sounds.TITLE, track.getTitle());
-        cv.put(DBHelper.Sounds._TYPE, Playable.DB_TYPE_TRACK);
+        cv.put(TableColumns.Sounds._ID, track.getId());
+        cv.put(TableColumns.Sounds.TITLE, track.getTitle());
+        cv.put(TableColumns.Sounds._TYPE, Playable.DB_TYPE_TRACK);
 
         final long id = insertInto(Table.SOUNDS, cv);
         track.setId(id);
@@ -50,9 +50,9 @@ public class DatabaseHelper {
 
     public long insertPlaylist(PlaylistSummary playlist) {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Sounds._ID, playlist.getId());
-        cv.put(DBHelper.Sounds._TYPE, Playable.DB_TYPE_PLAYLIST);
-        cv.put(DBHelper.Sounds.TITLE, playlist.getTitle());
+        cv.put(TableColumns.Sounds._ID, playlist.getId());
+        cv.put(TableColumns.Sounds._TYPE, Playable.DB_TYPE_PLAYLIST);
+        cv.put(TableColumns.Sounds.TITLE, playlist.getTitle());
 
         final long id = insertInto(Table.SOUNDS, cv);
         playlist.setId(id);
@@ -67,8 +67,8 @@ public class DatabaseHelper {
 
     public long insertUser(UserSummary user) {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Users._ID, user.getId());
-        cv.put(DBHelper.Users.USERNAME, user.getUsername());
+        cv.put(TableColumns.Users._ID, user.getId());
+        cv.put(TableColumns.Users.USERNAME, user.getUsername());
 
         final long id = insertInto(Table.USERS, cv);
         user.setId(id);
@@ -77,49 +77,49 @@ public class DatabaseHelper {
 
     public long insertLike(long soundId, long userId) {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.CollectionItems.ITEM_ID, soundId);
-        cv.put(DBHelper.CollectionItems.USER_ID, userId);
-        cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, ScContentProvider.CollectionItemTypes.LIKE);
+        cv.put(TableColumns.CollectionItems.ITEM_ID, soundId);
+        cv.put(TableColumns.CollectionItems.USER_ID, userId);
+        cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, ScContentProvider.CollectionItemTypes.LIKE);
         return insertInto(Table.COLLECTION_ITEMS, cv);
     }
 
     public long insertTrackPost(TrackSummary track, long timestamp) {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Activities.SOUND_ID, track.getId());
-        cv.put(DBHelper.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
-        cv.put(DBHelper.Activities.TYPE, "track");
-        cv.put(DBHelper.Activities.USER_ID, track.getUser().getId());
-        cv.put(DBHelper.Activities.CREATED_AT, timestamp);
+        cv.put(TableColumns.Activities.SOUND_ID, track.getId());
+        cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
+        cv.put(TableColumns.Activities.TYPE, "track");
+        cv.put(TableColumns.Activities.USER_ID, track.getUser().getId());
+        cv.put(TableColumns.Activities.CREATED_AT, timestamp);
         return insertInto(Table.ACTIVITIES, cv);
     }
 
     public long insertTrackRepost(TrackSummary track, UserSummary reposter, long timestamp) {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Activities.SOUND_ID, track.getId());
-        cv.put(DBHelper.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
-        cv.put(DBHelper.Activities.TYPE, "track-repost");
-        cv.put(DBHelper.Activities.USER_ID, reposter.getId());
-        cv.put(DBHelper.Activities.CREATED_AT, timestamp);
+        cv.put(TableColumns.Activities.SOUND_ID, track.getId());
+        cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
+        cv.put(TableColumns.Activities.TYPE, "track-repost");
+        cv.put(TableColumns.Activities.USER_ID, reposter.getId());
+        cv.put(TableColumns.Activities.CREATED_AT, timestamp);
         return insertInto(Table.ACTIVITIES, cv);
     }
 
     public long insertPlaylistPost(PlaylistSummary playlist, long timestamp) {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Activities.SOUND_ID, playlist.getId());
-        cv.put(DBHelper.Activities.SOUND_TYPE, Playable.DB_TYPE_PLAYLIST);
-        cv.put(DBHelper.Activities.TYPE, "playlist");
-        cv.put(DBHelper.Activities.USER_ID, playlist.getUser().getId());
-        cv.put(DBHelper.Activities.CREATED_AT, timestamp);
+        cv.put(TableColumns.Activities.SOUND_ID, playlist.getId());
+        cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_PLAYLIST);
+        cv.put(TableColumns.Activities.TYPE, "playlist");
+        cv.put(TableColumns.Activities.USER_ID, playlist.getUser().getId());
+        cv.put(TableColumns.Activities.CREATED_AT, timestamp);
         return insertInto(Table.ACTIVITIES, cv);
     }
 
     public long insertPlaylistRepost(PlaylistSummary playlist, UserSummary reposter, long timestamp) {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Activities.SOUND_ID, playlist.getId());
-        cv.put(DBHelper.Activities.SOUND_TYPE, Playable.DB_TYPE_PLAYLIST);
-        cv.put(DBHelper.Activities.TYPE, "playlist-repost");
-        cv.put(DBHelper.Activities.USER_ID, reposter.getId());
-        cv.put(DBHelper.Activities.CREATED_AT, timestamp);
+        cv.put(TableColumns.Activities.SOUND_ID, playlist.getId());
+        cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_PLAYLIST);
+        cv.put(TableColumns.Activities.TYPE, "playlist-repost");
+        cv.put(TableColumns.Activities.USER_ID, reposter.getId());
+        cv.put(TableColumns.Activities.CREATED_AT, timestamp);
         return insertInto(Table.ACTIVITIES, cv);
     }
 

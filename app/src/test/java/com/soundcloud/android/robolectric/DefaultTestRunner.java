@@ -4,7 +4,7 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
-import com.soundcloud.android.storage.provider.DBHelper;
+import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.shadows.ScShadowParcel;
 import com.soundcloud.android.robolectric.shadows.ShadowMediaPlayer;
@@ -58,7 +58,7 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         shadowApplication.setPackageManager(new RobolectricPackageManager(application, robolectricConfig));
         application.onCreate();
         // delegate content provider methods
-        ContentProvider provider = new ScContentProvider(new DBHelper(application));
+        ContentProvider provider = new ScContentProvider(new DatabaseManager(application));
         provider.onCreate();
         ShadowContentResolver.registerProvider(ScContentProvider.AUTHORITY, provider);
     }

@@ -7,8 +7,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.sync.SyncStateManager;
 
 import android.content.AsyncQueryHandler;
@@ -106,7 +106,7 @@ import java.util.WeakHashMap;
     private void doQuery(){
         asyncQueryHandler = new FollowingQueryHandler(mContext);
         asyncQueryHandler.startQuery(0, null, ResolverHelper.addIdOnlyParameter(Content.ME_FOLLOWINGS.uri),
-                null, DBHelper.UserAssociations.REMOVED_AT + " IS NULL", null, null);
+                null, TableColumns.UserAssociations.REMOVED_AT + " IS NULL", null, null);
     }
 
     /* package */ void toggleFollowing(long... userIds) {

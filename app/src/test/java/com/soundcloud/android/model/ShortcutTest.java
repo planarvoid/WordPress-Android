@@ -3,8 +3,8 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.Expect.expect;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.storage.TableColumns;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,25 +64,25 @@ public class ShortcutTest {
     public void shouldBuildContentValuesFollowing() throws Exception {
         ContentValues cv = following.buildContentValues();
 
-        expect(cv.getAsString(DBHelper.Suggestions.INTENT_DATA)).toEqual("content://com.soundcloud.android.provider.ScContentProvider/users/2");
-        expect(cv.getAsString(DBHelper.Suggestions.COLUMN_TEXT1)).toEqual("Eric");
-        expect(cv.getAsString(DBHelper.Suggestions.ICON_URL)).toEqual("https://i1.sndcdn.com/avatars-000006111783-xqaxy3-tiny.jpg?2479809");
-        expect(cv.getAsString(DBHelper.Suggestions.PERMALINK_URL)).toEqual("http://soundcloud.com/eric");
-        expect(cv.getAsString(DBHelper.Suggestions.TEXT)).toEqual("Eric");
-        expect(cv.getAsString(DBHelper.Suggestions.KIND)).toEqual("following");
-        expect(cv.getAsLong(DBHelper.Suggestions.ID)).toEqual(2l);
+        expect(cv.getAsString(TableColumns.Suggestions.INTENT_DATA)).toEqual("content://com.soundcloud.android.provider.ScContentProvider/users/2");
+        expect(cv.getAsString(TableColumns.Suggestions.COLUMN_TEXT1)).toEqual("Eric");
+        expect(cv.getAsString(TableColumns.Suggestions.ICON_URL)).toEqual("https://i1.sndcdn.com/avatars-000006111783-xqaxy3-tiny.jpg?2479809");
+        expect(cv.getAsString(TableColumns.Suggestions.PERMALINK_URL)).toEqual("http://soundcloud.com/eric");
+        expect(cv.getAsString(TableColumns.Suggestions.TEXT)).toEqual("Eric");
+        expect(cv.getAsString(TableColumns.Suggestions.KIND)).toEqual("following");
+        expect(cv.getAsLong(TableColumns.Suggestions.ID)).toEqual(2l);
     }
 
     @Test
     public void shouldBuildContentValuesLike() throws Exception {
         ContentValues cv = like.buildContentValues();
 
-        expect(cv.getAsString(DBHelper.Suggestions.INTENT_DATA)).toEqual("content://com.soundcloud.android.provider.ScContentProvider/tracks/64629168");
-        expect(cv.getAsString(DBHelper.Suggestions.COLUMN_TEXT1)).toEqual("Halls - Roses For The Dead (Max Cooper remix)");
-        expect(cv.getAsString(DBHelper.Suggestions.ICON_URL)).toEqual("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809");
-        expect(cv.getAsString(DBHelper.Suggestions.TEXT)).toEqual("Halls - Roses For The Dead (Max Cooper remix)");
-        expect(cv.getAsString(DBHelper.Suggestions.KIND)).toEqual("like");
-        expect(cv.getAsLong(DBHelper.Suggestions.ID)).toEqual(64629168l);
+        expect(cv.getAsString(TableColumns.Suggestions.INTENT_DATA)).toEqual("content://com.soundcloud.android.provider.ScContentProvider/tracks/64629168");
+        expect(cv.getAsString(TableColumns.Suggestions.COLUMN_TEXT1)).toEqual("Halls - Roses For The Dead (Max Cooper remix)");
+        expect(cv.getAsString(TableColumns.Suggestions.ICON_URL)).toEqual("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809");
+        expect(cv.getAsString(TableColumns.Suggestions.TEXT)).toEqual("Halls - Roses For The Dead (Max Cooper remix)");
+        expect(cv.getAsString(TableColumns.Suggestions.KIND)).toEqual("like");
+        expect(cv.getAsLong(TableColumns.Suggestions.ID)).toEqual(64629168l);
     }
 
     @Test

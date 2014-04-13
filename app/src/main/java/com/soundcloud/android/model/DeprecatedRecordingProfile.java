@@ -1,8 +1,8 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.content.ContentResolver;
@@ -90,9 +90,9 @@ public enum DeprecatedRecordingProfile {
 
                 // return content values for bulk migration
                 ContentValues cv = new ContentValues();
-                cv.put(DBHelper.Recordings._ID, r.getId());
-                cv.put(DBHelper.Recordings.EXTERNAL_UPLOAD, r.external_upload);
-                cv.put(DBHelper.Recordings.AUDIO_PATH, r.audio_path.getAbsolutePath());
+                cv.put(TableColumns.Recordings._ID, r.getId());
+                cv.put(TableColumns.Recordings.EXTERNAL_UPLOAD, r.external_upload);
+                cv.put(TableColumns.Recordings.AUDIO_PATH, r.audio_path.getAbsolutePath());
                 return cv;
             }
         }

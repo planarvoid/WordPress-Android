@@ -4,9 +4,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,10 +49,10 @@ public class UserAssociation extends Association implements UserHolder {
     }
     public UserAssociation(Cursor cursor) {
         super(cursor);
-        mUser = SoundCloudApplication.sModelManager.getCachedUserFromCursor(cursor, DBHelper.UserAssociationView._ID);
-        mAddedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_ADDED_AT)));
-        mRemovedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT)));
-        mToken = cursor.getString(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_TOKEN));
+        mUser = SoundCloudApplication.sModelManager.getCachedUserFromCursor(cursor, TableColumns.UserAssociationView._ID);
+        mAddedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(TableColumns.UserAssociationView.USER_ASSOCIATION_ADDED_AT)));
+        mRemovedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(TableColumns.UserAssociationView.USER_ASSOCIATION_REMOVED_AT)));
+        mToken = cursor.getString(cursor.getColumnIndex(TableColumns.UserAssociationView.USER_ASSOCIATION_TOKEN));
     }
 
     public UserAssociation(Type typeEnum, @NotNull User user) {
@@ -100,14 +100,14 @@ public class UserAssociation extends Association implements UserHolder {
     @Override
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.UserAssociations.TARGET_ID, getItemId());
-        cv.put(DBHelper.UserAssociations.OWNER_ID, SoundCloudApplication.getUserId());
-        cv.put(DBHelper.UserAssociations.ASSOCIATION_TYPE, associationType);
-        cv.put(DBHelper.UserAssociations.RESOURCE_TYPE, getResourceType());
-        cv.put(DBHelper.UserAssociations.CREATED_AT, created_at.getTime());
-        cv.put(DBHelper.UserAssociations.ADDED_AT, mAddedAt == null ? null : mAddedAt.getTime());
-        cv.put(DBHelper.UserAssociations.REMOVED_AT, mRemovedAt == null ? null : mRemovedAt.getTime());
-        cv.put(DBHelper.UserAssociations.TOKEN, mToken);
+        cv.put(TableColumns.UserAssociations.TARGET_ID, getItemId());
+        cv.put(TableColumns.UserAssociations.OWNER_ID, SoundCloudApplication.getUserId());
+        cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, associationType);
+        cv.put(TableColumns.UserAssociations.RESOURCE_TYPE, getResourceType());
+        cv.put(TableColumns.UserAssociations.CREATED_AT, created_at.getTime());
+        cv.put(TableColumns.UserAssociations.ADDED_AT, mAddedAt == null ? null : mAddedAt.getTime());
+        cv.put(TableColumns.UserAssociations.REMOVED_AT, mRemovedAt == null ? null : mRemovedAt.getTime());
+        cv.put(TableColumns.UserAssociations.TOKEN, mToken);
         return cv;
     }
 

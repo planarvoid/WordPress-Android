@@ -2,7 +2,6 @@ package com.soundcloud.android.storage;
 
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
@@ -38,9 +37,9 @@ import java.util.List;
 
     @Override
     public boolean delete(SoundAssociation resource) {
-        String where = DBHelper.CollectionItems.ITEM_ID + "=? AND " +
-                DBHelper.CollectionItems.RESOURCE_TYPE + "=? AND " +
-                DBHelper.CollectionItems.COLLECTION_TYPE + "=?";
+        String where = TableColumns.CollectionItems.ITEM_ID + "=? AND " +
+                TableColumns.CollectionItems.RESOURCE_TYPE + "=? AND " +
+                TableColumns.CollectionItems.COLLECTION_TYPE + "=?";
         return delete(getContent().uri,
                 where,
                 String.valueOf(resource.getItemId()),

@@ -9,7 +9,6 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +47,7 @@ public class CollectionStorage {
             List<Long> newIds = dao.buildQuery()
                     .select(BaseColumns._ID)
                     .whereIn(BaseColumns._ID, Lists.transform(batch, Functions.toStringFunction()))
-                    .where("AND " + DBHelper.ResourceTable.LAST_UPDATED + " > ?", "0")
+                    .where("AND " + TableColumns.ResourceTable.LAST_UPDATED + " > ?", "0")
                     .queryIds();
             storedIds.addAll(newIds);
         }

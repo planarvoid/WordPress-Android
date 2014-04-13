@@ -11,8 +11,7 @@ import com.soundcloud.android.api.http.json.Views;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.storage.provider.DBHelper;
-import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -256,7 +255,7 @@ public class Activities extends CollectionHolder<Activity> {
         for (int i=0; i<size(); i++) {
             cv[i] = get(i).buildContentValues();
             if (contentId >= 0) {
-                cv[i].put(DBHelper.Activities.CONTENT_ID, contentId);
+                cv[i].put(TableColumns.Activities.CONTENT_ID, contentId);
             }
         }
         return cv;

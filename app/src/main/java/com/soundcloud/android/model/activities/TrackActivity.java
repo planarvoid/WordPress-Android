@@ -8,7 +8,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.behavior.Refreshable;
-import com.soundcloud.android.storage.provider.DBHelper;
+import com.soundcloud.android.storage.TableColumns;
 
 import android.database.Cursor;
 import android.os.Parcel;
@@ -23,7 +23,7 @@ public class TrackActivity extends Activity implements PlayableHolder {
 
     public TrackActivity(Cursor c) {
         super(c);
-        track = SoundCloudApplication.sModelManager.getCachedTrackFromCursor(c, DBHelper.ActivityView.SOUND_ID);
+        track = SoundCloudApplication.sModelManager.getCachedTrackFromCursor(c, TableColumns.ActivityView.SOUND_ID);
     }
 
     public TrackActivity(Parcel in) {

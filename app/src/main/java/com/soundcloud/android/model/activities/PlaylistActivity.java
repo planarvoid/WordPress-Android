@@ -8,7 +8,7 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SharingNote;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.behavior.Refreshable;
-import com.soundcloud.android.storage.provider.DBHelper;
+import com.soundcloud.android.storage.TableColumns;
 
 import android.database.Cursor;
 
@@ -23,7 +23,7 @@ public class PlaylistActivity extends Activity implements PlayableHolder {
 
     public PlaylistActivity(Cursor c) {
         super(c);
-        playlist = SoundCloudApplication.sModelManager.getCachedPlaylistFromCursor(c, DBHelper.ActivityView.SOUND_ID);
+        playlist = SoundCloudApplication.sModelManager.getCachedPlaylistFromCursor(c, TableColumns.ActivityView.SOUND_ID);
     }
 
     @Override

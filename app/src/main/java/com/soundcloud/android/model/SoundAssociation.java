@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,9 +31,9 @@ public class SoundAssociation extends Association implements PlayableHolder {
         super(cursor);
         // single instance considerations
         if (Playable.isTrackCursor(cursor)){
-            playable = SoundCloudApplication.sModelManager.getCachedTrackFromCursor(cursor, DBHelper.SoundAssociationView._ID);
+            playable = SoundCloudApplication.sModelManager.getCachedTrackFromCursor(cursor, TableColumns.SoundAssociationView._ID);
         } else {
-            playable = SoundCloudApplication.sModelManager.getCachedPlaylistFromCursor(cursor, DBHelper.SoundAssociationView._ID);
+            playable = SoundCloudApplication.sModelManager.getCachedPlaylistFromCursor(cursor, TableColumns.SoundAssociationView._ID);
         }
     }
 

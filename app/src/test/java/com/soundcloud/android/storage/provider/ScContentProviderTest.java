@@ -9,7 +9,6 @@ import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.storage.ActivitiesStorage;
-import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
@@ -21,6 +20,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.activities.Activities;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
@@ -31,7 +31,6 @@ import org.junit.runner.RunWith;
 import android.accounts.Account;
 import android.app.SearchManager;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.PeriodicSync;
@@ -240,9 +239,9 @@ public class ScContentProviderTest {
     @Test
     public void shouldInsertTrackMetadata() throws Exception {
         ContentValues values = new ContentValues();
-        values.put(DBHelper.TrackMetadata._ID, 20);
-        values.put(DBHelper.TrackMetadata.ETAG, "123456");
-        values.put(DBHelper.TrackMetadata.CACHED, 1);
+        values.put(TableColumns.TrackMetadata._ID, 20);
+        values.put(TableColumns.TrackMetadata.ETAG, "123456");
+        values.put(TableColumns.TrackMetadata.CACHED, 1);
 
         Uri result = resolver.insert(Content.TRACK_METADATA.uri, values);
         expect(result).toEqual("content://com.soundcloud.android.provider.ScContentProvider/track_metadata/20");
@@ -260,12 +259,12 @@ public class ScContentProviderTest {
         List<Long> sorted = new ArrayList<Long>();
         List<Long> random = new ArrayList<Long>();
         while (c.moveToNext()) {
-            sorted.add(c.getLong(c.getColumnIndex(DBHelper.SoundView._ID)));
+            sorted.add(c.getLong(c.getColumnIndex(TableColumns.SoundView._ID)));
         }
         Cursor c2 = resolver.query(Content.TRACK.withQuery(RANDOM, "1"), null, null, null, null);
         expect(c2.getCount()).toEqual(15);
         while (c2.moveToNext()) {
-            random.add(c2.getLong(c2.getColumnIndex(DBHelper.SoundView._ID)));
+            random.add(c2.getLong(c2.getColumnIndex(TableColumns.SoundView._ID)));
         }
         expect(sorted).not.toEqual(random);
     }
@@ -279,15 +278,15 @@ public class ScContentProviderTest {
 
         ContentValues cv = new ContentValues();
         final long cachedId = 27583938l;
-        cv.put(DBHelper.TrackMetadata._ID, cachedId);
-        cv.put(DBHelper.TrackMetadata.CACHED, 1);
+        cv.put(TableColumns.TrackMetadata._ID, cachedId);
+        cv.put(TableColumns.TrackMetadata.CACHED, 1);
         resolver.insert(Content.TRACK_METADATA.uri, cv);
 
         Uri uri = Content.TRACKS.withQuery(CACHED, "1");
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();
-        expect(c.getLong(c.getColumnIndex(DBHelper.SoundView._ID))).toEqual(cachedId);
+        expect(c.getLong(c.getColumnIndex(TableColumns.SoundView._ID))).toEqual(cachedId);
     }
 
     @Test
@@ -299,15 +298,15 @@ public class ScContentProviderTest {
 
         ContentValues cv = new ContentValues();
         final long cachedId = 27583938l;
-        cv.put(DBHelper.TrackMetadata._ID, cachedId);
-        cv.put(DBHelper.TrackMetadata.CACHED, 1);
+        cv.put(TableColumns.TrackMetadata._ID, cachedId);
+        cv.put(TableColumns.TrackMetadata.CACHED, 1);
         resolver.insert(Content.TRACK_METADATA.uri, cv);
 
         Uri uri = Content.ME_LIKES.withQuery(CACHED, "1");
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();
-        expect(c.getLong(c.getColumnIndex(DBHelper.SoundView._ID))).toEqual(cachedId);
+        expect(c.getLong(c.getColumnIndex(TableColumns.SoundView._ID))).toEqual(cachedId);
     }
 
     @Test
@@ -326,7 +325,7 @@ public class ScContentProviderTest {
         long[] result = new long[sorted.length];
         int i = 0;
         while(c.moveToNext()) {
-            result[i++] = c.getLong(c.getColumnIndex(DBHelper.SoundView._ID));
+            result[i++] = c.getLong(c.getColumnIndex(TableColumns.SoundView._ID));
         }
         expect(Arrays.equals(result, sorted)).toBeFalse();
     }
@@ -341,8 +340,8 @@ public class ScContentProviderTest {
 
         ContentValues cv = new ContentValues();
         final long firstId = 18508668l;
-        cv.put(DBHelper.TrackMetadata._ID, firstId);
-        cv.put(DBHelper.TrackMetadata.CACHED, 1);
+        cv.put(TableColumns.TrackMetadata._ID, firstId);
+        cv.put(TableColumns.TrackMetadata.CACHED, 1);
         resolver.insert(Content.TRACK_METADATA.uri, cv);
 
         Uri uri = Content.ME_SOUND_STREAM.withQuery(RANDOM, "1", LIMIT, "5");
@@ -352,7 +351,7 @@ public class ScContentProviderTest {
         long[] result = new long[sorted.length];
         int i=0;
         while (c.moveToNext()) {
-            result[i++] = c.getLong(c.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
+            result[i++] = c.getLong(c.getColumnIndex(TableColumns.ActivityView.SOUND_ID));
         }
         expect(Arrays.equals(result, sorted)).toBeFalse();
     }
@@ -367,15 +366,15 @@ public class ScContentProviderTest {
 
         ContentValues cv = new ContentValues();
         final long cachedId = 61467451l;
-        cv.put(DBHelper.TrackMetadata._ID, cachedId);
-        cv.put(DBHelper.TrackMetadata.CACHED, 1);
+        cv.put(TableColumns.TrackMetadata._ID, cachedId);
+        cv.put(TableColumns.TrackMetadata.CACHED, 1);
         resolver.insert(Content.TRACK_METADATA.uri, cv);
 
         Uri uri = Content.ME_SOUND_STREAM.withQuery(CACHED, "1");
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();
-        expect(c.getLong(c.getColumnIndex(DBHelper.ActivityView.SOUND_ID))).toEqual(cachedId);
+        expect(c.getLong(c.getColumnIndex(TableColumns.ActivityView.SOUND_ID))).toEqual(cachedId);
     }
 
 
@@ -463,7 +462,7 @@ public class ScContentProviderTest {
         expect(cursor.getCount()).toEqual(1);
         expect(cursor.moveToFirst()).toBeTrue();
 
-        expect(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))).toEqual("http://soundcloud.com/foo/artwork");
+        expect(cursor.getString(cursor.getColumnIndex(TableColumns.Suggestions.ICON_URL))).toEqual("http://soundcloud.com/foo/artwork");
     }
 
     @Test

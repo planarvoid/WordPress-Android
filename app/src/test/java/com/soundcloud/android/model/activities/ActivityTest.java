@@ -6,8 +6,8 @@ import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.SharingNote;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.storage.TableColumns;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -62,10 +62,10 @@ public class ActivityTest {
 
         ContentValues cv = a.buildContentValues();
 
-        expect(cv.getAsString(DBHelper.Activities.TAGS)).toEqual("foo");
-        expect(cv.getAsString(DBHelper.Activities.TYPE)).toEqual(Activity.Type.TRACK.type);
-        expect(cv.getAsLong(DBHelper.Activities.SOUND_ID)).toEqual(10L);
-        expect(cv.getAsLong(DBHelper.Activities.CREATED_AT)).toEqual(date.getTime());
+        expect(cv.getAsString(TableColumns.Activities.TAGS)).toEqual("foo");
+        expect(cv.getAsString(TableColumns.Activities.TYPE)).toEqual(Activity.Type.TRACK.type);
+        expect(cv.getAsLong(TableColumns.Activities.SOUND_ID)).toEqual(10L);
+        expect(cv.getAsLong(TableColumns.Activities.CREATED_AT)).toEqual(date.getTime());
     }
 
     @Test
@@ -77,10 +77,10 @@ public class ActivityTest {
         a.comment = new Comment() { { setId(10L); } };
 
         ContentValues cv = a.buildContentValues();
-        expect(cv.getAsString(DBHelper.Activities.TAGS)).toEqual("foo");
-        expect(cv.getAsString(DBHelper.Activities.TYPE)).toEqual(Activity.Type.COMMENT.type);
-        expect(cv.getAsLong(DBHelper.Activities.COMMENT_ID)).toEqual(10L);
-        expect(cv.getAsLong(DBHelper.Activities.CREATED_AT)).toEqual(date.getTime());
+        expect(cv.getAsString(TableColumns.Activities.TAGS)).toEqual("foo");
+        expect(cv.getAsString(TableColumns.Activities.TYPE)).toEqual(Activity.Type.COMMENT.type);
+        expect(cv.getAsLong(TableColumns.Activities.COMMENT_ID)).toEqual(10L);
+        expect(cv.getAsLong(TableColumns.Activities.CREATED_AT)).toEqual(date.getTime());
     }
 
     @Test
@@ -93,8 +93,8 @@ public class ActivityTest {
 
     @Test
     public void allActivityTypesShouldBeInstantiableFromCursor() throws Exception {
-        MatrixCursor cursor = new MatrixCursor(DBHelper.ActivityView.ALL_FIELDS);
-        cursor.addRow(new Object[DBHelper.ActivityView.ALL_FIELDS.length]);
+        MatrixCursor cursor = new MatrixCursor(TableColumns.ActivityView.ALL_FIELDS);
+        cursor.addRow(new Object[TableColumns.ActivityView.ALL_FIELDS.length]);
         cursor.moveToFirst();
 
         for (Activity.Type t : Activity.Type.values()) {

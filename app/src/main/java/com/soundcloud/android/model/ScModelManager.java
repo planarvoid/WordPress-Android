@@ -2,8 +2,8 @@ package com.soundcloud.android.model;
 
 import com.google.common.primitives.Ints;
 import com.soundcloud.android.cache.ModelCache;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +51,7 @@ public class ScModelManager {
     }
 
     public Track getCachedTrackFromCursor(Cursor cursor) {
-        return getCachedTrackFromCursor(cursor, DBHelper.Sounds._ID);
+        return getCachedTrackFromCursor(cursor, TableColumns.Sounds._ID);
     }
 
     public Track getCachedTrackFromCursor(Cursor cursor, String idCol) {
@@ -67,7 +67,7 @@ public class ScModelManager {
     }
 
     public Playlist getCachedPlaylistFromCursor(Cursor cursor) {
-        return getCachedPlaylistFromCursor(cursor, DBHelper.Sounds._ID);
+        return getCachedPlaylistFromCursor(cursor, TableColumns.Sounds._ID);
     }
 
     public Playlist getCachedPlaylistFromCursor(Cursor cursor, String idCol) {
@@ -83,7 +83,7 @@ public class ScModelManager {
     }
 
     public User getCachedUserFromSoundViewCursor(Cursor cursor) {
-        final long user_id = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
+        final long user_id = cursor.getLong(cursor.getColumnIndex(TableColumns.SoundView.USER_ID));
         User user = mUserCache.get(user_id);
 
         if (user == null) {
@@ -94,7 +94,7 @@ public class ScModelManager {
     }
 
     public User getCachedUserFromCursor(Cursor cursor) {
-        return getCachedUserFromCursor(cursor,DBHelper.Users._ID);
+        return getCachedUserFromCursor(cursor, TableColumns.Users._ID);
     }
 
     public User getCachedUserFromCursor(Cursor cursor, String col) {
@@ -109,7 +109,7 @@ public class ScModelManager {
     }
 
     public User getCachedUserFromActivityCursor(Cursor itemsCursor) {
-        final long id = itemsCursor.getLong(itemsCursor.getColumnIndex(DBHelper.ActivityView.USER_ID));
+        final long id = itemsCursor.getLong(itemsCursor.getColumnIndex(TableColumns.ActivityView.USER_ID));
         User user = mUserCache.get(id);
         if (user == null) {
             user = User.fromActivityView(itemsCursor);

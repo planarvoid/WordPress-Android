@@ -2,7 +2,6 @@ package com.soundcloud.android.storage;
 
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
@@ -37,8 +36,8 @@ import java.util.List;
 
     @Override
     public boolean delete(UserAssociation resource) {
-        String where = DBHelper.UserAssociations.TARGET_ID + "=? AND " +
-                DBHelper.UserAssociations.ASSOCIATION_TYPE + "=?";
+        String where = TableColumns.UserAssociations.TARGET_ID + "=? AND " +
+                TableColumns.UserAssociations.ASSOCIATION_TYPE + "=?";
 
         return delete(getContent().uri,
                 where,
@@ -47,8 +46,8 @@ import java.util.List;
     }
 
     public boolean update(UserAssociation userAssociation) {
-        final String where = DBHelper.UserAssociations.TARGET_ID + " = ? AND " +
-                DBHelper.UserAssociations.ASSOCIATION_TYPE + " = ?";
+        final String where = TableColumns.UserAssociations.TARGET_ID + " = ? AND " +
+                TableColumns.UserAssociations.ASSOCIATION_TYPE + " = ?";
         final String[] args = {String.valueOf(userAssociation.getItemId()),
                 String.valueOf(userAssociation.associationType)};
         return mResolver.update(getContent().uri, userAssociation.buildContentValues(), where, args) == 1;

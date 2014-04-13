@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -44,16 +44,16 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     }
 
     public Connection(Cursor c){
-        setId(c.getLong(c.getColumnIndex(DBHelper.Connections._ID)));
-        service = c.getString(c.getColumnIndex(DBHelper.Connections.SERVICE));
+        setId(c.getLong(c.getColumnIndex(TableColumns.Connections._ID)));
+        service = c.getString(c.getColumnIndex(TableColumns.Connections.SERVICE));
         _service = Service.fromString(service);
-        type = c.getString(c.getColumnIndex(DBHelper.Connections.TYPE));
-        created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.Connections.CREATED_AT)));
-        display_name = c.getString(c.getColumnIndex(DBHelper.Connections.DISPLAY_NAME));
-        active = c.getInt(c.getColumnIndex(DBHelper.Connections.ACTIVE)) == 1;
-        post_publish = c.getInt(c.getColumnIndex(DBHelper.Connections.POST_PUBLISH)) == 1;
-        post_like = c.getInt(c.getColumnIndex(DBHelper.Connections.POST_LIKE)) == 1;
-        uri = Uri.parse(c.getString(c.getColumnIndex(DBHelper.Connections.URI)));
+        type = c.getString(c.getColumnIndex(TableColumns.Connections.TYPE));
+        created_at = new Date(c.getLong(c.getColumnIndex(TableColumns.Connections.CREATED_AT)));
+        display_name = c.getString(c.getColumnIndex(TableColumns.Connections.DISPLAY_NAME));
+        active = c.getInt(c.getColumnIndex(TableColumns.Connections.ACTIVE)) == 1;
+        post_publish = c.getInt(c.getColumnIndex(TableColumns.Connections.POST_PUBLISH)) == 1;
+        post_like = c.getInt(c.getColumnIndex(TableColumns.Connections.POST_LIKE)) == 1;
+        uri = Uri.parse(c.getString(c.getColumnIndex(TableColumns.Connections.URI)));
     }
 
     @JsonProperty("uri")
@@ -77,16 +77,16 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     @Override
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Connections._ID, getId());
-        cv.put(DBHelper.Connections.USER_ID, SoundCloudApplication.getUserId()); // not sure if we should infer the user id here
-        cv.put(DBHelper.Connections.SERVICE, service);
-        cv.put(DBHelper.Connections.TYPE, type);
-        cv.put(DBHelper.Connections.CREATED_AT, created_at.getTime());
-        cv.put(DBHelper.Connections.DISPLAY_NAME, display_name);
-        cv.put(DBHelper.Connections.ACTIVE, active);
-        cv.put(DBHelper.Connections.POST_PUBLISH, post_publish);
-        cv.put(DBHelper.Connections.POST_LIKE, post_like);
-        cv.put(DBHelper.Connections.URI, uri.toString());
+        cv.put(TableColumns.Connections._ID, getId());
+        cv.put(TableColumns.Connections.USER_ID, SoundCloudApplication.getUserId()); // not sure if we should infer the user id here
+        cv.put(TableColumns.Connections.SERVICE, service);
+        cv.put(TableColumns.Connections.TYPE, type);
+        cv.put(TableColumns.Connections.CREATED_AT, created_at.getTime());
+        cv.put(TableColumns.Connections.DISPLAY_NAME, display_name);
+        cv.put(TableColumns.Connections.ACTIVE, active);
+        cv.put(TableColumns.Connections.POST_PUBLISH, post_publish);
+        cv.put(TableColumns.Connections.POST_LIKE, post_like);
+        cv.put(TableColumns.Connections.URI, uri.toString());
         return cv;
     }
 

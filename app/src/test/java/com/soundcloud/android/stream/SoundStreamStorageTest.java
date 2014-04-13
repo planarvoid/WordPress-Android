@@ -9,7 +9,7 @@ import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.DatabaseHelper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.PropertySet;
-import com.soundcloud.android.storage.provider.DBHelper;
+import com.soundcloud.android.storage.DatabaseManager;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -33,7 +33,7 @@ public class SoundStreamStorageTest {
     @Mock
     private Observer<PropertySet> observer;
 
-    private SQLiteDatabase database = new DBHelper(Robolectric.application).getWritableDatabase();
+    private SQLiteDatabase database = new DatabaseManager(Robolectric.application).getWritableDatabase();
     private DatabaseHelper helper = new DatabaseHelper(database);
 
     @Before

@@ -1,7 +1,7 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,26 +31,26 @@ public class Shortcut extends ScModel {
 
         ContentValues cv = new ContentValues();
 
-        cv.put(DBHelper.Suggestions.ID, getId());
-        cv.put(DBHelper.Suggestions.KIND, kind);
+        cv.put(TableColumns.Suggestions.ID, getId());
+        cv.put(TableColumns.Suggestions.KIND, kind);
 
         if (!TextUtils.isEmpty(avatar_url)) {
-            cv.put(DBHelper.Suggestions.ICON_URL, avatar_url);
+            cv.put(TableColumns.Suggestions.ICON_URL, avatar_url);
         } else if (!TextUtils.isEmpty(artwork_url)) {
-            cv.put(DBHelper.Suggestions.ICON_URL, artwork_url);
+            cv.put(TableColumns.Suggestions.ICON_URL, artwork_url);
         }
 
         if (!TextUtils.isEmpty(permalink_url)) {
-            cv.put(DBHelper.Suggestions.PERMALINK_URL, permalink_url);
+            cv.put(TableColumns.Suggestions.PERMALINK_URL, permalink_url);
         }
 
         if (!TextUtils.isEmpty(text)) {
-            cv.put(DBHelper.Suggestions.COLUMN_TEXT1, text);
-            cv.put(DBHelper.Suggestions.TEXT, text);
+            cv.put(TableColumns.Suggestions.COLUMN_TEXT1, text);
+            cv.put(TableColumns.Suggestions.TEXT, text);
         }
 
         if (dataUri != null) {
-            cv.put(DBHelper.Suggestions.INTENT_DATA, dataUri.toString());
+            cv.put(TableColumns.Suggestions.INTENT_DATA, dataUri.toString());
         }
 
         return cv;

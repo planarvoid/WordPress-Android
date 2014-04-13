@@ -3,6 +3,9 @@ package com.soundcloud.android.storage.provider;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.storage.DatabaseManager;
+import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -55,14 +58,14 @@ public class TableTest {
 
     @Test
     public void shouldGetColumnNames() throws Exception {
-        SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
         List<String> columns = Table.SOUNDS.getColumnNames(db);
         expect(columns.isEmpty()).toBeFalse();
     }
 
     @Test
     public void shouldDropAndCreateTable() throws Exception {
-        SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
         Table table = Table.SOUNDS;
 
         expect(table.exists(db)).toBeTrue();
@@ -76,7 +79,7 @@ public class TableTest {
 
     @Test
     public void shouldAddColumnToTracks() throws Exception {
-        SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
 
         String oldSchema = Table.SOUNDS.createString;
         db.execSQL(oldSchema);
@@ -93,7 +96,7 @@ public class TableTest {
 
     @Test
     public void shouldAlterColumnsWithoutRenamingColumn() throws Exception {
-        SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
 
         String oldSchema = Table.buildCreateString("foo", "(" +
                 "_id INTEGER PRIMARY KEY," +
@@ -130,7 +133,7 @@ public class TableTest {
 
     @Test
     public void shouldAlterColumnsWithRenamingColumn() throws Exception {
-        SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
 
         String oldSchema =Table.buildCreateString("foo","(_id INTEGER PRIMARY KEY," +
                         " keep_me VARCHAR(255)," +
@@ -175,19 +178,19 @@ public class TableTest {
 
     @Test
     public void upsertShouldInsertContentValues() throws Exception {
-        SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
 
         ContentValues[] values = new ContentValues[3];
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DBHelper.Recordings._ID, 1l);
-        contentValues.put(DBHelper.Recordings.DURATION, 32);
+        contentValues.put(TableColumns.Recordings._ID, 1l);
+        contentValues.put(TableColumns.Recordings.DURATION, 32);
 
         values[1] = contentValues; //skip 0 to check null handling
 
         contentValues = new ContentValues();
-        contentValues.put(DBHelper.Recordings._ID, 2l);
-        contentValues.put(DBHelper.Recordings.DURATION, 868726);
+        contentValues.put(TableColumns.Recordings._ID, 2l);
+        contentValues.put(TableColumns.Recordings.DURATION, 868726);
 
         values[2] = contentValues;
 
@@ -201,34 +204,34 @@ public class TableTest {
 
     @Test
     public void upsertShouldUpdateContentValues() throws Exception {
-        SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DBHelper.Recordings._ID, 1l);
-        contentValues.put(DBHelper.Recordings.DURATION, 32);
+        contentValues.put(TableColumns.Recordings._ID, 1l);
+        contentValues.put(TableColumns.Recordings.DURATION, 32);
 
         expect(Table.RECORDINGS.upsert(db, new ContentValues[]{contentValues})).toBe(1);
 
-        contentValues.put(DBHelper.Recordings.DURATION, 4000);
+        contentValues.put(TableColumns.Recordings.DURATION, 4000);
         expect(Table.RECORDINGS.upsert(db, new ContentValues[]{contentValues})).toBe(1);
         Cursor cursor = db.rawQuery("select duration from " + Table.RECORDINGS.name, null);
         expect(cursor.moveToNext()).toBeTrue();
-        expect(cursor).toHaveColumn(DBHelper.Recordings.DURATION, 4000);
+        expect(cursor).toHaveColumn(TableColumns.Recordings.DURATION, 4000);
     }
 
     @Test
     public void shouldInsertAndUpsertEntries() {
-        SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
 
         long id = Table.RECORDINGS.insertOrReplaceArgs(db,
-            DBHelper.Recordings.WHAT_TEXT,  "what",
-            DBHelper.Recordings.WHERE_TEXT, "where"
+            TableColumns.Recordings.WHAT_TEXT,  "what",
+            TableColumns.Recordings.WHERE_TEXT, "where"
         );
         expect(id).not.toBe(0l);
 
         Table.RECORDINGS.upsertSingleArgs(db,
-            DBHelper.Recordings._ID, id,
-            DBHelper.Recordings.WHAT_TEXT, "was"
+            TableColumns.Recordings._ID, id,
+            TableColumns.Recordings.WHAT_TEXT, "was"
         );
 
         Cursor c = DefaultTestRunner.application.getContentResolver().
@@ -236,8 +239,8 @@ public class TableTest {
                         null, null, null, null);
 
         expect(c.moveToFirst()).toBeTrue();
-        String what = c.getString(c.getColumnIndex(DBHelper.Recordings.WHAT_TEXT));
-        String where = c.getString(c.getColumnIndex(DBHelper.Recordings.WHERE_TEXT));
+        String what = c.getString(c.getColumnIndex(TableColumns.Recordings.WHAT_TEXT));
+        String where = c.getString(c.getColumnIndex(TableColumns.Recordings.WHERE_TEXT));
 
         expect(what).toEqual("was");
         expect(where).toEqual("where");
@@ -245,7 +248,7 @@ public class TableTest {
 
     public static void main(String[] args) throws IOException {
         File schema = new File("tests/src/resources/com/soundcloud/android/provider/schema_"
-                +DBHelper.DATABASE_VERSION+".sql");
+                + DatabaseManager.DATABASE_VERSION+".sql");
 
         FileOutputStream fos = new FileOutputStream(schema);
         fos.write(Table.schemaSnapshot().getBytes());

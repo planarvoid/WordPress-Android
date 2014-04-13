@@ -8,7 +8,7 @@ import android.content.ContentResolver;
 import javax.inject.Inject;
 
 /**
- * Table object for storing playqueue items. {@link com.soundcloud.android.storage.provider.DBHelper.PlayQueue}
+ * Table object for storing playqueue items. {@link com.soundcloud.android.storage.TableColumns.PlayQueue}
  */
 /* package */ class PlayQueueDAO extends BaseDAO<PlayQueueItem> {
 

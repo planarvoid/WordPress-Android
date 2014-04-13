@@ -10,8 +10,8 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.PlayQueueStorage;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import dagger.Module;
 import dagger.ObjectGraph;
 import dagger.Provides;
@@ -58,13 +58,13 @@ public class PlayQueueStorageTest {
 
         final ContentValues[] value = captor.getValue();
 
-        expect(value[0].get(DBHelper.PlayQueue.TRACK_ID)).toEqual(1L);
-        expect(value[0].get(DBHelper.PlayQueue.SOURCE)).toEqual("source1");
-        expect(value[0].get(DBHelper.PlayQueue.SOURCE_VERSION)).toEqual("version1");
+        expect(value[0].get(TableColumns.PlayQueue.TRACK_ID)).toEqual(1L);
+        expect(value[0].get(TableColumns.PlayQueue.SOURCE)).toEqual("source1");
+        expect(value[0].get(TableColumns.PlayQueue.SOURCE_VERSION)).toEqual("version1");
 
-        expect(value[1].get(DBHelper.PlayQueue.TRACK_ID)).toEqual(2L);
-        expect(value[1].get(DBHelper.PlayQueue.SOURCE)).toEqual("source2");
-        expect(value[1].get(DBHelper.PlayQueue.SOURCE_VERSION)).toEqual("version2");
+        expect(value[1].get(TableColumns.PlayQueue.TRACK_ID)).toEqual(2L);
+        expect(value[1].get(TableColumns.PlayQueue.SOURCE)).toEqual("source2");
+        expect(value[1].get(TableColumns.PlayQueue.SOURCE_VERSION)).toEqual("version2");
     }
 
     @Test

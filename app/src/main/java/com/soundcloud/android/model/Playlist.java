@@ -8,9 +8,9 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.http.json.Views;
 import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -135,8 +135,8 @@ public class Playlist extends Playable {
 
     public Playlist(Cursor cursor) {
         super(cursor);
-        tracks_uri = cursor.getString(cursor.getColumnIndex(DBHelper.Sounds.TRACKS_URI));
-        track_count = cursor.getInt(cursor.getColumnIndex(DBHelper.Sounds.TRACK_COUNT));
+        tracks_uri = cursor.getString(cursor.getColumnIndex(TableColumns.Sounds.TRACKS_URI));
+        track_count = cursor.getInt(cursor.getColumnIndex(TableColumns.Sounds.TRACK_COUNT));
     }
 
     @Override
@@ -186,8 +186,8 @@ public class Playlist extends Playable {
 
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
-        cv.put(DBHelper.Sounds.TRACKS_URI, tracks_uri);
-        cv.put(DBHelper.Sounds.TRACK_COUNT, track_count);
+        cv.put(TableColumns.Sounds.TRACKS_URI, tracks_uri);
+        cv.put(TableColumns.Sounds.TRACK_COUNT, track_count);
         return cv;
     }
 
@@ -210,8 +210,8 @@ public class Playlist extends Playable {
 
             // add to relationship table
             ContentValues cv = new ContentValues();
-            cv.put(DBHelper.PlaylistTracks.TRACK_ID, t.getId());
-            cv.put(DBHelper.PlaylistTracks.POSITION, i);
+            cv.put(TableColumns.PlaylistTracks.TRACK_ID, t.getId());
+            cv.put(TableColumns.PlaylistTracks.POSITION, i);
             destMap.add(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(getId())), cv);
             i++;
         }

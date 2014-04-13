@@ -10,7 +10,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -65,7 +64,7 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
 
     public boolean createPlayImpression(Track track) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DBHelper.TrackMetadata._ID, track.getId());
+        contentValues.put(TableColumns.TrackMetadata._ID, track.getId());
         return mResolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 
@@ -143,13 +142,13 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
             public void call(Subscriber<? super List<Long>> observer) {
 
                 final boolean isActivityCursor = Content.match(uri).isActivitiesItem();
-                final String idColumn = isActivityCursor ? DBHelper.ActivityView.SOUND_ID : DBHelper.SoundView._ID;
+                final String idColumn = isActivityCursor ? TableColumns.ActivityView.SOUND_ID : TableColumns.SoundView._ID;
 
                 // if playlist, adjust load uri to request the tracks instead of meta_data
                 final Uri adjustedUri = (Content.match(uri) == Content.PLAYLIST) ?
                         Content.PLAYLIST_TRACKS.forQuery(uri.getLastPathSegment()) : uri;
 
-                Cursor cursor = mResolver.query(adjustedUri, new String[]{idColumn}, DBHelper.SoundView._TYPE + " = ?",
+                Cursor cursor = mResolver.query(adjustedUri, new String[]{idColumn}, TableColumns.SoundView._TYPE + " = ?",
                         new String[]{String.valueOf(Playable.DB_TYPE_TRACK)}, null);
                 if (!observer.isUnsubscribed()) {
                     if (cursor == null) {

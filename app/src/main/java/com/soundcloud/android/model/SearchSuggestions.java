@@ -1,8 +1,8 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.SearchManager;
@@ -151,10 +151,10 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
 
     private void fromLocalCursor(Cursor cursor) {
         while (cursor.moveToNext()) {
-            long id = cursor.getLong(cursor.getColumnIndex(DBHelper.Suggestions.ID));
+            long id = cursor.getLong(cursor.getColumnIndex(TableColumns.Suggestions.ID));
             String query = cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1));
             String intentData = cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA));
-            String iconUrl = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL));
+            String iconUrl = cursor.getString(cursor.getColumnIndex(TableColumns.Suggestions.ICON_URL));
             Query q = new Query();
             q.id = id;
             q.query = query;

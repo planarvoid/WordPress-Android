@@ -20,6 +20,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;

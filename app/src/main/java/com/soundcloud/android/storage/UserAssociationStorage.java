@@ -16,7 +16,6 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -60,7 +59,7 @@ public class UserAssociationStorage extends ScheduledOperations {
             public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
                 RxUtils.emitIterable(userAssociationObserver,
                         mFollowingsDAO.buildQuery().
-                                where(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NULL").queryAll()
+                                where(TableColumns.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NULL").queryAll()
                 );
                 userAssociationObserver.onCompleted();
             }
@@ -205,7 +204,7 @@ public class UserAssociationStorage extends ScheduledOperations {
     @Deprecated
     public List<Long> getStoredIds(Uri uri) {
         final String selection = Content.ME_FOLLOWINGS.uri.equals(uri)
-                ? DBHelper.UserAssociations.REMOVED_AT + " IS NULL AND " + DBHelper.UserAssociations.ADDED_AT + " IS NULL"
+                ? TableColumns.UserAssociations.REMOVED_AT + " IS NULL AND " + TableColumns.UserAssociations.ADDED_AT + " IS NULL"
                 : null;
         return ResolverHelper.idCursorToList(mResolver.query(ResolverHelper.addIdOnlyParameter(uri), null, selection, null, null));
     }
@@ -215,7 +214,7 @@ public class UserAssociationStorage extends ScheduledOperations {
         if (!itemDeletions.isEmpty()) {
             for (int i = 0; i < itemDeletions.size(); i += BaseDAO.RESOLVER_BATCH_SIZE) {
                 List<Long> batch = itemDeletions.subList(i, Math.min(i + BaseDAO.RESOLVER_BATCH_SIZE, itemDeletions.size()));
-                mResolver.delete(uri, getWhereInClause(DBHelper.UserAssociations.TARGET_ID, batch.size()), longListToStringArr(batch));
+                mResolver.delete(uri, getWhereInClause(TableColumns.UserAssociations.TARGET_ID, batch.size()), longListToStringArr(batch));
             }
         }
         return itemDeletions;
@@ -230,9 +229,9 @@ public class UserAssociationStorage extends ScheduledOperations {
 
             r.putFullContentValues(map);
             ContentValues contentValues = new ContentValues();
-            contentValues.put(DBHelper.UserAssociations.POSITION, i);
-            contentValues.put(DBHelper.UserAssociations.TARGET_ID, r.getId());
-            contentValues.put(DBHelper.UserAssociations.OWNER_ID, userId);
+            contentValues.put(TableColumns.UserAssociations.POSITION, i);
+            contentValues.put(TableColumns.UserAssociations.TARGET_ID, r.getId());
+            contentValues.put(TableColumns.UserAssociations.OWNER_ID, userId);
             map.add(collectionUri, contentValues);
         }
         return map.insert(mResolver);
@@ -250,9 +249,9 @@ public class UserAssociationStorage extends ScheduledOperations {
             for (int j = 0; j < idBatch.size(); j++) {
                 long id = idBatch.get(j);
                 cv[j] = new ContentValues();
-                cv[j].put(DBHelper.UserAssociations.POSITION, positionOffset + j);
-                cv[j].put(DBHelper.UserAssociations.TARGET_ID, id);
-                cv[j].put(DBHelper.UserAssociations.OWNER_ID, ownerId);
+                cv[j].put(TableColumns.UserAssociations.POSITION, positionOffset + j);
+                cv[j].put(TableColumns.UserAssociations.TARGET_ID, id);
+                cv[j].put(TableColumns.UserAssociations.OWNER_ID, ownerId);
             }
             positionOffset += idBatch.size();
             mResolver.bulkInsert(content.uri, cv);
@@ -264,16 +263,16 @@ public class UserAssociationStorage extends ScheduledOperations {
     }
 
     public List<UserAssociation> getFollowingsNeedingSync() {
-        return mFollowingsDAO.buildQuery().where(DBHelper.UserAssociationView.USER_ASSOCIATION_ADDED_AT + " IS NOT NULL OR " +
-                DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NOT NULL"
+        return mFollowingsDAO.buildQuery().where(TableColumns.UserAssociationView.USER_ASSOCIATION_ADDED_AT + " IS NOT NULL OR " +
+                TableColumns.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NOT NULL"
         ).queryAll();
     }
 
     public boolean hasFollowingsNeedingSync() {
         return mUserAssociationDAO.count(
-                DBHelper.UserAssociations.ASSOCIATION_TYPE + " = ? AND (" +
-                        DBHelper.UserAssociations.ADDED_AT + " IS NOT NULL OR " +
-                        DBHelper.UserAssociations.REMOVED_AT + " IS NOT NULL )"
+                TableColumns.UserAssociations.ASSOCIATION_TYPE + " = ? AND (" +
+                        TableColumns.UserAssociations.ADDED_AT + " IS NOT NULL OR " +
+                        TableColumns.UserAssociations.REMOVED_AT + " IS NOT NULL )"
                 , String.valueOf(Association.Type.FOLLOWING.collectionType)) > 0;
     }
 
@@ -316,8 +315,8 @@ public class UserAssociationStorage extends ScheduledOperations {
 
     @Nullable
     private UserAssociation queryFollowingByTargetUserId(long targetUserId) {
-        String where = DBHelper.UserAssociationView._ID + " = ? AND " +
-                DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = ?";
+        String where = TableColumns.UserAssociationView._ID + " = ? AND " +
+                TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE + " = ?";
 
         return mFollowingsDAO.buildQuery()
                 .where(where, String.valueOf(targetUserId), String.valueOf(Association.Type.FOLLOWING.collectionType))

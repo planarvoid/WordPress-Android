@@ -5,7 +5,6 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.activities.Activities;
 import com.soundcloud.android.model.activities.Activity;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.sync.SyncStateManager;
@@ -43,7 +42,7 @@ public class ActivitiesStorage extends ScheduledOperations {
 
         BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
         if (since > 0) {
-            query.where(DBHelper.ActivityView.CREATED_AT + "> ?", String.valueOf(since));
+            query.where(TableColumns.ActivityView.CREATED_AT + "> ?", String.valueOf(since));
         }
         if (limit > 0) {
             query.limit(limit);
@@ -67,8 +66,8 @@ public class ActivitiesStorage extends ScheduledOperations {
     @Nullable
     public Activity getOldestActivity(final Content content) {
         return mActivitiesDAO.buildQuery(content.uri)
-                .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
-                .order(DBHelper.ActivityView.CREATED_AT + " ASC")
+                .where(TableColumns.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
+                .order(TableColumns.ActivityView.CREATED_AT + " ASC")
                 .first();
     }
 
@@ -76,8 +75,8 @@ public class ActivitiesStorage extends ScheduledOperations {
     @Nullable
     public Activity getLatestActivity(final Content content) {
         return mActivitiesDAO.buildQuery(content.uri)
-                .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
-                .order(DBHelper.ActivityView.CREATED_AT + " DESC")
+                .where(TableColumns.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
+                .order(TableColumns.ActivityView.CREATED_AT + " DESC")
                 .first();
     }
 
@@ -87,7 +86,7 @@ public class ActivitiesStorage extends ScheduledOperations {
 
         BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
         if (before > 0) {
-            query.where(DBHelper.ActivityView.CREATED_AT + "< ?", String.valueOf(before));
+            query.where(TableColumns.ActivityView.CREATED_AT + "< ?", String.valueOf(before));
         }
 
         Activities activities = new Activities();
@@ -102,7 +101,7 @@ public class ActivitiesStorage extends ScheduledOperations {
 
     @Deprecated
     public int getCountSince(long since, Content content) {
-        String selection = DBHelper.ActivityView.CONTENT_ID + " = ? AND " + DBHelper.ActivityView.CREATED_AT + "> ?";
+        String selection = TableColumns.ActivityView.CONTENT_ID + " = ? AND " + TableColumns.ActivityView.CREATED_AT + "> ?";
         return mActivitiesDAO.count(selection, String.valueOf(content.id), String.valueOf(since));
     }
 

@@ -1,7 +1,6 @@
 package com.soundcloud.android.storage;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.storage.provider.DBHelper;
 import dagger.Module;
 import dagger.Provides;
 
@@ -31,12 +30,12 @@ public class StorageModule {
     @Provides
     @Named("read-only")
     public SQLiteDatabase provideReadableDatabase(Context context) {
-        return DBHelper.getInstance(context).getReadableDatabase();
+        return DatabaseManager.getInstance(context).getReadableDatabase();
     }
 
     @Provides
     @Named("read-write")
     public SQLiteDatabase provideWritableDatabase(Context context) {
-        return DBHelper.getInstance(context).getWritableDatabase();
+        return DatabaseManager.getInstance(context).getWritableDatabase();
     }
 }

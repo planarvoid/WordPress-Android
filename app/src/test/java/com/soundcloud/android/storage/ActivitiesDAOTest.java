@@ -10,7 +10,6 @@ import com.soundcloud.android.model.activities.TrackActivity;
 import com.soundcloud.android.model.activities.TrackLikeActivity;
 import com.soundcloud.android.model.activities.TrackSharingActivity;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.sync.ApiSyncServiceTest;
@@ -39,8 +38,8 @@ public class ActivitiesDAOTest extends AbstractDAOTest<ActivityDAO> {
     public void shouldPersistAllActivityTypes() throws Exception {
         // need to create track owner for joins to work
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Users._ID, OWNER_ID);
-        cv.put(DBHelper.Users.USERNAME, "Foo Bar");
+        cv.put(TableColumns.Users._ID, OWNER_ID);
+        cv.put(TableColumns.Users.USERNAME, "Foo Bar");
         expect(resolver.insert(Content.USERS.uri, cv)).not.toBeNull();
 
         Activities one_of_each = TestHelper.readJson(Activities.class, ApiSyncServiceTest.class,
@@ -117,8 +116,8 @@ public class ActivitiesDAOTest extends AbstractDAOTest<ActivityDAO> {
     @Test
     public void shouldRemoveTrackActivitiesOnTrackRemove() throws Exception {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Users._ID, OWNER_ID);
-        cv.put(DBHelper.Users.USERNAME, "Foo Bar");
+        cv.put(TableColumns.Users._ID, OWNER_ID);
+        cv.put(TableColumns.Users.USERNAME, "Foo Bar");
         expect(resolver.insert(Content.USERS.uri, cv)).not.toBeNull();
 
         Activities one_of_each = TestHelper.readJson(Activities.class, ApiSyncServiceTest.class,

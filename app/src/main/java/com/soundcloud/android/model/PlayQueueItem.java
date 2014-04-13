@@ -2,9 +2,9 @@ package com.soundcloud.android.model;
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.behavior.Persisted;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentValues;
@@ -25,10 +25,10 @@ public class PlayQueueItem extends ScModel implements Persisted {
 
     @SuppressWarnings("UnusedDeclaration")
     public PlayQueueItem(Cursor cursor) {
-        setId(cursor.getLong(cursor.getColumnIndex(DBHelper.PlayQueue._ID)));
-        mTrackId = cursor.getLong(cursor.getColumnIndex(DBHelper.PlayQueue.TRACK_ID));
-        mSource = cursor.getString(cursor.getColumnIndex(DBHelper.PlayQueue.SOURCE));
-        mSourceVersion = cursor.getString(cursor.getColumnIndex(DBHelper.PlayQueue.SOURCE_VERSION));
+        setId(cursor.getLong(cursor.getColumnIndex(TableColumns.PlayQueue._ID)));
+        mTrackId = cursor.getLong(cursor.getColumnIndex(TableColumns.PlayQueue.TRACK_ID));
+        mSource = cursor.getString(cursor.getColumnIndex(TableColumns.PlayQueue.SOURCE));
+        mSourceVersion = cursor.getString(cursor.getColumnIndex(TableColumns.PlayQueue.SOURCE_VERSION));
     }
 
     public long getTrackId() {
@@ -46,9 +46,9 @@ public class PlayQueueItem extends ScModel implements Persisted {
     @Override
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
-        cv.put(DBHelper.PlayQueue.TRACK_ID, mTrackId);
-        cv.put(DBHelper.PlayQueue.SOURCE, mSource);
-        cv.put(DBHelper.PlayQueue.SOURCE_VERSION, mSourceVersion);
+        cv.put(TableColumns.PlayQueue.TRACK_ID, mTrackId);
+        cv.put(TableColumns.PlayQueue.SOURCE, mSource);
+        cv.put(TableColumns.PlayQueue.SOURCE_VERSION, mSourceVersion);
         return cv;
     }
 

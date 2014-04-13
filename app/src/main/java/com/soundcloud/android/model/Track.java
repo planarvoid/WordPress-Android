@@ -15,8 +15,8 @@ import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.playback.streaming.StreamItem;
 import com.soundcloud.android.storage.ResolverHelper;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -335,25 +335,25 @@ public class Track extends Playable {
 
     public Track(Cursor cursor) {
         super(cursor);
-        state = State.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.STATE)));
-        track_type = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.TRACK_TYPE));
+        state = State.fromString(cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.STATE)));
+        track_type = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.TRACK_TYPE));
 
-        waveform_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.WAVEFORM_URL));
+        waveform_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.WAVEFORM_URL));
 
-        download_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.DOWNLOAD_URL));
+        download_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.DOWNLOAD_URL));
 
-        stream_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.STREAM_URL));
-        playback_count = ResolverHelper.getLongOrNotSet(cursor, DBHelper.SoundView.PLAYBACK_COUNT);
-        download_count = ResolverHelper.getIntOrNotSet(cursor, DBHelper.SoundView.DOWNLOAD_COUNT);
-        comment_count = ResolverHelper.getLongOrNotSet(cursor, DBHelper.SoundView.COMMENT_COUNT);
-        shared_to_count = ResolverHelper.getIntOrNotSet(cursor, DBHelper.SoundView.SHARED_TO_COUNT);
-        commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.COMMENTABLE)) == 1;
+        stream_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.STREAM_URL));
+        playback_count = ResolverHelper.getLongOrNotSet(cursor, TableColumns.SoundView.PLAYBACK_COUNT);
+        download_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.DOWNLOAD_COUNT);
+        comment_count = ResolverHelper.getLongOrNotSet(cursor, TableColumns.SoundView.COMMENT_COUNT);
+        shared_to_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.SHARED_TO_COUNT);
+        commentable = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.COMMENTABLE)) == 1;
 
-        final int localPlayCountIdx = cursor.getColumnIndex(DBHelper.SoundView.USER_PLAY_COUNT);
+        final int localPlayCountIdx = cursor.getColumnIndex(TableColumns.SoundView.USER_PLAY_COUNT);
         if (localPlayCountIdx != -1) {
             local_user_playback_count = cursor.getInt(localPlayCountIdx);
         }
-        final int cachedIdx = cursor.getColumnIndex(DBHelper.SoundView.CACHED);
+        final int cachedIdx = cursor.getColumnIndex(TableColumns.SoundView.CACHED);
         if (cachedIdx != -1) {
             local_cached = cursor.getInt(cachedIdx) == 1;
         }
@@ -363,18 +363,18 @@ public class Track extends Playable {
         ContentValues cv = super.buildContentValues();
 
 
-        if (stream_url != null) cv.put(DBHelper.Sounds.STREAM_URL, stream_url);
-        if (state != null) cv.put(DBHelper.Sounds.STATE, state.name);
-        if (track_type != null) cv.put(DBHelper.Sounds.TRACK_TYPE, track_type);
-        if (waveform_url != null) cv.put(DBHelper.Sounds.WAVEFORM_URL, waveform_url);
-        if (download_url != null) cv.put(DBHelper.Sounds.DOWNLOAD_URL, download_url);
-        if (playback_count != NOT_SET) cv.put(DBHelper.Sounds.PLAYBACK_COUNT, playback_count);
-        if (download_count != NOT_SET) cv.put(DBHelper.Sounds.DOWNLOAD_COUNT, download_count);
-        if (comment_count  != NOT_SET) cv.put(DBHelper.Sounds.COMMENT_COUNT, comment_count);
-        if (commentable) cv.put(DBHelper.Sounds.COMMENTABLE, commentable);
-        if (shared_to_count != NOT_SET) cv.put(DBHelper.Sounds.SHARED_TO_COUNT, shared_to_count);
+        if (stream_url != null) cv.put(TableColumns.Sounds.STREAM_URL, stream_url);
+        if (state != null) cv.put(TableColumns.Sounds.STATE, state.name);
+        if (track_type != null) cv.put(TableColumns.Sounds.TRACK_TYPE, track_type);
+        if (waveform_url != null) cv.put(TableColumns.Sounds.WAVEFORM_URL, waveform_url);
+        if (download_url != null) cv.put(TableColumns.Sounds.DOWNLOAD_URL, download_url);
+        if (playback_count != NOT_SET) cv.put(TableColumns.Sounds.PLAYBACK_COUNT, playback_count);
+        if (download_count != NOT_SET) cv.put(TableColumns.Sounds.DOWNLOAD_COUNT, download_count);
+        if (comment_count  != NOT_SET) cv.put(TableColumns.Sounds.COMMENT_COUNT, comment_count);
+        if (commentable) cv.put(TableColumns.Sounds.COMMENTABLE, commentable);
+        if (shared_to_count != NOT_SET) cv.put(TableColumns.Sounds.SHARED_TO_COUNT, shared_to_count);
         if (isCompleteTrack()) {
-            cv.put(DBHelper.Sounds.LAST_UPDATED, System.currentTimeMillis());
+            cv.put(TableColumns.Sounds.LAST_UPDATED, System.currentTimeMillis());
         }
         return cv;
     }

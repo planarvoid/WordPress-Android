@@ -4,7 +4,6 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.activities.Activities;
 import com.soundcloud.android.model.activities.Activity;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -57,7 +56,7 @@ import java.util.Set;
     }
 
     @Override protected  Activity objFromCursor(Cursor cursor) {
-        return Activity.Type.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE))).fromCursor(cursor);
+        return Activity.Type.fromString(cursor.getString(cursor.getColumnIndex(TableColumns.Activities.TYPE))).fromCursor(cursor);
     }
 
 }

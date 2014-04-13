@@ -5,18 +5,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.TempEndpoints;
 import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.api.http.json.Views;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.model.behavior.RelatesToUser;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -90,40 +88,40 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
 
     public Playable(Cursor cursor) {
 
-        final int trackIdIdx = cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID);
+        final int trackIdIdx = cursor.getColumnIndex(TableColumns.ActivityView.SOUND_ID);
         if (trackIdIdx == -1) {
-            setId(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView._ID)));
+            setId(cursor.getLong(cursor.getColumnIndex(TableColumns.SoundView._ID)));
         } else {
-            setId(cursor.getLong(cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID)));
+            setId(cursor.getLong(cursor.getColumnIndex(TableColumns.ActivityView.SOUND_ID)));
         }
-        permalink = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.PERMALINK));
-        duration = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.DURATION));
+        permalink = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.PERMALINK));
+        duration = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.DURATION));
 
-        created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.CREATED_AT)));
-        tag_list = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.TAG_LIST));
-        title = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.TITLE));
-        permalink_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.PERMALINK_URL));
-        artwork_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.ARTWORK_URL));
-        downloadable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.DOWNLOADABLE)) == 1;
-        streamable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.STREAMABLE)) == 1;
-        sharing = Sharing.from(cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.SHARING)));
-        license = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.LICENSE));
-        genre = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.GENRE));
-        likes_count = ResolverHelper.getLongOrNotSet(cursor, DBHelper.SoundView.LIKES_COUNT);
-        reposts_count = ResolverHelper.getLongOrNotSet(cursor, DBHelper.SoundView.REPOSTS_COUNT);
-        user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
+        created_at = new Date(cursor.getLong(cursor.getColumnIndex(TableColumns.SoundView.CREATED_AT)));
+        tag_list = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.TAG_LIST));
+        title = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.TITLE));
+        permalink_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.PERMALINK_URL));
+        artwork_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.ARTWORK_URL));
+        downloadable = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.DOWNLOADABLE)) == 1;
+        streamable = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.STREAMABLE)) == 1;
+        sharing = Sharing.from(cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.SHARING)));
+        license = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.LICENSE));
+        genre = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.GENRE));
+        likes_count = ResolverHelper.getLongOrNotSet(cursor, TableColumns.SoundView.LIKES_COUNT);
+        reposts_count = ResolverHelper.getLongOrNotSet(cursor, TableColumns.SoundView.REPOSTS_COUNT);
+        user_id = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.USER_ID));
 
-        final long lastUpdated = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.LAST_UPDATED));
+        final long lastUpdated = cursor.getLong(cursor.getColumnIndex(TableColumns.SoundView.LAST_UPDATED));
         if (lastUpdated > 0) {
             last_updated = lastUpdated;
         }
 
         // gets joined in
-        final int favIdx = cursor.getColumnIndex(DBHelper.SoundView.USER_LIKE);
+        final int favIdx = cursor.getColumnIndex(TableColumns.SoundView.USER_LIKE);
         if (favIdx != -1) {
             user_like = cursor.getInt(favIdx) == 1;
         }
-        final int repostIdx = cursor.getColumnIndex(DBHelper.SoundView.USER_REPOST);
+        final int repostIdx = cursor.getColumnIndex(TableColumns.SoundView.USER_REPOST);
         if (repostIdx != -1) {
             user_repost = cursor.getInt(repostIdx) == 1;
         }
@@ -285,28 +283,28 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
 
-        cv.put(DBHelper.Sounds.PERMALINK, permalink);
-        cv.put(DBHelper.Sounds._TYPE, getTypeId());
+        cv.put(TableColumns.Sounds.PERMALINK, permalink);
+        cv.put(TableColumns.Sounds._TYPE, getTypeId());
 
         // account for partial objects, don't overwrite local full objects
-        if (title != null) cv.put(DBHelper.Sounds.TITLE, title);
-        if (duration > 0) cv.put(DBHelper.Sounds.DURATION, duration);
+        if (title != null) cv.put(TableColumns.Sounds.TITLE, title);
+        if (duration > 0) cv.put(TableColumns.Sounds.DURATION, duration);
         if (user_id != 0) {
-            cv.put(DBHelper.Sounds.USER_ID, user_id);
+            cv.put(TableColumns.Sounds.USER_ID, user_id);
         } else if (user != null && user.isSaved()) {
-            cv.put(DBHelper.Sounds.USER_ID, user.getId());
+            cv.put(TableColumns.Sounds.USER_ID, user.getId());
         }
-        if (created_at != null) cv.put(DBHelper.Sounds.CREATED_AT, created_at.getTime());
-        if (tag_list != null) cv.put(DBHelper.Sounds.TAG_LIST, tag_list);
-        if (permalink_url != null) cv.put(DBHelper.Sounds.PERMALINK_URL, permalink_url);
-        if (artwork_url != null) cv.put(DBHelper.Sounds.ARTWORK_URL, artwork_url);
-        if (downloadable) cv.put(DBHelper.Sounds.DOWNLOADABLE, downloadable);
-        if (streamable) cv.put(DBHelper.Sounds.STREAMABLE, streamable);
-        if (sharing != Sharing.UNDEFINED) cv.put(DBHelper.Sounds.SHARING, sharing.value);
-        if (license != null) cv.put(DBHelper.Sounds.LICENSE, license);
-        if (genre != null) cv.put(DBHelper.Sounds.GENRE, genre);
-        if (likes_count != -1) cv.put(DBHelper.Sounds.LIKES_COUNT, likes_count);
-        if (reposts_count != -1) cv.put(DBHelper.Sounds.REPOSTS_COUNT, reposts_count);
+        if (created_at != null) cv.put(TableColumns.Sounds.CREATED_AT, created_at.getTime());
+        if (tag_list != null) cv.put(TableColumns.Sounds.TAG_LIST, tag_list);
+        if (permalink_url != null) cv.put(TableColumns.Sounds.PERMALINK_URL, permalink_url);
+        if (artwork_url != null) cv.put(TableColumns.Sounds.ARTWORK_URL, artwork_url);
+        if (downloadable) cv.put(TableColumns.Sounds.DOWNLOADABLE, downloadable);
+        if (streamable) cv.put(TableColumns.Sounds.STREAMABLE, streamable);
+        if (sharing != Sharing.UNDEFINED) cv.put(TableColumns.Sounds.SHARING, sharing.value);
+        if (license != null) cv.put(TableColumns.Sounds.LICENSE, license);
+        if (genre != null) cv.put(TableColumns.Sounds.GENRE, genre);
+        if (likes_count != -1) cv.put(TableColumns.Sounds.LIKES_COUNT, likes_count);
+        if (reposts_count != -1) cv.put(TableColumns.Sounds.REPOSTS_COUNT, reposts_count);
         return cv;
     }
 
@@ -402,6 +400,6 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
     }
 
     protected static boolean isTrackCursor(Cursor cursor){
-        return cursor.getInt(cursor.getColumnIndex(DBHelper.Sounds._TYPE)) == DB_TYPE_TRACK;
+        return cursor.getInt(cursor.getColumnIndex(TableColumns.Sounds._TYPE)) == DB_TYPE_TRACK;
     }
 }

@@ -4,8 +4,8 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -42,9 +42,9 @@ public class FollowStatusTest {
         ContentValues[] cv = new ContentValues[SIZE];
         for (int i = 0; i < SIZE; i++) {
             cv[i] = new ContentValues();
-            cv[i].put(DBHelper.CollectionItems.POSITION, i);
-            cv[i].put(DBHelper.CollectionItems.ITEM_ID, i);
-            cv[i].put(DBHelper.CollectionItems.USER_ID, USER_ID);
+            cv[i].put(TableColumns.CollectionItems.POSITION, i);
+            cv[i].put(TableColumns.CollectionItems.ITEM_ID, i);
+            cv[i].put(TableColumns.CollectionItems.USER_ID, USER_ID);
         }
 
         Robolectric.application.getContentResolver().bulkInsert(Content.ME_LIKES.uri, cv);

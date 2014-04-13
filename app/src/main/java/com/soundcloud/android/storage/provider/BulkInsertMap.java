@@ -1,5 +1,7 @@
 package com.soundcloud.android.storage.provider;
 
+import com.soundcloud.android.storage.TableColumns;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.net.Uri;
@@ -54,9 +56,9 @@ public class BulkInsertMap extends HashMap<Uri, Set<BulkInsertMap.ResourceValues
             ResourceValues that = (ResourceValues) o;
 
             if (contentValues == null ? that.contentValues != null :
-                    (!contentValues.containsKey(DBHelper.ResourceTable._ID)
-                            || !that.contentValues.containsKey(DBHelper.ResourceTable._ID)
-                            || contentValues.get(DBHelper.ResourceTable._ID) != that.contentValues.get(DBHelper.ResourceTable._ID)
+                    (!contentValues.containsKey(TableColumns.ResourceTable._ID)
+                            || !that.contentValues.containsKey(TableColumns.ResourceTable._ID)
+                            || contentValues.get(TableColumns.ResourceTable._ID) != that.contentValues.get(TableColumns.ResourceTable._ID)
                     )) {
                 return false;
             }
@@ -67,8 +69,8 @@ public class BulkInsertMap extends HashMap<Uri, Set<BulkInsertMap.ResourceValues
         @Override
         public int hashCode() {
             if (contentValues != null){
-                if (contentValues.containsKey(DBHelper.ResourceTable._ID)){
-                    return contentValues.getAsLong(DBHelper.ResourceTable._ID).hashCode();
+                if (contentValues.containsKey(TableColumns.ResourceTable._ID)){
+                    return contentValues.getAsLong(TableColumns.ResourceTable._ID).hashCode();
                 }
                 return contentValues.hashCode();
             }

@@ -13,7 +13,6 @@ import com.soundcloud.android.model.activities.Activity;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -152,10 +151,10 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         mModelManager.cache(playlist, ScResource.CacheUpdateMode.MINI);
 
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlist.getId());
-        cv.put(DBHelper.PlaylistTracks.TRACK_ID, trackId);
-        cv.put(DBHelper.PlaylistTracks.ADDED_AT, timeAdded);
-        cv.put(DBHelper.PlaylistTracks.POSITION, playlist.getTrackCount());
+        cv.put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlist.getId());
+        cv.put(TableColumns.PlaylistTracks.TRACK_ID, trackId);
+        cv.put(TableColumns.PlaylistTracks.ADDED_AT, timeAdded);
+        cv.put(TableColumns.PlaylistTracks.POSITION, playlist.getTrackCount());
         mResolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.getId())), cv);
 
         return playlist;
@@ -177,23 +176,23 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         mResolver.delete(Content.PLAYLIST_TRACKS.forQuery(playlistIdString), null, null);
 
         // delete from collections
-        String where = DBHelper.CollectionItems.ITEM_ID + " = " + playlistId + " AND "
-                + DBHelper.CollectionItems.RESOURCE_TYPE + " = " + Playable.DB_TYPE_PLAYLIST;
+        String where = TableColumns.CollectionItems.ITEM_ID + " = " + playlistId + " AND "
+                + TableColumns.CollectionItems.RESOURCE_TYPE + " = " + Playable.DB_TYPE_PLAYLIST;
 
         mResolver.delete(Content.ME_PLAYLISTS.uri, where, null);
         mResolver.delete(Content.ME_SOUNDS.uri, where, null);
         mResolver.delete(Content.ME_LIKES.uri, where, null);
 
         // delete from activities
-        where = DBHelper.Activities.SOUND_ID + " = " + playlistId + " AND " +
-                DBHelper.ActivityView.TYPE + " IN ( " + Activity.getDbPlaylistTypesForQuery() + " ) ";
+        where = TableColumns.Activities.SOUND_ID + " = " + playlistId + " AND " +
+                TableColumns.ActivityView.TYPE + " IN ( " + Activity.getDbPlaylistTypesForQuery() + " ) ";
         mResolver.delete(Content.ME_ALL_ACTIVITIES.uri, where, null);
     }
 
     // Local i.e. unpushed playlists are currently identified by having a negative timestamp
     public boolean hasLocalPlaylists() {
         Cursor itemsCursor = mResolver.query(Content.PLAYLISTS.uri,
-                new String[]{DBHelper.SoundView._ID}, DBHelper.SoundView._ID + " < 0",
+                new String[]{TableColumns.SoundView._ID}, TableColumns.SoundView._ID + " < 0",
                 null, null);
 
         boolean hasPlaylists = false;
@@ -207,8 +206,8 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     // Local i.e. unpushed playlists are currently identified by having a negative timestamp
     public List<Playlist> getLocalPlaylists() {
         Cursor itemsCursor = mResolver.query(Content.PLAYLISTS.uri,
-                null, DBHelper.SoundView._ID + " < 0",
-                null, DBHelper.SoundView._ID + " DESC");
+                null, TableColumns.SoundView._ID + " < 0",
+                null, TableColumns.SoundView._ID + " DESC");
 
         if (itemsCursor != null) {
             List<Playlist> playlists = new ArrayList<Playlist>(itemsCursor.getCount());
@@ -239,8 +238,8 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     }
 
     public @Nullable Set<Uri> getPlaylistsDueForSync() {
-        Cursor c = mResolver.query(Content.PLAYLIST_ALL_TRACKS.uri, new String[]{DBHelper.PlaylistTracks.PLAYLIST_ID},
-                DBHelper.PlaylistTracks.ADDED_AT + " IS NOT NULL AND " + DBHelper.PlaylistTracks.PLAYLIST_ID + " > 0", null, null);
+        Cursor c = mResolver.query(Content.PLAYLIST_ALL_TRACKS.uri, new String[]{TableColumns.PlaylistTracks.PLAYLIST_ID},
+                TableColumns.PlaylistTracks.ADDED_AT + " IS NOT NULL AND " + TableColumns.PlaylistTracks.PLAYLIST_ID + " > 0", null, null);
 
         if (c != null) {
             Set<Uri> uris = new HashSet<Uri>();
@@ -260,10 +259,10 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     public List<Long> getUnpushedTracksForPlaylist(long playlistId) {
         Cursor cursor = mResolver.query(
                 Content.PLAYLIST_ALL_TRACKS.uri,
-                new String[]{ DBHelper.PlaylistTracks.TRACK_ID },
-                DBHelper.PlaylistTracks.ADDED_AT + " IS NOT NULL AND " + DBHelper.PlaylistTracks.PLAYLIST_ID + " = ?",
+                new String[]{ TableColumns.PlaylistTracks.TRACK_ID },
+                TableColumns.PlaylistTracks.ADDED_AT + " IS NOT NULL AND " + TableColumns.PlaylistTracks.PLAYLIST_ID + " = ?",
                 new String[]{ String.valueOf(playlistId) },
-                DBHelper.PlaylistTracks.ADDED_AT + " ASC");
+                TableColumns.PlaylistTracks.ADDED_AT + " ASC");
 
         if (cursor != null) {
             List<Long> ids = Lists.newArrayList();

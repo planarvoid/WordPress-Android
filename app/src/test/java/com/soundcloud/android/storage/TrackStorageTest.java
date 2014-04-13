@@ -12,7 +12,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
 import org.junit.Before;
@@ -112,6 +111,6 @@ public class TrackStorageTest {
         verify (contentResolver).insert(eq(Content.TRACK_PLAYS.uri), contentValues.capture());
 
         expect(contentValues.getValue().size()).toEqual(1);
-        expect(contentValues.getValue().get(DBHelper.TrackMetadata._ID)).toEqual(track.getId());
+        expect(contentValues.getValue().get(TableColumns.TrackMetadata._ID)).toEqual(track.getId());
     }
 }

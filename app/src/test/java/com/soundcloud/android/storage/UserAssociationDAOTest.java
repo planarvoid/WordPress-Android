@@ -7,7 +7,6 @@ import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -49,10 +48,10 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
         getDAO().create(ua);
 
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
-        expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, DBHelper.UserAssociationView._ID, user.getId());
-        expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, DBHelper.UserAssociationView.USER_ASSOCIATION_OWNER_ID, AbstractDAOTest.OWNER_ID);
-        expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE, CollectionItemTypes.FOLLOWING);
-        expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, DBHelper.UserAssociationView._TYPE, User.TYPE);
+        expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, TableColumns.UserAssociationView._ID, user.getId());
+        expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, TableColumns.UserAssociationView.USER_ASSOCIATION_OWNER_ID, AbstractDAOTest.OWNER_ID);
+        expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE, CollectionItemTypes.FOLLOWING);
+        expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, TableColumns.UserAssociationView._TYPE, User.TYPE);
     }
 
     @Test
@@ -66,8 +65,8 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
         Cursor cursor = Robolectric.application.getContentResolver().query(Content.ME_FOLLOWINGS.uri, null, null, null, null);
         expect(cursor).not.toBeNull();
         expect(cursor.moveToPosition(0)).toBeTrue();
-        expect(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_ADDED_AT))).toBeGreaterThan(0L);
-        expect(cursor.getString(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_TOKEN))).toEqual(TOKEN);
+        expect(cursor.getLong(cursor.getColumnIndex(TableColumns.UserAssociationView.USER_ASSOCIATION_ADDED_AT))).toBeGreaterThan(0L);
+        expect(cursor.getString(cursor.getColumnIndex(TableColumns.UserAssociationView.USER_ASSOCIATION_TOKEN))).toEqual(TOKEN);
         cursor.close();
     }
 
@@ -82,7 +81,7 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
         Cursor cursor = Robolectric.application.getContentResolver().query(Content.ME_FOLLOWINGS.uri, null, null, null, null);
         expect(cursor).not.toBeNull();
         expect(cursor.moveToPosition(0)).toBeTrue();
-        expect(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT))).toBeGreaterThan(0L);
+        expect(cursor.getLong(cursor.getColumnIndex(TableColumns.UserAssociationView.USER_ASSOCIATION_REMOVED_AT))).toBeGreaterThan(0L);
         cursor.close();
     }
 
@@ -94,10 +93,10 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
         getDAO().create(ua);
 
         expect(Content.ME_FOLLOWERS).toHaveCount(1);
-        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, DBHelper.UserAssociationView._ID, user.getId());
-        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, DBHelper.UserAssociationView.USER_ASSOCIATION_OWNER_ID, AbstractDAOTest.OWNER_ID);
-        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE, CollectionItemTypes.FOLLOWER);
-        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, DBHelper.UserAssociationView._TYPE, User.TYPE);
+        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, TableColumns.UserAssociationView._ID, user.getId());
+        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, TableColumns.UserAssociationView.USER_ASSOCIATION_OWNER_ID, AbstractDAOTest.OWNER_ID);
+        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE, CollectionItemTypes.FOLLOWER);
+        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, TableColumns.UserAssociationView._TYPE, User.TYPE);
     }
 
     @Test

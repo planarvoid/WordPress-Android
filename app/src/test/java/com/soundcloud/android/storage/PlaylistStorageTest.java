@@ -3,7 +3,6 @@ package com.soundcloud.android.storage;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,7 +16,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.activities.Activity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.xtremelabs.robolectric.tester.android.database.SimpleTestCursor;
 import org.junit.Before;
 import org.junit.Test;
@@ -146,7 +144,7 @@ public class PlaylistStorageTest {
         Track track = new Track();
 
         Cursor cursor = new FakeCursor(1);
-        when(resolver.query(Content.PLAYLISTS.uri, null, DBHelper.SoundView._ID + " < 0", null, DBHelper.SoundView._ID + " DESC")).thenReturn(cursor);
+        when(resolver.query(Content.PLAYLISTS.uri, null, TableColumns.SoundView._ID + " < 0", null, TableColumns.SoundView._ID + " DESC")).thenReturn(cursor);
         when(modelManager.getCachedPlaylistFromCursor(cursor)).thenReturn(playlist);
         when(modelManager.cache(track)).thenReturn(track);
         when(trackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forId(playlist.getId()))).thenReturn(Arrays.asList(track));
@@ -168,19 +166,19 @@ public class PlaylistStorageTest {
         verify(resolver).insert(eq(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.getId()))), cv.capture());
 
         expect(playlist.getTrackCount()).toBe(1);
-        expect(cv.getValue().getAsLong(DBHelper.PlaylistTracks.PLAYLIST_ID)).toBe(playlist.getId());
-        expect(cv.getValue().getAsLong(DBHelper.PlaylistTracks.TRACK_ID)).toBe(track.getId());
-        expect(cv.getValue().getAsLong(DBHelper.PlaylistTracks.ADDED_AT)).toBeGreaterThan(0L);
-        expect(cv.getValue().getAsLong(DBHelper.PlaylistTracks.POSITION)).toBe(1L);
+        expect(cv.getValue().getAsLong(TableColumns.PlaylistTracks.PLAYLIST_ID)).toBe(playlist.getId());
+        expect(cv.getValue().getAsLong(TableColumns.PlaylistTracks.TRACK_ID)).toBe(track.getId());
+        expect(cv.getValue().getAsLong(TableColumns.PlaylistTracks.ADDED_AT)).toBeGreaterThan(0L);
+        expect(cv.getValue().getAsLong(TableColumns.PlaylistTracks.POSITION)).toBe(1L);
     }
 
     @Test
     public void shouldSyncChangesToExistingPlaylists() throws Exception {
         Cursor cursor = new FakeCursor(new Object[][] {{1L}});
 
-        when(resolver.query(Content.PLAYLIST_ALL_TRACKS.uri, new String[]{DBHelper.PlaylistTracks.PLAYLIST_ID},
-                DBHelper.PlaylistTracks.ADDED_AT + " IS NOT NULL AND "
-                        + DBHelper.PlaylistTracks.PLAYLIST_ID + " > 0", null, null)).thenReturn(cursor);
+        when(resolver.query(Content.PLAYLIST_ALL_TRACKS.uri, new String[]{TableColumns.PlaylistTracks.PLAYLIST_ID},
+                TableColumns.PlaylistTracks.ADDED_AT + " IS NOT NULL AND "
+                        + TableColumns.PlaylistTracks.PLAYLIST_ID + " > 0", null, null)).thenReturn(cursor);
 
         Set<Uri> urisToSync = storage.getPlaylistsDueForSync();
         expect(urisToSync.size()).toEqual(1);
@@ -198,16 +196,16 @@ public class PlaylistStorageTest {
         verify(resolver).delete(Content.PLAYLIST_TRACKS.forQuery("1"), null, null);
 
         // delete from collections
-        String where = DBHelper.CollectionItems.ITEM_ID + " = 1 AND "
-                + DBHelper.CollectionItems.RESOURCE_TYPE + " = " + Playable.DB_TYPE_PLAYLIST;
+        String where = TableColumns.CollectionItems.ITEM_ID + " = 1 AND "
+                + TableColumns.CollectionItems.RESOURCE_TYPE + " = " + Playable.DB_TYPE_PLAYLIST;
 
         verify(resolver).delete(Content.ME_PLAYLISTS.uri, where, null);
         verify(resolver).delete(Content.ME_SOUNDS.uri, where, null);
         verify(resolver).delete(Content.ME_LIKES.uri, where, null);
 
         // delete from activities
-        where = DBHelper.Activities.SOUND_ID + " = 1 AND " +
-                DBHelper.ActivityView.TYPE + " IN ( " + Activity.getDbPlaylistTypesForQuery() + " ) ";
+        where = TableColumns.Activities.SOUND_ID + " = 1 AND " +
+                TableColumns.ActivityView.TYPE + " IN ( " + Activity.getDbPlaylistTypesForQuery() + " ) ";
         verify(resolver).delete(Content.ME_ALL_ACTIVITIES.uri, where, null);
     }
 
@@ -223,10 +221,10 @@ public class PlaylistStorageTest {
         Cursor cursor = new FakeCursor(new Object[][] {{2L}, {3L}});
 
         when(resolver.query(Content.PLAYLIST_ALL_TRACKS.uri,
-                new String[]{ DBHelper.PlaylistTracks.TRACK_ID },
-                DBHelper.PlaylistTracks.ADDED_AT + " IS NOT NULL AND " + DBHelper.PlaylistTracks.PLAYLIST_ID + " = ?",
+                new String[]{ TableColumns.PlaylistTracks.TRACK_ID },
+                TableColumns.PlaylistTracks.ADDED_AT + " IS NOT NULL AND " + TableColumns.PlaylistTracks.PLAYLIST_ID + " = ?",
                 new String[] { String.valueOf(1L) },
-                DBHelper.PlaylistTracks.ADDED_AT + " ASC")).thenReturn(cursor);
+                TableColumns.PlaylistTracks.ADDED_AT + " ASC")).thenReturn(cursor);
 
         expect(storage.getUnpushedTracksForPlaylist(1L)).toEqual(Lists.newArrayList( 2L, 3L));
     }

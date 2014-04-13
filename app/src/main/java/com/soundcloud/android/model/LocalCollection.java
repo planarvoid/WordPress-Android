@@ -3,9 +3,9 @@ package com.soundcloud.android.model;
 import com.soundcloud.android.model.behavior.Identifiable;
 import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.sync.SyncConfig;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,7 +16,7 @@ import android.text.TextUtils;
 
 /**
  * Represents the state of a local collection sync, including last sync and size.
- * See {@link DBHelper.Collections}.
+ * See {@link com.soundcloud.android.storage.TableColumns.Collections}.
  */
 public class LocalCollection implements Identifiable, Persisted {
     private long id;
@@ -52,13 +52,13 @@ public class LocalCollection implements Identifiable, Persisted {
     }
 
     public LocalCollection(Cursor c) {
-        id = (long) c.getInt(c.getColumnIndex(DBHelper.Collections._ID));
-        uri = Uri.parse(c.getString(c.getColumnIndex(DBHelper.Collections.URI)));
-        last_sync_attempt = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC_ATTEMPT));
-        last_sync_success = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));
-        sync_state = c.getInt(c.getColumnIndex(DBHelper.Collections.SYNC_STATE));
-        extra = c.getString(c.getColumnIndex(DBHelper.Collections.EXTRA));
-        size = c.getInt(c.getColumnIndex(DBHelper.Collections.SIZE));
+        id = (long) c.getInt(c.getColumnIndex(TableColumns.Collections._ID));
+        uri = Uri.parse(c.getString(c.getColumnIndex(TableColumns.Collections.URI)));
+        last_sync_attempt = c.getLong(c.getColumnIndex(TableColumns.Collections.LAST_SYNC_ATTEMPT));
+        last_sync_success = c.getLong(c.getColumnIndex(TableColumns.Collections.LAST_SYNC));
+        sync_state = c.getInt(c.getColumnIndex(TableColumns.Collections.SYNC_STATE));
+        extra = c.getString(c.getColumnIndex(TableColumns.Collections.EXTRA));
+        size = c.getInt(c.getColumnIndex(TableColumns.Collections.SIZE));
     }
 
     public boolean hasSyncedBefore() {
@@ -70,12 +70,12 @@ public class LocalCollection implements Identifiable, Persisted {
     }
 
     public void setFromCursor(Cursor c) {
-        if (getId() <= 0) setId(c.getInt(c.getColumnIndex(DBHelper.Collections._ID)));
-        last_sync_attempt = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC_ATTEMPT));
-        last_sync_success = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));
-        sync_state = c.getInt(c.getColumnIndex(DBHelper.Collections.SYNC_STATE));
-        extra = c.getString(c.getColumnIndex(DBHelper.Collections.EXTRA));
-        size = c.getInt(c.getColumnIndex(DBHelper.Collections.SIZE));
+        if (getId() <= 0) setId(c.getInt(c.getColumnIndex(TableColumns.Collections._ID)));
+        last_sync_attempt = c.getLong(c.getColumnIndex(TableColumns.Collections.LAST_SYNC_ATTEMPT));
+        last_sync_success = c.getLong(c.getColumnIndex(TableColumns.Collections.LAST_SYNC));
+        sync_state = c.getInt(c.getColumnIndex(TableColumns.Collections.SYNC_STATE));
+        extra = c.getString(c.getColumnIndex(TableColumns.Collections.EXTRA));
+        size = c.getInt(c.getColumnIndex(TableColumns.Collections.SIZE));
     }
 
     public LocalCollection(Uri uri, long lastSyncAttempt, long lastSyncSuccess, int syncState, int size, String extra) {
@@ -114,13 +114,13 @@ public class LocalCollection implements Identifiable, Persisted {
 
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        if (getId() > 0) cv.put(DBHelper.Collections._ID, getId());
-        if (sync_state != -1) cv.put(DBHelper.Collections.SYNC_STATE, sync_state);
-        if (size != -1) cv.put(DBHelper.Collections.SIZE, size);
-        if (last_sync_attempt != -1) cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, last_sync_attempt);
-        if (last_sync_success != -1) cv.put(DBHelper.Collections.LAST_SYNC, last_sync_success);
-        if (!TextUtils.isEmpty(extra)) cv.put(DBHelper.Collections.EXTRA, extra);
-        cv.put(DBHelper.Collections.URI, getUri().toString());
+        if (getId() > 0) cv.put(TableColumns.Collections._ID, getId());
+        if (sync_state != -1) cv.put(TableColumns.Collections.SYNC_STATE, sync_state);
+        if (size != -1) cv.put(TableColumns.Collections.SIZE, size);
+        if (last_sync_attempt != -1) cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, last_sync_attempt);
+        if (last_sync_success != -1) cv.put(TableColumns.Collections.LAST_SYNC, last_sync_success);
+        if (!TextUtils.isEmpty(extra)) cv.put(TableColumns.Collections.EXTRA, extra);
+        cv.put(TableColumns.Collections.URI, getUri().toString());
         return cv;
     }
 

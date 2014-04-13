@@ -1,4 +1,4 @@
-package com.soundcloud.android.storage.provider;
+package com.soundcloud.android.storage;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,31 +17,31 @@ import java.util.List;
 import java.util.Locale;
 
 public enum Table {
-    SOUNDS("Sounds", false, DBHelper.DATABASE_CREATE_SOUNDS, DBHelper.Sounds.ALL_FIELDS),
-    TRACK_METADATA("TrackMetadata", false, DBHelper.DATABASE_CREATE_TRACK_METADATA, DBHelper.TrackMetadata.ALL_FIELDS),
-    USERS("Users", false, DBHelper.DATABASE_CREATE_USERS, DBHelper.Users.ALL_FIELDS),
-    COMMENTS("Comments", false, DBHelper.DATABASE_CREATE_COMMENTS),
-    ACTIVITIES("Activities", false, DBHelper.DATABASE_CREATE_ACTIVITIES),
-    RECORDINGS("Recordings", false, DBHelper.DATABASE_CREATE_RECORDINGS, DBHelper.Recordings.ALL_FIELDS),
-    SEARCHES("Searches", false, DBHelper.DATABASE_CREATE_SEARCHES),
-    PLAYLIST_TRACKS("PlaylistTracks", false, DBHelper.DATABASE_CREATE_PLAYLIST_TRACKS),
-    USER_ASSOCIATIONS("UserAssociations", false, DBHelper.DATABASE_CREATE_USER_ASSOCIATIONS),
+    SOUNDS("Sounds", false, DatabaseSchema.DATABASE_CREATE_SOUNDS, TableColumns.Sounds.ALL_FIELDS),
+    TRACK_METADATA("TrackMetadata", false, DatabaseSchema.DATABASE_CREATE_TRACK_METADATA, TableColumns.TrackMetadata.ALL_FIELDS),
+    USERS("Users", false, DatabaseSchema.DATABASE_CREATE_USERS, TableColumns.Users.ALL_FIELDS),
+    COMMENTS("Comments", false, DatabaseSchema.DATABASE_CREATE_COMMENTS),
+    ACTIVITIES("Activities", false, DatabaseSchema.DATABASE_CREATE_ACTIVITIES),
+    RECORDINGS("Recordings", false, DatabaseSchema.DATABASE_CREATE_RECORDINGS, TableColumns.Recordings.ALL_FIELDS),
+    SEARCHES("Searches", false, DatabaseSchema.DATABASE_CREATE_SEARCHES),
+    PLAYLIST_TRACKS("PlaylistTracks", false, DatabaseSchema.DATABASE_CREATE_PLAYLIST_TRACKS),
+    USER_ASSOCIATIONS("UserAssociations", false, DatabaseSchema.DATABASE_CREATE_USER_ASSOCIATIONS),
 
-    PLAY_QUEUE("PlayQueue", false, DBHelper.DATABASE_CREATE_PLAY_QUEUE),
+    PLAY_QUEUE("PlayQueue", false, DatabaseSchema.DATABASE_CREATE_PLAY_QUEUE),
 
-    COLLECTION_ITEMS("CollectionItems", false, DBHelper.DATABASE_CREATE_COLLECTION_ITEMS),
-    COLLECTIONS("Collections", false, DBHelper.DATABASE_CREATE_COLLECTIONS),
-    COLLECTION_PAGES("CollectionPages", false, DBHelper.DATABASE_CREATE_COLLECTION_PAGES),
+    COLLECTION_ITEMS("CollectionItems", false, DatabaseSchema.DATABASE_CREATE_COLLECTION_ITEMS),
+    COLLECTIONS("Collections", false, DatabaseSchema.DATABASE_CREATE_COLLECTIONS),
+    COLLECTION_PAGES("CollectionPages", false, DatabaseSchema.DATABASE_CREATE_COLLECTION_PAGES),
 
-    SUGGESTIONS("Suggestions", false, DBHelper.DATABASE_CREATE_SUGGESTIONS, DBHelper.Suggestions.ALL_FIELDS),
-    CONNECTIONS("Connections", false, DBHelper.DATABASE_CREATE_CONNECTIONS),
+    SUGGESTIONS("Suggestions", false, DatabaseSchema.DATABASE_CREATE_SUGGESTIONS, TableColumns.Suggestions.ALL_FIELDS),
+    CONNECTIONS("Connections", false, DatabaseSchema.DATABASE_CREATE_CONNECTIONS),
 
     // views
-    SOUND_VIEW("SoundView", true, DBHelper.DATABASE_CREATE_SOUND_VIEW),
-    ACTIVITY_VIEW("ActivityView", true, DBHelper.DATABASE_CREATE_ACTIVITY_VIEW),
-    SOUND_ASSOCIATION_VIEW("SoundAssociationView", true, DBHelper.DATABASE_CREATE_SOUND_ASSOCIATION_VIEW),
-    USER_ASSOCIATION_VIEW("UserAssociationView", true, DBHelper.DATABASE_CREATE_USER_ASSOCIATION_VIEW),
-    PLAYLIST_TRACKS_VIEW("PlaylistTracksView", true, DBHelper.DATABASE_CREATE_PLAYLIST_TRACKS_VIEW);
+    SOUND_VIEW("SoundView", true, DatabaseSchema.DATABASE_CREATE_SOUND_VIEW),
+    ACTIVITY_VIEW("ActivityView", true, DatabaseSchema.DATABASE_CREATE_ACTIVITY_VIEW),
+    SOUND_ASSOCIATION_VIEW("SoundAssociationView", true, DatabaseSchema.DATABASE_CREATE_SOUND_ASSOCIATION_VIEW),
+    USER_ASSOCIATION_VIEW("UserAssociationView", true, DatabaseSchema.DATABASE_CREATE_USER_ASSOCIATION_VIEW),
+    PLAYLIST_TRACKS_VIEW("PlaylistTracksView", true, DatabaseSchema.DATABASE_CREATE_PLAYLIST_TRACKS_VIEW);
 
 
     public final String name;
@@ -50,32 +50,32 @@ public enum Table {
     public final String type;
     public final String[] fields;
     public final boolean view;
-    public static final String TAG = DBHelper.TAG;
+    public static final String TAG = DatabaseManager.TAG;
 
     Table(String name, boolean view, String create, String... fields) {
         if (name == null) throw new NullPointerException();
         this.name = name;
         this.view = view;
         if (create != null) {
-            createString = buildCreateString(name,create,view);
+            createString = buildCreateString(name, create, view);
         } else {
             createString = null;
         }
-        id = this.name +"."+BaseColumns._ID;
-        type = this.name + "." + DBHelper.ResourceTable._TYPE;
+        id = this.name + "." + BaseColumns._ID;
+        type = this.name + "." + TableColumns.ResourceTable._TYPE;
         this.fields = fields;
     }
 
-    public static String buildCreateString(String tableName, String columnString, boolean isView){
-        return "CREATE "+(isView ? "VIEW" : "TABLE")+" IF NOT EXISTS "+tableName+" "+columnString;
+    public static String buildCreateString(String tableName, String columnString, boolean isView) {
+        return "CREATE " + (isView ? "VIEW" : "TABLE") + " IF NOT EXISTS " + tableName + " " + columnString;
     }
 
     public String allFields() {
-        return this.name+".*";
+        return this.name + ".*";
     }
 
     public String field(String field) {
-        return this.name+"."+field;
+        return this.name + "." + field;
     }
 
     public static Table get(String name) {
@@ -87,12 +87,12 @@ public enum Table {
 
     public void drop(SQLiteDatabase db) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "dropping " + name);
-        db.execSQL("DROP " + (view ? "VIEW" : "TABLE") +" IF EXISTS "+name);
+        db.execSQL("DROP " + (view ? "VIEW" : "TABLE") + " IF EXISTS " + name);
     }
 
     public boolean exists(SQLiteDatabase db) {
         try {
-            db.execSQL("SELECT 1 FROM "+name);
+            db.execSQL("SELECT 1 FROM " + name);
             return true;
         } catch (SQLException e) {
             return false;
@@ -147,11 +147,11 @@ public enum Table {
         Collections.addAll(fromAppendCols, fromAppend);
         Collections.addAll(toAppendCols, toAppend);
 
-        final String tmpTable = "bck_"+table;
-        db.execSQL("DROP TABLE IF EXISTS "+tmpTable);
+        final String tmpTable = "bck_" + table;
+        db.execSQL("DROP TABLE IF EXISTS " + tmpTable);
 
         // create tmp table with current schema
-        db.execSQL(createString.replace(" "+table+" ", " "+tmpTable+" "));
+        db.execSQL(createString.replace(" " + table + " ", " " + tmpTable + " "));
 
         // get list of columns defined in new schema
         List<String> columns = getColumnNames(db, tmpTable);
@@ -162,31 +162,31 @@ public enum Table {
         toAppendCols.addAll(columns);
         fromAppendCols.addAll(columns);
 
-        final String toCols   = TextUtils.join(",", toAppendCols);
+        final String toCols = TextUtils.join(",", toAppendCols);
         final String fromCols = TextUtils.join(",", fromAppendCols);
 
         // copy current data to tmp table
         final String sql = String.format(Locale.ENGLISH, "INSERT INTO %s (%s) SELECT %s from %s", tmpTable, toCols, fromCols, table);
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "executing "+sql);
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "executing " + sql);
         db.execSQL(sql);
 
         // recreate current table with new schema
-        db.execSQL("DROP TABLE IF EXISTS "+table);
+        db.execSQL("DROP TABLE IF EXISTS " + table);
         db.execSQL(createString);
 
         // and copy old data from tmp
         final String copy = String.format(Locale.ENGLISH, "INSERT INTO %s (%s) SELECT %s from %s", table, toCols, toCols, tmpTable);
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "executing "+copy);
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "executing " + copy);
         db.execSQL(copy);
-        db.execSQL("DROP table "+tmpTable);
+        db.execSQL("DROP table " + tmpTable);
 
         return toAppendCols;
     }
 
     /**
      * @see <a href="http://stackoverflow.com/questions/418898/sqlite-upsert-not-create-or-replace/">
-     *  SQLite - UPSERT *not* INSERT or REPLACE
+     * SQLite - UPSERT *not* INSERT or REPLACE
      * </a>
      */
 
@@ -196,7 +196,7 @@ public enum Table {
         }
         db.beginTransaction();
         int updated = 0;
-        for (ContentValues v : values)  {
+        for (ContentValues v : values) {
             if (v == null) continue;
             long id = v.getAsLong(BaseColumns._ID);
             List<Object> bindArgs = new ArrayList<Object>();
@@ -229,7 +229,7 @@ public enum Table {
     }
 
     public long upsertSingle(SQLiteDatabase db, ContentValues cv) {
-        upsert(db, new ContentValues[] { cv } );
+        upsert(db, new ContentValues[]{cv});
         return cv.getAsLong(BaseColumns._ID);
     }
 
@@ -249,26 +249,28 @@ public enum Table {
         return insertOrReplace(db, build(args));
     }
 
-    public static @NotNull ContentValues build(@NotNull Object... args) {
+    public static
+    @NotNull
+    ContentValues build(@NotNull Object... args) {
         ContentValues cv = new ContentValues();
         if (args.length % 2 != 0) throw new IllegalArgumentException("need even number of arguments");
         for (int i = 0; i < args.length; i += 2) {
-            final Object obj = args[i+1];
+            final Object obj = args[i + 1];
             final String key = args[i].toString();
             if (obj instanceof String) {
-                cv.put(key, (String)obj);
+                cv.put(key, (String) obj);
             } else if (obj instanceof Double) {
-                cv.put(key, (Double)obj);
+                cv.put(key, (Double) obj);
             } else if (obj instanceof Integer) {
-                cv.put(key, (Integer)obj);
+                cv.put(key, (Integer) obj);
             } else if (obj instanceof Long) {
-                cv.put(key, (Long)obj);
+                cv.put(key, (Long) obj);
             } else if (obj instanceof Boolean) {
-                cv.put(key, (Boolean)obj);
+                cv.put(key, (Boolean) obj);
             } else if (obj instanceof Float) {
-                cv.put(key, (Float)obj);
+                cv.put(key, (Float) obj);
             } else {
-                Log.w(TAG, "unknown obj: "+obj);
+                Log.w(TAG, "unknown obj: " + obj);
             }
         }
         return cv;

@@ -8,7 +8,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -66,8 +65,8 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
     public boolean updateStatus(Recording recording) {
         if (recording.getId() > 0) {
             ContentValues cv = new ContentValues();
-            cv.put(DBHelper.Recordings.UPLOAD_STATUS, recording.upload_status);
-            cv.put(DBHelper.Recordings.AUDIO_PATH, recording.audio_path.getAbsolutePath());
+            cv.put(TableColumns.Recordings.UPLOAD_STATUS, recording.upload_status);
+            cv.put(TableColumns.Recordings.AUDIO_PATH, recording.audio_path.getAbsolutePath());
             return mRecordingDAO.update(recording.getId(), cv);
         } else {
             return false;
@@ -80,7 +79,7 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
 
     public @Nullable Recording getRecordingByPath(File file) {
         return mRecordingDAO.buildQuery()
-                .where(DBHelper.Recordings.AUDIO_PATH + " LIKE ?", IOUtils.removeExtension(file).getAbsolutePath() + "%")
+                .where(TableColumns.Recordings.AUDIO_PATH + " LIKE ?", IOUtils.removeExtension(file).getAbsolutePath() + "%")
                 .first();
     }
 

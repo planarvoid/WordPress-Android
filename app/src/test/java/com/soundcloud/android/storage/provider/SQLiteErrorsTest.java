@@ -3,6 +3,7 @@ package com.soundcloud.android.storage.provider;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.storage.SQLiteErrors;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

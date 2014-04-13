@@ -15,9 +15,9 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SharingNote;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -83,14 +83,14 @@ public abstract class Activity extends ScModel implements Parcelable,
     }
 
     public Activity(Cursor c) {
-        setId(c.getLong(c.getColumnIndex(DBHelper.ActivityView._ID)));
-        uuid = c.getString(c.getColumnIndex(DBHelper.ActivityView.UUID));
-        tags = c.getString(c.getColumnIndex(DBHelper.ActivityView.TAGS));
-        created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.CREATED_AT)));
+        setId(c.getLong(c.getColumnIndex(TableColumns.ActivityView._ID)));
+        uuid = c.getString(c.getColumnIndex(TableColumns.ActivityView.UUID));
+        tags = c.getString(c.getColumnIndex(TableColumns.ActivityView.TAGS));
+        created_at = new Date(c.getLong(c.getColumnIndex(TableColumns.ActivityView.CREATED_AT)));
 
         sharing_note = new SharingNote();
-        sharing_note.created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.SHARING_NOTE_CREATED_AT)));
-        sharing_note.text = c.getString(c.getColumnIndex(DBHelper.ActivityView.SHARING_NOTE_TEXT));
+        sharing_note.created_at = new Date(c.getLong(c.getColumnIndex(TableColumns.ActivityView.SHARING_NOTE_CREATED_AT)));
+        sharing_note.text = c.getString(c.getColumnIndex(TableColumns.ActivityView.SHARING_NOTE_TEXT));
     }
 
     @Override
@@ -143,23 +143,23 @@ public abstract class Activity extends ScModel implements Parcelable,
     @Override
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
-        cv.put(DBHelper.Activities.UUID, uuid);
-        cv.put(DBHelper.Activities.TAGS, tags);
-        cv.put(DBHelper.Activities.TYPE, getType().type);
+        cv.put(TableColumns.Activities.UUID, uuid);
+        cv.put(TableColumns.Activities.TAGS, tags);
+        cv.put(TableColumns.Activities.TYPE, getType().type);
         if (sharing_note != null){
-            cv.put(DBHelper.Activities.SHARING_NOTE_TEXT, sharing_note.text);
-            cv.put(DBHelper.Activities.SHARING_NOTE_CREATED_AT, sharing_note.created_at.getTime());
+            cv.put(TableColumns.Activities.SHARING_NOTE_TEXT, sharing_note.text);
+            cv.put(TableColumns.Activities.SHARING_NOTE_CREATED_AT, sharing_note.created_at.getTime());
         }
 
         if (created_at != null) {
-            cv.put(DBHelper.Activities.CREATED_AT, created_at.getTime());
+            cv.put(TableColumns.Activities.CREATED_AT, created_at.getTime());
         }
 
-        if (getUser() != null) cv.put(DBHelper.Activities.USER_ID, getUser().getId());
+        if (getUser() != null) cv.put(TableColumns.Activities.USER_ID, getUser().getId());
 
         if (getPlayable() != null){
-            cv.put(DBHelper.Activities.SOUND_ID, getPlayable().getId());
-            cv.put(DBHelper.Activities.SOUND_TYPE, getType().isPlaylistActivity() ? Playable.DB_TYPE_PLAYLIST : Playable.DB_TYPE_TRACK);
+            cv.put(TableColumns.Activities.SOUND_ID, getPlayable().getId());
+            cv.put(TableColumns.Activities.SOUND_TYPE, getType().isPlaylistActivity() ? Playable.DB_TYPE_PLAYLIST : Playable.DB_TYPE_TRACK);
         }
         return cv;
     }

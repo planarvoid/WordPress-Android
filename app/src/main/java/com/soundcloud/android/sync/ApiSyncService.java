@@ -2,8 +2,8 @@ package com.soundcloud.android.sync;
 
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.tasks.ParallelAsyncTask;
 import com.soundcloud.android.utils.Log;
 
@@ -65,7 +65,7 @@ public class ApiSyncService extends Service {
     public void onDestroy() {
         Log.d(LOG_TAG, "onDestroy()");
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Collections.SYNC_STATE,LocalCollection.SyncState.IDLE);
+        cv.put(TableColumns.Collections.SYNC_STATE,LocalCollection.SyncState.IDLE);
         getContentResolver().update(Content.COLLECTIONS.uri, cv, null, null);
     }
 

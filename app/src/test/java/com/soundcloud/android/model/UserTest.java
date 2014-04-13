@@ -3,11 +3,9 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.storage.provider.DBHelper;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.TableColumns;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -55,7 +53,7 @@ public class UserTest {
         User u = new User();
         u.setId(1000L);
         ContentValues cv = u.buildContentValues();
-        expect(cv.getAsLong(DBHelper.Users._ID)).toEqual(1000L);
+        expect(cv.getAsLong(TableColumns.Users._ID)).toEqual(1000L);
     }
 
     @Test

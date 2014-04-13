@@ -4,8 +4,8 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.LocalCollectionDAO;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
@@ -87,7 +87,7 @@ public class SyncStateManager extends ScheduledOperations {
         LocalCollection lc = fromContent(uri);
 
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Collections.LAST_SYNC, time);
+        cv.put(TableColumns.Collections.LAST_SYNC, time);
 
         return mLocalCollectionDao.update(lc.getId(), cv);
     }
@@ -113,8 +113,8 @@ public class SyncStateManager extends ScheduledOperations {
     public Boolean forceToStale(final Content content) {
         LocalCollection lc = fromContent(content.uri);
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Collections.LAST_SYNC, 0);
-        cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, 0);
+        cv.put(TableColumns.Collections.LAST_SYNC, 0);
+        cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, 0);
 
         return mLocalCollectionDao.update(lc.getId(), cv);
     }
@@ -131,9 +131,9 @@ public class SyncStateManager extends ScheduledOperations {
 
     public boolean updateSyncState(long id, int newSyncState) {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Collections.SYNC_STATE, newSyncState);
+        cv.put(TableColumns.Collections.SYNC_STATE, newSyncState);
         if (newSyncState == LocalCollection.SyncState.SYNCING || newSyncState == LocalCollection.SyncState.PENDING) {
-            cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, System.currentTimeMillis());
+            cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, System.currentTimeMillis());
         }
         return mLocalCollectionDao.update(id, cv);
     }
@@ -142,7 +142,7 @@ public class SyncStateManager extends ScheduledOperations {
         LocalCollection lc = fromContent(contentUri);
         ContentValues cv = new ContentValues();
         final int misses = lc.syncMisses() + 1;
-        cv.put(DBHelper.Collections.EXTRA, misses);
+        cv.put(TableColumns.Collections.EXTRA, misses);
         if (mLocalCollectionDao.update(lc.getId(), cv)) {
             return misses;
         } else {

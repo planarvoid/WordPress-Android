@@ -11,8 +11,8 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.SearchSuggestions;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.IOUtils;
@@ -77,10 +77,10 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     public static final String[] COLUMN_NAMES = new String[]{
             BaseColumns._ID,                 // suggest id
-            DBHelper.Suggestions.ID,         // model id
+            TableColumns.Suggestions.ID,         // model id
             SearchManager.SUGGEST_COLUMN_TEXT_1,
             SearchManager.SUGGEST_COLUMN_INTENT_DATA,
-            DBHelper.Suggestions.ICON_URL,
+            TableColumns.Suggestions.ICON_URL,
             LOCAL,
             HIGHLIGHTS
     };
@@ -290,7 +290,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             // show results on the keyboard word completion list
             @Override
             public String toString() {
-                return getString(getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1));
+                return getString(getColumnIndex(TableColumns.Suggestions.COLUMN_TEXT1));
             }
         };
     }
@@ -329,8 +329,8 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         }
 
 
-        final long id = cursor.getLong(cursor.getColumnIndex(DBHelper.Suggestions.ID));
-        final String query = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1));
+        final long id = cursor.getLong(cursor.getColumnIndex(TableColumns.Suggestions.ID));
+        final String query = cursor.getString(cursor.getColumnIndex(TableColumns.Suggestions.COLUMN_TEXT1));
         final boolean local = cursor.getInt(cursor.getColumnIndex(LOCAL)) == 1;
         final String highlightData = cursor.getString(cursor.getColumnIndex(HIGHLIGHTS));
 

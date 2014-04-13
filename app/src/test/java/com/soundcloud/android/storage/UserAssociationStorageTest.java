@@ -24,7 +24,6 @@ import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -239,7 +238,7 @@ public class UserAssociationStorageTest {
         ContentValues[] contentValuesArr = argumentCaptor.getValue();
         int counter = 0;
         for (ContentValues contentValues : contentValuesArr) {
-            expect(contentValues.getAsInteger(DBHelper.UserAssociations.POSITION)).toEqual(START_POSITION + counter++);
+            expect(contentValues.getAsInteger(TableColumns.UserAssociations.POSITION)).toEqual(START_POSITION + counter++);
         }
         expect(counter).toEqual(ids.size());
     }
@@ -258,7 +257,7 @@ public class UserAssociationStorageTest {
         int counter = 0;
         for (ContentValues[] contentValue : contentValues) {
             for(ContentValues values : contentValue){
-                expect(values.getAsInteger(DBHelper.UserAssociations.POSITION)).toEqual(START_POSITION + counter++);
+                expect(values.getAsInteger(TableColumns.UserAssociations.POSITION)).toEqual(START_POSITION + counter++);
             }
         }
         expect(counter).toEqual(ids.size());
