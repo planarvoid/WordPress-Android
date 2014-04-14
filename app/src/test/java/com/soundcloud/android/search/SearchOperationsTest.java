@@ -344,18 +344,18 @@ public class SearchOperationsTest {
     public void addsSearchedTagToRecentTagsStorage() throws CreateModelException {
         buildPlaylistSummariesResponse();
 
-        searchOperations.getPlaylistResults("#electronic").subscribe(observer);
+        searchOperations.getPlaylistResults("electronic").subscribe(observer);
 
-        verify(tagStorage).addRecentTag(eq("#electronic"));
+        verify(tagStorage).addRecentTag(eq("electronic"));
     }
 
     @Test
     public void addsSearchedTagToRecentTagsStorageWhenRequestFails() {
         when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.error(new Exception()));
 
-        searchOperations.getPlaylistResults("#electronic").subscribe(observer);
+        searchOperations.getPlaylistResults("electronic").subscribe(observer);
 
-        verify(tagStorage).addRecentTag(eq("#electronic"));
+        verify(tagStorage).addRecentTag(eq("electronic"));
     }
 
 }
