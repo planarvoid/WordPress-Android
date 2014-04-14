@@ -75,15 +75,15 @@ public class EventLoggerParamsBuilder {
     private String getPerformanceEventType(int type) {
         switch (type) {
             case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY:
-                return "time-to-play";
+                return "play";
             case PlaybackPerformanceEvent.METRIC_TIME_TO_BUFFER:
-                return "time-to-buffer";
+                return "buffer";
             case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST:
-                return "time-to-get-playlist";
+                return "playlist";
             case PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK:
-                return "time-to-seek";
+                return "seek";
             case PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE:
-                return "fragment-download-rate";
+                return "fragment-rate";
             default:
                 throw new IllegalArgumentException("Unexpected metric type " + type);
         }
