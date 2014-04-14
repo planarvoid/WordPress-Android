@@ -6,7 +6,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static rx.android.OperationPaged.Page;
+import static rx.android.OperatorPaged.Page;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.android.OperationPaged;
+import rx.android.OperatorPaged;
 
 import android.content.Context;
 import android.content.Intent;
@@ -113,7 +113,7 @@ public class PlaylistResultsFragmentTest {
     @Test
     public void shouldRecreateObservableWhenClickingRetryAfterFailureSoThatWeDontEmitCachedResults() throws Exception {
         when(searchOperations.getPlaylistResults(anyString())).
-                thenReturn(Observable.<OperationPaged.Page<PlaylistSummaryCollection>>error(new Exception()));
+                thenReturn(Observable.<OperatorPaged.Page<PlaylistSummaryCollection>>error(new Exception()));
 
         fragment.onCreate(null);
         createFragmentView();
@@ -128,7 +128,7 @@ public class PlaylistResultsFragmentTest {
     @Test
     public void shouldShowWaitingStateWhenRetryingAFailedSequence() throws Exception {
         when(searchOperations.getPlaylistResults(anyString())).
-                thenReturn(Observable.<OperationPaged.Page<PlaylistSummaryCollection>>error(new Exception()),
+                thenReturn(Observable.<OperatorPaged.Page<PlaylistSummaryCollection>>error(new Exception()),
                         Observable.<Page<PlaylistSummaryCollection>>never());
 
         fragment.onCreate(null);

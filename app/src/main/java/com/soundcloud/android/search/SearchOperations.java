@@ -2,8 +2,9 @@ package com.soundcloud.android.search;
 
 import static com.soundcloud.android.api.http.SoundCloudAPIRequest.RequestBuilder;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static rx.android.OperationPaged.Page;
-import static rx.android.OperationPaged.paged;
+import static rx.android.OperatorPaged.Page;
+import static rx.android.OperatorPaged.Pager;
+import static rx.android.OperatorPaged.pagedWith;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
@@ -27,7 +28,7 @@ import com.soundcloud.android.storage.PlaylistTagStorage;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.android.OperationPaged;
+import rx.android.OperatorPaged;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -54,14 +55,14 @@ public class SearchOperations {
                 }
             };
 
-    private final SearchResultsNextPageFunction mNextSearchResultsPageGenerator = new SearchResultsNextPageFunction() {
+    private final Pager<SearchResultsCollection> mSearchResultsPager = new Pager<SearchResultsCollection>() {
         @Override
         public Observable<Page<SearchResultsCollection>> call(SearchResultsCollection searchResultsCollection) {
             final String nextHref = searchResultsCollection.getNextHref();
             if (ScTextUtils.isNotBlank(nextHref)) {
                 return getSearchResults(nextHref);
             } else {
-                return OperationPaged.emptyPageObservable();
+                return OperatorPaged.emptyPageObservable();
             }
         }
     };
@@ -142,7 +143,7 @@ public class SearchOperations {
                         fireAndForget(mBulkStorage.bulkInsertAsync(collection));
                     }
                 });
-        return Observable.create(paged(source, mNextSearchResultsPageGenerator));
+        return source.lift(pagedWith(mSearchResultsPager));
     }
 
     Observable<PlaylistTagsCollection> getRecentPlaylistTags() {
@@ -186,18 +187,18 @@ public class SearchOperations {
             String query, APIRequest<PlaylistSummaryCollection> request) {
         Observable<PlaylistSummaryCollection> source = mRxHttpClient.fetchModels(request);
         source = source.doOnNext(mPreCachePlaylistResults).map(withSearchTag(query));
-        return Observable.create(paged(source, nextDiscoveryResultsPageGenerator(query)));
+        return source.lift(pagedWith(discoveryResultsPager(query)));
     }
 
-    private DiscoveryResultsNextPageFunction nextDiscoveryResultsPageGenerator(final String query) {
-        return new DiscoveryResultsNextPageFunction() {
+    private Pager<PlaylistSummaryCollection> discoveryResultsPager(final String query) {
+        return new Pager<PlaylistSummaryCollection>() {
             @Override
             public Observable<Page<PlaylistSummaryCollection>> call(PlaylistSummaryCollection collection) {
                 final Optional<Link> nextLink = collection.getNextLink();
                 if (nextLink.isPresent()) {
                     return getPlaylistResultsNextPage(query, nextLink.get().getHref());
                 } else {
-                    return OperationPaged.emptyPageObservable();
+                    return OperatorPaged.emptyPageObservable();
                 }
             }
         };
@@ -220,7 +221,4 @@ public class SearchOperations {
     private Collection<String> removeItemIgnoreCase(List<String> list, String itemToRemove) {
         return Collections2.filter(list, Predicates.containsPattern("(?i)^(?!" + itemToRemove + "$).*$"));
     }
-
-    private interface SearchResultsNextPageFunction extends Func1<SearchResultsCollection, Observable<Page<SearchResultsCollection>>> {}
-    private interface DiscoveryResultsNextPageFunction extends Func1<PlaylistSummaryCollection, Observable<Page<PlaylistSummaryCollection>>> {}
 }

@@ -1,8 +1,9 @@
 package com.soundcloud.android.explore;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static rx.android.OperationPaged.Page;
-import static rx.android.OperationPaged.paged;
+import static rx.android.OperatorPaged.Page;
+import static rx.android.OperatorPaged.Pager;
+import static rx.android.OperatorPaged.pagedWith;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -20,9 +21,8 @@ import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.BulkStorage;
 import rx.Observable;
-import rx.android.OperationPaged;
+import rx.android.OperatorPaged;
 import rx.functions.Action1;
-import rx.util.functions.Func1;
 
 import javax.inject.Inject;
 
@@ -68,20 +68,18 @@ class ExploreTracksOperations extends ScheduledOperations {
                 .forResource(TypeToken.of(SuggestedTracksCollection.class)).build();
 
         Observable<SuggestedTracksCollection> source = mRxHttpClient.fetchModels(request);
-        return Observable.create(paged(source.doOnNext(mCacheSuggestedTracks), nextPageGenerator));
+        return source.doOnNext(mCacheSuggestedTracks).lift(pagedWith(pager));
     }
 
-    private final TrackSummariesNextPageFunc nextPageGenerator = new TrackSummariesNextPageFunc() {
+    private final Pager<SuggestedTracksCollection> pager = new Pager<SuggestedTracksCollection>() {
         @Override
         public Observable<Page<SuggestedTracksCollection>> call(SuggestedTracksCollection trackSummaries) {
             final Optional<Link> nextLink = trackSummaries.getNextLink();
             if (nextLink.isPresent()) {
                 return getSuggestedTracks(nextLink.get().getHref());
             } else {
-                return OperationPaged.emptyPageObservable();
+                return OperatorPaged.emptyPageObservable();
             }
         }
     };
-
-    private interface TrackSummariesNextPageFunc extends Func1<SuggestedTracksCollection, Observable<Page<SuggestedTracksCollection>>> {}
 }

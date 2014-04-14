@@ -11,6 +11,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static rx.android.OperatorPaged.Page;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
@@ -32,7 +33,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.android.OperationPaged;
+import rx.android.OperatorPaged;
 
 import android.content.Context;
 import android.net.Uri;
@@ -69,7 +70,7 @@ public class SearchResultsFragmentTest {
     @Test
     public void shouldGetAllResultsForAllQueryOnCreate() throws Exception {
         when(searchOperations.getAllSearchResults(anyString()))
-                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+                .thenReturn(Observable.<Page<SearchResultsCollection>>empty()); 
 
         createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_ALL));
         createFragmentView();
@@ -80,7 +81,7 @@ public class SearchResultsFragmentTest {
     @Test
     public void shouldGetTracksResultsForTracksQueryOnCreate() throws Exception {
         when(searchOperations.getTrackSearchResults(anyString()))
-                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+                .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
 
         createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_TRACKS));
         createFragmentView();
@@ -91,7 +92,7 @@ public class SearchResultsFragmentTest {
     @Test
     public void shouldGetPlaylistResultsForPlaylistQueryOnCreate() throws Exception {
         when(searchOperations.getPlaylistSearchResults(anyString()))
-                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+                .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
 
         createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_PLAYLISTS));
         createFragmentView();
@@ -102,7 +103,7 @@ public class SearchResultsFragmentTest {
     @Test
     public void shouldGetSearchAllResultsForQueryTypePeopleOnCreate() throws Exception {
         when(searchOperations.getUserSearchResults(anyString()))
-                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+                .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
 
         createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_USERS));
         createFragmentView();
@@ -113,7 +114,7 @@ public class SearchResultsFragmentTest {
     @Test
     public void shouldStartPlaybackWhenClickingPlayableRow() throws Exception {
         when(searchOperations.getAllSearchResults(anyString()))
-                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+                .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
         when(adapter.getItem(0)).thenReturn(new Track());
 
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
@@ -124,7 +125,7 @@ public class SearchResultsFragmentTest {
     @Test
     public void shouldSendSearchEverythingTrackingScreenOnItemClick() throws Exception {
         when(searchOperations.getAllSearchResults(anyString()))
-                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+                .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
         when(adapter.getItem(0)).thenReturn(new Track());
 
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_ALL));
@@ -136,7 +137,7 @@ public class SearchResultsFragmentTest {
     @Test
     public void shouldSendSearchTracksTrackingScreenOnItemClick() throws Exception {
         when(searchOperations.getTrackSearchResults(anyString()))
-                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+                .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
         when(adapter.getItem(0)).thenReturn(new Track());
 
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_TRACKS));
@@ -148,7 +149,7 @@ public class SearchResultsFragmentTest {
     @Test
     public void shouldSendSearchPlaylistsTrackingScreenOnItemClick() throws Exception {
         when(searchOperations.getPlaylistSearchResults(anyString()))
-                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+                .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
         when(adapter.getItem(0)).thenReturn(new Playlist());
 
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_PLAYLISTS));
@@ -160,7 +161,7 @@ public class SearchResultsFragmentTest {
     @Test
     public void shouldRecreateObservableWhenClickingRetryAfterFailureSoThatWeDontEmitCachedResults() throws Exception {
         when(searchOperations.getAllSearchResults(anyString())).
-                thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>error(new Exception()));
+                thenReturn(Observable.<Page<SearchResultsCollection>>error(new Exception()));
 
         createWithArguments(new Bundle());
         createFragmentView();
@@ -175,7 +176,7 @@ public class SearchResultsFragmentTest {
     @Test
     public void shouldShowErrorStateScreenOnGetResultsError() throws Exception {
         when(searchOperations.getAllSearchResults(anyString())).
-                thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>error(new Exception()));
+                thenReturn(Observable.<Page<SearchResultsCollection>>error(new Exception()));
 
         createWithArguments(new Bundle());
         createFragmentView();
@@ -188,7 +189,7 @@ public class SearchResultsFragmentTest {
     public void shouldShowWaitingStateWhileLoading() throws Exception {
         // Do not emit items, to simulate an ongoing data fetch
         when(searchOperations.getAllSearchResults(anyString())).
-                thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>never());
+                thenReturn(Observable.<Page<SearchResultsCollection>>never());
 
         createWithArguments(new Bundle());
         createFragmentView();
@@ -200,7 +201,7 @@ public class SearchResultsFragmentTest {
     @Test
     public void shouldPublishSearchEventWhenResultOnTracksTabIsClicked() throws Exception {
         when(searchOperations.getTrackSearchResults(anyString()))
-                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+                .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
         when(adapter.getItem(anyInt())).thenReturn(new Track());
 
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_TRACKS));
@@ -215,7 +216,7 @@ public class SearchResultsFragmentTest {
     @Test
     public void shouldPublishSearchEventWhenResultOnPlaylistsTabIsClicked() throws Exception {
         when(searchOperations.getPlaylistSearchResults(anyString()))
-                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+                .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
         when(adapter.getItem(anyInt())).thenReturn(new Playlist());
 
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_PLAYLISTS));
@@ -230,7 +231,7 @@ public class SearchResultsFragmentTest {
     @Test
     public void shouldPublishSearchEventWhenResultOnPeopleTabIsClicked() throws Exception {
         when(searchOperations.getUserSearchResults(anyString()))
-                .thenReturn(Observable.<OperationPaged.Page<SearchResultsCollection>>empty());
+                .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
         when(adapter.getItem(anyInt())).thenReturn(new User());
 
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_USERS));

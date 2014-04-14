@@ -1,6 +1,6 @@
 package com.soundcloud.android.explore;
 
-import static rx.android.OperationPaged.Page;
+import static rx.android.OperatorPaged.Page;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;

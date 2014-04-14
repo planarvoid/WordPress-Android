@@ -1,11 +1,11 @@
 package com.soundcloud.android.collections;
 
-import static rx.android.OperationPaged.Page;
+import static rx.android.OperatorPaged.Page;
 
 import com.soundcloud.android.R;
 import rx.Observer;
 import rx.Subscription;
-import rx.android.OperationPaged;
+import rx.android.OperatorPaged;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
@@ -18,7 +18,7 @@ public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAda
 
     private final int mProgressItemLayoutResId;
 
-    private Page<? extends Iterable<T>> mCurrentPage = OperationPaged.<T>emptyPage();
+    private Page<? extends Iterable<T>> mCurrentPage = OperatorPaged.<T>emptyPage();
 
     private AppendState mAppendState = AppendState.IDLE;
 

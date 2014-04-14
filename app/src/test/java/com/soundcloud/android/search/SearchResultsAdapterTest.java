@@ -15,13 +15,12 @@ import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.RxTestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.android.OperationPaged;
 
 import android.content.Context;
 import android.view.ViewGroup;
@@ -48,8 +47,7 @@ public class SearchResultsAdapterTest {
         ScResource resource2 = new Track(2);
         SearchResultsCollection results = new SearchResultsCollection(Lists.newArrayList(resource1, resource2));
 
-        final Observable<OperationPaged.Page<Iterable<ScResource>>> empty = Observable.<OperationPaged.Page<Iterable<ScResource>>>empty();
-        adapter.onNext(new OperationPaged.Page<Iterable<ScResource>>(results, empty));
+        adapter.onNext(RxTestHelper.singlePage(results));
 
         expect(adapter.getItem(0)).toEqual(resource1);
         expect(adapter.getItem(1)).toEqual(resource2);

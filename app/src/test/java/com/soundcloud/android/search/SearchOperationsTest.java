@@ -9,7 +9,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static rx.android.OperationPaged.Page;
+import static rx.android.OperatorPaged.Page;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
@@ -38,7 +38,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
-import rx.android.OperationPaged;
+import rx.android.OperatorPaged;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -123,7 +123,7 @@ public class SearchOperationsTest {
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
-        ArgumentCaptor<OperationPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
+        ArgumentCaptor<OperatorPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
         verify(observer).onNext(captor.capture());
         expect(captor.getValue().getPagedCollection()).toContainExactly(track, playlist, user);
     }
@@ -163,7 +163,7 @@ public class SearchOperationsTest {
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
-        ArgumentCaptor<OperationPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
+        ArgumentCaptor<OperatorPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
         verify(observer).onNext(captor.capture());
         Track firstResultsTrack = (Track) Lists.newArrayList(captor.getValue().getPagedCollection()).get(0);
         expect(firstResultsTrack).toBe(cachedTrack);
@@ -179,7 +179,7 @@ public class SearchOperationsTest {
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
-        ArgumentCaptor<OperationPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
+        ArgumentCaptor<OperatorPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
         verify(observer).onNext(captor.capture());
         final Page<SearchResultsCollection> value = captor.getValue();
         expect(value.getPagedCollection().getNextHref()).toEqual("next-href");
@@ -193,7 +193,7 @@ public class SearchOperationsTest {
         when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
-        ArgumentCaptor<OperationPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
+        ArgumentCaptor<OperatorPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
         verify(observer).onNext(captor.capture());
         expect(captor.getValue().hasNextPage()).toBeTrue();
     }
@@ -206,7 +206,7 @@ public class SearchOperationsTest {
         when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
-        ArgumentCaptor<OperationPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
+        ArgumentCaptor<OperatorPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
         verify(observer).onNext(captor.capture());
         expect(captor.getValue().hasNextPage()).toBeFalse();
     }

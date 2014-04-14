@@ -3,8 +3,8 @@ package com.soundcloud.android.collections;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.rx.TestObservables.MockObservable;
 import static org.mockito.Mockito.mock;
-import static rx.android.OperationPaged.Page;
-import static rx.android.OperationPaged.paged;
+import static rx.android.OperatorPaged.Page;
+import static rx.android.OperatorPaged.pagedWith;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -16,8 +16,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.OperationPaged;
-import rx.functions.Func1;
+import rx.android.OperatorPaged;
 import rx.subscriptions.Subscriptions;
 
 import android.os.Parcelable;
@@ -53,7 +52,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldAddAllItemsFromAnEmittedPage() {
-        final Observable<Page<List<Parcelable>>> finish = OperationPaged.emptyPageObservable();
+        final Observable<Page<List<Parcelable>>> finish = OperatorPaged.emptyPageObservable();
 
         loadFirstPageThen(finish);
 
@@ -62,7 +61,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void itemRowsShouldBeClickable() {
-        final Observable<Page<List<Parcelable>>> finish = OperationPaged.emptyPageObservable();
+        final Observable<Page<List<Parcelable>>> finish = OperatorPaged.emptyPageObservable();
 
         loadFirstPageThen(finish);
 
@@ -104,7 +103,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldReturnImmediatelyWhenNoNextPageAvailable() {
-        final Observable<Page<List<Parcelable>>> finish = OperationPaged.emptyPageObservable();
+        final Observable<Page<List<Parcelable>>> finish = OperatorPaged.emptyPageObservable();
 
         Subscription subscription = loadFirstPageThen(finish);
 
@@ -119,7 +118,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldCreateItemRow() {
-        final Observable<Page<List<Parcelable>>> finish = OperationPaged.emptyPageObservable();
+        final Observable<Page<List<Parcelable>>> finish = OperatorPaged.emptyPageObservable();
 
         loadFirstPageThen(finish);
 
@@ -215,7 +214,7 @@ public class EndlessPagingAdapterTest {
     }
 
     private <T> Observable<Page<List<T>>> pagingObservable(Observable<List<T>> source, final Observable<Page<List<T>>> nextPage) {
-        return Observable.create(paged(source, new Func1<List<T>, Observable<Page<List<T>>>>() {
+        return source.lift(pagedWith(new OperatorPaged.Pager<List<T>>() {
             @Override
             public Observable<Page<List<T>>> call(List<T> objects) {
                 return nextPage;

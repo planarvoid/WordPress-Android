@@ -8,9 +8,9 @@ import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static rx.android.OperationPaged.Page;
-import static rx.android.OperationPaged.nextPageFrom;
-import static rx.android.OperationPaged.paged;
+import static rx.android.OperatorPaged.Page;
+import static com.soundcloud.android.rx.RxTestHelper.endlessPagerFrom;
+import static rx.android.OperatorPaged.pagedWith;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +23,7 @@ import rx.Observer;
 import java.util.Arrays;
 import java.util.List;
 
-public class OperationPagedTest {
+public class OperatorPagedTest {
 
     @Mock
     private Observer mockObserver;
@@ -51,7 +51,7 @@ public class OperationPagedTest {
         Observable source = Observable.from(1, 2, 3).toList();
         Observable<List<Integer>> nextPage = Observable.from(4, 5, 6).toList();
 
-        Observable<Page<List<Integer>>> observable = Observable.create(paged(source, nextPageFrom(nextPage)));
+        Observable<Page<List<Integer>>> observable = source.lift(pagedWith(endlessPagerFrom(nextPage)));
         observable.subscribe(mockObserver);
 
         ArgumentCaptor<Page> arguments = ArgumentCaptor.forClass(Page.class);
@@ -69,21 +69,21 @@ public class OperationPagedTest {
     public void itForwardsExceptions() {
         Observable<List<Integer>> error = Observable.error(new Exception());
         Observable<List<Integer>> empty = Observable.empty();
-        Observable<Page<List<Integer>>> observable = Observable.create(paged(error, nextPageFrom(empty)));
+        Observable<Page<List<Integer>>> observable = error.lift(pagedWith(endlessPagerFrom(empty)));
         observable.subscribe(mockObserver);
         verify(mockObserver).onError(isA(Exception.class));
     }
 
     @Test
     public void testEmptyPageHelper() {
-        assertFalse(OperationPaged.emptyPage().hasNextPage());
-        assertFalse(OperationPaged.emptyPage().getPagedCollection().iterator().hasNext());
-        assertSame(OperationPaged.emptyPage().getNextPage(), OperationPaged.emptyPageObservable());
+        assertFalse(OperatorPaged.emptyPage().hasNextPage());
+        assertFalse(OperatorPaged.emptyPage().getPagedCollection().iterator().hasNext());
+        assertSame(OperatorPaged.emptyPage().getNextPage(), OperatorPaged.emptyPageObservable());
     }
 
     @Test
     public void testEmptyPageObservable() {
-        OperationPaged.emptyPageObservable().subscribe(mockObserver);
+        OperatorPaged.emptyPageObservable().subscribe(mockObserver);
         verify(mockObserver, never()).onNext(any());
         verify(mockObserver, never()).onError(any(Throwable.class));
         verify(mockObserver).onCompleted();
@@ -91,6 +91,6 @@ public class OperationPagedTest {
 
     private Observable<Page<List<Integer>>> pagedObservableWithNext(Observable<List<Integer>> nextPage) {
         Observable source = Observable.from(Arrays.asList(1, 2, 3)).toList();
-        return Observable.create(paged(source, nextPageFrom(nextPage)));
+        return source.lift(pagedWith(endlessPagerFrom(nextPage)));
     }
 }
