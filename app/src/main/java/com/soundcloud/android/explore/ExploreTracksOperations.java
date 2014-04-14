@@ -18,7 +18,6 @@ import com.soundcloud.android.model.ExploreGenresSections;
 import com.soundcloud.android.model.Link;
 import com.soundcloud.android.model.SuggestedTracksCollection;
 import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.BulkStorage;
 import rx.Observable;
 import rx.android.OperatorPaged;
@@ -26,7 +25,7 @@ import rx.functions.Action1;
 
 import javax.inject.Inject;
 
-class ExploreTracksOperations extends ScheduledOperations {
+class ExploreTracksOperations {
 
     private final RxHttpClient mRxHttpClient;
     private final BulkStorage mBulkStorage;
