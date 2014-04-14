@@ -8,6 +8,7 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
@@ -23,6 +24,7 @@ import java.io.IOException;
 
 public class SignupTask extends AuthTask {
 
+    private static final String TAG = SignupTask.class.getSimpleName();
     public static final String KEY_USERNAME = "username";
     public static final String KEY_PASSWORD = "password";
     private TokenInformationGenerator mTokenInformationGenerator;
@@ -65,6 +67,8 @@ public class SignupTask extends AuthTask {
             // explicitly request signup scope
             final Token signup = mOldCloudAPI.clientCredentials(Token.SCOPE_SIGNUP);
 
+            Log.d(TAG, signup.toString());
+
             HttpResponse resp = mOldCloudAPI.post(Request.to(Endpoints.USERS).with(
                     Params.User.EMAIL, params.getString(KEY_USERNAME),
                     Params.User.PASSWORD, params.getString(KEY_PASSWORD),
@@ -73,6 +77,7 @@ public class SignupTask extends AuthTask {
             ).usingToken(signup));
 
             int statusCode = resp.getStatusLine().getStatusCode();
+
             switch (statusCode) {
                 case HttpStatus.SC_CREATED: // success case
                     final User user = mOldCloudAPI.getMapper().readValue(resp.getEntity().getContent(), User.class);

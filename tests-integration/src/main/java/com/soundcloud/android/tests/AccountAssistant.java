@@ -111,6 +111,7 @@ public final class AccountAssistant {
         Log.i(TAG, String.format("LoggedInUser: %s", getAccount(context).name));
 
         fireAndForget(new AccountOperations(context).removeSoundCloudAccount());
+        PublicApiWrapper.getInstance(context).setToken(null);
         return true;
     }
 
