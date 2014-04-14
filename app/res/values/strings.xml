@@ -193,8 +193,8 @@
     <string name="search_empty">No results found</string>
     <string name="search_empty_subtext">Check the spelling or try a different search</string>
 
-    <string name="pref_skippy">Enable Skippy Player</string>
-    <string name="pref_skippy_desc">Play tracks through experimental Skippy Player. Will take effect when playing back the next track.</string>
+    <string name="pref_skippy">Force Skippy Player</string>
+    <string name="pref_skippy_desc">Play all tracks through experimental Skippy Player. Will take effect when playing back the next track.</string>
     <!-- Pull to refresh -->
     <string name="ptr_swiping">Swipe down to refresh</string>
     <string name="ptr_loading">Loading</string>

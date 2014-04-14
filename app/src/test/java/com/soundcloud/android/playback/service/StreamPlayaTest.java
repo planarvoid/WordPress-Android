@@ -405,8 +405,10 @@ public class StreamPlayaTest {
     @Test
     public void autoRetriesLastPlayOnMediaPlayerIfSkippyErrorsOnStart() throws Exception {
         instantiateStreamPlaya();
-        startPlaybackOnSkippy();
+        when(sharedPreferences.getBoolean(DevSettings.DEV_ENABLE_SKIPPY, false)).thenReturn(false);
+        when(sharedPreferences.getInt(StreamPlaya.PLAYS_SINCE_SKIPPY, 0)).thenReturn(StreamPlaya.MAX_PLAYS_OFF_SKIPPY);
         when(skippyAdapter.getProgress()).thenReturn(0L);
+        streamPlayerWrapper.play(track);
 
         streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND));
         verify(mediaPlayerAdapter).play(track, 0L);
@@ -415,12 +417,23 @@ public class StreamPlayaTest {
     @Test
     public void autoRetriesLastPlayOnMediaPlayerIfSkippyErrorsOnResumeTime() throws Exception {
         instantiateStreamPlaya();
-        when(sharedPreferences.getBoolean(DevSettings.DEV_ENABLE_SKIPPY, false)).thenReturn(true);
+        when(sharedPreferences.getBoolean(DevSettings.DEV_ENABLE_SKIPPY, false)).thenReturn(false);
+        when(sharedPreferences.getInt(StreamPlaya.PLAYS_SINCE_SKIPPY, 0)).thenReturn(StreamPlaya.MAX_PLAYS_OFF_SKIPPY);
+
         streamPlayerWrapper.play(track, 500L);
         when(skippyAdapter.getProgress()).thenReturn(500L);
 
         streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND));
         verify(mediaPlayerAdapter).play(track, 500L);
+    }
+
+    @Test
+    public void doesNotAutoRetrySkippyErrorIfSkippyModeEnabled() throws Exception {
+        instantiateStreamPlaya();
+        when(sharedPreferences.getBoolean(DevSettings.DEV_ENABLE_SKIPPY, false)).thenReturn(true);
+        startPlaybackOnSkippy();
+        streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND));
+        verify(mediaPlayerAdapter, never()).play(any(Track.class), anyLong());
     }
 
     @Test

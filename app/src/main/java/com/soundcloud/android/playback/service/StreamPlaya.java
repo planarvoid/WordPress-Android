@@ -151,8 +151,8 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
     @Override
     public void onPlaystateChanged(StateTransition stateTransition) {
-        if (currentPlaya == skippyPlayaDelegate &&
-                stateTransition.wasError() && skippyPlayaDelegate.getProgress() == trackPlaybackInfo.getStartPosition()) {
+        if (isUsingSkippyPlaya() && stateTransition.wasError() && !isInForceSkippyMode()
+                && skippyPlayaDelegate.getProgress() == trackPlaybackInfo.getStartPosition()) {
             Log.i(TAG, "Falling back to MediaPlayer");
 
             configureNextPlayaToUse(mediaPlayaDelegate);
@@ -190,7 +190,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
         currentPlaya = nextPlaya;
         currentPlaya.setListener(this);
 
-        if (currentPlaya == skippyPlayaDelegate){
+        if (isUsingSkippyPlaya()){
             playbackPreferences.edit().putInt(PLAYS_SINCE_SKIPPY, 0).apply();
             Log.i(TAG, "Configuring Playa to SkippyPlaya");
         } else {
@@ -209,7 +209,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
             return mediaPlayaDelegate;
         }
 
-        if (playbackPreferences.getBoolean(DevSettings.DEV_ENABLE_SKIPPY, false)) {
+        if (isInForceSkippyMode()) {
             return skippyPlayaDelegate;
         } else if (playbackPreferences.getInt(PLAYS_SINCE_SKIPPY, 0) >= MAX_PLAYS_OFF_SKIPPY) {
             return skippyPlayaDelegate;
@@ -217,6 +217,14 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
             return mediaPlayaDelegate;
         }
 
+    }
+
+    private boolean isUsingSkippyPlaya() {
+        return currentPlaya == skippyPlayaDelegate;
+    }
+
+    private boolean isInForceSkippyMode() {
+        return playbackPreferences.getBoolean(DevSettings.DEV_ENABLE_SKIPPY, false);
     }
 
     private boolean skippyInitialisationFailed() {
