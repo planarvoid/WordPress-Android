@@ -98,7 +98,7 @@ public class EventLoggerParamsBuilderTest {
     public void createsPlaybackPerformanceParametersForFragmentDownloadRateEvent() throws Exception {
         PlaybackPerformanceEvent playbackPerformanceEvent = PlaybackPerformanceEvent.fragmentDownloadRate(1000L, Protocol.HTTPS, PlayerType.MEDIA_PLAYER, "http://host.com/track.mp3");
         final String actualQueryString = eventLoggerParamsBuilder.buildFromPlaybackPerformanceEvent(playbackPerformanceEvent);
-        assertThat(actualQueryString, is(queryStringEqualTo("protocol=https&player_type=MediaPlayer&latency=1000&host=host.com&type=fragment-rate&ts=" + playbackPerformanceEvent.getTimeStamp())));
+        assertThat(actualQueryString, is(queryStringEqualTo("protocol=https&player_type=MediaPlayer&latency=1000&host=host.com&type=fragmentRate&ts=" + playbackPerformanceEvent.getTimeStamp())));
     }
 
     private void checkUrl(String expected) throws UnsupportedEncodingException {

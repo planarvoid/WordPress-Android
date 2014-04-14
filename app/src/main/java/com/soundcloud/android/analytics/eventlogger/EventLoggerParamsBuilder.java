@@ -83,7 +83,7 @@ public class EventLoggerParamsBuilder {
             case PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK:
                 return "seek";
             case PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE:
-                return "fragment-rate";
+                return "fragmentRate";
             default:
                 throw new IllegalArgumentException("Unexpected metric type " + type);
         }
