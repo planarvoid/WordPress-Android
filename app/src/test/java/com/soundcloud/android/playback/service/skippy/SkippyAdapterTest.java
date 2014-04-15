@@ -114,18 +114,8 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void getLastStateTransitionDefaultsToIdleNone() throws Exception {
-        expect(skippyAdapter.getLastStateTransition()).toEqual(new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE));
-    }
-
-    @Test
-    public void skippyIdleEventTranslatesToListenerIdleEvent() throws Exception {
-        skippyAdapter.onStateChanged(State.IDLE, Reason.NOTHING, Error.OK);
-        expect(skippyAdapter.getState()).toBe(PlayaState.IDLE);
-
-        final Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE);
-        verify(listener).onPlaystateChanged(expected);
-        expect(skippyAdapter.getLastStateTransition()).toEqual(expected);
+    public void getLastStateTransitionDefaultsToIdleComplete() throws Exception {
+        expect(skippyAdapter.getLastStateTransition()).toEqual(new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.COMPLETE));
     }
 
     @Test
@@ -134,6 +124,16 @@ public class SkippyAdapterTest {
         expect(skippyAdapter.getState()).toBe(PlayaState.IDLE);
 
         final Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE);
+        verify(listener).onPlaystateChanged(expected);
+        expect(skippyAdapter.getLastStateTransition()).toEqual(expected);
+    }
+
+    @Test
+    public void skippyIdleNothingEventTranslatesToListenerIdleCompleteEvent() throws Exception {
+        skippyAdapter.onStateChanged(State.IDLE, Reason.NOTHING, Error.OK);
+        expect(skippyAdapter.getState()).toBe(PlayaState.IDLE);
+
+        final Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.COMPLETE);
         verify(listener).onPlaystateChanged(expected);
         expect(skippyAdapter.getLastStateTransition()).toEqual(expected);
     }

@@ -5,6 +5,7 @@ import static com.soundcloud.android.events.PlaybackPerformanceEvent.Protocol;
 import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason.BUFFERING;
 import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
+import static com.soundcloud.android.skippy.Skippy.Reason.NOTHING;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
@@ -186,6 +187,8 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
                 default:
                     throw new IllegalArgumentException("Unexpected skippy error code : " + mLastError);
             }
+        } else if (mLastState == Skippy.State.IDLE && mLastReason == NOTHING) {
+            return Reason.COMPLETE;
         } else {
             return Reason.NONE;
         }
