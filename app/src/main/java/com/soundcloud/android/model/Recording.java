@@ -87,9 +87,9 @@ public class Recording extends ScResource implements Comparable<Recording> {
 
     // sharing
     public String four_square_venue_id; /* hex */
-    public String shared_emails;
-    public String shared_ids;
     public String service_ids;
+    @Deprecated public String shared_emails;
+    @Deprecated public String shared_ids;
 
     // private message to another user
     @Deprecated private User   recipient;
@@ -201,9 +201,6 @@ public class Recording extends ScResource implements Comparable<Recording> {
                 (getEncodedFile().exists() ? getEncodedFile() :
                 (getFile().exists() ? getFile() : null));
     }
-
-    public User getRecipient()           { return recipient; }
-    public String getRecipientUsername() { return recipient_username; }
 
     public @Nullable PlaybackStream getPlaybackStream() {
         if (mPlaybackStream == null && !external_upload) {
@@ -509,10 +506,6 @@ public class Recording extends ScResource implements Comparable<Recording> {
 
     public File getArtwork() {
         return resized_artwork_path != null && resized_artwork_path.exists() ? resized_artwork_path : artwork_path;
-    }
-
-    public boolean isPrivateMessage() {
-        return recipient_user_id > 0;
     }
 
     @Override

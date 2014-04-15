@@ -185,7 +185,6 @@
   <string name="email_confirmation_resend">Resend the confirmation link</string>
   <string name="email_confirmation_thanks_later">Thanks, I will confirm it later</string>
   <string name="email_confirmation_you_need_to_confirm">To get the most out of SoundCloud you need to confirm your email address.</string>
-  <string name="email_picker_clear">Clear</string>
   <string name="empty_user_likes_text">%1$s hasn\'t\nchosen any likes yet.</string>
   <string name="empty_user_followers_text">%1$s isn\'t\nbeing followed by anyone yet.</string>
   <string name="empty_user_followings_text">%1$s isn\'t\nfollowing anyone yet.</string>
@@ -275,9 +274,6 @@
   <string name="pref_sync_toggles">Synced Resources</string>
   <string name="pref_sync_wifi_only">Wifi only syncing</string>
   <string name="pref_sync_wifi_only_description">Sync my data only when connected via wifi</string>
-  <string name="private_message_btn_send">Send</string>
-  <string name="private_message_upload_message">Before we send it out privately to %s, maybe you want to add some more info?</string>
-  <string name="private_message_upload_title">Your sound message got saved.</string>
   <string name="raw">Raw</string>
   <string name="record_another_sound">Record another sound</string>
   <string name="record_insert_sd_card">Please insert an SD card to record.</string>
@@ -291,12 +287,10 @@
   <string name="recording_not_found">Recording not found</string>
   <string name="reset">Discard</string>
   <string name="sc_upload_add_image">Add\nImage</string>
-  <string name="sc_upload_only_you">Only You</string>
   <string name="sc_upload_private">\u00A0Private</string>
   <string name="sc_upload_public">\u00A0Public</string>
-  <string name="sc_upload_sharing_options_private">Your sound will be made private on SoundCloud. Add anyone you would like to share it privately with below.</string>
+  <string name="sc_upload_sharing_options_private">Your sound will be made private on SoundCloud.</string>
   <string name="sc_upload_sharing_options_public">Your sound will be made public on SoundCloud. Which other networks would you like to share it to?</string>
-  <string name="sc_upload_with_access">With Access</string>
   <string name="search_hint">Search SoundCloud</string>
   <string name="search_settings_description">Search sounds</string>
   <plurals name="seconds_available">
