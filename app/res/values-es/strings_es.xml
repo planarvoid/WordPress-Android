@@ -292,7 +292,7 @@
   <string name="sc_upload_only_you">Solo tú</string>
   <string name="sc_upload_private">Privado \u00A0</string>
   <string name="sc_upload_public">Público \u00A0</string>
-  <string name="sc_upload_sharing_options_private">Tu sonido se hará privado en SoundCloud. Añade cualquier sonido que desees compartir en privado más adelante.</string>
+  <string name="sc_upload_sharing_options_private">Tu sonido se hará privado en SoundCloud.</string>
   <string name="sc_upload_sharing_options_public">Tu sonido se hará público en SoundCloud. ¿Qué otras redes desearía compartir?</string>
   <string name="sc_upload_with_access">Con acceso</string>
   <string name="search_hint">Buscar SoundCloud</string>

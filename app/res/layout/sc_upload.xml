@@ -86,7 +86,8 @@
                                 android:focusable="true"
                                 android:clickable="true"
                                 android:layout_width="fill_parent"
-                                android:layout_height="50dip">
+                                android:layout_height="50dip"
+                                android:visibility="gone">
 
                                <TextView android:id="@+id/txt_with_access"
                                         android:layout_alignParentLeft="true"
@@ -107,13 +108,16 @@
                           <View android:id="@+id/share_access_separator"
                                 android:background="@color/recordUploadBorder"
                                 android:layout_width="fill_parent"
-                                android:layout_below="@id/btn_add_emails" android:layout_height="1dip"/>
+                                android:layout_below="@id/btn_add_emails"
+                                android:layout_height="1dip"
+                                android:visibility="gone" />
 
                           <com.soundcloud.android.creators.upload.AccessListLayout
                                   android:layout_below="@id/share_access_separator"
                                   android:id="@+id/accessList"
                                   android:layout_width="fill_parent"
-                                  android:layout_height="fill_parent"/>
+                                  android:layout_height="fill_parent"
+                                  android:visibility="gone" />
 
                 </RelativeLayout>
             </com.soundcloud.android.view.SafeViewFlipper>
