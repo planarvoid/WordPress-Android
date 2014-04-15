@@ -26,7 +26,6 @@ import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
@@ -142,7 +141,7 @@ public class PlayerTrackView extends FrameLayout implements
         mQueuePosition = queuePosition;
         mTrackSubscription.unsubscribe(); // unsubscribe from old subscription which may be in flight
         mTrackLoadingState = TrackLoadingState.WAITING;
-        mTrackSubscription = trackObservable.observeOn(AndroidSchedulers.mainThread()).subscribe(new DefaultSubscriber<Track>() {
+        mTrackSubscription = trackObservable.subscribe(new DefaultSubscriber<Track>() {
             @Override
             public void onNext(Track args) {
                 // GET RID OF PRIORITY OR IMPLEMENT IT PROPERLY
