@@ -23,7 +23,6 @@ import com.soundcloud.android.view.ButtonBar;
 import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 
 import android.content.Intent;
-import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -35,18 +34,12 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class UploadActivity extends ScActivity implements ISimpleDialogListener {
 
-    private ViewFlipper mSharingFlipper;
     private RadioGroup mRdoPrivacy;
     private RadioButton mRdoPrivate, mRdoPublic;
     private ConnectionListLayout mConnectionList;
-    private AccessListLayout mAccessListLayout;
     private Recording mRecording;
     private RecordingMetaDataLayout mRecordingMetadata;
     private boolean mUploading;
@@ -71,7 +64,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
 
         final Intent intent = getIntent();
         if (intent != null && (mRecording = Recording.fromIntent(intent, this, getCurrentUserId())) != null) {
-            setUploadLayout(mRecording.isPrivateMessage() ? R.layout.sc_message_upload : R.layout.sc_upload);
+            setUploadLayout(R.layout.sc_upload);
             mRecordingMetadata.setRecording(mRecording, false);
 
             if (mRecording.external_upload) {
@@ -98,8 +91,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         mRecordingMetadata.setActivity(this);
 
         final int backStringId = !mRecording.external_upload ? R.string.record_another_sound :
-                mRecording.isLegacyRecording() ? R.string.delete :
-                        R.string.cancel;
+                mRecording.isLegacyRecording() ? R.string.delete : R.string.cancel;
 
         ((ButtonBar) findViewById(R.id.bottom_bar)).addItem(new ButtonBar.MenuItem(REC_ANOTHER, new View.OnClickListener() {
             @Override
@@ -124,68 +116,36 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
                     recordingNotFound();
                 }
             }
-        }), mRecording.isPrivateMessage() ? R.string.private_message_btn_send : R.string.post);
+        }), R.string.post);
 
-        if (mRecording.isPrivateMessage()) {
-            ((TextView) findViewById(R.id.txt_private_message_upload_message))
-                    .setText(getString(R.string.private_message_upload_message, mRecording.getRecipientUsername()));
-        } else {
-            mSharingFlipper = (ViewFlipper) findViewById(R.id.vfSharing);
-            mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);
-            mRdoPublic = (RadioButton) findViewById(R.id.rdo_public);
-            mRdoPrivate = (RadioButton) findViewById(R.id.rdo_private);
+        mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);
+        mRdoPublic = (RadioButton) findViewById(R.id.rdo_public);
+        mRdoPrivate = (RadioButton) findViewById(R.id.rdo_private);
 
-            mRdoPrivacy.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(RadioGroup group, int checkedId) {
-                    switch (checkedId) {
-                        case R.id.rdo_public:
-                            mSharingFlipper.setDisplayedChild(0);
-                            ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_public);
-                            break;
-                        case R.id.rdo_private:
-                            mSharingFlipper.setDisplayedChild(1);
-                            ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_private);
-                            break;
-                    }
+        mRdoPrivacy.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.rdo_public:
+                        mConnectionList.setVisibility(View.VISIBLE);
+                        ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_public);
+                        break;
+                    case R.id.rdo_private:
+                        mConnectionList.setVisibility(View.GONE);
+                        ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_private);
+                        break;
                 }
-            });
+            }
+        });
 
-            mConnectionList = (ConnectionListLayout) findViewById(R.id.connectionList);
-            mConnectionList.setAdapter(new ConnectionListLayout.Adapter(mOldCloudAPI));
-
-            mAccessListLayout = (AccessListLayout) findViewById(R.id.accessList);
-            mAccessListLayout.registerDataSetObserver(new DataSetObserver() {
-                @Override public void onChanged() {
-                    findViewById(R.id.btn_add_emails).setVisibility(
-                            mAccessListLayout.isEmpty() ? View.VISIBLE : View.GONE
-                    );
-                }
-            });
-
-            findViewById(R.id.btn_add_emails).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    List<String> accessList = mAccessListLayout.get();
-                    Intent intent = new Intent(UploadActivity.this, EmailPickerActivity.class);
-                    if (accessList != null) {
-                        intent.putExtra(EmailPickerActivity.BUNDLE_KEY, accessList.toArray(new String[accessList.size()]));
-                        if (v instanceof EmailPickerItemLayout) {
-                            intent.putExtra(EmailPickerActivity.SELECTED, ((EmailPickerItemLayout) v).getEmail());
-                        }
-                    }
-                    startActivityForResult(intent, Consts.RequestCodes.PICK_EMAILS);
-                }
-            });
-        }
+        mConnectionList = (ConnectionListLayout) findViewById(R.id.connectionList);
+        mConnectionList.setAdapter(new ConnectionListLayout.Adapter(mOldCloudAPI));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (!mRecording.isPrivateMessage()) {
-            mConnectionList.getAdapter().loadIfNecessary(this);
-        }
+        mConnectionList.getAdapter().loadIfNecessary(this);
         if (shouldTrackScreen()) {
             mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.RECORD_UPLOAD.get());
         }
@@ -214,28 +174,19 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         if (mRecordingMetadata != null) mRecordingMetadata.onDestroy();
     }
 
-    private void setPrivateShareEmails(String[] emails) {
-        mAccessListLayout.set(Arrays.asList(emails));
-    }
-
-
     @Override
     public void onSaveInstanceState(Bundle state) {
-        if (!mRecording.isPrivateMessage()) {
-            state.putInt("createPrivacyValue", mRdoPrivacy.getCheckedRadioButtonId());
-        }
+        state.putInt("createPrivacyValue", mRdoPrivacy.getCheckedRadioButtonId());
         mRecordingMetadata.onSaveInstanceState(state);
         super.onSaveInstanceState(state);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
-        if (!mRecording.isPrivateMessage()) {
-            if (state.getInt("createPrivacyValue") == R.id.rdo_private) {
-                mRdoPrivate.setChecked(true);
-            } else {
-                mRdoPublic.setChecked(true);
-            }
+        if (state.getInt("createPrivacyValue") == R.id.rdo_private) {
+            mRdoPrivate.setChecked(true);
+        } else {
+            mRdoPublic.setChecked(true);
         }
 
         mRecordingMetadata.onRestoreInstanceState(state);
@@ -244,31 +195,23 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
 
     private void mapFromRecording(final Recording recording) {
         mRecordingMetadata.mapFromRecording(recording);
-        if (!mRecording.isPrivateMessage()) {
-            if (!TextUtils.isEmpty(recording.shared_emails)) setPrivateShareEmails(recording.shared_emails.split(","));
-            if (recording.is_private) {
-                mRdoPrivate.setChecked(true);
-            } else {
-                mRdoPublic.setChecked(true);
-            }
+        if (recording.is_private) {
+            mRdoPrivate.setChecked(true);
+        } else {
+            mRdoPublic.setChecked(true);
         }
     }
 
     private void mapToRecording(final Recording recording) {
         mRecordingMetadata.mapToRecording(recording);
-        if (!mRecording.isPrivateMessage()) {
-            recording.is_private = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
-            if (!recording.is_private) {
-                if (mConnectionList.postToServiceIds() != null) {
-                    recording.service_ids = TextUtils.join(",", mConnectionList.postToServiceIds());
-                }
-                recording.shared_emails = null;
-            } else {
-                recording.service_ids = null;
-                if (mAccessListLayout.get() != null) {
-                    recording.shared_emails = TextUtils.join(",", mAccessListLayout.get());
-                }
+        recording.is_private = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
+        if (!recording.is_private) {
+            if (mConnectionList.postToServiceIds() != null) {
+                recording.service_ids = TextUtils.join(",", mConnectionList.postToServiceIds());
             }
+            recording.shared_emails = null;
+        } else {
+            recording.service_ids = null;
         }
     }
 
@@ -318,15 +261,6 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
                 }
                 break;
             }
-
-            case Consts.RequestCodes.PICK_EMAILS:
-                if (resultCode == RESULT_OK && result != null && result.hasExtra(EmailPickerActivity.BUNDLE_KEY)) {
-                    String[] emails = result.getExtras().getStringArray(EmailPickerActivity.BUNDLE_KEY);
-                    if (emails != null) {
-                        setPrivateShareEmails(emails);
-                    }
-                }
-                break;
             case Consts.RequestCodes.PICK_VENUE:
                 if (resultCode == RESULT_OK && result != null && result.hasExtra(LocationPickerActivity.EXTRA_NAME)) {
                     // XXX candidate for model?
