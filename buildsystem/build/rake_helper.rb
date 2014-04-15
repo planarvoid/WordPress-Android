@@ -88,6 +88,10 @@ module Build
         Rake::Task['build'].invoke
       end
 
+      file Build.artifact_path do
+        Rake::Task['build'].invoke
+      end
+
       desc "builds the project, you can build different versions by setting environment variable (ENV=beta rake build)"
       task :build do
         build
