@@ -11,6 +11,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Token;
@@ -18,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -132,7 +132,9 @@ public class AccountOperations {
         Account soundCloudAccount = getSoundCloudAccount();
         checkNotNull(soundCloudAccount, "One does not simply remove something that does not exist");
 
-        return Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager));
+        return Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager))
+                .subscribeOn(ScSchedulers.STORAGE_SCHEDULER)
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public Observable<Void> purgeUserData() {

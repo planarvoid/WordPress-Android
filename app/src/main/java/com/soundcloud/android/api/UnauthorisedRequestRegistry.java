@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class UnauthorisedRequestRegistry {
     private static final String TAG = "RequestRegistry";
     private static final long NO_OBSERVED_TIME = 0L;
-    private static final long TIME_LIMIT_IN_MILLISECONDS = TimeUnit.SECONDS.toMillis(60*2);
+    private static final long TIME_LIMIT_IN_MILLISECONDS = TimeUnit.SECONDS.toMillis(5);
     private static UnauthorisedRequestRegistry instance;
     private Context mContext;
 

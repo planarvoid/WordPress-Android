@@ -11,19 +11,17 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class ScSchedulers {
 
     public static final Scheduler STORAGE_SCHEDULER;
-    public static final Scheduler IO_SCHEDULER;
     public static final Scheduler API_SCHEDULER;
 
-    private static final int NUM_API_THREADS = 3;
+    private static final int NUM_THREADS = 3;
 
     static {
-        STORAGE_SCHEDULER = Schedulers.threadPoolForIO();
+        STORAGE_SCHEDULER = Schedulers.executor(createExecutor("RxStorageThreadPool"));
         API_SCHEDULER = Schedulers.executor(createExecutor("RxApiThreadPool"));
-        IO_SCHEDULER = Schedulers.executor(createExecutor("RxIoThreadPool"));
     }
 
     private static Executor createExecutor(final String threadIdentifier) {
-        return Executors.newFixedThreadPool(NUM_API_THREADS, new ThreadFactory() {
+        return Executors.newFixedThreadPool(NUM_THREADS, new ThreadFactory() {
             final AtomicLong counter = new AtomicLong();
 
             @Override

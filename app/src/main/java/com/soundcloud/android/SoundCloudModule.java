@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.accounts.AccountsModule;
 import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.associations.LikesModule;
