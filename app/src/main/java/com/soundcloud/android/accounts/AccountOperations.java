@@ -12,11 +12,13 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -29,7 +31,7 @@ import android.os.Bundle;
 import javax.inject.Inject;
 import java.io.IOException;
 
-public class AccountOperations {
+public class AccountOperations extends ScheduledOperations {
     public enum AccountInfoKeys {
         USERNAME("currentUsername"),
         USER_ID("currentUserId"),
@@ -64,6 +66,13 @@ public class AccountOperations {
 
     @Inject
     public AccountOperations(AccountManager accountManager, Context context, SoundCloudTokenOperations tokenOperations) {
+        this(accountManager, context, tokenOperations, ScSchedulers.STORAGE_SCHEDULER);
+    }
+
+    @VisibleForTesting
+    AccountOperations(AccountManager accountManager, Context context, SoundCloudTokenOperations tokenOperations,
+                      Scheduler scheduler) {
+        super(scheduler);
         this.accountManager = accountManager;
         this.context = context;
         this.tokenOperations = tokenOperations;
@@ -132,8 +141,7 @@ public class AccountOperations {
         Account soundCloudAccount = getSoundCloudAccount();
         checkNotNull(soundCloudAccount, "One does not simply remove something that does not exist");
 
-        return Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager))
-                .subscribeOn(ScSchedulers.STORAGE_SCHEDULER)
+        return schedule(Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager)))
                 .observeOn(AndroidSchedulers.mainThread());
     }
 

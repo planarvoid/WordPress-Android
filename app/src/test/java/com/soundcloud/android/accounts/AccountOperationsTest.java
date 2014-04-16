@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observer;
+import rx.schedulers.Schedulers;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -53,7 +54,8 @@ public class AccountOperationsTest {
     @Before
     public void setUp() {
         initMocks(this);
-        accountOperations = new AccountOperations(accountManager, Robolectric.application, tokenOperations);
+        accountOperations = new AccountOperations(
+                accountManager, Robolectric.application, tokenOperations, Schedulers.immediate());
     }
 
     @Test
