@@ -22,12 +22,6 @@ public class TokenExpiredDialogFragment extends DialogFragment {
                                 dismiss();
                             }
                         }
-                ).setNegativeButton(
-                        android.R.string.cancel, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dismiss();
-                            }
-                        }
                 ).create();
     }
 }
