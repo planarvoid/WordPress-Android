@@ -34,6 +34,7 @@ public class PlayerScreen extends Screen {
     }
 
     public String trackTitle() {
+        waiter.waitForPlayerPlaying();
         TextView textView = (TextView)solo.getView(R.id.playable_title);
         return textView.getText().toString();
     }
