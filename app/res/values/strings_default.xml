@@ -193,7 +193,7 @@
   <string name="error_loading_message">There was a problem contacting Soundcloud.</string>
   <string name="error_loading_title">Network error</string>
   <string name="error_recording_message">There was an error during recording.\n Your device may not support the current record configuration. You can change configurations in the application settings.</string>
-  <string name="error_unauthorized_message">We're having a problem with your account and need you to log back into SoundCloud before you can continue using the app.</string>
+  <string name="error_unauthorized_message">We\'re having a problem with your account and need you to log back into SoundCloud before you can continue using the app.</string>
   <string name="error_unauthorized_title">Account Error</string>
   <string name="facebook_authentication_error_no_connection_message">Please try again shortly or log in using your SoundCloud username and password.</string>
   <string name="facebook_authentication_failed_message">Please try again shortly or log in using your SoundCloud username and password.</string>
