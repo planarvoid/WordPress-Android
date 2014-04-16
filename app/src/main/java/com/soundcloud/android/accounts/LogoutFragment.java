@@ -9,6 +9,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.subscriptions.CompositeSubscription;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,6 +19,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
+@SuppressLint("ValidFragment")
 public class LogoutFragment extends Fragment {
 
     @Inject
