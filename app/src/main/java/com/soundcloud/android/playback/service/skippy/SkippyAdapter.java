@@ -6,6 +6,7 @@ import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason.BUFFERING;
 import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
 import static com.soundcloud.android.skippy.Skippy.Reason.NOTHING;
+import static com.soundcloud.android.skippy.Skippy.Reason.PAUSED;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
@@ -85,8 +86,14 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public boolean resume() {
-        mSkippy.resume();
-        return true;
+        // note, we may have to just return true/false from Skippy directly if we lose state storage here as planned
+        if (mLastState == Skippy.State.IDLE && mLastReason == PAUSED){
+            mSkippy.resume();
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     @Override

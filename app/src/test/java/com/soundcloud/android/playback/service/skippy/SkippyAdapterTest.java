@@ -10,6 +10,7 @@ import static com.soundcloud.android.skippy.Skippy.Reason;
 import static com.soundcloud.android.skippy.Skippy.State;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
@@ -102,9 +103,17 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void resumeCallsResumeOnSkippy(){
+    public void resumeCallsResumeOnSkippyIfInPausedState(){
+        skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK);
         skippyAdapter.resume();
         verify(skippy).resume();
+    }
+
+    @Test
+    public void resumeReturnsFalseAndDoesNotResumeIfInCompleteState(){
+        skippyAdapter.onStateChanged(State.IDLE, Reason.NOTHING, Error.OK);
+        expect(skippyAdapter.resume()).toBeFalse();
+        verifyZeroInteractions(skippy);
     }
 
     @Test
