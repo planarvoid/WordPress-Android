@@ -60,7 +60,6 @@
     <string name="tour_login_header">Or sign in with your account</string>
 
     <string name="title_settings">Settings</string>
-    <string name="settings_logging_out">Logging you out</string>
 
     <string name="dashboard_notifications_activity_message_repost">%1$s reposted %2$s</string>
 

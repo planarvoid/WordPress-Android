@@ -303,7 +303,6 @@
     <item quantity="one">1 second available</item>
     <item quantity="other">%d seconds available</item>
   </plurals>
-  <string name="settings_error_revoking_account_message">There was a problem logging out. Please try again.</string>
   <string name="share_fail_message">OK, that went wrong.</string>
   <string name="share_log_out">Log out</string>
   <string name="share_success_message">Yay, that worked!</string>
