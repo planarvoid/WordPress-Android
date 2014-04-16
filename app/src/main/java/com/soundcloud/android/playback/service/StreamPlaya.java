@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import javax.inject.Inject;
-import java.util.BitSet;
 
 //Not a hater
 public class StreamPlaya implements Playa, Playa.PlayaListener {
@@ -25,7 +24,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     static final int MAX_PLAYS_OFF_SKIPPY = 3; // TODO increase to 10 before launch
 
     @VisibleForTesting
-    static BitSet skippyInitialisationStatus = new BitSet(2);
+    static boolean skippyFailedToInitialize;
 
     private final MediaPlayerAdapter mediaPlayaDelegate;
     private final SkippyAdapter skippyPlayaDelegate;
@@ -47,9 +46,8 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
         bufferingPlayaDelegate = bufferingPlaya;
         currentPlaya = bufferingPlayaDelegate;
 
-        if (skippyLoadHasNotBeenAttempted()) {
-            skippyInitialisationStatus.set(1, skippyPlayaDelegate.init(context));
-            skippyInitialisationStatus.set(0, true);
+        if (!skippyFailedToInitialize) {
+            skippyFailedToInitialize = !skippyPlayaDelegate.init(context);
         }
     }
 
@@ -200,12 +198,8 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
         }
     }
 
-    private boolean skippyLoadHasNotBeenAttempted() {
-        return !skippyInitialisationStatus.get(0);
-    }
-
     private Playa getNextPlaya() {
-        if (skippyInitialisationFailed()){
+        if (skippyFailedToInitialize){
             return mediaPlayaDelegate;
         }
 
@@ -225,10 +219,6 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
     private boolean isInForceSkippyMode() {
         return playbackPreferences.getBoolean(DevSettings.DEV_ENABLE_SKIPPY, false);
-    }
-
-    private boolean skippyInitialisationFailed() {
-        return !skippyInitialisationStatus.get(1);
     }
 
     private static class TrackPlaybackInfo {

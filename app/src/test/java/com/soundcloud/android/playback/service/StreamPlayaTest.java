@@ -55,7 +55,7 @@ public class StreamPlayaTest {
 
     @After
     public void tearDown(){
-        StreamPlaya.skippyInitialisationStatus.set(0, false);
+        StreamPlaya.skippyFailedToInitialize = false;
     }
 
     private void instantiateStreamPlaya() {
