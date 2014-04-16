@@ -85,8 +85,6 @@
     <string name="side_menu_likes">Favoritos</string>
     <string name="side_menu_who_to_follow">A quién seguir</string>
 
-    <string name="settings_logging_out">Cerrar la sesión</string>
-
     <!--
      no longer used !
     <string name="problem_getting_connections">Error al intentar conexión</string>

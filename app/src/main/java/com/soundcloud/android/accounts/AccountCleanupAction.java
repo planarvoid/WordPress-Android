@@ -78,14 +78,14 @@ class AccountCleanupAction implements Action0 {
 
         FBToken.clear(mContext);
 
-        mEventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
-        mContext.sendBroadcast(new Intent(PlaybackService.Actions.RESET_ALL));
-
-
         mC2DMReceiver.unregister(mContext);
         FollowingOperations.clearState();
         ConnectionsCache.reset();
         SoundCloudApplication applicationContext = (SoundCloudApplication) mContext.getApplicationContext();
+        //FIXME: this writes to a reference on a background thread that we only read on the UI thread (visibility)
         applicationContext.clearLoggedInUser();
+
+        mEventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
+        mContext.sendBroadcast(new Intent(PlaybackService.Actions.RESET_ALL));
     }
 }

@@ -295,7 +295,6 @@
     <item quantity="one">1 segundo disponible</item>
     <item quantity="other">%d segundos disponibles</item>
   </plurals>
-  <string name="settings_error_revoking_account_message">Se produjo un problema en el cierre de sesión. Por favor, inténtelo de nuevo.</string>
   <string name="share_fail_message">Vale, no salió bien.</string>
   <string name="share_log_out">Desconectar</string>
   <string name="share_success_message">¡Sí, funcionó!</string>

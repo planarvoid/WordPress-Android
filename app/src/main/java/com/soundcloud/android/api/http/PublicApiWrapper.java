@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
@@ -193,8 +192,6 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     private void recordUnauthorisedRequestIfRequired(HttpResponse response) {
         if (responseIsUnauthorised(response)) {
             mUnauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
-        } else {
-            mUnauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
         }
     }
 

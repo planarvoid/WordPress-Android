@@ -5,6 +5,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.NowPlayingActionBarController;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
@@ -13,7 +14,6 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -267,7 +267,14 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
                             }
                         }).create();
             case Consts.Dialogs.DIALOG_LOGOUT:
-                return SettingsActivity.createLogoutDialog(this);
+                return new AlertDialog.Builder(this).setTitle(R.string.menu_clear_user_title)
+                        .setMessage(R.string.menu_clear_user_desc)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                LogoutActivity.start(ScActivity.this);
+                            }
+                        }).create();
 
             case Consts.Dialogs.DIALOG_TRANSCODING_FAILED:
                 return new AlertDialog.Builder(this).setTitle(R.string.dialog_transcoding_failed_title)
