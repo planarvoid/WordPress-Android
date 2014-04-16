@@ -1,18 +1,21 @@
 package com.soundcloud.android.tests;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static junit.framework.Assert.assertNotNull;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.PublicApiWrapper;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
+import rx.Subscription;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -21,12 +24,20 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public final class AccountAssistant {
     public static final String USERNAME = "android-testing";
     public static final String PASSWORD = "android-testing";
 
     private AccountAssistant() {}
     private static final String TAG = AccountAssistant.class.getSimpleName();
+
+    private static final Lock lock = new ReentrantLock();
+    private static final Condition accountDataCleaned = lock.newCondition();
 
     public static Account loginAsDefault(final Instrumentation instrumentation) throws Exception {
         return loginAs(instrumentation, USERNAME, PASSWORD);
@@ -110,8 +121,34 @@ public final class AccountAssistant {
 
         Log.i(TAG, String.format("LoggedInUser: %s", getAccount(context).name));
 
-        fireAndForget(new AccountOperations(context).removeSoundCloudAccount());
-        PublicApiWrapper.getInstance(context).setToken(null);
+
+        final Subscription subscription = SoundCloudApplication.fromContext(context).getEventBus().subscribe(
+                EventQueue.CURRENT_USER_CHANGED, new DefaultSubscriber<CurrentUserChangedEvent>() {
+
+                    @Override
+                    public void onNext(CurrentUserChangedEvent event) {
+                        lock.lock();
+                        try {
+                            Log.i(TAG, "User account data cleanup finished");
+                            accountDataCleaned.signal();
+                        } finally {
+                            lock.unlock();
+                        }
+                    }
+                });
+
+        accountOperations.removeSoundCloudAccount().toBlockingObservable().firstOrDefault(null);
+
+        lock.lock();
+        // wait for the data cleanup action
+        try {
+            Log.i(TAG, "Waiting for user account data cleanup...");
+            accountDataCleaned.await(5, TimeUnit.SECONDS);
+        } finally {
+            lock.unlock();
+            subscription.unsubscribe();
+        }
+
         return true;
     }
 
