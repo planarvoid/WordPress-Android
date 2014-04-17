@@ -4,10 +4,12 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 
 import android.util.SparseArray;
 
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
 
 @Singleton
@@ -16,10 +18,21 @@ public class EventBus {
     public static final class QueueDescriptor<T> {
         public final String name;
         public final Class<T> eventType;
+        @Nullable
+        private T defaultEvent;
 
         private QueueDescriptor(String name, Class<T> eventType) {
             this.name = name;
             this.eventType = eventType;
+        }
+
+        private QueueDescriptor(String name, Class<T> eventType, @Nullable T defaultEvent) {
+            this(name, eventType);
+            this.defaultEvent = defaultEvent;
+        }
+
+        public static <T> QueueDescriptor<T> create(String name, Class<T> eventType, T defaultEvent) {
+            return new QueueDescriptor<T>(name, eventType, defaultEvent);
         }
 
         public static <T> QueueDescriptor<T> create(String name, Class<T> eventType) {
@@ -51,9 +64,33 @@ public class EventBus {
         public abstract Observable<T> transform();
     }
 
-    private static class SubjectQueue<T> implements Queue<T> {
+    private static class PublishSubjectQueue<T> implements Queue<T> {
 
         private final PublishSubject<T> mSubject = PublishSubject.create();
+
+        @Override
+        public Subscription subscribe(Observer<? super T> observer) {
+            return mSubject.observeOn(AndroidSchedulers.mainThread()).subscribe(observer);
+        }
+
+        @Override
+        public void publish(T event) {
+            mSubject.onNext(event);
+        }
+
+        @Override
+        public Observable<T> transform() {
+            return mSubject;
+        }
+    }
+
+    private static class BehaviorSubjectQueue<T> implements Queue<T> {
+
+        private final BehaviorSubject<T> mSubject;
+
+        public BehaviorSubjectQueue(T defaultEvent) {
+            mSubject = BehaviorSubject.create(defaultEvent);
+        }
 
         @Override
         public Subscription subscribe(Observer<? super T> observer) {
@@ -78,7 +115,9 @@ public class EventBus {
         final int queueId = qd.id();
         Queue<T> queue = (Queue<T>) mQueues.get(queueId);
         if (queue == null) {
-            queue = new SubjectQueue<T>();
+            queue = qd.defaultEvent != null ? new BehaviorSubjectQueue<T>(qd.defaultEvent)
+                    : new PublishSubjectQueue<T>();
+
             mQueues.put(queueId, queue);
         }
         return queue;

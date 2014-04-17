@@ -18,6 +18,8 @@ import rx.util.functions.Func1;
 public class EventBusTest {
 
     private static final QueueDescriptor<String> TEST_QUEUE = QueueDescriptor.create("test_queue_1", String.class);
+    private static final QueueDescriptor<String> TEST_BEHAVIOR_QUEUE =
+            QueueDescriptor.create("test_behavior_queue_1", String.class, "default-item");
 
     private EventBus eventBus = new EventBus();
 
@@ -91,5 +93,28 @@ public class EventBusTest {
 
         verify(observer1).onNext("1");
         verify(intObserver).onNext(1);
+    }
+
+    @Test
+    public void shouldPublishDefaultValueOnConnectionToBehaviorQueueWithNoEvents() throws Exception {
+        eventBus.subscribe(TEST_BEHAVIOR_QUEUE, observer1);
+        verify(observer1).onNext("default-item");
+    }
+
+    @Test
+    public void shouldEmitLastValueOnConnectionToBehaviorQueue() throws Exception {
+        eventBus.publish(TEST_BEHAVIOR_QUEUE, "1");
+        eventBus.publish(TEST_BEHAVIOR_QUEUE, "2");
+        eventBus.subscribe(TEST_BEHAVIOR_QUEUE, observer1);
+        verify(observer1).onNext("2");
+        verifyNoMoreInteractions(observer1);
+    }
+
+    @Test
+    public void shouldEmitSubsequeneValuesWhenConnectedToBehaviorQueue() throws Exception {
+        eventBus.publish(TEST_BEHAVIOR_QUEUE, "1");
+        eventBus.subscribe(TEST_BEHAVIOR_QUEUE, observer1);
+        eventBus.publish(TEST_BEHAVIOR_QUEUE, "2");
+        verify(observer1).onNext("2");
     }
 }
