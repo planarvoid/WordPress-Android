@@ -33,6 +33,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ExceptionUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Token;
@@ -126,7 +127,7 @@ public class SoundCloudApplication extends Application {
         if (ApplicationProperties.shouldReportCrashes() &&
                 mSharedPreferences.getBoolean(SettingsActivity.CRASH_REPORTING_ENABLED, false)) {
             Crashlytics.start(this);
-            setupOOMInterception();
+            ExceptionUtils.setupOOMInterception();
         }
 
         IOUtils.checkState(this);
@@ -185,23 +186,6 @@ public class SoundCloudApplication extends Application {
                 Crashlytics.setUserIdentifier(getLoggedInUser().username);
             }
         }
-    }
-
-    /*
-     * This must be called AFTER Crashlytics has been initialised
-     */
-    private void setupOOMInterception() {
-        final Thread.UncaughtExceptionHandler crashlyticsHandler = Thread.getDefaultUncaughtExceptionHandler();
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable e) {
-                if (e instanceof OutOfMemoryError) {
-                    crashlyticsHandler.uncaughtException(thread, new OutOfMemoryError("OOM Trend"));
-                } else {
-                    crashlyticsHandler.uncaughtException(thread, e);
-                }
-            }
-        });
     }
 
     private void setupAnalytics() {
