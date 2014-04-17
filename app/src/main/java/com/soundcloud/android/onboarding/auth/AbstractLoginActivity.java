@@ -1,14 +1,6 @@
 package com.soundcloud.android.onboarding.auth;
 
 
-import android.accounts.AccountAuthenticatorActivity;
-import android.accounts.AccountAuthenticatorResponse;
-import android.accounts.AccountManager;
-import android.app.AlertDialog;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.text.TextUtils;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -21,6 +13,15 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoriesFragment;
 
+import android.accounts.AccountAuthenticatorActivity;
+import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
+
 public abstract class AbstractLoginActivity extends FragmentActivity implements AuthTaskFragment.OnAuthResultListener {
     protected static final String LOGIN_DIALOG_TAG = "login_dialog";
 
@@ -31,6 +32,10 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse;
     private Bundle mResultBundle;
     private EventBus mEventBus;
+
+    // a bullshit fix for https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/533f4054fabb27481b26624a
+    // We need to redo onboarding, so this is just a quick fix to prevent the crashes during the sign in flow
+    private boolean isBeingDestroyed = false;
 
     @Override
     protected void onCreate(Bundle icicle) {
@@ -47,6 +52,7 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
     @Override
     protected void onResume() {
         super.onResume();
+        isBeingDestroyed = false;
         mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this.getClass()));
     }
 
@@ -54,6 +60,12 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
     protected void onPause() {
         super.onPause();
         mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        isBeingDestroyed = true;
+        super.onSaveInstanceState(outState);
     }
 
     public void finish() {
@@ -74,7 +86,9 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
      * @param data contains grant data and FB token
      */
     protected void login(Bundle data) {
-        LoginTaskFragment.create(data).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
+        if (!isBeingDestroyed) {
+            LoginTaskFragment.create(data).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
+        }
     }
 
     @Override
