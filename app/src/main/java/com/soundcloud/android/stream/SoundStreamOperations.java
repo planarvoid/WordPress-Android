@@ -26,20 +26,22 @@ class SoundStreamOperations {
 
     public Observable<Page<List<PropertySet>>> getStreamItems() {
         final Urn currentUserUrn = Urn.forUser(123); // TODO
-        return loadPagedStreamItems(currentUserUrn, 0);
+        return loadPagedStreamItems(currentUserUrn, Long.MAX_VALUE, 0);
     }
 
-    private Observable<Page<List<PropertySet>>> loadPagedStreamItems(Urn userUrn, int offset) {
-        Observable<PropertySet> source = soundStreamStorage.loadStreamItemsAsync(userUrn, DEFAULT_LIMIT, offset);
-        return source.toList().lift(pagedWith(streamItemPager(userUrn, offset)));
+    private Observable<Page<List<PropertySet>>> loadPagedStreamItems(Urn userUrn, long timestamp, int offset) {
+        Observable<PropertySet> source = soundStreamStorage.loadStreamItemsAsync(userUrn, timestamp, DEFAULT_LIMIT, offset);
+        return source.toList().lift(pagedWith(streamItemPager(userUrn, timestamp, offset)));
     }
 
-    private Pager<List<PropertySet>> streamItemPager(final Urn userUrn, final int offset) {
+    private Pager<List<PropertySet>> streamItemPager(final Urn userUrn, final long currentTimestamp, final int offset) {
         return new Pager<List<PropertySet>>() {
             @Override
             public Observable<Page<List<PropertySet>>> call(List<PropertySet> propertySet) {
                 if (propertySet.size() == DEFAULT_LIMIT) {
-                    return loadPagedStreamItems(userUrn, offset + DEFAULT_LIMIT);
+                    final long timestampOfFirstItem = propertySet.get(0).get(StreamItemProperty.CREATED_AT).getTime();
+                    final long timestamp = offset == 0 ? timestampOfFirstItem : currentTimestamp;
+                    return loadPagedStreamItems(userUrn, timestamp, offset + DEFAULT_LIMIT);
                 } else {
                     return OperatorPaged.emptyPageObservable();
                 }
