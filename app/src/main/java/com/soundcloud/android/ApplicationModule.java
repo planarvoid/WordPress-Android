@@ -10,9 +10,11 @@ import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 @Module(library = true, includes = ApiModule.class, injects = SoundCloudApplication.class)
@@ -64,5 +66,11 @@ public class ApplicationModule {
     @Singleton
     public EventBus provideEventBus() {
         return new EventBus();
+    }
+
+    @Provides
+    @Named("MainLooper")
+    public Looper providesMainLooper() {
+        return Looper.getMainLooper();
     }
 }

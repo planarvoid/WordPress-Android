@@ -1,0 +1,40 @@
+package com.soundcloud.android.playback.service.skippy;
+
+import static org.mockito.Mockito.verify;
+
+import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+
+import android.os.Looper;
+import android.os.Message;
+
+@RunWith(SoundCloudTestRunner.class)
+public class StateChangeHandlerTest {
+    private SkippyAdapter.StateChangeHandler handler;
+    @Mock
+    private Looper looper;
+    @Mock
+    private Playa.PlayaListener listener;
+    @Mock
+    private Message msg;
+    @Mock
+    private Playa.StateTransition stateTransition;
+
+
+    @Before
+    public void setUp(){
+        handler = new SkippyAdapter.StateChangeHandler(looper);
+        handler.setPlayaListener(listener);
+    }
+    @Test
+    public void shouldNotifyListenerOfStateChange(){
+        msg.obj = stateTransition;
+        handler.handleMessage(msg);
+        verify(listener).onPlaystateChanged(stateTransition);
+    }
+
+}

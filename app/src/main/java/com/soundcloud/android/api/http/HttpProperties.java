@@ -2,10 +2,10 @@ package com.soundcloud.android.api.http;
 
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -16,12 +16,31 @@ import java.util.Random;
 
 public class HttpProperties {
 
+    private static String HTTPS_API_URL_FORMAT = "http://%s";
+
+    public enum Parameter {
+        OAUTH_PARAMETER("oauth_token");
+
+        private final String parameter;
+
+        private Parameter(String parameter){
+            this.parameter = parameter;
+        }
+
+        @Override
+        public String toString(){
+            return parameter;
+        }
+
+    }
+
     private static final long[] PRODUCTION =
             new long[]{0xCFDBF8AB10DCADA3L, 0x6C580A13A4B7801L, 0x607547EC749EBFB4L,
                     0x300C455E649B39A7L, 0x20A6BAC9576286CBL};
 
     private static final String CLIENT_ID = "40ccfee680a844780a41fbe23ea89934";
     private final String apiMobileBaseUriPath;
+    private final String httpsApiHost;
 
     public HttpProperties(){
         this(SoundCloudApplication.instance);
@@ -30,10 +49,17 @@ public class HttpProperties {
     public HttpProperties(Context context){
         this(context.getResources());
     }
+
     @Inject
     public HttpProperties(Resources resources){
         apiMobileBaseUriPath = resources.getString(R.string.api_mobile_base_uri_path);
-        checkArgument(ScTextUtils.isNotBlank(apiMobileBaseUriPath), "API mobile base uri path cannot be blank");
+        checkArgument(isNotBlank(apiMobileBaseUriPath), "API mobile base uri path cannot be blank");
+
+        String apiHost = resources.getString(R.string.api_host);
+        checkArgument(isNotBlank(apiHost), "API host cannot be blank");
+
+        httpsApiHost = String.format(HTTPS_API_URL_FORMAT, apiHost + apiMobileBaseUriPath);
+
     }
 
     public String getClientSecret() {
@@ -47,6 +73,10 @@ public class HttpProperties {
 
     public String getApiMobileBaseUriPath(){
         return apiMobileBaseUriPath;
+    }
+
+    public String getPrivateApiHostWithHttpScheme(){
+        return httpsApiHost;
     }
 
     /**

@@ -9,9 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * TODO make package visible
- */
 public enum APIEndpoints {
     // mobile API
     SUGGESTED_USER_CATEGORIES("/suggestions/users/categories"),
@@ -22,6 +19,7 @@ public enum APIEndpoints {
     PLAYLIST_DISCOVERY("/suggestions/playlists"),
     PLAYLIST_DISCOVERY_TAGS("/suggestions/playlists/tags"),
     RELATED_TRACKS("/tracks/%s/related"),
+    HLS_STREAM("/tracks/%s/streams/hls"),
 
     // public API (DEPRECATED)
     CURRENT_USER("/me"),
@@ -47,6 +45,11 @@ public enum APIEndpoints {
 
     public String path(Object... pathParams) {
         List encodedParams = Lists.transform(Arrays.asList(pathParams), encodingFunction);
+        return String.format(Locale.US, path, encodedParams.toArray());
+    }
+
+    public String unencodedPath(Object... pathParams) {
+        List encodedParams = Arrays.asList(pathParams);
         return String.format(Locale.US, path, encodedParams.toArray());
     }
 

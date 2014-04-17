@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -9,7 +11,10 @@ import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.APIEndpoints;
+import com.soundcloud.android.api.http.HttpProperties;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
@@ -24,6 +29,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -48,21 +54,27 @@ public class PlaybackOperations {
         }
     };
 
-    private ScModelManager mModelManager;
-    private TrackStorage mTrackStorage;
-    private PlaybackStateProvider mPlaybackStateProvider;
+    private final ScModelManager modelManager;
+    private final TrackStorage trackStorage;
+    private final PlaybackStateProvider playbackStateProvider;
+    private final AccountOperations accountOperations;
+    private final HttpProperties httpProperties;
 
     // Use @Inject instead
     @Deprecated
     public PlaybackOperations() {
-        this(SoundCloudApplication.sModelManager, new TrackStorage(), new PlaybackStateProvider());
+        this(SoundCloudApplication.sModelManager, new TrackStorage(), new PlaybackStateProvider(),
+                new AccountOperations(SoundCloudApplication.instance), new HttpProperties());
     }
 
     @Inject
-    public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage, PlaybackStateProvider playbackStateProvider) {
-        mModelManager = modelManager;
-        mTrackStorage = trackStorage;
-        mPlaybackStateProvider = playbackStateProvider;
+    public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage, PlaybackStateProvider playbackStateProvider,
+                              AccountOperations accountOperations, HttpProperties httpProperties) {
+        this.modelManager = modelManager;
+        this.trackStorage = trackStorage;
+        this.playbackStateProvider = playbackStateProvider;
+        this.accountOperations = accountOperations;
+        this.httpProperties = httpProperties;
     }
 
     /**
@@ -79,6 +91,15 @@ public class PlaybackOperations {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screenTag);
         playSessionSource.setExploreVersion(exploreTag);
         playTrack(context, track, playSessionSource);
+    }
+
+    public String buildHLSUrlForTrack(Track track) {
+        checkState(accountOperations.soundCloudAccountExists(), "SoundCloud User account does not exist");
+        Token token = accountOperations.getSoundCloudToken();
+        return Uri.parse(httpProperties.getPrivateApiHostWithHttpScheme() + APIEndpoints.HLS_STREAM.unencodedPath(track.getUrn()))
+                .buildUpon()
+                .appendQueryParameter(HttpProperties.Parameter.OAUTH_PARAMETER.toString(), token.access)
+                .build().toString();
     }
 
     private void playTrack(Context context, Track track, PlaySessionSource playSessionSource) {
@@ -127,14 +148,14 @@ public class PlaybackOperations {
             }
 
         } else if (playable instanceof Playlist) {
-            PlaylistDetailActivity.start(context, (Playlist) playable, mModelManager, screen);
+            PlaylistDetailActivity.start(context, (Playlist) playable, modelManager, screen);
         } else {
             throw new AssertionError("Unexpected playable type");
         }
     }
 
     public void startPlayback(final Context context, Track track, Screen screen) {
-        mModelManager.cache(track);
+        modelManager.cache(track);
         startPlayback(context, track.getId(), screen);
     }
 
@@ -169,7 +190,7 @@ public class PlaybackOperations {
         cacheAndGoToPlayer(context, initialTrack);
 
         if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
-            mTrackStorage.getTrackIdsForUriAsync(uri).subscribe(new DefaultSubscriber<List<Long>>() {
+            trackStorage.getTrackIdsForUriAsync(uri).subscribe(new DefaultSubscriber<List<Long>>() {
                 @Override
                 public void onNext(List<Long> idList) {
                     final int updatedPosition = correctStartPositionAndDeduplicateList(idList, startPosition, initialTrack);
@@ -191,7 +212,7 @@ public class PlaybackOperations {
     }
 
     private void cacheAndGoToPlayer(Context context, Track initialTrack) {
-        mModelManager.cache(initialTrack);
+        modelManager.cache(initialTrack);
         gotoPlayer(context, initialTrack.getId());
     }
 
@@ -203,9 +224,9 @@ public class PlaybackOperations {
     }
 
     private boolean shouldChangePlayQueue(Track track, PlaySessionSource playSessionSource){
-        return mPlaybackStateProvider.getCurrentTrackId() != track.getId() ||
-                !playSessionSource.getOriginScreen().equals(mPlaybackStateProvider.getScreenTag()) ||
-                playSessionSource.getPlaylistId() != mPlaybackStateProvider.getPlayQueuePlaylistId();
+        return playbackStateProvider.getCurrentTrackId() != track.getId() ||
+                !playSessionSource.getOriginScreen().equals(playbackStateProvider.getScreenTag()) ||
+                playSessionSource.getPlaylistId() != playbackStateProvider.getPlayQueuePlaylistId();
     }
 
     public Intent getPlayIntent(final List<Long> trackList, int startPosition,
@@ -263,12 +284,12 @@ public class PlaybackOperations {
     }
 
     public @Nullable Intent getServiceBasedUpIntent() {
-        final String originScreen = mPlaybackStateProvider.getScreenTag();
+        final String originScreen = playbackStateProvider.getScreenTag();
         if (ScTextUtils.isBlank(originScreen)){
             return null; // might have come from widget and the play queue is empty
         }
 
-        long playlistId = mPlaybackStateProvider.getPlayQueuePlaylistId();
+        long playlistId = playbackStateProvider.getPlayQueuePlaylistId();
         if (playlistId != Playable.NOT_SET) {
             return getUpDestinationFromPlaylist(playlistId, originScreen);
         } else {

@@ -15,48 +15,47 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 
 public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private static final String TAG = "SkippyAdapter";
 
-    private final Skippy mSkippy;
-    private final AccountOperations mAccountOperations;
-    private final StateChangeHandler mStateHandler = new StateChangeHandler();
-    private final EventBus mEventBus;
+    private final EventBus eventBus;
+    private final Skippy skippy;
+    private final AccountOperations accountOperations;
+    private final StateChangeHandler stateHandler;
+    private final PlaybackOperations playbackOperations;
 
-    private Skippy.State mLastState = Skippy.State.IDLE;
-    private Skippy.Reason mLastReason = Skippy.Reason.NOTHING;
-    private Skippy.Error mLastError = Skippy.Error.OK;
+    private volatile Skippy.State lastState = Skippy.State.IDLE;
+    private volatile Skippy.Reason lastReason = Skippy.Reason.NOTHING;
+    private volatile Skippy.Error lastError = Skippy.Error.OK;
 
     @Inject
-    public SkippyAdapter(AccountOperations accountOperations, EventBus eventBus) {
-        this(new SkippyFactory(), accountOperations, eventBus);
-    }
-
-    @VisibleForTesting
-    SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, EventBus eventBus) {
-        mSkippy = skippyFactory.create(this);
-        mAccountOperations = accountOperations;
-        mEventBus = eventBus;
+    SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations,
+                  PlaybackOperations playbackOperations, StateChangeHandler stateChangeHandler, EventBus eventBus) {
+        skippy = skippyFactory.create(this);
+        this.accountOperations = accountOperations;
+        this.playbackOperations = playbackOperations;
+        stateHandler = stateChangeHandler;
+        this.eventBus = eventBus;
     }
 
     public boolean init(Context context){
-        return mSkippy.init(context);
+        return skippy.init(context);
     }
 
     @Override
@@ -81,14 +80,21 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void play(Track track, long fromPos) {
-        mSkippy.play(authorizeUrl(track.getStreamUrlWithAppendedId()), fromPos);
+
+        if (!accountOperations.soundCloudAccountExists()) {
+            throw new IllegalStateException("Cannot play a track if no soundcloud account exists");
+        }
+
+        String streamUrl = playbackOperations.buildHLSUrlForTrack(track);
+        skippy.play(streamUrl, fromPos);
+
     }
 
     @Override
     public boolean resume() {
         // note, we may have to just return true/false from Skippy directly if we lose state storage here as planned
-        if (mLastState == Skippy.State.IDLE && mLastReason == PAUSED){
-            mSkippy.resume();
+        if (lastState == Skippy.State.IDLE && lastReason == PAUSED){
+            skippy.resume();
             return true;
         } else {
             return false;
@@ -98,48 +104,48 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void pause() {
-        mSkippy.pause();
+        skippy.pause();
     }
 
     @Override
     public long seek(long position, boolean performSeek) {
-        mSkippy.seek(position);
+        skippy.seek(position);
         return position;
     }
 
     @Override
     public long getProgress() {
-        return mSkippy.getPosition();
+        return skippy.getPosition();
     }
 
     @Override
     public void setVolume(float level) {
-        mSkippy.setVolume(level);
+        skippy.setVolume(level);
     }
 
     @Override
     public void stop() {
-        mSkippy.pause();
+        skippy.pause();
     }
 
     @Override
     public void destroy() {
-        mSkippy.destroy();
+        skippy.destroy();
     }
 
     @Override
     public void setListener(PlayaListener playaListener) {
-        mStateHandler.setPlayaListener(playaListener);
+        stateHandler.setPlayaListener(playaListener);
     }
 
     @Override
     public StateTransition getLastStateTransition() {
-        return new StateTransition(getState(), getTranslatedReason());
+        return new StateTransition(getState(), getTranslatedReason(lastState, lastReason, lastError));
     }
 
     @Override
     public Playa.PlayaState getState() {
-        return getTranslatedState();
+        return getTranslatedState(lastState, lastReason);
     }
 
     @Override
@@ -155,35 +161,35 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     @Override
     public void onStateChanged(Skippy.State state, Skippy.Reason reason, Skippy.Error errorcode) {
         Log.i(TAG, "State = " + state + " : " + reason + " : " + errorcode);
-        mLastState = state;
-        mLastReason = reason;
-        mLastError = errorcode;
+        lastState = state;
+        lastReason = reason;
+        lastError = errorcode;
 
-        Message msg = mStateHandler.obtainMessage(0, new StateTransition(getTranslatedState(), getTranslatedReason()));
-        mStateHandler.sendMessage(msg);
+        Message msg = stateHandler.obtainMessage(0, new StateTransition(getTranslatedState(state, reason), getTranslatedReason(state, reason, errorcode)));
+        stateHandler.sendMessage(msg);
 
     }
 
     @Override
     public void onPerformanceMeasured(PlaybackMetric metric, long value, String uri) {
         final PlaybackPerformanceEvent event = createPerformanceEvent(metric, value, uri);
-        mEventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
+        eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
     }
 
-    private PlayaState getTranslatedState() {
-        switch (mLastState) {
+    private PlayaState getTranslatedState(Skippy.State state, Skippy.Reason lastReason) {
+        switch (state) {
             case IDLE:
                 return PlayaState.IDLE;
             case PLAYING:
-                return mLastReason == BUFFERING ? PlayaState.BUFFERING : PlayaState.PLAYING;
+                return lastReason == BUFFERING ? PlayaState.BUFFERING : PlayaState.PLAYING;
             default:
-                throw new IllegalArgumentException("Unexpected skippy state : " + mLastState);
+                throw new IllegalArgumentException("Unexpected skippy state : " + lastState);
         }
     }
 
-    private Reason getTranslatedReason() {
-        if (mLastReason == ERROR) {
-            switch (mLastError) {
+    private Reason getTranslatedReason(Skippy.State lastState, Skippy.Reason reason, Skippy.Error lastError) {
+        if (reason == ERROR) {
+            switch (lastError) {
                 case FAILED:
                 case TIMEOUT:
                     return Reason.ERROR_FAILED;
@@ -192,9 +198,9 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
                 case MEDIA_NOT_FOUND:
                     return Reason.ERROR_NOT_FOUND;
                 default:
-                    throw new IllegalArgumentException("Unexpected skippy error code : " + mLastError);
+                    throw new IllegalArgumentException("Unexpected skippy error code : " + lastError);
             }
-        } else if (mLastState == Skippy.State.IDLE && mLastReason == NOTHING) {
+        } else if (lastState == Skippy.State.IDLE && reason == NOTHING) {
             return Reason.COMPLETE;
         } else {
             return Reason.NONE;
@@ -225,7 +231,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     @Override
-    public void onErrorMessage(String category, String errorMsg) {
+    public void onErrorMessage(String category, String errorMsg, String uri) {
         SoundCloudApplication.handleSilentException(errorMsg, new SkippyException(category));
     }
 
@@ -234,8 +240,9 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         @Nullable
         private PlayaListener mPlayaListener;
 
-        private StateChangeHandler() {
-            super(Looper.getMainLooper());
+        @Inject
+        StateChangeHandler(@Named("MainLooper") Looper looper) {
+            super(looper);
         }
 
         public void setPlayaListener(@Nullable PlayaListener playaListener) {
@@ -252,20 +259,16 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @VisibleForTesting
     static class SkippyFactory {
+
+        @Inject
+        SkippyFactory() {
+        }
+
         public Skippy create(Skippy.PlayListener listener) {
             return new Skippy(listener);
         }
     }
 
-    private String authorizeUrl(String url) {
-        final Token soundCloudToken = mAccountOperations.getSoundCloudToken();
-        if (soundCloudToken != null) {
-            return Uri.parse(url).buildUpon().appendQueryParameter("oauth_token", soundCloudToken.access).build().toString();
-        } else {
-            return url;
-        }
-
-    }
 
     private class SkippyException extends Exception {
         private String category;

@@ -18,6 +18,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -26,9 +27,11 @@ import com.soundcloud.api.Token;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.content.Context;
+import android.os.Message;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SkippyAdapterTest {
@@ -36,26 +39,31 @@ public class SkippyAdapterTest {
     public static final String CDN_URI = "http://ec-rtmp-media.soundcloud.com/123456?param=1";
     private SkippyAdapter skippyAdapter;
 
+    private static final String STREAM_URL = "https://api.soundcloud.com/app/mobileapps/tracks/soundcloud:tracks:1/streams/hls?oauth_token=access";
+
     @Mock
     private Skippy skippy;
     @Mock
     private SkippyAdapter.SkippyFactory skippyFactory;
-    @Mock
-    private Context context;
     @Mock
     private Playa.PlayaListener listener;
     @Mock
     private AccountOperations accountOperations;
     @Mock
     private EventBus eventBus;
-
-    private Token token = new Token("access", "refresh");
+    @Mock
+    private SkippyAdapter.StateChangeHandler stateChangeHandler;
+    @Mock
+    private PlaybackOperations playbackOperations;
+    @Mock
+    private Track track;
+    @Mock
+    private Message message;
 
     @Before
     public void setUp() throws Exception {
         when(skippyFactory.create(any(Skippy.PlayListener.class))).thenReturn(skippy);
-        when(accountOperations.getSoundCloudToken()).thenReturn(token);
-        skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, eventBus);
+        skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, playbackOperations, stateChangeHandler, eventBus);
         skippyAdapter.setListener(listener);
     }
 
@@ -66,10 +74,18 @@ public class SkippyAdapterTest {
 
     @Test
     public void playCallsPlayUrlOnSkippy(){
-        Track track = new Track(1L);
-        track.stream_url = "http://www.some-url.com";
+        when(playbackOperations.buildHLSUrlForTrack(track)).thenReturn(STREAM_URL);
+        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
+
         skippyAdapter.play(track);
-        verify(skippy).play("http://www.some-url.com?track_id=1&oauth_token=access", 0);
+        verify(skippy).play(STREAM_URL, 0);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldThrowExceptionIfSoundCloudDoesNotExistWhenTryingToPlay(){
+        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        skippyAdapter.play(new Track(1L));
+
     }
 
     @Test
@@ -128,73 +144,73 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void skippyIdlePausedEventTranslatesToListenerIdleEvent() throws Exception {
-        skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK);
-        expect(skippyAdapter.getState()).toBe(PlayaState.IDLE);
-
-        final Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE);
-        verify(listener).onPlaystateChanged(expected);
-        expect(skippyAdapter.getLastStateTransition()).toEqual(expected);
+    public void skippyIdleNothingEventTranslatesToListenerIdleCompleteEvent() throws Exception {
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.COMPLETE);
+        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.NOTHING, Error.OK);
+        verify(stateChangeHandler).sendMessage(message);
     }
 
     @Test
-    public void skippyIdleNothingEventTranslatesToListenerIdleCompleteEvent() throws Exception {
-        skippyAdapter.onStateChanged(State.IDLE, Reason.NOTHING, Error.OK);
-        expect(skippyAdapter.getState()).toBe(PlayaState.IDLE);
-
-        final Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.COMPLETE);
-        verify(listener).onPlaystateChanged(expected);
-        expect(skippyAdapter.getLastStateTransition()).toEqual(expected);
+    public void skippyIdlePausedEventTranslatesToListenerIdleEvent() throws Exception {
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE);
+        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK);
+        verify(stateChangeHandler).sendMessage(message);
     }
 
     @Test
     public void skippyPlayingTranslatesToListenerPlayingEvent() throws Exception {
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.PLAYING, Playa.Reason.NONE);
+        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK);
-        expect(skippyAdapter.getState()).toBe(PlayaState.PLAYING);
+        verify(stateChangeHandler).sendMessage(message);
+    }
 
-        final Playa.StateTransition expected = new Playa.StateTransition(PlayaState.PLAYING, Playa.Reason.NONE);
-        verify(listener).onPlaystateChanged(expected);
-        expect(skippyAdapter.getLastStateTransition()).toEqual(expected);
+    @Test
+    public void shouldStoreLastStateInformation(){
+        skippyAdapter.onStateChanged(State.PLAYING, Reason.BUFFERING, Error.OK);
+        expect(skippyAdapter.getLastStateTransition()).toEqual(new Playa.StateTransition(PlayaState.BUFFERING, Playa.Reason.NONE));
     }
 
     @Test
     public void skippyPlayBufferingTranslatesToListenerBufferingEvent() throws Exception {
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.BUFFERING, Playa.Reason.NONE);
+        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.PLAYING, Reason.BUFFERING, Error.OK);
-        expect(skippyAdapter.getState()).toBe(PlayaState.BUFFERING);
-
-        final Playa.StateTransition expected = new Playa.StateTransition(PlayaState.BUFFERING, Playa.Reason.NONE);
-        verify(listener).onPlaystateChanged(expected);
-        expect(skippyAdapter.getLastStateTransition()).toEqual(expected);
+        verify(stateChangeHandler).sendMessage(message);
     }
 
     @Test
-    public void skippyIdleErrorFailedTranslatesToListenerErrorFailedEvent() throws Exception {
-        skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FAILED);
-        expect(skippyAdapter.getState()).toBe(PlayaState.IDLE);
+    public void skippyIdleErrorTimeoutTranslatesToListenerTimeoutError() throws Exception {
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FAILED);
+        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.TIMEOUT);
+        verify(stateChangeHandler).sendMessage(message);
+    }
 
-        final Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FAILED);
-        verify(listener).onPlaystateChanged(expected);
-        expect(skippyAdapter.getLastStateTransition()).toEqual(expected);
+    @Test
+    public void skippyFailedErrorTranslatesToListenerErrorFailed() throws Exception {
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FAILED);
+        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FAILED);
+        verify(stateChangeHandler).sendMessage(message);
     }
 
     @Test
     public void skippyIdleErrorForbiddenTranslatesToListenerErrorForbiddenEvent() throws Exception {
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FORBIDDEN);
+        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FORBIDDEN);
-        expect(skippyAdapter.getState()).toBe(PlayaState.IDLE);
-
-        final Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FORBIDDEN);
-        verify(listener).onPlaystateChanged(expected);
-        expect(skippyAdapter.getLastStateTransition()).toEqual(expected);
+        verify(stateChangeHandler).sendMessage(message);
     }
 
     @Test
     public void skippyIdleErrorNotFoundTranslatesToListenerErrorNotFoundEvent() throws Exception {
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND);
+        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.MEDIA_NOT_FOUND);
-        expect(skippyAdapter.getState()).toBe(PlayaState.IDLE);
-
-        final Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND);
-        verify(listener).onPlaystateChanged(expected);
-        expect(skippyAdapter.getLastStateTransition()).toEqual(expected);
+        verify(stateChangeHandler).sendMessage(message);
     }
 
     @Test

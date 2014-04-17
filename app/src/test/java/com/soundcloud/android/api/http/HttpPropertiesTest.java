@@ -20,12 +20,13 @@ public class HttpPropertiesTest {
 
     @Before
     public void setUp(){
-        when(resources.getString(R.string.api_mobile_base_uri_path)).thenReturn("baseuri");
+        when(resources.getString(R.string.api_mobile_base_uri_path)).thenReturn("/baseuri");
+        when(resources.getString(R.string.api_host)).thenReturn("host");
     }
 
     @Test
     public void shouldDeobfuscateClientSecret() throws Exception {
-        // live
+
         expect(new HttpProperties(resources).getClientSecret())
                 .toEqual("26a5240f7ee0ee2d4fa9956ed80616c2");
 
@@ -33,12 +34,24 @@ public class HttpPropertiesTest {
 
     @Test
     public void shouldReturnBaseUri(){
-        expect(new HttpProperties(resources).getApiMobileBaseUriPath()).toBe("baseuri");
+        expect(new HttpProperties(resources).getApiMobileBaseUriPath()).toBe("/baseuri");
+    }
+
+    @Test
+    public void shouldReturnApiHostWtihHttpsScheme(){
+        expect(new HttpProperties(resources).getPrivateApiHostWithHttpScheme()).toEqual("http://host/baseuri");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionIfNoBaseUriFound(){
         when(resources.getString(R.string.api_mobile_base_uri_path)).thenReturn("  ");
-        new HttpProperties(resources).getApiMobileBaseUriPath();
+        new HttpProperties(resources);
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionIfApiHostNotFound(){
+        when(resources.getString(R.string.api_host)).thenReturn(" ");
+        new HttpProperties(resources);
+    }
+
 }

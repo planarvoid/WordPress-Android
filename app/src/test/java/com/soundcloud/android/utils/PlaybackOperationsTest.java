@@ -3,6 +3,7 @@ package com.soundcloud.android.utils;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.service.PlaybackService.PlayExtras;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,7 +11,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.http.HttpProperties;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
@@ -23,6 +26,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.api.Token;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
@@ -56,10 +60,18 @@ public class PlaybackOperationsTest {
     private Observer observer;
     @Mock
     private PlaybackStateProvider playbackStateProvider;
+    @Mock
+    private HttpProperties httpProperties;
+    @Mock
+    private AccountOperations accountOperations;
+    @Mock
+    private Token token;
+
 
     @Before
     public void setUp() throws Exception {
-        playbackOperations = new PlaybackOperations(modelManager, trackStorage, playbackStateProvider);
+        playbackOperations = new PlaybackOperations(modelManager, trackStorage, playbackStateProvider, accountOperations,
+                httpProperties);
         track = TestHelper.getModelFactory().createModel(Track.class);
     }
 
@@ -239,7 +251,7 @@ public class PlaybackOperationsTest {
         playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_SCREEN.get()), 1L, 2L);
+        checkStartIntent(application.getNextStartedService(), 1, new PlaySessionSource(ORIGIN_SCREEN.get()), 1L, 2L);
     }
 
     @Test
@@ -249,7 +261,7 @@ public class PlaybackOperationsTest {
         playbackOperations.playFromAdapter(Robolectric.application, playables, 2, null, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_SCREEN.get()), 1L, 2L);
+        checkStartIntent(application.getNextStartedService(), 1, new PlaySessionSource(ORIGIN_SCREEN.get()), 1L, 2L);
     }
 
     @Test
@@ -330,6 +342,26 @@ public class PlaybackOperationsTest {
         final Intent intent = playbackOperations.getServiceBasedUpIntent();
         expect(intent).toHaveAction("com.soundcloud.android.action.LIKES");
         expect(intent).toHaveFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldThrowExceptionWhenBuilding(){
+        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        playbackOperations.buildHLSUrlForTrack(track);
+    }
+
+    @Test
+    public void shouldBuildHLSUrlForTrackBasedOnTrackURN() {
+        Track mockTrack = mock(Track.class);
+        when(mockTrack.getUrn()).thenReturn("soundcloud:sounds:123");
+        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
+        when(accountOperations.getSoundCloudToken()).thenReturn(token);
+        token.access = "access";
+        when(httpProperties.getPrivateApiHostWithHttpScheme()).thenReturn("https://somehost/path");
+
+        expect(playbackOperations
+                .buildHLSUrlForTrack(mockTrack))
+                .toEqual("https://somehost/path/tracks/soundcloud:sounds:123/streams/hls?oauth_token=access");
     }
 
 }
