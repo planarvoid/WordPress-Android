@@ -12,12 +12,13 @@ import com.tobedevoured.modelcitizen.field.ConstructorCallback;
 @Blueprint(TrackSummary.class)
 public class TrackSummaryBlueprint {
 
+    private static long runningId = 1L;
 
     @NewInstance
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new TrackSummary("soundcloud:sounds:4");
+            return new TrackSummary(String.format("soundcloud:sounds:%d", runningId++));
         }
     };
 

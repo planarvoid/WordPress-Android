@@ -1,8 +1,7 @@
 package com.soundcloud.android.stream;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.collections.ItemAdapter;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.collections.EndlessPagingAdapter;
 import com.soundcloud.android.storage.PropertySet;
 
 import android.os.Bundle;
@@ -30,29 +29,13 @@ public class SoundStreamFragment extends ListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setListAdapter(adapter);
-        soundStreamOperations.getStreamItems().subscribe(new StreamItemSubscriber());
+
+        getListView().setOnScrollListener(adapter);
+
+        soundStreamOperations.getStreamItems().subscribe(adapter);
     }
 
-    private final class StreamItemSubscriber extends DefaultSubscriber<PropertySet> {
-
-        @Override
-        public void onNext(PropertySet streamItem) {
-            adapter.addItem(streamItem);
-        }
-
-        @Override
-        public void onCompleted() {
-            adapter.notifyDataSetChanged();
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            e.printStackTrace();
-            super.onError(e);
-        }
-    }
-
-    private static final class StreamItemAdapter extends ItemAdapter<PropertySet> {
+    private static final class StreamItemAdapter extends EndlessPagingAdapter<PropertySet> {
 
         protected StreamItemAdapter() {
             super(10);

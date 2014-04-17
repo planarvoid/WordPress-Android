@@ -1,10 +1,10 @@
 package com.soundcloud.android.stream;
 
+import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.LIKE;
+import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
 import static com.soundcloud.android.storage.TableColumns.ActivityView;
 import static com.soundcloud.android.storage.TableColumns.CollectionItems;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
-import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.LIKE;
-import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.model.Playable;
@@ -23,6 +23,7 @@ import android.database.sqlite.SQLiteDatabase;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Date;
+import java.util.Locale;
 
 class SoundStreamStorage extends ScheduledOperations {
 
@@ -39,7 +40,7 @@ class SoundStreamStorage extends ScheduledOperations {
         this.database = database;
     }
 
-    public Observable<PropertySet> loadStreamItemsAsync(final Urn userUrn) {
+    public Observable<PropertySet> loadStreamItemsAsync(final Urn userUrn, final int limit, final int offset) {
         return schedule(Observable.create(new Observable.OnSubscribe<PropertySet>() {
             @Override
             public void call(Subscriber<? super PropertySet> subscriber) {
@@ -55,7 +56,9 @@ class SoundStreamStorage extends ScheduledOperations {
                         userAssociationProjection(LIKE, userUrn.numericId, SoundView.USER_LIKE),
                         userAssociationProjection(REPOST, userUrn.numericId, SoundView.USER_REPOST)
                 };
-                final Cursor cursor = database.query(table.name, projection, null, null, null, null, null);
+                final Cursor cursor = database.query(
+                        table.name, projection, null, null, null, null, null,
+                        String.format(Locale.US, "%d,%d", offset, limit));
                 emitToSubscriber(subscriber, cursor);
             }
         }));
