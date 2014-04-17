@@ -1,5 +1,7 @@
 package com.soundcloud.android.stream;
 
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.collections.EndlessPagingAdapter;
 import com.soundcloud.android.storage.PropertySet;
@@ -32,7 +34,7 @@ public class SoundStreamFragment extends ListFragment {
 
         getListView().setOnScrollListener(adapter);
 
-        soundStreamOperations.getStreamItems().subscribe(adapter);
+        soundStreamOperations.getStreamItems().observeOn(mainThread()).subscribe(adapter);
     }
 
     private static final class StreamItemAdapter extends EndlessPagingAdapter<PropertySet> {
