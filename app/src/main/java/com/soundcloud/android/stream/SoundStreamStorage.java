@@ -40,7 +40,8 @@ class SoundStreamStorage extends ScheduledOperations {
         this.database = database;
     }
 
-    public Observable<PropertySet> loadStreamItemsAsync(final Urn userUrn, final int limit, final int offset) {
+    public Observable<PropertySet> loadStreamItemsAsync(
+            final Urn userUrn, final long timestamp, final int limit, final int offset) {
         return schedule(Observable.create(new Observable.OnSubscribe<PropertySet>() {
             @Override
             public void call(Subscriber<? super PropertySet> subscriber) {
@@ -56,9 +57,9 @@ class SoundStreamStorage extends ScheduledOperations {
                         userAssociationProjection(LIKE, userUrn.numericId, SoundView.USER_LIKE),
                         userAssociationProjection(REPOST, userUrn.numericId, SoundView.USER_REPOST)
                 };
-                final Cursor cursor = database.query(
-                        table.name, projection, null, null, null, null, null,
-                        String.format(Locale.US, "%d,%d", offset, limit));
+                final String selection = String.format("%s <= %d", ActivityView.CREATED_AT, timestamp);
+                final String order = String.format(Locale.US, "%d,%d", offset, limit);
+                final Cursor cursor = database.query(table.name, projection, selection, null, null, null, null, order);
                 emitToSubscriber(subscriber, cursor);
             }
         }));
