@@ -47,46 +47,41 @@ public class TrackOperations {
         }
     }
 
-    public Observable<Track> loadSyncedTrack(final long trackId, Scheduler observeOn) {
-        return loadTrack(trackId, observeOn).mergeMap(mSyncIfStale)
-                .onErrorResumeNext(handleTrackNotFound(trackId));
+    public Observable<Track> loadSyncedTrack(final long trackId, final Scheduler observeOn) {
+        return loadTrack(trackId, observeOn).mergeMap(new Func1<Track, Observable<Track>>() {
+            @Override
+            public Observable<Track> call(Track track) {
+                LocalCollection syncState = mSyncStateManager.fromContent(track.toUri());
+                if (syncState.isSyncDue()) {
+                    Log.d(LOG_TAG, "Syncing stale track " + track);
+                    return Observable.concat(Observable.just(track), syncThenLoadTrack(track.getId(), observeOn));
+                }
+                Log.d(LOG_TAG, "Track up to date, emitting directly");
+                return Observable.just(track);
+            }
+        }).onErrorResumeNext(handleTrackNotFound(trackId, observeOn));
     }
 
-    public Observable<Track> loadStreamableTrack(final long trackId,  Scheduler observeOn) {
-        return loadTrack(trackId, observeOn).mergeMap(mSyncIfNotStreamable)
-                .onErrorResumeNext(handleTrackNotFound(trackId));
+    public Observable<Track> loadStreamableTrack(final long trackId,  final Scheduler observeOn) {
+        return loadTrack(trackId, observeOn).mergeMap(new Func1<Track, Observable<Track>>() {
+            @Override
+            public Observable<Track> call(Track track) {
+                if (!track.isStreamable()) {
+                    Log.d(LOG_TAG, "Syncing unstreamable track = " + track);
+                    return syncThenLoadTrack(track.getId(), observeOn);
+                }
+                Log.d(LOG_TAG, "Track is streamable, emitting directly");
+                return Observable.just(track);
+            }
+        }).onErrorResumeNext(handleTrackNotFound(trackId, observeOn));
     }
-
-    private final Func1<Track, Observable<Track>> mSyncIfStale = new Func1<Track, Observable<Track>>() {
-        @Override
-        public Observable<Track> call(Track track) {
-            LocalCollection syncState = mSyncStateManager.fromContent(track.toUri());
-            if (syncState.isSyncDue()) {
-                Log.d(LOG_TAG, "Checking track sync state: stale = " + syncState.isSyncDue());
-                return Observable.concat(Observable.just(track), syncThenLoadTrack(track.getId()));
-            }
-            Log.d(LOG_TAG, "Track up to date, emitting directly");
-            return Observable.just(track);
-        }
-    };
-
-    private final Func1<Track, Observable<Track>> mSyncIfNotStreamable = new Func1<Track, Observable<Track>>() {
-        @Override
-        public Observable<Track> call(Track track) {
-            if (!track.isStreamable()) {
-                Log.d(LOG_TAG, "Syncing unstreamable track = " + track);
-                return syncThenLoadTrack(track.getId());
-            }
-            Log.d(LOG_TAG, "Track is streamable, emitting directly");
-            return Observable.just(track);
-        }
-    };
 
     /**
      * Performs a sync on the given track, then reloads it from local storage.
      * @param trackId
+     * @param observeOn
      */
-    private Observable<Track> syncThenLoadTrack(final long trackId) {
+    private Observable<Track> syncThenLoadTrack(final long trackId, Scheduler observeOn) {
         return Observable.create(new Observable.OnSubscribe<Long>() {
             @Override
             public void call(final Subscriber<? super Long> subscriber) {
@@ -100,20 +95,20 @@ public class TrackOperations {
                 Log.d(LOG_TAG, "Reloading track from local storage: " + trackId);
                 return mTrackStorage.getTrackAsync(trackId);
             }
-        });
+        }).observeOn(observeOn);
     }
 
     /**
      * If a track cannot be found in local storage, returns a sync sequence for resume purposes, otherwise
      * simply propagates the error.
      */
-    private Func1<Throwable, Observable<? extends Track>> handleTrackNotFound(final long trackId) {
+    private Func1<Throwable, Observable<? extends Track>> handleTrackNotFound(final long trackId, final Scheduler observeOn) {
         return new Func1<Throwable, Observable<? extends Track>>() {
             @Override
             public Observable<? extends Track> call(Throwable throwable) {
                 if (throwable instanceof NotFoundException) {
                     Log.d(LOG_TAG, "Track missing from local storage, will sync " + trackId);
-                    return syncThenLoadTrack(trackId);
+                    return syncThenLoadTrack(trackId, observeOn);
                 }
                 Log.d(LOG_TAG, "Caught error, forwarding to observer: " + throwable);
                 return Observable.error(throwable);
