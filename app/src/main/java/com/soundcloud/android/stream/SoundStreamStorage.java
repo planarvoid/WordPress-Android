@@ -57,7 +57,7 @@ class SoundStreamStorage extends ScheduledOperations {
                         userAssociationProjection(LIKE, userUrn.numericId, SoundView.USER_LIKE),
                         userAssociationProjection(REPOST, userUrn.numericId, SoundView.USER_REPOST)
                 };
-                final String selection = String.format("%s <= %d", ActivityView.CREATED_AT, timestamp);
+                final String selection = String.format(Locale.US, "%s <= %d", ActivityView.CREATED_AT, timestamp);
                 final String order = String.format(Locale.US, "%d,%d", offset, limit);
                 final Cursor cursor = database.query(table.name, projection, selection, null, null, null, null, order);
                 emitToSubscriber(subscriber, cursor);
