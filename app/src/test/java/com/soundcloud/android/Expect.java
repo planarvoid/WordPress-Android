@@ -54,15 +54,15 @@ public class Expect {
     public static <T extends Iterable<X>, X> IterableMatcher<T, X, ?> expect(T actual) {
         return wrapped(IterableMatcher.class, actual);
     }
+
     public static <T extends String> StringMatcher<T, ?> expect(T actual) {
         return wrapped(StringMatcher.class, actual);
     }
+
     public static <T extends java.util.Set<X>, X> SetMatcher<T, X, ?> expect(T actual) {
         return wrapped(SetMatcher.class, actual);
     }
-//    public static <T extends Long, M extends LongMatcher<T, M>> LongMatcher<T, ?> expect(T actual) {
-//        return wrapped(LongMatcher.class, actual);
-//    }
+
     public static <T extends Content> ContentMatcher<T, ?> expect(T actual) {
         return wrapped(ContentMatcher.class, actual);
     }
