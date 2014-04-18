@@ -92,7 +92,7 @@ public class TrackOperations {
             public void call(final Subscriber<? super Long> subscriber) {
                 final ResultReceiver resultReceiver = new SyncInitiator.ResultReceiverAdapter<Long>(subscriber, trackId);
                     Log.d(LOG_TAG, "Sending intent to sync track " + trackId);
-                    mSyncInitiator.syncResource(Content.TRACK.forId(trackId), resultReceiver);
+                    mSyncInitiator.syncContentUri(Content.TRACK.forId(trackId), resultReceiver);
             }
         }).mergeMap(new Func1<Long, Observable<Track>>() {
             @Override

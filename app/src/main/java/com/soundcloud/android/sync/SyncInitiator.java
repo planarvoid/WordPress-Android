@@ -77,11 +77,11 @@ public class SyncInitiator {
         mContext.startService(intent);
     }
 
-    public void syncResource(Uri resourceUri, ResultReceiver resultReceiver) {
+    public void syncContentUri(Uri contentUri, ResultReceiver resultReceiver) {
         mContext.startService(new Intent(mContext, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                .setData(resourceUri));
+                .setData(contentUri));
     }
 
     public static class ResultReceiverAdapter<T> extends ResultReceiver {

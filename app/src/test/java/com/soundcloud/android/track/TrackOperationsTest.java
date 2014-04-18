@@ -114,7 +114,7 @@ public class TrackOperationsTest {
 
         ArgumentCaptor<ResultReceiver> resultReceiver = ArgumentCaptor.forClass(ResultReceiver.class);
         InOrder callbacks = inOrder(observer, syncInitiator);
-        callbacks.verify(syncInitiator).syncResource(eq(track.toUri()), resultReceiver.capture());
+        callbacks.verify(syncInitiator).syncContentUri(eq(track.toUri()), resultReceiver.capture());
         forwardSyncResult(ApiSyncService.STATUS_SYNC_FINISHED, resultReceiver);
         callbacks.verify(observer).onNext(track);
         callbacks.verify(observer).onCompleted();
@@ -187,7 +187,7 @@ public class TrackOperationsTest {
         ArgumentCaptor<ResultReceiver> resultReceiver = ArgumentCaptor.forClass(ResultReceiver.class);
         InOrder callbacks = inOrder(observer, syncInitiator);
         callbacks.verify(observer).onNext(storedTrack);
-        callbacks.verify(syncInitiator).syncResource(eq(storedTrack.toUri()), resultReceiver.capture());
+        callbacks.verify(syncInitiator).syncContentUri(eq(storedTrack.toUri()), resultReceiver.capture());
         forwardSyncResult(ApiSyncService.STATUS_SYNC_FINISHED, resultReceiver);
         callbacks.verify(observer).onNext(syncedTrack);
         callbacks.verify(observer).onCompleted();
@@ -203,7 +203,7 @@ public class TrackOperationsTest {
 
         ArgumentCaptor<ResultReceiver> resultReceiver = ArgumentCaptor.forClass(ResultReceiver.class);
         InOrder callbacks = inOrder(observer, syncInitiator);
-        callbacks.verify(syncInitiator).syncResource(eq(track.toUri()), resultReceiver.capture());
+        callbacks.verify(syncInitiator).syncContentUri(eq(track.toUri()), resultReceiver.capture());
         forwardSyncResult(ApiSyncService.STATUS_SYNC_FINISHED, resultReceiver);
         callbacks.verify(observer).onNext(track);
         callbacks.verify(observer).onCompleted();
@@ -268,7 +268,7 @@ public class TrackOperationsTest {
 
         ArgumentCaptor<ResultReceiver> resultReceiver = ArgumentCaptor.forClass(ResultReceiver.class);
         InOrder callbacks = inOrder(observer, syncInitiator);
-        callbacks.verify(syncInitiator).syncResource(eq(storedTrack.toUri()), resultReceiver.capture());
+        callbacks.verify(syncInitiator).syncContentUri(eq(storedTrack.toUri()), resultReceiver.capture());
         forwardSyncResult(ApiSyncService.STATUS_SYNC_FINISHED, resultReceiver);
         callbacks.verify(observer).onNext(syncedTrack);
         callbacks.verify(observer).onCompleted();

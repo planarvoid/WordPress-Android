@@ -110,7 +110,7 @@ public class PlaylistOperations {
             public void call(final Subscriber<? super Long> subscriber) {
                 final ResultReceiver resultReceiver = new ResultReceiverAdapter<Long>(subscriber, playlistId);
                 Log.d(LOG_TAG, "Sending intent to sync playlist " + playlistId);
-                mSyncInitiator.syncResource(Content.PLAYLIST.forId(playlistId), resultReceiver);
+                mSyncInitiator.syncContentUri(Content.PLAYLIST.forId(playlistId), resultReceiver);
             }
         }).mergeMap(new Func1<Long, Observable<Playlist>>() {
             @Override
