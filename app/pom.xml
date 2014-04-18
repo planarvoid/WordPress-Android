@@ -347,6 +347,11 @@
             <version>${rxjava.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.netflix.rxjava</groupId>
+            <artifactId>rxjava-debug</artifactId>
+            <version>${rxjava.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.nostra13.universalimageloader</groupId>
             <artifactId>universal-image-loader</artifactId>
             <version>1.9.0</version>

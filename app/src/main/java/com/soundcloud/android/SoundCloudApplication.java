@@ -28,6 +28,7 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.service.PlayerWidgetController;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.rx.LoggingDebugHook;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -41,6 +42,7 @@ import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.plugins.RxJavaPlugins;
 
 import android.accounts.Account;
 import android.annotation.TargetApi;
@@ -122,6 +124,7 @@ public class SoundCloudApplication extends Application {
 
         if (mApplicationProperties.isDevBuildRunningOnDalvik() && !ActivityManager.isUserAMonkey()) {
             setupStrictMode();
+            RxJavaPlugins.getInstance().registerObservableExecutionHook(new LoggingDebugHook());
         }
 
         if (ApplicationProperties.shouldReportCrashes() &&
