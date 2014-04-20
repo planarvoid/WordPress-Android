@@ -77,6 +77,8 @@ public class SyncInitiator {
         mContext.startService(intent);
     }
 
+    // Please stop using/exposing Content URIs, they will disappear soon!
+    @Deprecated
     public void syncContentUri(Uri contentUri, ResultReceiver resultReceiver) {
         mContext.startService(new Intent(mContext, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
