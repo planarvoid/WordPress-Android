@@ -18,6 +18,7 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -353,7 +354,7 @@ public class PlaybackOperationsTest {
     @Test
     public void shouldBuildHLSUrlForTrackBasedOnTrackURN() {
         Track mockTrack = mock(Track.class);
-        when(mockTrack.getUrn()).thenReturn("soundcloud:sounds:123");
+        when(mockTrack.getUrn()).thenReturn(Urn.parse("soundcloud:sounds:123"));
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(accountOperations.getSoundCloudToken()).thenReturn(token);
         token.access = "access";

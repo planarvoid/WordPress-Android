@@ -8,6 +8,7 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -23,7 +24,7 @@ class ImageOptionsFactory {
     final static int DELAY_BEFORE_LOADING_HIGH_PRIORITY = 0;
     final static int DELAY_BEFORE_LOADING_LOW_PRIORITY = 200;
 
-    static DisplayImageOptions adapterView(Drawable placeholderDrawable) {
+    static DisplayImageOptions adapterView(@Nullable Drawable placeholderDrawable) {
         return fullCacheBuilder()
                 .resetViewBeforeLoading(true)
                 .showImageOnLoading(placeholderDrawable)
@@ -41,7 +42,7 @@ class ImageOptionsFactory {
                 .build();
     }
 
-    public static DisplayImageOptions placeholder(Drawable placeholderDrawable){
+    public static DisplayImageOptions placeholder(@Nullable Drawable placeholderDrawable){
         return fullCacheBuilder()
                 .showImageOnLoading(placeholderDrawable)
                 .showImageForEmptyUri(placeholderDrawable)

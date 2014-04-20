@@ -4,6 +4,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.collections.EndlessPagingAdapter;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.PropertySet;
 
 import android.os.Bundle;
@@ -51,7 +52,7 @@ public class SoundStreamFragment extends ListFragment {
         @Override
         protected void bindItemView(int position, View itemView) {
             final PropertySet propertySet = getItem(position);
-            final String soundUrn = propertySet.get(StreamItemProperty.SOUND_URN);
+            final Urn soundUrn = propertySet.get(StreamItemProperty.SOUND_URN);
             final String soundTitle = propertySet.get(StreamItemProperty.SOUND_TITLE);
             final String poster = propertySet.get(StreamItemProperty.POSTER);
             final Date createdAt = propertySet.get(StreamItemProperty.CREATED_AT);

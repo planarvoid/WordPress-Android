@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
+import com.soundcloud.android.model.Urn;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -49,7 +50,7 @@ public abstract class IconLayout extends FrameLayout {
     }
 
     @Nullable
-    public String getResourceUrn() {
+    public Urn getResourceUrn() {
         return null;
     }
 

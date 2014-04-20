@@ -23,7 +23,7 @@ public class ScModel implements Parcelable, Identifiable {
     public static final int NOT_SET = -1;
 
     private long mID = NOT_SET;
-    protected String mURN;
+    protected Urn mURN;
 
     public ScModel() {
     }
@@ -33,7 +33,7 @@ public class ScModel implements Parcelable, Identifiable {
     }
 
     public ScModel(String urn) {
-        mURN = urn;
+        mURN = Urn.parse(urn);
         setId(idFromUrn());
     }
 
@@ -41,7 +41,7 @@ public class ScModel implements Parcelable, Identifiable {
         mID = parcel.readLong();
         byte hasUrn = parcel.readByte();
         if (hasUrn == 1) {
-            mURN = parcel.readString();
+            mURN = Urn.parse(parcel.readString());
         }
     }
 
@@ -61,7 +61,7 @@ public class ScModel implements Parcelable, Identifiable {
         dest.writeLong(mID);
         dest.writeByte((byte) (mURN == null ? 0 : 1));
         if (mURN != null) {
-            dest.writeString(mURN);
+            dest.writeString(mURN.toString());
         }
     }
 
@@ -81,19 +81,19 @@ public class ScModel implements Parcelable, Identifiable {
     }
 
     @JsonIgnore
-    public String getUrn() {
+    public Urn getUrn() {
         return mURN;
     }
 
     @JsonProperty
     public final void setUrn(String urn) {
-        mURN = urn;
+        mURN = Urn.parse(urn);
         mID = idFromUrn();
     }
 
     private long idFromUrn() {
         if (mURN != null) {
-            return Urn.parse(mURN).numericId;
+            return mURN.numericId;
         }
         return NOT_SET;
     }

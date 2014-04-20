@@ -52,7 +52,7 @@ public class SoundStreamStorageTest {
         storage.loadStreamItemsAsync(Urn.forUser(123), TIMESTAMP, 50, 0).subscribe(observer);
 
         final PropertySet trackPost = PropertySet.from(
-                StreamItemProperty.SOUND_URN.bind("soundcloud:sounds:" + track.getId()),
+                StreamItemProperty.SOUND_URN.bind(Urn.forTrack(track.getId())),
                 StreamItemProperty.SOUND_TITLE.bind(track.getTitle()),
                 StreamItemProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
                 StreamItemProperty.POSTER.bind(track.getUser().getUsername()),
@@ -73,7 +73,7 @@ public class SoundStreamStorageTest {
         storage.loadStreamItemsAsync(Urn.forUser(123), TIMESTAMP, 50, 0).subscribe(observer);
 
         final PropertySet trackRepost = PropertySet.from(
-                StreamItemProperty.SOUND_URN.bind("soundcloud:sounds:" + track.getId()),
+                StreamItemProperty.SOUND_URN.bind(Urn.forTrack(track.getId())),
                 StreamItemProperty.SOUND_TITLE.bind(track.getTitle()),
                 StreamItemProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
                 StreamItemProperty.POSTER.bind(reposter.getUsername()),
@@ -93,7 +93,7 @@ public class SoundStreamStorageTest {
         storage.loadStreamItemsAsync(Urn.forUser(123), TIMESTAMP, 50, 0).subscribe(observer);
 
         final PropertySet playlistPost = PropertySet.from(
-                StreamItemProperty.SOUND_URN.bind("soundcloud:playlists:" + playlist.getId()),
+                StreamItemProperty.SOUND_URN.bind(Urn.forPlaylist(playlist.getId())),
                 StreamItemProperty.SOUND_TITLE.bind(playlist.getTitle()),
                 StreamItemProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
                 StreamItemProperty.POSTER.bind(playlist.getUser().getUsername()),
@@ -114,7 +114,7 @@ public class SoundStreamStorageTest {
         storage.loadStreamItemsAsync(Urn.forUser(123), TIMESTAMP, 50, 0).subscribe(observer);
 
         final PropertySet playlistRepost = PropertySet.from(
-                StreamItemProperty.SOUND_URN.bind("soundcloud:playlists:" + playlist.getId()),
+                StreamItemProperty.SOUND_URN.bind(Urn.forPlaylist(playlist.getId())),
                 StreamItemProperty.SOUND_TITLE.bind(playlist.getTitle()),
                 StreamItemProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
                 StreamItemProperty.POSTER.bind(reposter.getUsername()),

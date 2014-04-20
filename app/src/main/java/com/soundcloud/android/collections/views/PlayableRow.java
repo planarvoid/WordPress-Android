@@ -6,6 +6,7 @@ import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.activities.TrackRepostActivity;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.PlayablePresenter;
@@ -241,7 +242,7 @@ public class PlayableRow extends IconLayout implements ListRow {
     }
 
     @Override
-    public String getResourceUrn() {
+    public Urn getResourceUrn() {
         return mPlayableHolder.getPlayable() == null ? null : mPlayableHolder.getPlayable().getUrn();
     }
 

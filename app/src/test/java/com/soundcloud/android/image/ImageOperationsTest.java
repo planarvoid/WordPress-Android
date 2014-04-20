@@ -20,6 +20,7 @@ import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -90,7 +91,7 @@ public class ImageOperationsTest {
     final private String ADJUSTED_URL_WITH_PARAMS = "http://api.soundcloud.com/resolve/image?url=soundcloud%3Ausers%3A1818488&client_id=40ccfee680a844780a41fbe23ea89934&size=t500x500";
 
     final private static String RESOLVER_URL_LARGE = "http://api.soundcloud.com/app/mobileapps/images/soundcloud:tracks:1/large";
-    final private static String URN = "soundcloud:tracks:1";
+    final private static Urn URN = Urn.parse("soundcloud:tracks:1");
 
     @Before
     public void setUp() throws Exception {
@@ -196,23 +197,25 @@ public class ImageOperationsTest {
     @Test
     public void displayImageInAdapterViewShouldRequestImagesThroughMobileImageResolver() {
         final String imageUrl = "http://api.soundcloud.com/app/mobileapps/images/soundcloud:tracks:1/large";
-        when(imageEndpointBuilder.imageUrl("soundcloud:tracks:1", ImageSize.LARGE)).thenReturn(imageUrl);
+        when(imageEndpointBuilder.imageUrl(URN, ImageSize.LARGE)).thenReturn(imageUrl);
 
-        imageOperations.displayInAdapterView("soundcloud:tracks:1", ImageSize.LARGE, imageView);
-        verify(imageLoader).displayImage(eq(imageUrl), any(ImageAware.class), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
+        imageOperations.displayInAdapterView(URN, ImageSize.LARGE, imageView);
+        verify(imageLoader).displayImage(
+                eq(imageUrl), any(ImageAware.class), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
     }
 
     @Test
     public void displayImageInAdapterViewShouldWrapAndForwardTheGivenImageView() {
-        imageOperations.displayInAdapterView("soundcloud:tracks:1", ImageSize.LARGE, imageView);
+        imageOperations.displayInAdapterView(URN, ImageSize.LARGE, imageView);
 
-        verify(imageLoader).displayImage(anyString(), imageViewAwareCaptor.capture(), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
+        verify(imageLoader).displayImage(
+                anyString(), imageViewAwareCaptor.capture(), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
         expect(imageViewAwareCaptor.getValue().getWrappedView()).toBe(imageView);
     }
 
     @Test
     public void displayImageInAdapterViewShouldShouldUseCorrectDisplayOptions() {
-        imageOperations.displayInAdapterView("soundcloud:tracks:1", ImageSize.LARGE, imageView);
+        imageOperations.displayInAdapterView(URN, ImageSize.LARGE, imageView);
 
         verify(imageLoader).displayImage(anyString(), any(ImageAware.class), displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
         expect(displayOptionsCaptor.getValue().isResetViewBeforeLoading()).toBeTrue();
@@ -302,7 +305,7 @@ public class ImageOperationsTest {
     public void displayImageInAdapterViewShouldUsePlaceholderFromCache() throws ExecutionException {
         when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
         when(cache.get(eq("soundcloud:tracks:1_100_100"), any(Callable.class))).thenReturn(drawable);
-        imageOperations.displayInAdapterView("soundcloud:tracks:1", ImageSize.LARGE, imageView);
+        imageOperations.displayInAdapterView(URN, ImageSize.LARGE, imageView);
 
         verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageAware.class), displayOptionsCaptor.capture(), any(ImageLoadingListener.class));
         expect(displayOptionsCaptor.getValue().getImageOnLoading(Robolectric.application.getResources())).toBe(drawable);
@@ -314,7 +317,7 @@ public class ImageOperationsTest {
     public void displayWithPlaceholderShouldUsePlaceholderFromCache() throws ExecutionException {
         when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
         when(cache.get(eq("soundcloud:tracks:1_100_100"), any(Callable.class))).thenReturn(drawable);
-        imageOperations.displayWithPlaceholder("soundcloud:tracks:1", ImageSize.LARGE, imageView);
+        imageOperations.displayWithPlaceholder(URN, ImageSize.LARGE, imageView);
 
         verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageAware.class), displayOptionsCaptor.capture(), any(ImageLoadingListener.class));
         expect(displayOptionsCaptor.getValue().getImageOnLoading(Robolectric.application.getResources())).toBe(drawable);
@@ -322,7 +325,7 @@ public class ImageOperationsTest {
         expect(displayOptionsCaptor.getValue().getImageForEmptyUri(Robolectric.application.getResources())).toBe(drawable);
     }
 
-    private void verifyCapturedListener(){
+    private void verifyCapturedListener() {
         ImageListenerUILAdapter imageListenerUILAdapter = imageListenerUILAdapterCaptor.getValue();
         View view = mock(View.class);
         Bitmap bitmap = mock(Bitmap.class);

@@ -13,6 +13,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.model.UserHolder;
@@ -147,7 +148,7 @@ public class UserlistRow extends IconLayout implements ListRow {
     }
 
     @Override
-    public String getResourceUrn() {
+    public Urn getResourceUrn() {
         return mUser == null ? null : mUser.getUrn();
     }
 

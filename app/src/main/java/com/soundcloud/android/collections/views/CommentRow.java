@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.collections.ListRow;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
@@ -49,7 +50,7 @@ public class CommentRow extends IconLayout implements ListRow {
     }
 
     @Override
-    public String getResourceUrn() {
+    public Urn getResourceUrn() {
         if (mComment != null && mComment.getUser() != null) {
             return mComment.getUser().getUrn();
         }

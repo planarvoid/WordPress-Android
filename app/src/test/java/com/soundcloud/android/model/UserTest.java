@@ -18,7 +18,7 @@ public class UserTest {
     @Test
     public void shouldConstructUserFromId() {
         User u = new User(1L);
-        expect(u.getUrn()).toEqual("soundcloud:users:1");
+        expect(u.getUrn().toString()).toEqual("soundcloud:users:1");
         expect(u.getId()).toEqual(1L);
     }
 
@@ -26,7 +26,7 @@ public class UserTest {
     public void setIdShouldUpdateUrn() throws Exception {
         User u = new User();
         u.setId(1000L);
-        expect(u.getUrn()).toEqual("soundcloud:users:1000");
+        expect(u.getUrn().toString()).toEqual("soundcloud:users:1000");
     }
 
     @Test

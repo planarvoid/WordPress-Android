@@ -52,7 +52,7 @@ public class Playlist extends Playable {
     public boolean removed;
 
     public Playlist(PlaylistSummary playlist) {
-        setUrn(playlist.getUrn());
+        setUrn(playlist.getUrn().toString());
         setUser(new User(playlist.getUser()));
         setTitle(playlist.getTitle());
         artwork_url = playlist.getArtworkUrl();
@@ -142,7 +142,7 @@ public class Playlist extends Playable {
     @Override
     public void setId(long id) {
         super.setId(id);
-        mURN = Urn.forPlaylist(id).toString();
+        mURN = Urn.forPlaylist(id);
     }
 
     @Override

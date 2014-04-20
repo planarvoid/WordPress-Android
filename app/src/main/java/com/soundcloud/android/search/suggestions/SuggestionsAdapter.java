@@ -349,12 +349,12 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
             boolean isUser = rowType == TYPE_USER;
 
-            String urn;
+            Urn urn;
             if (isUser) {
-                urn = Urn.forUser(id).toString();
+                urn = Urn.forUser(id);
                 tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
             } else {
-                urn = Urn.forTrack(id).toString();
+                urn = Urn.forTrack(id);
                 tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
             }
 

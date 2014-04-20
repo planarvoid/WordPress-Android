@@ -82,11 +82,11 @@ public class User extends ScResource implements UserHolder {
     @Override
     public void setId(long id) {
         super.setId(id);
-        mURN = Urn.forUser(id).toString();
+        mURN = Urn.forUser(id);
     }
 
     public User(SuggestedUser suggestedUser){
-        setUrn(suggestedUser.getUrn());
+        setUrn(suggestedUser.getUrn().toString());
         setUsername(suggestedUser.getUsername());
         setCity(suggestedUser.getCity());
         setCountry(suggestedUser.getCountry());
@@ -123,7 +123,7 @@ public class User extends ScResource implements UserHolder {
     }
 
     public User(UserSummary user) {
-        setUrn(user.getUrn());
+        setUrn(user.getUrn().toString());
         setUsername(user.getUsername());
         avatar_url = user.getAvatarUrl();
     }

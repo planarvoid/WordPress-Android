@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.associations.ActivityRow;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.activities.CommentActivity;
 
@@ -44,7 +45,7 @@ public class CommentActivityRow extends ActivityRow {
     }
 
     @Override
-    public String getResourceUrn() {
+    public Urn getResourceUrn() {
         if (mComment != null && mComment.getUser() != null) {
             return mComment.getUser().getUrn();
         }

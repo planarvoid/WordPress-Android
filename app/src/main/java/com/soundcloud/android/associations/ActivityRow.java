@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.collections.views.IconLayout;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.User;
@@ -82,7 +83,7 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
     }
 
     @Override
-    public String getResourceUrn() {
+    public Urn getResourceUrn() {
         if (mActivity != null && mActivity.getUser() != null) {
             return mActivity.getUser().getUrn();
         }

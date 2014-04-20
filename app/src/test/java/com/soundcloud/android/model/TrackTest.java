@@ -23,7 +23,7 @@ public class TrackTest {
     @Test
     public void shouldConstructTrackFromId() {
         Track t = new Track(1L);
-        expect(t.getUrn()).toEqual("soundcloud:sounds:1");
+        expect(t.getUrn().toString()).toEqual("soundcloud:sounds:1");
         expect(t.getId()).toEqual(1L);
     }
 
@@ -31,7 +31,7 @@ public class TrackTest {
     public void setIdShouldUpdateUrn() throws Exception {
         Track t = new Track();
         t.setId(1000L);
-        expect(t.getUrn()).toEqual("soundcloud:sounds:1000");
+        expect(t.getUrn().toString()).toEqual("soundcloud:sounds:1000");
     }
 
     @Test

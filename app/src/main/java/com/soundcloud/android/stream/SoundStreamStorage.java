@@ -103,11 +103,11 @@ class SoundStreamStorage extends ScheduledOperations {
         return cursor.getString(cursor.getColumnIndex(SoundView.TITLE));
     }
 
-    private String readSoundUrn(Cursor cursor) {
+    private Urn readSoundUrn(Cursor cursor) {
         final int soundId = cursor.getInt(cursor.getColumnIndex(ActivityView.SOUND_ID));
         final int soundType = cursor.getInt(cursor.getColumnIndex(ActivityView.SOUND_TYPE));
         final Urn soundUrn = soundType == Playable.DB_TYPE_TRACK ? Urn.forTrack(soundId) : Urn.forPlaylist(soundId);
-        return soundUrn.toString();
+        return soundUrn;
     }
 
     private static String userAssociationProjection(int collectionType, long userId, String colName) {

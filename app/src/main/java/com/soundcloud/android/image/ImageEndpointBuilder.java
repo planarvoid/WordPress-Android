@@ -1,6 +1,7 @@
 package com.soundcloud.android.image;
 
 import com.soundcloud.android.api.http.HttpProperties;
+import com.soundcloud.android.model.Urn;
 
 import javax.inject.Inject;
 import java.util.Locale;
@@ -16,7 +17,7 @@ class ImageEndpointBuilder {
         mHttpProperties = httpProperties;
     }
 
-    String imageUrl(String urn, ImageSize imageSize) {
+    String imageUrl(Urn urn, ImageSize imageSize) {
         final String baseUrl = mHttpProperties.getApiMobileBaseUriPath();
         return String.format(Locale.US, IMAGE_URL_FORMAT, baseUrl, urn, imageSize.sizeSpec);
     }

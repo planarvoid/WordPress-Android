@@ -11,6 +11,7 @@ import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -110,7 +111,7 @@ public class ImageOperations {
         FileCache.installFileCache(IOUtils.getCacheDir(appContext));
     }
 
-    public void displayInAdapterView(String urn, ImageSize imageSize, ImageView imageView) {
+    public void displayInAdapterView(Urn urn, ImageSize imageSize, ImageView imageView) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         mImageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, imageSize),
@@ -118,7 +119,7 @@ public class ImageOperations {
                 ImageOptionsFactory.adapterView(getPlaceholderDrawable(urn, imageAware)), mNotFoundListener);
     }
 
-    public void displayWithPlaceholder(String urn, ImageSize imageSize, ImageView imageView) {
+    public void displayWithPlaceholder(Urn urn, ImageSize imageSize, ImageView imageView) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         mImageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, imageSize),
@@ -127,7 +128,7 @@ public class ImageOperations {
                 mNotFoundListener);
     }
 
-    public void displayInPlayerView(String urn, ImageSize imageSize, ImageView imageView, View parentView,
+    public void displayInPlayerView(Urn urn, ImageSize imageSize, ImageView imageView, View parentView,
                                     boolean priority, ImageListener imageListener) {
         mImageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, imageSize),
@@ -135,7 +136,7 @@ public class ImageOperations {
                 ImageOptionsFactory.player(parentView, priority), new ImageListenerUILAdapter(imageListener));
     }
 
-    public void displayInFullDialogView(String urn, ImageSize imageSize, ImageView imageView, ImageListener imageListener) {
+    public void displayInFullDialogView(Urn urn, ImageSize imageSize, ImageView imageView, ImageListener imageListener) {
         mImageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, imageSize),
                 new ImageViewAware(imageView, false),
@@ -143,7 +144,7 @@ public class ImageOperations {
                 new ImageListenerUILAdapter(imageListener));
     }
 
-    public void load(String urn, ImageSize imageSize, ImageListener imageListener) {
+    public void load(Urn urn, ImageSize imageSize, ImageListener imageListener) {
         mImageLoader.loadImage(
                 buildUrlIfNotPreviouslyMissing(urn, imageSize),
                 new ImageListenerUILAdapter(imageListener));
@@ -198,14 +199,14 @@ public class ImageOperations {
      * We have to store these so so we don't animate on every load attempt. this prevents flickering
      */
     @Nullable
-    private Drawable getPlaceholderDrawable(final String urn, ImageViewAware imageViewAware) {
+    private Drawable getPlaceholderDrawable(final Urn urn, ImageViewAware imageViewAware) {
         final String key = String.format(PLACEHOLDER_KEY_BASE, urn,
                 String.valueOf(imageViewAware.getWidth()), String.valueOf(imageViewAware.getHeight()));
         try {
             return mPlaceholderCache.get(key, new Callable<Drawable>() {
                 @Override
                 public Drawable call() throws Exception {
-                    return mPlaceholderGenerator.generate(urn);
+                    return mPlaceholderGenerator.generate(urn.toString());
                 }
             });
         } catch (ExecutionException e) {
@@ -216,7 +217,7 @@ public class ImageOperations {
     }
 
     @Nullable
-    private String buildUrlIfNotPreviouslyMissing(String urn, ImageSize imageSize){
+    private String buildUrlIfNotPreviouslyMissing(Urn urn, ImageSize imageSize){
         final String imageUrl = mImageEndpointBuilder.imageUrl(urn, imageSize);
         return mNotFoundUris.contains(imageUrl) ? null : imageUrl;
     }

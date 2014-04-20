@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.AndroidUtils;
 
 import android.app.Activity;
@@ -24,7 +25,7 @@ public class FullImageDialog extends Dialog {
 
     private ImageOperations mImageOperations;
 
-    public FullImageDialog(Activity context, final String resourceUrn, ImageOperations imageOperations) {
+    public FullImageDialog(Activity context, final Urn resourceUrn, ImageOperations imageOperations) {
         super(context, R.style.Theme_FullImageDialog);
 
         mImageOperations = imageOperations;

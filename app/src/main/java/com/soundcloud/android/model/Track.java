@@ -99,7 +99,7 @@ public class Track extends Playable {
     @JsonIgnore public int last_playback_error = -1;
 
     public Track(TrackSummary suggestion) {
-        setUrn(suggestion.getUrn());
+        setUrn(suggestion.getUrn().toString());
         setUser(new User(suggestion.getUser()));
         setTitle(suggestion.getTitle());
         setWaveformUrl(suggestion.getWaveformUrl());
@@ -125,7 +125,7 @@ public class Track extends Playable {
     @Override
     public void setId(long id) {
         super.setId(id);
-        mURN = Urn.forTrack(id).toString();
+        mURN = Urn.forTrack(id);
     }
 
     public List<String> humanTags() {
