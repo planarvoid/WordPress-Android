@@ -54,7 +54,7 @@ public class SyncInitiator {
 
     public boolean requestSystemSync() {
         final Account soundCloudAccount = mAccountOperations.getSoundCloudAccount();
-        if (soundCloudAccount != null){
+        if (soundCloudAccount != null) {
             ContentResolver.requestSync(soundCloudAccount, ScContentProvider.AUTHORITY, new Bundle());
             return true;
         } else {
@@ -66,12 +66,12 @@ public class SyncInitiator {
         syncLocalPlaylists(null);
     }
 
-    public void syncLocalPlaylists(ResultReceiver resultReceiver) {
+    public void syncLocalPlaylists(@Nullable ResultReceiver resultReceiver) {
         final Intent intent = new Intent(mContext, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .setData(Content.ME_PLAYLISTS.uri);
 
-        if (resultReceiver != null){
+        if (resultReceiver != null) {
             intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver);
         }
         mContext.startService(intent);
@@ -110,7 +110,7 @@ public class SyncInitiator {
                     throw new IllegalStateException("Unexpected sync state: " + resultCode);
             }
         }
-    };
+    }
 
     public static class SyncFailedException extends Exception {
         public SyncFailedException(Bundle resultData) {
