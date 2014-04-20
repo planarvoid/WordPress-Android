@@ -7,6 +7,8 @@ import com.soundcloud.android.storage.provider.Content;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.os.Parcel;
+
 @RunWith(SoundCloudTestRunner.class)
 public class UrnTest {
 
@@ -73,4 +75,13 @@ public class UrnTest {
         expect(Urn.forUser(-1).toString()).toEqual("soundcloud:users:0");
     }
 
+    @Test
+    public void shouldBeParcelable() {
+        Parcel parcel = Parcel.obtain();
+        Urn urn = Urn.parse("soundcloud:tracks:1");
+        urn.writeToParcel(parcel, 0);
+
+        Urn unparceled = Urn.CREATOR.createFromParcel(parcel);
+        expect(unparceled).toEqual(urn);
+    }
 }

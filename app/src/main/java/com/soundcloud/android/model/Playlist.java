@@ -217,6 +217,7 @@ public class Playlist extends Playable {
         }
     }
 
+    @Deprecated // use getUrn() instead
     @Override
     public Uri toUri() {
         return Content.PLAYLISTS.forQuery(String.valueOf(getId()));

@@ -7,6 +7,8 @@ import com.soundcloud.android.image.ImageSize;
 import org.jetbrains.annotations.NotNull;
 
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -15,13 +17,25 @@ import java.net.URLEncoder;
  * Models a SoundCloud URN
  * see http://eng-doc.int.s-cloud.net/guidelines/urns/
  */
-public class Urn {
+public final class Urn implements Parcelable {
 
     public static final String SCHEME = "soundcloud";
     public static final String SOUNDS_TYPE = "sounds";
     public static final String TRACKS_TYPE = "tracks";
     public static final String PLAYLISTS_TYPE = "playlists";
     public static final String USERS_TYPE = "users";
+
+    public static final Creator<Urn> CREATOR = new Creator<Urn>() {
+        @Override
+        public Urn createFromParcel(Parcel source) {
+            return Urn.parse(source.readString());
+        }
+
+        @Override
+        public Urn[] newArray(int size) {
+            return new Urn[size];
+        }
+    };
 
     public @NotNull final Uri uri;
     public @NotNull final String type;
@@ -117,5 +131,15 @@ public class Urn {
     @Override
     public int hashCode() {
         return uri.hashCode();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(uri.toString());
     }
 }
