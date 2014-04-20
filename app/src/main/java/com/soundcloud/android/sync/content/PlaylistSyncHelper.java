@@ -75,7 +75,6 @@ class PlaylistSyncHelper {
             }
 
             // update local state
-            p.localToGlobal(context, playlist);
             mModelManager.removeFromCache(toDelete);
 
             mPlaylistStorage.store(playlist);
