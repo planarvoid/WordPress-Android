@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.utils.Log;
@@ -77,13 +78,18 @@ public class SyncInitiator {
         mContext.startService(intent);
     }
 
-    // Please stop using/exposing Content URIs, they will disappear soon!
-    @Deprecated
-    public void syncContentUri(Uri contentUri, ResultReceiver resultReceiver) {
+    public void syncPlaylist(Urn playlistUrn, ResultReceiver resultReceiver) {
         mContext.startService(new Intent(mContext, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                .setData(contentUri));
+                .setData(Content.PLAYLIST.forId(playlistUrn.numericId)));
+    }
+
+    public void syncTrack(Urn trackUrn, ResultReceiver resultReceiver) {
+        mContext.startService(new Intent(mContext, ApiSyncService.class)
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                .setData(Content.TRACKS.forId(trackUrn.numericId)));
     }
 
     public static class ResultReceiverAdapter<T> extends ResultReceiver {

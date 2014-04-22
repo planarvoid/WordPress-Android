@@ -19,29 +19,52 @@ public class UrnTest {
 
     @Test
     public void shouldParseUserUrns() throws Exception {
-        Urn uri = Urn.parse("soundcloud:users:123");
-        expect(uri.type).toEqual("users");
-        expect(uri.id).toEqual("123");
-        expect(uri.contentProviderUri()).toEqual(Content.USER.forId(123L));
-        expect(uri.isSound()).toBeFalse();
+        Urn urn = Urn.parse("soundcloud:users:123");
+        expect(urn).toBeInstanceOf(UserUrn.class);
+        expect(urn.type).toEqual("users");
+        expect(urn.numericId).toEqual(123L);
+        expect(urn.contentProviderUri()).toEqual(Content.USER.forId(123L));
+        expect(urn.isSound()).toBeFalse();
     }
 
     @Test
-    public void shouldParseSoundUrns() throws Exception {
-        Urn uri = Urn.parse("soundcloud:sounds:123");
-        expect(uri.type).toEqual("sounds");
-        expect(uri.id).toEqual("123");
-        expect(uri.contentProviderUri()).toEqual(Content.TRACK.forId(123L));
-        expect(uri.isSound()).toBeTrue();
+    public void shouldParseLegacyTrackUrns() throws Exception {
+        Urn urn = Urn.parse("soundcloud:sounds:123");
+        expect(urn).toBeInstanceOf(TrackUrn.class);
+        expect(urn.type).toEqual("sounds");
+        expect(urn.numericId).toEqual(123L);
+        expect(urn.contentProviderUri()).toEqual(Content.TRACK.forId(123L));
+        expect(urn.isSound()).toBeTrue();
+    }
+
+    @Test
+    public void shouldParseTrackUrns() throws Exception {
+        Urn urn = Urn.parse("soundcloud:tracks:123");
+        expect(urn).toBeInstanceOf(TrackUrn.class);
+        expect(urn.type).toEqual("sounds"); // TODO: should move to "tracks"
+        expect(urn.numericId).toEqual(123L);
+        expect(urn.contentProviderUri()).toEqual(Content.TRACK.forId(123L));
+        expect(urn.isSound()).toBeTrue();
     }
 
     @Test
     public void shouldParsePlaylistUrns() throws Exception {
-        Urn uri = Urn.parse("soundcloud:playlists:123");
-        expect(uri.type).toEqual("playlists");
-        expect(uri.id).toEqual("123");
-        expect(uri.contentProviderUri()).toEqual(Content.PLAYLIST.forId(123L));
-        expect(uri.isSound()).toBeTrue();
+        Urn urn = Urn.parse("soundcloud:playlists:123");
+        expect(urn).toBeInstanceOf(PlaylistUrn.class);
+        expect(urn.type).toEqual("playlists");
+        expect(urn.numericId).toEqual(123L);
+        expect(urn.contentProviderUri()).toEqual(Content.PLAYLIST.forId(123L));
+        expect(urn.isSound()).toBeTrue();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionWhenTryingToParseInvalidUrn() {
+        Urn.parse("not a URN");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionWhenNotASupportedType() {
+        Urn.parse("soundcloud:something:1");
     }
 
     @Test
@@ -56,18 +79,24 @@ public class UrnTest {
     }
 
     @Test
-    public void shouldBuildTrackUris() {
-        expect(Urn.forTrack(1)).toEqual(Urn.parse("soundcloud:sounds:1"));
+    public void shouldBuildTrackUrns() {
+        final Urn urn = Urn.forTrack(1);
+        expect(urn).toBeInstanceOf(TrackUrn.class);
+        expect(urn).toEqual(Urn.parse("soundcloud:sounds:1"));
     }
 
     @Test
-    public void shouldBuildPlaylistUris() {
-        expect(Urn.forPlaylist(1)).toEqual(Urn.parse("soundcloud:playlists:1"));
+    public void shouldBuildPlaylistUrns() {
+        final Urn urn = Urn.forPlaylist(1);
+        expect(urn).toBeInstanceOf(PlaylistUrn.class);
+        expect(urn).toEqual(Urn.parse("soundcloud:playlists:1"));
     }
 
     @Test
-    public void shouldBuildUserUris() {
-        expect(Urn.forUser(1)).toEqual(Urn.parse("soundcloud:users:1"));
+    public void shouldBuildUserUrns() {
+        final Urn urn = Urn.forUser(1);
+        expect(urn).toBeInstanceOf(UserUrn.class);
+        expect(urn).toEqual(Urn.parse("soundcloud:users:1"));
     }
 
     @Test

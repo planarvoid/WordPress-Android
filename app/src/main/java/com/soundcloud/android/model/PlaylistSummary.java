@@ -39,6 +39,11 @@ public class PlaylistSummary extends ScModel {
         super(urn);
     }
 
+    @Override
+    public PlaylistUrn getUrn() {
+        return (PlaylistUrn) super.getUrn();
+    }
+
     public String getTitle() {
         return mTitle;
     }

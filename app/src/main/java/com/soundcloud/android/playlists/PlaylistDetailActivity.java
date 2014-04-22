@@ -13,17 +13,12 @@ import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 public class PlaylistDetailActivity extends ScActivity {
 
     static final String LOG_TAG = "PlaylistDetails";
-
-    public static void start(Context context, @NotNull Playlist playlist, Screen screen) {
-        start(context, playlist, SoundCloudApplication.sModelManager, screen);
-    }
 
     public static void start(Context context, @NotNull Playlist playlist, ScModelManager modelManager, Screen screen) {
         modelManager.cache(playlist);
@@ -33,7 +28,7 @@ public class PlaylistDetailActivity extends ScActivity {
     public static Intent getIntent(@NotNull Playlist playlist, Screen screen) {
         Intent intent = new Intent(Actions.PLAYLIST);
         screen.addToIntent(intent);
-        return intent.setData(playlist.toUri());
+        return intent.putExtra(Playlist.EXTRA_URN, playlist.getUrn());
     }
 
     public PlaylistDetailActivity() {
@@ -48,14 +43,14 @@ public class PlaylistDetailActivity extends ScActivity {
         setContentView(R.layout.playlist_activity);
 
         if (savedInstanceState == null) {
-            final Uri playlistUri = getIntent().getData();
-            createFragmentForPlaylist(playlistUri);
+            createFragmentForPlaylist();
         }
     }
 
-    private void createFragmentForPlaylist(Uri playlistUri) {
-        Log.d(LOG_TAG, "(Re-)creating fragment for " + playlistUri);
-        Fragment fragment = PlaylistFragment.create(playlistUri, Screen.fromIntent(getIntent()));
+    private void createFragmentForPlaylist() {
+        Bundle extras = getIntent().getExtras();
+        Log.d(LOG_TAG, "(Re-)creating fragment for " + extras.getParcelable(Playlist.EXTRA_URN));
+        Fragment fragment = PlaylistFragment.create(extras);
         getSupportFragmentManager().beginTransaction().replace(R.id.playlist_tracks_fragment, fragment).commit();
     }
 

@@ -4,9 +4,10 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.Log;
@@ -54,7 +55,7 @@ public class TrackOperations {
                 LocalCollection syncState = mSyncStateManager.fromContent(track.toUri());
                 if (syncState.isSyncDue()) {
                     Log.d(LOG_TAG, "Syncing stale track " + track);
-                    return Observable.concat(Observable.just(track), syncThenLoadTrack(track.getId(), observeOn));
+                    return Observable.concat(Observable.just(track), syncThenLoadTrack(track.getUrn(), observeOn));
                 }
                 Log.d(LOG_TAG, "Track up to date, emitting directly");
                 return Observable.just(track);
@@ -68,7 +69,7 @@ public class TrackOperations {
             public Observable<Track> call(Track track) {
                 if (!track.isStreamable()) {
                     Log.d(LOG_TAG, "Syncing unstreamable track = " + track);
-                    return syncThenLoadTrack(track.getId(), observeOn);
+                    return syncThenLoadTrack(track.getUrn(), observeOn);
                 }
                 Log.d(LOG_TAG, "Track is streamable, emitting directly");
                 return Observable.just(track);
@@ -78,22 +79,20 @@ public class TrackOperations {
 
     /**
      * Performs a sync on the given track, then reloads it from local storage.
-     * @param trackId
-     * @param observeOn
      */
-    private Observable<Track> syncThenLoadTrack(final long trackId, Scheduler observeOn) {
-        return Observable.create(new Observable.OnSubscribe<Long>() {
+    private Observable<Track> syncThenLoadTrack(final TrackUrn trackUrn, Scheduler observeOn) {
+        return Observable.create(new Observable.OnSubscribe<TrackUrn>() {
             @Override
-            public void call(final Subscriber<? super Long> subscriber) {
-                final ResultReceiver resultReceiver = new SyncInitiator.ResultReceiverAdapter<Long>(subscriber, trackId);
-                    Log.d(LOG_TAG, "Sending intent to sync track " + trackId);
-                    mSyncInitiator.syncContentUri(Content.TRACK.forId(trackId), resultReceiver);
+            public void call(final Subscriber<? super TrackUrn> subscriber) {
+                final ResultReceiver resultReceiver = new SyncInitiator.ResultReceiverAdapter<TrackUrn>(subscriber, trackUrn);
+                    Log.d(LOG_TAG, "Sending intent to sync track " + trackUrn);
+                    mSyncInitiator.syncTrack(trackUrn, resultReceiver);
             }
-        }).mergeMap(new Func1<Long, Observable<Track>>() {
+        }).mergeMap(new Func1<TrackUrn, Observable<Track>>() {
             @Override
-            public Observable<Track> call(Long trackId) {
-                Log.d(LOG_TAG, "Reloading track from local storage: " + trackId);
-                return mTrackStorage.getTrackAsync(trackId);
+            public Observable<Track> call(TrackUrn trackUrn) {
+                Log.d(LOG_TAG, "Reloading track from local storage: " + trackUrn);
+                return mTrackStorage.getTrackAsync(trackUrn.numericId);
             }
         }).observeOn(observeOn);
     }
@@ -108,7 +107,7 @@ public class TrackOperations {
             public Observable<? extends Track> call(Throwable throwable) {
                 if (throwable instanceof NotFoundException) {
                     Log.d(LOG_TAG, "Track missing from local storage, will sync " + trackId);
-                    return syncThenLoadTrack(trackId, observeOn);
+                    return syncThenLoadTrack(Urn.forTrack(trackId), observeOn);
                 }
                 Log.d(LOG_TAG, "Caught error, forwarding to observer: " + throwable);
                 return Observable.error(throwable);

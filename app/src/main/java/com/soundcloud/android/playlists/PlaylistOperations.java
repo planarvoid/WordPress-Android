@@ -4,7 +4,9 @@ import static com.soundcloud.android.sync.SyncInitiator.ResultReceiverAdapter;
 
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.PlaylistUrn;
 import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.android.storage.PlaylistStorage;
@@ -44,7 +46,7 @@ public class PlaylistOperations {
                 return Observable.just(playlist);
             } else if (syncState.isSyncDue()) {
                 Log.d(LOG_TAG, "Checking playlist sync state: stale = " + syncState.isSyncDue());
-                return Observable.concat(Observable.just(playlist), syncThenLoadPlaylist(playlist.getId()));
+                return Observable.concat(Observable.just(playlist), syncThenLoadPlaylist(playlist.getUrn()));
             } else {
                 Log.d(LOG_TAG, "Playlist up to date, emitting directly");
                 return Observable.just(playlist);
@@ -69,29 +71,29 @@ public class PlaylistOperations {
                 .mergeMap(handlePlaylistCreationStored());
     }
 
-    public Observable<Playlist> loadPlaylist(final long playlistId) {
-        Log.d(LOG_TAG, "Loading playlist " + playlistId);
-        return mPlaylistStorage.loadPlaylistWithTracksAsync(playlistId)
+    public Observable<Playlist> loadPlaylist(final PlaylistUrn playlistUrn) {
+        Log.d(LOG_TAG, "Loading playlist " + playlistUrn);
+        return mPlaylistStorage.loadPlaylistWithTracksAsync(playlistUrn.numericId)
                 .mergeMap(mSyncIfNecessary)
-                .onErrorResumeNext(handlePlaylistNotFound(playlistId));
+                .onErrorResumeNext(handlePlaylistNotFound(playlistUrn));
     }
 
-    public Observable<Playlist> refreshPlaylist(final long playlistId) {
-        Log.d(LOG_TAG, "Refreshing playlist " + playlistId);
-        return syncThenLoadPlaylist(playlistId);
+    public Observable<Playlist> refreshPlaylist(final PlaylistUrn playlistUrn) {
+        Log.d(LOG_TAG, "Refreshing playlist " + playlistUrn);
+        return syncThenLoadPlaylist(playlistUrn);
     }
 
     /**
      * If a playlist cannot be found in local storage, returns a sync sequence for resume purposes, otherwise
      * simply propagates the error.
      */
-    private Func1<Throwable, Observable<? extends Playlist>> handlePlaylistNotFound(final long playlistId) {
+    private Func1<Throwable, Observable<? extends Playlist>> handlePlaylistNotFound(final PlaylistUrn playlistUrn) {
         return new Func1<Throwable, Observable<? extends Playlist>>() {
             @Override
             public Observable<? extends Playlist> call(Throwable throwable) {
                 if (throwable instanceof NotFoundException) {
-                    Log.d(LOG_TAG, "Playlist missing from local storage, will sync " + playlistId);
-                    return syncThenLoadPlaylist(playlistId);
+                    Log.d(LOG_TAG, "Playlist missing from local storage, will sync " + playlistUrn);
+                    return syncThenLoadPlaylist(playlistUrn);
                 }
                 Log.d(LOG_TAG, "Caught error, forwarding to observer: " + throwable);
                 return Observable.error(throwable);
@@ -101,22 +103,20 @@ public class PlaylistOperations {
 
     /**
      * Performs a sync on the given playlist, then reloads it from local storage.
-     *
-     * @param playlistId
      */
-    private Observable<Playlist> syncThenLoadPlaylist(final long playlistId) {
-        return Observable.create(new Observable.OnSubscribe<Long>() {
+    private Observable<Playlist> syncThenLoadPlaylist(final PlaylistUrn playlistUrn) {
+        return Observable.create(new Observable.OnSubscribe<Urn>() {
             @Override
-            public void call(final Subscriber<? super Long> subscriber) {
-                final ResultReceiver resultReceiver = new ResultReceiverAdapter<Long>(subscriber, playlistId);
-                Log.d(LOG_TAG, "Sending intent to sync playlist " + playlistId);
-                mSyncInitiator.syncContentUri(Content.PLAYLIST.forId(playlistId), resultReceiver);
+            public void call(final Subscriber<? super Urn> subscriber) {
+                final ResultReceiver resultReceiver = new ResultReceiverAdapter<Urn>(subscriber, playlistUrn);
+                Log.d(LOG_TAG, "Sending intent to sync playlist " + playlistUrn);
+                mSyncInitiator.syncPlaylist(playlistUrn, resultReceiver);
             }
-        }).mergeMap(new Func1<Long, Observable<Playlist>>() {
+        }).mergeMap(new Func1<Urn, Observable<Playlist>>() {
             @Override
-            public Observable<Playlist> call(Long playlistId) {
-                Log.d(LOG_TAG, "Reloading playlist from local storage: " + playlistId);
-                return mPlaylistStorage.loadPlaylistWithTracksAsync(playlistId);
+            public Observable<Playlist> call(Urn playlistUrn) {
+                Log.d(LOG_TAG, "Reloading playlist from local storage: " + playlistUrn);
+                return mPlaylistStorage.loadPlaylistWithTracksAsync(playlistUrn.numericId);
             }
         });
     }

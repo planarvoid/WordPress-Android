@@ -128,6 +128,11 @@ public class Track extends Playable {
         mURN = Urn.forTrack(id);
     }
 
+    @Override
+    public TrackUrn getUrn() {
+        return (TrackUrn) super.getUrn();
+    }
+
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
         if (tag_list == null) return tags;

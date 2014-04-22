@@ -3,7 +3,6 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -18,6 +17,7 @@ import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.collections.ItemAdapter;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.PlaylistUrn;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -86,7 +86,7 @@ public class PlaylistFragmentTest {
         Robolectric.shadowOf(fragment).setAttached(true);
 
         when(controller.getAdapter()).thenReturn(adapter);
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
+        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
     }
 
     @Test
@@ -110,7 +110,7 @@ public class PlaylistFragmentTest {
     @Test
     public void shouldHidePlayToggleButtonOnSecondPlaylistEmissionWithNoTracks() throws Exception {
         playlist.tracks = Lists.newArrayList(new Track(1L));
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(Arrays.asList(playlist, new Playlist(playlist.getId()))));
+        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(Arrays.asList(playlist, new Playlist(playlist.getId()))));
         View layout = createFragmentView();
 
         ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
@@ -158,7 +158,7 @@ public class PlaylistFragmentTest {
     public void shouldOpenUserProfileWhenUsernameTextIsClicked() throws Exception {
         User user = new User();
         playlist.setUser(user);
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
+        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
         when(playbackStateProvider.getPlayQueuePlaylistId()).thenReturn(playlist.getId());
         View layout = createFragmentView();
 
@@ -189,7 +189,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void callsShowContentWhenErrorIsReturned() throws Exception {
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.<Playlist>error(new Exception("something bad happened")));
+        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.<Playlist>error(new Exception("something bad happened")));
         createFragmentView();
 
         InOrder inOrder = Mockito.inOrder(controller);
@@ -205,7 +205,8 @@ public class PlaylistFragmentTest {
 
     @Test
     public void setsEmptyViewToErrorWhenErrorIsReturned() throws Exception {
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.<Playlist>error(new Exception("something bad happened")));
+        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
+                Observable.<Playlist>error(new Exception("something bad happened")));
         createFragmentView();
         verify(controller).setEmptyViewStatus(EmptyListView.Status.ERROR);
     }
@@ -219,7 +220,8 @@ public class PlaylistFragmentTest {
     @Test
     public void setsPlayableOnEngagementsControllerTwiceWhenPlaylistEmittedTwice() throws Exception {
         Playlist playlist2 = new Playlist(2L);
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(Arrays.asList(playlist, playlist2)));
+        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
+                Observable.from(Arrays.asList(playlist, playlist2)));
         createFragmentView();
 
         InOrder inOrder = Mockito.inOrder(engagementsController);
@@ -249,7 +251,8 @@ public class PlaylistFragmentTest {
         Playlist playlist2 = new Playlist(playlist.getId());
         playlist2.tracks = Lists.newArrayList(track1, track2);
 
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(Arrays.asList(playlist, playlist2)));
+        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
+                Observable.from(Arrays.asList(playlist, playlist2)));
 
         createFragmentView();
 
@@ -268,8 +271,8 @@ public class PlaylistFragmentTest {
         playlist.tracks = Lists.newArrayList(track1);
         Playlist playlist2 = new Playlist(playlist.getId());
         playlist2.tracks = Lists.newArrayList(track2);
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
-        when(playlistOperations.refreshPlaylist(anyLong())).thenReturn(Observable.from(playlist2));
+        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
+        when(playlistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist2));
 
         createFragmentView();
         fragment.onRefreshStarted(mock(View.class));
@@ -282,7 +285,8 @@ public class PlaylistFragmentTest {
 
     @Test
     public void showsToastErrorWhenContentAlreadyShownAndRefreshFails() {
-        when(playlistOperations.refreshPlaylist(anyLong())).thenReturn(Observable.<Playlist>error(new Exception("cannot refresh")));
+        when(playlistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
+                Observable.<Playlist>error(new Exception("cannot refresh")));
         when(controller.hasContent()).thenReturn(true);
 
         createFragmentView();
@@ -294,8 +298,9 @@ public class PlaylistFragmentTest {
     @Test
     public void doesNotShowInlineErrorWhenContentWhenAlreadyShownAndRefreshFails() {
         playlist.tracks = Lists.newArrayList(new Track(1L));
-        when(playlistOperations.loadPlaylist(anyLong())).thenReturn(Observable.from(playlist));
-        when(playlistOperations.refreshPlaylist(anyLong())).thenReturn(Observable.<Playlist>error(new Exception("cannot refresh")));
+        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
+        when(playlistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
+                Observable.<Playlist>error(new Exception("cannot refresh")));
         when(controller.hasContent()).thenReturn(true);
 
         createFragmentView();
@@ -306,7 +311,8 @@ public class PlaylistFragmentTest {
 
     @Test
     public void hidesRefreshStateWhenRefreshFails() {
-        when(playlistOperations.refreshPlaylist(anyLong())).thenReturn(Observable.<Playlist>error(new Exception("cannot refresh")));
+        when(playlistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
+                Observable.<Playlist>error(new Exception("cannot refresh")));
         when(controller.hasContent()).thenReturn(true);
 
         createFragmentView();
@@ -341,7 +347,7 @@ public class PlaylistFragmentTest {
 
     private View createFragmentView() {
         Bundle bundle = new Bundle();
-        bundle.putParcelable(Playlist.EXTRA_URI, playlist.toUri());
+        bundle.putParcelable(Playlist.EXTRA_URN, playlist.getUrn());
         Screen.SIDE_MENU_STREAM.addToBundle(bundle);
         fragment.setArguments(bundle);
         fragment.onCreate(null);

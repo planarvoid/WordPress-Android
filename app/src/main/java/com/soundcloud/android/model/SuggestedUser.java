@@ -29,6 +29,11 @@ public class SuggestedUser extends ScModel {
         mToken = parcel.readString();
     }
 
+    @Override
+    public UserUrn getUrn() {
+        return (UserUrn) super.getUrn();
+    }
+
     public String getUsername() {
         return mUsername;
     }

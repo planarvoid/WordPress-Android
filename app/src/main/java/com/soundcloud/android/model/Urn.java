@@ -1,9 +1,9 @@
 package com.soundcloud.android.model;
 
 import com.google.common.base.Charsets;
-import com.soundcloud.android.api.http.HttpProperties;
+import com.google.common.base.Objects;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.image.ImageSize;
+import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.net.Uri;
@@ -17,7 +17,7 @@ import java.net.URLEncoder;
  * Models a SoundCloud URN
  * see http://eng-doc.int.s-cloud.net/guidelines/urns/
  */
-public final class Urn implements Parcelable {
+public abstract class Urn implements Parcelable {
 
     public static final String SCHEME = "soundcloud";
     public static final String SOUNDS_TYPE = "sounds";
@@ -28,7 +28,7 @@ public final class Urn implements Parcelable {
     public static final Creator<Urn> CREATOR = new Creator<Urn>() {
         @Override
         public Urn createFromParcel(Parcel source) {
-            return Urn.parse(source.readString());
+            return Urn.parse(urnString(source.readString(), source.readLong()));
         }
 
         @Override
@@ -37,58 +37,61 @@ public final class Urn implements Parcelable {
         }
     };
 
-    public @NotNull final Uri uri;
-    public @NotNull final String type;
-    public @NotNull final String id;
+    @NotNull
+    public final String type;
     public final long numericId;
 
     @NotNull
-    public static Urn parse(String uri) {
-        return new Urn(uri);
-    }
-
-    @NotNull
-    public static Urn forTrack(long id) {
-        return new Urn(SCHEME + ":" + SOUNDS_TYPE + ":" + id);
-    }
-
-    @NotNull
-    public static Urn forPlaylist(long id) {
-        return new Urn(SCHEME + ":" + PLAYLISTS_TYPE + ":" + id);
-    }
-
-    @NotNull
-    public static Urn forUser(long id) {
-        final long normalizedId = Math.max(0, id); // to account for anonymous users
-        return new Urn(SCHEME + ":" + USERS_TYPE + ":" + normalizedId);
-    }
-
-    private Urn(@NotNull String uri) {
-        this(Uri.parse(uri));
-    }
-
-    private Urn(@NotNull Uri uri) {
+    public static Urn parse(String uriString) {
+        Uri uri = Uri.parse(uriString);
         if (!SCHEME.equalsIgnoreCase(uri.getScheme())) {
-            throw new IllegalArgumentException("not a soundcloud uri");
+            throw new IllegalArgumentException("Not a valid SoundCloud URN: " + uri);
         }
         final String specific = uri.getSchemeSpecificPart();
         final String[] components = specific.split(":", 2);
         if (components.length == 2) {
-            type = fixType(components[0]);
-            id = components[1];
-            long n = -1;
-            try {
-                n = Long.parseLong(id);
-            } catch (NumberFormatException ignored) {
+            final String type = fixType(components[0]);
+            final long id = ScTextUtils.safeParseLong(components[1]);
+            if (SOUNDS_TYPE.equals(type) || TRACKS_TYPE.equals(type)) {
+                return forTrack(id);
+            } else if (PLAYLISTS_TYPE.equals(type)) {
+                return forPlaylist(id);
+            } else if (USERS_TYPE.equals(type)) {
+                return forUser(id);
+            } else {
+                throw new IllegalArgumentException("Unsupported URN type: " + type);
             }
-            numericId = n;
         } else {
-            throw new IllegalArgumentException("invalid uri: "+uri);
+            throw new IllegalArgumentException("Not a valid SoundCloud URN: " + uri);
         }
-        this.uri = uri;
     }
 
-    private static String fixType(String type){
+    @NotNull
+    public static TrackUrn forTrack(long id) {
+        return new TrackUrn(id);
+    }
+
+    @NotNull
+    public static PlaylistUrn forPlaylist(long id) {
+        return new PlaylistUrn(id);
+    }
+
+    @NotNull
+    public static UserUrn forUser(long id) {
+        final long normalizedId = Math.max(0, id); // to account for anonymous users
+        return new UserUrn(normalizedId);
+    }
+
+    private static String urnString(String type, long id) {
+        return SCHEME + ":" + type + ":" + id;
+    }
+
+    protected Urn(@NotNull String type, long numericId) {
+        this.type = type;
+        this.numericId = numericId;
+    }
+
+    private static String fixType(String type) {
         return type.replace("//", "");
     }
 
@@ -106,31 +109,33 @@ public final class Urn implements Parcelable {
 
     @Override
     public String toString() {
-        return uri.toString();
+        return urnString(type, numericId);
     }
 
     public String toEncodedString() {
         try {
-            return URLEncoder.encode(uri.toString(), Charsets.UTF_8.displayName());
+            return URLEncoder.encode(toString(), Charsets.UTF_8.displayName());
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             return null;
         }
-
     }
-
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Urn urn = (Urn) o;
-        return uri.equals(urn.uri);
+        return Objects.equal(type, urn.type) && numericId == urn.numericId;
     }
 
     @Override
     public int hashCode() {
-        return uri.hashCode();
+        return Objects.hashCode(type, numericId);
     }
 
     @Override
@@ -140,6 +145,7 @@ public final class Urn implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(uri.toString());
+        dest.writeString(type);
+        dest.writeLong(numericId);
     }
 }

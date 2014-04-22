@@ -12,8 +12,8 @@ import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.collections.ItemAdapter;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.PlaylistUrn;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -24,7 +24,6 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 import rx.Subscription;
@@ -37,7 +36,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -138,11 +136,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         mPullToRefreshController = pullToRefreshController;
     }
 
-    public static PlaylistFragment create(Uri playlistUri, Screen originScreen) {
-        Bundle args = new Bundle();
-        args.putParcelable(Playlist.EXTRA_URI, playlistUri);
-        originScreen.addToBundle(args);
-
+    public static PlaylistFragment create(Bundle args) {
         PlaylistFragment fragment = new PlaylistFragment();
         fragment.setArguments(args);
         return fragment;
@@ -151,7 +145,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mLoadPlaylist = mPlaylistOperations.loadPlaylist(getPlaylistId())
+        mLoadPlaylist = mPlaylistOperations.loadPlaylist(getPlaylistUrn())
                 .observeOn(mainThread())
                 .cache();
     }
@@ -189,7 +183,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
     @Override
     public void onRefreshStarted(View view) {
-        mSubscription = mPlaylistOperations.refreshPlaylist(getPlaylistId())
+        mSubscription = mPlaylistOperations.refreshPlaylist(getPlaylistUrn())
                 .observeOn(mainThread())
                 .subscribe(new RefreshSubscriber());
     }
@@ -202,7 +196,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
     private void refreshNowPlayingState() {
         mController.getAdapter().notifyDataSetChanged();
-        mPlayToggle.setChecked(mPlaybackStateProvider.isPlaylistPlaying(getPlaylistId()));
+        mPlayToggle.setChecked(mPlaybackStateProvider.isPlaylistPlaying(getPlaylistUrn().numericId));
     }
 
     @Override
@@ -230,16 +224,15 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         super.onDestroyView();
     }
 
-    private long getPlaylistId() {
+    private PlaylistUrn getPlaylistUrn() {
         // if possible, use the instance to get the ID as it can change during syncing
         if (mPlayablePresenter != null) {
-            final Playable playable = mPlayablePresenter.getPlayable();
-            if (playable != null) {
-                return playable.getId();
+            final Playlist playlist = (Playlist) mPlayablePresenter.getPlayable();
+            if (playlist != null) {
+                return playlist.getUrn();
             }
         }
-        final Uri playlistUri = getArguments().getParcelable(Playlist.EXTRA_URI);
-        return UriUtils.getLastSegmentAsLong(playlistUri);
+        return getArguments().getParcelable(Playlist.EXTRA_URN);
     }
 
     private void configureInfoViews(View layout) {

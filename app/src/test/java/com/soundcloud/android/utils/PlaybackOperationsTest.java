@@ -290,7 +290,7 @@ public class PlaybackOperationsTest {
 
         expect(startedActivity).not.toBeNull();
         expect(startedActivity.getAction()).toBe(Actions.PLAYLIST);
-        expect(startedActivity.getData()).toEqual(playlist.toUri());
+        expect(startedActivity.getParcelableExtra(Playlist.EXTRA_URN)).toEqual(playlist.getUrn());
     }
 
     @Test(expected = AssertionError.class)
@@ -354,7 +354,7 @@ public class PlaybackOperationsTest {
     @Test
     public void shouldBuildHLSUrlForTrackBasedOnTrackURN() {
         Track mockTrack = mock(Track.class);
-        when(mockTrack.getUrn()).thenReturn(Urn.parse("soundcloud:sounds:123"));
+        when(mockTrack.getUrn()).thenReturn(Urn.forTrack(123));
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(accountOperations.getSoundCloudToken()).thenReturn(token);
         token.access = "access";

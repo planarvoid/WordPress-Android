@@ -30,6 +30,6 @@ public class ImageEndpointBuilderTest {
     public void shouldBuildImageResolverUrlForConfiguredBaseUrl() {
         when(httpProperties.getApiMobileBaseUriPath()).thenReturn("/app/mobileapps");
         final String imageUrl = builder.imageUrl(Urn.parse("soundcloud:tracks:1"), ImageSize.LARGE);
-        expect(imageUrl).toEqual("http://api.soundcloud.com/app/mobileapps/images/soundcloud:tracks:1/large");
+        expect(imageUrl).toEqual("http://api.soundcloud.com/app/mobileapps/images/soundcloud:sounds:1/large");
     }
 }

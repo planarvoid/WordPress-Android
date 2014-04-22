@@ -60,6 +60,11 @@ public class TrackSummary extends ScModel {
         super(urn);
     }
 
+    @Override
+    public TrackUrn getUrn() {
+        return (TrackUrn) super.getUrn();
+    }
+
     public String getTitle() {
         return mTitle;
     }

@@ -304,7 +304,7 @@ public class ImageOperationsTest {
     @Test
     public void displayImageInAdapterViewShouldUsePlaceholderFromCache() throws ExecutionException {
         when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
-        when(cache.get(eq("soundcloud:tracks:1_100_100"), any(Callable.class))).thenReturn(drawable);
+        when(cache.get(eq("soundcloud:sounds:1_100_100"), any(Callable.class))).thenReturn(drawable);
         imageOperations.displayInAdapterView(URN, ImageSize.LARGE, imageView);
 
         verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageAware.class), displayOptionsCaptor.capture(), any(ImageLoadingListener.class));
@@ -316,7 +316,7 @@ public class ImageOperationsTest {
     @Test
     public void displayWithPlaceholderShouldUsePlaceholderFromCache() throws ExecutionException {
         when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
-        when(cache.get(eq("soundcloud:tracks:1_100_100"), any(Callable.class))).thenReturn(drawable);
+        when(cache.get(eq("soundcloud:sounds:1_100_100"), any(Callable.class))).thenReturn(drawable);
         imageOperations.displayWithPlaceholder(URN, ImageSize.LARGE, imageView);
 
         verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageAware.class), displayOptionsCaptor.capture(), any(ImageLoadingListener.class));

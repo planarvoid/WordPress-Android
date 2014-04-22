@@ -75,6 +75,7 @@ class PlaylistSyncHelper {
             }
 
             // update local state
+            p.updateFrom(playlist, ScResource.CacheUpdateMode.FULL);
             mModelManager.removeFromCache(toDelete);
 
             mPlaylistStorage.store(playlist);

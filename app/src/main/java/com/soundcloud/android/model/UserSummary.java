@@ -14,6 +14,11 @@ public class UserSummary extends ScModel {
         super(urn);
     }
 
+    @Override
+    public UserUrn getUrn() {
+        return (UserUrn) super.getUrn();
+    }
+
     public String getUsername() {
         return mUsername;
     }

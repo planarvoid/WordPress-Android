@@ -5,6 +5,7 @@ import static com.xtremelabs.robolectric.shadows.ShadowContentResolver.Status;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
@@ -65,15 +66,23 @@ public class SyncInitiatorTest {
 
     @Test
     public void shouldCreateIntentForSyncingSinglePlaylist() throws Exception {
-        final Uri playlistUri = Content.PLAYLISTS.forQuery(String.valueOf(1L));
-        initiator.syncContentUri(playlistUri, resultReceiver);
+        initiator.syncPlaylist(Urn.forPlaylist(1L), resultReceiver);
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedService();
         expect(intent).not.toBeNull();
-        expect(intent.getData()).toBe(playlistUri);
+        expect(intent.getData()).toEqual(Content.PLAYLISTS.forQuery(String.valueOf(1L)));
         expect(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).toBeTrue();
         expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBe(resultReceiver);
     }
 
+    @Test
+    public void shouldCreateIntentForSyncingSingleTrack() throws Exception {
+        initiator.syncTrack(Urn.forTrack(1L), resultReceiver);
 
+        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
+        expect(intent).not.toBeNull();
+        expect(intent.getData()).toEqual(Content.TRACKS.forQuery(String.valueOf(1L)));
+        expect(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).toBeTrue();
+        expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBe(resultReceiver);
+    }
 }

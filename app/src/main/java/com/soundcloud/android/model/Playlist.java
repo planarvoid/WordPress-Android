@@ -30,7 +30,10 @@ import java.util.List;
 public class Playlist extends Playable {
 
     public static final String EXTRA = "com.soundcloud.android.playlist";
+    public static final String EXTRA_URN = "com.soundcloud.android.playlist_urn";
+    @Deprecated
     public static final String EXTRA_ID = "com.soundcloud.android.playlist_id";
+    @Deprecated
     public static final String EXTRA_URI = "com.soundcloud.android.playlist_uri";
     public static final String EXTRA_TRACKS_COUNT = "com.soundcloud.android.playlist_tracks";
 
@@ -124,6 +127,11 @@ public class Playlist extends Playable {
     }
 
     @Override
+    public PlaylistUrn getUrn() {
+        return (PlaylistUrn) super.getUrn();
+    }
+
+    @Override
     public int describeContents() {
         return 0;
     }
@@ -195,7 +203,6 @@ public class Playlist extends Playable {
         }
     }
 
-    @Deprecated // use getUrn() instead
     @Override
     public Uri toUri() {
         return Content.PLAYLISTS.forQuery(String.valueOf(getId()));

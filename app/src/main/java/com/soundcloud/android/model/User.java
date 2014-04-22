@@ -87,9 +87,9 @@ public class User extends ScResource implements UserHolder {
 
     public User(SuggestedUser suggestedUser){
         setUrn(suggestedUser.getUrn().toString());
-        setUsername(suggestedUser.getUsername());
-        setCity(suggestedUser.getCity());
-        setCountry(suggestedUser.getCountry());
+        username = suggestedUser.getUsername();
+        city = suggestedUser.getCity();
+        country = suggestedUser.getCountry();
     }
 
     public User(Parcel in) {
@@ -205,6 +205,11 @@ public class User extends ScResource implements UserHolder {
         }
         cv.put(TableColumns.Users.LAST_UPDATED, System.currentTimeMillis());
         return cv;
+    }
+
+    @Override
+    public UserUrn getUrn() {
+        return (UserUrn) super.getUrn();
     }
 
     @Override
