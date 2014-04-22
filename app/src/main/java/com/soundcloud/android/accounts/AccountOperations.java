@@ -33,6 +33,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 
 public class AccountOperations extends ScheduledOperations {
+
     public enum AccountInfoKeys {
         USERNAME("currentUsername"),
         USER_ID("currentUserId"),
@@ -49,6 +50,8 @@ public class AccountOperations extends ScheduledOperations {
             return mKey;
         }
     }
+
+    public static final int NOT_SET = -1;
 
     private static final String TOKEN_TYPE = "access_token";
     @VisibleForTesting

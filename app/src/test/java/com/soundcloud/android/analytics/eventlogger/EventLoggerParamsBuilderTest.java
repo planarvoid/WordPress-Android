@@ -3,11 +3,13 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.Protocol;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.queryStringEqualTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Maps;
 import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -18,6 +20,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class EventLoggerParamsBuilderTest {
@@ -26,10 +29,14 @@ public class EventLoggerParamsBuilderTest {
     private Track track;
     @Mock
     private TrackSourceInfo trackSourceInfo;
-    private EventLoggerParamsBuilder eventLoggerParamsBuilder = new EventLoggerParamsBuilder();
+    @Mock
+    private ExperimentOperations experimentOperations;
+
+    private EventLoggerParamsBuilder eventLoggerParamsBuilder;
 
     @Before
     public void setUp() throws Exception {
+        eventLoggerParamsBuilder = new EventLoggerParamsBuilder(experimentOperations);
         when(trackSourceInfo.getOriginScreen()).thenReturn("origin");
         when(trackSourceInfo.getIsUserTriggered()).thenReturn(true);
     }
@@ -53,6 +60,15 @@ public class EventLoggerParamsBuilderTest {
         when(trackSourceInfo.getPlaylistId()).thenReturn(123L);
         when(trackSourceInfo.getPlaylistPosition()).thenReturn(2);
         checkUrl("ts=321&action=play&duration=0&sound=soundcloud%3Asounds%3A0&user=soundcloud%3Ausers%3A1&trigger=manual&context=origin&set_id=123&set_position=2");
+    }
+
+    @Test
+    public void createParamsForExperimentAssignment() throws Exception {
+        Map<String, Integer> experimentParams = Maps.newHashMap();
+        experimentParams.put("exp_android-ui", 4);
+        experimentParams.put("exp_android-listen", 5);
+        when(experimentOperations.getTrackingParams()).thenReturn(experimentParams);
+        checkUrl("action=play&ts=321&duration=0&sound=soundcloud%3Asounds%3A0&user=soundcloud%3Ausers%3A1&trigger=manual&context=origin&exp_android-ui=4&exp_android-listen=5");
     }
 
     @Test

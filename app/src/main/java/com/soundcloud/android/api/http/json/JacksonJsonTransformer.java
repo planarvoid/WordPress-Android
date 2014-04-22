@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 
+import javax.inject.Singleton;
 import java.io.IOException;
 
+@Singleton
 public class JacksonJsonTransformer implements JsonTransformer {
 
     private final ObjectMapper mObjectMapper;

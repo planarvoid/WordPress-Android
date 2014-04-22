@@ -19,6 +19,7 @@ import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
@@ -37,6 +38,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ExceptionUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Token;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -85,6 +87,8 @@ public class SoundCloudApplication extends Application {
     @Inject
     AccountOperations mAccountOperations;
     @Inject
+    ExperimentOperations mExperimentOperations;
+    @Inject
     ApplicationProperties mApplicationProperties;
     @Inject
     AnalyticsProperties mAnalyticsProperties;
@@ -95,7 +99,6 @@ public class SoundCloudApplication extends Application {
 
     protected ObjectGraph mObjectGraph;
 
-    // DO NOT REMOVE, Android needs a default constructor.
     public SoundCloudApplication() {
         mObjectGraph = ObjectGraph.create(new ApplicationModule(this), new WidgetModule(), new SoundCloudModule());
     }
@@ -139,6 +142,8 @@ public class SoundCloudApplication extends Application {
 
         setupCurrentUserAccount();
 
+        initLoggedInUser();
+        setupExperiments();
         setupAnalytics();
 
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
@@ -191,6 +196,13 @@ public class SoundCloudApplication extends Application {
         }
     }
 
+    private void setupExperiments() {
+        String deviceId = AndroidUtils.getUniqueDeviceID(this);
+        if (ScTextUtils.isNotBlank(deviceId)) {
+            mExperimentOperations.loadAssignment(deviceId);
+        }
+    }
+
     private void setupAnalytics() {
         Log.d(TAG, mAnalyticsProperties.toString());
 
@@ -229,10 +241,7 @@ public class SoundCloudApplication extends Application {
 
     public synchronized User getLoggedInUser() {
         if (mLoggedInUser == null) {
-            final long id = mAccountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
-            if (id != -1) {
-                mLoggedInUser = sModelManager.getUser(id);
-            }
+            initLoggedInUser();
             // user not in db, fall back to local storage
             if (mLoggedInUser == null) {
                 User user = new User();
@@ -244,6 +253,13 @@ public class SoundCloudApplication extends Application {
             mLoggedInUser.via = SignupVia.fromString(mAccountOperations.getAccountDataString(AccountInfoKeys.SIGNUP.getKey()));
         }
         return mLoggedInUser;
+    }
+
+    private void initLoggedInUser() {
+        final long id = mAccountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
+        if (id != AccountOperations.NOT_SET) {
+            mLoggedInUser = sModelManager.getUser(id);
+        }
     }
 
     public void clearLoggedInUser() {
@@ -317,7 +333,7 @@ public class SoundCloudApplication extends Application {
 
     public static long getUserIdFromContext(Context c){
         SoundCloudApplication app = fromContext(c);
-        return app == null ? -1 : app.getCurrentUserId();
+        return app == null ? AccountOperations.NOT_SET : app.getCurrentUserId();
     }
 
     // keep this until we've sorted out RL2, since some tests rely on the getUserId stuff which in turn requires

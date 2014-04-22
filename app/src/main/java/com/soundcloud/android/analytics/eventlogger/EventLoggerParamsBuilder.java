@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import com.integralblue.httpresponsecache.compat.Charsets;
 import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -13,10 +14,15 @@ import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Locale;
+import java.util.Map;
+
 public class EventLoggerParamsBuilder {
 
+    private ExperimentOperations experimentOperations;
+
     @Inject
-    public EventLoggerParamsBuilder() {
+    public EventLoggerParamsBuilder(ExperimentOperations experimentOperations) {
+        this.experimentOperations = experimentOperations;
     }
 
     public String buildFromPlaybackEvent(PlaybackEvent playbackEvent) throws UnsupportedEncodingException {
@@ -28,6 +34,9 @@ public class EventLoggerParamsBuilder {
         builder.appendQueryParameter("sound", URLEncoder.encode(Urn.forTrack(playbackEvent.getTrack().getId()).toString(), Charsets.UTF_8.name()));
         builder.appendQueryParameter("user", URLEncoder.encode(Urn.forUser(playbackEvent.getUserId()).toString(), Charsets.UTF_8.name()));
 
+        for (Map.Entry<String, Integer> entry : experimentOperations.getTrackingParams().entrySet()) {
+            builder.appendQueryParameter(entry.getKey(), String.valueOf(entry.getValue()));
+        }
 
         TrackSourceInfo trackSourceInfo = playbackEvent.getTrackSourceInfo();
 
@@ -71,7 +80,6 @@ public class EventLoggerParamsBuilder {
         return ScTextUtils.EMPTY_STRING;
     }
 
-
     private String getPerformanceEventType(int type) {
         switch (type) {
             case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY:
@@ -88,4 +96,5 @@ public class EventLoggerParamsBuilder {
                 throw new IllegalArgumentException("Unexpected metric type " + type);
         }
     }
+
 }

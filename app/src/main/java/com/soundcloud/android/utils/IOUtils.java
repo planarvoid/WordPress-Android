@@ -37,6 +37,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -144,6 +145,18 @@ public final class IOUtils {
         bos.close();
         in.close();
         return bos.toByteArray();
+    }
+
+    public static void writeFileFromString(File file, String content) {
+        OutputStream output = null;
+        try {
+            output = new FileOutputStream(file);
+            output.write(content.getBytes());
+        } catch (IOException e) {
+            ErrorUtils.handleThrowable(e);
+        } finally {
+            IOUtils.close(output);
+        }
     }
 
     public static void consumeStream(@Nullable HttpURLConnection connection) {
