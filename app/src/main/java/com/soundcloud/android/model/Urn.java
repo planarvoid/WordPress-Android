@@ -138,6 +138,7 @@ public abstract class Urn implements Parcelable {
         return Objects.hashCode(type, numericId);
     }
 
+    @SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract")
     @Override
     public int describeContents() {
         return 0;
