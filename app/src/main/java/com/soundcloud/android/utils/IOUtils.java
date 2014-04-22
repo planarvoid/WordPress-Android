@@ -151,7 +151,7 @@ public final class IOUtils {
         OutputStream output = null;
         try {
             output = new FileOutputStream(file);
-            output.write(content.getBytes());
+            output.write(content.getBytes("UTF-8"));
         } catch (IOException e) {
             ErrorUtils.handleThrowable(e);
         } finally {
