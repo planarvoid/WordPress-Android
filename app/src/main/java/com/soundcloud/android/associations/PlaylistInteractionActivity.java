@@ -1,6 +1,7 @@
 package com.soundcloud.android.associations;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Playable;
@@ -54,7 +55,19 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
 
     @Override
     protected Playable getPlayableFromIntent(Intent intent) {
-        return Playlist.fromIntent(intent);
+        Bundle bundle = intent.getExtras();
+        Playlist playlist;
+        if (bundle.containsKey(Playlist.EXTRA)) {
+            playlist = bundle.getParcelable(Playlist.EXTRA);
+        } else if (bundle.containsKey(Playlist.EXTRA_ID)) {
+            playlist = SoundCloudApplication.sModelManager.getPlaylist(bundle.getLong(Playlist.EXTRA_ID, 0));
+        } else if (bundle.containsKey(Playlist.EXTRA_URI)) {
+            Uri uri1 = bundle.getParcelable(Playlist.EXTRA_URI);
+            playlist = SoundCloudApplication.sModelManager.getPlaylist(uri1);
+        } else {
+            throw new IllegalArgumentException("Could not obtain playlist from bundle");
+        }
+        return playlist;
     }
 
     @Override

@@ -138,7 +138,6 @@ public class PlaylistSyncHelperTest {
         when(publicCloudAPI.create(any(Request.class))).thenReturn(apiPlaylist);
         playlistSyncHelper.pushLocalPlaylists(context, publicCloudAPI, syncStateManager);
 
-        verify(playlist, never()).localToGlobal(any(Context.class), any(Playlist.class));
         verify(modelManager, never()).removeFromCache(oldPlaylistUri);
         verify(playlistStorage, never()).removePlaylist(oldPlaylistUri);
     }
@@ -162,7 +161,6 @@ public class PlaylistSyncHelperTest {
 
         InOrder inOrder = Mockito.inOrder(playlist, modelManager, playlistStorage, soundAssociationStorage, syncStateManager, playlistStorage);
 
-        inOrder.verify(playlist).localToGlobal(context, apiPlaylist);
         inOrder.verify(modelManager).removeFromCache(oldPlaylistUri);
         inOrder.verify(playlistStorage).store(apiPlaylist);
         inOrder.verify(soundAssociationStorage).addCreation(apiPlaylist);

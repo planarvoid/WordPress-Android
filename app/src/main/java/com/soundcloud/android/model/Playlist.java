@@ -3,7 +3,6 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.http.json.Views;
 import com.soundcloud.android.model.behavior.Refreshable;
@@ -13,28 +12,20 @@ import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 public class Playlist extends Playable {
 
@@ -44,6 +35,18 @@ public class Playlist extends Playable {
     public static final String EXTRA_TRACKS_COUNT = "com.soundcloud.android.playlist_tracks";
 
     public static final String ACTION_CONTENT_CHANGED = "com.soundcloud.android.playlist.content_changed";
+
+    public static final Creator<Playlist> CREATOR = new Creator<Playlist>() {
+        @Override
+        public Playlist createFromParcel(Parcel source) {
+            return new Playlist(source);
+        }
+
+        @Override
+        public Playlist[] newArray(int size) {
+            return new Playlist[size];
+        }
+    };
 
     @JsonView(Views.Full.class) public String playlist_type;
     @JsonView(Views.Full.class) public String tracks_uri;
@@ -68,34 +71,9 @@ public class Playlist extends Playable {
         }
     }
 
-    public interface OnChangeListener { void onPlaylistChanged(); }
-
-    private Set<WeakReference<OnChangeListener>> mListenerWeakReferences;
-    private ContentObserver mPlaylistObserver;
-
-    public static @Nullable Playlist fromBundle(Bundle bundle) {
-        Playlist playlist;
-        if (bundle.containsKey(EXTRA)) {
-            playlist = bundle.getParcelable(EXTRA);
-        } else if (bundle.containsKey(EXTRA_ID)) {
-            playlist = SoundCloudApplication.sModelManager.getPlaylist(bundle.getLong(EXTRA_ID, 0));
-        } else if (bundle.containsKey(EXTRA_URI)) {
-            Uri uri = (Uri) bundle.getParcelable(EXTRA_URI);
-            playlist = SoundCloudApplication.sModelManager.getPlaylist(uri);
-        } else {
-            throw new IllegalArgumentException("Could not obtain playlist from bundle");
-        }
-        return playlist;
-    }
-
-    public static @Nullable Playlist fromIntent(Intent intent) {
-        return fromBundle(intent.getExtras());
-    }
-
     public static boolean isLocal(long playlistId) {
         return playlistId < 0;
     }
-
 
     /**
      * Helper to instantiate a playlist the given user created locally. This playlist will have a negative timestamp
@@ -237,18 +215,6 @@ public class Playlist extends Playable {
         return PlaylistDetailActivity.getIntent(this, Screen.DEEPLINK);
     }
 
-    public static final Creator<Playlist> CREATOR = new Creator<Playlist>() {
-        @Override
-        public Playlist createFromParcel(Parcel source) {
-            return new Playlist(source);
-        }
-
-        @Override
-        public Playlist[] newArray(int size) {
-            return new Playlist[size];
-        }
-    };
-
     @Override
     public boolean isStale() {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.playlist;
@@ -266,88 +232,6 @@ public class Playlist extends Playable {
     @JsonProperty("track_count")
     public void setTrackCount(int count) {
         track_count = count;
-    }
-
-    /**
-     * Change listening. Playlist IDs are mutable, so we listen on the actual instance instead of content uri's
-     */
-
-    public synchronized void startObservingChanges(@NotNull ContentResolver contentResolver, @NotNull OnChangeListener listener) {
-        if (mPlaylistObserver == null) {
-            mPlaylistObserver = new ContentObserver(new Handler()) {
-                @Override
-                public void onChange(boolean selfChange) {
-                    super.onChange(selfChange);
-                    notifyChangeListeners();
-                }
-            };
-        }
-        if (mListenerWeakReferences == null) {
-            // start observing
-            contentResolver.registerContentObserver(toUri(), false, mPlaylistObserver);
-            mListenerWeakReferences = new HashSet<WeakReference<OnChangeListener>>();
-        } else {
-
-            // see if this listener already exists
-            for (WeakReference<OnChangeListener> listenerRef : mListenerWeakReferences) {
-                final OnChangeListener candidate = listenerRef.get();
-                if (candidate != null && candidate == listener) {
-                    return; // already listening
-                }
-            }
-        }
-        mListenerWeakReferences.add(new WeakReference<OnChangeListener>(listener));
-    }
-
-    public synchronized void stopObservingChanges(ContentResolver contentResolver, OnChangeListener listener) {
-
-        if (mListenerWeakReferences != null) {
-            List<WeakReference<OnChangeListener>> toRemove = new ArrayList<WeakReference<OnChangeListener>>();
-            for (WeakReference<OnChangeListener> listenerRef : mListenerWeakReferences) {
-                final OnChangeListener candidate = listenerRef.get();
-                if (candidate == null || candidate == listener) {
-                    toRemove.add(listenerRef);
-                }
-            }
-            mListenerWeakReferences.removeAll(toRemove);
-
-            if (mListenerWeakReferences.isEmpty()) {
-                // stop observing
-                contentResolver.unregisterContentObserver(mPlaylistObserver);
-                mListenerWeakReferences = null;
-            }
-        }
-
-    }
-
-    /**
-     * When a playlist goes from local to global, the id changes. We have to re-register the content observer
-     * @param context
-     * @param updated
-     */
-    public void localToGlobal(Context context, Playlist updated){
-        Uri oldUri = toUri();
-        final ContentResolver resolver = context.getContentResolver();
-        updateFrom(updated, ScResource.CacheUpdateMode.FULL);
-        if (mListenerWeakReferences == null && mPlaylistObserver != null) {
-            resolver.unregisterContentObserver(mPlaylistObserver);
-            resolver.registerContentObserver(toUri(), false, mPlaylistObserver);
-        }
-        // do not call notifyChangeListeners directly as we may be on a thread
-        resolver.notifyChange(toUri(),null);
-    }
-
-
-
-    private void notifyChangeListeners() {
-        if (mListenerWeakReferences != null) {
-            for (WeakReference<OnChangeListener> listenerRef : mListenerWeakReferences) {
-                final OnChangeListener listener = listenerRef.get();
-                if (listener != null) {
-                    listener.onPlaylistChanged();
-                }
-            }
-        }
     }
 
 }
