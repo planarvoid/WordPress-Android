@@ -1,5 +1,6 @@
 package com.soundcloud.android.view.RecyclingPager;
 
+import android.annotation.TargetApi;
 import android.os.Build;
 import android.util.SparseArray;
 import android.view.View;
@@ -66,6 +67,7 @@ public class RecycleBin {
      *
      * @param scrap The view to add
      */
+    @TargetApi(14)
     void addScrapView(View scrap, int position, int viewType) {
         if (viewTypeCount == 1) {
             currentScrapViews.put(position, scrap);
@@ -79,6 +81,7 @@ public class RecycleBin {
     }
 
     /** Move all views remaining in activeViews to scrapViews. */
+    @TargetApi(14)
     void scrapActiveViews() {
         final View[] activeViews = this.activeViews;
         final int[] activeViewTypes = this.activeViewTypes;
