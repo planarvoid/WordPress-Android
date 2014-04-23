@@ -6,8 +6,6 @@ import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import android.net.Uri;
 import android.test.suitebuilder.annotation.Suppress;
 
-@Suppress
-// suppress as the Resolve endpoint does not support "playlists" yet
 public class ResolvePlaylistMobileUrlTest extends ResolveBaseTest {
 
     public void testShouldOpenPlaylistDetailsScreen () throws Exception {

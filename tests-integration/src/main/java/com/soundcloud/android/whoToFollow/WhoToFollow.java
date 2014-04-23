@@ -21,8 +21,6 @@ public class WhoToFollow extends ActivityTestCase<OnboardActivity> {
 
     public void setUp() throws Exception {
         super.setUp();
-        suggestedUsersScreen = new SuggestedUsersScreen(solo);
-        suggestedUsersCategoryScreen = new SuggestedUsersCategoryScreen(solo);
         signUpScreen  = new SignUpScreen(solo);
         waiter = new Waiter(solo);
     }
@@ -32,18 +30,18 @@ public class WhoToFollow extends ActivityTestCase<OnboardActivity> {
         waiter.waitForContentAndRetryIfLoadingFailed();
 
         suggestedUsersScreen.clickToggleCategoryCheckmark(1);
-        suggestedUsersScreen.clickCategory(1);
-        assertEquals(true, suggestedUsersCategoryScreen.hasAllUsersSelected());
+        suggestedUsersCategoryScreen = suggestedUsersScreen.clickCategory(1);
+        assertEquals("All users should be selected", true, suggestedUsersCategoryScreen.hasAllUsersSelected());
 
         solo.goBack();
         suggestedUsersScreen.clickToggleCategoryCheckmark(1);
         suggestedUsersScreen.clickCategory(1);
-        assertEquals(true, suggestedUsersCategoryScreen.hasNoUsersSelected());
+        assertEquals("Users should not be selected", true, suggestedUsersCategoryScreen.hasNoUsersSelected());
     }
 
     public void testIndividualUserSelection() throws Exception {
         createNewUser();
-        suggestedUsersScreen.clickCategory(1);
+        suggestedUsersCategoryScreen = suggestedUsersScreen.clickCategory(1);
         String followed = suggestedUsersCategoryScreen.followUser(2);
         solo.goBack();
         assertEquals(followed, suggestedUsersScreen.subtextAtIndexEquals(1));
@@ -51,7 +49,7 @@ public class WhoToFollow extends ActivityTestCase<OnboardActivity> {
 
     public void testSelectDeselectToggle() throws Exception {
         createNewUser();
-        suggestedUsersScreen.clickCategory(1);
+        suggestedUsersCategoryScreen = suggestedUsersScreen.clickCategory(1);
         suggestedUsersCategoryScreen.waitForUsers();
         suggestedUsersCategoryScreen.selectAll();
         assertTrue(suggestedUsersCategoryScreen.hasAllUsersSelected());
@@ -78,7 +76,7 @@ public class WhoToFollow extends ActivityTestCase<OnboardActivity> {
         signUpScreen.signup();
         signUpScreen.acceptTerms();
         signUpScreen.skipInfo();
-        signUpScreen.waitForSuggestedUsers();
+        suggestedUsersScreen = signUpScreen.waitForSuggestedUsers();
     }
 
 }
