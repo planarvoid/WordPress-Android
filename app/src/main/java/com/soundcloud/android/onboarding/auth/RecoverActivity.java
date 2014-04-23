@@ -1,8 +1,10 @@
 package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.onboarding.auth.tasks.RecoverPasswordTask;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -24,10 +26,12 @@ public class RecoverActivity extends TrackedActivity {
     private PublicCloudAPI mPublicCloudAPI;
 
     @Override
-    public void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
-
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         build();
+        if (savedInstanceState == null) {
+            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_FORGOT_PASSWORD.get());
+        }
     }
 
     protected void build() {

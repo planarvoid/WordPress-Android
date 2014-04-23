@@ -21,6 +21,7 @@ public enum Screen {
     AUTH_SIGN_UP("auth:sign_up_prompt"),
     AUTH_TERMS("auth:accept_terms"),
     AUTH_USER_DETAILS("auth:user_details"),
+    AUTH_FORGOT_PASSWORD("auth:forgot_password"),
 
     // core screens
     SIDE_MENU_DRAWER("drawer"),

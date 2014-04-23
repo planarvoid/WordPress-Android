@@ -12,7 +12,7 @@ import com.soundcloud.android.events.EventQueue;
  */
 public abstract class TrackedActivity extends Activity {
 
-    private EventBus mEventBus;
+    protected EventBus mEventBus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
