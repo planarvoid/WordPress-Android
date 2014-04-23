@@ -1,70 +1,67 @@
 package com.soundcloud.android.playback;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.BiMap;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.HashBiMap;
-import com.soundcloud.android.collections.BasePagerAdapter;
+import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
-import com.soundcloud.android.playback.views.PlayerQueueView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.RecyclingPager.RecyclingPagerAdapter;
 import org.jetbrains.annotations.Nullable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.subjects.ReplaySubject;
 
-import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.support.v4.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
 import java.util.Collection;
 
-public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
+public class PlayerTrackPagerAdapter extends RecyclingPagerAdapter {
 
-    static final long EMPTY_VIEW_ID = -1;
+    @SuppressWarnings("UnusedDeclaration")
+    private static final String TAG = "PlayerTrackPagerAdapter";
 
-    private int mCommentingPosition = -1;
+    // 4 = 3 views visible at any time and 1 bonus because of how the recycler works
+    private static final int EXPECTED_TRACKVIEW_COUNT = 4;
+    private static final int TRACK_CACHE_SIZE = 10;
+    private static final int VIEW_TYPE_EMPTY = 0;
+    private static final int VIEW_TYPE_TRACK = 1;
+    private static final long EMPTY_VIEW_ID = -1;
 
-    private final BiMap<PlayerQueueView, Integer> mQueueViewsByPosition = HashBiMap.create(3);
-    private final TrackOperations mTrackOperations;
+    private final BiMap<PlayerTrackView, Integer> queueViewsByPosition = HashBiMap.create(EXPECTED_TRACKVIEW_COUNT);
+    private final TrackOperations trackOperations;
+    private final PlaybackStateProvider stateProvider;
+    private final ViewFactory playerViewFactory;
 
-    private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
+    protected PlayQueueView playQueue = PlayQueueView.EMPTY;
 
-    private PlaybackStateProvider mPlaybackState;
+    // FIXME : Using ReplaySubjects here is pretty wasteful. We just want the last (post sync) item. Make custom subject
+    private final LruCache<Long, ReplaySubject<Track>> trackSubjectCache =
+            new LruCache<Long, ReplaySubject<Track>>(TRACK_CACHE_SIZE);
 
     @Inject
-    public PlayerTrackPagerAdapter(TrackOperations trackOperations, PlaybackStateProvider stateProvider) {
-        mTrackOperations = trackOperations;
-        mPlaybackState = stateProvider;
+    public PlayerTrackPagerAdapter(TrackOperations trackOperations, PlaybackStateProvider stateProvider,
+                                   ViewFactory playerViewFactory) {
+        this.trackOperations = trackOperations;
+        this.stateProvider = stateProvider;
+        this.playerViewFactory = playerViewFactory;
     }
 
     public Collection<PlayerTrackView> getPlayerTrackViews() {
-        return Collections2.transform(Collections2.filter(mQueueViewsByPosition.keySet(), new Predicate<PlayerQueueView>() {
-            @Override
-            public boolean apply(PlayerQueueView input) {
-                return input.isShowingPlayerTrackView();
-            }
-        }), new Function<PlayerQueueView, PlayerTrackView>() {
-        @Override
-        public PlayerTrackView apply(PlayerQueueView input) {
-            return input.getTrackView();
-        }
-    });
+        return queueViewsByPosition.keySet();
     }
 
-    public boolean setPlayQueueIfChanged(PlayQueueView playQueue) {
-        final boolean changed = !mPlayQueue.equals(playQueue);
-        if (changed) mPlayQueue = playQueue;
-        return changed;
-    }
-
-    public int getCommentingPosition() {
-        return mCommentingPosition;
+    public void setPlayQueue(PlayQueueView playQueue) {
+        this.playQueue = playQueue;
     }
 
     public void onConnected() {
@@ -85,76 +82,84 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
         }
     }
 
-    public void setCommentingPosition(int commentingPosition, boolean animated) {
-        mCommentingPosition = commentingPosition;
-        PlayerTrackView commentingView = getPlayerTrackViewByPosition(commentingPosition);
-        for (PlayerTrackView ptv : getPlayerTrackViews()) {
-            if (ptv != commentingView) {
-                ptv.setCommentMode(false);
-            } else {
-                ptv.setCommentMode(true, animated);
-            }
-        }
-    }
-
     @Override
     public int getCount() {
-        return shouldDisplayExtraItem() ? mPlayQueue.size() + 1 : mPlayQueue.size();
+        return shouldDisplayExtraItem() ? playQueue.size() + 1 : playQueue.size();
     }
-
 
     private boolean shouldDisplayExtraItem() {
-        return mPlayQueue.isLoading() || mPlayQueue.lastLoadFailed() || mPlayQueue.lastLoadWasEmpty();
+        return playQueue.isLoading() || playQueue.lastLoadFailed() || playQueue.lastLoadWasEmpty();
     }
 
-    public void clearCommentingPosition(boolean animated) {
-        mCommentingPosition = -1;
-        for (PlayerTrackView playerTrackView : getPlayerTrackViews()) {
-            playerTrackView.setCommentMode(false, animated);
-        }
-    }
-
-    @Override
-    protected Long getItem(int position) {
-        if (position >= mPlayQueue.size()) {
+    protected long getIdByPosition(int position) {
+        if (position >= playQueue.size()) {
             return EMPTY_VIEW_ID;
         } else {
-            return mPlayQueue.getTrackIdAt(position);
+            return playQueue.getTrackIdAt(position);
         }
     }
 
     @Override
-    protected View getView(Long id, View convertView, ViewGroup parent) {
-        final Activity playerActivity = (Activity) parent.getContext();
+    public View getView(int position, View convertView, ViewGroup container) {
+        long id = getIdByPosition(position);
+        if (getItemViewType(position) == VIEW_TYPE_EMPTY){
 
-        if (convertView == null) {
-            convertView = createPlayerQueueView(playerActivity);
-        }
+            final EmptyListView emptyView = convertView != null ? (EmptyListView) convertView :
+                    playerViewFactory.createEmptyListView(container.getContext());
 
-        final PlayerQueueView queueView = (PlayerQueueView) convertView;
-        final int playQueuePosition;
+            switch (playQueue.getAppendState()){
+                case LOADING:
+                    emptyView.setStatus(EmptyListView.Status.WAITING);
+                    break;
+                case ERROR:
+                    emptyView.setStatus(EmptyListView.Status.ERROR);
+                    break;
+                default:
+                    emptyView.setStatus(EmptyListView.Status.OK);
+                    break;
+            }
+            return emptyView;
 
-        if (id == EMPTY_VIEW_ID) {
-            playQueuePosition = mPlayQueue.size();
-            queueView.showEmptyViewWithState(mPlayQueue.getAppendState());
         } else {
-            playQueuePosition = mPlayQueue.getPositionOfTrackId(id);
-            queueView.showTrack(mTrackOperations.loadSyncedTrack(id, AndroidSchedulers.mainThread()),
-                    playQueuePosition, mCommentingPosition == playQueuePosition, mPlaybackState);
+            final PlayerTrackView playerTrackView = convertView != null ? (PlayerTrackView) convertView :
+                    playerViewFactory.createPlayerTrackView(container.getContext());
+
+            queueViewsByPosition.forcePut(playerTrackView, position); // forcePut to remove existing entry
+            loadPlayerItem(id);
+            return playerTrackView;
         }
-        mQueueViewsByPosition.forcePut(queueView, playQueuePosition);
-        return convertView;
     }
 
-    @VisibleForTesting
-    protected PlayerQueueView createPlayerQueueView(Context context) {
-        return new PlayerQueueView(context);
+    @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position >= playQueue.size()) {
+            return VIEW_TYPE_EMPTY;
+        } else {
+            return VIEW_TYPE_TRACK;
+        }
+    }
+
+    @Override
+    public int getItemViewTypeFromObject(Object object) {
+        if (object instanceof PlayerTrackView) {
+            return VIEW_TYPE_TRACK;
+        } else {
+            return VIEW_TYPE_EMPTY;
+        }
     }
 
     @Override
     public int getItemPosition(Object object) {
-        long trackId = (Long) object;
-        return trackId == Track.NOT_SET && !shouldDisplayExtraItem() ? POSITION_NONE : POSITION_UNCHANGED;
+        if (object instanceof PlayerTrackView) {
+            return POSITION_UNCHANGED;
+        } else {
+            return POSITION_NONE;
+        }
     }
 
     @Nullable
@@ -167,32 +172,61 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
 
     @Nullable
     public PlayerTrackView getPlayerTrackViewByPosition(int position) {
-        final PlayerQueueView playerQueueView = mQueueViewsByPosition.inverse().get(position);
-        if (playerQueueView != null) {
-            return playerQueueView.getTrackView();
-        } else {
-            // this is expected to happen, for instance if we try to refresh a play position that is not on screen
-            return null;
-        }
+        return queueViewsByPosition.inverse().get(position);
     }
 
-    // since the pager layouts can show 2 completely different things (track views and the empty/loading view),
-    // and since notifyDataSetChanged on ViewPager does not re-layout the page views, we have to do it manually
-    public void reloadEmptyView(Activity playerActivity) {
-        for (PlayerQueueView playerQueueView : mQueueViewsByPosition.keySet()) {
-            if (playerQueueView.isShowingPlayerTrackView()) continue;
+    public ReplaySubject<Track> getTrackObservable(long id) {
+        ReplaySubject<Track> trackSubject = trackSubjectCache.get(id);
+        if (trackSubject == null) {
+            trackSubject = ReplaySubject.create();
+            trackOperations.loadSyncedTrack(id, AndroidSchedulers.mainThread()).subscribe(trackSubject);
+            trackSubjectCache.put(id, trackSubject);
+        }
+        return trackSubject;
+    }
 
-            // here we have an EmptyView, check if it still should be one, or convert it to a track view,
-            // based on the latest adapter data
-            final Integer position = mQueueViewsByPosition.get(playerQueueView);
-            final Long id = getItem(position);
-            if (id == EMPTY_VIEW_ID) {
-                playerQueueView.showEmptyViewWithState(mPlayQueue.getAppendState());
-            } else {
-                playerQueueView.showTrack(mTrackOperations.loadSyncedTrack(id, AndroidSchedulers.mainThread()),
-                        position, mCommentingPosition == position, mPlaybackState);
+    private void loadPlayerItem(long id) {
+        getTrackObservable(id).subscribe(new TrackSubscriber(id));
+    }
+
+    private class TrackSubscriber extends DefaultSubscriber<Track> {
+        private final long trackId;
+
+        private TrackSubscriber(long trackId) {
+            this.trackId = trackId;
+        }
+
+        @Override
+        public void onNext(Track track) {
+            for (PlayerTrackView playerQueueView : queueViewsByPosition.keySet()) {
+                final Integer position = queueViewsByPosition.get(playerQueueView);
+                final long idOfQueueView = getIdByPosition(position);
+                if (trackId == idOfQueueView) {
+                    setTrackOnPlayerTrackView(track, playerQueueView, position);
+                }
             }
         }
     }
 
+    protected void setTrackOnPlayerTrackView(Track track, PlayerTrackView playerQueueView, Integer queuePosition) {
+        playerQueueView.setTrackState(track, queuePosition, stateProvider);
+    }
+
+    @VisibleForTesting
+    static class ViewFactory {
+
+        @Inject
+        ViewFactory() { }
+
+        protected PlayerTrackView createPlayerTrackView(Context context) {
+            return (PlayerTrackView) View.inflate(context, R.layout.player_track_view, null);
+        }
+
+        protected EmptyListView createEmptyListView(Context context) {
+            EmptyListView emptyListView = new EmptyListView(context, R.layout.empty_player_track);
+            emptyListView.setBackgroundColor(Color.WHITE);
+            emptyListView.setMessageText(R.string.player_no_recommended_tracks);
+            return emptyListView;
+        }
+    }
 }

@@ -9,6 +9,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.image.PlayerArtworkLoadListener;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.AnimUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -74,15 +75,18 @@ public class ArtworkTrackView extends PlayerTrackView {
     }
 
     @Override
-    protected void setTrackInternal(@NotNull Track track, boolean priority) {
-        super.setTrackInternal(track, priority);
-        updateArtwork(priority);
+    public void setTrackState(Track track, int queuePosition, PlaybackStateProvider playbackStateProvider){
+        final boolean changed = !track.equals(mTrack);
+        super.setTrackState(track, queuePosition, playbackStateProvider);
 
-        if (mTrackFlipper != null && !track.equals(mTrack)) {
+        updateArtwork(true); //priority is still all wrong
+
+        if (mTrackFlipper != null && changed) {
             onTrackDetailsFlip(mTrackFlipper, false);
         }
+
         if (mTrackDetailsView != null) {
-            mTrackDetailsView.setTrack(mTrack, mTrackLoadingState);
+            mTrackDetailsView.setTrack(track);
         }
     }
 
@@ -141,7 +145,7 @@ public class ArtworkTrackView extends PlayerTrackView {
             }
 
 
-            mTrackDetailsView.setTrack(mTrack, mTrackLoadingState);
+            mTrackDetailsView.setTrack(mTrack);
             trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.fade_in));
             trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
             trackFlipper.showNext();

@@ -20,13 +20,9 @@ import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
-import rx.Observable;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.content.Intent;
@@ -58,18 +54,11 @@ public class PlayerTrackView extends FrameLayout implements
     protected PlayerTrackViewListener mListener;
     private PlaybackStateProvider mPlaybackStateProvider;
 
-    private Subscription mTrackSubscription = Subscriptions.empty();
-
     private PlayablePresenter mPlayablePresenter;
     private EngagementsController mEngagementsController;
 
-    protected TrackLoadingState mTrackLoadingState;
-    public enum TrackLoadingState {
-        WAITING, ERROR, DONE;
-    }
     public interface PlayerTrackViewListener extends WaveformControllerLayout.WaveformListener {
         void onAddToPlaylist(Track track);
-        void onTrackSyncComplete(int queuePosition);
         void onCloseCommentMode();
     }
     public PlayerTrackView(final Context context, AttributeSet attrs) {
@@ -99,7 +88,7 @@ public class PlayerTrackView extends FrameLayout implements
         if (trackInfoBar != null){
             trackInfoBar.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    ProfileActivity.startFromPlayable(context, getTrack());
+                    ProfileActivity.startFromPlayable(context, mTrack);
                 }
             });
 
@@ -133,52 +122,11 @@ public class PlayerTrackView extends FrameLayout implements
         mWaveformController.setOnScreen(onScreen);
     }
 
-    public TrackLoadingState getTrackLoadingState() {
-        return mTrackLoadingState;
-    }
-
-    public void setPlayQueueItem(Observable<Track> trackObservable, int queuePosition){
-        mQueuePosition = queuePosition;
-        mTrackSubscription.unsubscribe(); // unsubscribe from old subscription which may be in flight
-        mTrackLoadingState = TrackLoadingState.WAITING;
-        mTrackSubscription = trackObservable.subscribe(new DefaultSubscriber<Track>() {
-            @Override
-            public void onNext(Track args) {
-                // GET RID OF PRIORITY OR IMPLEMENT IT PROPERLY
-                setTrackInternal(args, true);
-            }
-
-            @Override
-            public void onCompleted() {
-                mTrackLoadingState = TrackLoadingState.DONE;
-                mListener.onTrackSyncComplete(mQueuePosition);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                mTrackLoadingState = TrackLoadingState.ERROR;
-                mListener.onTrackSyncComplete(mQueuePosition);
-            }
-        });
-    }
-
-    public void setOriginScreen(OriginProvider originProvider) {
-        mEngagementsController.setOriginProvider(originProvider);
-    }
-
-    @Override
-    public long sendSeek(float seekPosition) {
-        return mListener.sendSeek(seekPosition);
-    }
-
-    @Override
-    public long setSeekMarker(int queuePosition, float seekPosition) {
-        return mListener.setSeekMarker(queuePosition, seekPosition);
-    }
-
-    protected void setTrackInternal(@NotNull Track track, boolean priority) {
+    public void setTrackState(Track track, int queuePosition, PlaybackStateProvider playbackStateProvider){
         mTrack = track;
-        mWaveformController.updateTrack(mTrack, mQueuePosition, priority);
+        mQueuePosition = queuePosition;
+        mPlaybackStateProvider = playbackStateProvider;
+        mWaveformController.updateTrack(mTrack, mQueuePosition, true);
 
         if (mDuration != mTrack.duration) {
             mDuration = mTrack.duration;
@@ -203,6 +151,20 @@ public class PlayerTrackView extends FrameLayout implements
         if (mQueuePosition == mPlaybackStateProvider.getPlayPosition()) {
             setProgress(mPlaybackStateProvider.getPlayProgress(), mPlaybackStateProvider.getLoadingPercent());
         }
+    }
+
+    public void setOriginScreen(OriginProvider originProvider) {
+        mEngagementsController.setOriginProvider(originProvider);
+    }
+
+    @Override
+    public long sendSeek(float seekPosition) {
+        return mListener.sendSeek(seekPosition);
+    }
+
+    @Override
+    public long setSeekMarker(int queuePosition, float seekPosition) {
+        return mListener.setSeekMarker(queuePosition, seekPosition);
     }
 
     private void refreshComments() {
@@ -380,10 +342,6 @@ public class PlayerTrackView extends FrameLayout implements
 
     public long getTrackId() {
         return mTrack == null ? -1 : mTrack.getId();
-    }
-
-    public Track getTrack() {
-        return mTrack;
     }
 
     public void clear() {

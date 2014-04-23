@@ -103,30 +103,8 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
         mTxtInfo = (TextView) findViewById(R.id.txtInfo);
     }
 
-    public void setTrack(Track mTrack, PlayerTrackView.TrackLoadingState mTrackLoadingState) {
-        fillTrackDetails(mTrack);
-
-        if (mTrackLoadingState == PlayerTrackView.TrackLoadingState.WAITING){
-            showLoadingState();
-        } else {
-            hideLoadingState();
-        }
-    }
-
-    private void showLoadingState(){
-        mInfoView.setVisibility(View.GONE);
-        if (findViewById(R.id.loading_layout) != null) {
-            findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
-        } else {
-            findViewById(R.id.stub_loading).setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void hideLoadingState(){
-        mInfoView.setVisibility(View.VISIBLE);
-        if (findViewById(R.id.loading_layout) != null) {
-            findViewById(R.id.loading_layout).setVisibility(View.GONE);
-        }
+    public void setTrack(Track track) {
+        fillTrackDetails(track);
     }
 
     private void fillTrackDetails(Track track) {
