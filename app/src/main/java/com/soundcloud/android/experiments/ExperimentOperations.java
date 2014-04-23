@@ -24,12 +24,14 @@ public class ExperimentOperations {
 
     private static final String TAG = ExperimentOperations.class.getSimpleName();
 
+    private static final String PARAM_LAYERS = "layers";
     private static final String EXPERIMENT_PREFIX = "exp_";
 
     private Assignment assignment = Assignment.empty();
 
     private final ExperimentStorage experimentStorage;
     private final RxHttpClient rxHttpClient;
+    private final ActiveExperiments activeExperiments;
 
     private Action1 storeAssignment = new Action1<Assignment>() {
         @Override
@@ -39,9 +41,11 @@ public class ExperimentOperations {
     };
 
     @Inject
-    public ExperimentOperations(ExperimentStorage experimentStorage, RxHttpClient rxHttpClient) {
+    public ExperimentOperations(ExperimentStorage experimentStorage, RxHttpClient rxHttpClient,
+                                ActiveExperiments activeExperiments) {
         this.experimentStorage = experimentStorage;
         this.rxHttpClient = rxHttpClient;
+        this.activeExperiments = activeExperiments;
     }
 
     public void loadAssignment(String deviceId) {
@@ -58,7 +62,9 @@ public class ExperimentOperations {
     public Map<String, Integer> getTrackingParams() {
         HashMap<String, Integer> params = new HashMap<String, Integer>();
         for (Layer layer : assignment.getLayers()) {
-            params.put(EXPERIMENT_PREFIX + layer.getLayerName(), layer.getVariantId());
+            if (activeExperiments.isActive(layer.getExperimentId())) {
+                params.put(EXPERIMENT_PREFIX + layer.getLayerName(), layer.getVariantId());
+            }
         }
         return params;
     }
@@ -70,6 +76,7 @@ public class ExperimentOperations {
                 Log.d(TAG, "Requesting assignments for device: " + deviceId);
                 APIRequest<Assignment> request =
                         SoundCloudAPIRequest.RequestBuilder.<Assignment>get(APIEndpoints.EXPERIMENTS.path(deviceId))
+                                .addQueryParameters(PARAM_LAYERS, activeExperiments.getRequestLayers())
                                 .forPrivateAPI(1)
                                 .forResource(TypeToken.of(Assignment.class))
                                 .build();

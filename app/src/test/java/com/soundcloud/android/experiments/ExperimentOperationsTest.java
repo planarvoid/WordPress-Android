@@ -2,6 +2,7 @@ package com.soundcloud.android.experiments;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,9 +30,12 @@ public class ExperimentOperationsTest {
     @Mock
     RxHttpClient rxHttpClient;
 
+    @Mock
+    ActiveExperiments activeExperiments;
+
     @Before
     public void setUp() throws Exception {
-        operations = new ExperimentOperations(experimentStorage, rxHttpClient);
+        operations = new ExperimentOperations(experimentStorage, rxHttpClient, activeExperiments);
     }
 
     @Test
@@ -69,6 +73,7 @@ public class ExperimentOperationsTest {
         Assignment assignment = TestHelper.getModelFactory().createModel(Assignment.class);
         Observable<Assignment> observable = Observable.from(assignment);
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.<Assignment>empty());
+        when(activeExperiments.getRequestLayers()).thenReturn(new String[]{ "android-ui" });
         when(rxHttpClient.<Assignment>fetchModels(any(APIRequest.class))).thenReturn(observable);
 
         operations.loadAssignment("device1");
@@ -77,19 +82,34 @@ public class ExperimentOperationsTest {
     }
 
     @Test
-    public void shouldPopulateTrackingParametersMapFromAssignment() throws Exception {
+    public void shouldGenerateTrackingParametersMapForActiveExperiments() throws Exception {
         Assignment assignment = TestHelper.getModelFactory().createModel(Assignment.class);
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.from(assignment));
         when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
+        when(activeExperiments.isActive(anyInt())).thenReturn(true);
         operations.loadAssignment("device1");
 
         Map<String, Integer> params = operations.getTrackingParams();
 
         expect(params.containsKey("exp_android-ui")).toBeTrue();
-        expect(params.get("exp_android-ui")).toEqual(1);
+        expect(params.get("exp_android-ui")).toEqual(3);
 
         expect(params.containsKey("exp_android-listen")).toBeTrue();
-        expect(params.get("exp_android-listen")).toEqual(2);
+        expect(params.get("exp_android-listen")).toEqual(9);
+    }
+
+    @Test
+    public void shouldNotGenerateTrackingParametersForExperimentsThatAreNotRunning() throws Exception {
+        Assignment assignment = TestHelper.getModelFactory().createModel(Assignment.class);
+        when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.from(assignment));
+        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
+        when(activeExperiments.isActive(5)).thenReturn(true);
+        operations.loadAssignment("device1");
+
+        Map<String, Integer> params = operations.getTrackingParams();
+
+        expect(params.containsKey("exp_android-ui")).toBeTrue();
+        expect(params.containsKey("exp_android-listen")).toBeFalse();
     }
 
 }
