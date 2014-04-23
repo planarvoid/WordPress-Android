@@ -320,7 +320,7 @@ public class StreamLoader {
 
         private WeakReference<StreamLoader> mLoaderRef;
 
-        private ResultHandler(StreamLoader loader, Looper looper) {
+        ResultHandler(StreamLoader loader, Looper looper) {
             super(looper);
             this.mLoaderRef = new WeakReference<StreamLoader>(loader);
         }
@@ -385,7 +385,7 @@ public class StreamLoader {
     private static final class ConnectivityHandler extends Handler {
         private WeakReference<StreamLoader> mLoaderRef;
 
-        private ConnectivityHandler(StreamLoader loader, Looper looper) {
+        ConnectivityHandler(StreamLoader loader, Looper looper) {
             super(looper);
             this.mLoaderRef = new WeakReference<StreamLoader>(loader);
         }
@@ -416,7 +416,7 @@ public class StreamLoader {
     private static final class PlaycountHandler extends Handler {
         private WeakReference<StreamLoader> mLoaderRef;
 
-        private PlaycountHandler(StreamLoader loader, Looper looper) {
+        PlaycountHandler(StreamLoader loader, Looper looper) {
             super(looper);
             this.mLoaderRef = new WeakReference<StreamLoader>(loader);
         }

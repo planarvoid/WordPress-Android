@@ -2,6 +2,13 @@ package com.soundcloud.android.events;
 
 public final class PlaybackPerformanceEvent {
 
+
+    public static final int METRIC_TIME_TO_PLAY = 0;
+    public static final int METRIC_TIME_TO_PLAYLIST = 1;
+    public static final int METRIC_TIME_TO_BUFFER = 2;
+    public static final int METRIC_TIME_TO_SEEK = 3;
+    public static final int METRIC_FRAGMENT_DOWNLOAD_RATE = 4;
+
     public enum ConnectionType {
 
         TWO_G("2G"),
@@ -48,12 +55,6 @@ public final class PlaybackPerformanceEvent {
             return value;
         }
     }
-
-    public static final int METRIC_TIME_TO_PLAY = 0;
-    public static final int METRIC_TIME_TO_PLAYLIST = 1;
-    public static final int METRIC_TIME_TO_BUFFER = 2;
-    public static final int METRIC_TIME_TO_SEEK = 3;
-    public static final int METRIC_FRAGMENT_DOWNLOAD_RATE = 4;
 
     private final long timestamp;
     private final int metric;

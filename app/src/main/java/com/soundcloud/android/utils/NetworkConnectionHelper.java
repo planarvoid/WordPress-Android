@@ -31,7 +31,13 @@ public class NetworkConnectionHelper {
     }
 
     public ConnectionType getCurrentConnectionType(){
-        final int activeNetworkType = connectivityManager.getActiveNetworkInfo().getType();
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+
+        if(activeNetworkInfo == null){
+            return ConnectionType.UNKNOWN;
+        }
+
+        int activeNetworkType = activeNetworkInfo.getType();
         switch (activeNetworkType){
             case ConnectivityManager.TYPE_WIFI :
             case ConnectivityManager.TYPE_WIMAX :

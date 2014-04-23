@@ -72,12 +72,14 @@ public class NetworkConnectivityListener {
     /**
      * This method starts listening for network connectivity state changes.
      */
-    public synchronized NetworkConnectivityListener startListening(Context context) {
-        if (mContext == null) {
-            mContext = context;
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            context.registerReceiver(mReceiver, filter);
+    public NetworkConnectivityListener startListening(Context context) {
+        synchronized (this) {
+            if (mContext == null) {
+                mContext = context;
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+                context.registerReceiver(mReceiver, filter);
+            }
         }
         return this;
     }
@@ -85,12 +87,14 @@ public class NetworkConnectivityListener {
     /**
      * This method stops this class from listening for network changes.
      */
-    public synchronized void stopListening() {
-        if (mContext != null) {
-            mContext.unregisterReceiver(mReceiver);
-            mContext = null;
-            mNetworkInfo = null;
-            mOtherNetworkInfo = null;
+    public void stopListening() {
+        synchronized (this) {
+            if (mContext != null) {
+                mContext.unregisterReceiver(mReceiver);
+                mContext = null;
+                mNetworkInfo = null;
+                mOtherNetworkInfo = null;
+            }
         }
     }
 

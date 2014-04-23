@@ -2,8 +2,10 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
+import static junit.framework.Assert.fail;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,11 +18,14 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.telephony.TelephonyManager;
 
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.regex.Pattern;
+
 @RunWith(SoundCloudTestRunner.class)
 public class NetworkConnectionHelperTest {
 
     private NetworkConnectionHelper networkConnectionHelper;
-
 
     @Mock
     private TelephonyManager telephonyManager;
@@ -39,6 +44,12 @@ public class NetworkConnectionHelperTest {
     public void returnsWifiWhenNetworkInfoTypeIsWifi() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
         expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.WIFI);
+    }
+
+    @Test
+    public void returnsUnknownConnectionTypeWhenActiveNetworkInfoIsNull() throws Exception {
+        when(connectivityManager.getActiveNetworkInfo()).thenReturn(null);
+        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.UNKNOWN);
     }
 
     @Test
@@ -149,40 +160,40 @@ public class NetworkConnectionHelperTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenCheckingConnectivityAndNetworkInfoIsNull(){
+    public void shouldReturnFalseWhenCheckingConnectivityAndNetworkInfoIsNull() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(null);
         expect(networkConnectionHelper.networkIsConnected()).toBeFalse();
     }
 
     @Test
-    public void shouldReturnFalseWhenCheckingConnectivityAndNetworkIsNotConnectedOrConnecting(){
+    public void shouldReturnFalseWhenCheckingConnectivityAndNetworkIsNotConnectedOrConnecting() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(networkInfo.isConnectedOrConnecting()).thenReturn(false);
         expect(networkConnectionHelper.networkIsConnected()).toBeFalse();
     }
 
     @Test
-    public void shouldReturnTrueWhenCheckingConnectivityAndNetworkIsConnectedOrConnecting(){
+    public void shouldReturnTrueWhenCheckingConnectivityAndNetworkIsConnectedOrConnecting() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(networkInfo.isConnectedOrConnecting()).thenReturn(true);
         expect(networkConnectionHelper.networkIsConnected()).toBeTrue();
     }
 
     @Test
-    public void shouldReturnFalseWhenCheckingWifiConnectivityAndNetworkInfoIsNull(){
+    public void shouldReturnFalseWhenCheckingWifiConnectivityAndNetworkInfoIsNull() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(null);
         expect(networkConnectionHelper.isWifiConnected()).toBeFalse();
     }
 
     @Test
-    public void shouldReturnFalseWhenCheckingWifiConnectivityAndItIsNotConnected(){
+    public void shouldReturnFalseWhenCheckingWifiConnectivityAndItIsNotConnected() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(networkInfo.isConnected()).thenReturn(false);
         expect(networkConnectionHelper.isWifiConnected()).toBeFalse();
     }
 
     @Test
-    public void shouldReturnFalseWhenCheckingWifiConnectivityAndItIsConnectedButNotAWifiConnectionType(){
+    public void shouldReturnFalseWhenCheckingWifiConnectivityAndItIsConnectedButNotAWifiConnectionType() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(networkInfo.isConnected()).thenReturn(true);
@@ -190,7 +201,7 @@ public class NetworkConnectionHelperTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenCheckingWifiConnectivityAndItIsConnectedAndIsAWifiConnectionType(){
+    public void shouldReturnTrueWhenCheckingWifiConnectivityAndItIsConnectedAndIsAWifiConnectionType() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
         when(networkInfo.isConnected()).thenReturn(true);
@@ -198,10 +209,43 @@ public class NetworkConnectionHelperTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenCheckingWifiConnectivityAndItIsConnectedAndIsAWimaxConnectionType(){
+    public void shouldReturnTrueWhenCheckingWifiConnectivityAndItIsConnectedAndIsAWimaxConnectionType() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIMAX);
         when(networkInfo.isConnected()).thenReturn(true);
         expect(networkConnectionHelper.isWifiConnected()).toBeTrue();
+    }
+
+    @Test
+    public void shouldSupportAllNetworkConnectionTypesFromConnectivityManager() throws IllegalAccessException {
+        Pattern networkTypeFieldPattern = Pattern.compile("^NETWORK_TYPE_\\w*");
+        Class<TelephonyManager> telephonyManagerClass = TelephonyManager.class;
+        Field[] fields = telephonyManagerClass.getDeclaredFields();
+        when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
+        when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+
+        List<String> unrecognisedNetworkTypes = Lists.newArrayList();
+        for (Field field : fields) {
+            if (networkTypeFieldPattern.matcher(field.getName()).matches()) {
+
+                int networkTypeValue = field.getInt(null);
+
+                if(TelephonyManager.NETWORK_TYPE_UNKNOWN == networkTypeValue){
+                    continue;
+                }
+
+                when(telephonyManager.getNetworkType()).thenReturn(networkTypeValue);
+                ConnectionType connectionType = networkConnectionHelper.getCurrentConnectionType();
+
+                if (ConnectionType.UNKNOWN.equals(connectionType)) {
+                    unrecognisedNetworkTypes.add(field.getName());
+                }
+
+            }
+        }
+
+        if (!unrecognisedNetworkTypes.isEmpty()) {
+            fail("Unrecognised Network Types detected : " + unrecognisedNetworkTypes.toString());
+        }
     }
 }
