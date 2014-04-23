@@ -50,8 +50,12 @@ public abstract class Urn implements Parcelable {
         final String specific = uri.getSchemeSpecificPart();
         final String[] components = specific.split(":", 2);
         if (components.length == 2) {
-            final String type = fixType(components[0]);
             final long id = ScTextUtils.safeParseLong(components[1]);
+            if (id == -1){
+                throw new IllegalArgumentException("Invalid id from uri : " + uri);
+            }
+
+            final String type = fixType(components[0]);
             if (SOUNDS_TYPE.equals(type) || TRACKS_TYPE.equals(type)) {
                 return forTrack(id);
             } else if (PLAYLISTS_TYPE.equals(type)) {

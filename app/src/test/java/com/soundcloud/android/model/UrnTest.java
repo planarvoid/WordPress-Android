@@ -58,6 +58,11 @@ public class UrnTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionWhenTryingToParseUrnWithInvalidId() {
+        Urn.parse("soundcloud:sounds:abc");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionWhenTryingToParseInvalidUrn() {
         Urn.parse("not a URN");
     }
