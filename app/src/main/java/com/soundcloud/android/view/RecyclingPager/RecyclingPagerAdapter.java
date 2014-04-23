@@ -20,6 +20,7 @@ public abstract class RecyclingPagerAdapter extends PagerAdapter {
         this(new RecycleBin());
     }
 
+    @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
     RecyclingPagerAdapter(RecycleBin recycleBin) {
         this.recycleBin = recycleBin;
         recycleBin.setViewTypeCount(getViewTypeCount());
@@ -68,9 +69,7 @@ public abstract class RecyclingPagerAdapter extends PagerAdapter {
      *
      * @return The number of types of Views that will be created by this adapter
      */
-    public int getViewTypeCount() {
-        return 1;
-    }
+    public abstract int getViewTypeCount();
 
     /**
      * Get the type of View that will be created by {@link #getView} for the specified item.
@@ -83,11 +82,8 @@ public abstract class RecyclingPagerAdapter extends PagerAdapter {
      *         also be returned.
      * @see #IGNORE_ITEM_VIEW_TYPE
      */
-    @SuppressWarnings("UnusedParameters") // Argument potentially used by subclasses.
-    public int getItemViewType(int position) {
-        return 0;
-    }
-
+    @SuppressWarnings({"UnusedParameters"}) // Argument potentially used by subclasses.
+    public abstract int getItemViewType(int position);
     /**
      * Get a View that displays the data at the specified position in the data set. You can either
      * create a View manually or inflate it from an XML layout file. When the View is inflated, the
