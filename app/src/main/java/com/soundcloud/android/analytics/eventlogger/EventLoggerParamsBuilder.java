@@ -19,6 +19,35 @@ import java.util.Map;
 public class EventLoggerParamsBuilder {
 
     private ExperimentOperations experimentOperations;
+    private enum Parameters {
+        TIMESTAMP("ts"),
+        ACTION("action"),
+        DURATION("duration"),
+        SOUND("sound"),
+        USER("user"),
+        CONTEXT("context"),
+        TRIGGER("trigger"),
+        SOURCE("source"),
+        SOURCE_VERSION("source_version"),
+        PLAYLIST_ID("set_id"),
+        PLAYLIST_POSITION("set_position"),
+        LATENCY("latency"),
+        PROTOCOL("protocol"),
+        PLAYER_TYPE("player_type"),
+        TYPE("type"),
+        HOST("host"),
+        CONNECTION_TYPE("connection_type");
+
+        private String value;
+
+        Parameters(String value) {
+            this.value = value;
+        }
+
+        public String value(){
+            return value;
+        }
+    }
 
     @Inject
     public EventLoggerParamsBuilder(ExperimentOperations experimentOperations) {
@@ -28,11 +57,11 @@ public class EventLoggerParamsBuilder {
     public String buildFromPlaybackEvent(PlaybackEvent playbackEvent) throws UnsupportedEncodingException {
         final Uri.Builder builder = new Uri.Builder();
 
-        builder.appendQueryParameter("ts", String.valueOf(playbackEvent.getTimeStamp()));
-        builder.appendQueryParameter("action", playbackEvent.isPlayEvent() ? EventLoggerParams.Action.PLAY : EventLoggerParams.Action.STOP);
-        builder.appendQueryParameter("duration", String.valueOf(playbackEvent.getTrack().duration));
-        builder.appendQueryParameter("sound", URLEncoder.encode(Urn.forTrack(playbackEvent.getTrack().getId()).toString(), Charsets.UTF_8.name()));
-        builder.appendQueryParameter("user", URLEncoder.encode(Urn.forUser(playbackEvent.getUserId()).toString(), Charsets.UTF_8.name()));
+        builder.appendQueryParameter(Parameters.TIMESTAMP.value(), String.valueOf(playbackEvent.getTimeStamp()));
+        builder.appendQueryParameter(Parameters.ACTION.value(), playbackEvent.isPlayEvent() ? "play" : "stop");
+        builder.appendQueryParameter(Parameters.DURATION.value(), String.valueOf(playbackEvent.getTrack().duration));
+        builder.appendQueryParameter(Parameters.SOUND.value(), URLEncoder.encode(Urn.forTrack(playbackEvent.getTrack().getId()).toString(), Charsets.UTF_8.name()));
+        builder.appendQueryParameter(Parameters.USER.value(), URLEncoder.encode(Urn.forUser(playbackEvent.getUserId()).toString(), Charsets.UTF_8.name()));
 
         for (Map.Entry<String, Integer> entry : experimentOperations.getTrackingParams().entrySet()) {
             builder.appendQueryParameter(entry.getKey(), String.valueOf(entry.getValue()));
@@ -41,20 +70,20 @@ public class EventLoggerParamsBuilder {
         TrackSourceInfo trackSourceInfo = playbackEvent.getTrackSourceInfo();
 
         if (trackSourceInfo.getIsUserTriggered()) {
-            builder.appendQueryParameter(EventLoggerParams.Keys.TRIGGER, EventLoggerParams.Trigger.MANUAL);
+            builder.appendQueryParameter(Parameters.TRIGGER.value(), "manual");
         } else {
-            builder.appendQueryParameter(EventLoggerParams.Keys.TRIGGER, EventLoggerParams.Trigger.AUTO);
+            builder.appendQueryParameter(Parameters.TRIGGER.value(), "auto");
         }
-        builder.appendQueryParameter(EventLoggerParams.Keys.ORIGIN_URL, formatOriginUrl(trackSourceInfo.getOriginScreen()));
+        builder.appendQueryParameter(Parameters.CONTEXT.value(), formatOriginUrl(trackSourceInfo.getOriginScreen()));
 
         if (trackSourceInfo.hasSource()) {
-            builder.appendQueryParameter(EventLoggerParams.Keys.SOURCE, trackSourceInfo.getSource());
-            builder.appendQueryParameter(EventLoggerParams.Keys.SOURCE_VERSION, trackSourceInfo.getSourceVersion());
+            builder.appendQueryParameter(Parameters.SOURCE.value(), trackSourceInfo.getSource());
+            builder.appendQueryParameter(Parameters.SOURCE_VERSION.value(), trackSourceInfo.getSourceVersion());
         }
 
         if (trackSourceInfo.isFromPlaylist()) {
-            builder.appendQueryParameter(EventLoggerParams.Keys.SET_ID, String.valueOf(trackSourceInfo.getPlaylistId()));
-            builder.appendQueryParameter(EventLoggerParams.Keys.SET_POSITION, String.valueOf(trackSourceInfo.getPlaylistPosition()));
+            builder.appendQueryParameter(Parameters.PLAYLIST_ID.value(), String.valueOf(trackSourceInfo.getPlaylistId()));
+            builder.appendQueryParameter(Parameters.PLAYLIST_POSITION.value(), String.valueOf(trackSourceInfo.getPlaylistPosition()));
         }
         return builder.build().getQuery();
     }
@@ -62,12 +91,13 @@ public class EventLoggerParamsBuilder {
 
     public String buildFromPlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
         final Uri.Builder builder = new Uri.Builder();
-        builder.appendQueryParameter("ts", String.valueOf(eventData.getTimeStamp()));
-        builder.appendQueryParameter("latency", String.valueOf(eventData.getMetricValue()));
-        builder.appendQueryParameter("protocol", eventData.getProtocol().getValue());
-        builder.appendQueryParameter("player_type", eventData.getPlayerType().getValue());
-        builder.appendQueryParameter("type", getPerformanceEventType(eventData.getMetric()));
-        builder.appendQueryParameter("host", Uri.parse(eventData.getUri()).getHost());
+        builder.appendQueryParameter(Parameters.TIMESTAMP.value(), String.valueOf(eventData.getTimeStamp()));
+        builder.appendQueryParameter(Parameters.LATENCY.value(), String.valueOf(eventData.getMetricValue()));
+        builder.appendQueryParameter(Parameters.PROTOCOL.value(), eventData.getProtocol().getValue());
+        builder.appendQueryParameter(Parameters.PLAYER_TYPE.value(), eventData.getPlayerType().getValue());
+        builder.appendQueryParameter(Parameters.TYPE.value(), getPerformanceEventType(eventData.getMetric()));
+        builder.appendQueryParameter(Parameters.HOST.value(), Uri.parse(eventData.getUri()).getHost());
+        builder.appendQueryParameter(Parameters.CONNECTION_TYPE.value(), eventData.getConnectionType().getValue());
         return builder.build().getQuery();
     }
 

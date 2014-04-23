@@ -22,7 +22,6 @@ public class ApplicationProperties {
     public enum BuildType{
         DEBUG,
         BETA,
-        STAGING,
         RELEASE
     }
 

@@ -195,13 +195,6 @@ public class TestHelper {
         shadowOf(shadowOf(cm).getActiveNetworkInfo()).setConnectionStatus(false);
     }
 
-    public static void simulateOnline() {
-        ConnectivityManager cm = (ConnectivityManager)
-                Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
-        shadowOf(shadowOf(cm).getActiveNetworkInfo()).setConnectionStatus(true);
-    }
-
-
     public static void connectedViaWifi(boolean enabled) {
         ConnectivityManager cm = (ConnectivityManager)
                 Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);

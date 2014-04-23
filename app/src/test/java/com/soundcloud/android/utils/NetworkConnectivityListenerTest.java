@@ -4,7 +4,6 @@ package com.soundcloud.android.utils;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowConnectivityManager;
 import com.xtremelabs.robolectric.shadows.ShadowNetworkInfo;
@@ -36,28 +35,6 @@ public class NetworkConnectivityListenerTest {
 
     @After public void after() {
         listener.stopListening();
-    }
-
-    @Test
-    public void shouldListenenToConnectivity() throws Exception {
-        TestHelper.simulateOffline();
-        expect(listener.isConnected()).toBeFalse();
-        TestHelper.simulateOnline();
-        expect(listener.isConnected()).toBeTrue();
-    }
-
-    @Test
-    public void shouldCheckWifiConnection() throws Exception {
-        expect(listener.isWifiConnected()).toBeFalse();
-        TestHelper.connectedViaWifi(true);
-        expect(listener.isWifiConnected()).toBeTrue();
-    }
-
-    @Test
-    public void shouldNullNetworkInfo() throws Exception {
-        cm.setActiveNetworkInfo(null);
-        expect(listener.isConnected()).toBeFalse();
-        expect(listener.isWifiConnected()).toBeFalse();
     }
 
     @Test

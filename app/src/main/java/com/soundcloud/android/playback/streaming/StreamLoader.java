@@ -4,6 +4,7 @@ import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.utils.BatteryListener;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 
 import android.content.Context;
@@ -31,7 +32,8 @@ public class StreamLoader {
     static final int MAX_RETRIES = 3;
     static final Object PRELOAD_TOKEN = new Object();
 
-    private final NetworkConnectivityListener mConnectivityListener;
+    private final NetworkConnectivityListener connectivityListener;
+    private final NetworkConnectionHelper connectivityHelper;
     private final BatteryListener mBatteryListener;
     private final Context mContext;
     private final StreamStorage mStorage;
@@ -76,10 +78,10 @@ public class StreamLoader {
         // setup connectivity listening
         mConnHandler = new ConnectivityHandler(this, resultLooper);
 
-        mConnectivityListener = new NetworkConnectivityListener()
+        connectivityListener = new NetworkConnectivityListener()
                 .registerHandler(mConnHandler, CONNECTIVITY_MSG)
                 .startListening(context);
-
+        connectivityHelper = new NetworkConnectionHelper();
         mBatteryListener = new BatteryListener(context);
 
         mDataThread = new HandlerThread("streaming-data", android.os.Process.THREAD_PRIORITY_BACKGROUND);
@@ -101,7 +103,7 @@ public class StreamLoader {
 
     public void preloadDataForUrl(final String url, final long delay) {
         // preload data if we have wifi and battery
-         if (mConnectivityListener.isWifiConnected() &&
+         if (connectivityHelper.isWifiConnected() &&
                  mBatteryListener.isOK() &&
                  IOUtils.isSDCardAvailable()) {
             // cancel previous pending preload requests
@@ -165,8 +167,8 @@ public class StreamLoader {
     }
 
     public void stop() {
-        mConnectivityListener.stopListening();
-        mConnectivityListener.unregisterHandler(mConnHandler);
+        connectivityListener.stopListening();
+        connectivityListener.unregisterHandler(mConnHandler);
         mBatteryListener.stopListening();
 
         mHeadThread.quit();
@@ -256,7 +258,7 @@ public class StreamLoader {
     }
 
     private boolean isConnected() {
-        return mForceOnline || (mConnectivityListener != null && mConnectivityListener.isConnected());
+        return mForceOnline || connectivityHelper.networkIsConnected();
     }
 
     private DataTask startDataTask(StreamItem item, Range chunkRange, int prio) {

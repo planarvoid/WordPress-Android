@@ -10,8 +10,10 @@ import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 
 import javax.inject.Named;
@@ -20,46 +22,56 @@ import javax.inject.Singleton;
 @Module(library = true, includes = ApiModule.class, injects = SoundCloudApplication.class)
 public class ApplicationModule {
 
-    private final SoundCloudApplication mApplication;
+    private final SoundCloudApplication application;
 
     public ApplicationModule(SoundCloudApplication application) {
-        this.mApplication = application;
+        this.application = application;
     }
 
     @Provides
     public SoundCloudApplication provideApplication() {
-        return mApplication;
+        return application;
     }
 
     @Provides
     public Context provideContext() {
-        return mApplication;
+        return application;
     }
 
     @Provides
     public Resources provideResources() {
-        return mApplication.getResources();
+        return application.getResources();
     }
 
     @Provides
     public AccountManager provideAccountManager() {
-        return AccountManager.get(mApplication);
+        return AccountManager.get(application);
     }
 
     @Provides
     public SharedPreferences provideDefaultSharedPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(mApplication);
+        return PreferenceManager.getDefaultSharedPreferences(application);
+    }
+
+    @Provides
+    public ConnectivityManager provideConnectivityManager() {
+        return (ConnectivityManager) application.getSystemService(Context.CONNECTIVITY_SERVICE);
+    }
+
+    @Provides
+    public TelephonyManager provideTelephonyManager() {
+        return (TelephonyManager) application.getSystemService(Context.TELEPHONY_SERVICE);
     }
 
     @Provides
     public LayoutInflater provideLayoutInflater() {
-        return LayoutInflater.from(mApplication);
+        return LayoutInflater.from(application);
     }
 
     @Provides
     @Singleton
     public ScModelManager provideModelManager() {
-        return new ScModelManager(mApplication);
+        return new ScModelManager(application);
     }
 
     @Provides

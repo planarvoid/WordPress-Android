@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.Protocol;
 import static org.mockito.Mockito.verify;
@@ -49,7 +50,8 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Test
     public void shouldTrackPlaybackPerformanceEventAsEventLoggerEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, Protocol.HLS, PlayerType.MEDIA_PLAYER, "uri");
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, Protocol.HLS, PlayerType.MEDIA_PLAYER,
+                ConnectionType.FOUR_G, "uri");
         when(eventLoggerParamsBuilder.buildFromPlaybackPerformanceEvent(event)).thenReturn("event-params");
 
         eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);

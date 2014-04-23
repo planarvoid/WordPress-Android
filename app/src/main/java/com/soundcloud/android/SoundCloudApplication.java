@@ -100,7 +100,11 @@ public class SoundCloudApplication extends Application {
     protected ObjectGraph mObjectGraph;
 
     public SoundCloudApplication() {
-        mObjectGraph = ObjectGraph.create(new ApplicationModule(this), new WidgetModule(), new SoundCloudModule());
+        mObjectGraph = ObjectGraph.create(
+                new ApplicationModule(this),
+                new WidgetModule(),
+                new SoundCloudModule()
+        );
     }
 
     @VisibleForTesting

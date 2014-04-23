@@ -548,7 +548,7 @@ public class Track extends Playable {
         return (user != null ? TextUtils.isEmpty(user.permalink) ? "" : user.permalink+"/" : "") + permalink;
     }
 
-    public static enum State {
+    public enum State {
         UNDEFINED(""),
         FINISHED("finished"),
         FAILED("failed"),

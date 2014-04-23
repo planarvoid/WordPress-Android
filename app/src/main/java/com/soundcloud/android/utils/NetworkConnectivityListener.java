@@ -25,7 +25,6 @@ public class NetworkConnectivityListener {
 
     private Map<Handler, Integer> mHandlers = new HashMap<Handler, Integer>();
     private @Nullable Context mContext;
-    private @Nullable ConnectivityManager mConnectivityManager;
 
     private State mState;
 
@@ -76,8 +75,6 @@ public class NetworkConnectivityListener {
     public synchronized NetworkConnectivityListener startListening(Context context) {
         if (mContext == null) {
             mContext = context;
-            mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-
             IntentFilter filter = new IntentFilter();
             filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
             context.registerReceiver(mReceiver, filter);
@@ -92,7 +89,6 @@ public class NetworkConnectivityListener {
         if (mContext != null) {
             mContext.unregisterReceiver(mReceiver);
             mContext = null;
-            mConnectivityManager = null;
             mNetworkInfo = null;
             mOtherNetworkInfo = null;
         }
@@ -145,19 +141,7 @@ public class NetworkConnectivityListener {
         return mOtherNetworkInfo;
     }
 
-    public synchronized boolean isConnected() {
-        NetworkInfo info = mConnectivityManager != null ? mConnectivityManager.getActiveNetworkInfo() : mNetworkInfo;
-        return info != null && info.isConnected();
-    }
 
-    public boolean isWifiConnected() {
-        // obtain current network info if no messages have been received yet
-        NetworkInfo info = mConnectivityManager != null ? mConnectivityManager.getActiveNetworkInfo() : mNetworkInfo;
-        return info != null
-                && info.isConnected()
-                && (info.getType() == ConnectivityManager.TYPE_WIFI
-                || info.getType() == ConnectivityManager.TYPE_WIMAX);
-    }
 
     public State getState() {
         return mState;

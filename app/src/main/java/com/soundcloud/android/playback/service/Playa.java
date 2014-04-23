@@ -177,7 +177,7 @@ public interface Playa {
         boolean requestAudioFocus();
     }
 
-    public static enum Error{
+    public enum Error{
         FAILED,
         MEDIA_NOT_FOUND,
         FORBIDDEN

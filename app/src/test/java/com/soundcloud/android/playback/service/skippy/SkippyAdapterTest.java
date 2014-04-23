@@ -23,14 +23,12 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.skippy.Skippy;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import android.content.Context;
 import android.os.Message;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -59,11 +57,14 @@ public class SkippyAdapterTest {
     private Track track;
     @Mock
     private Message message;
+    @Mock
+    private NetworkConnectionHelper connectionHelper;
 
     @Before
     public void setUp() throws Exception {
         when(skippyFactory.create(any(Skippy.PlayListener.class))).thenReturn(skippy);
-        skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, playbackOperations, stateChangeHandler, eventBus);
+        skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, playbackOperations,
+                stateChangeHandler, eventBus, connectionHelper);
         skippyAdapter.setListener(listener);
     }
 

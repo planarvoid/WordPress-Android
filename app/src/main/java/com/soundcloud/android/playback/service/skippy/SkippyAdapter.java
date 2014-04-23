@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.service.skippy;
 
+import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.Protocol;
 import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
@@ -19,6 +20,7 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -39,19 +41,21 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final AccountOperations accountOperations;
     private final StateChangeHandler stateHandler;
     private final PlaybackOperations playbackOperations;
+    private final NetworkConnectionHelper connectionHelper;
 
     private volatile Skippy.State lastState = Skippy.State.IDLE;
     private volatile Skippy.Reason lastReason = Skippy.Reason.NOTHING;
     private volatile Skippy.Error lastError = Skippy.Error.OK;
 
     @Inject
-    SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations,
-                  PlaybackOperations playbackOperations, StateChangeHandler stateChangeHandler, EventBus eventBus) {
+    SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, PlaybackOperations playbackOperations,
+                  StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper) {
         skippy = skippyFactory.create(this);
         this.accountOperations = accountOperations;
         this.playbackOperations = playbackOperations;
         stateHandler = stateChangeHandler;
         this.eventBus = eventBus;
+        this.connectionHelper = connectionHelper;
     }
 
     public boolean init(Context context){
@@ -209,17 +213,18 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Nullable
     private PlaybackPerformanceEvent createPerformanceEvent(PlaybackMetric metric, long value, String cdnUri) {
+        ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
         switch (metric) {
             case TIME_TO_PLAY:
-                return PlaybackPerformanceEvent.timeToPlay(value, Protocol.HLS, PlayerType.SKIPPY, cdnUri);
+                return PlaybackPerformanceEvent.timeToPlay(value, Protocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnUri);
             case TIME_TO_BUFFER:
-                return PlaybackPerformanceEvent.timeToBuffer(value, Protocol.HLS, PlayerType.SKIPPY, cdnUri);
+                return PlaybackPerformanceEvent.timeToBuffer(value, Protocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnUri);
             case TIME_TO_GET_PLAYLIST:
-                return PlaybackPerformanceEvent.timeToPlaylist(value, Protocol.HLS, PlayerType.SKIPPY, cdnUri);
+                return PlaybackPerformanceEvent.timeToPlaylist(value, Protocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnUri);
             case TIME_TO_SEEK:
-                return PlaybackPerformanceEvent.timeToSeek(value, Protocol.HLS, PlayerType.SKIPPY, cdnUri);
+                return PlaybackPerformanceEvent.timeToSeek(value, Protocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnUri);
             case FRAGMENT_DOWNLOAD_RATE:
-                return PlaybackPerformanceEvent.fragmentDownloadRate(value, Protocol.HLS, PlayerType.SKIPPY, cdnUri);
+                return PlaybackPerformanceEvent.fragmentDownloadRate(value, Protocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnUri);
             default:
                 throw new IllegalArgumentException("Unexpected performance metric : " + metric);
         }
