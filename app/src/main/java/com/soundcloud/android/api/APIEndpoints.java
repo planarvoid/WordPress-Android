@@ -13,8 +13,8 @@ public enum APIEndpoints {
     // mobile API
     SUGGESTED_USER_CATEGORIES("/suggestions/users/categories"),
     SUGGESTED_USER_FACEBOOK_CATEGORIES("/suggestions/users/social/facebook"),
-    EXPLORE_TRACKS_POPULAR_MUSIC("/suggestions/tracks/categories/popular+music"),
-    EXPLORE_TRACKS_POPULAR_AUDIO("/suggestions/tracks/categories/popular+audio"),
+    EXPLORE_TRACKS_POPULAR_MUSIC("/suggestions/tracks/popular/music"),
+    EXPLORE_TRACKS_POPULAR_AUDIO("/suggestions/tracks/popular/audio"),
     EXPLORE_TRACKS_CATEGORIES("/suggestions/tracks/categories"),
     PLAYLIST_DISCOVERY("/suggestions/playlists"),
     PLAYLIST_DISCOVERY_TAGS("/suggestions/playlists/tags"),
