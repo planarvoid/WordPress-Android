@@ -13,7 +13,7 @@ import javax.inject.Inject;
 
 public class NetworkConnectionHelper {
 
-    public static String TAG = "NetworkConnectionHelper";
+    public static final String TAG = "NetworkConnectionHelper";
 
     private final ConnectivityManager connectivityManager;
     private final TelephonyManager telephonyManager;
