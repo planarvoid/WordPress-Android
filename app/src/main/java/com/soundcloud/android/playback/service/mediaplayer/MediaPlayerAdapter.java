@@ -253,6 +253,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     private boolean releaseUnresettableMediaPlayer() {
         if (mWaitingForSeek || mInternalState.isLoading()) {
             mMediaPlayerManager.stopAndReleaseAsync(mMediaPlayer);
+            mMediaPlayer = null;
             return true;
         }
         return false;
@@ -304,6 +305,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         if (mMediaPlayer != null && mInternalState.isPausable()) {
             mMediaPlayer.pause();
             setInternalState(PlaybackState.PAUSED);
+        } else {
+            stop();
         }
     }
 
@@ -440,8 +443,13 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public void stop() {
-        if (mMediaPlayer != null && mInternalState.isStoppable()) {
-            mMediaPlayer.stop();
+
+        final MediaPlayer mediaPlayer = mMediaPlayer;
+        if (mediaPlayer != null) {
+            if (mInternalState.isStoppable()) {
+                mediaPlayer.stop();
+            }
+            releaseUnresettableMediaPlayer();
             setInternalState(PlaybackState.STOPPED);
         }
     }

@@ -136,6 +136,20 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
+    public void pauseShouldStopReleaseMediaPlayerIfPausedWhilePreparing() throws Exception {
+        mediaPlayerAdapter.play(track);
+        mediaPlayerAdapter.pause();
+        verify(mediaPlayerManager).stopAndReleaseAsync(mediaPlayer);
+    }
+
+    @Test
+    public void pauseNotifyIdleStateIfPausedWhilePreparing() throws Exception {
+        mediaPlayerAdapter.play(track);
+        mediaPlayerAdapter.pause();
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE)));
+    }
+
+    @Test
     public void playUrlShouldSubscribeToProxyObservable() throws Exception {
         when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(Observable.just(STREAM_URI));
         mediaPlayerAdapter.play(track);
