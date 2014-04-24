@@ -10,6 +10,7 @@ import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -170,10 +171,11 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
 
     @JsonIgnore
     public Date getCreatedAt() {
-        return createdAt;
+        return new Date(createdAt.getTime());
     }
 
     @JsonProperty("created_at")
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public void setCreatedAt(Date date) {
         this.createdAt = date;
     }

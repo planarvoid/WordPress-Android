@@ -6,19 +6,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.api.http.PublicApiWrapper;
-import com.soundcloud.android.model.behavior.Identifiable;
-import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.behavior.PlayableHolder;
-import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SharingNote;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.behavior.Identifiable;
+import com.soundcloud.android.model.behavior.Persisted;
+import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentValues;
@@ -32,7 +32,6 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.UUID;
 
 @JsonTypeInfo(
@@ -95,10 +94,11 @@ public abstract class Activity extends ScModel implements Parcelable,
     }
 
     public Date getCreatedAt() {
-        return createdAt;
+        return new Date(createdAt.getTime());
     }
 
     @JsonProperty("created_at")
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public void setCreatedAt(Date date) {
         this.createdAt = date;
     }
@@ -301,9 +301,9 @@ public abstract class Activity extends ScModel implements Parcelable,
     public static String getDbPlaylistTypesForQuery() {
         String types = "";
         int i = 0;
-        for (Type t : Activity.Type.PLAYLIST_TYPES) {
+        for (Type t : Type.PLAYLIST_TYPES) {
             types += "'" + t.type + "'";
-            if (i < Activity.Type.PLAYLIST_TYPES.size() - 1) {
+            if (i < Type.PLAYLIST_TYPES.size() - 1) {
                 types += ",";
             }
             i++;
