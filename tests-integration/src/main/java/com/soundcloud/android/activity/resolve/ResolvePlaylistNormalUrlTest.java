@@ -8,7 +8,7 @@ import android.test.suitebuilder.annotation.Suppress;
 
 public class ResolvePlaylistNormalUrlTest extends ResolveBaseTest {
 
-    public void testShouldOpenPlaylistDetails() throws Exception {
+    public void ignoreShouldOpenPlaylistDetails() throws Exception {
         PlaylistDetailsScreen pd = new PlaylistDetailsScreen(solo);
         assertEquals("Ecclesia Inspiration", pd.getTitle());
     }

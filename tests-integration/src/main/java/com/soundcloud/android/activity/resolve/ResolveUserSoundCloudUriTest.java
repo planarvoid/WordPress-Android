@@ -12,7 +12,7 @@ public class ResolveUserSoundCloudUriTest extends ResolveBaseTest {
         return TestConsts.STEVE_ANGELLO_SC_URI;
     }
 
-    public void testResolveUrl() throws Exception {
+    public void ignoretestResolveUrl() throws Exception {
         solo.assertActivity(ProfileActivity.class, DEFAULT_WAIT);
         // TODO: Use POMs here
         solo.assertText("steveangello");
