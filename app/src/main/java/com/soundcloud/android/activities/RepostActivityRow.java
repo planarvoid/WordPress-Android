@@ -37,7 +37,7 @@ public class RepostActivityRow extends ActivityRow {
         builder.append(" ");
         builder.append(mActivity.getPlayable().title);
         builder.append(". ");
-        builder.append(getTimeElapsed(getContext().getResources(), mActivity.created_at.getTime(), true));
+        builder.append(getTimeElapsed(getContext().getResources(), mActivity.getCreatedAt().getTime(), true));
 
         return builder.toString();
     }

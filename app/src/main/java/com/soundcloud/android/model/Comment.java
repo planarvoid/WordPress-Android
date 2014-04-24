@@ -58,7 +58,6 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
     public static final String ACTION_CREATE_COMMENT  = "com.soundcloud.android.comment.create";
     public static final String EXTRA = "comment";
 
-    @JsonProperty @JsonView(Views.Mini.class) public Date created_at;
     @JsonProperty @JsonView(Views.Mini.class) public long user_id;
     @JsonProperty @JsonView(Views.Mini.class) public long track_id;
     @JsonProperty @JsonView(Views.Mini.class) public long timestamp; // should be null (non-timed comment)
@@ -77,6 +76,8 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
     @JsonIgnore @Nullable public Bitmap avatar;
 
     public Comment nextComment; //pointer to the next comment at this timestamp
+
+    private Date createdAt;
 
     public Comment() {
     }
@@ -110,14 +111,14 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
             user = User.fromActivityView(c);
             body = c.getString(c.getColumnIndex(TableColumns.ActivityView.COMMENT_BODY));
             timestamp = c.getLong(c.getColumnIndex(TableColumns.ActivityView.COMMENT_TIMESTAMP));
-            created_at = new Date(c.getLong(c.getColumnIndex(TableColumns.ActivityView.COMMENT_CREATED_AT)));
+            createdAt = new Date(c.getLong(c.getColumnIndex(TableColumns.ActivityView.COMMENT_CREATED_AT)));
         } else {
             setId(c.getLong(c.getColumnIndex(TableColumns.Comments._ID)));
             track_id = c.getLong(c.getColumnIndex(TableColumns.Comments.TRACK_ID));
             user_id = c.getLong(c.getColumnIndex(TableColumns.Comments.USER_ID));
             body = c.getString(c.getColumnIndex(TableColumns.Comments.BODY));
             timestamp = c.getLong(c.getColumnIndex(TableColumns.Comments.TIMESTAMP));
-            created_at = new Date(c.getLong(c.getColumnIndex(TableColumns.Comments.CREATED_AT)));
+            createdAt = new Date(c.getLong(c.getColumnIndex(TableColumns.Comments.CREATED_AT)));
         }
     }
 
@@ -130,7 +131,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
     @Override
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
-        cv.put(TableColumns.Comments.CREATED_AT, created_at.getTime());
+        cv.put(TableColumns.Comments.CREATED_AT, createdAt.getTime());
         cv.put(TableColumns.Comments.BODY, body);
         cv.put(TableColumns.Comments.USER_ID, user_id);
         cv.put(TableColumns.Comments.TRACK_ID, track_id);
@@ -168,14 +169,13 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
     }
 
     @JsonIgnore
-    @SuppressWarnings("unused") // ModelCitizen needs this
     public Date getCreatedAt() {
-        return created_at;
+        return createdAt;
     }
 
-    @SuppressWarnings("unused") // ModelCitizen needs this
+    @JsonProperty("created_at")
     public void setCreatedAt(Date date) {
-        this.created_at = date;
+        this.createdAt = date;
     }
 
     @JsonIgnore
@@ -200,7 +200,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
             else if (c1.timestamp < c2.timestamp)
                 return 1;
             else
-                return c2.created_at.compareTo(c1.created_at);
+                return c2.createdAt.compareTo(c1.createdAt);
         }
     }
 
@@ -216,7 +216,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
         comment.user = user;
         comment.user_id = user.getId();
         comment.timestamp = timestamp;
-        comment.created_at = new Date(); // not actually used?
+        comment.createdAt = new Date(); // not actually used?
         comment.body = body;
         comment.reply_to_id = replyToId;
         comment.reply_to_username = replyToUsername;
@@ -230,7 +230,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeLong(created_at.getTime());
+        out.writeLong(createdAt.getTime());
         out.writeLong(user_id);
         out.writeLong(track_id);
         out.writeLong(timestamp);
@@ -243,7 +243,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
     public static final Creator<Comment> CREATOR = new Creator<Comment>() {
         public Comment createFromParcel(Parcel in) {
             Comment t = new Comment();
-            t.created_at = new Date(in.readLong());
+            t.createdAt = new Date(in.readLong());
             t.user_id = in.readLong();
             t.track_id = in.readLong();
             t.timestamp = in.readLong();

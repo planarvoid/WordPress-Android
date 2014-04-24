@@ -16,7 +16,7 @@ public class CommentTest {
     @Test
     public void shouldBeParcelable() throws Exception {
         Comment c1 = new Comment();
-        c1.created_at = new Date();
+        c1.setCreatedAt(new Date());
         c1.user_id = 100L;
         c1.timestamp = 200L;
         c1.body = "Bodyz";
@@ -33,7 +33,7 @@ public class CommentTest {
         Comment c2 = Comment.CREATOR.createFromParcel(p);
 
         expect(c1.user_id).toEqual(c2.user_id);
-        expect(c1.created_at).toEqual(c2.created_at);
+        expect(c1.getCreatedAt()).toEqual(c2.getCreatedAt());
         expect(c1.body).toEqual(c2.body);
         expect(c1.timestamp).toEqual(c2.timestamp);
         expect(c1.uri).toEqual(c2.uri);
@@ -44,7 +44,7 @@ public class CommentTest {
     public void shouldBuildContentValues() throws Exception {
         Comment c1 = new Comment();
         c1.setId(100L);
-        c1.created_at = new Date();
+        c1.setCreatedAt(new Date());
         c1.user_id = 100L;
         c1.timestamp = 200L;
         c1.body = "Bodyz";
@@ -54,7 +54,7 @@ public class CommentTest {
 
         expect(cv).not.toBeNull();
         expect(cv.getAsLong("_id")).toEqual(c1.getId());
-        expect(cv.getAsLong("created_at")).toEqual(c1.created_at.getTime());
+        expect(cv.getAsLong("created_at")).toEqual(c1.getCreatedAt().getTime());
         expect(cv.getAsLong("user_id")).toEqual(c1.user_id);
         expect(cv.getAsLong("track_id")).toEqual(c1.track_id);
         expect(cv.getAsLong("timestamp")).toEqual(c1.timestamp);

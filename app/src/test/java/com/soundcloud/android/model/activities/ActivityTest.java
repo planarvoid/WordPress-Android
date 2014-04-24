@@ -27,7 +27,7 @@ public class ActivityTest {
 
         final String uuidStr = "ffffffff-1111-11e1-c000-000000000000";
         a.uuid = uuidStr;
-        a.created_at = PublicApiWrapper.CloudDateFormat.fromString("2012/01/07 13:17:35 +0000");
+        a.setCreatedAt(PublicApiWrapper.CloudDateFormat.fromString("2012/01/07 13:17:35 +0000"));
 
         expect(a.toUUID().toString()).toEqual(uuidStr);
         expect(a.toGUID()).toEqual(uuidStr);
@@ -37,7 +37,7 @@ public class ActivityTest {
     public void shouldGenerateAGuidBasedOnCreatedAt() throws Exception {
         Activity a = new TrackActivity();
         expect(a.toGUID()).toBeNull();
-        a.created_at = PublicApiWrapper.CloudDateFormat.fromString("2012/01/07 13:17:35 +0000");
+        a.setCreatedAt(PublicApiWrapper.CloudDateFormat.fromString("2012/01/07 13:17:35 +0000"));
         expect(a.toGUID()).toEqual("f6864180-3931-11e1-c000-000000000000");
     }
 
@@ -45,7 +45,7 @@ public class ActivityTest {
     public void shouldGenerateAUUIDBasedOnCreatedAt() throws Exception {
         Activity a = new TrackActivity();
         expect(a.toUUID()).toBeNull();
-        a.created_at = PublicApiWrapper.CloudDateFormat.fromString("2012/01/07 13:17:35 +0000");
+        a.setCreatedAt(PublicApiWrapper.CloudDateFormat.fromString("2012/01/07 13:17:35 +0000"));
         UUID uuid = a.toUUID();
         expect(uuid.version()).toEqual(1);
         expect(uuid.variant()).toEqual(6);
@@ -56,7 +56,7 @@ public class ActivityTest {
     public void shouldBuildContentValues() throws Exception {
         TrackActivity a = new TrackActivity();
         final Date date = new Date();
-        a.created_at = date;
+        a.setCreatedAt(date);
         a.tags = "foo";
         a.track = new Track() { { setId(10L); } };
 
@@ -72,7 +72,7 @@ public class ActivityTest {
     public void shouldBuildContentValuesForCommentActivity() throws Exception {
         CommentActivity a = new CommentActivity();
         final Date date = new Date();
-        a.created_at = date;
+        a.setCreatedAt(date);
         a.tags = "foo";
         a.comment = new Comment() { { setId(10L); } };
 
@@ -87,7 +87,7 @@ public class ActivityTest {
     public void shouldGenerateADateString() throws Exception {
         TrackActivity a = new TrackActivity();
         final String date = "2012/01/07 13:17:35 +0000";
-        a.created_at = PublicApiWrapper.CloudDateFormat.fromString(date);
+        a.setCreatedAt(PublicApiWrapper.CloudDateFormat.fromString(date));
         expect(a.getDateString()).toEqual(date);
     }
 
@@ -111,7 +111,9 @@ public class ActivityTest {
         a1.uuid = "12345";
         a2.uuid = "54321";
         a1.tags = a2.tags = "abc def";
-        a1.created_at = a2.created_at = PublicApiWrapper.CloudDateFormat.fromString("2012/01/07 13:17:35 +0000");
+        Date date = PublicApiWrapper.CloudDateFormat.fromString("2012/01/07 13:17:35 +0000");
+        a1.setCreatedAt(date);
+        a2.setCreatedAt(date);
         a1.sharing_note = new SharingNote();
         expect(a1).not.toEqual(a2);
     }
@@ -122,7 +124,9 @@ public class ActivityTest {
         TrackActivity a2 = new TrackActivity();
         a1.uuid = a2.uuid = "12345";
         a1.tags = a2.tags = "abc def";
-        a1.created_at = a2.created_at = PublicApiWrapper.CloudDateFormat.fromString("2012/01/07 13:17:35 +0000");
+        Date date = PublicApiWrapper.CloudDateFormat.fromString("2012/01/07 13:17:35 +0000");
+        a1.setCreatedAt(date);
+        a2.setCreatedAt(date);
         a1.sharing_note = new SharingNote();
         expect(a1).toEqual(a2);
     }

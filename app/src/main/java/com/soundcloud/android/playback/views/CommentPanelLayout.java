@@ -165,7 +165,7 @@ public class CommentPanelLayout extends RelativeLayout {
         mTxtUsername.setText(mComment.user.username);
         mTxtTimestamp.setText(String.format(at_timestamp, ScTextUtils.formatTimestamp(mComment.timestamp)));
         mTxtComment.setText(mComment.body);
-        mTxtElapsed.setText(ScTextUtils.getElapsedTimeString(getResources(), mComment.created_at.getTime(), true));
+        mTxtElapsed.setText(ScTextUtils.getElapsedTimeString(getResources(), mComment.getCreatedAt().getTime(), true));
         mTxtUsername.setVisibility(View.VISIBLE);
         mTxtTimestamp.setVisibility(View.VISIBLE);
         mTxtElapsed.setVisibility(View.VISIBLE);

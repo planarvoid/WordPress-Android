@@ -100,7 +100,7 @@ public class PlayableRow extends IconLayout implements ListRow {
             builder.append(repost.getUser().getDisplayName());
 
             builder.append(", ");
-            builder.append(getTimeElapsed(getContext().getResources(), repost.created_at.getTime(), true));
+            builder.append(getTimeElapsed(getContext().getResources(), repost.getCreatedAt().getTime(), true));
             builder.append(", ");
         } else {
             builder.append(getTimeElapsed(getContext().getResources(), playable.created_at.getTime(), true));

@@ -34,7 +34,7 @@ public class CommentActivityRow extends ActivityRow {
 
     @Override
     protected Date getOriginCreatedAt() {
-        return mComment.created_at;
+        return mComment.getCreatedAt();
     }
 
     @Override
@@ -76,7 +76,7 @@ public class CommentActivityRow extends ActivityRow {
         builder.append(": ");
         builder.append(mComment.body);
         builder.append(". ");
-        builder.append(getTimeElapsed(getContext().getResources(), mActivity.created_at.getTime(), true));
+        builder.append(getTimeElapsed(getContext().getResources(), mActivity.getCreatedAt().getTime(), true));
 
         return builder.toString();
     }

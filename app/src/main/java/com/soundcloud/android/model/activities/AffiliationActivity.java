@@ -12,7 +12,8 @@ import android.database.Cursor;
 import java.util.Date;
 
 public class AffiliationActivity extends Activity {
-    @JsonProperty public User user;
+
+    private User user;
 
     // for deserialization
     public AffiliationActivity() {
@@ -39,19 +40,9 @@ public class AffiliationActivity extends Activity {
         return user;
     }
 
-    @SuppressWarnings("unused") // ModelCitizen needs this
+    @JsonProperty
     public void setUser(User user) {
         this.user = user;
-    }
-
-    @SuppressWarnings("unused") // ModelCitizen needs this
-    public Date getCreatedAt() {
-        return created_at;
-    }
-
-    @SuppressWarnings("unused") // ModelCitizen needs this
-    public void setCreatedAt(Date date) {
-        this.created_at = date;
     }
 
     @Override

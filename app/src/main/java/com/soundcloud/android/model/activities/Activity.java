@@ -61,7 +61,6 @@ public abstract class Activity extends ScModel implements Parcelable,
         Persisted {
 
     @JsonProperty public String uuid;
-    @JsonProperty public Date created_at;
     @JsonProperty public String tags;
     @JsonProperty public SharingNote sharing_note;
 
@@ -69,12 +68,14 @@ public abstract class Activity extends ScModel implements Parcelable,
     // cache human readable elapsed time
     private String _elapsedTime;
 
+    private Date createdAt;
+
     /** needed for Deserialization */
     public Activity() {
     }
 
     public Activity(Parcel in) {
-        created_at = new Date(in.readLong());
+        createdAt = new Date(in.readLong());
         tags = in.readString();
         sharing_note = new SharingNote();
         sharing_note.text = in.readString();
@@ -86,11 +87,20 @@ public abstract class Activity extends ScModel implements Parcelable,
         setId(c.getLong(c.getColumnIndex(TableColumns.ActivityView._ID)));
         uuid = c.getString(c.getColumnIndex(TableColumns.ActivityView.UUID));
         tags = c.getString(c.getColumnIndex(TableColumns.ActivityView.TAGS));
-        created_at = new Date(c.getLong(c.getColumnIndex(TableColumns.ActivityView.CREATED_AT)));
+        createdAt = new Date(c.getLong(c.getColumnIndex(TableColumns.ActivityView.CREATED_AT)));
 
         sharing_note = new SharingNote();
         sharing_note.created_at = new Date(c.getLong(c.getColumnIndex(TableColumns.ActivityView.SHARING_NOTE_CREATED_AT)));
         sharing_note.text = c.getString(c.getColumnIndex(TableColumns.ActivityView.SHARING_NOTE_TEXT));
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    @JsonProperty("created_at")
+    public void setCreatedAt(Date date) {
+        this.createdAt = date;
     }
 
     @Override
@@ -106,20 +116,20 @@ public abstract class Activity extends ScModel implements Parcelable,
     }
 
     public void refreshTimeSinceCreated(Context context) {
-        _elapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
+        _elapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), createdAt.getTime());
     }
 
     public String getDateString() {
-        return created_at == null ? null :
-                PublicApiWrapper.CloudDateFormat.formatDate(created_at.getTime());
+        return createdAt == null ? null :
+                PublicApiWrapper.CloudDateFormat.formatDate(createdAt.getTime());
     }
 
     public UUID toUUID() {
         if (!TextUtils.isEmpty(uuid)){
             return UUID.fromString(uuid);
-        } else if (created_at != null) {
+        } else if (createdAt != null) {
             // snippet from http://wiki.apache.org/cassandra/FAQ#working_with_timeuuid_in_java
-            final long origTime = created_at.getTime();
+            final long origTime = createdAt.getTime();
             final long time = origTime * 10000 + NUM_100NS_INTERVALS_SINCE_UUID_EPOCH;
             final long timeLow = time &       0xffffffffL;
             final long timeMid = time &   0xffff00000000L;
@@ -151,8 +161,8 @@ public abstract class Activity extends ScModel implements Parcelable,
             cv.put(TableColumns.Activities.SHARING_NOTE_CREATED_AT, sharing_note.created_at.getTime());
         }
 
-        if (created_at != null) {
-            cv.put(TableColumns.Activities.CREATED_AT, created_at.getTime());
+        if (createdAt != null) {
+            cv.put(TableColumns.Activities.CREATED_AT, createdAt.getTime());
         }
 
         if (getUser() != null) cv.put(TableColumns.Activities.USER_ID, getUser().getId());
@@ -179,7 +189,7 @@ public abstract class Activity extends ScModel implements Parcelable,
 
         Activity activity = (Activity) o;
 
-        if (created_at != null ? !created_at.equals(activity.created_at) : activity.created_at != null) return false;
+        if (createdAt != null ? !createdAt.equals(activity.createdAt) : activity.createdAt != null) return false;
         if (tags != null ? !tags.equals(activity.tags) : activity.tags != null) return false;
         if (uuid != null ? !uuid.equals(activity.uuid) : activity.uuid != null) return false;
 
@@ -189,14 +199,14 @@ public abstract class Activity extends ScModel implements Parcelable,
     @Override
     public int hashCode() {
         int result = uuid != null ? uuid.hashCode() : 0;
-        result = 31 * result + (created_at != null ? created_at.hashCode() : 0);
+        result = 31 * result + (createdAt != null ? createdAt.hashCode() : 0);
         result = 31 * result + (tags != null ? tags.hashCode() : 0);
         return result;
     }
 
     @Override
     public int compareTo(Activity activity) {
-        return activity.created_at.compareTo(created_at);
+        return activity.createdAt.compareTo(createdAt);
     }
 
     @Override
@@ -212,7 +222,7 @@ public abstract class Activity extends ScModel implements Parcelable,
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeLong(created_at.getTime());
+        out.writeLong(createdAt.getTime());
         out.writeString(tags == null ? "" : tags);
         out.writeString(sharing_note == null ? "" : sharing_note.text);
         out.writeLong(sharing_note == null ? -1l : sharing_note.created_at.getTime());

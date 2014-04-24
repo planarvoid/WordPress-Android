@@ -68,7 +68,7 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
     }
 
     protected Date getOriginCreatedAt() {
-        return mActivity.created_at;
+        return mActivity.getCreatedAt();
     }
 
     protected SpannableStringBuilder createSpan() {

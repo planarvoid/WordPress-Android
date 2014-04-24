@@ -31,7 +31,7 @@ public class LoadCommentsTaskTest {
         expect(comment.track_id).toEqual(21607568l);
         expect(comment.timestamp).toEqual(138751l);
         expect(comment.body).toEqual("wow, great voice!");
-        expect(comment.created_at).toEqual(PublicApiWrapper.CloudDateFormat.fromString("2011/08/22 11:35:24 +0000"));
+        expect(comment.getCreatedAt()).toEqual(PublicApiWrapper.CloudDateFormat.fromString("2011/08/22 11:35:24 +0000"));
         expect(comment.uri).toEqual("https://api.soundcloud.com/comments/24100348");
 
         expect(comment.user).not.toBeNull();

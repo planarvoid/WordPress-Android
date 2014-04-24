@@ -48,7 +48,7 @@ public class AffiliationActivityRow extends ActivityRow {
         builder.append(mActivity.getUser().getDisplayName());
         builder.append(getContext().getResources().getString(R.string.started_following_you));
         builder.append(". ");
-        builder.append(getTimeElapsed(getContext().getResources(), mActivity.created_at.getTime(), true));
+        builder.append(getTimeElapsed(getContext().getResources(), mActivity.getCreatedAt().getTime(), true));
 
         return builder.toString();
     }

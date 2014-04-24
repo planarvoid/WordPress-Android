@@ -132,7 +132,7 @@ public class DatabaseHelper {
         cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
         cv.put(TableColumns.Activities.TYPE, "comment");
         cv.put(TableColumns.Activities.USER_ID, comment.user.getId());
-        cv.put(TableColumns.Activities.CREATED_AT, comment.created_at.getTime());
+        cv.put(TableColumns.Activities.CREATED_AT, comment.getCreatedAt().getTime());
         return insertInto(Table.ACTIVITIES, cv);
     }
 
@@ -145,8 +145,8 @@ public class DatabaseHelper {
     public long insertAffiliation(AffiliationActivity affiliation) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.TYPE, "affiliation");
-        cv.put(TableColumns.Activities.USER_ID, affiliation.user.getId());
-        cv.put(TableColumns.Activities.CREATED_AT, affiliation.created_at.getTime());
+        cv.put(TableColumns.Activities.USER_ID, affiliation.getUser().getId());
+        cv.put(TableColumns.Activities.CREATED_AT, affiliation.getCreatedAt().getTime());
         return insertInto(Table.ACTIVITIES, cv);
     }
 

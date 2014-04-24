@@ -68,7 +68,7 @@ public class ActivitiesStorageTest {
         last = storage.getOldestActivity(Content.ME_SOUND_STREAM);
         expect(last).not.toBeNull();
         expect(last.uuid).toEqual("75e9d700-0819-11e2-81bb-70dbfa89bdb9");
-        expect(first.created_at.after(last.created_at)).toBeTrue();
+        expect(first.getCreatedAt().after(last.getCreatedAt())).toBeTrue();
     }
 
     @Test
@@ -78,7 +78,7 @@ public class ActivitiesStorageTest {
         expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
         expect(
-                storage.getOldestActivity(Content.ME_SOUND_STREAM).created_at.getTime()
+                storage.getOldestActivity(Content.ME_SOUND_STREAM).getCreatedAt().getTime()
         ).toEqual(toTime("2012/09/26 14:52:27 +0000"));
     }
 

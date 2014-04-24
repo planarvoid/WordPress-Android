@@ -167,7 +167,7 @@ public class ActivitiesTest {
 
         expect(merged.future_href).toEqual("https://api.soundcloud.com/e1/me/activities?uuid%5Bto%5D=3d22f400-0699-11e2-919a-b494be7979e7");
         expect(merged.next_href).toEqual("https://api.soundcloud.com/e1/me/activities?cursor=79fd0100-07e7-11e2-8aa5-5d4327b064fb");
-        expect(merged.get(0).created_at.after(merged.get(merged.size() - 1).created_at)).toBeTrue();
+        expect(merged.get(0).getCreatedAt().after(merged.get(merged.size() - 1).getCreatedAt())).toBeTrue();
     }
 
     @Test
@@ -183,7 +183,7 @@ public class ActivitiesTest {
 
         Activities filtered = a2.filter(start);
         expect(filtered.size()).toEqual(8);
-        expect(filtered.get(0).created_at.after(start)).toBeTrue();
+        expect(filtered.get(0).getCreatedAt().after(start)).toBeTrue();
     }
 
     @Test

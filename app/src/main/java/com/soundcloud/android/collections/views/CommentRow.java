@@ -46,7 +46,7 @@ public class CommentRow extends IconLayout implements ListRow {
 
         mTitle.setText(mComment.body);
         if (mComment.getUser() != null) mUser.setText(mComment.getUser().username);
-        mCreatedAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), mComment.created_at.getTime()));
+        mCreatedAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), mComment.getCreatedAt().getTime()));
     }
 
     @Override

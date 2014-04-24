@@ -75,11 +75,11 @@ public class Activities extends CollectionHolder<Activity> {
 
     @SuppressWarnings("UnusedDeclaration")
     public boolean olderThan(long timestamp) {
-        return !isEmpty() && collection.get(0).created_at.getTime() <= timestamp;
+        return !isEmpty() && collection.get(0).getCreatedAt().getTime() <= timestamp;
     }
 
     public boolean newerThan(long timestamp) {
-        return !isEmpty() && collection.get(0).created_at.getTime() > timestamp;
+        return !isEmpty() && collection.get(0).getCreatedAt().getTime() > timestamp;
     }
 
     public List<User> getUniqueUsers() {
@@ -174,7 +174,7 @@ public class Activities extends CollectionHolder<Activity> {
     public Activities filter(long timestamp) {
         Iterator<Activity> it = collection.iterator();
         while (it.hasNext()) {
-            if (it.next().created_at.getTime() <= timestamp) it.remove();
+            if (it.next().getCreatedAt().getTime() <= timestamp) it.remove();
         }
         return this;
     }
@@ -183,7 +183,7 @@ public class Activities extends CollectionHolder<Activity> {
         if (collection.isEmpty()) {
             return 0;
         } else {
-            return collection.get(0).created_at.getTime();
+            return collection.get(0).getCreatedAt().getTime();
         }
     }
 
