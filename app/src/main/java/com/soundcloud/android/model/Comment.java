@@ -170,8 +170,9 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
     }
 
     @JsonIgnore
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public Date getCreatedAt() {
-        return new Date(createdAt.getTime());
+        return createdAt;
     }
 
     @JsonProperty("created_at")

@@ -95,8 +95,9 @@ public abstract class Activity extends ScModel implements Parcelable,
         sharing_note.text = c.getString(c.getColumnIndex(TableColumns.ActivityView.SHARING_NOTE_TEXT));
     }
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public Date getCreatedAt() {
-        return new Date(createdAt.getTime());
+        return createdAt;
     }
 
     @JsonProperty("created_at")
