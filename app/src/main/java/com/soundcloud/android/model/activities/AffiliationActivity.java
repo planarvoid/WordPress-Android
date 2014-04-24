@@ -9,6 +9,8 @@ import com.soundcloud.android.model.behavior.Refreshable;
 
 import android.database.Cursor;
 
+import java.util.Date;
+
 public class AffiliationActivity extends Activity {
     @JsonProperty public User user;
 
@@ -35,6 +37,21 @@ public class AffiliationActivity extends Activity {
     @Override
     public User getUser() {
         return user;
+    }
+
+    @SuppressWarnings("unused") // ModelCitizen needs this
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    @SuppressWarnings("unused") // ModelCitizen needs this
+    public Date getCreatedAt() {
+        return created_at;
+    }
+
+    @SuppressWarnings("unused") // ModelCitizen needs this
+    public void setCreatedAt(Date date) {
+        this.created_at = date;
     }
 
     @Override

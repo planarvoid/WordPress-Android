@@ -63,6 +63,20 @@ public class SyncInitiator {
         }
     }
 
+    /**
+     * Triggers a backfill sync for the sound stream.
+     * <p/>
+     * This is a sync that will retrieve N more sound stream items /older/ than the oldest locally
+     * available item. Used to lazily pull in more items when paging in the stream reverse chronologically.
+     */
+    public void backfillSoundStream(ResultReceiver resultReceiver) {
+        mContext.startService(new Intent(mContext, ApiSyncService.class)
+                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                .setData(Content.ME_SOUND_STREAM.uri)
+                .setAction(ApiSyncService.ACTION_APPEND));
+    }
+
     public void syncLocalPlaylists() {
         syncLocalPlaylists(null);
     }
@@ -108,10 +122,12 @@ public class SyncInitiator {
         public void onReceiveResult(int resultCode, Bundle resultData) {
             switch (resultCode) {
                 case ApiSyncService.STATUS_SYNC_FINISHED:
+                case ApiSyncService.STATUS_APPEND_FINISHED:
                     mSubscriber.onNext(mOptionalResult);
                     mSubscriber.onCompleted();
                     break;
                 case ApiSyncService.STATUS_SYNC_ERROR:
+                case ApiSyncService.STATUS_APPEND_ERROR:
                     mSubscriber.onError(new SyncFailedException(resultData));
                     break;
                 default:

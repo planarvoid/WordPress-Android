@@ -125,6 +125,32 @@ public class SoundStreamStorageTest {
         observer.assertReceivedOnNext(Arrays.asList(playlistRepost));
     }
 
+    // we'll eventually refactor the underlying schema, but for now we need to make sure to exclude stuff
+    // like comments and affiliations from here
+    @Test
+    public void loadingStreamItemsDoesNotIncludeComments() throws CreateModelException {
+        helper.insertComment();
+
+        TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
+        storage.loadStreamItemsAsync(Urn.forUser(123), Long.MAX_VALUE, 50, 0).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(0);
+        expect(observer.getOnCompletedEvents()).toNumber(1);
+    }
+
+    // we'll eventually refactor the underlying schema, but for now we need to make sure to exclude stuff
+    // like comments and affiliations from here
+    @Test
+    public void loadingStreamItemsDoesNotIncludeAffiliations() throws CreateModelException {
+        helper.insertAffiliation();
+
+        TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
+        storage.loadStreamItemsAsync(Urn.forUser(123), Long.MAX_VALUE, 50, 0).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(0);
+        expect(observer.getOnCompletedEvents()).toNumber(1);
+    }
+
     @Test
     public void shouldLoadFirstPageViaLimitAndOffset() throws CreateModelException {
         final TrackSummary postedTrack = helper.insertTrack();

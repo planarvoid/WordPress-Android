@@ -2,13 +2,15 @@ package com.soundcloud.android.robolectric;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.UserSummary;
+import com.soundcloud.android.model.activities.AffiliationActivity;
 import com.soundcloud.android.storage.CollectionStorage;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.hamcrest.Matchers;
 
@@ -121,6 +123,37 @@ public class DatabaseHelper {
         cv.put(TableColumns.Activities.USER_ID, reposter.getId());
         cv.put(TableColumns.Activities.CREATED_AT, timestamp);
         return insertInto(Table.ACTIVITIES, cv);
+    }
+
+    public long insertComment(Comment comment) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Activities.COMMENT_ID, comment.getId());
+        cv.put(TableColumns.Activities.SOUND_ID, comment.track.getId());
+        cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
+        cv.put(TableColumns.Activities.TYPE, "comment");
+        cv.put(TableColumns.Activities.USER_ID, comment.user.getId());
+        cv.put(TableColumns.Activities.CREATED_AT, comment.created_at.getTime());
+        return insertInto(Table.ACTIVITIES, cv);
+    }
+
+    public Comment insertComment() throws CreateModelException {
+        Comment comment = TestHelper.getModelFactory().createModel(Comment.class);
+        insertComment(comment);
+        return comment;
+    }
+
+    public long insertAffiliation(AffiliationActivity affiliation) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Activities.TYPE, "affiliation");
+        cv.put(TableColumns.Activities.USER_ID, affiliation.user.getId());
+        cv.put(TableColumns.Activities.CREATED_AT, affiliation.created_at.getTime());
+        return insertInto(Table.ACTIVITIES, cv);
+    }
+
+    public AffiliationActivity insertAffiliation() throws CreateModelException {
+        AffiliationActivity affiliation = TestHelper.getModelFactory().createModel(AffiliationActivity.class);
+        insertAffiliation(affiliation);
+        return affiliation;
     }
 
     private long insertInto(Table table, ContentValues cv) {

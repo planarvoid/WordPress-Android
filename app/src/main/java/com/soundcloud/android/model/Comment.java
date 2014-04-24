@@ -147,9 +147,46 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
         return user;
     }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     @Override @JsonIgnore
     public Track getPlayable() {
         return track;
+    }
+
+    @JsonIgnore
+    @SuppressWarnings("unused") // ModelCitizen needs this
+    public Track getTrack() {
+        return this.track;
+    }
+
+    @SuppressWarnings("unused") // ModelCitizen needs this
+    public void setTrack(Track track) {
+        this.track = track;
+    }
+
+    @JsonIgnore
+    @SuppressWarnings("unused") // ModelCitizen needs this
+    public Date getCreatedAt() {
+        return created_at;
+    }
+
+    @SuppressWarnings("unused") // ModelCitizen needs this
+    public void setCreatedAt(Date date) {
+        this.created_at = date;
+    }
+
+    @JsonIgnore
+    @SuppressWarnings("unused") // ModelCitizen needs this
+    public String getBody() {
+        return this.body;
+    }
+
+    @SuppressWarnings("unused") // ModelCitizen needs this
+    public void setBody(String body) {
+        this.body = body;
     }
 
     public static class CompareTimestamp implements Comparator<Comment> {

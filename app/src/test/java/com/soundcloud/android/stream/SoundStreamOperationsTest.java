@@ -1,6 +1,7 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.sync.SyncInitiator.ResultReceiverAdapter;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
@@ -11,15 +12,21 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.PropertySet;
+import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.sync.SyncInitiator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.android.OperatorPaged;
+
+import android.os.Bundle;
+import android.os.ResultReceiver;
 
 import java.util.Collections;
 import java.util.Date;
@@ -29,6 +36,7 @@ import java.util.List;
 public class SoundStreamOperationsTest {
 
     private static final long TIMESTAMP = 1000L;
+    private static final int PAGE_SIZE = 30;
 
     private SoundStreamOperations operations;
 
@@ -36,11 +44,20 @@ public class SoundStreamOperationsTest {
     private SoundStreamStorage soundStreamStorage;
 
     @Mock
+    private SyncInitiator syncInitiator;
+
+    @Mock
     private Observer observer;
+
+    @Captor
+    private ArgumentCaptor<OperatorPaged.Page> pageCaptor;
+
+    @Captor
+    private ArgumentCaptor<ResultReceiver> resultReceiverCaptor;
 
     @Before
     public void setUp() throws Exception {
-        operations = new SoundStreamOperations(soundStreamStorage);
+        operations = new SoundStreamOperations(soundStreamStorage, syncInitiator);
     }
 
     @Test
@@ -48,55 +65,27 @@ public class SoundStreamOperationsTest {
         Urn userUrn = Urn.forUser(123);
         when(soundStreamStorage
                 .loadStreamItemsAsync(eq(userUrn), anyLong(), any(Integer.class), any(Integer.class)))
-                .thenReturn(Observable.from(createItems(30)));
+                .thenReturn(Observable.from(createItems(PAGE_SIZE)));
 
         operations.getStreamItems().subscribe(observer);
 
-        ArgumentCaptor<OperatorPaged.Page> captor = ArgumentCaptor.forClass(OperatorPaged.Page.class);
-        verify(observer).onNext(captor.capture());
-        captor.getValue().getNextPage().subscribe(observer);
+        verify(observer).onNext(pageCaptor.capture());
+        pageCaptor.getValue().getNextPage().subscribe(observer);
         InOrder inOrder = inOrder(soundStreamStorage);
-        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(eq(userUrn), anyLong(), eq(30), eq(0));
-        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(eq(userUrn), anyLong(), eq(30), eq(30));
+        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(eq(userUrn), anyLong(), eq(PAGE_SIZE), eq(0));
+        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(eq(userUrn), anyLong(), eq(PAGE_SIZE), eq(PAGE_SIZE));
     }
 
     @Test
     public void shouldHaveNextPageIfCurrentPageHasExpectedNumberOfItems() throws Exception {
         when(soundStreamStorage
                 .loadStreamItemsAsync(any(Urn.class), anyLong(), any(Integer.class), any(Integer.class)))
-                .thenReturn(Observable.from(createItems(30)));
+                .thenReturn(Observable.from(createItems(PAGE_SIZE)));
 
         operations.getStreamItems().subscribe(observer);
 
-        ArgumentCaptor<OperatorPaged.Page> captor = ArgumentCaptor.forClass(OperatorPaged.Page.class);
-        verify(observer).onNext(captor.capture());
-        expect(captor.getValue().hasNextPage()).toBeTrue();
-    }
-
-    @Test
-    public void shouldNotHaveNextPageIfCurrentPageHasLessItemsThanExpected() throws Exception {
-        when(soundStreamStorage
-                .loadStreamItemsAsync(any(Urn.class), anyLong(), any(Integer.class), any(Integer.class)))
-                .thenReturn(Observable.from(createItems(29)));
-
-        operations.getStreamItems().subscribe(observer);
-
-        ArgumentCaptor<OperatorPaged.Page> captor = ArgumentCaptor.forClass(OperatorPaged.Page.class);
-        verify(observer).onNext(captor.capture());
-        expect(captor.getValue().hasNextPage()).toBeFalse();
-    }
-
-    @Test
-    public void shouldNotHaveNextPageIfCurrentPageHasNoItems() throws Exception {
-        when(soundStreamStorage
-                .loadStreamItemsAsync(any(Urn.class), anyLong(), any(Integer.class), any(Integer.class)))
-                .thenReturn(Observable.from(Collections.<PropertySet>emptyList()));
-
-        operations.getStreamItems().subscribe(observer);
-
-        ArgumentCaptor<OperatorPaged.Page> captor = ArgumentCaptor.forClass(OperatorPaged.Page.class);
-        verify(observer).onNext(captor.capture());
-        expect(captor.getValue().hasNextPage()).toBeFalse();
+        verify(observer).onNext(pageCaptor.capture());
+        expect(pageCaptor.getValue().hasNextPage()).toBeTrue();
     }
 
     @Test
@@ -104,11 +93,11 @@ public class SoundStreamOperationsTest {
         Urn userUrn = Urn.forUser(123);
         when(soundStreamStorage
                 .loadStreamItemsAsync(eq(userUrn), anyLong(), any(Integer.class), any(Integer.class)))
-                .thenReturn(Observable.from(createItems(30)));
+                .thenReturn(Observable.from(createItems(PAGE_SIZE)));
 
         operations.getStreamItems().subscribe(observer);
 
-        verify(soundStreamStorage).loadStreamItemsAsync(userUrn, Long.MAX_VALUE, 30, 0);
+        verify(soundStreamStorage).loadStreamItemsAsync(userUrn, Long.MAX_VALUE, PAGE_SIZE, 0);
     }
 
     @Test
@@ -116,19 +105,54 @@ public class SoundStreamOperationsTest {
         Urn userUrn = Urn.forUser(123);
         when(soundStreamStorage
                 .loadStreamItemsAsync(eq(userUrn), anyLong(), any(Integer.class), any(Integer.class)))
-                .thenReturn(Observable.from(createItems(30)));
+                .thenReturn(Observable.from(createItems(PAGE_SIZE)));
 
         operations.getStreamItems().subscribe(observer);
 
-        ArgumentCaptor<OperatorPaged.Page> captor = ArgumentCaptor.forClass(OperatorPaged.Page.class);
-        verify(observer).onNext(captor.capture());
-        captor.getValue().getNextPage().subscribe(observer);
+        verify(observer).onNext(pageCaptor.capture());
+        pageCaptor.getValue().getNextPage().subscribe(observer);
         InOrder inOrder = inOrder(soundStreamStorage);
-        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(eq(userUrn), eq(Long.MAX_VALUE), eq(30), eq(0));
-        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(eq(userUrn), eq(TIMESTAMP), eq(30), eq(30));
+        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(eq(userUrn), eq(Long.MAX_VALUE), eq(PAGE_SIZE), eq(0));
+        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(eq(userUrn), eq(TIMESTAMP), eq(PAGE_SIZE), eq(PAGE_SIZE));
+    }
+
+    @Test
+    public void shouldTriggerBackfillWhenNotEnoughItemsFoundInLocalStorage() {
+        Urn userUrn = Urn.forUser(123);
+        when(soundStreamStorage
+                .loadStreamItemsAsync(eq(userUrn), eq(Long.MAX_VALUE), eq(PAGE_SIZE), eq(0)))
+                .thenReturn(Observable.from(createItems(PAGE_SIZE - 1)));
+
+        jumpToNextPage();
+
+        InOrder inOrder = inOrder(syncInitiator, soundStreamStorage);
+        inOrder.verify(syncInitiator).backfillSoundStream(resultReceiverCaptor.capture());
+
+        forwardSyncResult(ApiSyncService.STATUS_APPEND_FINISHED);
+
+        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(eq(userUrn), eq(Long.MAX_VALUE), eq(PAGE_SIZE), eq(PAGE_SIZE - 1));
+    }
+
+    private void forwardSyncResult(int syncResult) {
+        expect(resultReceiverCaptor.getValue()).toBeInstanceOf(ResultReceiverAdapter.class);
+        ResultReceiverAdapter receiverAdapter = (ResultReceiverAdapter) resultReceiverCaptor.getValue();
+        receiverAdapter.onReceiveResult(syncResult, new Bundle());
+    }
+
+    private void jumpToNextPage() {
+        operations.getStreamItems().subscribe(observer);
+        verify(observer).onNext(pageCaptor.capture());
+        pageCaptor.getValue().getNextPage().subscribe(observer);
     }
 
     private List<PropertySet> createItems(int length) {
-        return Collections.nCopies(length, PropertySet.from(StreamItemProperty.CREATED_AT.bind(new Date(TIMESTAMP))));
+        return createItems(length, TIMESTAMP);
+    }
+
+    private List<PropertySet> createItems(int length, long timestamp) {
+        return Collections.nCopies(length, PropertySet.from(
+                StreamItemProperty.SOUND_URN.bind(Urn.forTrack(1L)),
+                StreamItemProperty.CREATED_AT.bind(new Date(timestamp)))
+        );
     }
 }

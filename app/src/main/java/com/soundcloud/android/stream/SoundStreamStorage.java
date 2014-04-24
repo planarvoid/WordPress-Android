@@ -13,6 +13,7 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.PropertySet;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -26,6 +27,8 @@ import java.util.Date;
 import java.util.Locale;
 
 class SoundStreamStorage extends ScheduledOperations {
+
+    private static final String TAG = "SoundStreamStorage";
 
     private final SQLiteDatabase database;
 
@@ -57,9 +60,15 @@ class SoundStreamStorage extends ScheduledOperations {
                         userAssociationProjection(LIKE, userUrn.numericId, SoundView.USER_LIKE),
                         userAssociationProjection(REPOST, userUrn.numericId, SoundView.USER_REPOST)
                 };
-                final String selection = String.format(Locale.US, "%s <= %d", ActivityView.CREATED_AT, timestamp);
+                final StringBuilder selection = new StringBuilder();
+                selection.append(String.format(Locale.US, "%s <= %d", ActivityView.CREATED_AT, timestamp));
+                selection.append(" AND ");
+                selection.append(
+                        String.format(Locale.US, "%s NOT IN ('%s', '%s')", ActivityView.TYPE, "comment", "affiliation"));
                 final String order = String.format(Locale.US, "%d,%d", offset, limit);
-                final Cursor cursor = database.query(table.name, projection, selection, null, null, null, null, order);
+                Log.d(TAG, "SELECT on activities: " + selection + "; order = " + order);
+                final Cursor cursor = database.query(
+                        table.name, projection, selection.toString(), null, null, null, null, order);
                 emitToSubscriber(subscriber, cursor);
             }
         }));
