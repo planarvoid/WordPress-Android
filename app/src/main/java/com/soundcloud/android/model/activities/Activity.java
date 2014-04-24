@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SharingNote;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.behavior.Identifiable;
 import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.model.behavior.PlayableHolder;
@@ -32,6 +33,7 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.UUID;
 
 @JsonTypeInfo(
@@ -229,7 +231,7 @@ public abstract class Activity extends ScModel implements Parcelable,
     }
 
     public abstract Type        getType();
-    public abstract User        getUser();
+    public abstract User getUser();
     @Deprecated
     public abstract void        cacheDependencies();
 
