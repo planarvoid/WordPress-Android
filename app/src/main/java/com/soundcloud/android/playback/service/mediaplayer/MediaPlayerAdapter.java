@@ -1,15 +1,25 @@
 package com.soundcloud.android.playback.service.mediaplayer;
 
+import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
+import static com.soundcloud.android.events.PlaybackPerformanceEvent.Protocol;
+
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.playback.service.MediaPlayerDataSourceObserver;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.streaming.StreamProxy;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -18,50 +28,56 @@ import android.util.Log;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener,MediaPlayer.OnBufferingUpdateListener {
 
+    private static final String TAG = "MediaPlayerAdapter";
+    private static final int POS_NOT_SET = -1;
+
     public static final int MAX_CONNECT_RETRIES = 3;
     public static final int SEEK_COMPLETE_PROGRESS_DELAY = 3000;
 
-    private static final int POS_NOT_SET = -1;
-    private final String TAG = "MediaPlayerAdapter";
-
-    private final StreamProxy mProxy;
-    private final Context mContext;
-    private final MediaPlayerManager mMediaPlayerManager;
-
-    private final PlayerHandler mPlayerHandler;
+    private final StreamProxy proxy;
+    private final Context context;
+    private final MediaPlayerManager mediaPlayerManager;
+    private final PlayerHandler playerHandler;
+    private final EventBus eventBus;
+    private final NetworkConnectionHelper networkConnectionHelper;
 
     private PlaybackState mInternalState = PlaybackState.STOPPED;
 
-    private Track mTrack;
-    private int mConnectRetries = 0;
+    private Track track;
+    private int connectionRetries = 0;
 
-    private boolean mWaitingForSeek;
-    private long mSeekPos = POS_NOT_SET;
-    private long mResumePos = POS_NOT_SET;
+    private boolean waitingForSeek;
+    private long seekPos = POS_NOT_SET;
+    private long resumePos = POS_NOT_SET;
 
     @Nullable
     private volatile MediaPlayer mMediaPlayer;
     private double mLoadPercent;
     @Nullable
     private PlayaListener mPlayaListener;
+    private Subscription mUriSubscription = Subscriptions.empty();
 
+    private long prepareStartTimeMs;
 
     @Inject
     public MediaPlayerAdapter(Context context, MediaPlayerManager mediaPlayerManager, StreamProxy streamProxy,
-                              PlayerHandler playerHandler) {
-        mContext = context.getApplicationContext();
-        mMediaPlayerManager = mediaPlayerManager;
-        mProxy = streamProxy;
-        mPlayerHandler = playerHandler;
-        mPlayerHandler.setMediaPlayerAdapter(this);
+                              PlayerHandler playerHandler, EventBus eventBus, NetworkConnectionHelper networkConnectionHelper) {
+        this.context = context.getApplicationContext();
+        this.mediaPlayerManager = mediaPlayerManager;
+        proxy = streamProxy;
+        this.playerHandler = playerHandler;
+        this.eventBus = eventBus;
+        this.playerHandler.setMediaPlayerAdapter(this);
+        this.networkConnectionHelper = networkConnectionHelper;
 
         // perhaps start this lazily?
-        mProxy.start();
+        proxy.start();
     }
 
     @Override
@@ -78,37 +94,67 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             mMediaPlayer.reset();
         }
 
-        mTrack = track;
-        mWaitingForSeek = false;
-        mResumePos = fromPos;
-        mSeekPos = POS_NOT_SET;
+        this.track = track;
+        waitingForSeek = false;
+        resumePos = fromPos;
+        seekPos = POS_NOT_SET;
 
         setInternalState(PlaybackState.PREPARING);
 
-        final MediaPlayerDataSourceObserver observer = new MediaPlayerDataSourceObserver(mMediaPlayer, this);
-        mProxy.uriObservable(mTrack.getStreamUrlWithAppendedId(), null).subscribe(observer, AndroidSchedulers.mainThread());
+        mUriSubscription.unsubscribe();
+        mUriSubscription = proxy.uriObservable(this.track.getStreamUrlWithAppendedId(), null)
+                .subscribe(new MediaPlayerDataSourceObserver(), AndroidSchedulers.mainThread());
+    }
+
+    private class MediaPlayerDataSourceObserver extends DefaultSubscriber<Uri> {
+        @Override
+        public void onError(Throwable e) {
+            setInternalState(PlaybackState.ERROR);
+            Log.e(TAG, "Could not retrieve proxy uri ", e);
+        }
+
+        @Override
+        public void onNext(Uri uri) {
+            if (mMediaPlayer != null) {
+                try {
+                    mMediaPlayer.setDataSource(uri.toString());
+                    mMediaPlayer.prepareAsync();
+                    prepareStartTimeMs = System.currentTimeMillis();
+                } catch (IOException e){
+                    handleMediaPlayerError(mMediaPlayer, resumePos);
+                }
+            }
+        }
     }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
         if (mp.equals(mMediaPlayer) && mInternalState == PlaybackState.PREPARING) {
 
-            mConnectRetries = 0;
+            connectionRetries = 0;
             if (mPlayaListener != null && mPlayaListener.requestAudioFocus()) {
                 play();
-                if (mResumePos > 0) {
-                    seek(mResumePos, true);
+                publishTimeToPlayEvent(System.currentTimeMillis() - prepareStartTimeMs, track.getStreamUrl());
+
+                if (resumePos > 0) {
+                    seek(resumePos, true);
                 }
             } else {
                 setInternalState(PlaybackState.PAUSED);
                 Log.e(TAG, "Could not acquire audio focus");
             }
-            mResumePos = POS_NOT_SET;
+            resumePos = POS_NOT_SET;
 
         } else {
             // when could this possibly happen??
             Log.e(TAG, "OnPrepared called unexpectedly in state " + mInternalState);
         }
+    }
+
+    private void publishTimeToPlayEvent(long timeToPlay, String streamUrl) {
+        final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
+                Protocol.HTTPS, PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(), streamUrl);
+        eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
     }
 
     private void play() {
@@ -128,17 +174,17 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         //noinspection ObjectEquality
         if (mp.equals(mMediaPlayer) && mInternalState != PlaybackState.STOPPED) {
 
-            if (mConnectRetries++ < MAX_CONNECT_RETRIES) {
-                Log.d(TAG, "stream disconnected, retrying (try=" + mConnectRetries + ")");
+            if (connectionRetries++ < MAX_CONNECT_RETRIES) {
+                Log.d(TAG, "stream disconnected, retrying (try=" + connectionRetries + ")");
                 setInternalState(PlaybackState.ERROR_RETRYING);
-                play(mTrack, resumePosition);
+                play(track, resumePosition);
                 return true;
             }
 
             Log.d(TAG, "stream disconnected, giving up");
             setInternalState(PlaybackState.ERROR);
             mp.release();
-            mConnectRetries = 0;
+            connectionRetries = 0;
             mMediaPlayer = null;
         }
         return false;
@@ -156,14 +202,14 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             if (mInternalState != PlaybackState.PAUSED_FOR_BUFFERING) {
                 // keep the last seek time for 3000 ms because getCurrentPosition will be incorrect at first. this way if seeking fails,
                 // we can resume from the proper position
-                mPlayerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
-                mPlayerHandler.sendEmptyMessageDelayed(PlayerHandler.CLEAR_LAST_SEEK, SEEK_COMPLETE_PROGRESS_DELAY);
+                playerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
+                playerHandler.sendEmptyMessageDelayed(PlayerHandler.CLEAR_LAST_SEEK, SEEK_COMPLETE_PROGRESS_DELAY);
 
             } else {
                 Log.d(TAG, "Not clearing seek, waiting for buffer");
             }
 
-            mWaitingForSeek = false;
+            waitingForSeek = false;
 
             // respect pauses during seeks
             if (!mInternalState.isSupposedToBePlaying()) {
@@ -178,7 +224,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     public long getSeekPosition() {
-        return mSeekPos;
+        return seekPos;
     }
 
     @Override
@@ -189,13 +235,13 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
         if (MediaPlayer.MEDIA_INFO_BUFFERING_START == what){
             setInternalState(PlaybackState.PAUSED_FOR_BUFFERING);
-            mPlayerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
+            playerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
             return true;
 
         } else if (MediaPlayer.MEDIA_INFO_BUFFERING_END == what){
-            if (mSeekPos != -1 && !mWaitingForSeek) {
-                mPlayerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
-                mPlayerHandler.sendEmptyMessageDelayed(PlayerHandler.CLEAR_LAST_SEEK, 3000);
+            if (seekPos != -1 && !waitingForSeek) {
+                playerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
+                playerHandler.sendEmptyMessageDelayed(PlayerHandler.CLEAR_LAST_SEEK, 3000);
             } else if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "Not clearing seek, waiting for seek to finish");
             }
@@ -233,15 +279,15 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     public boolean hasValidSeekPosition() {
-        return mSeekPos != POS_NOT_SET;
+        return seekPos != POS_NOT_SET;
     }
 
     public boolean isTryingToResumeTrack() {
-        return mResumePos != POS_NOT_SET;
+        return resumePos != POS_NOT_SET;
     }
 
     public long getResumeTime() {
-        return mResumePos;
+        return resumePos;
     }
 
     void stop(MediaPlayer mediaPlayer) {
@@ -251,8 +297,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     private boolean releaseUnresettableMediaPlayer() {
-        if (mWaitingForSeek || mInternalState.isLoading()) {
-            mMediaPlayerManager.stopAndReleaseAsync(mMediaPlayer);
+        if (waitingForSeek || mInternalState.isLoading()) {
+            mediaPlayerManager.stopAndReleaseAsync(mMediaPlayer);
             mMediaPlayer = null;
             return true;
         }
@@ -260,8 +306,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     private void createMediaPlayer() {
-        mMediaPlayer = mMediaPlayerManager.create();
-        mMediaPlayer.setWakeMode(mContext, PowerManager.PARTIAL_WAKE_LOCK);
+        mMediaPlayer = mediaPlayerManager.create();
+        mMediaPlayer.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mMediaPlayer.setOnErrorListener(this);
         mMediaPlayer.setOnPreparedListener(this);
@@ -314,10 +360,10 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     public void destroy() {
         stop();
         // make sure there aren't any other messages coming
-        mPlayerHandler.removeCallbacksAndMessages(null);
+        playerHandler.removeCallbacksAndMessages(null);
 
-        if (mProxy != null && mProxy.isRunning()) {
-            mProxy.stop();
+        if (proxy != null && proxy.isRunning()) {
+            proxy.stop();
         }
     }
 
@@ -360,8 +406,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG, "seeking to " + newPos);
                     }
-                    mSeekPos = newPos;
-                    mWaitingForSeek = true;
+                    seekPos = newPos;
+                    waitingForSeek = true;
                     mMediaPlayer.seekTo((int) newPos);
                 }
                 return newPos;
@@ -373,10 +419,10 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public long getProgress() {
-        if (mResumePos != POS_NOT_SET) {
-            return mResumePos;
-        } else if (mWaitingForSeek) {
-            return mSeekPos;
+        if (resumePos != POS_NOT_SET) {
+            return resumePos;
+        } else if (waitingForSeek) {
+            return seekPos;
         } else if (mMediaPlayer != null && !mInternalState.isError() && mInternalState != PlaybackState.PREPARING) {
             return mMediaPlayer.getCurrentPosition();
         } else {
@@ -452,6 +498,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             releaseUnresettableMediaPlayer();
             setInternalState(PlaybackState.STOPPED);
         }
+        mUriSubscription.unsubscribe();
     }
 
     private boolean isPastBuffer(long pos) {
@@ -503,7 +550,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
             switch (msg.what) {
                 case CLEAR_LAST_SEEK:
-                    mediaPlayerAdapter.mSeekPos = -1;
+                    mediaPlayerAdapter.seekPos = -1;
                     break;
 
             }

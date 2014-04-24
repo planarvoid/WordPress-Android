@@ -590,6 +590,10 @@ public class Track extends Playable {
         return DB_TYPE_TRACK;
     }
 
+    public String getStreamUrl(){
+        return stream_url;
+    }
+
     public String getStreamUrlWithAppendedId(){
         return Uri.parse(stream_url).buildUpon().appendQueryParameter(StreamItem.TRACK_ID_KEY,
                 String.valueOf(getId())).build().toString();

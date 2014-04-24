@@ -19,6 +19,15 @@ public class TestObservables {
         });
     }
 
+    public static <T> Observable<T> endlessObservablefromSubscription(final Subscription subscription) {
+        return Observable.create(new Observable.OnSubscribe<T>() {
+            @Override
+            public void call(Subscriber<? super T> subscriber) {
+                subscriber.add(subscription);
+            }
+        });
+    }
+
     public static <T> MockObservable<T> emptyObservable() {
         return new MockObservable<T>(new OnSubscribeCapture(Observable.empty()));
     }
