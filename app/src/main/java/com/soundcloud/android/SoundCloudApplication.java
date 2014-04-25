@@ -35,10 +35,10 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ExceptionUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Token;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -96,6 +96,8 @@ public class SoundCloudApplication extends Application {
     SharedPreferences mSharedPreferences;
     @Inject
     PlayerWidgetController mWidgetController;
+    @Inject
+    DeviceHelper deviceHelper;
 
     protected ObjectGraph mObjectGraph;
 
@@ -201,10 +203,7 @@ public class SoundCloudApplication extends Application {
     }
 
     private void setupExperiments() {
-        String deviceId = AndroidUtils.getUniqueDeviceID(this);
-        if (ScTextUtils.isNotBlank(deviceId)) {
-            mExperimentOperations.loadAssignment(deviceId);
-        }
+        mExperimentOperations.loadAssignment();
     }
 
     private void setupAnalytics() {

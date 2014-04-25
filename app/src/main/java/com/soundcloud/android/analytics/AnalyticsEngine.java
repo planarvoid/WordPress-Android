@@ -9,6 +9,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
+import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.SearchEvent;
@@ -94,6 +95,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             mEventsSubscription = new CompositeSubscription();
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackEventSubscriber()));
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.PLAYBACK_PERFORMANCE, new PlaybackPerformanceEventSubscriber()));
+            mEventsSubscription.add(mEventBus.subscribe(EventQueue.PLAYBACK_ERROR, new PlaybackErrorEventSubscriber()));
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.UI, new UIEventSubscriber()));
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.ONBOARDING, new OnboardEventSubscriber()));
             mEventsSubscription.add(mEventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventSubscriber()));
@@ -160,6 +162,13 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         @Override
         protected void handleEvent(AnalyticsProvider provider, PlaybackPerformanceEvent event) {
             provider.handlePlaybackPerformanceEvent(event);
+        }
+    }
+
+    private final class PlaybackErrorEventSubscriber extends EventSubscriber<PlaybackErrorEvent> {
+        @Override
+        protected void handleEvent(AnalyticsProvider provider, PlaybackErrorEvent event) {
+            provider.handlePlaybackErrorEvent(event);
         }
     }
 

@@ -3,7 +3,8 @@ package com.soundcloud.android.events;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.Protocol;
+
+import com.soundcloud.android.playback.PlaybackProtocol;
 
 import org.junit.Test;
 
@@ -11,7 +12,7 @@ public class PlaybackPerformanceEventTest {
 
     public static final String URI = "http://ec-media.com/asdf?p=1";
     public static final PlayerType PLAYER_TYPE = PlayerType.MEDIA_PLAYER;
-    public static final Protocol PROTOCOL = Protocol.HLS;
+    public static final PlaybackProtocol PROTOCOL = PlaybackProtocol.HLS;
     public static final ConnectionType CONNECTION_TYPE = ConnectionType.FOUR_G;
 
     @Test

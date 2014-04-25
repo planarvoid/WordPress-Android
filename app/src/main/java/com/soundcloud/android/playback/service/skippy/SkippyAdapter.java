@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.service.skippy;
 
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.Protocol;
 import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason.BUFFERING;
 import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
@@ -14,9 +13,11 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.Log;
@@ -216,15 +217,15 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
         switch (metric) {
             case TIME_TO_PLAY:
-                return PlaybackPerformanceEvent.timeToPlay(value, Protocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnUri);
+                return PlaybackPerformanceEvent.timeToPlay(value, PlaybackProtocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnUri);
             case TIME_TO_BUFFER:
-                return PlaybackPerformanceEvent.timeToBuffer(value, Protocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnUri);
+                return PlaybackPerformanceEvent.timeToBuffer(value, PlaybackProtocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnUri);
             case TIME_TO_GET_PLAYLIST:
-                return PlaybackPerformanceEvent.timeToPlaylist(value, Protocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnUri);
+                return PlaybackPerformanceEvent.timeToPlaylist(value, PlaybackProtocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnUri);
             case TIME_TO_SEEK:
-                return PlaybackPerformanceEvent.timeToSeek(value, Protocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnUri);
+                return PlaybackPerformanceEvent.timeToSeek(value, PlaybackProtocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnUri);
             case FRAGMENT_DOWNLOAD_RATE:
-                return PlaybackPerformanceEvent.fragmentDownloadRate(value, Protocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnUri);
+                return PlaybackPerformanceEvent.fragmentDownloadRate(value, PlaybackProtocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnUri);
             default:
                 throw new IllegalArgumentException("Unexpected performance metric : " + metric);
         }
@@ -238,6 +239,9 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     @Override
     public void onErrorMessage(String category, String errorMsg, String uri) {
         SoundCloudApplication.handleSilentException(errorMsg, new SkippyException(category));
+
+        final PlaybackErrorEvent event = new PlaybackErrorEvent(category, PlaybackProtocol.HLS, uri);
+        eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
     }
 
     static class StateChangeHandler extends Handler {

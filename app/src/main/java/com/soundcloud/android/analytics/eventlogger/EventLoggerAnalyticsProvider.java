@@ -7,6 +7,7 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
+import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -22,9 +23,9 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
 
     @Inject
-    EventLogger mEventLogger;
+    EventLogger eventLogger;
     @Inject
-    EventLoggerParamsBuilder mEventLoggerParamsBuilder;
+    EventLoggerParamsBuilder eventLoggerParamsBuilder;
 
     @Inject
     public EventLoggerAnalyticsProvider() {
@@ -33,13 +34,13 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @VisibleForTesting
     protected EventLoggerAnalyticsProvider(EventLogger eventLogger, EventLoggerParamsBuilder eventLoggerParamsBuilder) {
-        mEventLogger = eventLogger;
-        mEventLoggerParamsBuilder = eventLoggerParamsBuilder;
+        this.eventLogger = eventLogger;
+        this.eventLoggerParamsBuilder = eventLoggerParamsBuilder;
     }
 
     @Override
     public void flush() {
-        mEventLogger.flush();
+        eventLogger.flush();
     }
 
     @Override
@@ -53,7 +54,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void handlePlayerLifeCycleEvent(PlayerLifeCycleEvent event) {
         if (event.getKind() == PlayerLifeCycleEvent.STATE_DESTROYED) {
-            mEventLogger.stop();
+            eventLogger.stop();
         }
     }
 
@@ -75,9 +76,9 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void handlePlaybackEvent(final PlaybackEvent eventData) {
         try {
-            final String params = mEventLoggerParamsBuilder.buildFromPlaybackEvent(eventData);
+            final String params = eventLoggerParamsBuilder.buildFromPlaybackEvent(eventData);
             final EventLoggerEvent event = new EventLoggerEvent(eventData.getTimeStamp(), EventLoggerEventTypes.PLAYBACK.getPath(), params);
-            mEventLogger.trackEvent(event);
+            eventLogger.trackEvent(event);
 
         } catch (UnsupportedEncodingException e) {
             Log.e(EventLogger.TAG, "Unable to process playback event ", e);
@@ -87,9 +88,16 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handlePlaybackPerformanceEvent(final PlaybackPerformanceEvent eventData) {
-        final String params = mEventLoggerParamsBuilder.buildFromPlaybackPerformanceEvent(eventData);
+        final String params = eventLoggerParamsBuilder.buildFromPlaybackPerformanceEvent(eventData);
         final EventLoggerEvent event = new EventLoggerEvent(eventData.getTimeStamp(), EventLoggerEventTypes.PLAYBACK_PERFORMANCE.getPath(), params);
-        mEventLogger.trackEvent(event);
+        eventLogger.trackEvent(event);
+    }
+
+    @Override
+    public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
+        final String params = eventLoggerParamsBuilder.buildFromPlaybackErrorEvent(eventData);
+        final EventLoggerEvent event = new EventLoggerEvent(eventData.getTimestamp(), EventLoggerEventTypes.PLAYBACK_ERROR.getPath(), params);
+        eventLogger.trackEvent(event);
     }
 
     @Override

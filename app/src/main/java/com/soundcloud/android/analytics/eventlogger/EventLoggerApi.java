@@ -4,10 +4,12 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.T
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.TrackingEvents.PATH;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.http.HttpURLConnectionFactory;
-import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.api.Params;
 import org.apache.http.HttpStatus;
 
 import android.content.Context;
@@ -31,20 +33,22 @@ public class EventLoggerApi {
     static final int READ_TIMEOUT = 5 * 1000;
     static final int CONNECT_TIMEOUT = 10 * 1000;
 
-    private final String mAppId;
-    private final String mUniqueDeviceId;
-    private final HttpURLConnectionFactory mHttpURLConnectionFactory;
+    private final String appId;
+    private final String uniqueDeviceId;
+    private final String userAgent;
+    private final HttpURLConnectionFactory httpURLConnectionFactory;
 
     @Inject
-    EventLoggerApi(Context context, HttpURLConnectionFactory httpURLConnectionFactory) {
-        this(context.getResources().getString(R.string.app_id), AndroidUtils.getUniqueDeviceID(context), httpURLConnectionFactory);
+    EventLoggerApi(Context context, HttpURLConnectionFactory httpURLConnectionFactory, DeviceHelper deviceHelper) {
+        this(context.getResources().getString(R.string.app_id), deviceHelper, httpURLConnectionFactory);
     }
 
     @VisibleForTesting
-    EventLoggerApi(String appId, String uniqueDeviceId, HttpURLConnectionFactory httpURLConnectionFactory) {
-        mAppId = appId;
-        mUniqueDeviceId = uniqueDeviceId;
-        mHttpURLConnectionFactory = httpURLConnectionFactory;
+    EventLoggerApi(String appId, DeviceHelper deviceHelper, HttpURLConnectionFactory httpURLConnectionFactory) {
+        this.appId = appId;
+        this.httpURLConnectionFactory = httpURLConnectionFactory;
+        this.userAgent = deviceHelper.getUserAgent();
+        this.uniqueDeviceId = deviceHelper.getUniqueDeviceID();
     }
 
     /**
@@ -63,10 +67,11 @@ public class EventLoggerApi {
             try {
                 final String url = urlPair.second;
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "logging "+url);
-                connection = mHttpURLConnectionFactory.create(url);
+                connection = httpURLConnectionFactory.create(url);
                 connection.setRequestMethod("HEAD");
                 connection.setConnectTimeout(CONNECT_TIMEOUT);
                 connection.setReadTimeout(READ_TIMEOUT);
+                connection.setRequestProperty(HttpHeaders.USER_AGENT, userAgent);
                 connection.connect();
 
                 final int response = connection.getResponseCode();
@@ -91,8 +96,8 @@ public class EventLoggerApi {
     String buildUrl(Cursor trackingData) throws UnsupportedEncodingException {
         Uri.Builder builder = Uri.parse(ENDPOINT).buildUpon();
         builder.appendPath(trackingData.getString(trackingData.getColumnIndex(PATH)));
-        builder.appendQueryParameter("client_id", mAppId);
-        builder.appendQueryParameter("anonymous_id", mUniqueDeviceId);
+        builder.appendQueryParameter(Parameters.CLIENT_ID.value(), appId);
+        builder.appendQueryParameter(Parameters.ANONYMOUS_ID.value(), uniqueDeviceId);
 
         String sourceInfoQueryString = trackingData.getString(trackingData.getColumnIndex(PARAMS));
         if (ScTextUtils.isNotBlank(sourceInfoQueryString)){

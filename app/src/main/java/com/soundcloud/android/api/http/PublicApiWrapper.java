@@ -15,7 +15,7 @@ import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
@@ -100,11 +100,12 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
                                ApplicationProperties applicationProperties) {
         this(context, buildObjectMapper(), properties.getClientId(), properties.getClientSecret(),
                 ANDROID_REDIRECT_URI, accountOperations.getSoundCloudToken(), applicationProperties,
-                UnauthorisedRequestRegistry.getInstance(context));
+                UnauthorisedRequestRegistry.getInstance(context), new DeviceHelper(context));
     }
 
     private PublicApiWrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret, URI redirectUri,
-                             Token token, ApplicationProperties applicationProperties, UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
+                             Token token, ApplicationProperties applicationProperties, UnauthorisedRequestRegistry unauthorisedRequestRegistry,
+                             DeviceHelper deviceHelper) {
         super(clientId, clientSecret, redirectUri, token);
         // context can be null in tests
         if (context == null) return;
@@ -113,7 +114,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
         mContext = context;
         mObjectMapper = mapper;
         setTokenListener(new SoundCloudTokenListener(context));
-        userAgent = "SoundCloud Android (" + AndroidUtils.getAppVersion(context, "unknown") + ")";
+        userAgent = deviceHelper.getUserAgent();
         final IntentFilter filter = new IntentFilter();
         filter.addAction(Actions.CHANGE_PROXY_ACTION);
         context.registerReceiver(new BroadcastReceiver() {

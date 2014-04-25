@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.http.HttpURLConnectionFactory;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.utils.DeviceHelper;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,12 +40,18 @@ public class EventLoggerApiTest {
     private HttpURLConnection badConnection;
     @Mock
     private HttpURLConnectionFactory httpURLConnectionFactory;
+    @Mock
+    private DeviceHelper deviceHelper;
 
     @Before
     public void setUp() throws Exception {
-        eventLoggerApi = new EventLoggerApi("1", "9876", httpURLConnectionFactory);
+        when(deviceHelper.getUserAgent()).thenReturn("SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)");
+        when(deviceHelper.getUniqueDeviceID()).thenReturn("9876");
+
+        eventLoggerApi = new EventLoggerApi("1", deviceHelper, httpURLConnectionFactory);
         when(connection.getResponseCode()).thenReturn(HttpStatus.SC_OK);
         when(badConnection.getResponseCode()).thenReturn(HttpStatus.SC_FORBIDDEN);
+
     }
 
     @Test
@@ -92,9 +99,11 @@ public class EventLoggerApiTest {
     @Test
     public void shouldSetConnectionParams() throws Exception {
         when(httpURLConnectionFactory.create(goodUrl)).thenReturn(connection);
+        when(deviceHelper.getUserAgent()).thenReturn("id");
 
         eventLoggerApi.pushToRemote(Lists.newArrayList(event1));
         verify(connection).setRequestMethod("HEAD");
+        verify(connection).setRequestProperty("User-Agent", "SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)");
         verify(connection).setConnectTimeout(EventLoggerApi.CONNECT_TIMEOUT);
         verify(connection).setReadTimeout(EventLoggerApi.READ_TIMEOUT);
     }

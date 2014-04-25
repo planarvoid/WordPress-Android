@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.service.mediaplayer;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.Protocol;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.Reason;
 import static org.mockito.Matchers.any;
@@ -21,6 +20,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.StreamPlaya;
 import com.soundcloud.android.playback.streaming.StreamProxy;
@@ -28,7 +28,6 @@ import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -156,7 +155,7 @@ public class MediaPlayerAdapterTest {
         expect(event.getMetricValue()).toBeGreaterThan(0L);
         expect(event.getUri()).toEqual(track.getStreamUrl());
         expect(event.getPlayerType()).toEqual(PlayerType.MEDIA_PLAYER);
-        expect(event.getProtocol()).toEqual(Protocol.HTTPS);
+        expect(event.getProtocol()).toEqual(PlaybackProtocol.HTTPS);
         expect(event.getConnectionType()).toEqual(PlaybackPerformanceEvent.ConnectionType.TWO_G);
     }
 

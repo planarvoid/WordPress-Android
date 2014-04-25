@@ -1,6 +1,7 @@
 package com.soundcloud.android.experiments;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.reflect.TypeToken;
@@ -9,6 +10,7 @@ import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.DeviceHelper;
 import rx.functions.Action0;
 import rx.functions.Action1;
 
@@ -32,6 +34,7 @@ public class ExperimentOperations {
     private final ExperimentStorage experimentStorage;
     private final RxHttpClient rxHttpClient;
     private final ActiveExperiments activeExperiments;
+    private final DeviceHelper deviceHelper;
 
     private Action1 storeAssignment = new Action1<Assignment>() {
         @Override
@@ -42,16 +45,20 @@ public class ExperimentOperations {
 
     @Inject
     public ExperimentOperations(ExperimentStorage experimentStorage, RxHttpClient rxHttpClient,
-                                ActiveExperiments activeExperiments) {
+                                ActiveExperiments activeExperiments, DeviceHelper deviceHelper) {
         this.experimentStorage = experimentStorage;
         this.rxHttpClient = rxHttpClient;
         this.activeExperiments = activeExperiments;
+        this.deviceHelper = deviceHelper;
     }
 
-    public void loadAssignment(String deviceId) {
-        experimentStorage.loadAssignmentAsync()
-                .finallyDo(fetchAndStoreAssignment(deviceId))
-                .subscribe(new LoadSubscriber());
+    public void loadAssignment() {
+        String deviceId = deviceHelper.getUniqueDeviceID();
+        if(isNotBlank(deviceId)) {
+            experimentStorage.loadAssignmentAsync()
+                    .finallyDo(fetchAndStoreAssignment(deviceId))
+                    .subscribe(new LoadSubscriber());
+        }
     }
 
     @VisibleForTesting

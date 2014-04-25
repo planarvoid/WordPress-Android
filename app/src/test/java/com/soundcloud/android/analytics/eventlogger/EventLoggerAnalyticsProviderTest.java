@@ -3,14 +3,15 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.Protocol;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -50,7 +51,7 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Test
     public void shouldTrackPlaybackPerformanceEventAsEventLoggerEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, Protocol.HLS, PlayerType.MEDIA_PLAYER,
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HLS, PlayerType.MEDIA_PLAYER,
                 ConnectionType.FOUR_G, "uri");
         when(eventLoggerParamsBuilder.buildFromPlaybackPerformanceEvent(event)).thenReturn("event-params");
 
@@ -61,6 +62,20 @@ public class EventLoggerAnalyticsProviderTest {
         expect(captor.getValue().getParams()).toEqual("event-params");
         expect(captor.getValue().getTimeStamp()).toEqual(event.getTimeStamp());
         expect(captor.getValue().getPath()).toEqual("audio_performance");
+    }
+
+    @Test
+    public void shouldTrackPlaybackErrorEventAsEventLoggerEvent() throws Exception {
+        PlaybackErrorEvent event = new PlaybackErrorEvent("category", PlaybackProtocol.HLS, "uri", "bitrate", "format");
+        when(eventLoggerParamsBuilder.buildFromPlaybackErrorEvent(event)).thenReturn("event-params");
+
+        eventLoggerAnalyticsProvider.handlePlaybackErrorEvent(event);
+
+        ArgumentCaptor<EventLoggerEvent> captor = ArgumentCaptor.forClass(EventLoggerEvent.class);
+        verify(eventLogger).trackEvent(captor.capture());
+        expect(captor.getValue().getParams()).toEqual("event-params");
+        expect(captor.getValue().getTimeStamp()).toEqual(event.getTimestamp());
+        expect(captor.getValue().getPath()).toEqual("audio_error");
     }
 
     @Test

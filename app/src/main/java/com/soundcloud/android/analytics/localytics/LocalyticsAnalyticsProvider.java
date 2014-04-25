@@ -9,6 +9,7 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
+import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -145,6 +146,11 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
+
+    }
+
+    @Override
+    public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
 
     }
 

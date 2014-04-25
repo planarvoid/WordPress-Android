@@ -121,7 +121,7 @@ public class ChangeLog {
                         closeList();
                         String version = line.substring(1).trim();
                         if ("v current".equals(version)) {
-                            version = "v " + AndroidUtils.getAppVersion(mContext, "unknown");
+                            version = "v " + new DeviceHelper(mContext).getAppVersion();
                         }
                         mSb.append("<div class='title'>").append(version).append("</div>\n");
                     // line contains date

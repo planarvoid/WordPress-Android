@@ -7,7 +7,7 @@ import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.SyncAdapterService;
-import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.accounts.Account;
@@ -163,6 +163,7 @@ public class C2DMReceiver extends BroadcastReceiver {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sendRegId("+regId+")");
 
         final PowerManager.WakeLock lock = makeLock(context);
+        final DeviceHelper deviceHelper = new DeviceHelper(context);
         return new SendRegIdTask(new PublicApi(context)) {
 
             @Override
@@ -184,7 +185,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                 }
                 lock.release();
             }
-        }.execute(regId, AndroidUtils.getPackagename(context), AndroidUtils.getUniqueDeviceID(context));
+        }.execute(regId, deviceHelper.getPackageName(), deviceHelper.getUniqueDeviceID());
     }
 
     /** callback when device is unregistered */

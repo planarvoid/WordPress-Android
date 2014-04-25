@@ -1,13 +1,13 @@
 package com.soundcloud.android.playback.service.mediaplayer;
 
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.Protocol;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.streaming.StreamProxy;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -153,7 +153,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     private void publishTimeToPlayEvent(long timeToPlay, String streamUrl) {
         final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
-                Protocol.HTTPS, PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(), streamUrl);
+                PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(), streamUrl);
         eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
     }
 

@@ -5,7 +5,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.DeviceHelper;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -25,7 +25,7 @@ public class MigrationEngine {
     private final List<Migration> mMigrations;
 
     public MigrationEngine(Context context) {
-        this(AndroidUtils.getAppVersionCode(context,0) ,PreferenceManager.getDefaultSharedPreferences(context),
+        this(new DeviceHelper(context).getAppVersionCode(), PreferenceManager.getDefaultSharedPreferences(context),
                 new SettingsMigration(context));
     }
 

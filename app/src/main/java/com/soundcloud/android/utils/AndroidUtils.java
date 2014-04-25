@@ -8,15 +8,10 @@ import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
-import android.telephony.TelephonyManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.accessibility.AccessibilityManager;
@@ -122,63 +117,6 @@ public final class AndroidUtils {
         }
     }
 
-    public static String getAppVersion(Context context, String defaultVersion) {
-        try {
-            if (context.getPackageManager() != null) {
-                PackageInfo info = context
-                        .getPackageManager()
-                        .getPackageInfo(context.getPackageName(),
-                                PackageManager.GET_META_DATA);
-                return info.versionName;
-            } else return defaultVersion;
-        } catch (PackageManager.NameNotFoundException ignored) {
-            return defaultVersion;
-        }
-    }
-
-    public static int getAppVersionCode(Context context, int defaultVersion) {
-        try {
-            if (context.getPackageManager() != null) {
-                PackageInfo info = context
-                        .getPackageManager()
-                        .getPackageInfo(context.getPackageName(),
-                                PackageManager.GET_META_DATA);
-                return info.versionCode;
-            } else return defaultVersion;
-        } catch (PackageManager.NameNotFoundException ignored) {
-            return defaultVersion;
-        }
-    }
-
-    public static String getPackagename(Context context) {
-        try {
-            if (context.getPackageManager() != null) {
-                PackageInfo info = context
-                        .getPackageManager()
-                        .getPackageInfo(context.getPackageName(),
-                                PackageManager.GET_META_DATA);
-                return info.packageName;
-            } else return null;
-        } catch (PackageManager.NameNotFoundException ignored) {
-            throw new RuntimeException(ignored);
-        }
-    }
-
-    /**
-     * @param context the context
-     * @return a unique id for this device (MD5 of IMEI / {@link Settings.Secure#ANDROID_ID}) or null
-     */
-    public static String getUniqueDeviceID(Context context) {
-        TelephonyManager tmgr = (TelephonyManager)
-                context.getSystemService(Context.TELEPHONY_SERVICE);
-
-        String id = tmgr == null ? null : tmgr.getDeviceId();
-        if (TextUtils.isEmpty(id)) {
-            id = Settings.Secure.getString(
-                    context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        }
-        return TextUtils.isEmpty(id) ? null : IOUtils.md5(id);
-    }
 
     @SuppressWarnings("UnusedDeclaration")
     public static void logScreenSize(Context context) {
