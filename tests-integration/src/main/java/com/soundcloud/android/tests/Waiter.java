@@ -13,6 +13,7 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ import java.util.List;
 
 public class Waiter {
     private static final String TAG = Waiter.class.getSimpleName();
-    public Han solo;
+    private static Han solo;
     public final int TIMEOUT = 10 * 1000;
     public final int NETWORK_TIMEOUT = 120 * 1000;
     private final int ELEMENT_TIMEOUT = 5 * 1000;
@@ -32,6 +33,10 @@ public class Waiter {
 
     public boolean waitForTextToDisappear(String text) {
         return solo.waitForCondition(new NoTextCondition(text), this.NETWORK_TIMEOUT);
+    }
+
+    public ExpectedConditions expect(View view) {
+        return new ExpectedConditions(this, view);
     }
 
     public boolean waitForWebViewToLoad(final WebView webViewToCheck) {
@@ -55,6 +60,10 @@ public class Waiter {
 
     public boolean waitForKeyboardToBeShown() {
         return solo.waitForCondition(new KeyboardShownCondition(), ELEMENT_TIMEOUT);
+    }
+
+    public boolean waitForTextInView(TextView textView, String text) {
+        return solo.waitForCondition(new TextInViewCondition(textView, text), ELEMENT_TIMEOUT);
     }
 
     private boolean waitForListContent() {
@@ -265,6 +274,20 @@ public class Waiter {
         @Override
         public boolean isSatisfied() {
             return solo.isKeyboardShown();
+        }
+    }
+
+    private class TextInViewCondition implements Condition {
+        private final TextView mView;
+        private final String mText;
+
+        private TextInViewCondition(TextView view, String text) {
+            mView = view;
+            mText = text;
+        }
+        @Override
+        public boolean isSatisfied() {
+            return mView.getText().equals(mText);
         }
     }
 }

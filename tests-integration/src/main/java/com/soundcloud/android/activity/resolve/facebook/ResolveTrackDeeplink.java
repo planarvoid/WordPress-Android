@@ -19,6 +19,7 @@ public class ResolveTrackDeeplink extends FacebookResolveBaseTest {
         playerScreen = new PlayerScreen(solo);
         solo.assertActivity(com.soundcloud.android.playback.PlayerActivity.class, DEFAULT_WAIT);
         solo.clickOnView(R.id.pause);
-        assertEquals("Celebrate 5 years of finding each other on SoundCloud", playerScreen.trackTitle());
+        waiter.expect(playerScreen.trackTitleElement())
+                .toHaveText("Celebrate 5 years of finding each other on SoundCloud");
     }
 }

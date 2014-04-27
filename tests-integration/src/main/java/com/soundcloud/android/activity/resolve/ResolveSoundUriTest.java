@@ -1,8 +1,9 @@
 package com.soundcloud.android.activity.resolve;
 
-import android.net.Uri;
 import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.screens.PlayerScreen;
+
+import android.net.Uri;
 
 
 public class ResolveSoundUriTest extends ResolveBaseTest {
@@ -11,7 +12,8 @@ public class ResolveSoundUriTest extends ResolveBaseTest {
         playerScreen = new PlayerScreen(solo);
         playerScreen.stopPlayback();
 
-        assertEquals("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]", playerScreen.trackTitle());
+        waiter.expect(playerScreen.trackTitleElement())
+                .toHaveText("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]");
     }
 
     @Override

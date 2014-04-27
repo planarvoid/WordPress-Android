@@ -33,6 +33,11 @@ public class PlayerScreen extends Screen {
         return ACTIVITY;
     }
 
+    public TextView trackTitleElement() {
+        return (TextView)solo.getView(R.id.playable_title);
+    }
+
+
     public String trackTitle() {
         TextView textView = (TextView)solo.getView(R.id.playable_title);
         return textView.getText().toString();

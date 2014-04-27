@@ -33,7 +33,8 @@ public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
         exploreScreen.touchTrendingMusicTab();
         String trackName = exploreScreen.getTrackTitle(1);
         playerScreen = exploreScreen.playPopularTrack(1);
-        assertEquals(trackName, playerScreen.trackTitle());
+        waiter.expect(playerScreen.trackTitleElement())
+                .toHaveText(trackName);
     }
 
     public void testPlayingExploreElectronicTrack() {
@@ -41,6 +42,7 @@ public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
         String trackName = categoryScreen.getTrackTitle(1);
         playerScreen = categoryScreen.playTrack(1);
-        assertEquals(trackName, playerScreen.trackTitle());
+        waiter.expect(playerScreen.trackTitleElement())
+                .toHaveText(trackName);
     }
 }

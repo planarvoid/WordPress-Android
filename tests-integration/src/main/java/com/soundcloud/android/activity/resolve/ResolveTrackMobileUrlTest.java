@@ -10,7 +10,8 @@ public class ResolveTrackMobileUrlTest extends ResolveBaseTest {
         playerScreen = new PlayerScreen(solo);
         playerScreen.stopPlayback();
 
-        assertEquals("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]", playerScreen.trackTitle());
+        waiter.expect(playerScreen.trackTitleElement())
+                .toHaveText("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]");
     }
 
     @Override
