@@ -1,12 +1,9 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.sync.SyncInitiator.ResultReceiverAdapter;
-
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.PlaylistUrn;
 import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.android.storage.PlaylistStorage;
@@ -16,10 +13,9 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
-import rx.Subscriber;
 import rx.functions.Func1;
 
-import android.os.ResultReceiver;
+import android.content.SyncResult;
 
 import javax.inject.Inject;
 
@@ -105,16 +101,10 @@ public class PlaylistOperations {
      * Performs a sync on the given playlist, then reloads it from local storage.
      */
     private Observable<Playlist> syncThenLoadPlaylist(final PlaylistUrn playlistUrn) {
-        return Observable.create(new Observable.OnSubscribe<Urn>() {
+        Log.d(LOG_TAG, "Sending intent to sync playlist " + playlistUrn);
+        return mSyncInitiator.syncPlaylist(playlistUrn).mergeMap(new Func1<Boolean, Observable<Playlist>>() {
             @Override
-            public void call(final Subscriber<? super Urn> subscriber) {
-                final ResultReceiver resultReceiver = new ResultReceiverAdapter<Urn>(subscriber, playlistUrn);
-                Log.d(LOG_TAG, "Sending intent to sync playlist " + playlistUrn);
-                mSyncInitiator.syncPlaylist(playlistUrn, resultReceiver);
-            }
-        }).mergeMap(new Func1<Urn, Observable<Playlist>>() {
-            @Override
-            public Observable<Playlist> call(Urn playlistUrn) {
+            public Observable<Playlist> call(Boolean playlistWasUpdated) {
                 Log.d(LOG_TAG, "Reloading playlist from local storage: " + playlistUrn);
                 return mPlaylistStorage.loadPlaylistWithTracksAsync(playlistUrn.numericId);
             }

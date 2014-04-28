@@ -1,6 +1,5 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.sync.SyncInitiator.ResultReceiverAdapter;
 import static rx.android.OperatorPaged.Page;
 import static rx.android.OperatorPaged.Pager;
 import static rx.android.OperatorPaged.pagedWith;
@@ -11,7 +10,6 @@ import com.soundcloud.android.storage.PropertySet;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
-import rx.Subscriber;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -74,20 +72,11 @@ class SoundStreamOperations {
     private Observable<Page<List<PropertySet>>> backfillSoundStreamAndReload(
             final Urn userUrn, final long currentTimestamp) {
         Log.d(TAG, "Not enough items; next page will trigger sync");
-        return Observable.create(new Observable.OnSubscribe<Page<List<PropertySet>>>() {
+        return syncInitiator.backfillSoundStream().mergeMap(new Func1<Boolean, Observable<Page<List<PropertySet>>>>() {
             @Override
-            public void call(Subscriber<? super Page<List<PropertySet>>> subscriber) {
-                Log.d(TAG, "Backfilling sound stream");
-                ResultReceiverAdapter<Page<List<PropertySet>>> receiverAdapter =
-                        new ResultReceiverAdapter<Page<List<PropertySet>>>(subscriber, null);
-                syncInitiator.backfillSoundStream(receiverAdapter);
-            }
-        }).mergeMap(new Func1<Page<List<PropertySet>>, Observable<Page<List<PropertySet>>>>() {
-            @Override
-            public Observable<Page<List<PropertySet>>> call(Page<List<PropertySet>> listPage) {
+            public Observable<Page<List<PropertySet>>> call(Boolean streamUpdated) {
                 return loadPagedStreamItems(userUrn, currentTimestamp);
             }
         });
     }
-
 }

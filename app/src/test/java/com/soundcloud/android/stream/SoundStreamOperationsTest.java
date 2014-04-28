@@ -1,7 +1,6 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.sync.SyncInitiator.ResultReceiverAdapter;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
@@ -13,7 +12,6 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.PropertySet;
-import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncInitiator;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,9 +23,6 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.android.OperatorPaged;
-
-import android.os.Bundle;
-import android.os.ResultReceiver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,9 +48,6 @@ public class SoundStreamOperationsTest {
 
     @Captor
     private ArgumentCaptor<OperatorPaged.Page> pageCaptor;
-
-    @Captor
-    private ArgumentCaptor<ResultReceiver> resultReceiverCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -106,26 +98,18 @@ public class SoundStreamOperationsTest {
     }
 
     @Test
-    public void shouldTriggerBackfillWhenNotEnoughItemsFoundInLocalStorage() {
+    public void shouldTriggerBackfillAndReloadWhenNotEnoughItemsFoundInLocalStorage() {
         Urn userUrn = Urn.forUser(123);
         when(soundStreamStorage
                 .loadStreamItemsAsync(eq(userUrn), eq(Long.MAX_VALUE), eq(PAGE_SIZE)))
                 .thenReturn(Observable.from(createItems(PAGE_SIZE - 1)));
+        when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(true));
 
         jumpToNextPage();
 
         InOrder inOrder = inOrder(syncInitiator, soundStreamStorage);
-        inOrder.verify(syncInitiator).backfillSoundStream(resultReceiverCaptor.capture());
-
-        forwardSyncResult(ApiSyncService.STATUS_APPEND_FINISHED);
-
-        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(userUrn, Long.MAX_VALUE, PAGE_SIZE);
-    }
-
-    private void forwardSyncResult(int syncResult) {
-        expect(resultReceiverCaptor.getValue()).toBeInstanceOf(ResultReceiverAdapter.class);
-        ResultReceiverAdapter receiverAdapter = (ResultReceiverAdapter) resultReceiverCaptor.getValue();
-        receiverAdapter.onReceiveResult(syncResult, new Bundle());
+        inOrder.verify(syncInitiator).backfillSoundStream();
+        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(eq(userUrn), eq(Long.MAX_VALUE), eq(PAGE_SIZE));
     }
 
     private void jumpToNextPage() {

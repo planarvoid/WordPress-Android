@@ -1,9 +1,11 @@
 package com.soundcloud.android.track;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.rx.TestObservables.MockObservable;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -19,22 +21,17 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateManager;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.schedulers.Schedulers;
-
-import android.os.Bundle;
-import android.os.ResultReceiver;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackOperationsTest {
@@ -75,7 +72,7 @@ public class TrackOperationsTest {
 
     @Test
     public void shouldLoadTrackFromStorageAndEmitOnUIThreadForPlayback() {
-        TestObservables.MockObservable loadFromStorageObservable = TestObservables.emptyObservable();
+        MockObservable loadFromStorageObservable = TestObservables.emptyObservable();
         when(trackStorage.getTrackAsync(1L)).thenReturn(loadFromStorageObservable);
 
         trackOperations.loadTrack(1L, Schedulers.immediate()).subscribe(observer);
@@ -106,16 +103,14 @@ public class TrackOperationsTest {
 
     @Test
     public void loadSyncedTrackShouldSyncTrackWhenNotPresentInLocalStorage() throws Exception {
-
         when(trackStorage.getTrackAsync(track.getId())).thenReturn(
-                TestObservables.MockObservable.<Track>error(new NotFoundException(track.getId())), TestObservables.MockObservable.just(track));
+                Observable.<Track>error(new NotFoundException(track.getId())), Observable.just(track));
+        when(syncInitiator.syncTrack(track.getUrn())).thenReturn(Observable.just(true));
 
         trackOperations.loadSyncedTrack(track.getId(), Schedulers.immediate()).subscribe(observer);
 
-        ArgumentCaptor<ResultReceiver> resultReceiver = ArgumentCaptor.forClass(ResultReceiver.class);
         InOrder callbacks = inOrder(observer, syncInitiator);
-        callbacks.verify(syncInitiator).syncTrack(eq(track.getUrn()), resultReceiver.capture());
-        forwardSyncResult(ApiSyncService.STATUS_SYNC_FINISHED, resultReceiver);
+        callbacks.verify(syncInitiator).syncTrack(track.getUrn());
         callbacks.verify(observer).onNext(track);
         callbacks.verify(observer).onCompleted();
         callbacks.verifyNoMoreInteractions();
@@ -124,8 +119,7 @@ public class TrackOperationsTest {
     @Test
     public void loadSyncedTrackShouldForwardErrorsFromLocalStorage() throws Exception {
         Exception exception = new Exception();
-        when(trackStorage.getTrackAsync(track.getId())).thenReturn(
-                TestObservables.MockObservable.<Track>error(exception));
+        when(trackStorage.getTrackAsync(track.getId())).thenReturn(Observable.<Track>error(exception));
 
         trackOperations.loadSyncedTrack(track.getId(), Schedulers.immediate()).subscribe(observer);
 
@@ -152,7 +146,7 @@ public class TrackOperationsTest {
     public void loadSyncedTrackShouldEmitTrackImmediatelyFromStorageIfTrackUpToDate() {
         when(syncState.isSyncDue()).thenReturn(false);
         when(syncStateManager.fromContent(track.toUri())).thenReturn(syncState);
-        when(trackStorage.getTrackAsync(track.getId())).thenReturn(TestObservables.MockObservable.just(track));
+        when(trackStorage.getTrackAsync(track.getId())).thenReturn(Observable.just(track));
 
         trackOperations.loadSyncedTrack(track.getId(), Schedulers.immediate()).subscribe(observer);
 
@@ -166,7 +160,7 @@ public class TrackOperationsTest {
     public void loadSyncedTrackShouldNotSyncIfTrackUpToDate() {
         when(syncState.isSyncDue()).thenReturn(false);
         when(syncStateManager.fromContent(track.toUri())).thenReturn(syncState);
-        when(trackStorage.getTrackAsync(track.getId())).thenReturn(TestObservables.MockObservable.just(track));
+        when(trackStorage.getTrackAsync(track.getId())).thenReturn(Observable.just(track));
 
         trackOperations.loadSyncedTrack(track.getId(), Schedulers.immediate()).subscribe(observer);
         verifyZeroInteractions(syncInitiator);
@@ -174,22 +168,16 @@ public class TrackOperationsTest {
 
     @Test
     public void loadSyncedTrackShouldEmitLocalTrackThenSyncedTrackIfLocalTrackTrackExistsButNeedsSyncing() {
-        final Track storedTrack = new Track(1L);
-        final Track syncedTrack = new Track(1L);
-
         when(syncState.isSyncDue()).thenReturn(true);
-        when(syncStateManager.fromContent(storedTrack.toUri())).thenReturn(syncState);
-        when(trackStorage.getTrackAsync(storedTrack.getId())).thenReturn(
-                TestObservables.MockObservable.just(storedTrack), TestObservables.MockObservable.just(syncedTrack));
+        when(syncStateManager.fromContent(track.toUri())).thenReturn(syncState);
+        when(trackStorage.getTrackAsync(track.getId())).thenReturn(Observable.just(track));
+        when(syncInitiator.syncTrack(track.getUrn())).thenReturn(Observable.just(true));
 
-        trackOperations.loadSyncedTrack(storedTrack.getId(), Schedulers.immediate()).subscribe(observer);
+        trackOperations.loadSyncedTrack(track.getId(), Schedulers.immediate()).subscribe(observer);
 
-        ArgumentCaptor<ResultReceiver> resultReceiver = ArgumentCaptor.forClass(ResultReceiver.class);
         InOrder callbacks = inOrder(observer, syncInitiator);
-        callbacks.verify(observer).onNext(storedTrack);
-        callbacks.verify(syncInitiator).syncTrack(eq(storedTrack.getUrn()), resultReceiver.capture());
-        forwardSyncResult(ApiSyncService.STATUS_SYNC_FINISHED, resultReceiver);
-        callbacks.verify(observer).onNext(syncedTrack);
+        callbacks.verify(syncInitiator).syncTrack(track.getUrn());
+        callbacks.verify(observer, times(2)).onNext(track);
         callbacks.verify(observer).onCompleted();
         callbacks.verifyNoMoreInteractions();
     }
@@ -197,14 +185,12 @@ public class TrackOperationsTest {
 
     public void loadStreamableTrackShouldSyncTrackWhenNotPresentInLocalStorage() throws Exception {
         when(trackStorage.getTrackAsync(track.getId())).thenReturn(
-                TestObservables.MockObservable.<Track>error(new NotFoundException(track.getId())), TestObservables.MockObservable.just(track));
+                Observable.<Track>error(new NotFoundException(track.getId())), Observable.just(track));
 
         trackOperations.loadStreamableTrack(track.getId(), Schedulers.immediate()).subscribe(observer);
 
-        ArgumentCaptor<ResultReceiver> resultReceiver = ArgumentCaptor.forClass(ResultReceiver.class);
         InOrder callbacks = inOrder(observer, syncInitiator);
-        callbacks.verify(syncInitiator).syncTrack(eq(track.getUrn()), resultReceiver.capture());
-        forwardSyncResult(ApiSyncService.STATUS_SYNC_FINISHED, resultReceiver);
+        callbacks.verify(syncInitiator).syncTrack(track.getUrn());
         callbacks.verify(observer).onNext(track);
         callbacks.verify(observer).onCompleted();
         callbacks.verifyNoMoreInteractions();
@@ -213,8 +199,7 @@ public class TrackOperationsTest {
     @Test
     public void loadStreamableTrackShouldForwardErrorsFromLocalStorage() throws Exception {
         Exception exception = new Exception();
-        when(trackStorage.getTrackAsync(track.getId())).thenReturn(
-                TestObservables.MockObservable.<Track>error(exception));
+        when(trackStorage.getTrackAsync(track.getId())).thenReturn(Observable.<Track>error(exception));
 
         trackOperations.loadStreamableTrack(track.getId(), Schedulers.immediate()).subscribe(observer);
 
@@ -238,7 +223,7 @@ public class TrackOperationsTest {
     @Test
     public void loadStreamableTrackShouldEmitTrackImmediatelyFromStorageIfTrackStreamable() {
         track.stream_url = "asdf";
-        when(trackStorage.getTrackAsync(track.getId())).thenReturn(TestObservables.MockObservable.just(track));
+        when(trackStorage.getTrackAsync(track.getId())).thenReturn(Observable.just(track));
 
         trackOperations.loadStreamableTrack(track.getId(), Schedulers.immediate()).subscribe(observer);
 
@@ -251,36 +236,22 @@ public class TrackOperationsTest {
     @Test
     public void loadStreamableTrackShouldNotSyncIfTrackStreamable() {
         track.stream_url = "asdf";
-        when(trackStorage.getTrackAsync(track.getId())).thenReturn(TestObservables.MockObservable.just(track));
+        when(trackStorage.getTrackAsync(track.getId())).thenReturn(Observable.just(track));
         trackOperations.loadStreamableTrack(track.getId(), Schedulers.immediate()).subscribe(observer);
         verifyZeroInteractions(syncInitiator);
     }
 
     @Test
     public void loadTrackShouldTriggerSyncIfTrackExistsButIsNotStreamable() {
-        final Track storedTrack = new Track(1L);
-        final Track syncedTrack = new Track(1L);
+        when(trackStorage.getTrackAsync(track.getId())).thenReturn(Observable.just(track));
+        when(syncInitiator.syncTrack(track.getUrn())).thenReturn(Observable.just(true));
 
-        when(trackStorage.getTrackAsync(storedTrack.getId())).thenReturn(
-                TestObservables.MockObservable.just(storedTrack), TestObservables.MockObservable.just(syncedTrack));
+        trackOperations.loadStreamableTrack(track.getId(), Schedulers.immediate()).subscribe(observer);
 
-        trackOperations.loadStreamableTrack(storedTrack.getId(), Schedulers.immediate()).subscribe(observer);
-
-        ArgumentCaptor<ResultReceiver> resultReceiver = ArgumentCaptor.forClass(ResultReceiver.class);
         InOrder callbacks = inOrder(observer, syncInitiator);
-        callbacks.verify(syncInitiator).syncTrack(eq(storedTrack.getUrn()), resultReceiver.capture());
-        forwardSyncResult(ApiSyncService.STATUS_SYNC_FINISHED, resultReceiver);
-        callbacks.verify(observer).onNext(syncedTrack);
+        callbacks.verify(syncInitiator).syncTrack(track.getUrn());
+        callbacks.verify(observer).onNext(track);
         callbacks.verify(observer).onCompleted();
         callbacks.verifyNoMoreInteractions();
-    }
-
-    private void forwardSyncResult(int syncOutcome, ArgumentCaptor<ResultReceiver> resultReceiver) {
-        // emulate Android ResultReceiver behavior
-        expect(resultReceiver.getValue()).toBeInstanceOf(SyncInitiator.ResultReceiverAdapter.class);
-
-        SyncInitiator.ResultReceiverAdapter receiverAdapter = (SyncInitiator.ResultReceiverAdapter) resultReceiver.getValue();
-        // forward sync result to subscriber
-        receiverAdapter.onReceiveResult(syncOutcome, new Bundle());
     }
 }

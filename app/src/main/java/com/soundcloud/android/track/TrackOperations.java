@@ -13,10 +13,7 @@ import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscriber;
 import rx.functions.Func1;
-
-import android.os.ResultReceiver;
 
 import javax.inject.Inject;
 
@@ -81,16 +78,10 @@ public class TrackOperations {
      * Performs a sync on the given track, then reloads it from local storage.
      */
     private Observable<Track> syncThenLoadTrack(final TrackUrn trackUrn, Scheduler observeOn) {
-        return Observable.create(new Observable.OnSubscribe<TrackUrn>() {
+        Log.d(LOG_TAG, "Sending intent to sync track " + trackUrn);
+        return mSyncInitiator.syncTrack(trackUrn).mergeMap(new Func1<Boolean, Observable<Track>>() {
             @Override
-            public void call(final Subscriber<? super TrackUrn> subscriber) {
-                final ResultReceiver resultReceiver = new SyncInitiator.ResultReceiverAdapter<TrackUrn>(subscriber, trackUrn);
-                    Log.d(LOG_TAG, "Sending intent to sync track " + trackUrn);
-                    mSyncInitiator.syncTrack(trackUrn, resultReceiver);
-            }
-        }).mergeMap(new Func1<TrackUrn, Observable<Track>>() {
-            @Override
-            public Observable<Track> call(TrackUrn trackUrn) {
+            public Observable<Track> call(Boolean trackWasUpdated) {
                 Log.d(LOG_TAG, "Reloading track from local storage: " + trackUrn);
                 return mTrackStorage.getTrackAsync(trackUrn.numericId);
             }
