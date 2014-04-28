@@ -26,7 +26,7 @@ enum Parameters {
     URL("url"),
     ERROR_CODE("errorCode");
 
-    private String value;
+    private final String value;
 
     Parameters(String value) {
         this.value = value;

@@ -5,22 +5,22 @@ import com.soundcloud.android.events.SearchEvent;
 
 class LocalyticsSearchEventHandler {
 
-    private final LocalyticsSession mLocalyticsSession;
+    private final LocalyticsSession localyticsSession;
 
     public LocalyticsSearchEventHandler(LocalyticsSession localyticsSession) {
-        mLocalyticsSession = localyticsSession;
+        this.localyticsSession = localyticsSession;
     }
 
     public void handleEvent(SearchEvent event) {
         switch (event.getKind()) {
             case SearchEvent.SEARCH_SUGGESTION:
-                mLocalyticsSession.tagEvent(LocalyticsEvents.Search.SEARCH_SUGGESTION, event.getAttributes());
+                localyticsSession.tagEvent(LocalyticsEvents.Search.SEARCH_SUGGESTION, event.getAttributes());
                 break;
             case SearchEvent.SEARCH_SUBMIT:
-                mLocalyticsSession.tagEvent(LocalyticsEvents.Search.SEARCH_SUBMIT, event.getAttributes());
+                localyticsSession.tagEvent(LocalyticsEvents.Search.SEARCH_SUBMIT, event.getAttributes());
                 break;
             case SearchEvent.SEARCH_RESULTS:
-                mLocalyticsSession.tagEvent(LocalyticsEvents.Search.SEARCH_RESULTS, event.getAttributes());
+                localyticsSession.tagEvent(LocalyticsEvents.Search.SEARCH_RESULTS, event.getAttributes());
                 break;
         }
     }

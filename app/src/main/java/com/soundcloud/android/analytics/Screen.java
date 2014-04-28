@@ -111,8 +111,8 @@ public enum Screen {
     }
 
     private Screen(String trackingTag, String upAction) {
-        mTag = trackingTag;
-        mUpAction = upAction;
+        this.trackingTag = trackingTag;
+        this.upAction = upAction;
     }
 
     private Screen(String trackingTag) {
@@ -120,11 +120,11 @@ public enum Screen {
     }
 
     public String get() {
-        return mTag;
+        return trackingTag;
     }
 
     public String get(String postfix) {
-        return new StringBuilder(mTag).append(":").append(postfix.toLowerCase(Locale.US).replaceAll(" ", "_")).toString();
+        return new StringBuilder(trackingTag).append(":").append(postfix.toLowerCase(Locale.US).replaceAll(" ", "_")).toString();
     }
 
     public void addToBundle(Bundle bundle) {
@@ -135,8 +135,8 @@ public enum Screen {
         intent.putExtra(Screen.ORDINAL_EXTRA, ordinal());
     }
 
-    private String mTag;
-    private String mUpAction;
+    private final String trackingTag;
+    private final String upAction;
 
     public static Screen fromIntent(Intent intent) {
         return values()[intent.getIntExtra(Screen.ORDINAL_EXTRA, -1)];
@@ -161,8 +161,8 @@ public enum Screen {
         if (screenTag.startsWith(EXPLORE_PREFIX)) {
             return new Intent(Actions.EXPLORE).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         } else {
-            final String upAction = fromScreenTag(screenTag).mUpAction;
-            if (ScTextUtils.isNotBlank(upAction)){
+            final String upAction = fromScreenTag(screenTag).upAction;
+            if (ScTextUtils.isNotBlank(upAction)) {
                 return new Intent(upAction).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             }
         }

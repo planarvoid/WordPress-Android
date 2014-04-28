@@ -12,37 +12,37 @@ import javax.inject.Inject;
 public class EventLogger {
     static final String TAG = EventLogger.class.getSimpleName();
 
-    private final EventLoggerHandlerFactory mEventLoggerHandlerFactory;
-    private EventLoggerHandler mHandler;
+    private final EventLoggerHandlerFactory handlerFactory;
+    private EventLoggerHandler handler;
 
     @Inject
-    public EventLogger(EventLoggerHandlerFactory eventLoggerHandlerFactory) {
-        mEventLoggerHandlerFactory = eventLoggerHandlerFactory;
+    public EventLogger(EventLoggerHandlerFactory handlerFactory) {
+        this.handlerFactory = handlerFactory;
     }
 
     public void trackEvent(EventLoggerEvent event) {
-        if (mHandler == null) {
+        if (handler == null) {
             HandlerThread thread = new HandlerThread("EventLogger", THREAD_PRIORITY_LOWEST);
             thread.start();
-            mHandler = mEventLoggerHandlerFactory.create(thread.getLooper());
+            handler = handlerFactory.create(thread.getLooper());
         }
 
         Log.d(TAG, "new tracking event: " + event.toString());
-        Message insert = mHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, event);
-        mHandler.removeMessages(EventLoggerHandler.FINISH_TOKEN);
-        mHandler.sendMessage(insert);
+        Message insert = handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, event);
+        handler.removeMessages(EventLoggerHandler.FINISH_TOKEN);
+        handler.sendMessage(insert);
     }
 
     void stop() {
-        if (mHandler != null) {
-            mHandler.obtainMessage(EventLoggerHandler.FINISH_TOKEN).sendToTarget();
-            mHandler = null;
+        if (handler != null) {
+            handler.obtainMessage(EventLoggerHandler.FINISH_TOKEN).sendToTarget();
+            handler = null;
         }
     }
 
     void flush() {
-        if (mHandler != null) {
-            mHandler.obtainMessage(EventLoggerHandler.FLUSH_TOKEN).sendToTarget();
+        if (handler != null) {
+            handler.obtainMessage(EventLoggerHandler.FLUSH_TOKEN).sendToTarget();
         }
     }
 }

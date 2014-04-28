@@ -1,7 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.events.PlaybackEvent;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.content.Context;
@@ -16,21 +15,21 @@ import java.util.List;
 
 public class EventLoggerHandler extends Handler {
 
-    static final int BATCH_SIZE    = 10;
+    static final int BATCH_SIZE = 10;
 
     static final int INSERT_TOKEN = 0;
     static final int FLUSH_TOKEN = 1;
     static final int FINISH_TOKEN = 0xDEADBEEF;
 
-    private final Context mContext;
-    private final EventLoggerStorage mStorage;
-    private final EventLoggerApi mApi;
+    private final Context context;
+    private final EventLoggerStorage storage;
+    private final EventLoggerApi api;
 
-    public EventLoggerHandler(Looper looper, Context context, EventLoggerStorage storage, EventLoggerApi eventLoggerApi) {
+    public EventLoggerHandler(Looper looper, Context context, EventLoggerStorage storage, EventLoggerApi api) {
         super(looper);
-        mContext = context;
-        mStorage = storage;
-        mApi = eventLoggerApi;
+        this.context = context;
+        this.storage = storage;
+        this.api = api;
     }
 
     @Override
@@ -46,7 +45,7 @@ public class EventLoggerHandler extends Handler {
         switch (msg.what) {
             case INSERT_TOKEN:
                 try {
-                    if (mStorage.insertEvent((EventLoggerEvent) msg.obj) < 0) {
+                    if (storage.insertEvent((EventLoggerEvent) msg.obj) < 0) {
                         Log.w(EventLogger.TAG, "error inserting tracking event");
                     }
                 } catch (UnsupportedEncodingException e) {
@@ -71,21 +70,22 @@ public class EventLoggerHandler extends Handler {
     private void flushPlaybackTrackingEvents() {
         if (Log.isLoggable(EventLogger.TAG, Log.DEBUG)) Log.d(EventLogger.TAG, "flushPlaybackTrackingEvents");
 
-        if (!IOUtils.isConnected(mContext)) {
+        if (!IOUtils.isConnected(context)) {
             if (Log.isLoggable(EventLogger.TAG, Log.DEBUG)) Log.d(EventLogger.TAG, "not connected, skipping flush");
             return;
         }
 
-        List<Pair<Long, String>> events = mStorage.getUnpushedEvents(mApi);
+        List<Pair<Long, String>> events = storage.getUnpushedEvents(api);
 
         if (!events.isEmpty()) {
-            final String[] submitted = mApi.pushToRemote(events);
+            final String[] submitted = api.pushToRemote(events);
             if (submitted.length > 0) {
-                int deleted = mStorage.deleteEventsById(submitted);
+                int deleted = storage.deleteEventsById(submitted);
                 if (deleted != submitted.length) {
                     Log.w(EventLogger.TAG, "error deleting events (deleted=" + deleted + ")");
                 } else {
-                    if (Log.isLoggable(EventLogger.TAG, Log.DEBUG)) Log.d(EventLogger.TAG, "submitted " + deleted + " events");
+                    if (Log.isLoggable(EventLogger.TAG, Log.DEBUG))
+                        Log.d(EventLogger.TAG, "submitted " + deleted + " events");
                 }
             }
         }

@@ -40,29 +40,29 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     @VisibleForTesting
     static final long FLUSH_DELAY_SECONDS = 120L;
 
-    private final EventBus mEventBus;
-    private final Collection<AnalyticsProvider> mAnalyticsProviders;
-    private final AnalyticsProperties mAnalyticsProperties;
+    private final EventBus eventBus;
+    private final Collection<AnalyticsProvider> analyticsProviders;
+    private final AnalyticsProperties analyticsProperties;
 
-    private CompositeSubscription mEventsSubscription;
-    private SerialSubscription mFlushSubscription = new SerialSubscription();
-    private Scheduler mScheduler;
+    private final Scheduler scheduler;
+    private CompositeSubscription eventsSubscription;
+    private SerialSubscription flushSubscription = new SerialSubscription();
 
     // will be called by the Rx scheduler after a given delay, as long as events come in
     private final Action1<Scheduler.Inner> mFlushAction = new Action1<Scheduler.Inner>() {
         @Override
         public void call(Scheduler.Inner inner) {
             Log.d(AnalyticsEngine.this, "Flushing event data");
-            for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
+            for (AnalyticsProvider analyticsProvider : analyticsProviders) {
                 analyticsProvider.flush();
             }
-            mFlushSubscription.unsubscribe();
-            mFlushSubscription = new SerialSubscription();
+            flushSubscription.unsubscribe();
+            flushSubscription = new SerialSubscription();
         }
     };
 
     public AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
-            List<AnalyticsProvider> analyticsProviders) {
+                           List<AnalyticsProvider> analyticsProviders) {
         this(eventBus, sharedPreferences, analyticsProperties, AndroidSchedulers.mainThread(), analyticsProviders);
     }
 
@@ -70,10 +70,10 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     protected AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
                               Scheduler scheduler, List<AnalyticsProvider> analyticsProviders) {
         Log.d(this, "Creating analytics engine");
-        mEventBus = eventBus;
-        mAnalyticsProviders = Lists.newArrayList(analyticsProviders);
-        mAnalyticsProperties = analyticsProperties;
-        mScheduler = scheduler;
+        this.eventBus = eventBus;
+        this.analyticsProviders = Lists.newArrayList(analyticsProviders);
+        this.analyticsProperties = analyticsProperties;
+        this.scheduler = scheduler;
 
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
@@ -90,34 +90,34 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private void handleAnalyticsAvailability(SharedPreferences sharedPreferences) {
         unsubscribeFromEvents();
         boolean analyticsEnabled = sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true);
-        if (mAnalyticsProperties.isAnalyticsAvailable() && analyticsEnabled) {
+        if (analyticsProperties.isAnalyticsAvailable() && analyticsEnabled) {
             Log.d(this, "Subscribing to events");
-            mEventsSubscription = new CompositeSubscription();
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.PLAYBACK, new PlaybackEventSubscriber()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.PLAYBACK_PERFORMANCE, new PlaybackPerformanceEventSubscriber()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.PLAYBACK_ERROR, new PlaybackErrorEventSubscriber()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.UI, new UIEventSubscriber()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.ONBOARDING, new OnboardEventSubscriber()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventSubscriber()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.SCREEN_ENTERED, new ScreenEventSubscriber()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new UserEventSubscriber()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.SEARCH, new SearchEventSubscriber()));
-            mEventsSubscription.add(mEventBus.subscribe(EventQueue.PLAY_CONTROL, new PlayControlSubscriber()));
+            eventsSubscription = new CompositeSubscription();
+            eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK, new PlaybackEventSubscriber()));
+            eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PERFORMANCE, new PlaybackPerformanceEventSubscriber()));
+            eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_ERROR, new PlaybackErrorEventSubscriber()));
+            eventsSubscription.add(eventBus.subscribe(EventQueue.UI, new UIEventSubscriber()));
+            eventsSubscription.add(eventBus.subscribe(EventQueue.ONBOARDING, new OnboardEventSubscriber()));
+            eventsSubscription.add(eventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventSubscriber()));
+            eventsSubscription.add(eventBus.subscribe(EventQueue.SCREEN_ENTERED, new ScreenEventSubscriber()));
+            eventsSubscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new UserEventSubscriber()));
+            eventsSubscription.add(eventBus.subscribe(EventQueue.SEARCH, new SearchEventSubscriber()));
+            eventsSubscription.add(eventBus.subscribe(EventQueue.PLAY_CONTROL, new PlayControlSubscriber()));
         }
     }
 
     @VisibleForTesting
     void unsubscribeFromEvents() {
-        if (mEventsSubscription != null) {
+        if (eventsSubscription != null) {
             Log.d(this, "Unsubscribing from events");
-            mEventsSubscription.unsubscribe();
+            eventsSubscription.unsubscribe();
         }
     }
 
     private void scheduleFlush() {
-        if (mFlushSubscription.get() == Subscriptions.empty()) {
+        if (flushSubscription.get() == Subscriptions.empty()) {
             Log.d(this, "Scheduling flush in " + FLUSH_DELAY_SECONDS + " secs");
-            mFlushSubscription.set(mScheduler.schedule(mFlushAction, FLUSH_DELAY_SECONDS, TimeUnit.SECONDS));
+            flushSubscription.set(scheduler.schedule(mFlushAction, FLUSH_DELAY_SECONDS, TimeUnit.SECONDS));
         } else {
             Log.d(this, "Ignoring flush event; already scheduled");
         }
@@ -204,7 +204,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         @Override
         public void onNext(EventT event) {
             Log.d(AnalyticsEngine.this, "Track event " + event);
-            for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
+            for (AnalyticsProvider analyticsProvider : analyticsProviders) {
                 try {
                     handleEvent(analyticsProvider, event);
                 } catch (Throwable t) {

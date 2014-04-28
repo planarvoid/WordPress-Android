@@ -14,21 +14,21 @@ import java.util.List;
 
 public class EventLoggerStorage {
 
-    private final EventLoggerDbHelper mDbHelper;
+    private final EventLoggerDbHelper dbHelper;
 
     @Inject
     EventLoggerStorage(EventLoggerDbHelper eventLoggerDbHelper) {
-        mDbHelper = eventLoggerDbHelper;
+        dbHelper = eventLoggerDbHelper;
     }
 
     public long insertEvent(EventLoggerEvent eventObject) throws UnsupportedEncodingException {
-        final SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        final SQLiteDatabase database = dbHelper.getWritableDatabase();
         return database.insertOrThrow(EventLoggerDbHelper.EVENTS_TABLE, null, createValuesFromEvent(eventObject));
     }
 
     public List<Pair<Long, String>> getUnpushedEvents(EventLoggerApi api) {
 
-        Cursor cursor = mDbHelper.getReadableDatabase().query(EventLoggerDbHelper.EVENTS_TABLE, null, null, null, null, null,
+        Cursor cursor = dbHelper.getReadableDatabase().query(EventLoggerDbHelper.EVENTS_TABLE, null, null, null, null, null,
                 EventLoggerDbHelper.TrackingEvents.TIMESTAMP + " DESC",
                 String.valueOf(EventLoggerHandler.BATCH_SIZE));
 
@@ -47,8 +47,8 @@ public class EventLoggerStorage {
         return urls;
     }
 
-    public int deleteEventsById(String[] submitted){
-        final SQLiteDatabase database = mDbHelper.getWritableDatabase();
+    public int deleteEventsById(String[] submitted) {
+        final SQLiteDatabase database = dbHelper.getWritableDatabase();
         StringBuilder query = new StringBuilder(submitted.length * 22 - 1);
         query.append(EventLoggerDbHelper.TrackingEvents._ID).append(" IN (?");
         for (int i = 1; i < submitted.length; i++) query.append(",?");

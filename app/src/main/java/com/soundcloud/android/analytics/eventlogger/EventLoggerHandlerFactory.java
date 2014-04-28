@@ -7,18 +7,18 @@ import javax.inject.Inject;
 
 public class EventLoggerHandlerFactory {
 
-    private Context mContext;
-    private EventLoggerStorage mTrackingDbHelper;
-    private EventLoggerApi mTrackingApi;
+    private final Context context;
+    private final EventLoggerStorage storage;
+    private final EventLoggerApi trackingApi;
 
     @Inject
-    public EventLoggerHandlerFactory (Context context, EventLoggerStorage eventLoggerStorage, EventLoggerApi trackingApi) {
-        mContext = context;
-        mTrackingDbHelper = eventLoggerStorage;
-        mTrackingApi = trackingApi;
+    public EventLoggerHandlerFactory(Context context, EventLoggerStorage storage, EventLoggerApi trackingApi) {
+        this.context = context;
+        this.storage = storage;
+        this.trackingApi = trackingApi;
     }
 
     public EventLoggerHandler create(Looper looper) {
-        return new EventLoggerHandler(looper, mContext, mTrackingDbHelper, mTrackingApi);
+        return new EventLoggerHandler(looper, context, storage, trackingApi);
     }
 }

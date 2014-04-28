@@ -33,13 +33,13 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     @VisibleForTesting
     static final AtomicBoolean ACTIVITY_SESSION_OPEN = new AtomicBoolean();
 
-    private  static final int NO_USER = -1;
+    private static final int NO_USER = -1;
 
-    private LocalyticsSession mSession;
-    private LocalyticsUIEventHandler mUIEventHandler;
-    private LocalyticsOnboardingEventHandler mOnboardingEventHandler;
-    private PlaybackStateProvider mPlaybackStateWrapper;
-    private LocalyticsSearchEventHandler mSearchEventHandler;
+    private final LocalyticsSession session;
+    private final LocalyticsUIEventHandler uiEventHandler;
+    private final LocalyticsOnboardingEventHandler onboardingEventHandler;
+    private final PlaybackStateProvider playbackStateWrapper;
+    private final LocalyticsSearchEventHandler searchEventHandler;
 
     public LocalyticsAnalyticsProvider(Context context, AnalyticsProperties analyticsProperties, long currentUserId) {
         this(new LocalyticsSession(context.getApplicationContext(), analyticsProperties.getLocalyticsAppKey()),
@@ -56,25 +56,25 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     @VisibleForTesting
     protected LocalyticsAnalyticsProvider(LocalyticsSession localyticsSession,
                                           PlaybackStateProvider playbackStateWrapper) {
-        mSession = localyticsSession;
-        mUIEventHandler = new LocalyticsUIEventHandler(mSession);
-        mOnboardingEventHandler = new LocalyticsOnboardingEventHandler(mSession);
-        mSearchEventHandler = new LocalyticsSearchEventHandler(mSession);
-        mPlaybackStateWrapper = playbackStateWrapper;
+        session = localyticsSession;
+        uiEventHandler = new LocalyticsUIEventHandler(session);
+        onboardingEventHandler = new LocalyticsOnboardingEventHandler(session);
+        searchEventHandler = new LocalyticsSearchEventHandler(session);
+        this.playbackStateWrapper = playbackStateWrapper;
     }
 
     @Override
     public void flush() {
-        mSession.upload();
+        session.upload();
     }
 
     @Override
     public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
         int eventKind = event.getKind();
         if (eventKind == CurrentUserChangedEvent.USER_UPDATED) {
-            mSession.setCustomerId(Long.toString(event.getCurrentUser().getId()));
-        } else if(eventKind == CurrentUserChangedEvent.USER_REMOVED) {
-            mSession.setCustomerId(null);
+            session.setCustomerId(Long.toString(event.getCurrentUser().getId()));
+        } else if (eventKind == CurrentUserChangedEvent.USER_REMOVED) {
+            session.setCustomerId(null);
         }
     }
 
@@ -100,10 +100,10 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleScreenEvent(String screenTag) {
-        mSession.tagScreen(screenTag);
+        session.tagScreen(screenTag);
         Map<String, String> eventAttributes = new HashMap<String, String>();
         eventAttributes.put("context", screenTag);
-        mSession.tagEvent(LocalyticsEvents.PAGEVIEW, eventAttributes);
+        session.tagEvent(LocalyticsEvents.PAGEVIEW, eventAttributes);
     }
 
     @Override
@@ -140,7 +140,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
                 logAttributes(eventAttributes);
             }
 
-            mSession.tagEvent(LocalyticsEvents.LISTEN, eventAttributes);
+            session.tagEvent(LocalyticsEvents.LISTEN, eventAttributes);
         }
     }
 
@@ -155,22 +155,22 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     public void handlePlayControlEvent(PlayControlEvent event) {
-        mSession.tagEvent(LocalyticsEvents.PLAY_CONTROLS, event.getAttributes());
+        session.tagEvent(LocalyticsEvents.PLAY_CONTROLS, event.getAttributes());
     }
 
     @Override
     public void handleUIEvent(UIEvent event) {
-        mUIEventHandler.handleEvent(event);
+        uiEventHandler.handleEvent(event);
     }
 
     @Override
-    public void handleOnboardingEvent(OnboardingEvent event){
-        mOnboardingEventHandler.handleEvent(event);
+    public void handleOnboardingEvent(OnboardingEvent event) {
+        onboardingEventHandler.handleEvent(event);
     }
 
     @Override
     public void handleSearchEvent(SearchEvent event) {
-        mSearchEventHandler.handleEvent(event);
+        searchEventHandler.handleEvent(event);
     }
 
     @VisibleForTesting
@@ -180,12 +180,12 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     private void openSession() {
         Log.d(TAG, "opening session");
-        mSession.open();
+        session.open();
     }
 
     private void closeSession() {
         Log.d(TAG, "closing session");
-        mSession.close();
+        session.close();
     }
 
     /**
@@ -201,7 +201,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
      */
     private void closeSessionForActivity() {
         ACTIVITY_SESSION_OPEN.set(false);
-        if (mPlaybackStateWrapper.isSupposedToBePlaying()) {
+        if (playbackStateWrapper.isSupposedToBePlaying()) {
             Log.d(TAG, "Didn't close analytics session; playback service still alive and well!");
         } else {
             closeSession();
@@ -230,7 +230,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     private void logAttributes(Map<String, String> eventAttributes) {
         final Objects.ToStringHelper toStringHelper = Objects.toStringHelper("EventAttributes");
-        for (String key : eventAttributes.keySet()){
+        for (String key : eventAttributes.keySet()) {
             toStringHelper.add(key, eventAttributes.get(key));
         }
         Log.d(TAG, toStringHelper.toString());
