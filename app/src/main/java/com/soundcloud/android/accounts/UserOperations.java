@@ -9,7 +9,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.UserStorage;
 import rx.Observable;
-import rx.util.functions.Func1;
+import rx.functions.Func1;
 
 import javax.inject.Inject;
 

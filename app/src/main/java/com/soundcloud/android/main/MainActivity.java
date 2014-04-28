@@ -1,7 +1,7 @@
 package com.soundcloud.android.main;
 
 import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
-import static rx.android.observables.AndroidObservable.fromActivity;
+import static rx.android.observables.AndroidObservable.bindActivity;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -93,7 +93,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
         User currentUser = application.getLoggedInUser();
         if (!justAuthenticated && accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)) {
-            subscription.add(fromActivity(this, userOperations.refreshCurrentUser()).subscribe(new UserSubscriber()));
+            subscription.add(bindActivity(this, userOperations.refreshCurrentUser()).subscribe(new UserSubscriber()));
         }
 
         if (appProperties.isBetaBuildRunningOnDalvik()) {
