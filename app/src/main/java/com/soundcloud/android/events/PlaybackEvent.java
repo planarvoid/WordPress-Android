@@ -18,15 +18,16 @@ public final class PlaybackEvent {
     private static final int EVENT_KIND_PLAY = 0;
     private static final int EVENT_KIND_STOP = 1;
 
-    private final int mKind;
+    private final int kind;
     @NotNull
-    private final Track mTrack;
+    private final Track track;
 
-    private long mUserId;
-    private TrackSourceInfo mTrackSourceInfo;
-    private long mTimeStamp;
-    private int mStopReason;
-    private long mListenTime;
+    private final long userId;
+    private final TrackSourceInfo trackSourceInfo;
+    private final long timeStamp;
+
+    private int stopReason;
+    private long listenTime;
 
     public static PlaybackEvent forPlay(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo, long timestamp) {
         return new PlaybackEvent(EVENT_KIND_PLAY, track, userId, trackSourceInfo, timestamp);
@@ -40,7 +41,7 @@ public final class PlaybackEvent {
                                             PlaybackEvent lastPlayEvent, int stopReason, long timestamp) {
         final PlaybackEvent playbackEvent =
                 new PlaybackEvent(EVENT_KIND_STOP, track, userId, trackSourceInfo, timestamp);
-        playbackEvent.setListenTime(playbackEvent.mTimeStamp - lastPlayEvent.getTimeStamp());
+        playbackEvent.setListenTime(playbackEvent.timeStamp - lastPlayEvent.getTimeStamp());
         playbackEvent.setStopReason(stopReason);
         return playbackEvent;
     }
@@ -51,23 +52,23 @@ public final class PlaybackEvent {
     }
 
     private PlaybackEvent(int eventKind, @NotNull Track track, long userId, TrackSourceInfo trackSourceInfo, long timestamp) {
-        mTrack = track;
-        mKind = eventKind;
-        mUserId = userId;
-        mTrackSourceInfo = trackSourceInfo;
-        mTimeStamp = timestamp;
+        this.track = track;
+        this.kind = eventKind;
+        this.userId = userId;
+        this.trackSourceInfo = trackSourceInfo;
+        this.timeStamp = timestamp;
     }
 
     public int getKind() {
-        return mKind;
+        return kind;
     }
 
     public Track getTrack() {
-        return mTrack;
+        return track;
     }
 
     public boolean isPlayEvent() {
-        return mKind == EVENT_KIND_PLAY;
+        return kind == EVENT_KIND_PLAY;
     }
 
     public boolean isStopEvent() {
@@ -75,45 +76,45 @@ public final class PlaybackEvent {
     }
 
     public long getUserId() {
-        return mUserId;
+        return userId;
     }
 
     public TrackSourceInfo getTrackSourceInfo() {
-        return mTrackSourceInfo;
+        return trackSourceInfo;
     }
 
     public boolean isPlayingOwnPlaylist(){
-        return mTrackSourceInfo.getPlaylistOwnerId() == mUserId;
+        return trackSourceInfo.getPlaylistOwnerId() == userId;
     }
 
     public int getStopReason() {
-        return mStopReason;
+        return stopReason;
     }
 
     private void setListenTime(long listenTime) {
-        mListenTime = listenTime;
+        this.listenTime = listenTime;
     }
 
     private void setStopReason(int stopReason) {
-        mStopReason = stopReason;
+        this.stopReason = stopReason;
     }
 
     @Override
     public String toString() {
         return Objects.toStringHelper(PlaybackEvent.class)
-                .add("Track_ID", mTrack.getId())
-                .add("Event", mKind)
-                .add("UserID", mUserId)
-                .add("TrackSourceInfo", mTrackSourceInfo)
-                .add("TimeStamp", mTimeStamp)
-                .add("StopReason", mStopReason).toString();
+                .add("Track_ID", track.getId())
+                .add("Event", kind)
+                .add("UserID", userId)
+                .add("TrackSourceInfo", trackSourceInfo)
+                .add("TimeStamp", timeStamp)
+                .add("StopReason", stopReason).toString();
     }
 
     public long getTimeStamp() {
-        return mTimeStamp;
+        return timeStamp;
     }
 
     public long getListenTime() {
-        return mListenTime;
+        return listenTime;
     }
 }

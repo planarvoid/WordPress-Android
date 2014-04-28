@@ -21,8 +21,8 @@ public final class UIEvent {
     public static final int SHUFFLE_LIKES = 9;
     public static final int NAVIGATION = 10;
 
-    private final int mKind;
-    private final Map<String, String> mAttributes;
+    private final int kind;
+    private final Map<String, String> attributes;
 
     public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId) {
         return new UIEvent(isFollow ? FOLLOW : UNFOLLOW)
@@ -101,25 +101,25 @@ public final class UIEvent {
     }
 
     public UIEvent(int kind) {
-        mKind = kind;
-        mAttributes = new HashMap<String, String>();
+        this.kind = kind;
+        attributes = new HashMap<String, String>();
     }
 
     public int getKind() {
-        return mKind;
+        return kind;
     }
 
     public Map<String, String> getAttributes() {
-        return mAttributes;
+        return attributes;
     }
 
     @Override
     public String toString() {
-        return String.format("UI Event with type id %s and %s", mKind, mAttributes.toString());
+        return String.format("UI Event with type id %s and %s", kind, attributes.toString());
     }
 
     private UIEvent putAttribute(String key, String value) {
-        mAttributes.put(key, value);
+        attributes.put(key, value);
         return this;
     }
 }

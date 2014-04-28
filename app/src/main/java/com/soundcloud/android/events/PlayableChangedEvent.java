@@ -4,17 +4,17 @@ import com.soundcloud.android.model.Playable;
 
 public final class PlayableChangedEvent {
 
-    private Playable mPlayable;
+    private final Playable playable;
 
     public static PlayableChangedEvent create(Playable playable) {
         return new PlayableChangedEvent(playable);
     }
 
     private PlayableChangedEvent(Playable playable) {
-        mPlayable = playable;
+        this.playable = playable;
     }
 
     public Playable getPlayable() {
-        return mPlayable;
+        return playable;
     }
 }

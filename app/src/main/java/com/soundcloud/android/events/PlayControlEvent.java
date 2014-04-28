@@ -11,19 +11,19 @@ public final class PlayControlEvent {
     public static final String SOURCE_WIDGET = "widget";
     public static final String SOURCE_REMOTE = "lockscreen";
 
-    private final Map<String, String> mAttributes;
+    private final Map<String, String> attributes;
 
     private PlayControlEvent() {
-        mAttributes = new HashMap<String, String>();
+        attributes = new HashMap<String, String>();
     }
 
     public Map<String, String> getAttributes() {
-        return mAttributes;
+        return attributes;
     }
 
     @Override
     public String toString() {
-        return  String.format("PlayControlEvent with attributes %s", mAttributes.toString());
+        return String.format("PlayControlEvent with attributes %s", attributes.toString());
     }
 
     public static PlayControlEvent playerSwipePrevious() {
@@ -98,7 +98,7 @@ public final class PlayControlEvent {
     }
 
     private PlayControlEvent putAttribute(String key, String value) {
-        mAttributes.put(key, value);
+        attributes.put(key, value);
         return this;
     }
 

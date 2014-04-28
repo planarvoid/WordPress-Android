@@ -8,9 +8,9 @@ public final class CurrentUserChangedEvent {
     public static final int USER_UPDATED = 0;
     public static final int USER_REMOVED = 1;
 
-    private final int mKind;
+    private final int kind;
     @Nullable
-    private final User mCurrentUser;
+    private final User currentUser;
 
     public static CurrentUserChangedEvent forLogout() {
         return new CurrentUserChangedEvent(USER_REMOVED, null);
@@ -21,16 +21,16 @@ public final class CurrentUserChangedEvent {
     }
 
     private CurrentUserChangedEvent(int kind, @Nullable User user) {
-        mKind = kind;
-        mCurrentUser = user;
+        this.kind = kind;
+        currentUser = user;
     }
 
     public int getKind() {
-        return mKind;
+        return kind;
     }
 
     @Nullable
     public User getCurrentUser() {
-        return mCurrentUser;
+        return currentUser;
     }
 }

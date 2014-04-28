@@ -13,25 +13,25 @@ public final class SearchEvent {
     public static final int SEARCH_SUBMIT = 1;
     public static final int SEARCH_RESULTS = 2;
 
-    private final int mKind;
-    private final Map<String, String> mAttributes;
+    private final int kind;
+    private final Map<String, String> attributes;
 
     private SearchEvent(int kind) {
-        mKind = kind;
-        mAttributes = new HashMap<String, String>();
+        this.kind = kind;
+        attributes = new HashMap<String, String>();
     }
 
     public int getKind() {
-        return mKind;
+        return kind;
     }
 
     public Map<String, String> getAttributes() {
-        return mAttributes;
+        return attributes;
     }
 
     @Override
     public String toString() {
-        return  String.format("Search Event with type id %s and %s", mKind, mAttributes.toString());
+        return String.format("Search Event with type id %s and %s", kind, attributes.toString());
     }
 
     public static SearchEvent searchSuggestion(Content itemKind, boolean localResult) {
@@ -97,7 +97,7 @@ public final class SearchEvent {
     }
 
     private SearchEvent putAttribute(String key, String value) {
-        mAttributes.put(key, value);
+        attributes.put(key, value);
         return this;
     }
 }

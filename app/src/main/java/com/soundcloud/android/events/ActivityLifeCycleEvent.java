@@ -8,8 +8,8 @@ public final class ActivityLifeCycleEvent {
     public static final int ON_CREATE_EVENT = 1;
     public static final int ON_PAUSE_EVENT = 2;
 
-    private final Class<? extends Activity> mActivityClass;
-    private final int mKind;
+    private final Class<? extends Activity> activityClass;
+    private final int kind;
 
     public static ActivityLifeCycleEvent forOnCreate(Class<? extends Activity> activityClass) {
         return new ActivityLifeCycleEvent(ON_CREATE_EVENT, activityClass);
@@ -24,25 +24,25 @@ public final class ActivityLifeCycleEvent {
     }
 
     private ActivityLifeCycleEvent(int kind, Class<? extends Activity> activityClass) {
-        mActivityClass = activityClass;
-        mKind = kind;
+        this.activityClass = activityClass;
+        this.kind = kind;
     }
 
     public int getKind() {
-        return mKind;
+        return kind;
     }
 
     public Class<? extends Activity> getActivityClass() {
-        return mActivityClass;
+        return activityClass;
     }
 
     @Override
     public String toString() {
-        return mActivityClass.getSimpleName() + "#" + lifeCycleMethodName();
+        return activityClass.getSimpleName() + "#" + lifeCycleMethodName();
     }
 
     private String lifeCycleMethodName() {
-        switch (mKind) {
+        switch (kind) {
             case ON_CREATE_EVENT:
                 return "onCreate";
             case ON_RESUME_EVENT:
@@ -51,7 +51,7 @@ public final class ActivityLifeCycleEvent {
                 return "onPause";
             default:
                 throw new IllegalStateException(
-                        "Attempting to get name of unknown lifecycle method code: " + mKind);
+                        "Attempting to get name of unknown lifecycle method code: " + kind);
         }
     }
 }
