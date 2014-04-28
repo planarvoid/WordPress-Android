@@ -72,7 +72,7 @@ public class SoundCloudApplication extends Application {
     @SuppressFBWarnings({ "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
     public static ScModelManager sModelManager;
 
-    private User mLoggedInUser;
+    private User loggedInUser;
 
     // needs to remain in memory over the life-time of the app
     @SuppressWarnings("unused")
@@ -243,37 +243,37 @@ public class SoundCloudApplication extends Application {
     }
 
     public synchronized User getLoggedInUser() {
-        if (mLoggedInUser == null) {
+        if (loggedInUser == null) {
             initLoggedInUser();
             // user not in db, fall back to local storage
-            if (mLoggedInUser == null) {
+            if (loggedInUser == null) {
                 User user = new User();
                 user.setId(accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()));
                 user.username = accountOperations.getAccountDataString(AccountInfoKeys.USERNAME.getKey());
                 user.permalink = accountOperations.getAccountDataString(AccountInfoKeys.USER_PERMALINK.getKey());
                 return user;
             }
-            mLoggedInUser.via = SignupVia.fromString(accountOperations.getAccountDataString(AccountInfoKeys.SIGNUP.getKey()));
+            loggedInUser.via = SignupVia.fromString(accountOperations.getAccountDataString(AccountInfoKeys.SIGNUP.getKey()));
         }
-        return mLoggedInUser;
+        return loggedInUser;
     }
 
     private void initLoggedInUser() {
         final long id = accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
         if (id != AccountOperations.NOT_SET) {
-            mLoggedInUser = sModelManager.getUser(id);
+            loggedInUser = modelManager.getUser(id);
         }
     }
 
     public void clearLoggedInUser() {
-        mLoggedInUser = null;
+        loggedInUser = null;
     }
 
     //TODO Move this into AccountOperations once we refactor User info out of here
     public boolean addUserAccountAndEnableSync(User user, Token token, SignupVia via) {
         Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
         if (account != null) {
-            mLoggedInUser = user;
+            loggedInUser = user;
 
             eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(user));
 
@@ -310,7 +310,7 @@ public class SoundCloudApplication extends Application {
     }
 
     private long getCurrentUserId()  {
-        return mLoggedInUser == null ? accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : mLoggedInUser.getId();
+        return loggedInUser == null ? accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : loggedInUser.getId();
     }
 
     public static long getUserId() {
