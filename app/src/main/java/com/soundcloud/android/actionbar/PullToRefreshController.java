@@ -17,23 +17,23 @@ import javax.inject.Inject;
 
 public class PullToRefreshController {
 
-    private PullToRefreshLayout mPullToRefreshLayout;
+    private PullToRefreshLayout pullToRefreshLayout;
 
     @Inject
     public PullToRefreshController() {}
 
     public void attach(FragmentActivity activity, PullToRefreshLayout pullToRefreshLayout, OnRefreshListener listener) {
-        mPullToRefreshLayout = pullToRefreshLayout;
+        this.pullToRefreshLayout = pullToRefreshLayout;
         ActionBarPullToRefresh.from(activity)
                 .allChildrenArePullable()
                 .useViewDelegate(EmptyListView.class, new EmptyListDelegate())
                 .listener(listener)
-                .setup(mPullToRefreshLayout);
+                .setup(pullToRefreshLayout);
         styleProgressBar(activity);
     }
 
     private void styleProgressBar(FragmentActivity activity) {
-        SmoothProgressBar spb = (SmoothProgressBar) mPullToRefreshLayout.getHeaderView().findViewById(R.id.ptr_progress);
+        SmoothProgressBar spb = (SmoothProgressBar) pullToRefreshLayout.getHeaderView().findViewById(R.id.ptr_progress);
         spb.setIndeterminateDrawable(buildCustomProgressDrawable(activity));
     }
 
@@ -48,19 +48,19 @@ public class PullToRefreshController {
     }
 
     public boolean isAttached() {
-        return mPullToRefreshLayout != null;
+        return pullToRefreshLayout != null;
     }
 
     public boolean isRefreshing() {
-        return mPullToRefreshLayout.isRefreshing();
+        return pullToRefreshLayout.isRefreshing();
     }
 
     public void startRefreshing() {
-        mPullToRefreshLayout.setRefreshing(true);
+        pullToRefreshLayout.setRefreshing(true);
     }
 
     public void stopRefreshing() {
-        mPullToRefreshLayout.setRefreshComplete();
+        pullToRefreshLayout.setRefreshComplete();
     }
 
 }

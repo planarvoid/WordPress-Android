@@ -21,7 +21,7 @@ import android.text.style.StyleSpan;
 import java.util.Date;
 
 public class CommentActivityRow extends ActivityRow {
-    private Comment mComment;
+    private Comment comment;
 
     public CommentActivityRow(Context context, ImageOperations imageOperations) {
         super(context, imageOperations);
@@ -29,12 +29,12 @@ public class CommentActivityRow extends ActivityRow {
 
     @Override
     protected User getOriginUser() {
-        return mComment.user;
+        return comment.user;
     }
 
     @Override
     protected Date getOriginCreatedAt() {
-        return mComment.getCreatedAt();
+        return comment.getCreatedAt();
     }
 
     @Override
@@ -46,23 +46,23 @@ public class CommentActivityRow extends ActivityRow {
 
     @Override
     public Urn getResourceUrn() {
-        if (mComment != null && mComment.getUser() != null) {
-            return mComment.getUser().getUrn();
+        if (comment != null && comment.getUser() != null) {
+            return comment.getUser().getUrn();
         }
         return null;
     }
 
     @Override
     protected boolean fillParcelable(Parcelable p) {
-        mComment = ((CommentActivity) mActivity).comment;
-        return mComment != null;
+        comment = ((CommentActivity) mActivity).comment;
+        return comment != null;
     }
 
     @Override
     protected void addSpan(SpannableStringBuilder builder) {
         builder.append(": ");
         builder.setSpan(new StyleSpan(Typeface.BOLD), 1, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        builder.append("\"").append(mComment.body).append("\"");
+        builder.append("\"").append(comment.body).append("\"");
     }
 
     @Override
@@ -74,7 +74,7 @@ public class CommentActivityRow extends ActivityRow {
         builder.append(" ");
         builder.append(mActivity.getPlayable().title);
         builder.append(": ");
-        builder.append(mComment.body);
+        builder.append(comment.body);
         builder.append(". ");
         builder.append(getTimeElapsed(getContext().getResources(), mActivity.getCreatedAt().getTime(), true));
 

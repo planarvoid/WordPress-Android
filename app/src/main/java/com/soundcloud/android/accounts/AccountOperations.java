@@ -40,14 +40,14 @@ public class AccountOperations extends ScheduledOperations {
         USER_PERMALINK("currentUserPermalink"),
         SIGNUP("signup");
 
-        private final String mKey;
+        private final String key;
 
         AccountInfoKeys(String key) {
-            mKey = key;
+            this.key = key;
         }
 
         public String getKey() {
-            return mKey;
+            return key;
         }
     }
 

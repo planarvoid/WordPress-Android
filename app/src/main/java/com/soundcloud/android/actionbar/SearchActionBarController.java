@@ -31,12 +31,12 @@ import java.lang.reflect.Field;
 
 public class SearchActionBarController extends ActionBarController {
 
-    private SuggestionsAdapter mSuggestionsAdapter;
+    private SuggestionsAdapter suggestionsAdapter;
 
-    private SearchView mSearchView;
+    private SearchView searchView;
 
-    private final PublicCloudAPI mPublicCloudAPI;
-    private final SearchCallback mSearchCallback;
+    private final PublicCloudAPI publicApi;
+    private final SearchCallback searchCallback;
 
     private final SearchView.OnSuggestionListener mSuggestionListener = new SearchView.OnSuggestionListener() {
         @Override
@@ -46,22 +46,22 @@ public class SearchActionBarController extends ActionBarController {
 
         @Override
         public boolean onSuggestionClick(int position) {
-            String query = mSearchView.getQuery().toString();
-            mSearchView.clearFocus();
+            String query = searchView.getQuery().toString();
+            searchView.clearFocus();
 
-            if (mSuggestionsAdapter.isSearchItem(position)) {
+            if (suggestionsAdapter.isSearchItem(position)) {
                 performSearch(query, true);
-                mSearchView.setSuggestionsAdapter(null);
+                searchView.setSuggestionsAdapter(null);
             } else {
-                final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
+                final Uri itemUri = suggestionsAdapter.getItemIntentData(position);
 
                 final SearchEvent event = SearchEvent.searchSuggestion(
-                        Content.match(itemUri), mSuggestionsAdapter.isLocalResult(position));
-                mEventBus.publish(EventQueue.SEARCH, event);
+                        Content.match(itemUri), suggestionsAdapter.isLocalResult(position));
+                eventBus.publish(EventQueue.SEARCH, event);
 
                 final Intent intent = new Intent(Intent.ACTION_VIEW);
                 Screen.SEARCH_SUGGESTIONS.addToIntent(intent);
-                mActivity.startActivity(intent.setData(itemUri));
+                activity.startActivity(intent.setData(itemUri));
             }
 
             return true;
@@ -77,46 +77,46 @@ public class SearchActionBarController extends ActionBarController {
     public SearchActionBarController(@NotNull ActionBarOwner owner, PublicCloudAPI publicCloudAPI,
                                      SearchCallback searchCallback, EventBus eventBus) {
         super(owner, eventBus);
-        mPublicCloudAPI = publicCloudAPI;
-        mSearchCallback = searchCallback;
+        publicApi = publicCloudAPI;
+        this.searchCallback = searchCallback;
     }
 
     @Override
     public void onDestroy() {
         // Suggestions adapter has to stop handler thread
-        if (mSuggestionsAdapter != null) mSuggestionsAdapter.onDestroy();
+        if (suggestionsAdapter != null) suggestionsAdapter.onDestroy();
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu) {
-        ActionBar actionBar = mOwner.getActivity().getSupportActionBar();
+        ActionBar actionBar = owner.getActivity().getSupportActionBar();
         configureSearchState(menu, actionBar);
     }
 
     private void configureSearchState(Menu menu, ActionBar actionBar) {
         actionBar.setDisplayShowCustomEnabled(false);
-        mOwner.getActivity().getMenuInflater().inflate(R.menu.search, menu);
+        owner.getActivity().getMenuInflater().inflate(R.menu.search, menu);
 
         initSearchView(menu);
-        mSearchView.setOnQueryTextListener(mQueryTextListener);
-        mSearchView.setOnSuggestionListener(mSuggestionListener);
-        styleSearchView(mSearchView);
+        searchView.setOnQueryTextListener(mQueryTextListener);
+        searchView.setOnSuggestionListener(mSuggestionListener);
+        styleSearchView(searchView);
     }
 
     private void initSearchView(Menu menu) {
-        SearchManager searchManager = (SearchManager) mActivity.getSystemService(Context.SEARCH_SERVICE);
-        final SearchableInfo searchableInfo = searchManager.getSearchableInfo(mActivity.getComponentName());
+        SearchManager searchManager = (SearchManager) activity.getSystemService(Context.SEARCH_SERVICE);
+        final SearchableInfo searchableInfo = searchManager.getSearchableInfo(activity.getComponentName());
 
         SupportMenuItem searchItem = (SupportMenuItem) menu.findItem(R.id.action_search);
-        mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        mSearchView.setSearchableInfo(searchableInfo);
-        mSearchView.setIconifiedByDefault(false);
-        mSearchView.setIconified(false);
-        mSearchView.setQueryHint(mOwner.getActivity().getString(R.string.search_hint));
-        mSearchView.setImeOptions(EditorInfo.IME_ACTION_SEARCH | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setSearchableInfo(searchableInfo);
+        searchView.setIconifiedByDefault(false);
+        searchView.setIconified(false);
+        searchView.setQueryHint(owner.getActivity().getString(R.string.search_hint));
+        searchView.setImeOptions(EditorInfo.IME_ACTION_SEARCH | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 
-        mSuggestionsAdapter = new SuggestionsAdapter(mActivity, mPublicCloudAPI, mActivity.getContentResolver());
-        mSearchView.setSuggestionsAdapter(mSuggestionsAdapter);
+        suggestionsAdapter = new SuggestionsAdapter(activity, publicApi, activity.getContentResolver());
+        searchView.setSuggestionsAdapter(suggestionsAdapter);
     }
 
     private final SearchView.OnQueryTextListener mQueryTextListener = new SearchView.OnQueryTextListener() {
@@ -124,18 +124,18 @@ public class SearchActionBarController extends ActionBarController {
         public boolean onQueryTextSubmit(String query) {
             performSearch(query, false);
             clearFocus();
-            mSearchView.setSuggestionsAdapter(null);
+            searchView.setSuggestionsAdapter(null);
             return true;
         }
 
         @Override
         public boolean onQueryTextChange(String s) {
-            if (mSearchView.getSuggestionsAdapter() == null) {
+            if (searchView.getSuggestionsAdapter() == null) {
                 // This is nulled on search as a workaround to unwanted focus on some devices
-                mSearchView.setSuggestionsAdapter(mSuggestionsAdapter);
+                searchView.setSuggestionsAdapter(suggestionsAdapter);
             }
             if (s.length() < 1) {
-                mSearchCallback.exitSearchMode();
+                searchCallback.exitSearchMode();
             }
             return false;
         }
@@ -146,13 +146,13 @@ public class SearchActionBarController extends ActionBarController {
         String trimmedQuery = query.trim();
         boolean tagSearch = isTagSearch(trimmedQuery);
 
-        mEventBus.publish(EventQueue.SEARCH,
+        eventBus.publish(EventQueue.SEARCH,
                 SearchEvent.searchField(query, viaShortcut, tagSearch));
 
         if (tagSearch) {
             performTagSearch(trimmedQuery);
         } else {
-            mSearchCallback.performTextSearch(trimmedQuery);
+            searchCallback.performTextSearch(trimmedQuery);
         }
     }
 
@@ -163,7 +163,7 @@ public class SearchActionBarController extends ActionBarController {
     private void performTagSearch(final String query) {
         String tag = query.replaceAll("^#+", ""); // Replaces the first occurrences of #
         if (!Strings.isNullOrEmpty(tag)) {
-            mSearchCallback.performTagSearch(tag);
+            searchCallback.performTagSearch(tag);
         }
     }
 
@@ -187,12 +187,12 @@ public class SearchActionBarController extends ActionBarController {
     }
 
     private boolean isInitialised() {
-        return mSearchView != null;
+        return searchView != null;
     }
 
     public String getQuery() {
         if (isInitialised()) {
-            return mSearchView.getQuery().toString();
+            return searchView.getQuery().toString();
         } else {
             return ScTextUtils.EMPTY_STRING;
         }
@@ -200,21 +200,21 @@ public class SearchActionBarController extends ActionBarController {
 
     public void setQuery(String query) {
         if (isInitialised()) {
-            mSearchView.setQuery(query, false);
-            mSearchView.setSuggestionsAdapter(null);
+            searchView.setQuery(query, false);
+            searchView.setSuggestionsAdapter(null);
             clearFocus();
         }
     }
 
     public void clearQuery() {
         if (isInitialised()) {
-            mSearchView.setQuery("", false);
+            searchView.setQuery("", false);
         }
     }
 
     public void clearFocus() {
         if (isInitialised()) {
-            mSearchView.clearFocus();
+            searchView.clearFocus();
         }
     }
 

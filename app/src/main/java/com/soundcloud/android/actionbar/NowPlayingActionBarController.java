@@ -20,20 +20,20 @@ import android.view.View;
 
 public class NowPlayingActionBarController extends ActionBarController implements View.OnClickListener {
 
-    private final NowPlayingProgressBar mNowPlaying;
-    private final View mNowPlayingHolder;
-    private final PlaybackStateProvider mPlaybackStateProvider = new PlaybackStateProvider();
+    private final NowPlayingProgressBar nowPlaying;
+    private final View nowPlayingHolder;
+    private final PlaybackStateProvider playbackStateProvider = new PlaybackStateProvider();
 
-    private boolean mListening;
+    private boolean isListening;
 
     public NowPlayingActionBarController(@NotNull ActionBarOwner owner, @NotNull EventBus eventBus) {
         super(owner, eventBus);
 
-        View customView = mActivity.getLayoutInflater().inflate(R.layout.action_bar_now_playing_custom_view, null);
-        mOwner.getActivity().getSupportActionBar().setCustomView(customView, new ActionBar.LayoutParams(Gravity.RIGHT));
-        mNowPlaying = (NowPlayingProgressBar) customView.findViewById(R.id.waveform_progress);
-        mNowPlayingHolder = customView.findViewById(R.id.waveform_holder);
-        mNowPlayingHolder.setOnClickListener(this);
+        View customView = activity.getLayoutInflater().inflate(R.layout.action_bar_now_playing_custom_view, null);
+        owner.getActivity().getSupportActionBar().setCustomView(customView, new ActionBar.LayoutParams(Gravity.RIGHT));
+        nowPlaying = (NowPlayingProgressBar) customView.findViewById(R.id.waveform_progress);
+        nowPlayingHolder = customView.findViewById(R.id.waveform_holder);
+        nowPlayingHolder.setOnClickListener(this);
     }
 
     @Override
@@ -46,19 +46,19 @@ public class NowPlayingActionBarController extends ActionBarController implement
     public void onResume() {
         super.onResume();
 
-        mNowPlaying.resume();
+        nowPlaying.resume();
         startListening();
 
-        if (mPlaybackStateProvider.getCurrentTrackId() < 0) {
-            mNowPlayingHolder.setVisibility(View.GONE);
+        if (playbackStateProvider.getCurrentTrackId() < 0) {
+            nowPlayingHolder.setVisibility(View.GONE);
         } else {
-            mNowPlayingHolder.setVisibility(View.VISIBLE);
+            nowPlayingHolder.setVisibility(View.VISIBLE);
         }
     }
 
     @Override
     public void onDestroy() {
-        mNowPlaying.destroy();
+        nowPlaying.destroy();
         super.onDestroy();
     }
 
@@ -69,41 +69,41 @@ public class NowPlayingActionBarController extends ActionBarController implement
     }
 
     private void startListening() {
-        if (!mListening) {
-            mListening = true;
+        if (!isListening) {
+            isListening = true;
             IntentFilter f = new IntentFilter();
             f.addAction(Broadcasts.PLAYSTATE_CHANGED);
             f.addAction(Broadcasts.META_CHANGED);
-            mOwner.getActivity().registerReceiver(mStatusListener, new IntentFilter(f));
+            owner.getActivity().registerReceiver(mStatusListener, new IntentFilter(f));
         }
     }
 
     private void stopListening() {
-        if (mListening) {
-            mOwner.getActivity().unregisterReceiver(mStatusListener);
+        if (isListening) {
+            owner.getActivity().unregisterReceiver(mStatusListener);
         }
-        mListening = false;
+        isListening = false;
     }
 
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            mNowPlaying.getStatusListener().onReceive(context, intent);
+            nowPlaying.getStatusListener().onReceive(context, intent);
 
-            if (mNowPlayingHolder.getVisibility() == View.GONE && mPlaybackStateProvider.isSupposedToBePlaying()) {
-                mNowPlayingHolder.setVisibility(View.VISIBLE);
+            if (nowPlayingHolder.getVisibility() == View.GONE && playbackStateProvider.isSupposedToBePlaying()) {
+                nowPlayingHolder.setVisibility(View.VISIBLE);
             }
 
             if (intent.getAction().equals(Broadcasts.PLAYSTATE_CHANGED)) {
-                mOwner.getActivity().supportInvalidateOptionsMenu();
+                owner.getActivity().supportInvalidateOptionsMenu();
             }
         }
     };
 
     @Override
     public void onClick(View v) {
-        mActivity.startActivity(new Intent(Actions.PLAYER));
-        mEventBus.publish(EventQueue.UI, UIEvent.fromPlayerShortcut());
+        activity.startActivity(new Intent(Actions.PLAYER));
+        eventBus.publish(EventQueue.UI, UIEvent.fromPlayerShortcut());
     }
 
 }

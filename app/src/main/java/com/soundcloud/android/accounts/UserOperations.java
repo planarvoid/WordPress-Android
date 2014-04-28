@@ -15,13 +15,13 @@ import javax.inject.Inject;
 
 public class UserOperations extends ScheduledOperations {
 
-    private final RxHttpClient mHttpClient;
-    private final UserStorage mUserStorage;
+    private final RxHttpClient httpClient;
+    private final UserStorage userStorage;
 
     @Inject
     public UserOperations(RxHttpClient httpClient, UserStorage userStorage) {
-        mHttpClient = httpClient;
-        mUserStorage = userStorage;
+        this.httpClient = httpClient;
+        this.userStorage = userStorage;
     }
 
 
@@ -30,10 +30,10 @@ public class UserOperations extends ScheduledOperations {
                 .forPublicAPI()
                 .forResource(User.class)
                 .build();
-        return mHttpClient.<User>fetchModels(request).mergeMap(new Func1<User, Observable<User>>() {
+        return httpClient.<User>fetchModels(request).mergeMap(new Func1<User, Observable<User>>() {
             @Override
             public Observable<User> call(User user) {
-                return mUserStorage.createOrUpdateAsync(user);
+                return userStorage.createOrUpdateAsync(user);
             }
         });
     }

@@ -32,40 +32,33 @@ import java.lang.ref.WeakReference;
 public class NowPlayingProgressBar extends ProgressBar {
     private static final int REFRESH = 1;
 
-    private static final int TOP_ORANGE       = 0xFFFF4400;
+    private static final int TOP_ORANGE = 0xFFFF4400;
     private static final int SEPARATOR_ORANGE = 0xFF661400;
-    private static final int BOTTOM_ORANGE    = 0xFFAA2200;
+    private static final int BOTTOM_ORANGE = 0xFFAA2200;
 
-    private static final int TOP_GREY       = 0xFF666666;
+    private static final int TOP_GREY = 0xFF666666;
     private static final int SEPARATOR_GREY = 0xFF2D2D2D;
-    private static final int BOTTOM_GREY    = 0xFF535353;
+    private static final int BOTTOM_GREY = 0xFF535353;
 
     private static final float TOP_WAVEFORM_FRACTION = 0.75f;
 
-    private @Nullable Bitmap mWaveformMask;
-    private @Nullable Track  mTrack;
+    @Nullable
+    private Bitmap waveformMask;
+    @Nullable
+    private Track track;
 
-    private long mRefreshDelay;
+    private long refreshDelay;
 
-    private Paint mTopOrange;
-    private Paint mSeparatorOrange;
-    private Paint mBottomOrange;
+    private Paint topOrange, separatorOrange, bottomOrange, topGrey, separatorGrey, bottomGrey;
+    private Rect canvasRect;
+    private Canvas tempCanvas = new Canvas();
 
-    private Paint mTopGrey;
-    private Paint mSeparatorGrey;
-    private Paint mBottomGrey;
+    private int adjustedWidth, waveformErrorCount;
+    private WaveformControllerLayout.WaveformState waveformState;
+    private WaveformData waveformData;
+    private PlaybackStateProvider playbackStateProvider;
 
-    private Rect mCanvasRect;
-
-    private Canvas mTempCanvas = new Canvas();
-
-    private int mAdjustedWidth;
-    private WaveformControllerLayout.WaveformState mWaveformState;
-    private int mWaveformErrorCount;
-    private WaveformData mWaveformData;
-    private PlaybackStateProvider mPlaybackStateProvider;
-
-    private final Handler mHandler = new RefreshHandler(this);
+    private final Handler handler = new RefreshHandler(this);
 
     @SuppressWarnings("UnusedDeclaration")
     public NowPlayingProgressBar(Context context) {
@@ -86,33 +79,33 @@ public class NowPlayingProgressBar extends ProgressBar {
     }
 
     private void init() {
-        mPlaybackStateProvider = new PlaybackStateProvider();
+        playbackStateProvider = new PlaybackStateProvider();
 
         PorterDuffXfermode sourceIn = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
 
-        mTopOrange = new Paint();
-        mTopOrange.setColor(TOP_ORANGE);
-        mTopOrange.setXfermode(sourceIn);
+        topOrange = new Paint();
+        topOrange.setColor(TOP_ORANGE);
+        topOrange.setXfermode(sourceIn);
 
-        mSeparatorOrange = new Paint();
-        mSeparatorOrange.setColor(SEPARATOR_ORANGE);
-        mSeparatorOrange.setXfermode(sourceIn);
+        separatorOrange = new Paint();
+        separatorOrange.setColor(SEPARATOR_ORANGE);
+        separatorOrange.setXfermode(sourceIn);
 
-        mBottomOrange = new Paint();
-        mBottomOrange.setColor(BOTTOM_ORANGE);
-        mBottomOrange.setXfermode(sourceIn);
+        bottomOrange = new Paint();
+        bottomOrange.setColor(BOTTOM_ORANGE);
+        bottomOrange.setXfermode(sourceIn);
 
-        mTopGrey = new Paint();
-        mTopGrey.setColor(TOP_GREY);
-        mTopGrey.setXfermode(sourceIn);
+        topGrey = new Paint();
+        topGrey.setColor(TOP_GREY);
+        topGrey.setXfermode(sourceIn);
 
-        mSeparatorGrey = new Paint();
-        mSeparatorGrey.setColor(SEPARATOR_GREY);
-        mSeparatorGrey.setXfermode(sourceIn);
+        separatorGrey = new Paint();
+        separatorGrey.setColor(SEPARATOR_GREY);
+        separatorGrey.setXfermode(sourceIn);
 
-        mBottomGrey = new Paint();
-        mBottomGrey.setColor(BOTTOM_GREY);
-        mBottomGrey.setXfermode(sourceIn);
+        bottomGrey = new Paint();
+        bottomGrey.setColor(BOTTOM_GREY);
+        bottomGrey.setXfermode(sourceIn);
 
         setIndeterminate(false);
     }
@@ -124,41 +117,41 @@ public class NowPlayingProgressBar extends ProgressBar {
     }
 
     private void startRefreshing() {
-        if (mTrack != null && mTrack.duration > 0 && getWidth() > 0){
-            mRefreshDelay = mTrack.duration / getWidth();
-            setProgress((int) mPlaybackStateProvider.getPlayProgress());
-            if (mPlaybackStateProvider.isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
+        if (track != null && track.duration > 0 && getWidth() > 0) {
+            refreshDelay = track.duration / getWidth();
+            setProgress((int) playbackStateProvider.getPlayProgress());
+            if (playbackStateProvider.isSupposedToBePlaying()) queueNextRefresh(refreshDelay);
         }
     }
 
     private void setCurrentTrack() {
-        final Track currentTrack = mPlaybackStateProvider.getCurrentTrack();
-        if (mTrack != currentTrack || mWaveformState == WaveformControllerLayout.WaveformState.ERROR) {
+        final Track currentTrack = playbackStateProvider.getCurrentTrack();
+        if (track != currentTrack || waveformState == WaveformControllerLayout.WaveformState.ERROR) {
 
-            if (mTrack != currentTrack) mWaveformErrorCount = 0;
+            if (track != currentTrack) waveformErrorCount = 0;
 
-            mTrack = currentTrack;
-            setMax(mTrack == null ? 0 : mTrack.duration);
-            setProgress((int) mPlaybackStateProvider.getPlayProgress());
+            track = currentTrack;
+            setMax(track == null ? 0 : track.duration);
+            setProgress((int) playbackStateProvider.getPlayProgress());
 
-            if (mTrack == null || !mTrack.hasWaveform() || mWaveformErrorCount > 3) {
+            if (track == null || !track.hasWaveform() || waveformErrorCount > 3) {
                 setDefaultWaveform();
             } else {
-                if (WaveformCache.get().getData(mTrack, new WaveformCache.WaveformCallback() {
+                if (WaveformCache.get().getData(track, new WaveformCache.WaveformCallback() {
                     @Override
                     public void onWaveformDataLoaded(Track track, WaveformData data, boolean fromCache) {
-                        if (track.equals(mTrack)){
-                            mWaveformErrorCount = 0;
-                            mWaveformState = WaveformControllerLayout.WaveformState.OK;
+                        if (track.equals(NowPlayingProgressBar.this.track)) {
+                            waveformErrorCount = 0;
+                            waveformState = WaveformControllerLayout.WaveformState.OK;
                             setWaveform(data);
                         }
                     }
 
                     @Override
                     public void onWaveformError(Track track) {
-                        if (track.equals(mTrack)) {
-                            mWaveformState = WaveformControllerLayout.WaveformState.ERROR;
-                            mWaveformErrorCount++;
+                        if (track.equals(NowPlayingProgressBar.this.track)) {
+                            waveformState = WaveformControllerLayout.WaveformState.ERROR;
+                            waveformErrorCount++;
                             setCurrentTrack();
                         }
                     }
@@ -172,81 +165,81 @@ public class NowPlayingProgressBar extends ProgressBar {
         }
     }
 
-    private void setDefaultWaveform(){
+    private void setDefaultWaveform() {
         // TODO, set default bitmap
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        mAdjustedWidth = getWidth() - 0 * 2;
-        mCanvasRect = new Rect(0, 0, mAdjustedWidth, getHeight());
+        adjustedWidth = getWidth() - 0 * 2;
+        canvasRect = new Rect(0, 0, adjustedWidth, getHeight());
 
         setWaveformMask();
         startRefreshing();
     }
 
-    public void destroy(){
+    public void destroy() {
         stopRefreshing();
-        mWaveformMask = null;
+        waveformMask = null;
     }
 
     private void stopRefreshing() {
-        mHandler.removeMessages(REFRESH);
+        handler.removeMessages(REFRESH);
     }
 
     private void queueNextRefresh(long delay) {
-        Message msg = mHandler.obtainMessage(REFRESH);
-        mHandler.removeMessages(REFRESH);
-        if (delay != -1) mHandler.sendMessageDelayed(msg, delay);
+        Message msg = handler.obtainMessage(REFRESH);
+        handler.removeMessages(REFRESH);
+        if (delay != -1) handler.sendMessageDelayed(msg, delay);
     }
 
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (mWaveformMask == null) return;
+        if (waveformMask == null) return;
 
-        mTempCanvas.setBitmap(mWaveformMask);
+        tempCanvas.setBitmap(waveformMask);
 
         float density = getResources().getDisplayMetrics().density;
 
-        int topPartHeight   = (int) (getHeight() * TOP_WAVEFORM_FRACTION);
-        int separatorTop    = (int) (topPartHeight - density);
+        int topPartHeight = (int) (getHeight() * TOP_WAVEFORM_FRACTION);
+        int separatorTop = (int) (topPartHeight - density);
         int separatorBottom = topPartHeight;
 
         // Grey
-        mTempCanvas.drawRect(0, 0,             mAdjustedWidth, getHeight(),     mTopGrey);
-        mTempCanvas.drawRect(0, topPartHeight, mAdjustedWidth, getHeight(),     mBottomGrey);
-        mTempCanvas.drawRect(0, separatorTop,  mAdjustedWidth, separatorBottom, mSeparatorGrey);
+        tempCanvas.drawRect(0, 0, adjustedWidth, getHeight(), topGrey);
+        tempCanvas.drawRect(0, topPartHeight, adjustedWidth, getHeight(), bottomGrey);
+        tempCanvas.drawRect(0, separatorTop, adjustedWidth, separatorBottom, separatorGrey);
 
         float playedFraction = (float) getProgress() / (float) getMax();
         playedFraction = min(max(playedFraction, 0), getMax());
 
         // Make sure to at least draw an 1dp line of progress
-        int progressWidth = (int) max(mAdjustedWidth * playedFraction, density);
+        int progressWidth = (int) max(adjustedWidth * playedFraction, density);
 
         // Orange
-        mTempCanvas.drawRect(0, 0,             progressWidth, getHeight(),     mTopOrange);
-        mTempCanvas.drawRect(0, topPartHeight, progressWidth, getHeight(),     mBottomOrange);
-        mTempCanvas.drawRect(0, separatorTop,  progressWidth, separatorBottom, mSeparatorOrange);
+        tempCanvas.drawRect(0, 0, progressWidth, getHeight(), topOrange);
+        tempCanvas.drawRect(0, topPartHeight, progressWidth, getHeight(), bottomOrange);
+        tempCanvas.drawRect(0, separatorTop, progressWidth, separatorBottom, separatorOrange);
 
         canvas.drawBitmap(
-            mWaveformMask,
-            mCanvasRect,
-            mCanvasRect,
-            null
+                waveformMask,
+                canvasRect,
+                canvasRect,
+                null
         );
     }
 
     private void setWaveformMask() {
-        this.mWaveformMask = createWaveformMask(mWaveformData, mAdjustedWidth, getHeight());
+        this.waveformMask = createWaveformMask(waveformData, adjustedWidth, getHeight());
     }
 
     public BroadcastReceiver getStatusListener() {
-        return mStatusListener;
+        return statusListener;
     }
 
-    private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
+    private final BroadcastReceiver statusListener = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -266,14 +259,14 @@ public class NowPlayingProgressBar extends ProgressBar {
     };
 
     public void setWaveform(WaveformData waveformData) {
-        mWaveformData = waveformData;
+        this.waveformData = waveformData;
         setWaveformMask();
     }
 
     private static Bitmap createWaveformMask(WaveformData waveformData, int width, int height) {
         if (waveformData == null || width == 0 || height == 0) return null;
 
-        Bitmap mask   = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
+        Bitmap mask = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
         Canvas canvas = new Canvas(mask);
 
         Paint black = new Paint();
@@ -292,16 +285,16 @@ public class NowPlayingProgressBar extends ProgressBar {
         for (int i = 0; i < scaled.samples.length; i++) {
             final float scaledHeight1 = (scaled.samples[i] * (float) dstHeight / waveformData.maxAmplitude);
             canvas.drawLine(
-                i, 0,
-                i, dstHeight - scaledHeight1,
-                xor
+                    i, 0,
+                    i, dstHeight - scaledHeight1,
+                    xor
             );
 
-            final float scaledHeight2 = (scaled.samples[i] * (float) (height-dstHeight) / waveformData.maxAmplitude);
+            final float scaledHeight2 = (scaled.samples[i] * (float) (height - dstHeight) / waveformData.maxAmplitude);
             canvas.drawLine(
-                i, dstHeight + scaledHeight2,
-                i, height,
-                xor
+                    i, dstHeight + scaledHeight2,
+                    i, height,
+                    xor
             );
         }
 
@@ -309,20 +302,20 @@ public class NowPlayingProgressBar extends ProgressBar {
     }
 
     private static final class RefreshHandler extends Handler {
-        private WeakReference<NowPlayingProgressBar> mRef;
+        private WeakReference<NowPlayingProgressBar> ref;
 
         private RefreshHandler(NowPlayingProgressBar nowPlaying) {
-            this.mRef = new WeakReference<NowPlayingProgressBar>(nowPlaying);
+            this.ref = new WeakReference<NowPlayingProgressBar>(nowPlaying);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            final NowPlayingProgressBar nowPlaying = mRef.get();
-            if (nowPlaying != null && nowPlaying.mTrack != null) {
+            final NowPlayingProgressBar nowPlaying = ref.get();
+            if (nowPlaying != null && nowPlaying.track != null) {
                 switch (msg.what) {
                     case REFRESH:
-                        nowPlaying.setProgress((int) nowPlaying.mPlaybackStateProvider.getPlayProgress());
-                        nowPlaying.queueNextRefresh(nowPlaying.mRefreshDelay);
+                        nowPlaying.setProgress((int) nowPlaying.playbackStateProvider.getPlayProgress());
+                        nowPlaying.queueNextRefresh(nowPlaying.refreshDelay);
                 }
             }
         }

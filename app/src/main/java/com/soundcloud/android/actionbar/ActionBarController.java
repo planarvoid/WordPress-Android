@@ -20,11 +20,11 @@ import android.view.MenuItem;
 
 public class ActionBarController {
     @NotNull
-    protected ActionBarOwner mOwner;
+    protected ActionBarOwner owner;
     @NotNull
-    protected Activity mActivity;
+    protected Activity activity;
     @NotNull
-    protected EventBus mEventBus;
+    protected EventBus eventBus;
 
     public interface ActionBarOwner {
         @NotNull
@@ -34,9 +34,9 @@ public class ActionBarController {
     }
 
     public ActionBarController(@NotNull ActionBarOwner owner, @NotNull EventBus eventBus) {
-        mOwner = owner;
-        mActivity = owner.getActivity();
-        mEventBus = eventBus;
+        this.owner = owner;
+        this.activity = owner.getActivity();
+        this.eventBus = eventBus;
     }
 
     public void onResume() {
@@ -55,17 +55,17 @@ public class ActionBarController {
      * This must be passed through by the activity in order to configure based on search state
      */
     public void onCreateOptionsMenu(Menu menu) {
-        ActionBar actionBar = mOwner.getActivity().getSupportActionBar();
+        ActionBar actionBar = owner.getActivity().getSupportActionBar();
         setActionBarDefaultOptions(actionBar);
-        final int menuResourceId = mOwner.getMenuResourceId();
-        if (menuResourceId > 0) mOwner.getActivity().getMenuInflater().inflate(menuResourceId, menu);
+        final int menuResourceId = owner.getMenuResourceId();
+        if (menuResourceId > 0) owner.getActivity().getMenuInflater().inflate(menuResourceId, menu);
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_search:
                 startActivity(CombinedSearchActivity.class);
-                mEventBus.publish(EventQueue.UI, UIEvent.fromSearchAction());
+                eventBus.publish(EventQueue.UI, UIEvent.fromSearchAction());
                 return true;
             case R.id.action_settings:
                 startActivity(SettingsActivity.class);
@@ -85,10 +85,10 @@ public class ActionBarController {
     }
 
     private void startActivity(Class target) {
-        mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), target));
+        owner.getActivity().startActivity(new Intent(owner.getActivity(), target));
     }
 
     protected void setActionBarDefaultOptions(ActionBar actionBar) {
-        mOwner.restoreActionBar();
+        owner.restoreActionBar();
     }
 }

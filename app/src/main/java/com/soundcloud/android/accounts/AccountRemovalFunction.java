@@ -9,18 +9,18 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
 
 class AccountRemovalFunction implements Observable.OnSubscribe<Void> {
-    private final Account mSoundCloudAccount;
-    private final AccountManager mAccountManager;
+    private final Account account;
+    private final AccountManager accountManager;
 
-    public AccountRemovalFunction(Account soundCloudAccount, AccountManager accountManager) {
-        mSoundCloudAccount = soundCloudAccount;
-        mAccountManager = accountManager;
+    public AccountRemovalFunction(Account account, AccountManager accountManager) {
+        this.account = account;
+        this.accountManager = accountManager;
     }
 
     @Override
     public void call(Subscriber<? super Void> observer) {
         try {
-            AccountManagerFuture<Boolean> accountRemovalFuture = mAccountManager.removeAccount(mSoundCloudAccount, null, null);
+            AccountManagerFuture<Boolean> accountRemovalFuture = accountManager.removeAccount(account, null, null);
 
             if (accountRemovalFuture.getResult()) {
                 observer.onCompleted();

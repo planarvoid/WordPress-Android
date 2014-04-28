@@ -25,16 +25,16 @@ import android.content.Context;
 import android.content.Intent;
 
 class AccountCleanupAction implements Action0 {
-    private final EventBus mEventBus;
-    private final Context mContext;
-    private final CollectionStorage mCollectionStorage;
-    private final ActivitiesStorage mActivitiesStorage;
-    private final UserAssociationStorage mUserAssociationStorage;
-    private final PlaylistTagStorage mTagStorage;
-    private final SoundRecorder mSoundRecorder;
-    private final SyncStateManager mSyncStateManager;
-    private final C2DMReceiver mC2DMReceiver;
-    private final UnauthorisedRequestRegistry mUnauthorisedRequestRegistry;
+    private final EventBus eventBus;
+    private final Context context;
+    private final CollectionStorage collectionStorage;
+    private final ActivitiesStorage activitiesStorage;
+    private final UserAssociationStorage userAssociationStorage;
+    private final PlaylistTagStorage tagStorage;
+    private final SoundRecorder soundRecorder;
+    private final SyncStateManager syncStateManager;
+    private final C2DMReceiver c2dmReceiver;
+    private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
 
     public AccountCleanupAction(Context context) {
         this(SoundCloudApplication.fromContext(context).getEventBus(),
@@ -50,16 +50,16 @@ class AccountCleanupAction implements Action0 {
                                    UserAssociationStorage userAssociationStorage, PlaylistTagStorage tagStorage,
                                    SoundRecorder soundRecorder, C2DMReceiver c2DMReceiver,
                                    UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
-        mEventBus = eventBus;
-        mContext = context;
-        mSyncStateManager = syncStateManager;
-        mCollectionStorage = collectionStorage;
-        mActivitiesStorage = activitiesStorage;
-        mTagStorage = tagStorage;
-        mUserAssociationStorage = userAssociationStorage;
-        mSoundRecorder = soundRecorder;
-        mC2DMReceiver = c2DMReceiver;
-        mUnauthorisedRequestRegistry = unauthorisedRequestRegistry;
+        this.eventBus = eventBus;
+        this.context = context;
+        this.syncStateManager = syncStateManager;
+        this.collectionStorage = collectionStorage;
+        this.activitiesStorage = activitiesStorage;
+        this.tagStorage = tagStorage;
+        this.userAssociationStorage = userAssociationStorage;
+        this.soundRecorder = soundRecorder;
+        c2dmReceiver = c2DMReceiver;
+        this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
     }
 
 
@@ -67,25 +67,25 @@ class AccountCleanupAction implements Action0 {
     public void call() {
         Log.d("AccountCleanup", "Purging user data...");
 
-        mUnauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
-        mSyncStateManager.clear();
-        mCollectionStorage.clear();
-        mActivitiesStorage.clear(null);
-        mUserAssociationStorage.clear();
-        mTagStorage.clear();
+        unauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
+        syncStateManager.clear();
+        collectionStorage.clear();
+        activitiesStorage.clear(null);
+        userAssociationStorage.clear();
+        tagStorage.clear();
 
-        mSoundRecorder.reset();
+        soundRecorder.reset();
 
-        FBToken.clear(mContext);
+        FBToken.clear(context);
 
-        mC2DMReceiver.unregister(mContext);
+        c2dmReceiver.unregister(context);
         FollowingOperations.clearState();
         ConnectionsCache.reset();
-        SoundCloudApplication applicationContext = (SoundCloudApplication) mContext.getApplicationContext();
+        SoundCloudApplication applicationContext = (SoundCloudApplication) context.getApplicationContext();
         //FIXME: this writes to a reference on a background thread that we only read on the UI thread (visibility)
         applicationContext.clearLoggedInUser();
 
-        mEventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
-        mContext.sendBroadcast(new Intent(PlaybackService.Actions.RESET_ALL));
+        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
+        context.sendBroadcast(new Intent(PlaybackService.Actions.RESET_ALL));
     }
 }

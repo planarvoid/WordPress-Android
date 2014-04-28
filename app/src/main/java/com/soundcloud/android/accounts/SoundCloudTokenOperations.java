@@ -11,40 +11,40 @@ import javax.inject.Inject;
 
 class SoundCloudTokenOperations {
 
-    private enum TokenDataKeys{
+    private enum TokenDataKeys {
         ACCESS_TOKEN("access_token"),
         REFRESH_TOKEN("refresh_token"),
         SCOPE("scope"),
         EXPIRES_IN("expires_in");
 
-        private String mKey;
+        private String key;
 
-        private TokenDataKeys(String mKey) {
-            this.mKey = mKey;
+        private TokenDataKeys(String key) {
+            this.key = key;
         }
 
-        public String key(){
-            return mKey;
+        public String key() {
+            return key;
         }
     }
 
-    private final AccountManager mAccountManager;
+    private final AccountManager accountManager;
 
 
-    public SoundCloudTokenOperations(Context context){
+    public SoundCloudTokenOperations(Context context) {
         this(AccountManager.get(context));
     }
 
     @Inject
-    public SoundCloudTokenOperations(AccountManager mAccountManager) {
-        this.mAccountManager = mAccountManager;
+    public SoundCloudTokenOperations(AccountManager accountManager) {
+        this.accountManager = accountManager;
     }
 
-    public void storeSoundCloudTokenData(@Nullable Account account, Token token){
-        mAccountManager.setUserData(account, TokenDataKeys.EXPIRES_IN.key(), "" + token.expiresIn);
-        mAccountManager.setUserData(account, TokenDataKeys.SCOPE.key(), token.scope);
-        mAccountManager.setAuthToken(account, TokenDataKeys.ACCESS_TOKEN.key(), token.access);
-        mAccountManager.setAuthToken(account, TokenDataKeys.REFRESH_TOKEN.key(), token.refresh);
+    public void storeSoundCloudTokenData(@Nullable Account account, Token token) {
+        accountManager.setUserData(account, TokenDataKeys.EXPIRES_IN.key(), "" + token.expiresIn);
+        accountManager.setUserData(account, TokenDataKeys.SCOPE.key(), token.scope);
+        accountManager.setAuthToken(account, TokenDataKeys.ACCESS_TOKEN.key(), token.access);
+        accountManager.setAuthToken(account, TokenDataKeys.REFRESH_TOKEN.key(), token.refresh);
     }
 
     public Token getSoundCloudToken(@Nullable Account account) {
@@ -52,27 +52,27 @@ class SoundCloudTokenOperations {
     }
 
     public void invalidateToken(Token expired, @Nullable Account account) {
-        mAccountManager.invalidateAuthToken(
+        accountManager.invalidateAuthToken(
                 account.type,
                 expired.access);
 
-        mAccountManager.invalidateAuthToken(
+        accountManager.invalidateAuthToken(
                 account.type,
                 expired.refresh);
 
-        mAccountManager.setUserData(account, TokenDataKeys.EXPIRES_IN.key(), null);
-        mAccountManager.setUserData(account, TokenDataKeys.SCOPE.key(), null);
+        accountManager.setUserData(account, TokenDataKeys.EXPIRES_IN.key(), null);
+        accountManager.setUserData(account, TokenDataKeys.SCOPE.key(), null);
     }
 
     private String getSoundCloudTokenScope(Account account) {
-        return mAccountManager.getUserData(account, TokenDataKeys.SCOPE.key());
+        return accountManager.getUserData(account, TokenDataKeys.SCOPE.key());
     }
 
     private String getSoundCloudAccessToken(Account account) {
-        return mAccountManager.peekAuthToken(account, TokenDataKeys.ACCESS_TOKEN.key());
+        return accountManager.peekAuthToken(account, TokenDataKeys.ACCESS_TOKEN.key());
     }
 
     private String getSoundCloudRefreshToken(Account account) {
-        return mAccountManager.peekAuthToken(account, TokenDataKeys.REFRESH_TOKEN.key());
+        return accountManager.peekAuthToken(account, TokenDataKeys.REFRESH_TOKEN.key());
     }
 }

@@ -29,16 +29,16 @@ import java.util.Collections;
 import java.util.List;
 
 public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
-    private ActivitiesStorage mActivitiesStorage;
-    private PlaybackOperations mPlaybackOperations;
-    private ImageOperations mImageOperations;
 
+    private final ActivitiesStorage activitiesStorage;
+    private final PlaybackOperations playbackOperations;
+    private final ImageOperations imageOperations;
 
     public ActivitiesAdapter(Uri uri, ImageOperations imageOperations) {
         super(uri);
-        mActivitiesStorage = new ActivitiesStorage();
-        mPlaybackOperations = new PlaybackOperations();
-        mImageOperations = imageOperations;
+        activitiesStorage = new ActivitiesStorage();
+        playbackOperations = new PlaybackOperations();
+        this.imageOperations = imageOperations;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
         } else {
             // check if there is anything newer
             // TODO: DB access on UI thread!
-            final Activity latestActivity = mActivitiesStorage.getLatestActivity(mContent);
+            final Activity latestActivity = activitiesStorage.getLatestActivity(mContent);
             return (latestActivity == null || latestActivity.getCreatedAt().getTime() > mData.get(0).getCreatedAt().getTime());
         }
     }
@@ -73,31 +73,31 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
-                return new PlayableRow(context, mImageOperations);
+                return new PlayableRow(context, imageOperations);
 
             case TRACK_REPOST:
             case PLAYLIST_REPOST:
                 return (mContent == Content.ME_ACTIVITIES) ?
-                        new RepostActivityRow(context, mImageOperations) : new PlayableRow(context, mImageOperations);
+                        new RepostActivityRow(context, imageOperations) : new PlayableRow(context, imageOperations);
 
             case PLAYLIST:
             case PLAYLIST_SHARING:
                 // TODO, playlist view
-                return new PlayableRow(context, mImageOperations);
+                return new PlayableRow(context, imageOperations);
 
             case COMMENT:
-                return new CommentActivityRow(context, mImageOperations);
+                return new CommentActivityRow(context, imageOperations);
 
             case TRACK_LIKE:
-                return new LikeActivityRow(context, mImageOperations);
+                return new LikeActivityRow(context, imageOperations);
 
 
             case PLAYLIST_LIKE:
-                return new LikeActivityRow(context, mImageOperations);
+                return new LikeActivityRow(context, imageOperations);
 
 
             case AFFILIATION:
-                return new AffiliationActivityRow(context, mImageOperations);
+                return new AffiliationActivityRow(context, imageOperations);
 
 
             default:
@@ -110,7 +110,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
         CollectionParams params = super.getParams(refresh);
         if (mData.size() > 0) {
             Activity first = getItem(0);
-            Activity last  = getItem(getItemCount() -1);
+            Activity last = getItem(getItemCount() - 1);
             params.timestamp = refresh ? first.getCreatedAt().getTime() : last.getCreatedAt().getTime();
         }
         return params;
@@ -119,8 +119,8 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
 
     @Override
     public void addItems(List<Activity> newItems) {
-        for (Activity newItem : newItems){
-            if (!mData.contains(newItem))mData.add(newItem);
+        for (Activity newItem : newItems) {
+            if (!mData.contains(newItem)) mData.add(newItem);
         }
         Collections.sort(mData);
     }
@@ -139,7 +139,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
             case TRACK_SHARING:
             case PLAYLIST:
             case PLAYLIST_SHARING:
-                mPlaybackOperations.playFromAdapter(context, mData, position, mContentUri, Screen.SIDE_MENU_STREAM);
+                playbackOperations.playFromAdapter(context, mData, position, mContentUri, Screen.SIDE_MENU_STREAM);
                 return ItemClickResults.LEAVING;
 
             case COMMENT:
@@ -151,7 +151,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
                             .putExtra(Track.EXTRA, getItem(position).getPlayable())
                             .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
-                    mPlaybackOperations.playFromAdapter(context, mData, position, mContentUri, Screen.SIDE_MENU_STREAM);
+                    playbackOperations.playFromAdapter(context, mData, position, mContentUri, Screen.SIDE_MENU_STREAM);
                 }
                 return ItemClickResults.LEAVING;
             case PLAYLIST_LIKE:
@@ -162,7 +162,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
                             .putExtra(Playlist.EXTRA, getItem(position).getPlayable())
                             .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
-                    mPlaybackOperations.playFromAdapter(context, mData, position, mContentUri, Screen.SIDE_MENU_STREAM);
+                    playbackOperations.playFromAdapter(context, mData, position, mContentUri, Screen.SIDE_MENU_STREAM);
                 }
                 return ItemClickResults.LEAVING;
 
