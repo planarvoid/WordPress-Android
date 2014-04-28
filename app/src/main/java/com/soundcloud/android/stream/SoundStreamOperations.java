@@ -33,24 +33,24 @@ class SoundStreamOperations {
 
     public Observable<Page<List<PropertySet>>> getStreamItems() {
         final Urn currentUserUrn = Urn.forUser(123); // TODO
-        return loadPagedStreamItems(currentUserUrn, Long.MAX_VALUE, 0);
+        return loadPagedStreamItems(currentUserUrn, Long.MAX_VALUE);
     }
 
-    private Observable<Page<List<PropertySet>>> loadPagedStreamItems(Urn userUrn, long timestamp, int offset) {
-        Log.d(TAG, "Preparing next page with user=" + userUrn + "; timestamp=" + timestamp + "; offset=" + offset);
-        Observable<PropertySet> source = soundStreamStorage.loadStreamItemsAsync(userUrn, timestamp, DEFAULT_LIMIT, offset);
-        return source.toList().lift(pagedWith(streamItemPager(userUrn, timestamp, offset)));
+    private Observable<Page<List<PropertySet>>> loadPagedStreamItems(Urn userUrn, long timestamp) {
+        Log.d(TAG, "Preparing next page with user=" + userUrn + "; timestamp=" + timestamp);
+        Observable<PropertySet> source = soundStreamStorage.loadStreamItemsAsync(userUrn, timestamp, DEFAULT_LIMIT);
+        return source.toList().lift(pagedWith(streamItemPager(userUrn, timestamp)));
     }
 
-    private Pager<List<PropertySet>> streamItemPager(final Urn userUrn, final long currentTimestamp, final int offset) {
+    private Pager<List<PropertySet>> streamItemPager(final Urn userUrn, final long currentTimestamp) {
         return new Pager<List<PropertySet>>() {
             @Override
             public Observable<Page<List<PropertySet>>> call(final List<PropertySet> propertySets) {
                 logPropertySet(propertySets);
                 if (propertySets.size() == DEFAULT_LIMIT) {
-                    return loadNextPage(userUrn, propertySets, offset, currentTimestamp);
+                    return loadNextPage(userUrn, propertySets);
                 } else {
-                    return backfillSoundStreamAndReload(userUrn, propertySets, currentTimestamp, offset);
+                    return backfillSoundStreamAndReload(userUrn, currentTimestamp);
                 }
             }
 
@@ -65,17 +65,14 @@ class SoundStreamOperations {
         };
     }
 
-    private Observable<Page<List<PropertySet>>> loadNextPage(
-            Urn userUrn, List<PropertySet> propertySets, int currentOffset, long currentTimestamp) {
-        final long timestampOfFirstItem = propertySets.get(0).get(StreamItemProperty.CREATED_AT).getTime();
-        // we fix the timestamp to that of the first item so as to keep paging stable in case new
-        // items gets synced in meanwhile
-        final long timestamp = currentOffset == 0 ? timestampOfFirstItem : currentTimestamp;
-        return loadPagedStreamItems(userUrn, timestamp, currentOffset + DEFAULT_LIMIT);
+    private Observable<Page<List<PropertySet>>> loadNextPage(Urn userUrn, List<PropertySet> propertySets) {
+        final PropertySet lastItem = propertySets.get(propertySets.size() - 1);
+        final long timestampOfLastItem = lastItem.get(StreamItemProperty.CREATED_AT).getTime();
+        return loadPagedStreamItems(userUrn, timestampOfLastItem);
     }
 
     private Observable<Page<List<PropertySet>>> backfillSoundStreamAndReload(
-            final Urn userUrn, final List<PropertySet> propertySets, final long currentTimestamp, final int currentOffset) {
+            final Urn userUrn, final long currentTimestamp) {
         Log.d(TAG, "Not enough items; next page will trigger sync");
         return Observable.create(new Observable.OnSubscribe<Page<List<PropertySet>>>() {
             @Override
@@ -88,7 +85,7 @@ class SoundStreamOperations {
         }).mergeMap(new Func1<Page<List<PropertySet>>, Observable<Page<List<PropertySet>>>>() {
             @Override
             public Observable<Page<List<PropertySet>>> call(Page<List<PropertySet>> listPage) {
-                return loadPagedStreamItems(userUrn, currentTimestamp, currentOffset + propertySets.size());
+                return loadPagedStreamItems(userUrn, currentTimestamp);
             }
         });
     }

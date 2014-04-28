@@ -49,7 +49,7 @@ public class SoundStreamStorageTest {
         helper.insertTrackPost(track, TIMESTAMP);
 
         TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
-        storage.loadStreamItemsAsync(Urn.forUser(123), TIMESTAMP, 50, 0).subscribe(observer);
+        storage.loadStreamItemsAsync(Urn.forUser(123), Long.MAX_VALUE, 50).subscribe(observer);
 
         final PropertySet trackPost = PropertySet.from(
                 StreamItemProperty.SOUND_URN.bind(Urn.forTrack(track.getId())),
@@ -70,7 +70,7 @@ public class SoundStreamStorageTest {
         helper.insertTrackRepost(track, reposter, TIMESTAMP);
 
         TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
-        storage.loadStreamItemsAsync(Urn.forUser(123), TIMESTAMP, 50, 0).subscribe(observer);
+        storage.loadStreamItemsAsync(Urn.forUser(123), Long.MAX_VALUE, 50).subscribe(observer);
 
         final PropertySet trackRepost = PropertySet.from(
                 StreamItemProperty.SOUND_URN.bind(Urn.forTrack(track.getId())),
@@ -90,7 +90,7 @@ public class SoundStreamStorageTest {
         helper.insertPlaylistPost(playlist, TIMESTAMP);
 
         TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
-        storage.loadStreamItemsAsync(Urn.forUser(123), TIMESTAMP, 50, 0).subscribe(observer);
+        storage.loadStreamItemsAsync(Urn.forUser(123), Long.MAX_VALUE, 50).subscribe(observer);
 
         final PropertySet playlistPost = PropertySet.from(
                 StreamItemProperty.SOUND_URN.bind(Urn.forPlaylist(playlist.getId())),
@@ -111,7 +111,7 @@ public class SoundStreamStorageTest {
         helper.insertPlaylistRepost(playlist, reposter, TIMESTAMP);
 
         TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
-        storage.loadStreamItemsAsync(Urn.forUser(123), TIMESTAMP, 50, 0).subscribe(observer);
+        storage.loadStreamItemsAsync(Urn.forUser(123), Long.MAX_VALUE, 50).subscribe(observer);
 
         final PropertySet playlistRepost = PropertySet.from(
                 StreamItemProperty.SOUND_URN.bind(Urn.forPlaylist(playlist.getId())),
@@ -132,7 +132,7 @@ public class SoundStreamStorageTest {
         helper.insertComment();
 
         TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
-        storage.loadStreamItemsAsync(Urn.forUser(123), Long.MAX_VALUE, 50, 0).subscribe(observer);
+        storage.loadStreamItemsAsync(Urn.forUser(123), Long.MAX_VALUE, 50).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(0);
         expect(observer.getOnCompletedEvents()).toNumber(1);
@@ -145,51 +145,35 @@ public class SoundStreamStorageTest {
         helper.insertAffiliation();
 
         TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
-        storage.loadStreamItemsAsync(Urn.forUser(123), Long.MAX_VALUE, 50, 0).subscribe(observer);
+        storage.loadStreamItemsAsync(Urn.forUser(123), Long.MAX_VALUE, 50).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(0);
         expect(observer.getOnCompletedEvents()).toNumber(1);
     }
 
     @Test
-    public void shouldLoadFirstPageViaLimitAndOffset() throws CreateModelException {
-        final TrackSummary postedTrack = helper.insertTrack();
-        helper.insertTrackPost(postedTrack, TIMESTAMP);
-        final TrackSummary repostedTrack = helper.insertTrack();
-        helper.insertTrackRepost(repostedTrack, helper.insertUser(), TIMESTAMP - 1);
+    public void loadingStreamItemsTakesIntoAccountTheGivenLimit() throws CreateModelException {
+        final TrackSummary firstTrack = helper.insertTrack();
+        helper.insertTrackPost(firstTrack, TIMESTAMP);
+        helper.insertTrackPost(helper.insertTrack(), TIMESTAMP - 1);
 
         TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
-        storage.loadStreamItemsAsync(Urn.forUser(123), TIMESTAMP, 1, 0).subscribe(observer);
+        storage.loadStreamItemsAsync(Urn.forUser(123), Long.MAX_VALUE, 1).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).get(StreamItemProperty.SOUND_URN)).toEqual(postedTrack.getUrn());
+        expect(observer.getOnNextEvents().get(0).get(StreamItemProperty.SOUND_URN)).toEqual(firstTrack.getUrn());
     }
 
     @Test
-    public void shouldLoadNextPageViaLimitAndOffset() throws CreateModelException {
-        final TrackSummary postedTrack = helper.insertTrack();
-        helper.insertTrackPost(postedTrack, TIMESTAMP);
-        final TrackSummary repostedTrack = helper.insertTrack();
-        helper.insertTrackRepost(repostedTrack, helper.insertUser(), TIMESTAMP - 1);
+    public void loadingStreamItemsOnlyLoadsItemsOlderThanTheGivenTimestamp() throws CreateModelException {
+        helper.insertTrackPost(helper.insertTrack(), TIMESTAMP);
+        final TrackSummary secondTrack = helper.insertTrack();
+        helper.insertTrackPost(secondTrack, TIMESTAMP - 1);
 
         TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
-        storage.loadStreamItemsAsync(Urn.forUser(123), TIMESTAMP, 1, 1).subscribe(observer);
+        storage.loadStreamItemsAsync(Urn.forUser(123), TIMESTAMP, 50).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).get(StreamItemProperty.SOUND_URN)).toEqual(repostedTrack.getUrn());
+        expect(observer.getOnNextEvents().get(0).get(StreamItemProperty.SOUND_URN)).toEqual(secondTrack.getUrn());
     }
-
-    @Test
-    public void shouldOnlyReturnRecordsFromOrBeforeTheGivenTimestamp() throws CreateModelException {
-        TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
-        helper.insertTrackPost(helper.insertTrack(), TIMESTAMP + 1);
-        final TrackSummary expectedTrack = helper.insertTrack();
-        helper.insertTrackPost(expectedTrack, TIMESTAMP);
-
-        storage.loadStreamItemsAsync(Urn.forUser(123), TIMESTAMP, 2, 0).subscribe(observer);
-
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).get(StreamItemProperty.SOUND_URN)).toEqual(expectedTrack.getUrn());
-    }
-
 }
