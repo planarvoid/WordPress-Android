@@ -22,12 +22,12 @@ import javax.inject.Inject;
 public class ExploreFragment extends Fragment {
 
     @Inject
-    EventBus mEventBus;
+    EventBus eventBus;
     @Inject
-    ExplorePagerAdapterFactory mPagerAdapterFactory;
+    ExplorePagerAdapterFactory pagerAdapterFactory;
 
-    private ExplorePagerAdapter mPagerAdapter;
-    private ViewPager mPager;
+    private ExplorePagerAdapter pagerAdapter;
+    private ViewPager pager;
 
     public ExploreFragment() {
         setRetainInstance(true);
@@ -36,8 +36,8 @@ public class ExploreFragment extends Fragment {
 
     @VisibleForTesting
     ExploreFragment(ExplorePagerAdapterFactory pagerAdapterFactory, EventBus eventBus) {
-        mPagerAdapterFactory = pagerAdapterFactory;
-        mEventBus = eventBus;
+        this.pagerAdapterFactory = pagerAdapterFactory;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -53,19 +53,19 @@ public class ExploreFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mPager = (ViewPager) view.findViewById(R.id.pager);
-        mPager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
-        mPager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
+        pager = (ViewPager) view.findViewById(R.id.pager);
+        pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
+        pager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        mPagerAdapter = mPagerAdapterFactory.create(this.getChildFragmentManager());
-        mPager.setAdapter(mPagerAdapter);
+        pagerAdapter = pagerAdapterFactory.create(this.getChildFragmentManager());
+        pager.setAdapter(pagerAdapter);
 
         SlidingTabLayout tabIndicator = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
-        tabIndicator.setViewPager(mPager);
-        tabIndicator.setOnPageChangeListener(new ExplorePagerScreenListener(mEventBus));
+        tabIndicator.setViewPager(pager);
+        tabIndicator.setOnPageChangeListener(new ExplorePagerScreenListener(eventBus));
 
         if (savedInstanceState == null) {
-            mPager.setCurrentItem(1);
+            pager.setCurrentItem(1);
         }
     }
 
@@ -73,8 +73,8 @@ public class ExploreFragment extends Fragment {
     public void onDestroyView() {
         // it's important to reset the adapter here. since otherwise this will leak a Context reference through
         // the dataset observer Android registers internally (and we're retaining the adapter instance)
-        mPager = null;
-        mPagerAdapter = null;
+        pager = null;
+        pagerAdapter = null;
         super.onDestroyView();
     }
 

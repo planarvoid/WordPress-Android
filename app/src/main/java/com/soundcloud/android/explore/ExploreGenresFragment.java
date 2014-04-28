@@ -38,24 +38,24 @@ import java.util.Arrays;
 @SuppressLint("ValidFragment")
 public class ExploreGenresFragment extends Fragment implements AdapterView.OnItemClickListener, EmptyViewAware {
 
-    private EmptyListView mEmptyListView;
-    private int mEmptyViewStatus;
+    private EmptyListView emptyView;
+    private int emptyViewStatus;
 
     @Inject
-    EventBus mEventBus;
+    EventBus eventBus;
 
     @Inject
-    ExploreTracksOperations mExploreOperations;
+    ExploreTracksOperations exploreOperations;
 
     @Inject
-    ExploreGenresAdapter mGenresAdapter;
+    ExploreGenresAdapter genresAdapter;
 
     @Inject
-    ImageOperations mImageOperations;
+    ImageOperations imageOperations;
 
-    private ConnectableObservable<Section<ExploreGenre>> mGenresObservable;
-    private Subscription mGenresSubscription = Subscriptions.empty();
-    private Subscription mListViewSubscription = Subscriptions.empty();
+    private ConnectableObservable<Section<ExploreGenre>> genresObservable;
+    private Subscription genresSubscription = Subscriptions.empty();
+    private Subscription listViewSubscription = Subscriptions.empty();
 
     public ExploreGenresFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -64,27 +64,27 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
     @VisibleForTesting
     protected ExploreGenresFragment(ExploreTracksOperations exploreOperations, ExploreGenresAdapter adapter,
                                     ImageOperations imageOperations, EventBus eventBus) {
-        mExploreOperations = exploreOperations;
-        mImageOperations = imageOperations;
-        mGenresAdapter = adapter;
-        mEventBus = eventBus;
+        this.exploreOperations = exploreOperations;
+        this.imageOperations = imageOperations;
+        this.genresAdapter = adapter;
+        this.eventBus = eventBus;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mGenresObservable = prepareGenresObservable();
-        mGenresSubscription = mGenresObservable.connect();
+        genresObservable = prepareGenresObservable();
+        genresSubscription = genresObservable.connect();
     }
 
     private ConnectableObservable<Section<ExploreGenre>> prepareGenresObservable() {
-        final ConnectableObservable<Section<ExploreGenre>> observable = mExploreOperations.getCategories()
+        final ConnectableObservable<Section<ExploreGenre>> observable = exploreOperations.getCategories()
                 .mergeMap(GENRES_TO_SECTIONS)
                 .observeOn(mainThread())
                 .replay();
         // subscribe the adapter immediately; since we retain it, we don't go through unsubscribe/resubscribe so we
         // don't have to deal with duplication issues by loading items into it that were cached by `replay`
-        observable.subscribe(mGenresAdapter);
+        observable.subscribe(genresAdapter);
         return observable;
     }
 
@@ -97,9 +97,9 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(getActivity(), ExploreTracksCategoryActivity.class);
         int adjustedPosition = position - ((ListView) parent).getHeaderViewsCount();
-        ExploreGenre category = mGenresAdapter.getItem(adjustedPosition);
+        ExploreGenre category = genresAdapter.getItem(adjustedPosition);
 
-        mEventBus.publish(EventQueue.SCREEN_ENTERED, (String) view.getTag());
+        eventBus.publish(EventQueue.SCREEN_ENTERED, (String) view.getTag());
 
         intent.putExtra(ExploreGenre.EXPLORE_GENRE_EXTRA, category);
         intent.putExtra(ExploreTracksFragment.SCREEN_TAG_EXTRA, view.getTag().toString());
@@ -110,26 +110,26 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
-        mEmptyListView.setStatus(mEmptyViewStatus);
-        mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
+        emptyView = (EmptyListView) view.findViewById(android.R.id.empty);
+        emptyView.setStatus(emptyViewStatus);
+        emptyView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
                 setEmptyViewStatus(EmptyListView.Status.WAITING);
-                mGenresObservable = prepareGenresObservable();
-                mListViewSubscription = mGenresObservable.subscribe(
+                genresObservable = prepareGenresObservable();
+                listViewSubscription = genresObservable.subscribe(
                         new ListFragmentSubscriber<Section<ExploreGenre>>(ExploreGenresFragment.this));
-                mGenresSubscription = mGenresObservable.connect();
+                genresSubscription = genresObservable.connect();
             }
         });
 
         ListView listview = getListView();
         listview.setOnItemClickListener(this);
-        listview.setAdapter(mGenresAdapter);
-        listview.setEmptyView(mEmptyListView);
-        listview.setOnScrollListener(mImageOperations.createScrollPauseListener(false, true));
+        listview.setAdapter(genresAdapter);
+        listview.setEmptyView(emptyView);
+        listview.setOnScrollListener(imageOperations.createScrollPauseListener(false, true));
 
-        mListViewSubscription = mGenresObservable.subscribe(new ListFragmentSubscriber<Section<ExploreGenre>>(this));
+        listViewSubscription = genresObservable.subscribe(new ListFragmentSubscriber<Section<ExploreGenre>>(this));
     }
 
     private ListView getListView() {
@@ -138,14 +138,14 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
 
     @Override
     public void onDestroy() {
-        mGenresSubscription.unsubscribe();
+        genresSubscription.unsubscribe();
         super.onDestroy();
     }
 
     @Override
     public void onDestroyView() {
         // always unsubscribe the list view subscriber when we destroy the views
-        mListViewSubscription.unsubscribe();
+        listViewSubscription.unsubscribe();
         // we keep the adapter subscribed, but detach it as a DataSetObserver from the list view
         ((ListView) getView().findViewById(android.R.id.list)).setAdapter(null);
         super.onDestroyView();
@@ -153,9 +153,9 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
 
     @Override
     public void setEmptyViewStatus(int status) {
-        mEmptyViewStatus = status;
-        if (mEmptyListView != null) {
-            mEmptyListView.setStatus(status);
+        emptyViewStatus = status;
+        if (emptyView != null) {
+            emptyView.setStatus(status);
         }
     }
 

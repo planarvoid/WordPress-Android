@@ -42,28 +42,28 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     static final String SCREEN_TAG_EXTRA = "screen_tag";
 
     private static final int GRID_VIEW_ID = R.id.suggested_tracks_grid;
-    private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
-    private EmptyListView mEmptyListView;
-    private String mLastExploreTag;
-
-    @Inject
-    ExploreTracksAdapter mAdapter;
+    private int emptyViewStatus = EmptyListView.Status.WAITING;
+    private EmptyListView emptyView;
+    private String lastExploreTag;
 
     @Inject
-    PlaybackOperations mPlaybackOperations;
+    ExploreTracksAdapter adapter;
 
     @Inject
-    ImageOperations mImageOperations;
+    PlaybackOperations playbackOperations;
 
     @Inject
-    ExploreTracksOperations mExploreTracksOperations;
+    ImageOperations imageOperations;
 
     @Inject
-    PullToRefreshController mPullToRefreshController;
+    ExploreTracksOperations exploreTracksOperations;
 
-    private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
-    private Subscription mSubscription = Subscriptions.empty();
+    @Inject
+    PullToRefreshController pullToRefreshController;
+
+    private ConnectableObservable<Page<SuggestedTracksCollection>> suggestedTracksObservable;
+    private Subscription subscription = Subscriptions.empty();
 
     public static ExploreTracksFragment create(ExploreGenre category, Screen screenTag) {
         final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
@@ -82,8 +82,8 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSuggestedTracksObservable = buildSuggestedTracksObservable();
-        loadTrackSuggestions(mSuggestedTracksObservable, new ExploreTracksSubscriber());
+        suggestedTracksObservable = buildSuggestedTracksObservable();
+        loadTrackSuggestions(suggestedTracksObservable, new ExploreTracksSubscriber());
     }
 
     @Override
@@ -94,7 +94,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> buildSuggestedTracksObservable() {
         final ExploreGenre category = getExploreCategory();
-        return mExploreTracksOperations.getSuggestedTracks(category).observeOn(mainThread()).replay();
+        return exploreTracksOperations.getSuggestedTracks(category).observeOn(mainThread()).replay();
     }
 
     private ExploreGenre getExploreCategory() {
@@ -104,9 +104,9 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     private void loadTrackSuggestions(ConnectableObservable<Page<SuggestedTracksCollection>> observable,
                                       Subscriber<Page<SuggestedTracksCollection>> fragmentObserver) {
         setEmptyViewStatus(EmptyListView.Status.WAITING);
-        observable.subscribe(mAdapter);
+        observable.subscribe(adapter);
         observable.subscribe(fragmentObserver);
-        mSubscription = observable.connect();
+        subscription = observable.connect();
     }
 
     @Override
@@ -116,32 +116,32 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final Track track = new Track(mAdapter.getItem(position));
+        final Track track = new Track(adapter.getItem(position));
         final String screenTagExtra = getArguments().getString(SCREEN_TAG_EXTRA);
-        mPlaybackOperations.playExploreTrack(getActivity(), track, mLastExploreTag, screenTagExtra);
+        playbackOperations.playExploreTrack(getActivity(), track, lastExploreTag, screenTagExtra);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
-        mEmptyListView.setStatus(mEmptyViewStatus);
-        mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
+        emptyView = (EmptyListView) view.findViewById(android.R.id.empty);
+        emptyView.setStatus(emptyViewStatus);
+        emptyView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
-                mSuggestedTracksObservable = buildSuggestedTracksObservable();
-                loadTrackSuggestions(mSuggestedTracksObservable, new ExploreTracksSubscriber());
+                suggestedTracksObservable = buildSuggestedTracksObservable();
+                loadTrackSuggestions(suggestedTracksObservable, new ExploreTracksSubscriber());
             }
         });
 
         GridView gridView = (GridView) view.findViewById(GRID_VIEW_ID);
         gridView.setOnItemClickListener(this);
-        gridView.setAdapter(mAdapter);
-        gridView.setEmptyView(mEmptyListView);
+        gridView.setAdapter(adapter);
+        gridView.setEmptyView(emptyView);
 
         // Make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
-        gridView.setOnScrollListener(new AbsListViewParallaxer(mImageOperations.createScrollPauseListener(false, true, mAdapter)));
+        gridView.setOnScrollListener(new AbsListViewParallaxer(imageOperations.createScrollPauseListener(false, true, adapter)));
 
         setupPullToRefresh(view);
     }
@@ -150,7 +150,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         // Work around for child fragment issue where getActivity() returns previous instance after rotate
         FragmentActivity actionBarOwner = getParentFragment() == null ? getActivity() : getParentFragment().getActivity();
         PullToRefreshLayout pullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.ptr_layout);
-        mPullToRefreshController.attach(actionBarOwner, pullToRefreshLayout, this);
+        pullToRefreshController.attach(actionBarOwner, pullToRefreshLayout, this);
     }
 
     @Override
@@ -161,16 +161,16 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     @Override
     public void onDestroy() {
-        mSubscription.unsubscribe();
+        subscription.unsubscribe();
         super.onDestroy();
     }
 
 
     @Override
     public void setEmptyViewStatus(int status) {
-        mEmptyViewStatus = status;
-        if (mEmptyListView != null) {
-            mEmptyListView.setStatus(status);
+        emptyViewStatus = status;
+        if (emptyView != null) {
+            emptyView.setStatus(status);
         }
     }
 
@@ -182,7 +182,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
         @Override
         public void onNext(Page<SuggestedTracksCollection> element) {
-            mLastExploreTag = element.getPagedCollection().getTrackingTag();
+            lastExploreTag = element.getPagedCollection().getTrackingTag();
         }
     }
 
@@ -192,21 +192,21 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
      */
     private final class PullToRefreshSubscriber extends ListFragmentSubscriber<Page<SuggestedTracksCollection>> {
 
-        private final ConnectableObservable<Page<SuggestedTracksCollection>> mNewObservable;
-        private Page<SuggestedTracksCollection> mRefreshedPage;
+        private final ConnectableObservable<Page<SuggestedTracksCollection>> newObservable;
+        private Page<SuggestedTracksCollection> refreshedPage;
 
         public PullToRefreshSubscriber(ConnectableObservable<Page<SuggestedTracksCollection>> newObservable) {
             super(ExploreTracksFragment.this);
-            mNewObservable = newObservable;
+            this.newObservable = newObservable;
         }
 
         @Override
         public void onCompleted() {
-            mAdapter.clear();
-            mAdapter.notifyDataSetChanged();
-            mAdapter.onNext(mRefreshedPage);
-            mAdapter.onCompleted();
-            mSuggestedTracksObservable = mNewObservable;
+            adapter.clear();
+            adapter.notifyDataSetChanged();
+            adapter.onNext(refreshedPage);
+            adapter.onCompleted();
+            suggestedTracksObservable = newObservable;
             hidePullToRefreshView();
         }
 
@@ -218,11 +218,11 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
         @Override
         public void onNext(Page<SuggestedTracksCollection> page) {
-            mRefreshedPage = page;
+            refreshedPage = page;
         }
 
         private void hidePullToRefreshView() {
-            mPullToRefreshController.stopRefreshing();
+            pullToRefreshController.stopRefreshing();
         }
     }
 }

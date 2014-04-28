@@ -19,12 +19,12 @@ import javax.inject.Inject;
 
 public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
 
-    private final ImageOperations mImageOperations;
+    private final ImageOperations imageOperations;
 
     @Inject
     public ExploreTracksAdapter(ImageOperations imageOperations) {
         super(Consts.CARD_PAGE_SIZE, R.layout.grid_loading_item);
-        mImageOperations = imageOperations;
+        this.imageOperations = imageOperations;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
         viewHolder.username.setText(track.getUserName());
         viewHolder.title.setText(track.getTitle());
 
-        if (TextUtils.isEmpty(track.getGenre())){
+        if (TextUtils.isEmpty(track.getGenre())) {
             viewHolder.genre.setVisibility(View.GONE);
         } else {
             viewHolder.genre.setText("#" + track.getGenre());
@@ -60,7 +60,7 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
         viewHolder.playcount.setText(playcountWithCommas);
 
         final ImageSize imageSize = ImageSize.getFullImageSize(itemView.getResources());
-        mImageOperations.displayInAdapterView(track.getUrn(), imageSize, viewHolder.imageView);
+        imageOperations.displayInAdapterView(track.getUrn(), imageSize, viewHolder.imageView);
     }
 
     @VisibleForTesting

@@ -27,27 +27,27 @@ import javax.inject.Inject;
 
 class ExploreTracksOperations {
 
-    private final RxHttpClient mRxHttpClient;
-    private final BulkStorage mBulkStorage;
+    private final RxHttpClient rxHttpClient;
+    private final BulkStorage bulkStorage;
 
-    private final Action1<SuggestedTracksCollection> mCacheSuggestedTracks = new Action1<SuggestedTracksCollection>() {
+    private final Action1<SuggestedTracksCollection> cacheSuggestedTracks = new Action1<SuggestedTracksCollection>() {
         @Override
         public void call(SuggestedTracksCollection collection) {
-            fireAndForget(mBulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), TrackSummary.TO_TRACK)));
+            fireAndForget(bulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), TrackSummary.TO_TRACK)));
         }
     };
 
     @Inject
     ExploreTracksOperations(RxHttpClient rxHttpClient, BulkStorage bulkStorage) {
-        mRxHttpClient = rxHttpClient;
-        mBulkStorage = bulkStorage;
+        this.rxHttpClient = rxHttpClient;
+        this.bulkStorage = bulkStorage;
     }
 
     public Observable<ExploreGenresSections> getCategories() {
         APIRequest<ExploreGenresSections> request = SoundCloudAPIRequest.RequestBuilder.<ExploreGenresSections>get(APIEndpoints.EXPLORE_TRACKS_CATEGORIES.path())
                 .forPrivateAPI(1)
                 .forResource(TypeToken.of(ExploreGenresSections.class)).build();
-        return mRxHttpClient.fetchModels(request);
+        return rxHttpClient.fetchModels(request);
     }
 
     public Observable<Page<SuggestedTracksCollection>> getSuggestedTracks(ExploreGenre category) {
@@ -66,8 +66,8 @@ class ExploreTracksOperations {
                 .forPrivateAPI(1)
                 .forResource(TypeToken.of(SuggestedTracksCollection.class)).build();
 
-        Observable<SuggestedTracksCollection> source = mRxHttpClient.fetchModels(request);
-        return source.doOnNext(mCacheSuggestedTracks).lift(pagedWith(pager));
+        Observable<SuggestedTracksCollection> source = rxHttpClient.fetchModels(request);
+        return source.doOnNext(cacheSuggestedTracks).lift(pagedWith(pager));
     }
 
     private final Pager<SuggestedTracksCollection> pager = new Pager<SuggestedTracksCollection>() {

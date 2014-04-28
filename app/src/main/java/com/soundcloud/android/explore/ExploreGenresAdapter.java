@@ -16,17 +16,17 @@ class ExploreGenresAdapter extends SectionedAdapter<ExploreGenre> {
 
     static final int AUDIO_SECTION = 0;
     static final int MUSIC_SECTION = 1;
-    private final LayoutInflater mLayoutInflater;
+    private final LayoutInflater layoutInflater;
 
     @Inject
     public ExploreGenresAdapter(LayoutInflater layoutInflater) {
-        mLayoutInflater = layoutInflater;
+        this.layoutInflater = layoutInflater;
     }
 
 
     @Override
     protected ExploreGenreCategoryRow createItemView(int position, ViewGroup parent) {
-        return (ExploreGenreCategoryRow) mLayoutInflater.inflate(R.layout.explore_genre_item, parent, false);
+        return (ExploreGenreCategoryRow) layoutInflater.inflate(R.layout.explore_genre_item, parent, false);
     }
 
     @Override

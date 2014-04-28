@@ -12,14 +12,14 @@ import javax.inject.Inject;
  */
 public class ExplorePagerAdapterFactory {
 
-    private final Resources mResources;
+    private final Resources resources;
 
     @Inject
     public ExplorePagerAdapterFactory(Resources resources) {
-        mResources = resources;
+        this.resources = resources;
     }
 
     public ExplorePagerAdapter create(FragmentManager fragmentManager) {
-        return new ExplorePagerAdapter(mResources, fragmentManager);
+        return new ExplorePagerAdapter(resources, fragmentManager);
     }
 }

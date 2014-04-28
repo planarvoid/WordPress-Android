@@ -14,16 +14,16 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
     protected static final int TAB_TRENDING_MUSIC = 1;
     protected static final int TAB_TRENDING_AUDIO = 2;
 
-    private final Resources mResources;
+    private final Resources resources;
 
     public ExplorePagerAdapter(Resources resources, FragmentManager fm) {
         super(fm);
-        mResources = resources;
+        this.resources = resources;
     }
 
     @Override
     public float getPageWidth(int position) {
-        return position == 0 ? mResources.getDimension(R.dimen.explore_category_page_size) : super.getPageWidth(position);
+        return position == 0 ? resources.getDimension(R.dimen.explore_category_page_size) : super.getPageWidth(position);
     }
 
     @Override
@@ -48,11 +48,11 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case TAB_GENRES:
-                return mResources.getString(R.string.explore_genres);
+                return resources.getString(R.string.explore_genres);
             case TAB_TRENDING_MUSIC:
-                return mResources.getString(R.string.explore_category_trending_music);
+                return resources.getString(R.string.explore_category_trending_music);
             case TAB_TRENDING_AUDIO:
-                return mResources.getString(R.string.explore_category_trending_audio);
+                return resources.getString(R.string.explore_category_trending_audio);
         }
         throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
     }
