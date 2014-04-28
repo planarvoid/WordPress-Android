@@ -6,17 +6,18 @@ import android.view.View;
 import android.widget.TextView;
 
 public class ExpectedConditions {
-    private final View mView;
-    private final Waiter mWaiter;
+
+    private final View view;
+    private final Waiter waiter;
 
     public ExpectedConditions(Waiter waiter, View view) {
-        mWaiter = waiter;
-        mView = view;
+        this.waiter = waiter;
+        this.view = view;
     }
 
     public void toHaveText(String text) {
-        mWaiter.waitForTextInView((TextView) mView, text);
-        assertEquals("Element should have text", text, ((TextView) mView).getText());
+        waiter.waitForTextInView((TextView) view, text);
+        assertEquals("Element should have text", text, ((TextView) view).getText());
     }
 
 }

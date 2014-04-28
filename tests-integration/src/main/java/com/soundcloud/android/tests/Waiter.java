@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class Waiter {
@@ -278,16 +277,16 @@ public class Waiter {
     }
 
     private class TextInViewCondition implements Condition {
-        private final TextView mView;
-        private final String mText;
+        private final TextView view;
+        private final String text;
 
         private TextInViewCondition(TextView view, String text) {
-            mView = view;
-            mText = text;
+            this.view = view;
+            this.text = text;
         }
         @Override
         public boolean isSatisfied() {
-            return mView.getText().equals(mText);
+            return view.getText().equals(text);
         }
     }
 }
