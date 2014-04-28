@@ -35,21 +35,21 @@ public final class MotionEventUtils {
     public static final int ACTION_POINTER_INDEX_MASK = 0x0000ff00;
     public static final int ACTION_POINTER_INDEX_SHIFT = 8;
 
-    public static boolean sMultiTouchApiAvailable;
+    public static boolean multiTouchApiAvailable;
 
     private MotionEventUtils() {}
 
     static {
         try {
             MotionEvent.class.getMethod("getPointerId", new Class[]{int.class});
-            sMultiTouchApiAvailable = true;
+            multiTouchApiAvailable = true;
         } catch (NoSuchMethodException nsme) {
-            sMultiTouchApiAvailable = false;
+            multiTouchApiAvailable = false;
         }
     }
 
     public static float getX(MotionEvent ev, int pointerIndex) {
-        if (sMultiTouchApiAvailable) {
+        if (multiTouchApiAvailable) {
             return WrappedStaticMotionEvent.getX(ev, pointerIndex);
         } else {
             return ev.getX();
@@ -57,7 +57,7 @@ public final class MotionEventUtils {
     }
 
     public static float getY(MotionEvent ev, int pointerIndex) {
-        if (sMultiTouchApiAvailable) {
+        if (multiTouchApiAvailable) {
             return WrappedStaticMotionEvent.getY(ev, pointerIndex);
         } else {
             return ev.getY();
@@ -65,7 +65,7 @@ public final class MotionEventUtils {
     }
 
     public static int getPointerId(MotionEvent ev, int pointerIndex) {
-        if (sMultiTouchApiAvailable) {
+        if (multiTouchApiAvailable) {
             return WrappedStaticMotionEvent.getPointerId(ev, pointerIndex);
         } else {
             return 0;
@@ -73,7 +73,7 @@ public final class MotionEventUtils {
     }
 
     public static int findPointerIndex(MotionEvent ev, int pointerId) {
-        if (sMultiTouchApiAvailable) {
+        if (multiTouchApiAvailable) {
             return WrappedStaticMotionEvent.findPointerIndex(ev, pointerId);
         } else {
             return (pointerId == 0) ? 0 : -1;

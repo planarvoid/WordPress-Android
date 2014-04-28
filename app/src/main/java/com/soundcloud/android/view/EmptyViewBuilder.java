@@ -17,17 +17,17 @@ import android.net.Uri;
  */
 public class EmptyViewBuilder {
 
-    private int mImage;
-    private String mMessageText, mActionText, mSecondaryText;
-    private Intent mAction;
+    private int image;
+    private String messageText, actionText, secondaryText;
+    private Intent action;
 
     public EmptyListView build(Context context) {
         EmptyListView view = new EmptyListView(context);
-        if (mMessageText != null) view.setMessageText(mMessageText);
-        if (mActionText != null) view.setActionText(mActionText);
-        if (mSecondaryText != null) view.setSecondaryText(mSecondaryText);
-        if (mImage > 0) view.setImage(mImage);
-        view.setButtonActions(mAction);
+        if (messageText != null) view.setMessageText(messageText);
+        if (actionText != null) view.setActionText(actionText);
+        if (secondaryText != null) view.setSecondaryText(secondaryText);
+        if (image > 0) view.setImage(image);
+        view.setButtonActions(action);
         return view;
     }
 
@@ -35,74 +35,74 @@ public class EmptyViewBuilder {
 
         switch (Content.match(contentUri)) {
             case ME_SOUND_STREAM:
-                mImage = R.drawable.empty_stream;
+                image = R.drawable.empty_stream;
                 if (Consts.StringValues.ERROR.equals(contentUri.getQueryParameter(Consts.Keys.ONBOARDING))) {
-                    mMessageText = context.getString(R.string.error_onboarding_fail);
+                    messageText = context.getString(R.string.error_onboarding_fail);
                 } else {
-                    mMessageText = context.getString(R.string.list_empty_stream_message);
-                    mActionText = context.getString(R.string.list_empty_stream_action);
-                    mAction = new Intent(Actions.WHO_TO_FOLLOW);
+                    messageText = context.getString(R.string.list_empty_stream_message);
+                    actionText = context.getString(R.string.list_empty_stream_action);
+                    action = new Intent(Actions.WHO_TO_FOLLOW);
                 }
                 break;
 
             case ME_ACTIVITIES:
-                mImage = R.drawable.empty_activity;
-                mMessageText = context.getString(R.string.list_empty_activity_message);
-                mSecondaryText = context.getString(R.string.list_empty_activity_secondary);
+                image = R.drawable.empty_activity;
+                messageText = context.getString(R.string.list_empty_activity_message);
+                secondaryText = context.getString(R.string.list_empty_activity_secondary);
                 break;
 
             // user browser specific
             case ME_SOUNDS:
-                mImage = R.drawable.empty_sounds;
-                mMessageText = context.getString(R.string.list_empty_user_sounds_message);
+                image = R.drawable.empty_sounds;
+                messageText = context.getString(R.string.list_empty_user_sounds_message);
                 break;
 
             case USER_SOUNDS:
-                mImage = R.drawable.empty_sounds;
-                mMessageText = getTextForUser(context, R.string.empty_user_tracks_text, user);
+                image = R.drawable.empty_sounds;
+                messageText = getTextForUser(context, R.string.empty_user_tracks_text, user);
                 break;
 
             case ME_PLAYLISTS:
-                mImage = R.drawable.empty_playlists;
-                mMessageText = context.getString(R.string.list_empty_you_playlists_message);
+                image = R.drawable.empty_playlists;
+                messageText = context.getString(R.string.list_empty_you_playlists_message);
                 break;
 
             case USER_PLAYLISTS:
-                mImage = R.drawable.empty_playlists;
-                mMessageText = getTextForUser(context, R.string.list_empty_user_playlists_message, user);
+                image = R.drawable.empty_playlists;
+                messageText = getTextForUser(context, R.string.list_empty_user_playlists_message, user);
                 break;
 
             case ME_LIKES:
-                mMessageText = context.getString(R.string.list_empty_user_likes_message);
-                mImage = R.drawable.empty_like;
+                messageText = context.getString(R.string.list_empty_user_likes_message);
+                image = R.drawable.empty_like;
                 break;
 
             case USER_LIKES:
-                mImage = R.drawable.empty_like;
-                mMessageText = getTextForUser(context, R.string.empty_user_likes_text, user);
+                image = R.drawable.empty_like;
+                messageText = getTextForUser(context, R.string.empty_user_likes_text, user);
                 break;
 
             case ME_FOLLOWERS:
-                mImage = R.drawable.empty_followers;
-                mSecondaryText = context.getString(R.string.list_empty_user_followers_secondary);
-                mMessageText = context.getString(R.string.list_empty_user_followers_message);
+                image = R.drawable.empty_followers;
+                secondaryText = context.getString(R.string.list_empty_user_followers_secondary);
+                messageText = context.getString(R.string.list_empty_user_followers_message);
                 break;
 
             case USER_FOLLOWERS:
-                mImage = R.drawable.empty_followers;
-                mMessageText = getTextForUser(context, R.string.empty_user_followers_text, user);
+                image = R.drawable.empty_followers;
+                messageText = getTextForUser(context, R.string.empty_user_followers_text, user);
                 break;
 
             case ME_FOLLOWINGS:
-                mImage = R.drawable.empty_following;
-                mMessageText = context.getString(R.string.list_empty_user_following_message);
-                mActionText = context.getString(R.string.list_empty_user_following_action);
-                mAction = new Intent(Actions.WHO_TO_FOLLOW);
+                image = R.drawable.empty_following;
+                messageText = context.getString(R.string.list_empty_user_following_message);
+                actionText = context.getString(R.string.list_empty_user_following_action);
+                action = new Intent(Actions.WHO_TO_FOLLOW);
                 break;
 
             case USER_FOLLOWINGS:
-                mImage = R.drawable.empty_following;
-                mMessageText = getTextForUser(context, R.string.empty_user_followings_text, user);
+                image = R.drawable.empty_following;
+                messageText = getTextForUser(context, R.string.empty_user_followings_text, user);
                 break;
         }
 
@@ -110,17 +110,17 @@ public class EmptyViewBuilder {
     }
 
     public EmptyViewBuilder withMessageText(@Nullable String messageText) {
-        mMessageText = messageText;
+        this.messageText = messageText;
         return this;
     }
 
     public EmptyViewBuilder withSecondaryText(@Nullable String secondaryText) {
-        mSecondaryText = secondaryText;
+        this.secondaryText = secondaryText;
         return this;
     }
 
     public EmptyViewBuilder withImage(int imageResourceId) {
-        mImage = imageResourceId;
+        image = imageResourceId;
         return this;
     }
 

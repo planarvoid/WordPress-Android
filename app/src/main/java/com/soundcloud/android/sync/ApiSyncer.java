@@ -51,24 +51,25 @@ import java.util.Set;
  * TODO: Split this up into different syncers
  */
 public class ApiSyncer extends SyncStrategy {
-    private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
-    private final ActivitiesStorage mActivitiesStorage;
 
-    private final SoundAssociationStorage mSoundAssociationStorage;
-    private final UserStorage mUserStorage;
-    private final EventBus mEventBus;
+    private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
+    private final ActivitiesStorage activitiesStorage;
+
+    private final SoundAssociationStorage soundAssociationStorage;
+    private final UserStorage userStorage;
+    private final EventBus eventBus;
 
     public ApiSyncer(Context context, ContentResolver resolver) {
         super(context, resolver);
-        mActivitiesStorage = new ActivitiesStorage();
-        mSoundAssociationStorage = new SoundAssociationStorage();
-        mUserStorage = new UserStorage();
-        mEventBus = SoundCloudApplication.fromContext(context).getEventBus();
+        activitiesStorage = new ActivitiesStorage();
+        soundAssociationStorage = new SoundAssociationStorage();
+        userStorage = new UserStorage();
+        eventBus = SoundCloudApplication.fromContext(context).getEventBus();
     }
 
     @NotNull
     public ApiSyncResult syncContent(Uri uri, String action) throws IOException {
-        final long userId = SoundCloudApplication.getUserIdFromContext(mContext);
+        final long userId = SoundCloudApplication.getUserIdFromContext(context);
         Content c = Content.match(uri);
         ApiSyncResult result = new ApiSyncResult(uri);
 
@@ -79,11 +80,11 @@ public class ApiSyncer extends SyncStrategy {
                 case ME:
                     result = syncMe(c);
                     if (result.success) {
-                        mResolver.notifyChange(Content.ME.uri, null);
-                        User loggedInUser = SoundCloudApplication.fromContext(mContext).getLoggedInUser();
-                        mEventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(loggedInUser));
+                        resolver.notifyChange(Content.ME.uri, null);
+                        User loggedInUser = SoundCloudApplication.fromContext(context).getLoggedInUser();
+                        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(loggedInUser));
                     }
-                    PreferenceManager.getDefaultSharedPreferences(mContext)
+                    PreferenceManager.getDefaultSharedPreferences(context)
                             .edit()
                             .putLong(Consts.PrefKeys.LAST_USER_SYNC, System.currentTimeMillis())
                             .apply();
@@ -130,7 +131,7 @@ public class ApiSyncer extends SyncStrategy {
                 case ACTIVITIES_CLEANUP:
                     result = new ApiSyncResult(c.uri);
                     result.success = true;
-                    if (mResolver.update(uri, null, null, null) > 0) {
+                    if (resolver.update(uri, null, null, null) > 0) {
                         result.change = ApiSyncResult.CHANGED;
                     }
                     result.setSyncData(System.currentTimeMillis(), -1);
@@ -153,8 +154,8 @@ public class ApiSyncer extends SyncStrategy {
                 .with("limit", 200)
                 .with("representation", "mini");
 
-        List<SoundAssociation> associations = mApi.readFullCollection(request, ScResource.ScResourceHolder.class);
-        boolean changed = mSoundAssociationStorage.syncToLocal(associations, uri);
+        List<SoundAssociation> associations = api.readFullCollection(request, ScResource.ScResourceHolder.class);
+        boolean changed = soundAssociationStorage.syncToLocal(associations, uri);
         ApiSyncResult result = new ApiSyncResult(uri);
         result.change = changed ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
         result.setSyncData(System.currentTimeMillis(), associations.size());
@@ -172,35 +173,35 @@ public class ApiSyncer extends SyncStrategy {
         final int inserted;
         Activities activities;
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
-            final Activity oldestActivity = mActivitiesStorage.getOldestActivity(c);
+            final Activity oldestActivity = activitiesStorage.getOldestActivity(c);
             Request request = new Request(c.request()).add("limit", Consts.LIST_PAGE_SIZE);
             if (oldestActivity != null) request.add("cursor", oldestActivity.toGUID());
-            activities = Activities.fetch(mApi, request);
+            activities = Activities.fetch(api, request);
             if (activities == null || activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(oldestActivity))) {
                 // this can happen at the end of the list
                 inserted = 0;
             } else {
-                inserted = mActivitiesStorage.insert(c, activities);
+                inserted = activitiesStorage.insert(c, activities);
             }
         } else {
-            final Activity newestActivity = mActivitiesStorage.getLatestActivity(c);
+            final Activity newestActivity = activitiesStorage.getLatestActivity(c);
             Request request = new Request(c.request());
             if (newestActivity != null) request.add("uuid[to]", newestActivity.toGUID());
 
             log("activities: performing activity fetch request " + request);
-            activities = Activities.fetchRecent(mApi, request, MAX_LOOKUP_COUNT);
+            activities = Activities.fetchRecent(api, request, MAX_LOOKUP_COUNT);
 
             if (activities.moreResourcesExist()) {
                 // delete all activities to avoid gaps in the data
-                mResolver.delete(c.uri, null, null);
+                resolver.delete(c.uri, null, null);
             }
 
-            final Activity latestActivity = mActivitiesStorage.getLatestActivity(c);
+            final Activity latestActivity = activitiesStorage.getLatestActivity(c);
             if (activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(latestActivity))) {
                 // this can happen at the beginning of the list if the api returns the first item incorrectly
                 inserted = 0;
             } else {
-                inserted = mActivitiesStorage.insert(c, activities);
+                inserted = activitiesStorage.insert(c, activities);
             }
             result.setSyncData(System.currentTimeMillis(), activities.size());
         }
@@ -212,10 +213,10 @@ public class ApiSyncer extends SyncStrategy {
 
     private ApiSyncResult syncMe(Content c) throws IOException {
         ApiSyncResult result = new ApiSyncResult(c.uri);
-        User user = new FetchUserTask(mApi).resolve(c.request());
+        User user = new FetchUserTask(api).resolve(c.request());
         result.synced_at = System.currentTimeMillis();
         if (user != null) {
-            mUserStorage.createOrUpdate(user);
+            userStorage.createOrUpdate(user);
             result.change = ApiSyncResult.CHANGED;
             result.success = true;
         }
@@ -235,11 +236,11 @@ public class ApiSyncer extends SyncStrategy {
 
         ApiSyncResult result = new ApiSyncResult(c.uri);
         final Request request = c.request();
-        HttpResponse resp = mApi.get(request);
+        HttpResponse resp = api.get(request);
 
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            List<ScModel> models = mApi.getMapper().readValue(resp.getEntity().getContent(),
-                    mApi.getMapper().getTypeFactory().constructCollectionType(List.class, c.modelType));
+            List<ScModel> models = api.getMapper().readValue(resp.getEntity().getContent(),
+                    api.getMapper().getTypeFactory().constructCollectionType(List.class, c.modelType));
 
             List<ContentValues> cvs = new ArrayList<ContentValues>(models.size());
             for (ScModel model : models) {
@@ -249,7 +250,7 @@ public class ApiSyncer extends SyncStrategy {
 
             int inserted = 0;
             if (!cvs.isEmpty()) {
-                inserted = mResolver.bulkInsert(c.uri, cvs.toArray(new ContentValues[cvs.size()]));
+                inserted = resolver.bulkInsert(c.uri, cvs.toArray(new ContentValues[cvs.size()]));
                 log("inserted " + inserted + " generic models");
             }
 
@@ -266,9 +267,9 @@ public class ApiSyncer extends SyncStrategy {
 
         ApiSyncResult result = new ApiSyncResult(Content.ME_CONNECTIONS.uri);
         // compare local vs remote connections
-        List<Connection> list = mApi.readList(Content.ME_CONNECTIONS.request());
+        List<Connection> list = api.readList(Content.ME_CONNECTIONS.request());
         Set<Connection> remoteConnections = new HashSet<Connection>(list);
-        ConnectionDAO connectionDAO = new ConnectionDAO(mResolver);
+        ConnectionDAO connectionDAO = new ConnectionDAO(resolver);
         Set<Connection> storedConnections = new HashSet<Connection>(connectionDAO.queryAll());
 
         if (storedConnections.equals(remoteConnections)) {
@@ -295,7 +296,7 @@ public class ApiSyncer extends SyncStrategy {
      */
     private <T extends ScResource> ApiSyncResult doResourceFetchAndInsert(Uri contentUri, Storage<T> storage) throws IOException {
         ApiSyncResult result = new ApiSyncResult(contentUri);
-        T resource = mApi.read(Content.match(contentUri).request(contentUri));
+        T resource = api.read(Content.match(contentUri).request(contentUri));
 
         storage.store(resource);
 
@@ -327,9 +328,9 @@ public class ApiSyncer extends SyncStrategy {
             HttpUtils.addQueryParams(request, "representation", "compact");
         }
 
-        List<ScResource> resources = mApi.readFullCollection(request, ScResource.ScResourceHolder.class);
+        List<ScResource> resources = api.readFullCollection(request, ScResource.ScResourceHolder.class);
 
-        new BaseDAO<ScResource>(mResolver) {
+        new BaseDAO<ScResource>(resolver) {
             @Override
             public Content getContent() {
                 return content;

@@ -23,10 +23,10 @@ import java.util.Map;
 public class NetworkConnectivityListener {
     private static final String TAG = "NetworkConnectivityListener";
 
-    private Map<Handler, Integer> mHandlers = new HashMap<Handler, Integer>();
-    private @Nullable Context mContext;
+    private Map<Handler, Integer> handlers = new HashMap<Handler, Integer>();
+    private @Nullable Context context;
 
-    private State mState;
+    private State state;
 
     /**
      * Network connectivity information
@@ -65,7 +65,7 @@ public class NetworkConnectivityListener {
      * Create a new NetworkConnectivityListener.
      */
     public NetworkConnectivityListener() {
-        mState = State.UNKNOWN;
+        state = State.UNKNOWN;
         mReceiver = new ConnectivityBroadcastReceiver();
     }
 
@@ -74,8 +74,8 @@ public class NetworkConnectivityListener {
      */
     public NetworkConnectivityListener startListening(Context context) {
         synchronized (this) {
-            if (mContext == null) {
-                mContext = context;
+            if (this.context == null) {
+                this.context = context;
                 IntentFilter filter = new IntentFilter();
                 filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
                 context.registerReceiver(mReceiver, filter);
@@ -89,9 +89,9 @@ public class NetworkConnectivityListener {
      */
     public void stopListening() {
         synchronized (this) {
-            if (mContext != null) {
-                mContext.unregisterReceiver(mReceiver);
-                mContext = null;
+            if (context != null) {
+                context.unregisterReceiver(mReceiver);
+                context = null;
                 mNetworkInfo = null;
                 mOtherNetworkInfo = null;
             }
@@ -107,7 +107,7 @@ public class NetworkConnectivityListener {
      *               handler.
      */
     public NetworkConnectivityListener registerHandler(Handler target, int what) {
-        mHandlers.put(target, what);
+        handlers.put(target, what);
         return this;
     }
 
@@ -117,7 +117,7 @@ public class NetworkConnectivityListener {
      * @param target
      */
     public NetworkConnectivityListener unregisterHandler(Handler target) {
-        mHandlers.remove(target);
+        handlers.remove(target);
         return this;
     }
 
@@ -148,7 +148,7 @@ public class NetworkConnectivityListener {
 
 
     public State getState() {
-        return mState;
+        return state;
     }
 
     private class ConnectivityBroadcastReceiver extends BroadcastReceiver {
@@ -158,16 +158,16 @@ public class NetworkConnectivityListener {
             ApplicationProperties applicationProperties = new ApplicationProperties(context.getResources());
             String action = intent.getAction();
 
-            if (!action.equals(ConnectivityManager.CONNECTIVITY_ACTION) || mContext == null) {
-                Log.w(TAG, "onReceived() called with " + mState.toString() + " and " + intent);
+            if (!action.equals(ConnectivityManager.CONNECTIVITY_ACTION) || NetworkConnectivityListener.this.context == null) {
+                Log.w(TAG, "onReceived() called with " + state.toString() + " and " + intent);
                 return;
             }
-            State old = mState;
+            State old = state;
 
             boolean noConnectivity = intent.getBooleanExtra(
                     ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
 
-            mState =  noConnectivity ? State.NOT_CONNECTED : State.CONNECTED;
+            state =  noConnectivity ? State.NOT_CONNECTED : State.CONNECTED;
             mNetworkInfo = intent
                     .getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
             mOtherNetworkInfo = intent
@@ -178,14 +178,14 @@ public class NetworkConnectivityListener {
                         + mNetworkInfo
                         + " mOtherNetworkInfo = "
                         + (mOtherNetworkInfo == null ? "[none]" : mOtherNetworkInfo + " noConn="
-                        + noConnectivity) + " mState=" + mState.toString());
+                        + noConnectivity) + " mState=" + state.toString());
             }
 
             // Notify any handlers.
-            for (Handler target : mHandlers.keySet()) {
-                target.sendMessage(Message.obtain(target, mHandlers.get(target),
+            for (Handler target : handlers.keySet()) {
+                target.sendMessage(Message.obtain(target, handlers.get(target),
                         old.ordinal(),
-                        mState.ordinal(),
+                        state.ordinal(),
                         mNetworkInfo));
             }
         }

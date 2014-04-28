@@ -56,21 +56,21 @@ public class GridViewCompat extends GridView {
     /**
      * Running count of how many items are currently checked
      */
-    int mCheckedItemCountC;
+    int checkedItemCountC;
     /**
      * Running state of which positions are currently checked
      */
-    SparseBooleanArray mCheckStatesC;
+    SparseBooleanArray checkStatesC;
     /**
      * Running state of which IDs are currently checked. If there is a value for a given key, the
      * checked state for that ID is true and the value holds the last known position in the adapter
      * for that id.
      */
-    LongSparseArray<Integer> mCheckedIdStatesC;
+    LongSparseArray<Integer> checkedIdStatesC;
     /**
      * Controls if/how the user may choose/check items in the list
      */
-    int mChoiceModeC = ListView.CHOICE_MODE_NONE;
+    int choiceModeC = ListView.CHOICE_MODE_NONE;
 
     /**
      * Variables for backward compatibility
@@ -165,7 +165,7 @@ public class GridViewCompat extends GridView {
      */
     private static class LongSparseArray<E> {
         private static final Object DELETED = new Object();
-        private boolean mGarbage = false;
+        private boolean garbage = false;
 
         /**
          * Creates a new SparseArray containing no mappings.
@@ -181,31 +181,31 @@ public class GridViewCompat extends GridView {
         public LongSparseArray(int initialCapacity) {
             initialCapacity = ArrayUtils.idealIntArraySize(initialCapacity);
 
-            mKeys = new long[initialCapacity];
-            mValues = new Object[initialCapacity];
-            mSize = 0;
+            keys = new long[initialCapacity];
+            values = new Object[initialCapacity];
+            size = 0;
         }
 
         /**
          * @return A copy of all keys contained in the sparse array.
          */
         public long[] getKeys() {
-            int length = mKeys.length;
+            int length = keys.length;
             long[] result = new long[length];
-            System.arraycopy(mKeys, 0, result, 0, length);
+            System.arraycopy(keys, 0, result, 0, length);
             return result;
         }
 
         /**
          * Sets all supplied keys to the given unique value.
          *
-         * @param keys Keys to set
+         * @param keyArray Keys to set
          * @param uniqueValue Value to set all supplied keys to
          */
-        public void setValues(long[] keys, E uniqueValue) {
-            int length = keys.length;
+        public void setValues(long[] keyArray, E uniqueValue) {
+            int length = keyArray.length;
             for (int i = 0; i < length; i++) {
-                put(keys[i], uniqueValue);
+                put(keyArray[i], uniqueValue);
             }
         }
 
@@ -222,12 +222,12 @@ public class GridViewCompat extends GridView {
          * has been made.
          */
         public E get(long key, E valueIfKeyNotFound) {
-            int i = binarySearch(mKeys, 0, mSize, key);
+            int i = binarySearch(keys, 0, size, key);
 
-            if (i < 0 || mValues[i] == DELETED) {
+            if (i < 0 || values[i] == DELETED) {
                 return valueIfKeyNotFound;
             } else {
-                return (E) mValues[i];
+                return (E) values[i];
             }
         }
 
@@ -235,12 +235,12 @@ public class GridViewCompat extends GridView {
          * Removes the mapping from the specified key, if there was any.
          */
         public void delete(long key) {
-            int i = binarySearch(mKeys, 0, mSize, key);
+            int i = binarySearch(keys, 0, size, key);
 
             if (i >= 0) {
-                if (mValues[i] != DELETED) {
-                    mValues[i] = DELETED;
-                    mGarbage = true;
+                if (values[i] != DELETED) {
+                    values[i] = DELETED;
+                    garbage = true;
                 }
             }
         }
@@ -253,12 +253,12 @@ public class GridViewCompat extends GridView {
         }
 
         private void gc() {
-            // Log.e("SparseArray", "gc start with " + mSize);
+            // Log.e("SparseArray", "gc start with " + size);
 
-            int n = mSize;
+            int n = size;
             int o = 0;
-            long[] keys = mKeys;
-            Object[] values = mValues;
+            long[] keys = this.keys;
+            Object[] values = this.values;
 
             for (int i = 0; i < n; i++) {
                 Object val = values[i];
@@ -273,10 +273,10 @@ public class GridViewCompat extends GridView {
                 }
             }
 
-            mGarbage = false;
-            mSize = o;
+            garbage = false;
+            size = o;
 
-            // Log.e("SparseArray", "gc end with " + mSize);
+            // Log.e("SparseArray", "gc end with " + size);
         }
 
         /**
@@ -284,50 +284,50 @@ public class GridViewCompat extends GridView {
          * mapping from the specified key if there was one.
          */
         public void put(long key, E value) {
-            int i = binarySearch(mKeys, 0, mSize, key);
+            int i = binarySearch(keys, 0, size, key);
 
             if (i >= 0) {
-                mValues[i] = value;
+                values[i] = value;
             } else {
                 i = ~i;
 
-                if (i < mSize && mValues[i] == DELETED) {
-                    mKeys[i] = key;
-                    mValues[i] = value;
+                if (i < size && values[i] == DELETED) {
+                    keys[i] = key;
+                    values[i] = value;
                     return;
                 }
 
-                if (mGarbage && mSize >= mKeys.length) {
+                if (garbage && size >= keys.length) {
                     gc();
 
                     // Search again because indices may have changed.
-                    i = ~binarySearch(mKeys, 0, mSize, key);
+                    i = ~binarySearch(keys, 0, size, key);
                 }
 
-                if (mSize >= mKeys.length) {
-                    int n = ArrayUtils.idealIntArraySize(mSize + 1);
+                if (size >= keys.length) {
+                    int n = ArrayUtils.idealIntArraySize(size + 1);
 
                     long[] nkeys = new long[n];
                     Object[] nvalues = new Object[n];
 
-                    // Log.e("SparseArray", "grow " + mKeys.length + " to " +
+                    // Log.e("SparseArray", "grow " + keys.length + " to " +
                     // n);
-                    System.arraycopy(mKeys, 0, nkeys, 0, mKeys.length);
-                    System.arraycopy(mValues, 0, nvalues, 0, mValues.length);
+                    System.arraycopy(keys, 0, nkeys, 0, keys.length);
+                    System.arraycopy(values, 0, nvalues, 0, values.length);
 
-                    mKeys = nkeys;
-                    mValues = nvalues;
+                    keys = nkeys;
+                    values = nvalues;
                 }
 
-                if (mSize - i != 0) {
-                    // Log.e("SparseArray", "move " + (mSize - i));
-                    System.arraycopy(mKeys, i, mKeys, i + 1, mSize - i);
-                    System.arraycopy(mValues, i, mValues, i + 1, mSize - i);
+                if (size - i != 0) {
+                    // Log.e("SparseArray", "move " + (size - i));
+                    System.arraycopy(keys, i, keys, i + 1, size - i);
+                    System.arraycopy(values, i, values, i + 1, size - i);
                 }
 
-                mKeys[i] = key;
-                mValues[i] = value;
-                mSize++;
+                keys[i] = key;
+                values[i] = value;
+                size++;
             }
         }
 
@@ -335,11 +335,11 @@ public class GridViewCompat extends GridView {
          * Returns the number of key-value mappings that this SparseArray currently stores.
          */
         public int size() {
-            if (mGarbage) {
+            if (garbage) {
                 gc();
             }
 
-            return mSize;
+            return size;
         }
 
         /**
@@ -347,11 +347,11 @@ public class GridViewCompat extends GridView {
          * <code>index</code>th key-value mapping that this SparseArray stores.
          */
         public long keyAt(int index) {
-            if (mGarbage) {
+            if (garbage) {
                 gc();
             }
 
-            return mKeys[index];
+            return keys[index];
         }
 
         /**
@@ -359,11 +359,11 @@ public class GridViewCompat extends GridView {
          * <code>index</code>th key-value mapping that this SparseArray stores.
          */
         public E valueAt(int index) {
-            if (mGarbage) {
+            if (garbage) {
                 gc();
             }
 
-            return (E) mValues[index];
+            return (E) values[index];
         }
 
         /**
@@ -371,11 +371,11 @@ public class GridViewCompat extends GridView {
          * <code>index</code>th key-value mapping that this SparseArray stores.
          */
         public void setValueAt(int index, E value) {
-            if (mGarbage) {
+            if (garbage) {
                 gc();
             }
 
-            mValues[index] = value;
+            values[index] = value;
         }
 
         /**
@@ -383,11 +383,11 @@ public class GridViewCompat extends GridView {
          * number if the specified key is not mapped.
          */
         public int indexOfKey(long key) {
-            if (mGarbage) {
+            if (garbage) {
                 gc();
             }
 
-            return binarySearch(mKeys, 0, mSize, key);
+            return binarySearch(keys, 0, size, key);
         }
 
         /**
@@ -397,12 +397,12 @@ public class GridViewCompat extends GridView {
          * one of them.
          */
         public int indexOfValue(E value) {
-            if (mGarbage) {
+            if (garbage) {
                 gc();
             }
 
-            for (int i = 0; i < mSize; i++)
-                if (mValues[i] == value)
+            for (int i = 0; i < size; i++)
+                if (values[i] == value)
                     return i;
 
             return -1;
@@ -412,15 +412,15 @@ public class GridViewCompat extends GridView {
          * Removes all key-value mappings from this SparseArray.
          */
         public void clear() {
-            int n = mSize;
-            Object[] values = mValues;
+            int n = size;
+            Object[] values = this.values;
 
             for (int i = 0; i < n; i++) {
                 values[i] = null;
             }
 
-            mSize = 0;
-            mGarbage = false;
+            size = 0;
+            garbage = false;
         }
 
         /**
@@ -428,33 +428,33 @@ public class GridViewCompat extends GridView {
          * than all existing keys in the array.
          */
         public void append(long key, E value) {
-            if (mSize != 0 && key <= mKeys[mSize - 1]) {
+            if (size != 0 && key <= keys[size - 1]) {
                 put(key, value);
                 return;
             }
 
-            if (mGarbage && mSize >= mKeys.length) {
+            if (garbage && size >= keys.length) {
                 gc();
             }
 
-            int pos = mSize;
-            if (pos >= mKeys.length) {
+            int pos = size;
+            if (pos >= keys.length) {
                 int n = ArrayUtils.idealIntArraySize(pos + 1);
 
                 long[] nkeys = new long[n];
                 Object[] nvalues = new Object[n];
 
-                // Log.e("SparseArray", "grow " + mKeys.length + " to " + n);
-                System.arraycopy(mKeys, 0, nkeys, 0, mKeys.length);
-                System.arraycopy(mValues, 0, nvalues, 0, mValues.length);
+                // Log.e("SparseArray", "grow " + keys.length + " to " + n);
+                System.arraycopy(keys, 0, nkeys, 0, keys.length);
+                System.arraycopy(values, 0, nvalues, 0, values.length);
 
-                mKeys = nkeys;
-                mValues = nvalues;
+                keys = nkeys;
+                values = nvalues;
             }
 
-            mKeys[pos] = key;
-            mValues[pos] = value;
-            mSize = pos + 1;
+            keys[pos] = key;
+            values[pos] = value;
+            size = pos + 1;
         }
 
         private static int binarySearch(long[] a, int start, int len, long key) {
@@ -478,10 +478,10 @@ public class GridViewCompat extends GridView {
         }
 
         private void checkIntegrity() {
-            for (int i = 1; i < mSize; i++) {
-                if (mKeys[i] <= mKeys[i - 1]) {
-                    for (int j = 0; j < mSize; j++) {
-                        Log.e("FAIL", j + ": " + mKeys[j] + " -> " + mValues[j]);
+            for (int i = 1; i < size; i++) {
+                if (keys[i] <= keys[i - 1]) {
+                    for (int j = 0; j < size; j++) {
+                        Log.e("FAIL", j + ": " + keys[j] + " -> " + values[j]);
                     }
 
                     throw new RuntimeException();
@@ -489,9 +489,9 @@ public class GridViewCompat extends GridView {
             }
         }
 
-        private long[] mKeys;
-        private Object[] mValues;
-        private int mSize;
+        private long[] keys;
+        private Object[] values;
+        private int size;
     }
 
     // XXX these should be changed to reflect the actual memory allocator we
@@ -724,7 +724,7 @@ public class GridViewCompat extends GridView {
     public int getChoiceMode() {
         if (!inCompatibleMode && gridView_getChoiceMode != null)
             return super.getChoiceMode();
-        return mChoiceModeC;
+        return choiceModeC;
     }
 
     /*
@@ -741,18 +741,18 @@ public class GridViewCompat extends GridView {
         // Code copied from Android source
         super.setAdapter(adapter);
         if (adapter != null) {
-            if (mChoiceModeC != ListView.CHOICE_MODE_NONE && getAdapter().hasStableIds()
-                    && mCheckedIdStatesC == null) {
-                mCheckedIdStatesC = new LongSparseArray<Integer>();
+            if (choiceModeC != ListView.CHOICE_MODE_NONE && getAdapter().hasStableIds()
+                    && checkedIdStatesC == null) {
+                checkedIdStatesC = new LongSparseArray<Integer>();
             }
         }
 
-        if (mCheckStatesC != null) {
-            mCheckStatesC.clear();
+        if (checkStatesC != null) {
+            checkStatesC.clear();
         }
 
-        if (mCheckedIdStatesC != null) {
-            mCheckedIdStatesC.clear();
+        if (checkedIdStatesC != null) {
+            checkedIdStatesC.clear();
         }
 
     }
@@ -769,12 +769,12 @@ public class GridViewCompat extends GridView {
         }
 
         // Code copied from Android source
-        if (mChoiceModeC == ListView.CHOICE_MODE_NONE || mCheckedIdStatesC == null
+        if (choiceModeC == ListView.CHOICE_MODE_NONE || checkedIdStatesC == null
                 || getAdapter() == null) {
             return new long[0];
         }
 
-        final LongSparseArray<Integer> idStates = mCheckedIdStatesC;
+        final LongSparseArray<Integer> idStates = checkedIdStatesC;
         final int count = idStates.size();
         final long[] ids = new long[count];
 
@@ -798,8 +798,8 @@ public class GridViewCompat extends GridView {
         }
 
         // Code copied from Android source
-        if (mChoiceModeC != ListView.CHOICE_MODE_NONE && mCheckStatesC != null) {
-            return mCheckStatesC.get(position);
+        if (choiceModeC != ListView.CHOICE_MODE_NONE && checkStatesC != null) {
+            return checkStatesC.get(position);
         }
 
         return false;
@@ -817,9 +817,9 @@ public class GridViewCompat extends GridView {
         }
 
         // Code copied from Android source
-        if (mChoiceModeC == ListView.CHOICE_MODE_SINGLE && mCheckStatesC != null
-                && mCheckStatesC.size() == 1) {
-            return mCheckStatesC.keyAt(0);
+        if (choiceModeC == ListView.CHOICE_MODE_SINGLE && checkStatesC != null
+                && checkStatesC.size() == 1) {
+            return checkStatesC.keyAt(0);
         }
 
         return INVALID_POSITION;
@@ -837,8 +837,8 @@ public class GridViewCompat extends GridView {
         }
 
         // Code copied from Android source
-        if (mChoiceModeC != ListView.CHOICE_MODE_NONE) {
-            return mCheckStatesC;
+        if (choiceModeC != ListView.CHOICE_MODE_NONE) {
+            return checkStatesC;
         }
         return null;
     }
@@ -854,13 +854,13 @@ public class GridViewCompat extends GridView {
         }
 
         // Code copied from Android source
-        if (mCheckStatesC != null) {
-            mCheckStatesC.clear();
+        if (checkStatesC != null) {
+            checkStatesC.clear();
         }
-        if (mCheckedIdStatesC != null) {
-            mCheckedIdStatesC.clear();
+        if (checkedIdStatesC != null) {
+            checkedIdStatesC.clear();
         }
-        mCheckedItemCountC = 0;
+        checkedItemCountC = 0;
     }
 
     /**
@@ -952,49 +952,49 @@ public class GridViewCompat extends GridView {
 
         // Code copied from Android source. The code below is slightly
         // different.
-        if (mChoiceModeC == ListView.CHOICE_MODE_NONE) {
+        if (choiceModeC == ListView.CHOICE_MODE_NONE) {
             return;
         }
 
-        if (mChoiceModeC == ListView.CHOICE_MODE_MULTIPLE) {
-            boolean oldValue = mCheckStatesC.get(position);
-            mCheckStatesC.put(position, value);
-            if (mCheckedIdStatesC != null && getAdapter().hasStableIds()) {
+        if (choiceModeC == ListView.CHOICE_MODE_MULTIPLE) {
+            boolean oldValue = checkStatesC.get(position);
+            checkStatesC.put(position, value);
+            if (checkedIdStatesC != null && getAdapter().hasStableIds()) {
                 if (value) {
-                    mCheckedIdStatesC.put(getAdapter().getItemId(position), position);
+                    checkedIdStatesC.put(getAdapter().getItemId(position), position);
                 } else {
-                    mCheckedIdStatesC.delete(getAdapter().getItemId(position));
+                    checkedIdStatesC.delete(getAdapter().getItemId(position));
                 }
             }
             if (oldValue != value) {
                 if (value) {
-                    mCheckedItemCountC++;
+                    checkedItemCountC++;
                 } else {
-                    mCheckedItemCountC--;
+                    checkedItemCountC--;
                 }
             }
         } else {
-            boolean updateIds = mCheckedIdStatesC != null && getAdapter().hasStableIds();
+            boolean updateIds = checkedIdStatesC != null && getAdapter().hasStableIds();
             // Clear all values if we're checking something, or unchecking the
             // currently
             // selected item
             if (value || isItemChecked(position)) {
-                mCheckStatesC.clear();
+                checkStatesC.clear();
                 if (updateIds) {
-                    mCheckedIdStatesC.clear();
+                    checkedIdStatesC.clear();
                 }
             }
             // this may end up selecting the value we just cleared but this way
             // we ensure length of mCheckStates is 1, a fact
             // getCheckedItemPosition relies on
             if (value) {
-                mCheckStatesC.put(position, true);
+                checkStatesC.put(position, true);
                 if (updateIds) {
-                    mCheckedIdStatesC.put(getAdapter().getItemId(position), position);
+                    checkedIdStatesC.put(getAdapter().getItemId(position), position);
                 }
-                mCheckedItemCountC = 1;
-            } else if (mCheckStatesC.size() == 0 || !mCheckStatesC.valueAt(0)) {
-                mCheckedItemCountC = 0;
+                checkedItemCountC = 1;
+            } else if (checkStatesC.size() == 0 || !checkStatesC.valueAt(0)) {
+                checkedItemCountC = 0;
             }
         }
 
@@ -1078,36 +1078,36 @@ public class GridViewCompat extends GridView {
         boolean handled = false;
         boolean dispatchItemClick = true;
 
-        if (mChoiceModeC != ListView.CHOICE_MODE_NONE) {
+        if (choiceModeC != ListView.CHOICE_MODE_NONE) {
             handled = true;
 
-            if (mChoiceModeC == ListView.CHOICE_MODE_MULTIPLE) {
-                boolean newValue = !mCheckStatesC.get(position, false);
-                mCheckStatesC.put(position, newValue);
-                if (mCheckedIdStatesC != null && getAdapter().hasStableIds()) {
+            if (choiceModeC == ListView.CHOICE_MODE_MULTIPLE) {
+                boolean newValue = !checkStatesC.get(position, false);
+                checkStatesC.put(position, newValue);
+                if (checkedIdStatesC != null && getAdapter().hasStableIds()) {
                     if (newValue) {
-                        mCheckedIdStatesC.put(getAdapter().getItemId(position), position);
+                        checkedIdStatesC.put(getAdapter().getItemId(position), position);
                     } else {
-                        mCheckedIdStatesC.delete(getAdapter().getItemId(position));
+                        checkedIdStatesC.delete(getAdapter().getItemId(position));
                     }
                 }
                 if (newValue) {
-                    mCheckedItemCountC++;
+                    checkedItemCountC++;
                 } else {
-                    mCheckedItemCountC--;
+                    checkedItemCountC--;
                 }
-            } else if (mChoiceModeC == ListView.CHOICE_MODE_SINGLE) {
-                boolean newValue = !mCheckStatesC.get(position, false);
+            } else if (choiceModeC == ListView.CHOICE_MODE_SINGLE) {
+                boolean newValue = !checkStatesC.get(position, false);
                 if (newValue) {
-                    mCheckStatesC.clear();
-                    mCheckStatesC.put(position, true);
-                    if (mCheckedIdStatesC != null && getAdapter().hasStableIds()) {
-                        mCheckedIdStatesC.clear();
-                        mCheckedIdStatesC.put(getAdapter().getItemId(position), position);
+                    checkStatesC.clear();
+                    checkStatesC.put(position, true);
+                    if (checkedIdStatesC != null && getAdapter().hasStableIds()) {
+                        checkedIdStatesC.clear();
+                        checkedIdStatesC.put(getAdapter().getItemId(position), position);
                     }
-                    mCheckedItemCountC = 1;
-                } else if (mCheckStatesC.size() == 0 || !mCheckStatesC.valueAt(0)) {
-                    mCheckedItemCountC = 0;
+                    checkedItemCountC = 1;
+                } else if (checkStatesC.size() == 0 || !checkStatesC.valueAt(0)) {
+                    checkedItemCountC = 0;
                 }
             }
 
@@ -1136,13 +1136,13 @@ public class GridViewCompat extends GridView {
         }
 
         // Code copied from Android source
-        mChoiceModeC = choiceMode;
-        if (mChoiceModeC != ListView.CHOICE_MODE_NONE) {
-            if (mCheckStatesC == null) {
-                mCheckStatesC = new SparseBooleanArray();
+        choiceModeC = choiceMode;
+        if (choiceModeC != ListView.CHOICE_MODE_NONE) {
+            if (checkStatesC == null) {
+                checkStatesC = new SparseBooleanArray();
             }
-            if (mCheckedIdStatesC == null && getAdapter() != null && getAdapter().hasStableIds()) {
-                mCheckedIdStatesC = new LongSparseArray<Integer>();
+            if (checkedIdStatesC == null && getAdapter() != null && getAdapter().hasStableIds()) {
+                checkedIdStatesC = new LongSparseArray<Integer>();
             }
         }
     }
@@ -1169,19 +1169,19 @@ public class GridViewCompat extends GridView {
 
         SavedState ss = new SavedState(superState);
 
-        if (mCheckStatesC != null) {
-            ss.checkState = makeClone(mCheckStatesC);
+        if (checkStatesC != null) {
+            ss.checkState = makeClone(checkStatesC);
         }
 
-        if (mCheckedIdStatesC != null) {
+        if (checkedIdStatesC != null) {
             final LongSparseArray<Integer> idState = new LongSparseArray<Integer>();
-            final int count = mCheckedIdStatesC.size();
+            final int count = checkedIdStatesC.size();
             for (int i = 0; i < count; i++) {
-                idState.put(mCheckedIdStatesC.keyAt(i), mCheckedIdStatesC.valueAt(i));
+                idState.put(checkedIdStatesC.keyAt(i), checkedIdStatesC.valueAt(i));
             }
             ss.checkIdState = idState;
         }
-        ss.checkedItemCount = mCheckedItemCountC;
+        ss.checkedItemCount = checkedItemCountC;
 
         return ss;
     }
@@ -1197,14 +1197,14 @@ public class GridViewCompat extends GridView {
         super.onRestoreInstanceState(ss.getSuperState());
 
         if (ss.checkState != null) {
-            mCheckStatesC = ss.checkState;
+            checkStatesC = ss.checkState;
         }
 
         if (ss.checkIdState != null) {
-            mCheckedIdStatesC = ss.checkIdState;
+            checkedIdStatesC = ss.checkIdState;
         }
 
-        mCheckedItemCountC = ss.checkedItemCount;
+        checkedItemCountC = ss.checkedItemCount;
 
         // Since we dont have access to private members this is the closest we
         // can get.
@@ -1222,7 +1222,7 @@ public class GridViewCompat extends GridView {
             return super.getCheckedItemCount();
         }
 
-        return mCheckedItemCountC;
+        return checkedItemCountC;
     }
 
 }

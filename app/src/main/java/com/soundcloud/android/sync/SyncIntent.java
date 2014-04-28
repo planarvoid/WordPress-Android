@@ -64,7 +64,7 @@ import java.util.Set;
             // if this is a different instance of the same sync request, share the result
             for (CollectionSyncRequest instance : requestsRemaining){
                 if (instance.equals(request) && instance != request){
-                    instance.setmResult(request.getResult());
+                    instance.setResult(request.getResult());
                 }
             }
             requestsRemaining.remove(request);

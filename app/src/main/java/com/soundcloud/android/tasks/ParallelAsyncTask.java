@@ -6,7 +6,6 @@ import android.os.Build;
 
 public abstract class ParallelAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
 
-
     @TargetApi(11)
     public final AsyncTask<Params, Progress, Result> executeOnThreadPool(Params... params) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {

@@ -5,7 +5,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.TempEndpoints;
-import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
@@ -22,7 +21,6 @@ import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.exception.PlaylistUpdateException;
 import com.soundcloud.android.sync.exception.UnknownResourceException;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Request;
 
@@ -37,9 +35,9 @@ import java.util.Set;
 
 class PlaylistSyncHelper {
 
-    private final PlaylistStorage mPlaylistStorage;
-    private final SoundAssociationStorage mSoundAssociationStorage;
-    private final ScModelManager mModelManager;
+    private final PlaylistStorage playlistStorage;
+    private final SoundAssociationStorage soundAssociationStorage;
+    private final ScModelManager modelManager;
 
     public PlaylistSyncHelper() {
         this(new PlaylistStorage(), new SoundAssociationStorage(), SoundCloudApplication.sModelManager);
@@ -47,15 +45,15 @@ class PlaylistSyncHelper {
 
     @VisibleForTesting
     PlaylistSyncHelper(PlaylistStorage playlistStorage, SoundAssociationStorage soundAssociationStorage, ScModelManager modelManager) {
-        mPlaylistStorage = playlistStorage;
-        mSoundAssociationStorage = soundAssociationStorage;
-        mModelManager = modelManager;
+        this.playlistStorage = playlistStorage;
+        this.soundAssociationStorage = soundAssociationStorage;
+        this.modelManager = modelManager;
     }
 
     /* package */
     public int pushLocalPlaylists(Context context, PublicCloudAPI api, SyncStateManager syncStateManager) throws IOException {
         // check for local playlists that need to be pushed
-        List<Playlist> playlistsToUpload = mPlaylistStorage.getLocalPlaylists();
+        List<Playlist> playlistsToUpload = playlistStorage.getLocalPlaylists();
 
         for (Playlist p : playlistsToUpload) {
             Uri toDelete = p.toUri();
@@ -76,15 +74,15 @@ class PlaylistSyncHelper {
 
             // update local state
             p.updateFrom(playlist, ScResource.CacheUpdateMode.FULL);
-            mModelManager.removeFromCache(toDelete);
+            modelManager.removeFromCache(toDelete);
 
-            mPlaylistStorage.store(playlist);
-            mSoundAssociationStorage.addCreation(playlist);
+            playlistStorage.store(playlist);
+            soundAssociationStorage.addCreation(playlist);
 
             syncStateManager.updateLastSyncSuccessTime(p.toUri(), System.currentTimeMillis());
 
             // remove all traces of the old temporary playlist
-            mPlaylistStorage.removePlaylist(toDelete);
+            playlistStorage.removePlaylist(toDelete);
         }
         return playlistsToUpload.size();
     }
@@ -102,10 +100,10 @@ class PlaylistSyncHelper {
             Playlist playlist = (Playlist) resource;
 
             // update metadata in MM with mini mode to avoid overwriting local tracks
-            mModelManager.cache(playlist, ScResource.CacheUpdateMode.MINI);
+            modelManager.cache(playlist, ScResource.CacheUpdateMode.MINI);
             associations.add(new SoundAssociation(playlist));
 
-            final List<Long> trackIds = mPlaylistStorage.getPlaylistTrackIds(playlist.getId());
+            final List<Long> trackIds = playlistStorage.getPlaylistTrackIds(playlist.getId());
             final int localTrackCount = trackIds == null ? 0 : trackIds.size();
             final boolean shouldSyncTracks = localTrackCount != playlist.getTrackCount();
 
@@ -119,7 +117,7 @@ class PlaylistSyncHelper {
             }
         }
 
-        boolean changed = mSoundAssociationStorage.syncToLocal(associations, Content.ME_PLAYLISTS.uri);
+        boolean changed = soundAssociationStorage.syncToLocal(associations, Content.ME_PLAYLISTS.uri);
         ApiSyncResult result = new ApiSyncResult(Content.ME_PLAYLISTS.uri);
         result.change = changed ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
         result.setSyncData(System.currentTimeMillis(), associations.size());
@@ -133,7 +131,7 @@ class PlaylistSyncHelper {
         if (createObject.tracks.isEmpty()) {
             // add the tracks
             createObject.tracks = new ArrayList<ScModel>();
-            List<Long> trackIds = mPlaylistStorage.getPlaylistTrackIds(playlist.getId());
+            List<Long> trackIds = playlistStorage.getPlaylistTrackIds(playlist.getId());
 
             for (Long id : trackIds){
                 createObject.tracks.add(new ScModel(id));
@@ -143,8 +141,8 @@ class PlaylistSyncHelper {
     }
 
     public void removePlaylist(Uri playlistUri){
-        mPlaylistStorage.removePlaylist(playlistUri);
-        mModelManager.removeFromCache(playlistUri);
+        playlistStorage.removePlaylist(playlistUri);
+        modelManager.removeFromCache(playlistUri);
     }
 
 
@@ -157,14 +155,14 @@ class PlaylistSyncHelper {
      */
     public Playlist syncPlaylist(Uri playlistUri, /** inject this **/PublicCloudAPI apiWrapper) throws IOException {
         final Playlist playlist = resolvePlaylistWithAdditions(playlistUri, apiWrapper);
-        mModelManager.cache(playlist, ScResource.CacheUpdateMode.FULL);
-        return mPlaylistStorage.store(playlist);
+        modelManager.cache(playlist, ScResource.CacheUpdateMode.FULL);
+        return playlistStorage.store(playlist);
     }
 
     private Playlist resolvePlaylistWithAdditions(Uri playlistUri, /** inject this **/PublicCloudAPI apiWrapper) throws IOException {
         Playlist playlist = safeFetchPlaylist(apiWrapper, playlistUri);
 
-        List<Long> unpushedTracks = mPlaylistStorage.getUnpushedTracksForPlaylist(playlist.getId());
+        List<Long> unpushedTracks = playlistStorage.getUnpushedTracksForPlaylist(playlist.getId());
         if (!unpushedTracks.isEmpty()) {
             Set<Long> toAdd = new LinkedHashSet<Long>(unpushedTracks.size());
             for (Track t : playlist.getTracks()) {

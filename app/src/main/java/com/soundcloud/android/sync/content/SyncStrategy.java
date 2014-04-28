@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync.content;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
@@ -22,11 +21,11 @@ import java.io.IOException;
 public abstract class SyncStrategy {
     public static final String TAG = ApiSyncService.LOG_TAG;
 
-    protected final PublicCloudAPI mApi;
-    protected final ContentResolver mResolver;
-    protected final Context mContext;
-    protected final SyncStateManager mSyncStateManager;
-    private final AccountOperations mAccountOperations;
+    protected final PublicCloudAPI api;
+    protected final ContentResolver resolver;
+    protected final Context context;
+    protected final SyncStateManager syncStateManager;
+    private final AccountOperations accountOperations;
 
     protected SyncStrategy(Context context, ContentResolver resolver) {
         this(context, resolver, new PublicApi(context), new SyncStateManager(resolver, new LocalCollectionDAO(resolver)), new AccountOperations(context));
@@ -38,11 +37,11 @@ public abstract class SyncStrategy {
 
     protected SyncStrategy(Context context, ContentResolver resolver, PublicCloudAPI api, SyncStateManager syncStateManager,
                            AccountOperations accountOperations){
-        mContext = context;
-        mApi = api;
-        mResolver = resolver;
-        mSyncStateManager = syncStateManager;
-        mAccountOperations = accountOperations;
+        this.context = context;
+        this.api = api;
+        this.resolver = resolver;
+        this.syncStateManager = syncStateManager;
+        this.accountOperations = accountOperations;
     }
 
     @NotNull
@@ -53,7 +52,7 @@ public abstract class SyncStrategy {
     }
 
     protected boolean isLoggedIn(){
-        return mAccountOperations.soundCloudAccountExists();
+        return accountOperations.soundCloudAccountExists();
     }
 
     public static class IdHolder extends CollectionHolder<Long> {

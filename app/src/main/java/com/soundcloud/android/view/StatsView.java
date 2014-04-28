@@ -15,23 +15,24 @@ import android.util.AttributeSet;
 import android.view.View;
 
 public class StatsView extends View {
-    private final Paint textPaint;
-    private final int mTextColor, mPressedColor;
 
-    private final Drawable mPlaysIcon, mLikesIcon, mLikedIcon, mRepostsIcon, mRepostedIcon, mCommentsIcon, mSeparator;
-    private final Drawable[] mIcons;
-    private final int mItemPadding, mSeparatorWidth;
-    private final int mFontOffset;
-    private final Rect mBounds;
-    private final int[] mOffsets;
+    private final Paint textPaint;
+    private final int textColor, pressedColor;
+
+    private final Drawable playsIcon, likesIcon, likedIcon, repostsIcon, repostedIcon, commentsIcon, separator;
+    private final Drawable[] icons;
+    private final int itemPadding, separatorWidth;
+    private final int fontOffset;
+    private final Rect bounds;
+    private final int[] offsets;
 
     // track stats
-    private int mPlays;
-    private long mLikes;
-    private long mReposts;
-    private long mComments;
-    private boolean mLiked;
-    private boolean mReposted;
+    private int plays;
+    private long likes;
+    private long reposts;
+    private long comments;
+    private boolean liked;
+    private boolean reposted;
 
     @SuppressWarnings("UnusedDeclaration")
     public StatsView(Context context) {
@@ -51,33 +52,33 @@ public class StatsView extends View {
     {
         Resources r = getResources();
 
-        mBounds = new Rect();
+        bounds = new Rect();
 
-        mPlaysIcon    = r.getDrawable(R.drawable.stats_plays);
-        mLikesIcon    = r.getDrawable(R.drawable.stats_likes);
-        mLikedIcon    = r.getDrawable(R.drawable.stats_liked);
-        mRepostsIcon  = r.getDrawable(R.drawable.stats_stream_repost);
-        mRepostedIcon = r.getDrawable(R.drawable.stats_stream_repost_done);
-        mCommentsIcon = r.getDrawable(R.drawable.stats_comments);
-        mIcons        = new Drawable[]{ mPlaysIcon, mLikesIcon, mRepostsIcon, mCommentsIcon };
+        playsIcon = r.getDrawable(R.drawable.stats_plays);
+        likesIcon = r.getDrawable(R.drawable.stats_likes);
+        likedIcon = r.getDrawable(R.drawable.stats_liked);
+        repostsIcon = r.getDrawable(R.drawable.stats_stream_repost);
+        repostedIcon = r.getDrawable(R.drawable.stats_stream_repost_done);
+        commentsIcon = r.getDrawable(R.drawable.stats_comments);
+        icons = new Drawable[]{playsIcon, likesIcon, repostsIcon, commentsIcon};
 
-        mSeparator    = r.getDrawable(R.drawable.stat_divider);
+        separator = r.getDrawable(R.drawable.stat_divider);
 
-        mItemPadding    = r.getDimensionPixelSize(R.dimen.stats_view_item_padding);
-        mSeparatorWidth = r.getDimensionPixelSize(R.dimen.stats_view_separator_width);
+        itemPadding = r.getDimensionPixelSize(R.dimen.stats_view_item_padding);
+        separatorWidth = r.getDimensionPixelSize(R.dimen.stats_view_separator_width);
 
-        mFontOffset = r.getDimensionPixelSize(R.dimen.stats_view_font_offset);
+        fontOffset = r.getDimensionPixelSize(R.dimen.stats_view_font_offset);
 
-        mTextColor    = r.getColor(R.color.statsColor);
-        mPressedColor = r.getColor(R.color.statsColor);
+        textColor = r.getColor(R.color.statsColor);
+        pressedColor = r.getColor(R.color.statsColor);
 
         textPaint = new Paint();
-        textPaint.setColor(mTextColor);
+        textPaint.setColor(textColor);
         textPaint.setAntiAlias(true );
         textPaint.setStyle(Paint.Style.FILL);
         textPaint.setTextSize(r.getDimensionPixelSize(R.dimen.stats_view_item_text_size));
 
-        mOffsets = new int[]{
+        offsets = new int[]{
                 r.getDimensionPixelSize(R.dimen.stats_view_play_icon_offset),
                 r.getDimensionPixelSize(R.dimen.stats_view_likes_icon_offset),
                 r.getDimensionPixelSize(R.dimen.stats_view_reposts_icon_offset),
@@ -89,7 +90,7 @@ public class StatsView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width  = 0;
         int height = 0;
-        long[]      counts   = {mPlays, mLikes, mReposts, mComments};
+        long[]      counts   = {plays, likes, reposts, comments};
 
         boolean    hasDrawn = false;
 
@@ -101,22 +102,22 @@ public class StatsView extends View {
         Paint.FontMetricsInt fm = textPaint.getFontMetricsInt();
         int textHeight = fm.descent - fm.ascent + fm.leading;
 
-        for (int i = 0; i < mIcons.length; i++) {
+        for (int i = 0; i < icons.length; i++) {
             if (counts[i] <= 0) continue;
-            Drawable icon   = mIcons[i];
+            Drawable icon   = icons[i];
             String   string = Long.toString(counts[i]);
             if (hasDrawn) {
-                width += mSeparatorWidth;
-                width += mItemPadding;
+                width += separatorWidth;
+                width += itemPadding;
             }
 
-            textPaint.getTextBounds(string, 0, string.length(), mBounds);
+            textPaint.getTextBounds(string, 0, string.length(), bounds);
             width += icon.getIntrinsicWidth();
-            width += mItemPadding;
-            width += mBounds.width();
-            width += mItemPadding;
+            width += itemPadding;
+            width += bounds.width();
+            width += itemPadding;
 
-            height = Math.max(height, Math.max(icon.getIntrinsicHeight() + mOffsets[i], textHeight));
+            height = Math.max(height, Math.max(icon.getIntrinsicHeight() + offsets[i], textHeight));
             hasDrawn = true;
         }
 
@@ -125,12 +126,12 @@ public class StatsView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        long[] counts   = {mPlays, mLikes, mReposts, mComments};
+        long[] counts   = {plays, likes, reposts, comments};
         Drawable[] icons = {
-            mPlaysIcon,
-            isLiked() ?    mLikedIcon    : mLikesIcon,
-            isReposted() ? mRepostedIcon : mRepostsIcon,
-            mCommentsIcon
+                playsIcon,
+            isLiked() ? likedIcon : likesIcon,
+            isReposted() ? repostedIcon : repostsIcon,
+                commentsIcon
         };
 
         int x = 0;
@@ -142,29 +143,29 @@ public class StatsView extends View {
             String   string = ScTextUtils.formatNumberWithCommas(counts[i]);
 
             if (hasDrawn) {
-                mSeparator.setBounds(x, 0, x + mSeparatorWidth, getHeight());
-                mSeparator.draw(canvas);
+                separator.setBounds(x, 0, x + separatorWidth, getHeight());
+                separator.draw(canvas);
 
-                x += mSeparatorWidth;
-                x += mItemPadding;
+                x += separatorWidth;
+                x += itemPadding;
             }
 
             final int iconHeight = icon.getIntrinsicHeight();
             final int iconWidth  = icon.getIntrinsicWidth();
-            final int iconY      = (getHeight() - iconHeight) / 2 + mOffsets[i];
+            final int iconY      = (getHeight() - iconHeight) / 2 + offsets[i];
 
             icon.setBounds(x, iconY, x + iconWidth, iconY + iconHeight);
             icon.draw(canvas);
 
             x += iconWidth;
-            x += mItemPadding;
+            x += itemPadding;
 
-            int textY = (int) (getHeight() - (getHeight() - textPaint.getTextSize()) / 2) + mFontOffset;
+            int textY = (int) (getHeight() - (getHeight() - textPaint.getTextSize()) / 2) + fontOffset;
 
             canvas.drawText(string, x, textY, textPaint);
-            textPaint.getTextBounds(string, 0, string.length(), mBounds);
-            x += mBounds.width();
-            x += mItemPadding;
+            textPaint.getTextBounds(string, 0, string.length(), bounds);
+            x += bounds.width();
+            x += itemPadding;
 
             hasDrawn = true;
         }
@@ -175,13 +176,13 @@ public class StatsView extends View {
         super.drawableStateChanged();
 
         boolean changed = false;
-        for (Drawable drawable : new Drawable[]{mPlaysIcon, mLikesIcon, mRepostsIcon, mCommentsIcon, mSeparator}) {
+        for (Drawable drawable : new Drawable[]{playsIcon, likesIcon, repostsIcon, commentsIcon, separator}) {
             if (drawable.isStateful()) {
                 changed |= drawable.setState(getDrawableState());
             }
         }
 
-        textPaint.setColor(isPressed() ? mPressedColor : mTextColor);
+        textPaint.setColor(isPressed() ? pressedColor : textColor);
 
         if (changed) invalidate();
     }
@@ -189,52 +190,52 @@ public class StatsView extends View {
     public void updateWithPlayable(Playable playable, boolean showFullStats) {
 
         if (showFullStats){
-            mLikes    = playable.likes_count;
-            mReposts  = playable.reposts_count;
-            mReposted = playable.user_repost;
-            mLiked    = playable.user_like;
+            likes = playable.likes_count;
+            reposts = playable.reposts_count;
+            reposted = playable.user_repost;
+            liked = playable.user_like;
         } else {
-            mLikes = 0;
-            mReposts = 0;
+            likes = 0;
+            reposts = 0;
         }
 
         if (playable instanceof Track){
             final Track track = (Track) playable;
-            mPlays = (int) track.playback_count;
-            mComments = (showFullStats) ? track.comment_count : 0;
+            plays = (int) track.playback_count;
+            comments = (showFullStats) ? track.comment_count : 0;
         } else {
-            mPlays = 0;
-            mComments = 0;
+            plays = 0;
+            comments = 0;
         }
 
         invalidate();
     }
 
     public void setPlays(int plays) {
-        mPlays = plays;
+        this.plays = plays;
         invalidate();
     }
 
     public void setLikes(int likes) {
-        mLikes = likes;
+        this.likes = likes;
         invalidate();
     }
 
     public void setReposts(int reposts) {
-        mReposts = reposts;
+        this.reposts = reposts;
         invalidate();
     }
 
     public void setComments(int comments) {
-        mComments = comments;
+        this.comments = comments;
         invalidate();
     }
 
     public boolean isLiked() {
-        return mLiked;
+        return liked;
     }
 
     public boolean isReposted() {
-        return mReposted;
+        return reposted;
     }
 }

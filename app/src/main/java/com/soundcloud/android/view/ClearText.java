@@ -16,8 +16,8 @@ import android.widget.EditText;
 
 public class ClearText extends EditText{
 
-    private Drawable mOriginalRightDrawable;
-    private OnClickListener mDefaultDrawableListener;
+    private Drawable originalRightDrawable;
+    private OnClickListener defaultDrawableListener;
 
     public ClearText(Context context) {
         super(context);
@@ -39,18 +39,18 @@ public class ClearText extends EditText{
     }
 
     public void setDefaultDrawableClickListener(OnClickListener listener){
-        mDefaultDrawableListener = listener;
+        defaultDrawableListener = listener;
     }
 
     private void init(){
         String value = "";//any text you are pre-filling in the EditText
         setText(value);
 
-        mOriginalRightDrawable = getCompoundDrawables()[2];
+        originalRightDrawable = getCompoundDrawables()[2];
 
         final Drawable x = getResources().getDrawable(R.drawable.header_search_cancel);//your x image, this one from standard android images looks pretty good actually
         x.setBounds(0, 0, x.getIntrinsicWidth(), x.getIntrinsicHeight());
-        setCompoundDrawables(null, null, "".equals(value) ? mOriginalRightDrawable : x, null);
+        setCompoundDrawables(null, null, "".equals(value) ? originalRightDrawable : x, null);
         setCompoundDrawablePadding((int) (getResources().getDisplayMetrics().density * 5));
         setOnTouchListener(new OnTouchListener() {
             @Override
@@ -63,12 +63,12 @@ public class ClearText extends EditText{
                 }
                 if (event.getX() > getWidth() - getPaddingRight() - x.getIntrinsicWidth()) {
                     if (TextUtils.isEmpty(getText())){
-                        if (mDefaultDrawableListener != null){
-                            mDefaultDrawableListener.onClick(ClearText.this);
+                        if (defaultDrawableListener != null){
+                            defaultDrawableListener.onClick(ClearText.this);
                         }
                     } else {
                         setText("");
-                        setCompoundDrawables(null, null, mOriginalRightDrawable, null);
+                        setCompoundDrawables(null, null, originalRightDrawable, null);
                     }
                 }
                 return false;
@@ -77,7 +77,7 @@ public class ClearText extends EditText{
         addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                setCompoundDrawables(null, null, getText().toString().equals("") ? mOriginalRightDrawable : x, null);
+                setCompoundDrawables(null, null, getText().toString().equals("") ? originalRightDrawable : x, null);
             }
 
             @Override

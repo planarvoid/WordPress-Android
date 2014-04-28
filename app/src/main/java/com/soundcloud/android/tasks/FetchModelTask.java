@@ -18,27 +18,28 @@ import java.util.HashSet;
 import java.util.Set;
 
 public abstract class FetchModelTask<Model extends ScResource> extends ParallelAsyncTask<Request, Void, Model> {
-    protected PublicCloudAPI mApi;
-    private Set<WeakReference<Listener<Model>>> mListenerWeakReferences;
 
-    private Exception  mException;
-    private final long mModelId;
+    protected PublicCloudAPI api;
+    private Set<WeakReference<Listener<Model>>> listenerWeakReferences;
+
+    private Exception exception;
+    private final long modelId;
 
     public FetchModelTask(PublicCloudAPI api) {
         this(api, -1);
     }
 
     public FetchModelTask(PublicCloudAPI api, long id) {
-        mApi = api;
-        mModelId = id;
+        this.api = api;
+        modelId = id;
     }
 
     public void addListener(Listener<Model> listener){
-        if (mListenerWeakReferences == null){
-            mListenerWeakReferences = new HashSet<WeakReference<Listener<Model>>>();
+        if (listenerWeakReferences == null){
+            listenerWeakReferences = new HashSet<WeakReference<Listener<Model>>>();
         }
 
-        mListenerWeakReferences.add(new WeakReference<Listener<Model>>(listener));
+        listenerWeakReferences.add(new WeakReference<Listener<Model>>(listener));
     }
 
 
@@ -50,14 +51,14 @@ public abstract class FetchModelTask<Model extends ScResource> extends ParallelA
 
     @Override
     protected void onPostExecute(Model result) {
-        if (mListenerWeakReferences != null) {
-            for (WeakReference<Listener<Model>> listenerRef : mListenerWeakReferences) {
+        if (listenerWeakReferences != null) {
+            for (WeakReference<Listener<Model>> listenerRef : listenerWeakReferences) {
                 final Listener<Model> listener = listenerRef.get();
                 if (listener != null) {
                     if (result != null) {
                         listener.onSuccess(result);
                     } else {
-                        listener.onError(mModelId);
+                        listener.onError(modelId);
                     }
                 }
             }
@@ -70,7 +71,7 @@ public abstract class FetchModelTask<Model extends ScResource> extends ParallelA
     public Model resolve(Request request) {
         try {
             if (isCancelled()) return null;
-            Model model = mApi.read(request);
+            Model model = api.read(request);
             model.setUpdated();
             persist(model);
             SoundCloudApplication.sModelManager.cache(model, ScResource.CacheUpdateMode.FULL);
@@ -78,17 +79,13 @@ public abstract class FetchModelTask<Model extends ScResource> extends ParallelA
         } catch (NotFoundException e) {
             return null;
         } catch (IOException e) {
-            mException = e;
+            exception = e;
             Log.e(TAG, "error", e);
             return null;
         }
     }
 
     protected abstract void persist(Model model);
-
-    public boolean wasError() {
-        return mException != null;
-    }
 
     public interface Listener<Model extends Parcelable> {
         void onSuccess(Model m);

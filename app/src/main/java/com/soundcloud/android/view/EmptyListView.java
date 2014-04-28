@@ -23,24 +23,25 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class EmptyListView extends RelativeLayout {
-    protected View mProgressView;
 
-    @Nullable protected ViewGroup mEmptyLayout;
+    protected View progressView;
 
-    private RelativeLayout mEmptyViewHolder;
-    private TextView mTxtMessage;
-    private TextView mTxtLink;
-    @Nullable private ImageView mImage;
-    @Nullable private ErrorView mErrorView;
-    protected Button mBtnAction;
+    @Nullable protected ViewGroup emptyLayout;
 
-    private int     mMessageResource, mImageResource;
-    private String  mMessage, mSecondaryText, mActionText;
+    private RelativeLayout emptyViewHolder;
+    private TextView textMessage;
+    private TextView textLink;
+    @Nullable private ImageView image;
+    @Nullable private ErrorView errorView;
+    protected Button buttonAction;
 
-    private ActionListener mButtonActionListener;
-    private ActionListener mImageActionListener;
-    protected int mMode;
-    private RetryListener mRetryListener;
+    private int messageResource, imageResource;
+    private String message, secondaryText, actionText;
+
+    private ActionListener buttonActionListener;
+    private ActionListener imageActionListener;
+    protected int mode;
+    private RetryListener retryListener;
 
     public interface Status extends HttpStatus {
         int WAITING = -1;
@@ -84,8 +85,8 @@ public class EmptyListView extends RelativeLayout {
         final Animation animationIn = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in_med);
         setLayoutAnimation(new LayoutAnimationController(animationIn));
 
-        mEmptyViewHolder = ((RelativeLayout) findViewById(R.id.empty_view_holder));
-        mProgressView = findViewById(R.id.empty_view_progress);
+        emptyViewHolder = ((RelativeLayout) findViewById(R.id.empty_view_holder));
+        progressView = findViewById(R.id.empty_view_progress);
     }
 
     /**
@@ -94,19 +95,19 @@ public class EmptyListView extends RelativeLayout {
      * @return whether the code was handled here
      */
     public boolean setStatus(int code) {
-        if (mMode != code) {
-            mMode = code;
+        if (mode != code) {
+            mode = code;
 
             if (code == Status.WAITING) {
 
                 // don't show empty screen, show progress
-                mProgressView.setVisibility(View.VISIBLE);
-                if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
-                if (mErrorView != null) mErrorView.setVisibility(View.GONE);
+                progressView.setVisibility(View.VISIBLE);
+                if (emptyLayout != null) emptyLayout.setVisibility(View.GONE);
+                if (errorView != null) errorView.setVisibility(View.GONE);
                 return true;
 
             } else {
-                AnimUtils.hideView(getContext(), mProgressView, false);
+                AnimUtils.hideView(getContext(), progressView, false);
                 if (PublicApiWrapper.isStatusCodeOk(code)) {
                     // at rest, no error
                     showEmptyLayout();
@@ -124,24 +125,24 @@ public class EmptyListView extends RelativeLayout {
     }
 
     public int getStatus() {
-        return mMode;
+        return mode;
     }
 
     private void showError(int responseCode){
-        if (mErrorView == null) {
-            mErrorView = addErrorView();
-            mErrorView.setOnRetryListener(mRetryListener);
+        if (errorView == null) {
+            errorView = addErrorView();
+            errorView.setOnRetryListener(retryListener);
         }
-        AnimUtils.showView(getContext(), mErrorView, true);
+        AnimUtils.showView(getContext(), errorView, true);
 
-        if (mEmptyLayout != null) {
-            AnimUtils.hideView(getContext(), mEmptyLayout, false);
+        if (emptyLayout != null) {
+            AnimUtils.hideView(getContext(), emptyLayout, false);
         }
 
         if (PublicApiWrapper.isStatusCodeError(responseCode) || responseCode == Status.SERVER_ERROR){
-            mErrorView.setUnexpectedResponseState();
+            errorView.setUnexpectedResponseState();
         } else {
-            mErrorView.setConnectionErrorState();
+            errorView.setConnectionErrorState();
         }
     }
 
@@ -150,58 +151,58 @@ public class EmptyListView extends RelativeLayout {
         ErrorView errorView = (ErrorView) LayoutInflater.from(getContext()).inflate(R.layout.error_view, null);
         final RelativeLayout.LayoutParams params =
                 new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-        mEmptyViewHolder.addView(errorView, params);
+        emptyViewHolder.addView(errorView, params);
         return errorView;
     }
 
     protected void showEmptyLayout() {
-        if (mEmptyLayout == null){
-            mEmptyLayout = (ViewGroup) View.inflate(getContext(), getEmptyViewLayoutId(), null);
+        if (emptyLayout == null){
+            emptyLayout = (ViewGroup) View.inflate(getContext(), getEmptyViewLayoutId(), null);
 
             final RelativeLayout.LayoutParams params =
                     new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
-            mEmptyViewHolder.addView(mEmptyLayout, params);
+            emptyViewHolder.addView(emptyLayout, params);
 
-            mTxtMessage = (TextView) findViewById(R.id.txt_message);
-            mTxtLink = (TextView) findViewById(R.id.txt_link);
-            mBtnAction = (Button) findViewById(R.id.btn_action);
-            mImage = (ImageView) findViewById(R.id.empty_state_image);
-            if (mImage != null) {
-                mImage.setOnClickListener(new OnClickListener() {
+            textMessage = (TextView) findViewById(R.id.txt_message);
+            textLink = (TextView) findViewById(R.id.txt_link);
+            buttonAction = (Button) findViewById(R.id.btn_action);
+            image = (ImageView) findViewById(R.id.empty_state_image);
+            if (image != null) {
+                image.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (mImageActionListener != null) {
-                            mImageActionListener.onAction();
+                        if (imageActionListener != null) {
+                            imageActionListener.onAction();
                         }
                     }
                 });
-                setImage(mImageResource);
+                setImage(imageResource);
             }
 
-            mBtnAction.setOnClickListener(new OnClickListener() {
+            buttonAction.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mButtonActionListener != null) {
-                        mButtonActionListener.onAction();
+                    if (buttonActionListener != null) {
+                        buttonActionListener.onAction();
                     }
                 }
             });
 
             // set values
-            if (TextUtils.isEmpty(mMessage)) {
-                setMessageText(mMessageResource);
+            if (TextUtils.isEmpty(message)) {
+                setMessageText(messageResource);
             } else {
-                setMessageText(mMessage);
+                setMessageText(message);
             }
-            setSecondaryText(mSecondaryText);
-            setActionText(mActionText);
+            setSecondaryText(secondaryText);
+            setActionText(actionText);
         }
 
-        AnimUtils.showView(getContext(), mEmptyLayout, true);
+        AnimUtils.showView(getContext(), emptyLayout, true);
 
-        if (mErrorView != null) {
-            AnimUtils.hideView(getContext(), mErrorView, false);
+        if (errorView != null) {
+            AnimUtils.hideView(getContext(), errorView, false);
         }
     }
 
@@ -210,41 +211,41 @@ public class EmptyListView extends RelativeLayout {
     }
 
     public EmptyListView setImage(int imageId){
-        mImageResource = imageId;
-        if (mImage != null){
+        imageResource = imageId;
+        if (image != null){
             if (imageId > 0){
-                mImage.setVisibility(View.VISIBLE);
-                mImage.setImageResource(imageId);
+                image.setVisibility(View.VISIBLE);
+                image.setImageResource(imageId);
             } else {
-                mImage.setVisibility(View.GONE);
+                image.setVisibility(View.GONE);
             }
         }
         return this;
     }
 
     public EmptyListView setMessageText(int messageId){
-        mMessageResource = messageId;
-        mMessage = null;
-        if (mTxtMessage != null) {
+        messageResource = messageId;
+        message = null;
+        if (textMessage != null) {
             if (messageId > 0) {
-                mTxtMessage.setText(messageId);
-                mTxtMessage.setVisibility(View.VISIBLE);
+                textMessage.setText(messageId);
+                textMessage.setVisibility(View.VISIBLE);
             } else {
-                mTxtMessage.setVisibility(View.GONE);
+                textMessage.setVisibility(View.GONE);
             }
         }
         return this;
     }
 
     public EmptyListView setMessageText(String s) {
-        mMessage = s;
-        mMessageResource = -1;
-        if (mTxtMessage != null) {
+        message = s;
+        messageResource = -1;
+        if (textMessage != null) {
             if (!TextUtils.isEmpty(s)) {
-                mTxtMessage.setText(s);
-                mTxtMessage.setVisibility(View.VISIBLE);
+                textMessage.setText(s);
+                textMessage.setVisibility(View.VISIBLE);
             } else {
-                mTxtMessage.setVisibility(View.GONE);
+                textMessage.setVisibility(View.GONE);
             }
         }
         return this;
@@ -255,33 +256,33 @@ public class EmptyListView extends RelativeLayout {
     }
 
     public EmptyListView setSecondaryText(String secondaryText) {
-        mSecondaryText = secondaryText;
-        if (mTxtLink != null) {
+        this.secondaryText = secondaryText;
+        if (textLink != null) {
             if (secondaryText != null) {
-                mTxtLink.setText(secondaryText);
-                mTxtLink.setVisibility(View.VISIBLE);
+                textLink.setText(secondaryText);
+                textLink.setVisibility(View.VISIBLE);
             } else {
-                mTxtLink.setVisibility(View.GONE);
+                textLink.setVisibility(View.GONE);
             }
         }
         return this;
     }
 
     public EmptyListView setActionText(@Nullable String actionText){
-        mActionText = actionText;
-        if (mBtnAction != null) {
+        this.actionText = actionText;
+        if (buttonAction != null) {
             if (actionText != null) {
-                mBtnAction.setVisibility(View.VISIBLE);
-                mBtnAction.setText(actionText);
+                buttonAction.setVisibility(View.VISIBLE);
+                buttonAction.setText(actionText);
             } else {
-                mBtnAction.setVisibility(View.GONE);
+                buttonAction.setVisibility(View.GONE);
             }
         }
         return this;
     }
 
     public EmptyListView setActionListener(ActionListener listener){
-        mButtonActionListener = listener;
+        buttonActionListener = listener;
         return this;
     }
 
@@ -298,14 +299,14 @@ public class EmptyListView extends RelativeLayout {
     }
 
     public EmptyListView setImageActionListener(ActionListener listener){
-        mImageActionListener = listener;
+        imageActionListener = listener;
         return this;
     }
 
     public EmptyListView setOnRetryListener(RetryListener listener) {
-        mRetryListener = listener;
-        if (mErrorView != null) {
-            mErrorView.setOnRetryListener(listener);
+        retryListener = listener;
+        if (errorView != null) {
+            errorView.setOnRetryListener(listener);
         }
         return this;
     }

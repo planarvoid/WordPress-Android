@@ -79,30 +79,30 @@ public class SoundCloudApplication extends Application {
     private AnalyticsEngine mAnalyticsEngine;
 
     @Inject
-    EventBus mEventBus;
+    EventBus eventBus;
     @Inject
-    ScModelManager mModelManager;
+    ScModelManager modelManager;
     @Inject
-    ImageOperations mImageOperations;
+    ImageOperations imageOperations;
     @Inject
-    AccountOperations mAccountOperations;
+    AccountOperations accountOperations;
     @Inject
-    ExperimentOperations mExperimentOperations;
+    ExperimentOperations experimentOperations;
     @Inject
-    ApplicationProperties mApplicationProperties;
+    ApplicationProperties applicationProperties;
     @Inject
-    AnalyticsProperties mAnalyticsProperties;
+    AnalyticsProperties analyticsProperties;
     @Inject
-    SharedPreferences mSharedPreferences;
+    SharedPreferences sharedPreferences;
     @Inject
-    PlayerWidgetController mWidgetController;
+    PlayerWidgetController widgetController;
     @Inject
     DeviceHelper deviceHelper;
 
-    protected ObjectGraph mObjectGraph;
+    protected ObjectGraph objectGraph;
 
     public SoundCloudApplication() {
-        mObjectGraph = ObjectGraph.create(
+        objectGraph = ObjectGraph.create(
                 new ApplicationModule(this),
                 new WidgetModule(),
                 new SoundCloudModule()
@@ -111,8 +111,8 @@ public class SoundCloudApplication extends Application {
 
     @VisibleForTesting
     SoundCloudApplication(EventBus eventBus, AccountOperations accountOperations) {
-        mEventBus = eventBus;
-        mAccountOperations = accountOperations;
+        this.eventBus = eventBus;
+        this.accountOperations = accountOperations;
     }
 
     @Override
@@ -121,30 +121,30 @@ public class SoundCloudApplication extends Application {
 
         instance = this;
 
-        mObjectGraph.inject(this);
+        objectGraph.inject(this);
 
         // reroute to a static field for legacy code
-        sModelManager = mModelManager;
+        sModelManager = modelManager;
 
         new MigrationEngine(this).migrate();
 
-        Log.i(TAG, "Application starting up in mode " + mApplicationProperties.getBuildType());
-        Log.d(TAG, mApplicationProperties.toString());
+        Log.i(TAG, "Application starting up in mode " + applicationProperties.getBuildType());
+        Log.d(TAG, applicationProperties.toString());
 
-        if (mApplicationProperties.isDevBuildRunningOnDalvik() && !ActivityManager.isUserAMonkey()) {
+        if (applicationProperties.isDevBuildRunningOnDalvik() && !ActivityManager.isUserAMonkey()) {
             setupStrictMode();
             RxJavaPlugins.getInstance().registerObservableExecutionHook(new LoggingDebugHook());
         }
 
         if (ApplicationProperties.shouldReportCrashes() &&
-                mSharedPreferences.getBoolean(SettingsActivity.CRASH_REPORTING_ENABLED, false)) {
+                sharedPreferences.getBoolean(SettingsActivity.CRASH_REPORTING_ENABLED, false)) {
             Crashlytics.start(this);
             ExceptionUtils.setupOOMInterception();
         }
 
         IOUtils.checkState(this);
 
-        mImageOperations.initialise(this, mApplicationProperties);
+        imageOperations.initialise(this, applicationProperties);
 
         setupCurrentUserAccount();
 
@@ -154,11 +154,11 @@ public class SoundCloudApplication extends Application {
 
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
 
-        mWidgetController.subscribe();
+        widgetController.subscribe();
     }
 
     private void setupCurrentUserAccount() {
-        final Account account = mAccountOperations.getSoundCloudAccount();
+        final Account account = accountOperations.getSoundCloudAccount();
 
         if (account != null) {
             if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
@@ -170,7 +170,7 @@ public class SoundCloudApplication extends Application {
             AndroidUtils.doOnce(this, "reset.c2dm.reg_id", new Runnable() {
                 @Override
                 public void run() {
-                    mSharedPreferences.edit().remove(Consts.PrefKeys.C2DM_DEVICE_URL).apply();
+                    sharedPreferences.edit().remove(Consts.PrefKeys.C2DM_DEVICE_URL).apply();
                 }
             });
             // delete old cache dir
@@ -196,50 +196,50 @@ public class SoundCloudApplication extends Application {
 
             ContentStats.init(this);
 
-            if (mApplicationProperties.isBetaBuildRunningOnDalvik()){
+            if (applicationProperties.isBetaBuildRunningOnDalvik()){
                 Crashlytics.setUserIdentifier(getLoggedInUser().username);
             }
         }
     }
 
     private void setupExperiments() {
-        mExperimentOperations.loadAssignment();
+        experimentOperations.loadAssignment();
     }
 
     private void setupAnalytics() {
-        Log.d(TAG, mAnalyticsProperties.toString());
+        Log.d(TAG, analyticsProperties.toString());
 
         // Unfortunately, both Localytics and ComScore are unmockable in tests and were crashing the tests during
         // initialiation of AnalyticsEngine, so we do not register them unless we're running on a real device
         final List<AnalyticsProvider> analyticsProviders;
-        if (mApplicationProperties.isRunningOnDalvik()) {
+        if (applicationProperties.isRunningOnDalvik()) {
             analyticsProviders = Lists.newArrayList(
-                    new LocalyticsAnalyticsProvider(this, mAnalyticsProperties, getCurrentUserId()),
+                    new LocalyticsAnalyticsProvider(this, analyticsProperties, getCurrentUserId()),
                     new EventLoggerAnalyticsProvider(),
                     new ComScoreAnalyticsProvider(this));
         } else {
             analyticsProviders = Collections.emptyList();
         }
-        mAnalyticsEngine = new AnalyticsEngine(mEventBus, mSharedPreferences, mAnalyticsProperties, analyticsProviders);
-        Constants.IS_LOGGABLE = mAnalyticsProperties.isAnalyticsAvailable() && mApplicationProperties.isDebugBuild();
+        mAnalyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, analyticsProperties, analyticsProviders);
+        Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && applicationProperties.isDebugBuild();
     }
 
     public EventBus getEventBus() {
-        return mEventBus;
+        return eventBus;
     }
 
     @Deprecated // use @Inject instead!
     public ImageOperations getImageOperations() {
-        return mImageOperations;
+        return imageOperations;
     }
 
     @NotNull
     public static ObjectGraph getObjectGraph() {
-        if (instance == null || instance.mObjectGraph == null) {
+        if (instance == null || instance.objectGraph == null) {
             throw new IllegalStateException(
                     "Cannot access the app graph before the application has been created");
         }
-        return instance.mObjectGraph;
+        return instance.objectGraph;
     }
 
     public synchronized User getLoggedInUser() {
@@ -248,18 +248,18 @@ public class SoundCloudApplication extends Application {
             // user not in db, fall back to local storage
             if (mLoggedInUser == null) {
                 User user = new User();
-                user.setId(mAccountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()));
-                user.username = mAccountOperations.getAccountDataString(AccountInfoKeys.USERNAME.getKey());
-                user.permalink = mAccountOperations.getAccountDataString(AccountInfoKeys.USER_PERMALINK.getKey());
+                user.setId(accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()));
+                user.username = accountOperations.getAccountDataString(AccountInfoKeys.USERNAME.getKey());
+                user.permalink = accountOperations.getAccountDataString(AccountInfoKeys.USER_PERMALINK.getKey());
                 return user;
             }
-            mLoggedInUser.via = SignupVia.fromString(mAccountOperations.getAccountDataString(AccountInfoKeys.SIGNUP.getKey()));
+            mLoggedInUser.via = SignupVia.fromString(accountOperations.getAccountDataString(AccountInfoKeys.SIGNUP.getKey()));
         }
         return mLoggedInUser;
     }
 
     private void initLoggedInUser() {
-        final long id = mAccountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
+        final long id = accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
         if (id != AccountOperations.NOT_SET) {
             mLoggedInUser = sModelManager.getUser(id);
         }
@@ -271,11 +271,11 @@ public class SoundCloudApplication extends Application {
 
     //TODO Move this into AccountOperations once we refactor User info out of here
     public boolean addUserAccountAndEnableSync(User user, Token token, SignupVia via) {
-        Account account = mAccountOperations.addOrReplaceSoundCloudAccount(user, token, via);
+        Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
         if (account != null) {
             mLoggedInUser = user;
 
-            mEventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(user));
+            eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(user));
 
             // move this when we can't guarantee we will only have 1 account active at a time
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
@@ -310,7 +310,7 @@ public class SoundCloudApplication extends Application {
     }
 
     private long getCurrentUserId()  {
-        return mLoggedInUser == null ? mAccountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : mLoggedInUser.getId();
+        return mLoggedInUser == null ? accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : mLoggedInUser.getId();
     }
 
     public static long getUserId() {
@@ -342,7 +342,7 @@ public class SoundCloudApplication extends Application {
     // keep this until we've sorted out RL2, since some tests rely on the getUserId stuff which in turn requires
     // a valid AccountOps instance
     public void setAccountOperations(AccountOperations operations) {
-        mAccountOperations = operations;
+        accountOperations = operations;
     }
 
     @TargetApi(9)

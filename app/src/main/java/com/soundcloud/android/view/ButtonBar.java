@@ -17,9 +17,9 @@ import java.util.List;
 
 public class ButtonBar extends LinearLayout {
 
-    private int mSeparatorColor;
-    private List<MenuItem> mMenuItems;
-    private SparseArray<MenuItem> mMenuItemMap;
+    private int separatorColor;
+    private List<MenuItem> menuItems;
+    private SparseArray<MenuItem> menuItemMap;
     private LinearLayout holder;
 
     public static class MenuItem {
@@ -46,11 +46,11 @@ public class ButtonBar extends LinearLayout {
 
     private void init(AttributeSet attrs) {
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.ButtonBar);
-        mSeparatorColor = a.getColor(R.styleable.ButtonBar_separator_color, 0xFF666666);
+        separatorColor = a.getColor(R.styleable.ButtonBar_separator_color, 0xFF666666);
         a.recycle();
 
-        mMenuItems = new ArrayList<MenuItem>();
-        mMenuItemMap = new SparseArray<MenuItem>();
+        menuItems = new ArrayList<MenuItem>();
+        menuItemMap = new SparseArray<MenuItem>();
 
         setOrientation(LinearLayout.VERTICAL);
         addView(getNewVerticalSeparator());
@@ -63,8 +63,8 @@ public class ButtonBar extends LinearLayout {
     }
 
     public ButtonBar addItem(MenuItem menuItem, int resId) {
-        mMenuItems.add(menuItem);
-        mMenuItemMap.put(menuItem.id, menuItem);
+        menuItems.add(menuItem);
+        menuItemMap.put(menuItem.id, menuItem);
 
         menuItem.separator = getNewSeparator();
         menuItem.button = getNewButton(menuItem);
@@ -77,19 +77,19 @@ public class ButtonBar extends LinearLayout {
     }
 
     public void toggleVisibility(int id, boolean visible, boolean updateAll) {
-        if (mMenuItemMap.get(id) != null) {
-            mMenuItemMap.get(id).visible = visible;
+        if (menuItemMap.get(id) != null) {
+            menuItemMap.get(id).visible = visible;
             if (updateAll) setVisibilities();
         }
     }
 
     public void setTextById(int id, int cs) {
-        if (mMenuItemMap.get(id) != null) mMenuItemMap.get(id).button.setText(cs);
+        if (menuItemMap.get(id) != null) menuItemMap.get(id).button.setText(cs);
     }
 
     private void setVisibilities() {
         boolean first = false;
-        for (MenuItem menuItem : mMenuItems) {
+        for (MenuItem menuItem : menuItems) {
             if (menuItem.visible) {
                 menuItem.button.setVisibility(View.VISIBLE);
                 if (!first) {
@@ -124,7 +124,7 @@ public class ButtonBar extends LinearLayout {
     private View getNewSeparator() {
         final float density = getContext().getResources().getDisplayMetrics().density;
         View v = new View(getContext());
-        v.setBackgroundColor(mSeparatorColor);
+        v.setBackgroundColor(separatorColor);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams((int) (1 * density), ViewGroup.LayoutParams.MATCH_PARENT);
         v.setLayoutParams(lp);
         return v;
@@ -133,7 +133,7 @@ public class ButtonBar extends LinearLayout {
     private View getNewVerticalSeparator() {
         final float density = getContext().getResources().getDisplayMetrics().density;
         View v = new View(getContext());
-        v.setBackgroundColor(mSeparatorColor);
+        v.setBackgroundColor(separatorColor);
         v.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (1 * density)));
         return v;
     }

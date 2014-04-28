@@ -19,15 +19,15 @@ import java.io.IOException;
 /* package */  class CollectionSyncRequest {
 
     public static final String TAG = ApiSyncService.class.getSimpleName();
-    private final Context mContext;
-    private final Uri mContentUri;
-    private final String mAction;
-    private final boolean mIsUi;
-    private final SyncStateManager mSyncStateManager;
-    private ApiSyncerFactory mApiSyncerFactory;
+    private final Context context;
+    private final Uri contentUri;
+    private final String action;
+    private final boolean isUI;
+    private final SyncStateManager syncStateManager;
+    private ApiSyncerFactory apiSyncerFactory;
 
     private LocalCollection localCollection;
-    private ApiSyncResult mResult;
+    private ApiSyncResult result;
 
     public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI){
         this(context, contentUri, action, isUI, new ApiSyncerFactory(), new SyncStateManager(context));
@@ -35,22 +35,22 @@ import java.io.IOException;
 
     public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI,
                                  ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager) {
-        mContext = context;
-        mContentUri = contentUri;
-        mAction = action;
-        mResult = new ApiSyncResult(mContentUri);
-        mIsUi = isUI;
-        mSyncStateManager = syncStateManager;
-        mApiSyncerFactory = apiSyncerFactory;
+        this.context = context;
+        this.contentUri = contentUri;
+        this.action = action;
+        this.isUI = isUI;
+        this.syncStateManager = syncStateManager;
+        this.apiSyncerFactory = apiSyncerFactory;
+        result = new ApiSyncResult(this.contentUri);
     }
 
     public void onQueued() {
-        localCollection = mSyncStateManager.fromContent(mContentUri);
+        localCollection = syncStateManager.fromContent(contentUri);
         if (localCollection != null) {
-            mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.PENDING);
+            syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.PENDING);
         } else {
             // Happens with database locking. This should just return with an unsuccessful result below
-            Log.e(TAG, "Unable to create collection for uri " + mContentUri);
+            Log.e(TAG, "Unable to create collection for uri " + contentUri);
         }
     }
 
@@ -58,28 +58,28 @@ import java.io.IOException;
      * Execute the sync request. This should happen on a separate worker thread.
      */
     public CollectionSyncRequest execute() {
-        if (localCollection == null || !mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.SYNCING)) {
-            Log.e(TAG, "LocalCollection error :" + mContentUri);
+        if (localCollection == null || !syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.SYNCING)) {
+            Log.e(TAG, "LocalCollection error :" + contentUri);
             return this;
         }
 
         // make sure all requests going out on this thread have the background parameter set
-        PublicApiWrapper.setBackgroundMode(!mIsUi);
+        PublicApiWrapper.setBackgroundMode(!isUI);
 
         try {
-            Log.d(TAG, "syncing " + mContentUri);
-            mResult = mApiSyncerFactory.forContentUri(mContext, mContentUri).syncContent(mContentUri, mAction);
-            mSyncStateManager.onSyncComplete(mResult, localCollection);
+            Log.d(TAG, "syncing " + contentUri);
+            result = apiSyncerFactory.forContentUri(context, contentUri).syncContent(contentUri, action);
+            syncStateManager.onSyncComplete(result, localCollection);
         } catch (CloudAPI.InvalidTokenException e) {
-            mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
-            mResult = ApiSyncResult.fromAuthException(mContentUri);
+            syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
+            result = ApiSyncResult.fromAuthException(contentUri);
         } catch (PublicCloudAPI.UnexpectedResponseException e) {
-            mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
-            mResult = ApiSyncResult.fromUnexpectedResponseException(mContentUri);
+            syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
+            result = ApiSyncResult.fromUnexpectedResponseException(contentUri);
 
         } catch (IOException e) {
-            mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
-            mResult = ApiSyncResult.fromIOException(mContentUri);
+            syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
+            result = ApiSyncResult.fromIOException(contentUri);
         } finally {
             // should be taken care of when thread dies, but needed for tests
             PublicApiWrapper.setBackgroundMode(false);
@@ -90,15 +90,15 @@ import java.io.IOException;
     }
 
     public Uri getContentUri() {
-        return mContentUri;
+        return contentUri;
     }
 
     public ApiSyncResult getResult() {
-        return mResult;
+        return result;
     }
 
-    public void setmResult(ApiSyncResult mResult) {
-        this.mResult = mResult;
+    public void setResult(ApiSyncResult result) {
+        this.result = result;
     }
 
     @Override @SuppressWarnings("RedundantIfStatement")
@@ -108,24 +108,24 @@ import java.io.IOException;
 
         CollectionSyncRequest that = (CollectionSyncRequest) o;
 
-        if (mAction != null ? !mAction.equals(that.mAction) : that.mAction != null) return false;
-        if (mContentUri != null ? !mContentUri.equals(that.mContentUri) : that.mContentUri != null) return false;
+        if (action != null ? !action.equals(that.action) : that.action != null) return false;
+        if (contentUri != null ? !contentUri.equals(that.contentUri) : that.contentUri != null) return false;
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = mContentUri != null ? mContentUri.hashCode() : 0;
-        result = 31 * result + (mAction != null ? mAction.hashCode() : 0);
+        int result = contentUri != null ? contentUri.hashCode() : 0;
+        result = 31 * result + (action != null ? action.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
         return "CollectionSyncRequest{" +
-                "contentUri=" + mContentUri +
-                ", action='" + mAction + '\'' +
-                ", result=" + mResult +
+                "contentUri=" + contentUri +
+                ", action='" + action + '\'' +
+                ", result=" + result +
                 '}';
     }
 

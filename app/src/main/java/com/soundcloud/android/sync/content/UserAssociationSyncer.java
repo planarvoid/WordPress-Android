@@ -15,7 +15,6 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.rx.observers.SuccessSubscriber;
-import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
@@ -45,10 +44,9 @@ public class UserAssociationSyncer extends SyncStrategy {
     private static final int BULK_INSERT_BATCH_SIZE = 500;
     private static final String REQUEST_NO_BACKOFF = "0";
 
-    private CollectionStorage mCollectionStorage;
-    private UserAssociationStorage mUserAssociationStorage;
-    private FollowingOperations mFollowingOperations;
-    private int mBulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
+    private UserAssociationStorage userAssociationStorage;
+    private FollowingOperations followingOperations;
+    private int bulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
 
     public UserAssociationSyncer(Context context) {
         this(context, new AccountOperations(context));
@@ -69,13 +67,12 @@ public class UserAssociationSyncer extends SyncStrategy {
     }
 
     private void init(UserAssociationStorage userAssociationStorage, FollowingOperations followingOperations) {
-        mFollowingOperations = followingOperations;
-        mUserAssociationStorage = userAssociationStorage;
-        mCollectionStorage = new CollectionStorage();
+        this.followingOperations = followingOperations;
+        this.userAssociationStorage = userAssociationStorage;
     }
 
     public void setBulkInsertBatchSize(int bulkInsertBatchSize) {
-        mBulkInsertBatchSize = bulkInsertBatchSize;
+        this.bulkInsertBatchSize = bulkInsertBatchSize;
     }
 
     @NotNull
@@ -96,8 +93,8 @@ public class UserAssociationSyncer extends SyncStrategy {
         ApiSyncResult result = new ApiSyncResult(content.uri);
         if (!Content.ID_BASED.contains(content)) return result;
 
-        List<Long> local = mUserAssociationStorage.getStoredIds(content.uri);
-        List<Long> remote = mApi.readFullCollection(Request.to(content.remoteUri + "/ids"), IdHolder.class);
+        List<Long> local = userAssociationStorage.getStoredIds(content.uri);
+        List<Long> remote = api.readFullCollection(Request.to(content.remoteUri + "/ids"), IdHolder.class);
 
         if (!isLoggedIn()) {
             return result;
@@ -114,7 +111,7 @@ public class UserAssociationSyncer extends SyncStrategy {
         // deletions can happen here, has no impact
         List<Long> itemDeletions = new ArrayList<Long>(local);
         itemDeletions.removeAll(remote);
-        mUserAssociationStorage.deleteAssociations(content.uri, itemDeletions);
+        userAssociationStorage.deleteAssociations(content.uri, itemDeletions);
 
         int startPosition = 1;
         int added = 0;
@@ -123,7 +120,7 @@ public class UserAssociationSyncer extends SyncStrategy {
             case ME_FOLLOWINGS:
                 // load the first page of items to get proper last_seen ordering
                 // parse and add first items
-                List<ScResource> resources = mApi.readList(Request.to(content.remoteUri)
+                List<ScResource> resources = api.readList(Request.to(content.remoteUri)
                         .add(PublicApiWrapper.LINKED_PARTITIONING, "1")
                         .add("limit", Consts.LIST_PAGE_SIZE));
 
@@ -131,7 +128,7 @@ public class UserAssociationSyncer extends SyncStrategy {
                     return new ApiSyncResult(content.uri);
                 }
 
-                added = mUserAssociationStorage.insertAssociations(resources, content.uri, userId);
+                added = userAssociationStorage.insertAssociations(resources, content.uri, userId);
 
                 // remove items from master remote list and adjust start index
                 for (ScResource u : resources) {
@@ -142,7 +139,7 @@ public class UserAssociationSyncer extends SyncStrategy {
         }
 
         log("Added " + added + " new items for this endpoint");
-        mUserAssociationStorage.insertInBatches(content, userId, remote, startPosition, mBulkInsertBatchSize);
+        userAssociationStorage.insertInBatches(content, userId, remote, startPosition, bulkInsertBatchSize);
         result.success = true;
         return result;
     }
@@ -154,12 +151,12 @@ public class UserAssociationSyncer extends SyncStrategy {
 
             switch (userAssociation.getLocalSyncState()) {
                 case PENDING_ADDITION:
-                    int status = mApi.put(request).getStatusLine().getStatusCode();
+                    int status = api.put(request).getStatusLine().getStatusCode();
                     success = status == HttpStatus.SC_OK || status == HttpStatus.SC_CREATED;
                     break;
 
                 case PENDING_REMOVAL:
-                    status = mApi.delete(request).getStatusLine().getStatusCode();
+                    status = api.delete(request).getStatusLine().getStatusCode();
                     success = status == HttpStatus.SC_OK || status == HttpStatus.SC_NOT_FOUND;
                     break;
 
@@ -168,7 +165,7 @@ public class UserAssociationSyncer extends SyncStrategy {
                     return true;
             }
             if (success){
-                mUserAssociationStorage.setFollowingAsSynced(userAssociation);
+                userAssociationStorage.setFollowingAsSynced(userAssociation);
             }
             return success;
 
@@ -207,16 +204,16 @@ public class UserAssociationSyncer extends SyncStrategy {
     private ApiSyncResult pushUserAssociations(Content content) {
         final ApiSyncResult result = new ApiSyncResult(content.uri);
         result.success = true;
-        if (content == Content.ME_FOLLOWINGS && mUserAssociationStorage.hasFollowingsNeedingSync()) {
-            List<UserAssociation> associationsNeedingSync = mUserAssociationStorage.getFollowingsNeedingSync();
+        if (content == Content.ME_FOLLOWINGS && userAssociationStorage.hasFollowingsNeedingSync()) {
+            List<UserAssociation> associationsNeedingSync = userAssociationStorage.getFollowingsNeedingSync();
             for(UserAssociation userAssociation : associationsNeedingSync){
                 if (!userAssociation.hasToken() && !pushUserAssociation(userAssociation)){
                     result.success = false;
                 }
             }
 
-            final BulkFollowSubscriber observer = new BulkFollowSubscriber(associationsNeedingSync, mUserAssociationStorage, new FollowingOperations());
-            mFollowingOperations.bulkFollowAssociations(associationsNeedingSync).subscribe(observer);
+            final BulkFollowSubscriber observer = new BulkFollowSubscriber(associationsNeedingSync, userAssociationStorage, new FollowingOperations());
+            followingOperations.bulkFollowAssociations(associationsNeedingSync).subscribe(observer);
             if (!observer.wasSuccess()) {
                 result.success = false;
             }
@@ -226,14 +223,14 @@ public class UserAssociationSyncer extends SyncStrategy {
 
     protected static class BulkFollowSubscriber extends SuccessSubscriber {
 
-        private final FollowingOperations mFollowingOperations;
-        private UserAssociationStorage mUserAssociationStorage;
-        private Collection<UserAssociation> mUserAssociations;
+        private final FollowingOperations followingOperations;
+        private UserAssociationStorage userAssociationStorage;
+        private Collection<UserAssociation> userAssociations;
 
         public BulkFollowSubscriber(Collection<UserAssociation> userAssociations, UserAssociationStorage userAssociationStorage, FollowingOperations followingOperations) {
-            mUserAssociations = userAssociations;
-            mUserAssociationStorage = userAssociationStorage;
-            mFollowingOperations = followingOperations;
+            this.userAssociations = userAssociations;
+            this.userAssociationStorage = userAssociationStorage;
+            this.followingOperations = followingOperations;
         }
 
         @Override
@@ -243,14 +240,14 @@ public class UserAssociationSyncer extends SyncStrategy {
                  Tokens were expired. Delete the user associations and followings from memory.
                  TODO : retry logic somehow
                   */
-                final Collection<User> users = Collections2.transform(mUserAssociations, new Function<UserAssociation, User>() {
+                final Collection<User> users = Collections2.transform(userAssociations, new Function<UserAssociation, User>() {
                     @Override
                     public User apply(UserAssociation input) {
                         return input.getUser();
                     }
                 });
-                mFollowingOperations.updateLocalStatus(false, ScModel.getIdList(Lists.newArrayList(users)));
-                mUserAssociationStorage.deleteFollowings(mUserAssociations);
+                followingOperations.updateLocalStatus(false, ScModel.getIdList(Lists.newArrayList(users)));
+                userAssociationStorage.deleteFollowings(userAssociations);
             }
             super.onError(e);
         }

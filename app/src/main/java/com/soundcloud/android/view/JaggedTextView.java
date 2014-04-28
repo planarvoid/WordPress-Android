@@ -12,8 +12,9 @@ import android.text.Layout;
 import android.util.AttributeSet;
 
 public class JaggedTextView extends CustomFontTextView {
-    private Paint mBackgroundPaint;
-    private ColorStateList mColorStateList;
+
+    private Paint backgroundPaint;
+    private ColorStateList colorStateList;
 
     public JaggedTextView(Context context) {
         super(context);
@@ -31,10 +32,10 @@ public class JaggedTextView extends CustomFontTextView {
 
     private void initAttributes(Context context, AttributeSet attrs) {
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.JaggedTextView);
-        mColorStateList = array.getColorStateList(R.styleable.JaggedTextView_jagged_background);
+        colorStateList = array.getColorStateList(R.styleable.JaggedTextView_jagged_background);
         array.recycle();
 
-        mBackgroundPaint = new Paint();
+        backgroundPaint = new Paint();
     }
 
     @Override
@@ -71,9 +72,9 @@ public class JaggedTextView extends CustomFontTextView {
             left  -= getPaddingLeft();
             right += getPaddingRight();
 
-            int backgroundColor = mColorStateList.getColorForState(getDrawableState(), mColorStateList.getDefaultColor());
-            mBackgroundPaint.setColor(backgroundColor);
-            canvas.drawRect(left, top, right, bottom, mBackgroundPaint);
+            int backgroundColor = colorStateList.getColorForState(getDrawableState(), colorStateList.getDefaultColor());
+            backgroundPaint.setColor(backgroundColor);
+            canvas.drawRect(left, top, right, bottom, backgroundPaint);
         }
 
         layout.getPaint().setColor(getCurrentTextColor());

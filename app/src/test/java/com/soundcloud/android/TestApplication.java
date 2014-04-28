@@ -27,7 +27,7 @@ public class TestApplication extends SoundCloudApplication {
     }
 
     private TestApplication(Token token) {
-        mObjectGraph = ObjectGraph.create(new TestApplicationModule(this));
+        objectGraph = ObjectGraph.create(new TestApplicationModule(this));
         this.token = token;
     }
 

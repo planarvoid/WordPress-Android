@@ -33,10 +33,10 @@ import java.util.Map;
 
 // TODO: merge this class with SyncOperations
 public class SyncStateManager extends ScheduledOperations {
-    private final LocalCollectionDAO mLocalCollectionDao;
-    private final ContentResolver mResolver;
+    private final LocalCollectionDAO localCollectionDao;
+    private final ContentResolver resolver;
 
-    private final Map<Long, ContentObserver> mContentObservers;
+    private final Map<Long, ContentObserver> contentObservers;
 
     @Deprecated // use @Inject instead
     public SyncStateManager(Context context) {
@@ -47,9 +47,9 @@ public class SyncStateManager extends ScheduledOperations {
     @Inject
     public SyncStateManager(ContentResolver resolver, LocalCollectionDAO dao) {
         super(ScSchedulers.STORAGE_SCHEDULER);
-        mResolver = resolver;
-        mLocalCollectionDao = dao;
-        mContentObservers = new HashMap<Long, ContentObserver>();
+        this.resolver = resolver;
+        localCollectionDao = dao;
+        contentObservers = new HashMap<Long, ContentObserver>();
     }
 
     @NotNull
@@ -59,7 +59,7 @@ public class SyncStateManager extends ScheduledOperations {
 
     @NotNull
     public LocalCollection fromContent(Uri contentUri) {
-        return mLocalCollectionDao.fromContentUri(contentUri, true);
+        return localCollectionDao.fromContentUri(contentUri, true);
     }
 
     /**
@@ -89,15 +89,15 @@ public class SyncStateManager extends ScheduledOperations {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Collections.LAST_SYNC, time);
 
-        return mLocalCollectionDao.update(lc.getId(), cv);
+        return localCollectionDao.update(lc.getId(), cv);
     }
 
     public boolean delete(Content content) {
-        return mLocalCollectionDao.deleteUri(content.uri);
+        return localCollectionDao.deleteUri(content.uri);
     }
 
     public void clear() {
-        mLocalCollectionDao.deleteAll();
+        localCollectionDao.deleteAll();
     }
 
     public Observable<Boolean> forceToStaleAsync(final Content content) {
@@ -116,7 +116,7 @@ public class SyncStateManager extends ScheduledOperations {
         cv.put(TableColumns.Collections.LAST_SYNC, 0);
         cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, 0);
 
-        return mLocalCollectionDao.update(lc.getId(), cv);
+        return localCollectionDao.update(lc.getId(), cv);
     }
 
     public boolean onSyncComplete(ApiSyncResult result, LocalCollection collection) {
@@ -125,7 +125,7 @@ public class SyncStateManager extends ScheduledOperations {
         collection.size = result.new_size;
         collection.extra = result.extra;
         collection.sync_state = LocalCollection.SyncState.IDLE;
-        return mLocalCollectionDao.update(collection);
+        return localCollectionDao.update(collection);
     }
 
 
@@ -135,7 +135,7 @@ public class SyncStateManager extends ScheduledOperations {
         if (newSyncState == LocalCollection.SyncState.SYNCING || newSyncState == LocalCollection.SyncState.PENDING) {
             cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, System.currentTimeMillis());
         }
-        return mLocalCollectionDao.update(id, cv);
+        return localCollectionDao.update(id, cv);
     }
 
     public int incrementSyncMiss(Uri contentUri) {
@@ -143,7 +143,7 @@ public class SyncStateManager extends ScheduledOperations {
         ContentValues cv = new ContentValues();
         final int misses = lc.syncMisses() + 1;
         cv.put(TableColumns.Collections.EXTRA, misses);
-        if (mLocalCollectionDao.update(lc.getId(), cv)) {
+        if (localCollectionDao.update(lc.getId(), cv)) {
             return misses;
         } else {
             return -1;
@@ -151,12 +151,12 @@ public class SyncStateManager extends ScheduledOperations {
     }
 
     public long getLastSyncAttempt(Uri contentUri) {
-        LocalCollection lc = mLocalCollectionDao.fromContentUri(contentUri, false);
+        LocalCollection lc = localCollectionDao.fromContentUri(contentUri, false);
         return lc == null ? -1 : lc.last_sync_attempt;
     }
 
     public long getLastSyncSuccess(Uri contentUri) {
-        LocalCollection lc = mLocalCollectionDao.fromContentUri(contentUri, false);
+        LocalCollection lc = localCollectionDao.fromContentUri(contentUri, false);
         return lc == null ? -1 : lc.last_sync_success;
     }
 
@@ -188,19 +188,19 @@ public class SyncStateManager extends ScheduledOperations {
 
     public void addChangeListener(@NotNull LocalCollection lc, @NotNull LocalCollection.OnChangeListener listener) {
         ChangeObserver observer = new ChangeObserver(lc, listener);
-        mContentObservers.put(lc.getId(), observer);
+        contentObservers.put(lc.getId(), observer);
 
         // if the record is created asynchronously, we may not have a valid ID at this point yet (and by extension
         // cannot construct a content URI) so only actually register the observer if an ID is set.
         if (lc.getId() > 0) {
             final Uri contentUri = Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(lc.getId())).build();
-            mResolver.registerContentObserver(contentUri, true, observer);
+            resolver.registerContentObserver(contentUri, true, observer);
         }
     }
 
     public void removeChangeListener(@NotNull LocalCollection lc) {
-        ContentObserver observer = mContentObservers.remove(lc.getId());
-        if (observer != null) mResolver.unregisterContentObserver(observer);
+        ContentObserver observer = contentObservers.remove(lc.getId());
+        if (observer != null) resolver.unregisterContentObserver(observer);
     }
 
     /* package */ void onCollectionAsyncQueryReturn(Cursor cursor, LocalCollection localCollection, LocalCollection.OnChangeListener listener) {
@@ -213,7 +213,7 @@ public class SyncStateManager extends ScheduledOperations {
                 // create a new local collection in intialized state
                 localCollection = new LocalCollection(localCollection.getUri());
                 // the record didn't exist yet; go ahead and create it before reporting any changes
-                mLocalCollectionDao.create(localCollection);
+                localCollectionDao.create(localCollection);
             }
             if (wasRegistered && listener != null) {
                 addChangeListener(localCollection, listener);
@@ -228,21 +228,21 @@ public class SyncStateManager extends ScheduledOperations {
     }
 
     /* package */ ChangeObserver getObserverById(long id) {
-        return (ChangeObserver) mContentObservers.get(id);
+        return (ChangeObserver) contentObservers.get(id);
     }
 
     /* package */ boolean hasObservers() {
-        return mContentObservers != null && !mContentObservers.isEmpty();
+        return contentObservers != null && !contentObservers.isEmpty();
     }
 
     /* package */ class ChangeObserver extends ContentObserver {
-        private final LocalCollection mSyncState;
-        private final LocalCollection.OnChangeListener mListener;
+        private final LocalCollection syncState;
+        private final LocalCollection.OnChangeListener listener;
 
         public ChangeObserver(LocalCollection syncState, LocalCollection.OnChangeListener listener) {
             super(new Handler(Looper.getMainLooper()));
-            mSyncState = syncState;
-            mListener = listener;
+            this.syncState = syncState;
+            this.listener = listener;
         }
 
         @Override
@@ -252,28 +252,28 @@ public class SyncStateManager extends ScheduledOperations {
 
         @Override
         public void onChange(boolean selfChange) {
-            SyncStateQueryHandler handler = new SyncStateQueryHandler(mSyncState, mListener);
-            handler.startQuery(0, null, Content.COLLECTIONS.uri, null, "_id = ?", new String[]{String.valueOf(mSyncState.getId())}, null);
+            SyncStateQueryHandler handler = new SyncStateQueryHandler(syncState, listener);
+            handler.startQuery(0, null, Content.COLLECTIONS.uri, null, "_id = ?", new String[]{String.valueOf(syncState.getId())}, null);
         }
 
         public LocalCollection.OnChangeListener getListener() {
-            return mListener;
+            return listener;
         }
     }
 
     private class SyncStateQueryHandler extends AsyncQueryHandler {
-        private LocalCollection mLocalCollection;
-        private final LocalCollection.OnChangeListener mListener;
+        private LocalCollection localCollection;
+        private final LocalCollection.OnChangeListener listener;
 
         public SyncStateQueryHandler(@NotNull LocalCollection lc, LocalCollection.OnChangeListener listener) {
-            super(mResolver);
-            mLocalCollection = lc;
-            mListener = listener;
+            super(resolver);
+            localCollection = lc;
+            this.listener = listener;
         }
 
         @Override
         protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
-            onCollectionAsyncQueryReturn(cursor, mLocalCollection, mListener);
+            onCollectionAsyncQueryReturn(cursor, localCollection, listener);
         }
     }
 

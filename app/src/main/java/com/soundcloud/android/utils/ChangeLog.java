@@ -26,13 +26,12 @@ import java.io.InputStreamReader;
  * @see <a href="http://code.google.com/p/android-change-log/">http://code.google.com/p/android-change-log</a>
  */
 public class ChangeLog {
-    private final Context mContext;
-    private int mOldVersion;
-    private int mThisVersion;
+
+    private final Context context;
 
     private static final String CONTENT = "__CHANGELOG_CONTENT__";
 
-    private Listmode mListMode = Listmode.NONE;
+    private Listmode listMode = Listmode.NONE;
     private StringBuilder mSb;
 
     private enum Listmode {
@@ -47,16 +46,16 @@ public class ChangeLog {
      * @param context the context
      */
     public ChangeLog(Context context) {
-        mContext = context;
+        this.context = context;
     }
 
     public AlertDialog getDialog(boolean full) {
-        WebView wv = new WebView(mContext);
+        WebView wv = new WebView(context);
         wv.setBackgroundColor(0xFFFFFFFF); // transparent
         wv.loadData(getLog(full), "text/html", "UTF-8");
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setTitle(mContext.getResources().getString(
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(context.getResources().getString(
                 full
                         ? R.string.changelog_full_title
                         : R.string.changelog_title))
@@ -78,7 +77,7 @@ public class ChangeLog {
 
     private String wrapLog(String s) {
         StringBuilder wrapped = new StringBuilder();
-        InputStream ins = mContext.getResources().openRawResource(R.raw.changelog_template);
+        InputStream ins = context.getResources().openRawResource(R.raw.changelog_template);
         BufferedReader reader = new BufferedReader(new InputStreamReader(ins));
         try {
             String line;
@@ -100,7 +99,7 @@ public class ChangeLog {
         mSb = new StringBuilder();
         try
         {
-            InputStream ins = mContext.getResources().openRawResource(R.raw.changelog);
+            InputStream ins = context.getResources().openRawResource(R.raw.changelog);
             BufferedReader br = new BufferedReader(new InputStreamReader(ins));
 
             String line;
@@ -110,18 +109,13 @@ public class ChangeLog {
                 if (line.startsWith("$")) {
                     // begin of a version section
                     closeList();
-                    String version = line.substring(1).trim();
-                    // stop output?
-                    if (!full) {
-                        advanceToEOVS = Integer.toString(mOldVersion).equals(version);
-                    }
                 } else if (!advanceToEOVS) {
                     // line contains version title
                     if (line.startsWith("%")) {
                         closeList();
                         String version = line.substring(1).trim();
                         if ("v current".equals(version)) {
-                            version = "v " + new DeviceHelper(mContext).getAppVersion();
+                            version = "v " + new DeviceHelper(context).getAppVersion();
                         }
                         mSb.append("<div class='title'>").append(version).append("</div>\n");
                     // line contains date
@@ -158,7 +152,7 @@ public class ChangeLog {
     }
 
     private void openList(Listmode listMode) {
-        if (mListMode != listMode) {
+        if (this.listMode != listMode) {
             closeList();
             switch (listMode) {
                 case ORDERED:
@@ -170,12 +164,12 @@ public class ChangeLog {
                     mSb.append("<div class='list'><ul>\n");
                     break;
             }
-            mListMode = listMode;
+            this.listMode = listMode;
         }
     }
 
     private void closeList() {
-        switch (mListMode) {
+        switch (listMode) {
             case NONE:
                 break;
             case ORDERED:
@@ -185,6 +179,6 @@ public class ChangeLog {
                 mSb.append("</ul></div>\n");
                 break;
         }
-        mListMode = Listmode.NONE;
+        listMode = Listmode.NONE;
     }
 }

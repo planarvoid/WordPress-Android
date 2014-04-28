@@ -7,15 +7,16 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 
 public class BatteryListener {
-    private int mBatteryLevel;
-    private boolean mPluggedIn;
 
-    private Context mContext;
-    private final BroadcastReceiver mBroadcastReceiver;
+    private int batteryLevel;
+    private boolean isPluggedIn;
+
+    private Context context;
+    private final BroadcastReceiver broadcastReceiver;
 
     public BatteryListener(Context context) {
-        mContext = context;
-        mBroadcastReceiver = new BroadcastReceiver() {
+        this.context = context;
+        broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 int rawlevel = intent.getIntExtra("level", -1);
@@ -24,18 +25,18 @@ public class BatteryListener {
                 if (rawlevel >= 0 && scale > 0) {
                     level = (rawlevel * 100) / scale;
                 }
-                mBatteryLevel = level;
-                mPluggedIn = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0;
+                batteryLevel = level;
+                isPluggedIn = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0;
             }
         };
-        context.registerReceiver(mBroadcastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        context.registerReceiver(broadcastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
     }
 
     public void stopListening() {
-        mContext.unregisterReceiver(mBroadcastReceiver);
+        context.unregisterReceiver(broadcastReceiver);
     }
 
     public boolean isOK() {
-        return mBatteryLevel > (mPluggedIn ? 25 : 50);
+        return batteryLevel > (isPluggedIn ? 25 : 50);
     }
 }

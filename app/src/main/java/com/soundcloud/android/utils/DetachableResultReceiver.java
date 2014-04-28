@@ -13,8 +13,9 @@ import java.util.ArrayList;
  * listening {@link android.app.Activity} can be swapped out during configuration changes.
  */
 public class DetachableResultReceiver extends ResultReceiver {
-    private Receiver mReceiver;
-    private ArrayList<PendingResult> mPendingResults;
+
+    private Receiver receiver;
+    private ArrayList<PendingResult> pendingResults;
     private class PendingResult {
         int resultCode;
         Bundle resultData;
@@ -26,16 +27,16 @@ public class DetachableResultReceiver extends ResultReceiver {
 
     public DetachableResultReceiver(Handler handler) {
         super(handler);
-        mPendingResults = new ArrayList<PendingResult>();
+        pendingResults = new ArrayList<PendingResult>();
     }
 
     public void setReceiver(Receiver receiver) {
-        mReceiver = receiver;
-        if (mPendingResults.size() > 0){
-            for (PendingResult pr : mPendingResults){
-                mReceiver.onReceiveResult(pr.resultCode, pr.resultData);
+        this.receiver = receiver;
+        if (pendingResults.size() > 0){
+            for (PendingResult pr : pendingResults){
+                this.receiver.onReceiveResult(pr.resultCode, pr.resultData);
             }
-            mPendingResults.clear();
+            pendingResults.clear();
         }
     }
 
@@ -44,13 +45,13 @@ public class DetachableResultReceiver extends ResultReceiver {
     }
 
     private void addPendingResult(int resultCode, Bundle resultData) {
-        mPendingResults.add(new PendingResult(resultCode,resultData));
+        pendingResults.add(new PendingResult(resultCode, resultData));
     }
 
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
-        if (mReceiver != null) {
-            mReceiver.onReceiveResult(resultCode, resultData);
+        if (receiver != null) {
+            receiver.onReceiveResult(resultCode, resultData);
         } else {
             addPendingResult(resultCode,resultData);
         }

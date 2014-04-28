@@ -21,26 +21,26 @@ public class TrackOperations {
 
     private static final String LOG_TAG = "TrackOperations";
 
-    private final ScModelManager mModelManager;
-    private final TrackStorage mTrackStorage;
-    private final SyncStateManager mSyncStateManager;
-    private final SyncInitiator mSyncInitiator;
+    private final ScModelManager modelManager;
+    private final TrackStorage trackStorage;
+    private final SyncStateManager syncStateManager;
+    private final SyncInitiator syncInitiator;
 
     @Inject
     public TrackOperations(ScModelManager modelManager, TrackStorage trackStorage,
                            SyncInitiator syncInitiator, SyncStateManager syncStateManager) {
-        mModelManager = modelManager;
-        mTrackStorage = trackStorage;
-        mSyncInitiator = syncInitiator;
-        mSyncStateManager = syncStateManager;
+        this.modelManager = modelManager;
+        this.trackStorage = trackStorage;
+        this.syncInitiator = syncInitiator;
+        this.syncStateManager = syncStateManager;
     }
 
     public Observable<Track> loadTrack(final long trackId, Scheduler observeOn) {
-        final Track cachedTrack = mModelManager.getCachedTrack(trackId);
+        final Track cachedTrack = modelManager.getCachedTrack(trackId);
         if (cachedTrack != null) {
             return Observable.just(cachedTrack);
         } else {
-            return mTrackStorage.getTrackAsync(trackId).map(cacheTrack(trackId, ScResource.CacheUpdateMode.NONE))
+            return trackStorage.getTrackAsync(trackId).map(cacheTrack(trackId, ScResource.CacheUpdateMode.NONE))
                     .observeOn(observeOn);
         }
     }
@@ -49,7 +49,7 @@ public class TrackOperations {
         return loadTrack(trackId, observeOn).mergeMap(new Func1<Track, Observable<Track>>() {
             @Override
             public Observable<Track> call(Track track) {
-                LocalCollection syncState = mSyncStateManager.fromContent(track.toUri());
+                LocalCollection syncState = syncStateManager.fromContent(track.toUri());
                 if (syncState.isSyncDue()) {
                     Log.d(LOG_TAG, "Syncing stale track " + track);
                     return Observable.concat(Observable.just(track), syncThenLoadTrack(track.getUrn(), observeOn));
@@ -79,11 +79,11 @@ public class TrackOperations {
      */
     private Observable<Track> syncThenLoadTrack(final TrackUrn trackUrn, Scheduler observeOn) {
         Log.d(LOG_TAG, "Sending intent to sync track " + trackUrn);
-        return mSyncInitiator.syncTrack(trackUrn).mergeMap(new Func1<Boolean, Observable<Track>>() {
+        return syncInitiator.syncTrack(trackUrn).mergeMap(new Func1<Boolean, Observable<Track>>() {
             @Override
             public Observable<Track> call(Boolean trackWasUpdated) {
                 Log.d(LOG_TAG, "Reloading track from local storage: " + trackUrn);
-                return mTrackStorage.getTrackAsync(trackUrn.numericId);
+                return trackStorage.getTrackAsync(trackUrn.numericId);
             }
         }).observeOn(observeOn);
     }
@@ -107,14 +107,14 @@ public class TrackOperations {
     }
 
     public Observable<Track> markTrackAsPlayed(Track track) {
-        return mTrackStorage.createPlayImpressionAsync(track);
+        return trackStorage.createPlayImpressionAsync(track);
     }
 
     private Func1<Track, Track> cacheTrack(final long trackId, final ScResource.CacheUpdateMode updateMode){
         return new Func1<Track, Track>() {
             @Override
             public Track call(Track nullableTrack) {
-                return mModelManager.cache(nullableTrack == null ? new Track(trackId) : nullableTrack, updateMode);
+                return modelManager.cache(nullableTrack == null ? new Track(trackId) : nullableTrack, updateMode);
             }
         };
     }

@@ -40,17 +40,17 @@ class SlidingTabStrip extends LinearLayout {
     private static final int DEFAULT_DIVIDER_COLOR = 0xFFD8D8D8;
     private static final float DEFAULT_DIVIDER_HEIGHT = 0.5f;
 
-    private final int mBottomBorderThickness;
-    private final Paint mBottomBorderPaint;
+    private final int bottomBorderThickness;
+    private final Paint bottomBorderPaint;
 
-    private final int mSelectedIndicatorThickness;
-    private final Paint mSelectedIndicatorPaint;
+    private final int selectedIndicatorThickness;
+    private final Paint selectedIndicatorPaint;
 
-    private final Paint mDividerPaint;
-    private final float mDividerHeight;
+    private final Paint dividerPaint;
+    private final float dividerHeight;
 
-    private int mSelectedPosition;
-    private float mSelectionOffset;
+    private int selectedPosition;
+    private float selectionOffset;
 
     SlidingTabStrip(Context context) {
         this(context, null);
@@ -68,23 +68,23 @@ class SlidingTabStrip extends LinearLayout {
 
         int defaultBottomBorderColor = setColorAlpha(themeForegroundColor, DEFAULT_BOTTOM_BORDER_COLOR_ALPHA);
 
-        mBottomBorderThickness = (int) (DEFAULT_BOTTOM_BORDER_THICKNESS_DIPS * density);
-        mBottomBorderPaint = new Paint();
-        mBottomBorderPaint.setColor(defaultBottomBorderColor);
+        bottomBorderThickness = (int) (DEFAULT_BOTTOM_BORDER_THICKNESS_DIPS * density);
+        bottomBorderPaint = new Paint();
+        bottomBorderPaint.setColor(defaultBottomBorderColor);
 
-        mSelectedIndicatorThickness = (int) (SELECTED_INDICATOR_THICKNESS_DIPS * density);
-        mSelectedIndicatorPaint = new Paint();
-        mSelectedIndicatorPaint.setColor(DEFAULT_SELECTED_INDICATOR_COLOR);
+        selectedIndicatorThickness = (int) (SELECTED_INDICATOR_THICKNESS_DIPS * density);
+        selectedIndicatorPaint = new Paint();
+        selectedIndicatorPaint.setColor(DEFAULT_SELECTED_INDICATOR_COLOR);
 
-        mDividerHeight = DEFAULT_DIVIDER_HEIGHT;
-        mDividerPaint = new Paint();
-        mDividerPaint.setColor(DEFAULT_DIVIDER_COLOR);
-        mDividerPaint.setStrokeWidth((int) (DEFAULT_DIVIDER_THICKNESS_DIPS * density));
+        dividerHeight = DEFAULT_DIVIDER_HEIGHT;
+        dividerPaint = new Paint();
+        dividerPaint.setColor(DEFAULT_DIVIDER_COLOR);
+        dividerPaint.setStrokeWidth((int) (DEFAULT_DIVIDER_THICKNESS_DIPS * density));
     }
 
     void onViewPagerPageChanged(int position, float positionOffset) {
-        mSelectedPosition = position;
-        mSelectionOffset = positionOffset;
+        selectedPosition = position;
+        selectionOffset = positionOffset;
         invalidate();
     }
 
@@ -92,37 +92,37 @@ class SlidingTabStrip extends LinearLayout {
     protected void onDraw(Canvas canvas) {
         final int height = getHeight();
         final int childCount = getChildCount();
-        final int dividerHeightPx = (int) (Math.min(Math.max(0f, mDividerHeight), 1f) * height);
+        final int dividerHeightPx = (int) (Math.min(Math.max(0f, dividerHeight), 1f) * height);
 
         // Thick colored underline below the current selection
         if (childCount > 0) {
-            View selectedTitle = getChildAt(mSelectedPosition);
+            View selectedTitle = getChildAt(selectedPosition);
             int left = selectedTitle.getLeft();
             int right = selectedTitle.getRight();
 
-            if (mSelectionOffset > 0f && mSelectedPosition < (getChildCount() - 1)) {
+            if (selectionOffset > 0f && selectedPosition < (getChildCount() - 1)) {
 
                 // Draw the selection partway between the tabs
-                View nextTitle = getChildAt(mSelectedPosition + 1);
-                left = (int) (mSelectionOffset * nextTitle.getLeft() +
-                        (1.0f - mSelectionOffset) * left);
-                right = (int) (mSelectionOffset * nextTitle.getRight() +
-                        (1.0f - mSelectionOffset) * right);
+                View nextTitle = getChildAt(selectedPosition + 1);
+                left = (int) (selectionOffset * nextTitle.getLeft() +
+                        (1.0f - selectionOffset) * left);
+                right = (int) (selectionOffset * nextTitle.getRight() +
+                        (1.0f - selectionOffset) * right);
             }
 
-            canvas.drawRect(left, height - mSelectedIndicatorThickness, right,
-                    height, mSelectedIndicatorPaint);
+            canvas.drawRect(left, height - selectedIndicatorThickness, right,
+                    height, selectedIndicatorPaint);
         }
 
         // Thin underline along the entire bottom edge
-        canvas.drawRect(0, height - mBottomBorderThickness, getWidth(), height, mBottomBorderPaint);
+        canvas.drawRect(0, height - bottomBorderThickness, getWidth(), height, bottomBorderPaint);
 
         // Vertical separators between the titles
         int separatorTop = (height - dividerHeightPx) / 2;
         for (int i = 0; i < childCount - 1; i++) {
             View child = getChildAt(i);
             canvas.drawLine(child.getRight(), separatorTop, child.getRight(),
-                    separatorTop + dividerHeightPx, mDividerPaint);
+                    separatorTop + dividerHeightPx, dividerPaint);
         }
     }
 

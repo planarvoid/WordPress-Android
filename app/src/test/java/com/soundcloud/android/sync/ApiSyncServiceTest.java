@@ -90,7 +90,7 @@ public class ApiSyncServiceTest {
         ApiSyncService svc = new ApiSyncService();
         svc.enqueueRequest(new SyncIntent(DefaultTestRunner.application, syncIntent));
         svc.enqueueRequest(new SyncIntent(DefaultTestRunner.application, syncIntent));
-        expect(svc.mPendingRequests.size()).toBe(1);
+        expect(svc.pendingRequests.size()).toBe(1);
     }
 
     @Test
@@ -110,21 +110,21 @@ public class ApiSyncServiceTest {
         SyncIntent request3 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri));
 
         svc.enqueueRequest(request1);
-        expect(svc.mPendingRequests.size()).toBe(3);
+        expect(svc.pendingRequests.size()).toBe(3);
 
         svc.enqueueRequest(request2);
-        expect(svc.mPendingRequests.size()).toBe(3);
+        expect(svc.pendingRequests.size()).toBe(3);
 
         svc.enqueueRequest(request3);
-        expect(svc.mPendingRequests.size()).toBe(4);
+        expect(svc.pendingRequests.size()).toBe(4);
 
         // make sure favorites is queued on front
-        expect(svc.mPendingRequests.peek().getContentUri()).toBe(Content.ME_LIKES.uri);
-        expect(svc.mPendingRequests.get(1).getContentUri()).toBe(Content.ME_SOUNDS.uri);
+        expect(svc.pendingRequests.peek().getContentUri()).toBe(Content.ME_LIKES.uri);
+        expect(svc.pendingRequests.get(1).getContentUri()).toBe(Content.ME_SOUNDS.uri);
 
         SyncIntent request4 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
         svc.enqueueRequest(request4);
-        expect(svc.mPendingRequests.peek().getContentUri()).toBe(Content.ME_FOLLOWINGS.uri);
+        expect(svc.pendingRequests.peek().getContentUri()).toBe(Content.ME_FOLLOWINGS.uri);
 
         // make sure all requests can be executed
         Robolectric.setDefaultHttpResponse(404, "");
@@ -135,14 +135,14 @@ public class ApiSyncServiceTest {
     public void shouldRemoveSyncRequestAfterCompletion() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         Context context = DefaultTestRunner.application;
-        svc.mRunningRequests.add(new CollectionSyncRequest(context, Content.ME_LIKES.uri, null, false));
-        svc.mRunningRequests.add(new CollectionSyncRequest(context, Content.ME_FOLLOWINGS.uri, null, false));
+        svc.runningRequests.add(new CollectionSyncRequest(context, Content.ME_LIKES.uri, null, false));
+        svc.runningRequests.add(new CollectionSyncRequest(context, Content.ME_FOLLOWINGS.uri, null, false));
 
         ApiSyncResult result = new ApiSyncResult(Content.ME_LIKES.uri);
         result.success = true;
 
         svc.onUriSyncResult(new CollectionSyncRequest(context, Content.ME_LIKES.uri, null, false));
-        expect(svc.mRunningRequests.size()).toBe(1);
+        expect(svc.runningRequests.size()).toBe(1);
     }
 
     @Test

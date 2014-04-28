@@ -44,10 +44,10 @@ import java.util.Set;
  * and handling of the background syncing.
  */
 public class SyncAdapterService extends Service {
+
     /* package */  static final String TAG = SyncAdapterService.class.getSimpleName();
     private static final boolean DEBUG_CANCEL = Boolean.valueOf(System.getProperty("syncadapter.debug.cancel", null));
     public static final String SYNC_FINISHED = SyncAdapterService.class.getName() + ".syncFinished";
-    public static final int MAX_ARTWORK_PREFETCH = 40; // only prefetch N amount of artwork links
 
     public static final String EXTRA_SYNC_PUSH = "syncPush";
     public static final String EXTRA_SYNC_PUSH_URI = "syncPushUri";
@@ -57,14 +57,14 @@ public class SyncAdapterService extends Service {
     public static final int CLEAR_ALL = 1;
     public static final int REWIND_LAST_DAY = 2;
 
-    private AbstractThreadedSyncAdapter mSyncAdapter;
+    private AbstractThreadedSyncAdapter syncAdapter;
     private AccountOperations accountOperations;
 
     @Override
     public void onCreate() {
         super.onCreate();
         accountOperations = new AccountOperations(this);
-        mSyncAdapter = new AbstractThreadedSyncAdapter(this, false) {
+        syncAdapter = new AbstractThreadedSyncAdapter(this, false) {
             private Looper looper;
 
             /**
@@ -112,7 +112,7 @@ public class SyncAdapterService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return mSyncAdapter.getSyncAdapterBinder();
+        return syncAdapter.getSyncAdapterBinder();
     }
 
     /**

@@ -13,10 +13,10 @@ import android.widget.ToggleButton;
 public class CustomToggleButton extends ToggleButton {
 
     private class CustomToggleButtonDrawable extends StateListDrawable {
-        private Drawable  mBackground;
+        private Drawable background;
 
         public CustomToggleButtonDrawable(Drawable background) {
-            mBackground = background;
+            this.background = background;
         }
 
         @Override
@@ -31,9 +31,9 @@ public class CustomToggleButton extends ToggleButton {
 
             final int textWidth = (int) paint.measureText(text);
 
-            if (mBackground != null) {
-                mBackground.setBounds(getBounds());
-                mBackground.draw(canvas);
+            if (background != null) {
+                background.setBounds(getBounds());
+                background.draw(canvas);
             }
 
             int requiredWidth = 0;
@@ -71,7 +71,7 @@ public class CustomToggleButton extends ToggleButton {
 
         @Override
         public boolean setState(int[] stateSet) {
-            final boolean ret = mBackground.setState(stateSet);
+            final boolean ret = background.setState(stateSet);
             invalidate();
             return ret;
         }

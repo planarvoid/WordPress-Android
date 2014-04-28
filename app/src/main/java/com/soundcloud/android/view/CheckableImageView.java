@@ -6,7 +6,8 @@ import android.widget.Checkable;
 import android.widget.ImageView;
 
 public class CheckableImageView extends ImageView implements Checkable {
-    private boolean mChecked;
+
+    private boolean isChecked;
 
     private static final int[] CHECKED_STATE_SET = { android.R.attr.state_checked };
 
@@ -24,19 +25,19 @@ public class CheckableImageView extends ImageView implements Checkable {
 
     @Override
     public void toggle() {
-        setChecked(!mChecked);
+        setChecked(!isChecked);
     }
 
     @Override
     public boolean isChecked() {
-        return mChecked;
+        return isChecked;
     }
 
     @Override
     public void setChecked(final boolean checked) {
-        if (mChecked == checked)
+        if (isChecked == checked)
             return;
-        mChecked = checked;
+        isChecked = checked;
         refreshDrawableState();
     }
 }

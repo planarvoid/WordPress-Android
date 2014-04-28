@@ -11,7 +11,6 @@ import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SyncResult;
-import android.os.Handler;
 import android.os.IBinder;
 
 import java.util.ArrayList;
@@ -37,12 +36,11 @@ public class ApiSyncService extends Service {
 
     public static final int MAX_TASK_LIMIT = 3;
 
-    private int mActiveTaskCount;
-    private Handler mServiceHandler = new Handler();
+    private int activeTaskCount;
 
-    /* package */ final List<SyncIntent> mSyncIntents = new ArrayList<SyncIntent>();
-    /* package */ final LinkedList<CollectionSyncRequest> mPendingRequests = new LinkedList<CollectionSyncRequest>();
-    /* package */ final List<CollectionSyncRequest> mRunningRequests = new ArrayList<CollectionSyncRequest>();
+    /* package */ final List<SyncIntent> syncIntents = new ArrayList<SyncIntent>();
+    /* package */ final LinkedList<CollectionSyncRequest> pendingRequests = new LinkedList<CollectionSyncRequest>();
+    /* package */ final List<CollectionSyncRequest> runningRequests = new ArrayList<CollectionSyncRequest>();
 
     @Override
     public void onCreate() {
@@ -75,47 +73,47 @@ public class ApiSyncService extends Service {
     }
 
     /* package */ void enqueueRequest(SyncIntent syncIntent) {
-        mSyncIntents.add(syncIntent);
+        syncIntents.add(syncIntent);
         for (CollectionSyncRequest request : syncIntent.collectionSyncRequests) {
-            if (!mRunningRequests.contains(request)) {
-                if (!mPendingRequests.contains(request)) {
+            if (!runningRequests.contains(request)) {
+                if (!pendingRequests.contains(request)) {
                     if (syncIntent.isUIRequest) {
-                        mPendingRequests.add(0, request);
+                        pendingRequests.add(0, request);
                     } else {
-                        mPendingRequests.add(request);
+                        pendingRequests.add(request);
                     }
                     request.onQueued();
-                } else if (syncIntent.isUIRequest && !mPendingRequests.getFirst().equals(request)) {
+                } else if (syncIntent.isUIRequest && !pendingRequests.getFirst().equals(request)) {
                     // move the original object up in the queue, since it has already been initialized with onQueued()
-                    final CollectionSyncRequest existing = mPendingRequests.get(mPendingRequests.indexOf(request));
-                    mPendingRequests.remove(existing);
-                    mPendingRequests.addFirst(existing);
+                    final CollectionSyncRequest existing = pendingRequests.get(pendingRequests.indexOf(request));
+                    pendingRequests.remove(existing);
+                    pendingRequests.addFirst(existing);
                 }
             }
         }
     }
 
     /* package */ void onUriSyncResult(CollectionSyncRequest syncRequest){
-        for (SyncIntent syncIntent : new ArrayList<SyncIntent>(mSyncIntents)) {
+        for (SyncIntent syncIntent : new ArrayList<SyncIntent>(syncIntents)) {
 
             if (syncIntent.onUriResult(syncRequest)){
-                mSyncIntents.remove(syncIntent);
+                syncIntents.remove(syncIntent);
             }
         }
-        mRunningRequests.remove(syncRequest);
+        runningRequests.remove(syncRequest);
     }
 
     /* package */ void flushSyncRequests() {
-        if (mPendingRequests.isEmpty() && mRunningRequests.isEmpty()) {
+        if (pendingRequests.isEmpty() && runningRequests.isEmpty()) {
             // make sure all sync intents are finished (should have been handled before)
-            for (SyncIntent i : mSyncIntents) {
+            for (SyncIntent i : syncIntents) {
                 i.finish();
             }
             stopSelf();
         } else {
-            while (mActiveTaskCount < MAX_TASK_LIMIT && !mPendingRequests.isEmpty()) {
-                final CollectionSyncRequest syncRequest = mPendingRequests.poll();
-                mRunningRequests.add(syncRequest);
+            while (activeTaskCount < MAX_TASK_LIMIT && !pendingRequests.isEmpty()) {
+                final CollectionSyncRequest syncRequest = pendingRequests.poll();
+                runningRequests.add(syncRequest);
 
                 // actual execution of the request
                 new ApiTask().executeOnThreadPool(syncRequest);
@@ -127,7 +125,7 @@ public class ApiSyncService extends Service {
 
         @Override
         protected void onPreExecute() {
-            mActiveTaskCount++;
+            activeTaskCount++;
         }
 
         @Override
@@ -147,7 +145,7 @@ public class ApiSyncService extends Service {
 
         @Override
         protected void onPostExecute(Void result) {
-            mActiveTaskCount--;
+            activeTaskCount--;
             flushSyncRequests();
         }
     }

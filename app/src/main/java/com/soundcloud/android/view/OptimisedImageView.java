@@ -26,38 +26,38 @@ public class OptimisedImageView extends ImageView {
     private static final int DEFAULT_GRADIENT_START_COLOR = 0x5f000000;
     private static final int DEFAULT_GRADIENT_END_COLOR = 0xaa000000;
 
-    private boolean mShowGradient;
-    private float mGradientStart;
-    private int mGradientStartColor;
-    private int mGradientEndColor;
+    private boolean showGradient;
+    private float gradientStart;
+    private int gradientStartColor;
+    private int gradientEndColor;
 
-    private Paint mGradientPaint;
-    private Rect mGradientRect;
-    private int[] mGradientColors;
+    private Paint gradientPaint;
+    private Rect gradientRect;
+    private int[] gradientColors;
 
-    private boolean mIgnoreNextRequestLayout;
+    private boolean shouldIgnoreNextRequestLayout;
 
     public OptimisedImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
         initAttributes(context, attrs);
-        if (mShowGradient) {
+        if (showGradient) {
             initGradientDrawAllocations();
         }
     }
 
     private void initAttributes(Context context, AttributeSet attrs) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.OptimisedImageView);
-        mShowGradient = a.getBoolean(R.styleable.OptimisedImageView_showGradient, DEFAULT_SHOW_GRADIENT);
-        mGradientStart = a.getFloat(R.styleable.OptimisedImageView_gradientStart, DEFAULT_GRADIENT_START);
-        mGradientStartColor = a.getColor(R.styleable.OptimisedImageView_gradientStartColor, DEFAULT_GRADIENT_START_COLOR);
-        mGradientEndColor = a.getColor(R.styleable.OptimisedImageView_gradientEndColor, DEFAULT_GRADIENT_END_COLOR);
+        showGradient = a.getBoolean(R.styleable.OptimisedImageView_showGradient, DEFAULT_SHOW_GRADIENT);
+        gradientStart = a.getFloat(R.styleable.OptimisedImageView_gradientStart, DEFAULT_GRADIENT_START);
+        gradientStartColor = a.getColor(R.styleable.OptimisedImageView_gradientStartColor, DEFAULT_GRADIENT_START_COLOR);
+        gradientEndColor = a.getColor(R.styleable.OptimisedImageView_gradientEndColor, DEFAULT_GRADIENT_END_COLOR);
         a.recycle();
     }
 
     private void initGradientDrawAllocations() {
-        mGradientPaint = new Paint();
-        mGradientRect = new Rect();
-        mGradientColors = new int[] {Color.TRANSPARENT, mGradientStartColor, mGradientEndColor};
+        gradientPaint = new Paint();
+        gradientRect = new Rect();
+        gradientColors = new int[] {Color.TRANSPARENT, gradientStartColor, gradientEndColor};
     }
 
     @Override
@@ -75,7 +75,7 @@ public class OptimisedImageView extends ImageView {
                  * Ignore the next requestLayout call if the new Drawable is the
                  * same size as the currently displayed one.
                  */
-                mIgnoreNextRequestLayout = oldHeight == newDrawable.getIntrinsicHeight()
+                shouldIgnoreNextRequestLayout = oldHeight == newDrawable.getIntrinsicHeight()
                         && oldWidth == newDrawable.getIntrinsicWidth();
             }
         }
@@ -87,42 +87,42 @@ public class OptimisedImageView extends ImageView {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        if (mShowGradient && changed) {
+        if (showGradient && changed) {
             generateGradient(top, bottom);
         }
     }
 
     private void generateGradient(int top, int bottom) {
         // We have to allocate the shader in onLayout since it depends on the View height
-        final int startY = top + (int) ((bottom - top) * mGradientStart);
-        final LinearGradient shader = new LinearGradient(0, startY, 0, bottom, mGradientColors, GRADIENT_POSITIONS,
+        final int startY = top + (int) ((bottom - top) * gradientStart);
+        final LinearGradient shader = new LinearGradient(0, startY, 0, bottom, gradientColors, GRADIENT_POSITIONS,
                 Shader.TileMode.CLAMP);
-        mGradientPaint.setShader(shader);
+        gradientPaint.setShader(shader);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (mShowGradient && getDrawable() != null) {
+        if (showGradient && getDrawable() != null) {
             drawGradient(canvas);
         }
     }
 
     private void drawGradient(Canvas canvas) {
-        canvas.getClipBounds(mGradientRect);
-        int clipBoundsTop = mGradientRect.top;
-        mGradientRect.top = (int) ((mGradientRect.bottom - clipBoundsTop) * mGradientStart + clipBoundsTop);
-        canvas.drawRect(mGradientRect, mGradientPaint);
+        canvas.getClipBounds(gradientRect);
+        int clipBoundsTop = gradientRect.top;
+        gradientRect.top = (int) ((gradientRect.bottom - clipBoundsTop) * gradientStart + clipBoundsTop);
+        canvas.drawRect(gradientRect, gradientPaint);
     }
 
     @Override
     public void requestLayout() {
-        if (!mIgnoreNextRequestLayout) {
+        if (!shouldIgnoreNextRequestLayout) {
             super.requestLayout();
         }
 
         // Reset Flag so that the requestLayout() will work again
-        mIgnoreNextRequestLayout = false;
+        shouldIgnoreNextRequestLayout = false;
     }
 
 }

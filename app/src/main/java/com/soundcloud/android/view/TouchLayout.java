@@ -14,10 +14,13 @@ import java.lang.ref.WeakReference;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public abstract class TouchLayout extends RelativeLayout implements View.OnTouchListener {
+
     private static final int INPUT_QUEUE_SIZE = 20;
-    private ArrayBlockingQueue<InputObject> mInputObjectPool;
+
+    private ArrayBlockingQueue<InputObject> inputObjectPool;
+
     @Nullable
-    private TouchThread mTouchThread;
+    private TouchThread touchThread;
 
 
     public TouchLayout(Context context) {
@@ -36,20 +39,20 @@ public abstract class TouchLayout extends RelativeLayout implements View.OnTouch
     }
 
     private void init() {
-        mInputObjectPool = new ArrayBlockingQueue<InputObject>(INPUT_QUEUE_SIZE);
+        inputObjectPool = new ArrayBlockingQueue<InputObject>(INPUT_QUEUE_SIZE);
         for (int i = 0; i < INPUT_QUEUE_SIZE; i++) {
-            mInputObjectPool.add(new InputObject(mInputObjectPool));
+            inputObjectPool.add(new InputObject(inputObjectPool));
         }
 
-        mTouchThread = new TouchThread(this);
-        mTouchThread.start();
+        touchThread = new TouchThread(this);
+        touchThread.start();
         setOnTouchListener(this);
 
     }
 
 
     public boolean onTouch(View v, MotionEvent event) {
-        if (mTouchThread == null) return false;
+        if (touchThread == null) return false;
         try {
             // Fix scrolling inside workspace view
             if ((event.getAction() == MotionEvent.ACTION_MOVE || event.getAction() == MotionEvent.ACTION_DOWN) && getParent() != null) {
@@ -63,15 +66,15 @@ public abstract class TouchLayout extends RelativeLayout implements View.OnTouch
             if (hist > 0) {
                 // add from oldest to newest
                 for (int i = 0; i < hist; i++) {
-                    InputObject input = mInputObjectPool.take();
+                    InputObject input = inputObjectPool.take();
                     input.useEventHistory(v, event, i);
-                    mTouchThread.feedInput(input);
+                    touchThread.feedInput(input);
                 }
             }
             // current last
-            InputObject input = mInputObjectPool.take();
+            InputObject input = inputObjectPool.take();
             input.useEvent(v, event);
-            mTouchThread.feedInput(input);
+            touchThread.feedInput(input);
         } catch (InterruptedException ignored) {
         }
         return true; // indicate event was handled
@@ -109,10 +112,10 @@ public abstract class TouchLayout extends RelativeLayout implements View.OnTouch
     protected abstract void processPointer1UpInput(InputObject input);
 
     public void onDestroy() {
-        if (mTouchThread != null) {
-            mTouchThread.stopped = true;
-            mTouchThread.interrupt();
-            mTouchThread = null;
+        if (touchThread != null) {
+            touchThread.stopped = true;
+            touchThread.interrupt();
+            touchThread = null;
         }
     }
 

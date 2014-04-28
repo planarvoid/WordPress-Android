@@ -6,8 +6,8 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.text.style.ReplacementSpan;
 
-public class DrawableSpan extends ReplacementSpan
-{
+public class DrawableSpan extends ReplacementSpan {
+
 	/**
 	 * A constant indicating that the bottom of this span should be aligned with
 	 * the bottom of the surrounding text, i.e., at the same level as the lowest
@@ -21,40 +21,35 @@ public class DrawableSpan extends ReplacementSpan
 	 */
 	public static final int ALIGN_BASELINE = 1;
 
-	protected final Drawable d;
-	protected final int valign;
+	protected final Drawable drawable;
+	protected final int vAlign;
 
 	/**
-	 * @param valign
+	 * @param vAlign
 	 *            one of {@link #ALIGN_BOTTOM} or {@link #ALIGN_BASELINE}.
 	 */
-	public DrawableSpan(Drawable _d, int _valign)
-	{
-		d = _d;
-		valign = _valign;
+	public DrawableSpan(Drawable drawable, int vAlign) {
+		this.drawable = drawable;
+		this.vAlign = vAlign;
 	}
 
 	/**
 	 * Returns the vertical alignment of this span, one of {@link #ALIGN_BOTTOM}
 	 * or {@link #ALIGN_BASELINE}.
 	 */
-	public int getValign()
-	{
-		return valign;
+	public int getValign() {
+		return vAlign;
 	}
-	public Drawable getDrawable()
-	{
-		return d;
+
+    public Drawable getDrawable() {
+		return drawable;
 	}
 
 	@Override
-	public int getSize(Paint paint, CharSequence text, int start, int end,
-			           Paint.FontMetricsInt fm)
-	{
-		Rect rect = d.getBounds();
+	public int getSize(Paint paint, CharSequence text, int start, int end, Paint.FontMetricsInt fm) {
+		Rect rect = drawable.getBounds();
 
-		if (fm != null)
-		{
+		if (fm != null) {
 			fm.ascent = -rect.bottom;
 			fm.descent = 0;
 
@@ -67,21 +62,19 @@ public class DrawableSpan extends ReplacementSpan
 
 	@Override
 	public void draw(Canvas canvas, CharSequence text, int start, int end,
-					 float x, int top, int y, int bottom, Paint paint)
-	{
+					 float x, int top, int y, int bottom, Paint paint) {
 		canvas.save();
 
 		int transY;
-		if (ALIGN_BOTTOM == valign)
-		{
+		if (ALIGN_BOTTOM == vAlign) {
 			transY = bottom;
-		} else { // ALIGN_BASELINE == valign
+		} else { // ALIGN_BASELINE == vAlign
 			transY = y;
 		}
-		transY -= d.getBounds().bottom;
+		transY -= drawable.getBounds().bottom;
 
 		canvas.translate(x, transY);
-		d.draw(canvas);
+		drawable.draw(canvas);
 		canvas.restore();
 	}
 

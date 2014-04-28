@@ -20,25 +20,26 @@ import android.widget.ProgressBar;
 import java.lang.ref.WeakReference;
 
 public class FullImageDialog extends Dialog {
-    private WeakReference<Activity> mActivityRef;
-    private Handler mHandler = new Handler();
 
-    private ImageOperations mImageOperations;
+    private WeakReference<Activity> activityRef;
+    private Handler handler = new Handler();
+
+    private ImageOperations imageOperations;
 
     public FullImageDialog(Activity context, final Urn resourceUrn, ImageOperations imageOperations) {
         super(context, R.style.Theme_FullImageDialog);
 
-        mImageOperations = imageOperations;
+        this.imageOperations = imageOperations;
 
         setCancelable(true);
         setCanceledOnTouchOutside(true);
         setContentView(R.layout.full_image_dialog);
         getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
-        mActivityRef = new WeakReference<Activity>(context);
+        activityRef = new WeakReference<Activity>(context);
         final ImageView image = (ImageView) this.findViewById(R.id.image);
         final ProgressBar progress = (ProgressBar) this.findViewById(R.id.progress);
-        mImageOperations.displayInFullDialogView(resourceUrn, ImageSize.T500, image, new ImageListener() {
+        this.imageOperations.displayInFullDialogView(resourceUrn, ImageSize.T500, image, new ImageListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
                 if (isShowing()) {
@@ -49,7 +50,7 @@ public class FullImageDialog extends Dialog {
             @Override
             public void onLoadingFailed(String s, View view, String failedReason) {
                 if (isShowing()) {
-                    mHandler.post(mImageError);
+                    handler.post(imageError);
                 }
             }
 
@@ -63,9 +64,9 @@ public class FullImageDialog extends Dialog {
 
     }
 
-    private Runnable mImageError = new Runnable() {
+    private Runnable imageError = new Runnable() {
         public void run() {
-            Activity activity = mActivityRef.get();
+            Activity activity = activityRef.get();
             if (activity != null && !activity.isFinishing()) {
                 AndroidUtils.showToast(activity, R.string.image_load_error);
             }

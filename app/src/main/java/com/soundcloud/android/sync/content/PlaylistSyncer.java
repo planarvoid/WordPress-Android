@@ -24,7 +24,7 @@ public class PlaylistSyncer extends SyncStrategy {
     @VisibleForTesting
     public static final int MAX_MY_PLAYLIST_TRACK_COUNT_SYNC = 30;
 
-    private final PlaylistSyncHelper mPlaylistSyncHelper;
+    private final PlaylistSyncHelper playlistSyncHelper;
 
     public PlaylistSyncer(Context context, ContentResolver resolver) {
         this(context, resolver, new PublicApi(context),  new SyncStateManager(resolver, new LocalCollectionDAO(resolver)),
@@ -36,7 +36,7 @@ public class PlaylistSyncer extends SyncStrategy {
                           AccountOperations accountOperations, PlaylistSyncHelper playlistOperations) {
 
         super(context, resolver, publicCloudAPI, syncStateManager, accountOperations);
-        mPlaylistSyncHelper = playlistOperations;
+        playlistSyncHelper = playlistOperations;
     }
 
     public ApiSyncResult syncContent(@NotNull Uri uri) throws IOException {
@@ -68,8 +68,8 @@ public class PlaylistSyncer extends SyncStrategy {
      * Pushes any locally created playlists to the server, fetches the user's playlists from the server.
      */
     private ApiSyncResult syncMyPlaylists() throws IOException {
-        mPlaylistSyncHelper.pushLocalPlaylists(mContext, mApi, mSyncStateManager);
-        return mPlaylistSyncHelper.pullRemotePlaylists(mApi);
+        playlistSyncHelper.pushLocalPlaylists(context, api, syncStateManager);
+        return playlistSyncHelper.pullRemotePlaylists(api);
 
     }
 
@@ -77,7 +77,7 @@ public class PlaylistSyncer extends SyncStrategy {
         log("Syncing playlist " + contentUri);
         ApiSyncResult result = new ApiSyncResult(contentUri);
         try {
-            Playlist playlist = mPlaylistSyncHelper.syncPlaylist(contentUri, mApi);
+            Playlist playlist = playlistSyncHelper.syncPlaylist(contentUri, api);
             if (playlist != null) {
                 log("inserted " + playlist.toString());
                 result.setSyncData(true, System.currentTimeMillis(), 1, ApiSyncResult.CHANGED);
@@ -89,7 +89,7 @@ public class PlaylistSyncer extends SyncStrategy {
 
         } catch (PublicCloudAPI.NotFoundException e) {
             log("Received a 404 on playlist, deleting " + contentUri.toString());
-            mPlaylistSyncHelper.removePlaylist(contentUri);
+            playlistSyncHelper.removePlaylist(contentUri);
             result.setSyncData(true, System.currentTimeMillis(), 0, ApiSyncResult.CHANGED);
             return result;
         }

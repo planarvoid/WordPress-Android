@@ -13,7 +13,7 @@ public class ListenableScrollView extends ScrollView {
     }
 
     @Nullable
-    private OnScrollListener mListener;
+    private OnScrollListener listener;
 
     public ListenableScrollView(Context context) {
         super(context);
@@ -28,14 +28,14 @@ public class ListenableScrollView extends ScrollView {
     }
 
     public void setOnScrollListener(OnScrollListener listener) {
-        mListener = listener;
+        this.listener = listener;
     }
 
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
         super.onScrollChanged(l, t, oldl, oldt);
-        if (mListener != null) {
-            mListener.onScroll(t, oldt);
+        if (listener != null) {
+            listener.onScroll(t, oldt);
         }
     }
 }

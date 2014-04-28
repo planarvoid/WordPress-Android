@@ -27,17 +27,17 @@ public class SyncInitiator {
         }
     };
 
-    private final Context mContext;
-    private final AccountOperations mAccountOperations;
+    private final Context context;
+    private final AccountOperations accountOperations;
 
     @Inject
     public SyncInitiator(Context context, AccountOperations accountOperations) {
-        mContext = context.getApplicationContext();
-        mAccountOperations = accountOperations;
+        this.context = context.getApplicationContext();
+        this.accountOperations = accountOperations;
     }
 
     public boolean pushFollowingsToApi() {
-        final Account account = mAccountOperations.getSoundCloudAccount();
+        final Account account = accountOperations.getSoundCloudAccount();
         if (account != null) {
             final Bundle extras = new Bundle();
             extras.putBoolean(SyncAdapterService.EXTRA_SYNC_PUSH, true);
@@ -51,7 +51,7 @@ public class SyncInitiator {
     }
 
     public boolean requestSystemSync() {
-        final Account soundCloudAccount = mAccountOperations.getSoundCloudAccount();
+        final Account soundCloudAccount = accountOperations.getSoundCloudAccount();
         if (soundCloudAccount != null) {
             ContentResolver.requestSync(soundCloudAccount, ScContentProvider.AUTHORITY, new Bundle());
             return true;
@@ -76,19 +76,19 @@ public class SyncInitiator {
     }
 
     private void requestSoundStreamBackfill(ResultReceiverAdapter resultReceiver) {
-        mContext.startService(new Intent(mContext, ApiSyncService.class)
+        context.startService(new Intent(context, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .setData(resultReceiver.mContentUri)
+                .setData(resultReceiver.contentUri)
                 .setAction(ApiSyncService.ACTION_APPEND));
     }
 
     public void syncLocalPlaylists() {
-        final Intent intent = new Intent(mContext, ApiSyncService.class)
+        final Intent intent = new Intent(context, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, (ResultReceiver) null)
                 .setData(Content.ME_PLAYLISTS.uri);
-        mContext.startService(intent);
+        context.startService(intent);
     }
 
     public Observable<Boolean> syncPlaylist(final Urn playlistUrn) {
@@ -102,10 +102,10 @@ public class SyncInitiator {
     }
 
     private void requestPlaylistSync(ResultReceiverAdapter resultReceiver) {
-        mContext.startService(new Intent(mContext, ApiSyncService.class)
+        context.startService(new Intent(context, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                .setData(resultReceiver.mContentUri));
+                .setData(resultReceiver.contentUri));
     }
 
     public Observable<Boolean> syncTrack(final Urn trackUrn) {
@@ -119,10 +119,10 @@ public class SyncInitiator {
     }
 
     private void requestTrackSync(ResultReceiverAdapter resultReceiver) {
-        mContext.startService(new Intent(mContext, ApiSyncService.class)
+        context.startService(new Intent(context, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                .setData(resultReceiver.mContentUri));
+                .setData(resultReceiver.contentUri));
     }
 
 }
