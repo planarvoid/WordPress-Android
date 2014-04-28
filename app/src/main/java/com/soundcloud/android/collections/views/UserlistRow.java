@@ -32,34 +32,35 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 public class UserlistRow extends IconLayout implements ListRow {
-    private User mUser;
-    private TextView mUsername;
-    private TextView mTracks;
-    private TextView mFollowers;
-    private View mVrStats;
-    private ToggleButton mFollowBtn;
-    private AccountOperations mAccountOperations;
-    private FollowingOperations mFollowingOperations;
-    private Screen mOriginScreen;
 
-    private EventBus mEventBus;
+    private User user;
+
+    private final TextView username;
+    private final TextView tracks;
+    private final TextView followers;
+    private final View vrStats;
+    private final ToggleButton followBtn;
+    private final AccountOperations accountOperations;
+    private final FollowingOperations followingOperations;
+    private final Screen originScreen;
+    private final EventBus eventBus;
 
     public UserlistRow(Context context, Screen originScreen, ImageOperations imageOperations) {
         super(context, imageOperations);
-        mEventBus = ((SoundCloudApplication) context.getApplicationContext()).getEventBus();
-        mOriginScreen = originScreen;
-        mFollowingOperations = new FollowingOperations();
-        mAccountOperations = new AccountOperations(context);
-        mUsername = (TextView) findViewById(R.id.username);
-        mTracks = (TextView) findViewById(R.id.tracks);
-        mFollowers = (TextView) findViewById(R.id.followers);
-        mIcon = (ImageView) findViewById(R.id.icon);
-        mFollowBtn = (ToggleButton) findViewById(R.id.toggle_btn_follow);
-        mVrStats = findViewById(R.id.vr_stats);
+        eventBus = ((SoundCloudApplication) context.getApplicationContext()).getEventBus();
+        this.originScreen = originScreen;
+        followingOperations = new FollowingOperations();
+        accountOperations = new AccountOperations(context);
+        username = (TextView) findViewById(R.id.username);
+        tracks = (TextView) findViewById(R.id.tracks);
+        followers = (TextView) findViewById(R.id.followers);
+        icon = (ImageView) findViewById(R.id.icon);
+        followBtn = (ToggleButton) findViewById(R.id.toggle_btn_follow);
+        vrStats = findViewById(R.id.vr_stats);
 
-        if (mFollowBtn != null) {
-            mFollowBtn.setFocusable(false);
-            mFollowBtn.setClickable(false);
+        if (followBtn != null) {
+            followBtn.setFocusable(false);
+            followBtn.setClickable(false);
 
             RelativeLayout mFollowBtnHolder = (RelativeLayout) findViewById(R.id.toggleFollowingHolder);
             mFollowBtnHolder.setFocusable(false);
@@ -67,9 +68,9 @@ public class UserlistRow extends IconLayout implements ListRow {
             mFollowBtnHolder.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    toggleFollowing(mUser);
-                    mEventBus.publish(EventQueue.UI, UIEvent.fromToggleFollow(!mFollowBtn.isChecked(),
-                            mOriginScreen.get(), mUser.getId()));
+                    toggleFollowing(user);
+                    eventBus.publish(EventQueue.UI, UIEvent.fromToggleFollow(!followBtn.isChecked(),
+                            UserlistRow.this.originScreen.get(), user.getId()));
                 }
             });
         }
@@ -89,49 +90,49 @@ public class UserlistRow extends IconLayout implements ListRow {
     @Override
     public void display(int position, Parcelable p) {
         checkArgument(p instanceof UserHolder, "Not a valid user holder: " + p);
-        mUser = ((UserHolder) p).getUser();
+        user = ((UserHolder) p).getUser();
 
         loadIcon();
-        if (mUser != null) {
-            mUsername.setText(mUser.username);
+        if (user != null) {
+            username.setText(user.username);
             setFollowingStatus();
             setTrackCount();
             setFollowerCount();
-            mVrStats.setVisibility((mUser.track_count <= 0 || mUser.followers_count <= 0) ? GONE : VISIBLE);
+            vrStats.setVisibility((user.track_count <= 0 || user.followers_count <= 0) ? GONE : VISIBLE);
         }
     }
 
     private void setFollowingStatus() {
-        final boolean following = mFollowingOperations.isFollowing(mUser);
-        if (mUser.getId() == getCurrentUserId()) {
-            mFollowBtn.setVisibility(INVISIBLE);
+        final boolean following = followingOperations.isFollowing(user);
+        if (user.getId() == getCurrentUserId()) {
+            followBtn.setVisibility(INVISIBLE);
         } else {
-            mFollowBtn.setVisibility(VISIBLE);
-            mFollowBtn.setChecked(following);
+            followBtn.setVisibility(VISIBLE);
+            followBtn.setChecked(following);
         }
     }
 
     private void setTrackCount() {
-        if (mUser.track_count <= 0){
-            mTracks.setVisibility(GONE);
+        if (user.track_count <= 0){
+            tracks.setVisibility(GONE);
         } else {
-            mTracks.setText(Integer.toString(mUser.track_count));
-            mTracks.setVisibility(VISIBLE);
+            tracks.setText(Integer.toString(user.track_count));
+            tracks.setVisibility(VISIBLE);
         }
     }
 
     private void setFollowerCount() {
-        if (mUser.followers_count <= 0){
-            mFollowers.setVisibility(GONE);
+        if (user.followers_count <= 0){
+            followers.setVisibility(GONE);
         } else {
-            mFollowers.setText(Integer.toString(mUser.followers_count));
-            mFollowers.setVisibility(VISIBLE);
+            followers.setText(Integer.toString(user.followers_count));
+            followers.setVisibility(VISIBLE);
         }
     }
 
     private void toggleFollowing(final User user) {
-        final SyncInitiator syncInitiator = new SyncInitiator(getContext(), mAccountOperations);
-        mFollowingOperations.toggleFollowing(user).observeOn(
+        final SyncInitiator syncInitiator = new SyncInitiator(getContext(), accountOperations);
+        followingOperations.toggleFollowing(user).observeOn(
                 AndroidSchedulers.mainThread()).subscribe(new DefaultSubscriber<UserAssociation>() {
             @Override
             public void onCompleted() {
@@ -149,7 +150,7 @@ public class UserlistRow extends IconLayout implements ListRow {
 
     @Override
     public Urn getResourceUrn() {
-        return mUser == null ? null : mUser.getUrn();
+        return user == null ? null : user.getUrn();
     }
 
 }

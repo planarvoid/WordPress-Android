@@ -10,9 +10,9 @@ import java.lang.ref.WeakReference;
 
 @Deprecated
 public class CollectionTask extends ParallelAsyncTask<CollectionParams, ReturnData, ReturnData> {
-    private final PublicCloudAPI mApi;
-    private final WeakReference<Callback> mCallback;
-    private final CollectionLoaderFactory mCollectionLoaderFactory;
+    private final PublicCloudAPI api;
+    private final WeakReference<Callback> callback;
+    private final CollectionLoaderFactory collectionLoaderFactory;
 
     public interface Callback {
         void onPostTaskExecute(ReturnData data);
@@ -23,14 +23,14 @@ public class CollectionTask extends ParallelAsyncTask<CollectionParams, ReturnDa
     }
 
     protected CollectionTask(PublicCloudAPI api, Callback callback, CollectionLoaderFactory collectionLoaderFactory) {
-        mApi = api;
-        mCallback = new WeakReference<Callback>(callback);
-        mCollectionLoaderFactory = collectionLoaderFactory;
+        this.api = api;
+        this.callback = new WeakReference<Callback>(callback);
+        this.collectionLoaderFactory = collectionLoaderFactory;
     }
 
     @Override
     protected void onPostExecute(ReturnData returnData) {
-        Callback callback = mCallback.get();
+        Callback callback = this.callback.get();
         if (callback != null) {
             callback.onPostTaskExecute(returnData);
         }
@@ -40,8 +40,8 @@ public class CollectionTask extends ParallelAsyncTask<CollectionParams, ReturnDa
     protected ReturnData doInBackground(CollectionParams... xparams) {
         CollectionParams params = xparams[0];
         Log.d(TAG, getClass().getSimpleName() + "Loading collection with params: " + params);
-        CollectionLoader loader = mCollectionLoaderFactory.createCollectionLoader(params);
-        return loader == null ? new ReturnData(params) : loader.load(mApi,params);
+        CollectionLoader loader = collectionLoaderFactory.createCollectionLoader(params);
+        return loader == null ? new ReturnData(params) : loader.load(api,params);
     }
 
 }

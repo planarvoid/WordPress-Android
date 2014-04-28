@@ -19,8 +19,8 @@ import android.widget.ImageView;
  */
 public abstract class IconLayout extends FrameLayout {
 
-    protected ImageView mIcon;
-    protected ImageOperations mImageOperations;
+    protected ImageView icon;
+    protected final ImageOperations imageOperations;
 
     public IconLayout(Context context, AttributeSet attributeSet) {
         this(context, attributeSet, SoundCloudApplication.fromContext(context).getImageOperations());
@@ -33,8 +33,8 @@ public abstract class IconLayout extends FrameLayout {
     public IconLayout(Context context, @Nullable AttributeSet attributeSet, ImageOperations imageOperations) {
         super(context, attributeSet);
         addContent(attributeSet);
-        mIcon = (ImageView) findViewById(R.id.icon);
-        mImageOperations = imageOperations;
+        icon = (ImageView) findViewById(R.id.icon);
+        this.imageOperations = imageOperations;
     }
 
     public long getCurrentUserId() {
@@ -44,9 +44,9 @@ public abstract class IconLayout extends FrameLayout {
     protected abstract View addContent(AttributeSet attributeSet);
 
     protected void loadIcon() {
-        mImageOperations.displayInAdapterView(getResourceUrn(),
+        imageOperations.displayInAdapterView(getResourceUrn(),
                 ImageSize.getListItemImageSize(getContext()),
-                mIcon);
+                icon);
     }
 
     @Nullable

@@ -13,24 +13,24 @@ import android.net.Uri;
 
 public class DefaultPlayableAdapter extends ScBaseAdapter<Playable> {
 
-    private PlaybackOperations mPlaybackOperations;
-    private ImageOperations mImageOperations;
+    private final PlaybackOperations playbackOperations;
+    private final ImageOperations imageOperations;
 
     public DefaultPlayableAdapter(Uri uri, ImageOperations imageOperations) {
         super(uri);
-        mPlaybackOperations = new PlaybackOperations();
-        mImageOperations = imageOperations;
+        playbackOperations = new PlaybackOperations();
+        this.imageOperations = imageOperations;
     }
 
     @Override
     protected IconLayout createRow(Context context, int position) {
-        return new PlayableRow(context, mImageOperations);
+        return new PlayableRow(context, imageOperations);
     }
 
     @Override
     public int handleListItemClick(Context context, int position, long id, Screen screen) {
-        Uri streamUri = mContent.isMine() ? mContentUri : null;
-        mPlaybackOperations.playFromAdapter(context, mData, position, streamUri, screen);
+        Uri streamUri = content.isMine() ? contentUri : null;
+        playbackOperations.playFromAdapter(context, data, position, streamUri, screen);
         return ItemClickResults.LEAVING;
     }
 }

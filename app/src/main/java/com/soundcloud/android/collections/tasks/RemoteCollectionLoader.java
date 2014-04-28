@@ -23,14 +23,14 @@ import java.util.Collection;
 @Deprecated
 public class RemoteCollectionLoader<T extends ScResource> implements CollectionLoader<T> {
 
-    private final TrackStorage mTrackStorage;
+    private final TrackStorage trackStorage;
 
     public RemoteCollectionLoader() {
         this(new TrackStorage());
     }
 
     public RemoteCollectionLoader(TrackStorage trackStorage) {
-        mTrackStorage = trackStorage;
+        this.trackStorage = trackStorage;
     }
 
     @Override
@@ -78,7 +78,7 @@ public class RemoteCollectionLoader<T extends ScResource> implements CollectionL
                 }
             });
 
-            fireAndForget(mTrackStorage.storeCollectionAsync(tracks));
+            fireAndForget(trackStorage.storeCollectionAsync(tracks));
         }
     }
 }

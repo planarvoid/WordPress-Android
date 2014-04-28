@@ -44,7 +44,7 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
         title = (TextView) findViewById(R.id.title);
         user = (TextView) findViewById(R.id.user);
         createdAt = (TextView) findViewById(R.id.created_at);
-        mIcon.setOnClickListener(new View.OnClickListener() {
+        icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final User u = getOriginUser();
@@ -55,7 +55,7 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
                 getContext().startActivity(intent);
             }
         });
-        mIcon.setFocusable(false);
+        icon.setFocusable(false);
     }
 
     // override these for non-dashboard activities to account for different parcelable structures

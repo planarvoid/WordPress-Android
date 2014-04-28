@@ -4,26 +4,26 @@ import java.util.List;
 
 public class Section<T> {
 
-    private final int mSectionId;
-    private final int mTitleId;
-    private final List<T> mItems;
+    private final int sectionId;
+    private final int titleId;
+    private final List<T> items;
 
     public Section(int sectionId, int titleId, List<T> items) {
-        this.mSectionId = sectionId;
-        this.mTitleId = titleId;
-        this.mItems = items;
+        this.sectionId = sectionId;
+        this.titleId = titleId;
+        this.items = items;
     }
 
     public int getTitleId() {
-        return mTitleId;
+        return titleId;
     }
 
     public int getSectionId() {
-        return mSectionId;
+        return sectionId;
     }
 
     public List<T> getItems() {
-        return mItems;
+        return items;
     }
 
 
@@ -34,16 +34,16 @@ public class Section<T> {
 
         Section section = (Section) o;
 
-        if (mSectionId != section.mSectionId) return false;
-        if (!mItems.equals(section.mItems)) return false;
+        if (sectionId != section.sectionId) return false;
+        if (!items.equals(section.items)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = mSectionId;
-        result = 31 * result + mItems.hashCode();
+        int result = sectionId;
+        result = 31 * result + items.hashCode();
         return result;
     }
 }

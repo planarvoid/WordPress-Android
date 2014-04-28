@@ -32,7 +32,7 @@ public class MyTracklistRow extends PlayableRow {
 
     @Override
     protected void setTitle() {
-        mTitle.setText(recording.sharingNote(getResources()));
+        title.setText(recording.sharingNote(getResources()));
     }
 
     @Override
@@ -70,10 +70,10 @@ public class MyTracklistRow extends PlayableRow {
 
     protected void loadIcon(Recording recording) {
         if (recording.artwork_path == null) {
-            mImageOperations.cancel(mIcon);
-            mIcon.setImageDrawable(null);
+            imageOperations.cancel(icon);
+            icon.setImageDrawable(null);
         } else {
-            mImageOperations.display("file://" + recording.artwork_path.getAbsolutePath(), mIcon);
+            imageOperations.display("file://" + recording.artwork_path.getAbsolutePath(), icon);
         }
     }
 

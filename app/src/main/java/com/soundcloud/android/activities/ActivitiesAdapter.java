@@ -57,13 +57,13 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     public boolean isExpired(LocalCollection localCollection) {
         if (localCollection == null) {
             return false;
-        } else if (mData.size() == 0) {
+        } else if (data.size() == 0) {
             return true; // need to pull from DB
         } else {
             // check if there is anything newer
             // TODO: DB access on UI thread!
-            final Activity latestActivity = activitiesStorage.getLatestActivity(mContent);
-            return (latestActivity == null || latestActivity.getCreatedAt().getTime() > mData.get(0).getCreatedAt().getTime());
+            final Activity latestActivity = activitiesStorage.getLatestActivity(content);
+            return (latestActivity == null || latestActivity.getCreatedAt().getTime() > data.get(0).getCreatedAt().getTime());
         }
     }
 
@@ -77,7 +77,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
 
             case TRACK_REPOST:
             case PLAYLIST_REPOST:
-                return (mContent == Content.ME_ACTIVITIES) ?
+                return (content == Content.ME_ACTIVITIES) ?
                         new RepostActivityRow(context, imageOperations) : new PlayableRow(context, imageOperations);
 
             case PLAYLIST:
@@ -108,7 +108,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     @Override
     public CollectionParams getParams(boolean refresh) {
         CollectionParams params = super.getParams(refresh);
-        if (mData.size() > 0) {
+        if (data.size() > 0) {
             Activity first = getItem(0);
             Activity last = getItem(getItemCount() - 1);
             params.timestamp = refresh ? first.getCreatedAt().getTime() : last.getCreatedAt().getTime();
@@ -120,9 +120,9 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     @Override
     public void addItems(List<Activity> newItems) {
         for (Activity newItem : newItems) {
-            if (!mData.contains(newItem)) mData.add(newItem);
+            if (!data.contains(newItem)) data.add(newItem);
         }
-        Collections.sort(mData);
+        Collections.sort(data);
     }
 
     @Override
@@ -139,30 +139,30 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
             case TRACK_SHARING:
             case PLAYLIST:
             case PLAYLIST_SHARING:
-                playbackOperations.playFromAdapter(context, mData, position, mContentUri, Screen.SIDE_MENU_STREAM);
+                playbackOperations.playFromAdapter(context, data, position, contentUri, Screen.SIDE_MENU_STREAM);
                 return ItemClickResults.LEAVING;
 
             case COMMENT:
             case TRACK_LIKE:
             case TRACK_REPOST:
-                if (mContent == Content.ME_ACTIVITIES) {
+                if (content == Content.ME_ACTIVITIES) {
                     // todo, scroll to specific repost
                     context.startActivity(new Intent(context, TrackInteractionActivity.class)
                             .putExtra(Track.EXTRA, getItem(position).getPlayable())
                             .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
-                    playbackOperations.playFromAdapter(context, mData, position, mContentUri, Screen.SIDE_MENU_STREAM);
+                    playbackOperations.playFromAdapter(context, data, position, contentUri, Screen.SIDE_MENU_STREAM);
                 }
                 return ItemClickResults.LEAVING;
             case PLAYLIST_LIKE:
             case PLAYLIST_REPOST:
-                if (mContent == Content.ME_ACTIVITIES) {
+                if (content == Content.ME_ACTIVITIES) {
                     // todo, scroll to specific repost
                     context.startActivity(new Intent(context, PlaylistInteractionActivity.class)
                             .putExtra(Playlist.EXTRA, getItem(position).getPlayable())
                             .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
-                    playbackOperations.playFromAdapter(context, mData, position, mContentUri, Screen.SIDE_MENU_STREAM);
+                    playbackOperations.playFromAdapter(context, data, position, contentUri, Screen.SIDE_MENU_STREAM);
                 }
                 return ItemClickResults.LEAVING;
 

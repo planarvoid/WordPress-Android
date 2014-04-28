@@ -70,7 +70,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
 
     @Override
     protected boolean isPositionOfProgressElement(int position) {
-        return mIsLoadingData && (position == getItemCount());
+        return isLoadingData && (position == getItemCount());
     }
 
     @Override
@@ -173,7 +173,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
                 context.startActivity(new Intent(context,(r.external_upload ? UploadActivity.class : RecordActivity.class)).setData(r.toUri()));
             }
         } else {
-            playbackOperations.playFromAdapter(context, mData, position - recordingData.size(), mContentUri, screen);
+            playbackOperations.playFromAdapter(context, data, position - recordingData.size(), contentUri, screen);
         }
         return ItemClickResults.LEAVING;
     }
@@ -210,7 +210,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
         return "MyTracksAdapter{" +
                 "dataValid=" + dataValid +
                 ", recordingData=" + recordingData +
-                ", mData=" + mData +
+                ", data=" + data +
                 '}';
     }
 }

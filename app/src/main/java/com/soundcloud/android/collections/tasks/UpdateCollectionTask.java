@@ -23,26 +23,26 @@ import java.util.List;
 import java.util.Set;
 
 public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Boolean> {
-    private PublicCloudAPI mApi;
-    private String mEndpoint;
-    private WeakReference<BaseAdapter> mAdapterReference;
-    private Set<Long> mResourceIds;
+    private final PublicCloudAPI api;
+    private final String endpoint;
+    private final Set<Long> resourceIds;
+    private WeakReference<BaseAdapter> adapterReference;
 
     public UpdateCollectionTask(PublicCloudAPI api, String endpoint, Set<Long> resourceIds) {
         if (TextUtils.isEmpty(endpoint)) throw new IllegalArgumentException("endpoint is empty");
 
-        mApi = api;
-        mEndpoint = endpoint;
-        mResourceIds = resourceIds;
+        this.api = api;
+        this.endpoint = endpoint;
+        this.resourceIds = resourceIds;
     }
 
     public void setAdapter(BaseAdapter adapter) {
-        mAdapterReference = new WeakReference<BaseAdapter>(adapter);
+        adapterReference = new WeakReference<BaseAdapter>(adapter);
     }
 
     @Override
     protected void onPostExecute(Boolean success) {
-        final BaseAdapter adapter = mAdapterReference.get();
+        final BaseAdapter adapter = adapterReference.get();
         if (adapter != null && success) {
             adapter.notifyDataSetChanged();
         }
@@ -50,16 +50,16 @@ public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Bool
 
     @Override
     protected Boolean doInBackground(String... params) {
-        Log.i(TAG,"Updating " + mResourceIds.size() + " items");
+        Log.i(TAG,"Updating " + resourceIds.size() + " items");
         try {
-            Request request = Request.to(mEndpoint)
+            Request request = Request.to(endpoint)
                 .add(PublicApiWrapper.LINKED_PARTITIONING, "1")
-                .add("ids", TextUtils.join(",", mResourceIds));
+                .add("ids", TextUtils.join(",", resourceIds));
 
             /* in memory objects will only receive these lookups if you go through the cache,
             of course this can change eventually */
             List<ScResource> resources = new ArrayList<ScResource>();
-            for (ScResource r :  mApi.readList(HttpUtils.addQueryParams(request, params))){
+            for (ScResource r :  api.readList(HttpUtils.addQueryParams(request, params))){
                 resources.add(SoundCloudApplication.sModelManager.cache(r, ScResource.CacheUpdateMode.FULL));
             }
 

@@ -41,16 +41,16 @@ import android.widget.TextView;
  */
 public class PlayableRow extends IconLayout implements ListRow {
 
-    private final PlaybackStateProvider mPlaybackStateProvider;
-    protected PlayableHolder mPlayableHolder;
-    protected TextView mTitle;
-    protected TextView mReposter;
-    protected TextView mTrackCount;
+    protected PlayableHolder playableHolder;
+    protected final TextView title;
+    protected final TextView reposter;
+    protected final TextView trackCount;
+    private final PlaybackStateProvider playbackStateProvider;
 
     // used to build the string for the title text
-    private SpannableStringBuilder mSpanBuilder;
+    private SpannableStringBuilder spanBuilder;
     private final ForegroundColorSpan fcs = new ForegroundColorSpan(getResources().getColor(R.color.scOrange));
-    private PlayablePresenter mPlayablePresenter;
+    private final PlayablePresenter playablePresenter;
 
     public PlayableRow(Context context, ImageOperations imageOperations) {
         this(context, null, imageOperations);
@@ -59,16 +59,16 @@ public class PlayableRow extends IconLayout implements ListRow {
     public PlayableRow(Context context, AttributeSet attributeSet, ImageOperations imageOperations) {
         super(context, attributeSet, imageOperations);
 
-        mPlayablePresenter = new PlayablePresenter(context)
+        playablePresenter = new PlayablePresenter(context)
                 .setUsernameView((TextView) findViewById(R.id.playable_user))
                 .setCreatedAtView((TextView) findViewById(R.id.playable_created_at))
                 .setStatsView((StatsView) findViewById(R.id.stats), true)
                 .setPrivacyIndicatorView((TextView) findViewById(R.id.playable_private_indicator));
 
-        mTitle = (TextView) findViewById(R.id.playable_title);
-        mReposter = (TextView) findViewById(R.id.playable_reposter);
-        mTrackCount = (TextView) findViewById(R.id.playable_track_count);
-        mPlaybackStateProvider = new PlaybackStateProvider();
+        title = (TextView) findViewById(R.id.playable_title);
+        reposter = (TextView) findViewById(R.id.playable_reposter);
+        trackCount = (TextView) findViewById(R.id.playable_track_count);
+        playbackStateProvider = new PlaybackStateProvider();
     }
 
     /**
@@ -76,15 +76,15 @@ public class PlayableRow extends IconLayout implements ListRow {
      * @param p the playable to display
      */
     public void setTrack(@NotNull PlayableHolder p) {
-        mPlayableHolder = p;
-        mPlayablePresenter.setPlayable(mPlayableHolder.getPlayable());
+        playableHolder = p;
+        playablePresenter.setPlayable(playableHolder.getPlayable());
         loadIcon();
         setTitle();
     }
 
     @Override
     public CharSequence getContentDescription() {
-        Playable playable = mPlayableHolder.getPlayable();
+        Playable playable = playableHolder.getPlayable();
 
         StringBuilder builder = new StringBuilder();
         builder.append(playable.getUser().getDisplayName());
@@ -92,8 +92,8 @@ public class PlayableRow extends IconLayout implements ListRow {
         builder.append(playable.title);
         builder.append(", ");
 
-        if (mPlayableHolder instanceof TrackRepostActivity) {
-            TrackRepostActivity repost = (TrackRepostActivity) mPlayableHolder;
+        if (playableHolder instanceof TrackRepostActivity) {
+            TrackRepostActivity repost = (TrackRepostActivity) playableHolder;
 
             builder.append(getContext().getResources().getString(R.string.accessibility_infix_reposted_by));
             builder.append(" ");
@@ -164,7 +164,7 @@ public class PlayableRow extends IconLayout implements ListRow {
 
         setTrack((PlayableHolder) p);
 
-        Playable playable = mPlayableHolder.getPlayable();
+        Playable playable = playableHolder.getPlayable();
         setupReposter();
         setupProcessingIndicator(playable);
 
@@ -172,10 +172,10 @@ public class PlayableRow extends IconLayout implements ListRow {
         setStaticTransformationsEnabled(!playable.isStreamable());
 
         if (playable instanceof Playlist && ((Playlist) playable).getTrackCount() >= 0){
-            mTrackCount.setText(String.valueOf(((Playlist) playable).getTrackCount()));
-            mTrackCount.setVisibility(VISIBLE);
+            trackCount.setText(String.valueOf(((Playlist) playable).getTrackCount()));
+            trackCount.setVisibility(VISIBLE);
         } else {
-            mTrackCount.setVisibility(GONE);
+            trackCount.setVisibility(GONE);
         }
     }
 
@@ -197,16 +197,16 @@ public class PlayableRow extends IconLayout implements ListRow {
     }
 
     private void setupReposter() {
-        mReposter.setVisibility(GONE);
+        reposter.setVisibility(GONE);
 
-        if (mPlayableHolder instanceof Repost) {
-            mReposter.setText(((Repost) mPlayableHolder).getReposter().username);
-            mReposter.setVisibility(VISIBLE);
+        if (playableHolder instanceof Repost) {
+            reposter.setText(((Repost) playableHolder).getReposter().username);
+            reposter.setVisibility(VISIBLE);
 
-        } else if (mPlayableHolder instanceof SoundAssociation) {
-            SoundAssociation sa = (SoundAssociation) mPlayableHolder;
+        } else if (playableHolder instanceof SoundAssociation) {
+            SoundAssociation sa = (SoundAssociation) playableHolder;
             if (sa.associationType == CollectionStorage.CollectionItemTypes.REPOST) {
-                mReposter.setVisibility(VISIBLE);
+                reposter.setVisibility(VISIBLE);
                 User reposter = null;
 
                 if (sa.owner == null)  {
@@ -216,34 +216,34 @@ public class PlayableRow extends IconLayout implements ListRow {
                     }
                 }
                 if (reposter !=  null && reposter.getId() != SoundCloudApplication.getUserId()) {
-                    mReposter.setText(reposter.username);
+                    this.reposter.setText(reposter.username);
                 }
             }
         }
     }
 
     protected void setTitle() {
-        if (mPlayableHolder.getPlayable().getId() == mPlaybackStateProvider.getCurrentTrackId()) {
-            if (mSpanBuilder == null) mSpanBuilder = new SpannableStringBuilder();
+        if (playableHolder.getPlayable().getId() == playbackStateProvider.getCurrentTrackId()) {
+            if (spanBuilder == null) spanBuilder = new SpannableStringBuilder();
 
-            mSpanBuilder.clear();
-            mSpanBuilder.append("  ");
-            mSpanBuilder.setSpan(new ImageSpan(getContext(), R.drawable.ic_list_playing_orange, ImageSpan.ALIGN_BOTTOM),
+            spanBuilder.clear();
+            spanBuilder.append("  ");
+            spanBuilder.setSpan(new ImageSpan(getContext(), R.drawable.ic_list_playing_orange, ImageSpan.ALIGN_BOTTOM),
                     0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            mSpanBuilder.append(mPlayableHolder.getPlayable().title);
+            spanBuilder.append(playableHolder.getPlayable().title);
             // offset by 2 because of the speaker image and space
-            mSpanBuilder.setSpan(fcs, 2, mPlayableHolder.getPlayable().title.length()+2,
+            spanBuilder.setSpan(fcs, 2, playableHolder.getPlayable().title.length() + 2,
                     Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-            mTitle.setText(mSpanBuilder);
+            title.setText(spanBuilder);
 
         } else {
-            mTitle.setText(mPlayableHolder.getPlayable().getTitle());
+            title.setText(playableHolder.getPlayable().getTitle());
         }
     }
 
     @Override
     public Urn getResourceUrn() {
-        return mPlayableHolder.getPlayable() == null ? null : mPlayableHolder.getPlayable().getUrn();
+        return playableHolder.getPlayable() == null ? null : playableHolder.getPlayable().getUrn();
     }
 
     @Override

@@ -15,17 +15,17 @@ import android.view.View;
 import android.widget.TextView;
 
 public class CommentRow extends IconLayout implements ListRow {
-    private final TextView mUser;
-    private final TextView mTitle;
-    private final TextView mCreatedAt;
-    private Comment mComment;
+    private final TextView user;
+    private final TextView title;
+    private final TextView createdAt;
+    private Comment comment;
 
     public CommentRow(Context context, ImageOperations imageOperations) {
         super(context, imageOperations);
 
-        mTitle = (TextView) findViewById(R.id.title);
-        mUser = (TextView) findViewById(R.id.user);
-        mCreatedAt = (TextView) findViewById(R.id.created_at);
+        title = (TextView) findViewById(R.id.title);
+        user = (TextView) findViewById(R.id.user);
+        createdAt = (TextView) findViewById(R.id.created_at);
     }
 
     @Override
@@ -39,20 +39,20 @@ public class CommentRow extends IconLayout implements ListRow {
 
     @Override
     public void display(int position, Parcelable p) {
-        mComment = (Comment) p;
-        if (mComment == null) return;
+        comment = (Comment) p;
+        if (comment == null) return;
 
         loadIcon();
 
-        mTitle.setText(mComment.body);
-        if (mComment.getUser() != null) mUser.setText(mComment.getUser().username);
-        mCreatedAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), mComment.getCreatedAt().getTime()));
+        title.setText(comment.body);
+        if (comment.getUser() != null) user.setText(comment.getUser().username);
+        createdAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), comment.getCreatedAt().getTime()));
     }
 
     @Override
     public Urn getResourceUrn() {
-        if (mComment != null && mComment.getUser() != null) {
-            return mComment.getUser().getUrn();
+        if (comment != null && comment.getUser() != null) {
+            return comment.getUser().getUrn();
         }
         return null;
     }

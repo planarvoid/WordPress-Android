@@ -37,22 +37,22 @@ import java.util.Set;
 
 @Deprecated
 public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
-    protected Content mContent;
-    protected Uri mContentUri;
-    @NotNull protected List<T> mData = new ArrayList<T>();
-    protected boolean mIsLoadingData;
-    protected int mPage;
+    protected final Content content;
+    protected final Uri contentUri;
+    @NotNull protected List<T> data = new ArrayList<T>();
+    protected boolean isLoadingData;
+    protected int page;
 
-    private View mProgressView;
+    private View progressView;
 
     @SuppressWarnings("unchecked")
     public ScBaseAdapter(Uri uri) {
-        mContent = Content.match(uri);
-        mContentUri = uri;
+        content = Content.match(uri);
+        contentUri = uri;
     }
 
     public int getItemCount() {
-        return mData.size();
+        return data.size();
     }
 
     @Override
@@ -67,18 +67,18 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return mIsLoadingData ? mData.size() + 1 : mData.size();
+        return isLoadingData ? data.size() + 1 : data.size();
     }
 
     @Override
     public boolean isEmpty() {
         final int count = getCount();
-        return count == 0 || (count == 1 && mIsLoadingData);
+        return count == 0 || (count == 1 && isLoadingData);
     }
 
     @Override
     public T getItem(int location) {
-        return mData.get(location);
+        return data.get(location);
     }
 
     public T getLastItem() {
@@ -86,11 +86,11 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     }
 
     public @NotNull List<T> getItems() {
-        return mData;
+        return data;
     }
 
     public void setIsLoadingData(boolean isLoadingData) {
-        mIsLoadingData = isLoadingData;
+        this.isLoadingData = isLoadingData;
         notifyDataSetChanged();
     }
 
@@ -103,12 +103,12 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     }
 
     protected boolean isPositionOfProgressElement(int position) {
-        return mIsLoadingData && position == mData.size();
+        return isLoadingData && position == data.size();
     }
 
     @Override
     public long getItemId(int position) {
-        if (position >= mData.size()) return AdapterView.INVALID_ROW_ID;
+        if (position >= data.size()) return AdapterView.INVALID_ROW_ID;
 
         final T item = getItem(position);
         if (item.getListItemId() != -1) {
@@ -121,10 +121,10 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     public View getView(int index, View row, ViewGroup parent) {
 
         if (isPositionOfProgressElement(index)) {
-            if (mProgressView == null) {
-                mProgressView = View.inflate(parent.getContext().getApplicationContext(), R.layout.list_loading_item, null);
+            if (progressView == null) {
+                progressView = View.inflate(parent.getContext().getApplicationContext(), R.layout.list_loading_item, null);
             }
-            return mProgressView;
+            return progressView;
         }
 
         View rowView;
@@ -143,13 +143,13 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     protected abstract View createRow(Context context, int position);
 
     public void clearData() {
-        mData.clear();
-        mPage = 0;
+        data.clear();
+        page = 0;
     }
 
     // needed?
     public Content getContent() {
-        return mContent;
+        return content;
     }
 
     /**
@@ -165,7 +165,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     }
 
     public void refreshCreationStamps(@NotNull Activity activity) {
-        for (ScModel resource : mData) {
+        for (ScModel resource : data) {
             if (resource instanceof Creation) {
                 ((Creation) resource).refreshTimeSinceCreated(activity);
             }
@@ -176,32 +176,32 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
 
         // if loading, subtract the loading item from total count
         int lookAheadSize = visibleItemCount * 2;
-        int itemCount = mIsLoadingData ? totalItemCount - 1 : totalItemCount; // size without the loading spinner
+        int itemCount = isLoadingData ? totalItemCount - 1 : totalItemCount; // size without the loading spinner
         boolean lastItemReached = itemCount > 0 && (itemCount - lookAheadSize <= firstVisibleItem);
 
-        return !mIsLoadingData && lastItemReached;
+        return !isLoadingData && lastItemReached;
     }
 
     public void insertItem(T item) {
-        int indexOfItem = mData.indexOf(item);
+        int indexOfItem = data.indexOf(item);
         if (indexOfItem  >= 0) {
-            mData.set(indexOfItem, item);
+            data.set(indexOfItem, item);
         } else {
-            mData.add(item);
+            data.add(item);
         }
     }
 
     public void addItems(List<T> newItems) {
-        mData.addAll(newItems);
+        data.addAll(newItems);
     }
 
     public CollectionParams getParams(boolean refresh) {
         CollectionParams params = new CollectionParams();
-        params.loadModel = mContent.modelType;
+        params.loadModel = content.modelType;
         params.isRefresh = refresh;
         params.maxToLoad = Consts.LIST_PAGE_SIZE;
-        params.startIndex = refresh ? 0 : mPage * Consts.LIST_PAGE_SIZE;
-        params.contentUri = mContentUri;
+        params.startIndex = refresh ? 0 : page * Consts.LIST_PAGE_SIZE;
+        params.contentUri = contentUri;
         return params;
     }
 
@@ -210,7 +210,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
             if (data.wasRefresh) {
                 onSuccessfulRefresh();
             }
-            mPage++;
+            page++;
             addItems(data.newItems);
 
             /*
@@ -226,7 +226,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
             */
 
             if (activity != null) {
-                checkForStaleItems(activity, mData);
+                checkForStaleItems(activity, this.data);
             }
         }
         setIsLoadingData(false);

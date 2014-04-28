@@ -23,8 +23,8 @@ import java.util.List;
  */
 public class SingleLineCollectionTextView extends TextView {
 
-    List<String> mDisplayItems;
-    StringBuilder mDisplayNamesBuilder;
+    private List<String> displayItems;
+    private StringBuilder displayNamesBuilder;
 
     public SingleLineCollectionTextView(Context context) {
         super(context);
@@ -39,7 +39,7 @@ public class SingleLineCollectionTextView extends TextView {
     }
 
     public void setDisplayItems(List<String> displayItems) {
-        mDisplayItems = displayItems;
+        this.displayItems = displayItems;
         if (getMeasuredWidth() > 0) setCollectionText();
     }
 
@@ -52,7 +52,7 @@ public class SingleLineCollectionTextView extends TextView {
 
 
     private void setCollectionText() {
-        if (mDisplayItems != null) {
+        if (displayItems != null) {
             setTextFromCollection(getMeasuredWidth());
         }
     }
@@ -60,14 +60,14 @@ public class SingleLineCollectionTextView extends TextView {
     @VisibleForTesting
     void setTextFromCollection(float maxWidth) {
 
-        final int numItems = mDisplayItems.size();
+        final int numItems = displayItems.size();
         if (numItems == 1) {
-            setText(mDisplayItems.get(0));
+            setText(displayItems.get(0));
         } else {
-            if (mDisplayNamesBuilder == null) {
-                mDisplayNamesBuilder = new StringBuilder(); // lazy init
+            if (displayNamesBuilder == null) {
+                displayNamesBuilder = new StringBuilder(); // lazy init
             } else {
-                mDisplayNamesBuilder.setLength(0);
+                displayNamesBuilder.setLength(0);
             }
 
             final Paint paint = getPaint();
@@ -75,10 +75,10 @@ public class SingleLineCollectionTextView extends TextView {
 
             String candidate = null;
             if (numItems == 2) {
-                candidate = getResources().getString(R.string.and_conjunction, mDisplayItems.get(0), mDisplayItems.get(1));
+                candidate = getResources().getString(R.string.and_conjunction, displayItems.get(0), displayItems.get(1));
                 if (paint.measureText(candidate) > maxWidth) {
                     // change to "xxx and 1 other"
-                    mDisplayNamesBuilder.append(mDisplayItems.get(0));
+                    displayNamesBuilder.append(displayItems.get(0));
                     candidate = appendRemaining(1);
                 }
 
@@ -86,11 +86,11 @@ public class SingleLineCollectionTextView extends TextView {
 
                 // try to fit the format xxx, yyy and z others
                 boolean fits = false;
-                for (int i = 0; i < mDisplayItems.size() && !fits; i++) {
-                    for (int j = i + 1; j < mDisplayItems.size() && !fits; j++) {
-                        mDisplayNamesBuilder.setLength(0);
-                        mDisplayNamesBuilder.append(mDisplayItems.get(i)).append(", ")
-                                .append(mDisplayItems.get(j));
+                for (int i = 0; i < displayItems.size() && !fits; i++) {
+                    for (int j = i + 1; j < displayItems.size() && !fits; j++) {
+                        displayNamesBuilder.setLength(0);
+                        displayNamesBuilder.append(displayItems.get(i)).append(", ")
+                                .append(displayItems.get(j));
                         candidate = appendRemaining(numItems - 2);
                         fits = paint.measureText(candidate) <= maxWidth;
                     }
@@ -98,9 +98,9 @@ public class SingleLineCollectionTextView extends TextView {
 
                 // try to fit the format xxx and z others
                 if (!fits) {
-                    for (int i = 0; i < mDisplayItems.size() && !fits; i++) {
-                        mDisplayNamesBuilder.setLength(0);
-                        mDisplayNamesBuilder.append(mDisplayItems.get(i));
+                    for (int i = 0; i < displayItems.size() && !fits; i++) {
+                        displayNamesBuilder.setLength(0);
+                        displayNamesBuilder.append(displayItems.get(i));
                         candidate = appendRemaining(numItems - 1);
                         fits = paint.measureText(candidate) <= maxWidth;
                     }
@@ -112,8 +112,8 @@ public class SingleLineCollectionTextView extends TextView {
     }
 
     private String appendRemaining(int moreItems) {
-        mDisplayNamesBuilder.append(" ").append(getResources().getQuantityString(R.plurals.number_of_others, moreItems, moreItems));
-        return mDisplayNamesBuilder.toString();
+        displayNamesBuilder.append(" ").append(getResources().getQuantityString(R.plurals.number_of_others, moreItems, moreItems));
+        return displayNamesBuilder.toString();
     }
 
 }

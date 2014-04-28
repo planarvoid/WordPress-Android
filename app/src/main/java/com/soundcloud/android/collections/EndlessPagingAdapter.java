@@ -16,11 +16,11 @@ import android.widget.AbsListView;
 
 public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAdapter<T> implements AbsListView.OnScrollListener, Observer<Page<? extends Iterable<T>>> {
 
-    private final int mProgressItemLayoutResId;
+    private final int progressItemLayoutResId;
 
-    private Page<? extends Iterable<T>> mCurrentPage = OperatorPaged.<T>emptyPage();
+    private Page<? extends Iterable<T>> currentPage = OperatorPaged.<T>emptyPage();
 
-    private AppendState mAppendState = AppendState.IDLE;
+    private AppendState appendState = AppendState.IDLE;
 
     protected enum AppendState {
         IDLE, LOADING, ERROR;
@@ -32,7 +32,7 @@ public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAda
 
     public EndlessPagingAdapter(int pageSize, int progressItemLayoutResId) {
         super(pageSize);
-        mProgressItemLayoutResId = progressItemLayoutResId;
+        this.progressItemLayoutResId = progressItemLayoutResId;
     }
 
     @Override
@@ -40,7 +40,7 @@ public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAda
         if (items.isEmpty()) {
             return 0;
         } else {
-            return mAppendState == AppendState.IDLE ? items.size() : items.size() + 1;
+            return appendState == AppendState.IDLE ? items.size() : items.size() + 1;
         }
     }
 
@@ -58,7 +58,7 @@ public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAda
     public View getView(int position, View convertView, ViewGroup parent) {
         if (getItemViewType(position) == IGNORE_ITEM_VIEW_TYPE) {
             if (convertView == null) {
-                convertView = View.inflate(parent.getContext(), mProgressItemLayoutResId, null);
+                convertView = View.inflate(parent.getContext(), progressItemLayoutResId, null);
             }
             configureAppendingLayout(convertView);
             return convertView;
@@ -69,7 +69,7 @@ public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAda
     }
 
     private void configureAppendingLayout(final View appendingLayout) {
-        switch (mAppendState) {
+        switch (appendState) {
             case LOADING:
                 appendingLayout.setBackgroundResource(android.R.color.transparent);
                 appendingLayout.findViewById(R.id.list_loading_view).setVisibility(View.VISIBLE);
@@ -93,7 +93,7 @@ public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAda
     }
 
     private void setNewAppendState(AppendState newState) {
-        mAppendState = newState;
+        appendState = newState;
         notifyDataSetChanged();
     }
 
@@ -104,14 +104,14 @@ public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAda
 
     @Override
     public int getItemViewType(int position) {
-        return mAppendState != AppendState.IDLE && position == items.size() ? IGNORE_ITEM_VIEW_TYPE
-                : super.getItemViewType(position);
+        return appendState != AppendState.IDLE && position == items.size() ? IGNORE_ITEM_VIEW_TYPE
+                 : super.getItemViewType(position);
     }
 
     public Subscription loadNextPage() {
-        if (mCurrentPage.hasNextPage()) {
+        if (currentPage.hasNextPage()) {
             setNewAppendState(AppendState.LOADING);
-            return mCurrentPage.getNextPage().observeOn(AndroidSchedulers.mainThread()).subscribe(this);
+            return currentPage.getNextPage().observeOn(AndroidSchedulers.mainThread()).subscribe(this);
         } else {
             return Subscriptions.empty();
         }
@@ -123,7 +123,7 @@ public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAda
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        if (mAppendState == AppendState.IDLE) {
+        if (appendState == AppendState.IDLE) {
             int lookAheadSize = visibleItemCount * 2;
             boolean lastItemReached = totalItemCount > 0 && (totalItemCount - lookAheadSize <= firstVisibleItem);
 
@@ -145,7 +145,7 @@ public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAda
 
     @Override
     public void onNext(Page<? extends Iterable<T>> page) {
-        mCurrentPage = page;
+        currentPage = page;
         for (T item : page.getPagedCollection()) {
             addItem(item);
         }

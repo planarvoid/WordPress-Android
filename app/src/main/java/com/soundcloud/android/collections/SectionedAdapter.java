@@ -13,7 +13,7 @@ public abstract class SectionedAdapter<ModelType extends Parcelable> extends Ite
     static final int ITEM_VIEW_TYPE_DEFAULT = 0;
     static final int ITEM_VIEW_TYPE_HEADER = 1;
 
-    private final SparseArray<RowDescriptor> mListPositionsToSections;
+    private final SparseArray<RowDescriptor> listPositionsToSections;
 
     public SectionedAdapter() {
         this(new SparseArray<RowDescriptor>());
@@ -21,12 +21,12 @@ public abstract class SectionedAdapter<ModelType extends Parcelable> extends Ite
 
     protected SectionedAdapter(SparseArray<RowDescriptor> sectionHeaderPositions) {
         super(INITIAL_LIST_CAPACITY);
-        mListPositionsToSections = sectionHeaderPositions;
+        listPositionsToSections = sectionHeaderPositions;
     }
 
     @Override
     public int getItemViewType(int position) {
-        return mListPositionsToSections.get(position).isSectionHeader ? ITEM_VIEW_TYPE_HEADER : ITEM_VIEW_TYPE_DEFAULT;
+        return listPositionsToSections.get(position).isSectionHeader ? ITEM_VIEW_TYPE_HEADER : ITEM_VIEW_TYPE_DEFAULT;
     }
 
     @Override
@@ -37,18 +37,18 @@ public abstract class SectionedAdapter<ModelType extends Parcelable> extends Ite
     @Override
     public void clear() {
         super.clear();
-        mListPositionsToSections.clear();
+        listPositionsToSections.clear();
     }
 
     public Section<ModelType> getSection(int position) {
-        final RowDescriptor descriptor = mListPositionsToSections.get(position);
+        final RowDescriptor descriptor = listPositionsToSections.get(position);
         return descriptor.section;
     }
 
     @Override
     protected void bindItemView(int position, View itemView) {
         if (itemView instanceof SectionedListRow){
-            RowDescriptor descriptor = mListPositionsToSections.get(position);
+            RowDescriptor descriptor = listPositionsToSections.get(position);
             SectionedListRow sectionedListRow = (SectionedListRow) itemView;
 
             if (descriptor.isSectionHeader) {
@@ -76,7 +76,8 @@ public abstract class SectionedAdapter<ModelType extends Parcelable> extends Ite
             isSectionHeader = false;
 
             addItem(item);
-            mListPositionsToSections.put(items.size() - 1, descriptor);
+
+            listPositionsToSections.put(items.size() - 1, descriptor);
         }
     }
 
