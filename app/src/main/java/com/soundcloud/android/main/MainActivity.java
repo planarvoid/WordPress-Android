@@ -3,7 +3,6 @@ package com.soundcloud.android.main;
 import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 import static rx.android.observables.AndroidObservable.fromActivity;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.UserOperations;
@@ -19,16 +18,12 @@ import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.stream.SoundStreamFragment;
 import net.hockeyapp.android.UpdateManager;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -60,7 +55,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     @Inject
     StreamFragmentFactory streamFragmentFactory;
 
-    private CompositeSubscription mSubscription = new CompositeSubscription();
+    private final CompositeSubscription mSubscription = new CompositeSubscription();
 
     public MainActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
