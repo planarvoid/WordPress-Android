@@ -5,7 +5,6 @@ import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.explore.ExploreGenreCategoryScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
-import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TestUser;
 
@@ -42,7 +41,10 @@ public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
         String trackName = categoryScreen.getTrackTitle(1);
         playerScreen = categoryScreen.playTrack(1);
-        waiter.expect(playerScreen.trackTitleElement())
-                .toHaveText(trackName);
+        waiter.expect(playerScreen.trackTitleElement()).toHaveText(trackName);
+
+        // make sure recommendations load
+        playerScreen.swipeLeft();
+        assertNotSame(trackName, playerScreen.trackTitle());
     }
 }
