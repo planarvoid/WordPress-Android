@@ -32,7 +32,7 @@ public class ChangeLog {
     private static final String CONTENT = "__CHANGELOG_CONTENT__";
 
     private Listmode listMode = Listmode.NONE;
-    private StringBuilder mSb;
+    private StringBuilder builder;
 
     private enum Listmode {
         NONE,
@@ -49,16 +49,13 @@ public class ChangeLog {
         this.context = context;
     }
 
-    public AlertDialog getDialog(boolean full) {
+    public AlertDialog getDialog() {
         WebView wv = new WebView(context);
         wv.setBackgroundColor(0xFFFFFFFF); // transparent
-        wv.loadData(getLog(full), "text/html", "UTF-8");
+        wv.loadData(getLog(), "text/html", "UTF-8");
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(context.getResources().getString(
-                full
-                        ? R.string.changelog_full_title
-                        : R.string.changelog_title))
+        builder.setTitle(context.getResources().getString(R.string.changelog_full_title))
                 .setView(wv)
                 .setCancelable(false)
                 .setPositiveButton(
@@ -71,8 +68,8 @@ public class ChangeLog {
         return builder.create();
     }
 
-    private String getLog(boolean full) {
-        return wrapLog(getLogContent(full));
+    private String getLog() {
+        return wrapLog(getLogContent());
     }
 
     private String wrapLog(String s) {
@@ -95,8 +92,8 @@ public class ChangeLog {
         }
     }
 
-    private String getLogContent(boolean full) {
-        mSb = new StringBuilder();
+    private String getLogContent() {
+        builder = new StringBuilder();
         try
         {
             InputStream ins = context.getResources().openRawResource(R.raw.changelog);
@@ -117,29 +114,29 @@ public class ChangeLog {
                         if ("v current".equals(version)) {
                             version = "v " + new DeviceHelper(context).getAppVersion();
                         }
-                        mSb.append("<div class='title'>").append(version).append("</div>\n");
+                        builder.append("<div class='title'>").append(version).append("</div>\n");
                     // line contains date
                     } else if (line.startsWith("_")) {
                         closeList();
-                        mSb.append("<div class='subtitle'>").append(line.substring(1).trim()).append("</div>\n");
+                        builder.append("<div class='subtitle'>").append(line.substring(1).trim()).append("</div>\n");
                     // line contains free text
                     } else if (line.startsWith("!")) {
                         closeList();
-                        mSb.append("<div class='freetext'>").append(line.substring(1).trim()).append("</div>\n");
+                        builder.append("<div class='freetext'>").append(line.substring(1).trim()).append("</div>\n");
                     // line contains numbered list item
                     } else if (line.startsWith("#")) {
                         openList(Listmode.ORDERED);
-                        mSb.append("<li>").append(line.substring(1).trim()).append("</li>\n");
+                        builder.append("<li>").append(line.substring(1).trim()).append("</li>\n");
                     // line contains bullet list item
                     } else if (line.startsWith("*")) {
                         openList(Listmode.UNORDERED);
-                        mSb.append("<li>").append(line.substring(1).trim()).append("</li>\n");
+                        builder.append("<li>").append(line.substring(1).trim()).append("</li>\n");
                     } else if (line.startsWith("-")) {
                         // private changelog entry, skip
                     } else {
                         // no special character: just use line as is
                         closeList();
-                        mSb.append(line).append("\n");
+                        builder.append(line).append("\n");
                     }
                 }
             }
@@ -148,7 +145,7 @@ public class ChangeLog {
         } catch (IOException e) {
             Log.w(TAG, "error", e);
         }
-        return mSb.toString();
+        return builder.toString();
     }
 
     private void openList(Listmode listMode) {
@@ -156,12 +153,12 @@ public class ChangeLog {
             closeList();
             switch (listMode) {
                 case ORDERED:
-                    mSb.append("<div class='list'><ol>\n");
+                    builder.append("<div class='list'><ol>\n");
                     break;
                 case NONE:
                     break;
                 case UNORDERED:
-                    mSb.append("<div class='list'><ul>\n");
+                    builder.append("<div class='list'><ul>\n");
                     break;
             }
             this.listMode = listMode;
@@ -173,10 +170,10 @@ public class ChangeLog {
             case NONE:
                 break;
             case ORDERED:
-                mSb.append("</ol></div>\n");
+                builder.append("</ol></div>\n");
                 break;
             case UNORDERED:
-                mSb.append("</ul></div>\n");
+                builder.append("</ul></div>\n");
                 break;
         }
         listMode = Listmode.NONE;

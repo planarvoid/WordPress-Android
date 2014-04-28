@@ -95,7 +95,7 @@ public class SettingsActivity extends ScSettingsActivity {
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SETTINGS_CHANGE_LOG.get());
-                        cl.getDialog(true).show();
+                        cl.getDialog().show();
                         return true;
                     }
                 });
