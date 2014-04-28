@@ -42,14 +42,14 @@ public class ImageOperations {
     private static final String URL_BASE = "http://%s";
     private static final String PLACEHOLDER_KEY_BASE = "%s_%s_%s";
 
-    private final ImageLoader mImageLoader;
-    private final ImageEndpointBuilder mImageEndpointBuilder;
-    private final PlaceholderGenerator mPlaceholderGenerator;
+    private final ImageLoader imageLoader;
+    private final ImageEndpointBuilder imageEndpointBuilder;
+    private final PlaceholderGenerator placeholderGenerator;
 
-    private final Set<String> mNotFoundUris = Sets.newHashSet();
-    private final Cache<String, Drawable> mPlaceholderCache;
+    private final Set<String> notFoundUris = Sets.newHashSet();
+    private final Cache<String, Drawable> placeholderCache;
 
-    private final SimpleImageLoadingListener mNotFoundListener = new SimpleImageLoadingListener() {
+    private final SimpleImageLoadingListener notFoundListener = new SimpleImageLoadingListener() {
 
         @Override
         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
@@ -62,14 +62,14 @@ public class ImageOperations {
         @Override
         public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
             super.onLoadingFailed(imageUri, view, failReason);
-            if (failReason.getCause() instanceof FileNotFoundException){
-                mNotFoundUris.add(imageUri);
+            if (failReason.getCause() instanceof FileNotFoundException) {
+                notFoundUris.add(imageUri);
             }
             animatePlaceholder(view);
         }
 
         private void animatePlaceholder(View view) {
-            if (view instanceof ImageView && ((ImageView) view).getDrawable() instanceof OneShotTransitionDrawable){
+            if (view instanceof ImageView && ((ImageView) view).getDrawable() instanceof OneShotTransitionDrawable) {
                 final OneShotTransitionDrawable transitionDrawable = (OneShotTransitionDrawable) ((ImageView) view).getDrawable();
                 transitionDrawable.startTransition(ImageUtils.DEFAULT_TRANSITION_DURATION);
             }
@@ -85,10 +85,10 @@ public class ImageOperations {
 
     @VisibleForTesting
     ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator, Cache<String, Drawable> placeholderCache) {
-        mImageLoader = imageLoader;
-        mImageEndpointBuilder = imageEndpointBuilder;
-        mPlaceholderGenerator = placeholderGenerator;
-        mPlaceholderCache = placeholderCache;
+        this.imageLoader = imageLoader;
+        this.imageEndpointBuilder = imageEndpointBuilder;
+        this.placeholderGenerator = placeholderGenerator;
+        this.placeholderCache = placeholderCache;
     }
 
     public void initialise(Context context, ApplicationProperties properties) {
@@ -106,38 +106,38 @@ public class ImageOperations {
             // cut down to half of what UIL would reserve by default (div 8) on low mem devices
             builder.memoryCacheSize((int) (availableMemory / 16));
         }
-        mImageLoader.init(builder.build());
+        imageLoader.init(builder.build());
 
         FileCache.installFileCache(IOUtils.getCacheDir(appContext));
     }
 
     public void displayInAdapterView(Urn urn, ImageSize imageSize, ImageView imageView) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
-        mImageLoader.displayImage(
+        imageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, imageSize),
                 imageAware,
-                ImageOptionsFactory.adapterView(getPlaceholderDrawable(urn, imageAware)), mNotFoundListener);
+                ImageOptionsFactory.adapterView(getPlaceholderDrawable(urn, imageAware)), notFoundListener);
     }
 
     public void displayWithPlaceholder(Urn urn, ImageSize imageSize, ImageView imageView) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
-        mImageLoader.displayImage(
+        imageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, imageSize),
                 imageAware,
                 ImageOptionsFactory.placeholder(getPlaceholderDrawable(urn, imageAware)),
-                mNotFoundListener);
+                notFoundListener);
     }
 
     public void displayInPlayerView(Urn urn, ImageSize imageSize, ImageView imageView, View parentView,
                                     boolean priority, ImageListener imageListener) {
-        mImageLoader.displayImage(
+        imageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, imageSize),
                 new ImageViewAware(imageView, false),
                 ImageOptionsFactory.player(parentView, priority), new ImageListenerUILAdapter(imageListener));
     }
 
     public void displayInFullDialogView(Urn urn, ImageSize imageSize, ImageView imageView, ImageListener imageListener) {
-        mImageLoader.displayImage(
+        imageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, imageSize),
                 new ImageViewAware(imageView, false),
                 ImageOptionsFactory.fullImageDialog(),
@@ -145,41 +145,41 @@ public class ImageOperations {
     }
 
     public void load(Urn urn, ImageSize imageSize, ImageListener imageListener) {
-        mImageLoader.loadImage(
+        imageLoader.loadImage(
                 buildUrlIfNotPreviouslyMissing(urn, imageSize),
                 new ImageListenerUILAdapter(imageListener));
     }
 
     @Deprecated // use the variants that take URNs instead
     public void load(String imageUrl, ImageListener imageListener) {
-        mImageLoader.loadImage(adjustUrl(imageUrl), new ImageListenerUILAdapter(imageListener));
+        imageLoader.loadImage(adjustUrl(imageUrl), new ImageListenerUILAdapter(imageListener));
     }
 
     @Deprecated // use the variants that take URNs instead
     public void display(String imageUrl, ImageView imageView) {
-        mImageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false));
+        imageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false));
     }
 
     @Deprecated // use the variants that take URNs instead
     public void prefetch(String imageUrl) {
-        mImageLoader.loadImage(adjustUrl(imageUrl), ImageOptionsFactory.prefetch(), null);
+        imageLoader.loadImage(adjustUrl(imageUrl), ImageOptionsFactory.prefetch(), null);
     }
 
     public void resume() {
-        mImageLoader.resume();
+        imageLoader.resume();
     }
 
     public void cancel(ImageView imageView) {
-        mImageLoader.cancelDisplayTask(imageView);
+        imageLoader.cancelDisplayTask(imageView);
     }
 
     public AbsListView.OnScrollListener createScrollPauseListener(boolean pauseOnScroll, boolean pauseOnFling,
                                                                   AbsListView.OnScrollListener customListener) {
-        return new PauseOnScrollListener(mImageLoader, pauseOnScroll, pauseOnFling, customListener);
+        return new PauseOnScrollListener(imageLoader, pauseOnScroll, pauseOnFling, customListener);
     }
 
     public AbsListView.OnScrollListener createScrollPauseListener(boolean pauseOnScroll, boolean pauseOnFling) {
-        return new PauseOnScrollListener(mImageLoader, pauseOnScroll, pauseOnFling);
+        return new PauseOnScrollListener(imageLoader, pauseOnScroll, pauseOnFling);
     }
 
     /**
@@ -203,10 +203,10 @@ public class ImageOperations {
         final String key = String.format(PLACEHOLDER_KEY_BASE, urn,
                 String.valueOf(imageViewAware.getWidth()), String.valueOf(imageViewAware.getHeight()));
         try {
-            return mPlaceholderCache.get(key, new Callable<Drawable>() {
+            return placeholderCache.get(key, new Callable<Drawable>() {
                 @Override
                 public Drawable call() throws Exception {
-                    return mPlaceholderGenerator.generate(urn.toString());
+                    return placeholderGenerator.generate(urn.toString());
                 }
             });
         } catch (ExecutionException e) {
@@ -217,8 +217,8 @@ public class ImageOperations {
     }
 
     @Nullable
-    private String buildUrlIfNotPreviouslyMissing(Urn urn, ImageSize imageSize){
-        final String imageUrl = mImageEndpointBuilder.imageUrl(urn, imageSize);
-        return mNotFoundUris.contains(imageUrl) ? null : imageUrl;
+    private String buildUrlIfNotPreviouslyMissing(Urn urn, ImageSize imageSize) {
+        final String imageUrl = imageEndpointBuilder.imageUrl(urn, imageSize);
+        return notFoundUris.contains(imageUrl) ? null : imageUrl;
     }
 }

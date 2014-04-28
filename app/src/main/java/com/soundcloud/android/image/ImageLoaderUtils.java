@@ -11,31 +11,31 @@ import android.graphics.Bitmap;
 
 public class ImageLoaderUtils {
 
-    private final ImageLoader mImageLoader;
-    private final Context mContext;
+    private final ImageLoader imageLoader;
+    private final Context context;
 
     public ImageLoaderUtils(Context context) {
         this(ImageLoader.getInstance(), context);
     }
 
     public ImageLoaderUtils(ImageLoader imageLoader, Context context) {
-        mImageLoader = imageLoader;
-        mContext = context;
+        this.imageLoader = imageLoader;
+        this.context = context;
     }
 
     /**
      * Get an instance of a list sized bitmap for a particular track (for player image substitution)
      */
     public Bitmap getCachedTrackListIcon(Track track) {
-        final String listArtworkUrl = track.getListArtworkUrl(mContext);
+        final String listArtworkUrl = track.getListArtworkUrl(context);
         if (ScTextUtils.isBlank(listArtworkUrl)) {
             return null;
         } else {
-            return mImageLoader.getMemoryCache().get(MemoryCacheUtil.generateKey(
+            return imageLoader.getMemoryCache().get(MemoryCacheUtil.generateKey(
                     listArtworkUrl,
                     new com.nostra13.universalimageloader.core.assist.ImageSize(
-                            (int) mContext.getResources().getDimension(R.dimen.list_icon_width),
-                            (int) mContext.getResources().getDimension(R.dimen.list_icon_height)
+                            (int) context.getResources().getDimension(R.dimen.list_icon_width),
+                            (int) context.getResources().getDimension(R.dimen.list_icon_height)
                     )
             ));
         }

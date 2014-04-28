@@ -13,25 +13,25 @@ import java.lang.ref.WeakReference;
 @VisibleForTesting
 public class PlayerArtworkLoadListener extends SimpleImageLoadingListener implements ImageListener {
 
-    private final ImageLoaderUtils mImageLoaderUtils;
-    private WeakReference<ArtworkTrackView> mTrackViewRef;
-    private Track mTrack;
+    private final ImageLoaderUtils imageLoaderUtils;
+    private final WeakReference<ArtworkTrackView> trackViewRef;
+    private final Track track;
 
     public PlayerArtworkLoadListener(ArtworkTrackView trackView, Track track) {
         this(trackView, track, new ImageLoaderUtils(trackView.getContext()));
     }
 
     PlayerArtworkLoadListener(ArtworkTrackView trackView, Track track, ImageLoaderUtils imageLoaderUtils) {
-        mTrackViewRef = new WeakReference<ArtworkTrackView>(trackView);
-        mTrack = track;
-        mImageLoaderUtils = imageLoaderUtils;
+        trackViewRef = new WeakReference<ArtworkTrackView>(trackView);
+        this.track = track;
+        this.imageLoaderUtils = imageLoaderUtils;
     }
 
     @Override
     public void onLoadingStarted(String imageUri, View view) {
-        ArtworkTrackView trackView = mTrackViewRef.get();
+        ArtworkTrackView trackView = trackViewRef.get();
         if (trackView != null) {
-            Bitmap memoryBitmap = mImageLoaderUtils.getCachedTrackListIcon(mTrack);
+            Bitmap memoryBitmap = imageLoaderUtils.getCachedTrackListIcon(track);
             if (memoryBitmap != null) {
                 trackView.setTemporaryArtwork(memoryBitmap);
             }

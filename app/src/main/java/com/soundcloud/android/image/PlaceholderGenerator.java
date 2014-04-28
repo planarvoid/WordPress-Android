@@ -12,35 +12,35 @@ import javax.inject.Inject;
 
 public class PlaceholderGenerator {
 
-    private static final int[][] COLOR_COMBINATIONS = new int[][] {
-            { R.color.placeholder_image_purple , R.color.placeholder_image_blue },
-            { R.color.placeholder_image_purple , R.color.placeholder_image_orange },
-            { R.color.placeholder_image_purple , R.color.placeholder_image_beige },
-            { R.color.placeholder_image_blue   , R.color.placeholder_image_purple },
-            { R.color.placeholder_image_blue   , R.color.placeholder_image_orange },
-            { R.color.placeholder_image_blue   , R.color.placeholder_image_beige },
-            { R.color.placeholder_image_orange , R.color.placeholder_image_purple },
-            { R.color.placeholder_image_orange , R.color.placeholder_image_blue },
-            { R.color.placeholder_image_orange , R.color.placeholder_image_beige },
-            { R.color.placeholder_image_beige  , R.color.placeholder_image_purple },
-            { R.color.placeholder_image_beige  , R.color.placeholder_image_blue },
-            { R.color.placeholder_image_beige  , R.color.placeholder_image_orange }
+    private static final int[][] COLOR_COMBINATIONS = new int[][]{
+            {R.color.placeholder_image_purple, R.color.placeholder_image_blue},
+            {R.color.placeholder_image_purple, R.color.placeholder_image_orange},
+            {R.color.placeholder_image_purple, R.color.placeholder_image_beige},
+            {R.color.placeholder_image_blue, R.color.placeholder_image_purple},
+            {R.color.placeholder_image_blue, R.color.placeholder_image_orange},
+            {R.color.placeholder_image_blue, R.color.placeholder_image_beige},
+            {R.color.placeholder_image_orange, R.color.placeholder_image_purple},
+            {R.color.placeholder_image_orange, R.color.placeholder_image_blue},
+            {R.color.placeholder_image_orange, R.color.placeholder_image_beige},
+            {R.color.placeholder_image_beige, R.color.placeholder_image_purple},
+            {R.color.placeholder_image_beige, R.color.placeholder_image_blue},
+            {R.color.placeholder_image_beige, R.color.placeholder_image_orange}
     };
 
-    private final Resources mResources;
+    private final Resources resources;
 
     @Inject
     PlaceholderGenerator(Resources resources) {
-        mResources = resources;
+        this.resources = resources;
     }
 
     public Drawable generate(String key) {
-        return ImageUtils.createTransitionDrawable(mResources.getDrawable(R.drawable.placeholder), build(key));
+        return ImageUtils.createTransitionDrawable(resources.getDrawable(R.drawable.placeholder), build(key));
     }
 
     private GradientDrawable build(String key) {
         int[] colorIds = COLOR_COMBINATIONS[pickCombination(key)];
-        int[] colors = { mResources.getColor(colorIds[0]), mResources.getColor(colorIds[1]) };
+        int[] colors = {resources.getColor(colorIds[0]), resources.getColor(colorIds[1])};
         return new GradientDrawable(GradientDrawable.Orientation.TL_BR, colors);
     }
 
