@@ -15,8 +15,6 @@ import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.functions.Func1;
 
-import android.content.SyncResult;
-
 import javax.inject.Inject;
 
 public class PlaylistOperations {
