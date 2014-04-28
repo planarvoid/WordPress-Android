@@ -23,38 +23,38 @@ public class RemainingTimeCalculator {
     // need to keep some space for amplitude data etc which gets written after audio files
     public static final int KEEP_BLOCKS = 100;
 
-    private final File mSDCardDirectory;
+    private final File sdCardDirectory;
 
     // State for tracking file size of recording.
-    private File mEncodedFile;
+    private File encodedFile;
 
     // Rate at which the file grows
-    private final int mBytesPerSecond;
+    private final int bytesPerSecond;
 
     // An estimate of current bytes per second for the encoded file
-    private int mEncodedBytesPerSecond;
-    private long mEncodedBytesPerSecondTotal;
+    private int encodedBytesPerSecond;
+    private long encodedBytesPerSecondTotal;
 
-    private int mNumDatapoints;
+    private int numDatapoints;
 
     // time at which number of free blocks last changed
-    private long mBlocksChangedTime;
+    private long blocksChangedTime;
 
     // number of available blocks at that time
-    private long mLastBlocks;
+    private long lastBlocks;
 
     // time at which the size of the file has last changed
-    private long mFileSizeChangedTime;
+    private long fileSizeChangedTime;
 
     // size of the file at that time
-    private long mLastFileSize;
+    private long lastFileSize;
 
     /**
      * @param bytesPerSecond the estimated bps rate of the audio stream to be recorded
      */
     public RemainingTimeCalculator(int bytesPerSecond) {
-        mSDCardDirectory = Environment.getExternalStorageDirectory();
-        mBytesPerSecond = bytesPerSecond;
+        sdCardDirectory = Environment.getExternalStorageDirectory();
+        this.bytesPerSecond = bytesPerSecond;
     }
 
     /**
@@ -63,16 +63,16 @@ public class RemainingTimeCalculator {
      * @param file the file to watch
      */
     public void setEncodedFile(File file) {
-        mEncodedFile = file;
+        encodedFile = file;
     }
 
     /**
      * Resets the interpolation.
      */
     public void reset() {
-        mEncodedFile = null;
-        mBlocksChangedTime = mFileSizeChangedTime = -1;
-        mEncodedBytesPerSecondTotal = mEncodedBytesPerSecond = mNumDatapoints = 0;
+        encodedFile = null;
+        blocksChangedTime = fileSizeChangedTime = -1;
+        encodedBytesPerSecondTotal = encodedBytesPerSecond = numDatapoints = 0;
     }
 
     /**
@@ -84,14 +84,14 @@ public class RemainingTimeCalculator {
         }
 
         // Calculate how long we can record based on free disk space
-        StatFs fs = new StatFs(mSDCardDirectory.getAbsolutePath());
+        StatFs fs = new StatFs(sdCardDirectory.getAbsolutePath());
         final long blocks = Math.max(0, fs.getAvailableBlocks() - KEEP_BLOCKS);
         final long blockSize = fs.getBlockSize();
         final long now = System.currentTimeMillis();
 
-        if (mBlocksChangedTime == -1 || blocks != mLastBlocks) {
-            mBlocksChangedTime = now;
-            mLastBlocks = blocks;
+        if (blocksChangedTime == -1 || blocks != lastBlocks) {
+            blocksChangedTime = now;
+            lastBlocks = blocks;
         }
 
         /*
@@ -100,35 +100,35 @@ public class RemainingTimeCalculator {
          * might get nibbled when we close and flush the file, but we won't run
          * out of disk.
          */
-        if (mEncodedFile != null) {
+        if (encodedFile != null) {
             // If we have a recording file set, add an estimate of bytes per second
-            mEncodedFile = new File(mEncodedFile.getAbsolutePath());
-            long fileSize = mEncodedFile.length();
-            if (mFileSizeChangedTime == -1 || fileSize > mLastFileSize) {
+            encodedFile = new File(encodedFile.getAbsolutePath());
+            long fileSize = encodedFile.length();
+            if (fileSizeChangedTime == -1 || fileSize > lastFileSize) {
 
-                long growth = fileSize - mLastFileSize;
-                long timePassed = now - mFileSizeChangedTime;
-                mFileSizeChangedTime = now;
-                mLastFileSize = fileSize;
+                long growth = fileSize - lastFileSize;
+                long timePassed = now - fileSizeChangedTime;
+                fileSizeChangedTime = now;
+                lastFileSize = fileSize;
 
                 final int bps = (int) (growth / (timePassed / 1000d));
 
-                mEncodedBytesPerSecondTotal += bps;
-                mEncodedBytesPerSecond = (int) (mEncodedBytesPerSecondTotal / (double) ++mNumDatapoints);
+                encodedBytesPerSecondTotal += bps;
+                encodedBytesPerSecond = (int) (encodedBytesPerSecondTotal / (double) ++numDatapoints);
 
                 // moving average of last 5 values
-                if (mNumDatapoints % 5 == 0) {
-                    mEncodedBytesPerSecondTotal = 0;
-                    mNumDatapoints  = 0;
+                if (numDatapoints % 5 == 0) {
+                    encodedBytesPerSecondTotal = 0;
+                    numDatapoints = 0;
                 }
             }
         }
 
-        // at mBlocksChangedTime we had this much time
-        final long totalBytesPerSecond = mBytesPerSecond + mEncodedBytesPerSecond;
-        long result = (mLastBlocks * blockSize) / totalBytesPerSecond;
+        // at blocksChangedTime we had this much time
+        final long totalBytesPerSecond = bytesPerSecond + encodedBytesPerSecond;
+        long result = (lastBlocks * blockSize) / totalBytesPerSecond;
         // so now we have this much time
-        result -= (now - mBlocksChangedTime) / 1000;
+        result -= (now - blocksChangedTime) / 1000;
         return Math.max(0, result);
     }
 
@@ -137,7 +137,7 @@ public class RemainingTimeCalculator {
      */
     public boolean isDiskSpaceAvailable() {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            StatFs fs = new StatFs(mSDCardDirectory.getAbsolutePath());
+            StatFs fs = new StatFs(sdCardDirectory.getAbsolutePath());
             // keep some free block
             return fs.getAvailableBlocks() > KEEP_BLOCKS;
         } else {

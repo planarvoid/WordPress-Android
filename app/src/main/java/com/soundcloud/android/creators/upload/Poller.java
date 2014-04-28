@@ -25,11 +25,11 @@ public class Poller extends Handler {
     private static final long DEFAULT_MIN_TIME_BETWEEN_REQUESTS = 5000;
     private static final long DEFAULT_MAX_TRIES = 12; // timeout of ~10 minutes with exp. back-off
 
-    private PublicCloudAPI mApi;
-    private Request mRequest;
-    private Uri mNotifyUri;
+    private final PublicCloudAPI api;
+    private final Request request;
+    private final Uri notifyUri;
 
-    private long mMinDelayBetweenRequests;
+    private final long minDelayBetweenRequests;
 
     public Poller(Looper looper, PublicCloudAPI app, long trackId, Uri notifyUri) {
         this(looper, app, trackId, notifyUri, DEFAULT_MIN_TIME_BETWEEN_REQUESTS);
@@ -40,10 +40,10 @@ public class Poller extends Handler {
                   Uri notifyUri,
                   long delayBetweenRequests) {
         super(looper);
-        mApi = api;
-        mRequest = Request.to(Endpoints.TRACK_DETAILS, trackId);
-        mNotifyUri = notifyUri;
-        mMinDelayBetweenRequests = delayBetweenRequests;
+        this.api = api;
+        request = Request.to(Endpoints.TRACK_DETAILS, trackId);
+        this.notifyUri = notifyUri;
+        minDelayBetweenRequests = delayBetweenRequests;
     }
 
     public void start() {
@@ -56,14 +56,14 @@ public class Poller extends Handler {
         final int attempt = msg.what;
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "poll attempt "+(attempt+1));
         try {
-            track = mApi.read(mRequest);
+            track = api.read(request);
         } catch (IOException e) {
             Log.e(TAG, "error", e);
         }
 
         if ((track == null || track.isProcessing()) && attempt < DEFAULT_MAX_TRIES-1) {
             final long backoff = attempt * attempt * 1000;
-            sendEmptyMessageDelayed(attempt + 1, Math.max(backoff, mMinDelayBetweenRequests));
+            sendEmptyMessageDelayed(attempt + 1, Math.max(backoff, minDelayBetweenRequests));
         } else {
 
             if (track != null && track.isFinished()) {
@@ -95,7 +95,7 @@ public class Poller extends Handler {
         persistTrack(track);
 
         // this will tell any observers to update their UIs to the up to date track
-        if (mNotifyUri != null) resolver.notifyChange(mNotifyUri, null, false);
+        if (notifyUri != null) resolver.notifyChange(notifyUri, null, false);
 
         LocalBroadcastManager
                 .getInstance(SoundCloudApplication.instance)

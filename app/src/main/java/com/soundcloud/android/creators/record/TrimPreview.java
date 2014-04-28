@@ -7,9 +7,9 @@ public class TrimPreview {
     public static long PREVIEW_FADE_LENGTH  = 30; // ms
     public static int PREVIEW_FADE_EXP_CURVE = 10;
 
-    PlaybackStream mStream;
+    private final PlaybackStream stream;
     long startPos;
-    long endPos;
+    final long endPos;
     public long duration;
     public int playbackRate;
 
@@ -17,7 +17,7 @@ public class TrimPreview {
         this(stream,startPosition, endPosition, moveTime, SoundRecorder.MAX_PLAYBACK_RATE);
     }
     public TrimPreview(PlaybackStream stream, long startPosition, long endPosition, long moveTime, int maxPlaybackRate) {
-        mStream = stream;
+        this.stream = stream;
         startPos = startPosition;
         endPos = endPosition;
         duration = moveTime;
@@ -63,7 +63,7 @@ public class TrimPreview {
     @Override
     public String toString() {
         return "TrimPreview{" +
-                "mStream=" + mStream +
+                "stream=" + stream +
                 ", startPos=" + startPos +
                 ", endPos=" + endPos +
                 ", duration=" + duration +
@@ -80,7 +80,7 @@ public class TrimPreview {
                 AudioConfig.msToByte(
                         PREVIEW_FADE_LENGTH,
                         playbackRate,
-                        mStream.getConfig().sampleSize),
+                        stream.getConfig().sampleSize),
                 PREVIEW_FADE_EXP_CURVE
         );
     }

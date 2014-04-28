@@ -28,7 +28,7 @@ public enum AudioConfig {
 
     public static final AudioConfig DEFAULT = PCM16_44100_1;
 
-    private static AudioConfig sDetected;
+    private static AudioConfig detected;
 
     private AudioConfig(int bitsPerSample, int sampleRate, int channels) {
         if (bitsPerSample != 8 && bitsPerSample != 16) throw new IllegalArgumentException("invalid bitsPerSample:"+bitsPerSample);
@@ -157,19 +157,19 @@ public enum AudioConfig {
      * @return a working audio config, or {@link #DEFAULT} if not found
      */
     public static synchronized AudioConfig detect() {
-        if (sDetected == null) {
+        if (detected == null) {
             for (AudioConfig cfg : EnumSet.of(PCM16_44100_1, PCM16_22050_1, PCM16_16000_1, PCM16_8000_1)) {
                 if (cfg.isValid()) {
-                    sDetected = cfg;
+                    detected = cfg;
                     break;
                 }
             }
-            if (sDetected == null) {
+            if (detected == null) {
                 // this will likely fail later
                 Log.w("AudioConfig", "unable to detect valid audio config for this device");
-                sDetected = DEFAULT;
+                detected = DEFAULT;
             }
         }
-        return sDetected;
+        return detected;
     }
 }

@@ -55,11 +55,11 @@ public class WavHeader {
     /** Indicates ULAW format. */
     public static final short FORMAT_ULAW = 7;
 
-    private short mFormat;
-    private short mNumChannels;
-    private int mSampleRate;
-    private short mBitsPerSample;
-    private int mNumBytes;
+    private short format;
+    private short numChannels;
+    private int sampleRate;
+    private short bitsPerSample;
+    private int numBytes;
 
     private InputStream is;
 
@@ -102,11 +102,11 @@ public class WavHeader {
      * @param numBytes size of audio data after this header, in bytes.
      */
     public WavHeader(short format, short numChannels, int sampleRate, short bitsPerSample, int numBytes) {
-        mFormat = format;
-        mSampleRate = sampleRate;
-        mNumChannels = numChannels;
-        mBitsPerSample = bitsPerSample;
-        mNumBytes = numBytes;
+        this.format = format;
+        this.sampleRate = sampleRate;
+        this.numChannels = numChannels;
+        this.bitsPerSample = bitsPerSample;
+        this.numBytes = numBytes;
     }
 
     /**
@@ -115,7 +115,7 @@ public class WavHeader {
      * one of {@link #FORMAT_PCM}, {@link #FORMAT_ULAW}, or {@link #FORMAT_ALAW}.
      */
     public short getFormat() {
-        return mFormat;
+        return format;
     }
 
     /**
@@ -125,7 +125,7 @@ public class WavHeader {
      * @return reference to this WaveHeader instance.
      */
     public WavHeader setFormat(short format) {
-        mFormat = format;
+        this.format = format;
         return this;
     }
 
@@ -134,7 +134,7 @@ public class WavHeader {
      * @return number of channels, 1 for mono, 2 for stereo.
      */
     public short getNumChannels() {
-        return mNumChannels;
+        return numChannels;
     }
 
     /**
@@ -143,7 +143,7 @@ public class WavHeader {
      * @return reference to this WaveHeader instance.
      */
     public WavHeader setNumChannels(short numChannels) {
-        mNumChannels = numChannels;
+        this.numChannels = numChannels;
         return this;
     }
 
@@ -152,7 +152,7 @@ public class WavHeader {
      * @return sample rate, typically 8000, 11025, 16000, 22050, or 44100 hz.
      */
     public int getSampleRate() {
-        return mSampleRate;
+        return sampleRate;
     }
 
     /**
@@ -161,7 +161,7 @@ public class WavHeader {
      * @return reference to this WaveHeader instance.
      */
     public WavHeader setSampleRate(int sampleRate) {
-        mSampleRate = sampleRate;
+        this.sampleRate = sampleRate;
         return this;
     }
 
@@ -171,7 +171,7 @@ public class WavHeader {
      * usually 16 for PCM, 8 for ULAW or 8 for ALAW.
      */
     public final short getBitsPerSample() {
-        return mBitsPerSample;
+        return bitsPerSample;
     }
 
     public final int getBytesPerSample() {
@@ -185,7 +185,7 @@ public class WavHeader {
      * @return reference to this WaveHeader instance.
      */
     public WavHeader setBitsPerSample(short bitsPerSample) {
-        mBitsPerSample = bitsPerSample;
+        this.bitsPerSample = bitsPerSample;
         return this;
     }
 
@@ -194,7 +194,7 @@ public class WavHeader {
      * @return size of audio data after this header, in bytes.
      */
     public final int getNumBytes() {
-        return mNumBytes;
+        return numBytes;
     }
 
     /**
@@ -203,7 +203,7 @@ public class WavHeader {
      * @return reference to this WaveHeader instance.
      */
     public WavHeader setNumBytes(int numBytes) {
-        mNumBytes = numBytes;
+        this.numBytes = numBytes;
         return this;
     }
 
@@ -211,7 +211,7 @@ public class WavHeader {
      * @return the duration, in ms
      */
     public final long getDuration() {
-        return getAudioConfig().bytesToMs(mNumBytes);
+        return getAudioConfig().bytesToMs(numBytes);
     }
 
     /**
@@ -230,22 +230,22 @@ public class WavHeader {
         /* fmt chunk */
         readId(in, "fmt ");
         if (16 != readInt(in)) throw new IOException("fmt chunk length not 16");
-        mFormat = readShort(in);
-        mNumChannels = readShort(in);
-        mSampleRate = readInt(in);
+        format = readShort(in);
+        numChannels = readShort(in);
+        sampleRate = readInt(in);
         int byteRate = readInt(in);
         short blockAlign = readShort(in);
-        mBitsPerSample = readShort(in);
-        if (byteRate != mNumChannels * mSampleRate * getBytesPerSample()) {
+        bitsPerSample = readShort(in);
+        if (byteRate != numChannels * sampleRate * getBytesPerSample()) {
             throw new IOException("fmt.ByteRate field inconsistent");
         }
-        if (blockAlign != mNumChannels * getBytesPerSample()) {
+        if (blockAlign != numChannels * getBytesPerSample()) {
             throw new IOException("fmt.BlockAlign field inconsistent");
         }
 
         /* data chunk */
         readId(in, "data");
-        mNumBytes = readInt(in);
+        this.numBytes = readInt(in);
 
         return LENGTH;
     }
@@ -272,7 +272,7 @@ public class WavHeader {
         if (ms < 0) {
             return WavHeader.LENGTH;
         } else {
-            final long offset = Math.min(mNumBytes, getAudioConfig().msToByte(ms));
+            final long offset = Math.min(numBytes, getAudioConfig().msToByte(ms));
             return LENGTH + getAudioConfig().validBytePosition(offset);
          }
     }
@@ -286,22 +286,22 @@ public class WavHeader {
     public int write(OutputStream out) throws IOException {
         /* RIFF header */
         writeId(out, "RIFF");
-        writeInt(out, 36 + mNumBytes);
+        writeInt(out, 36 + numBytes);
         writeId(out, "WAVE");
 
         /* fmt chunk */
         writeId(out, "fmt ");
         writeInt(out, 16);
-        writeShort(out, mFormat);
-        writeShort(out, mNumChannels);
-        writeInt(out, mSampleRate);
-        writeInt(out, mNumChannels * mSampleRate * getBytesPerSample());
-        writeShort(out, (short)(mNumChannels * getBytesPerSample()));
-        writeShort(out, mBitsPerSample);
+        writeShort(out, format);
+        writeShort(out, numChannels);
+        writeInt(out, sampleRate);
+        writeInt(out, numChannels * sampleRate * getBytesPerSample());
+        writeShort(out, (short)(numChannels * getBytesPerSample()));
+        writeShort(out, bitsPerSample);
 
         /* data chunk */
         writeId(out, "data");
-        writeInt(out, mNumBytes);
+        writeInt(out, numBytes);
 
         return LENGTH;
     }
@@ -309,22 +309,22 @@ public class WavHeader {
     public int write(DataOutput out) throws IOException {
         /* RIFF header */
         out.writeBytes("RIFF");
-        out.writeInt(36 + mNumBytes);
+        out.writeInt(36 + numBytes);
         out.writeBytes("WAVE");
 
         /* fmt chunk */
         out.writeBytes("fmt ");
         out.writeInt(Integer.reverseBytes(16));
         out.writeShort(Short.reverseBytes((short) 1));
-        out.writeShort(Short.reverseBytes(mNumChannels));
-        out.writeInt(Integer.reverseBytes(mSampleRate));
-        out.writeInt(Integer.reverseBytes(mNumChannels * mSampleRate * getBytesPerSample()));
-        out.writeShort(Short.reverseBytes((short) (mNumChannels * getBytesPerSample())));
-        out.writeShort(Short.reverseBytes(mBitsPerSample));
+        out.writeShort(Short.reverseBytes(numChannels));
+        out.writeInt(Integer.reverseBytes(sampleRate));
+        out.writeInt(Integer.reverseBytes(numChannels * sampleRate * getBytesPerSample()));
+        out.writeShort(Short.reverseBytes((short) (numChannels * getBytesPerSample())));
+        out.writeShort(Short.reverseBytes(bitsPerSample));
 
         /* data chunk */
         out.writeBytes("data");
-        out.writeInt(mNumBytes);
+        out.writeInt(numBytes);
 
         return LENGTH;
     }
@@ -349,12 +349,12 @@ public class WavHeader {
     public String toString() {
         return String.format(Locale.ENGLISH,
                 "WaveHeader format=%d numChannels=%d sampleRate=%d bitsPerSample=%d numBytes=%d",
-                mFormat, mNumChannels, mSampleRate, mBitsPerSample, mNumBytes);
+                format, numChannels, sampleRate, bitsPerSample, numBytes);
     }
 
     public AudioConfig getAudioConfig() {
-        if (mFormat == FORMAT_PCM && mBitsPerSample == 16) {
-            return AudioConfig.findMatching(mSampleRate, mNumChannels);
+        if (format == FORMAT_PCM && bitsPerSample == 16) {
+            return AudioConfig.findMatching(sampleRate, numChannels);
         }
         throw new IllegalArgumentException("unknown audioformat: "+toString());
     }
@@ -370,19 +370,19 @@ public class WavHeader {
      */
     public AudioData getAudioData(long start, long end) throws IOException {
         InputStream stream = is;
-        long length = mNumBytes;
+        long length = numBytes;
 
         AudioConfig config = getAudioConfig();
         if (start > 0) {
-            final long offset = Math.min(mNumBytes, config.validBytePosition(config.msToByte(start)));
+            final long offset = Math.min(numBytes, config.validBytePosition(config.msToByte(start)));
             IOUtils.skipFully(is, offset);
             length -= offset;
         }
 
         if (end > 0) {
-            final long endPos = Math.min(mNumBytes, config.validBytePosition(config.msToByte(end)));
-            stream = new LimitInputStream(is, endPos - (mNumBytes - length));
-            length -= (mNumBytes - endPos);
+            final long endPos = Math.min(numBytes, config.validBytePosition(config.msToByte(end)));
+            stream = new LimitInputStream(is, endPos - (numBytes - length));
+            length -= (numBytes - endPos);
         }
         return new AudioData(stream, length);
     }

@@ -13,10 +13,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class ConnectionItemLayout extends RelativeLayout {
-    private CheckBox post_publish;
+    private final CheckBox postPublish;
     public final Connection connection;
 
-    public ConnectionItemLayout(Context context, final Connection c) {
+    public ConnectionItemLayout(Context context, final Connection connection) {
         super(context);
 
         LayoutInflater inflater = (LayoutInflater) context
@@ -24,34 +24,34 @@ public class ConnectionItemLayout extends RelativeLayout {
 
         inflater.inflate(R.layout.connection_list_item, this);
 
-        this.connection = c;
+        this.connection = connection;
 
         final TextView display_name = (TextView) findViewById(R.id.display_name);
-        display_name.setText(c.display_name);
+        display_name.setText(connection.display_name);
 
-        post_publish = (CheckBox) findViewById(R.id.post_publish);
+        postPublish = (CheckBox) findViewById(R.id.post_publish);
         TextView configure = (TextView) findViewById(R.id.txt_configure);
 
-        if (c.isActive()) {
-            post_publish.setChecked(c.post_publish);
-            post_publish.setVisibility(VISIBLE);
+        if (connection.isActive()) {
+            postPublish.setChecked(connection.post_publish);
+            postPublish.setVisibility(VISIBLE);
             configure.setVisibility(GONE);
         } else {
-            post_publish.setVisibility(INVISIBLE);
+            postPublish.setVisibility(INVISIBLE);
             configure.setVisibility(VISIBLE);
             display_name.setTextColor(getResources().getColor(R.color.darker_gray));
         }
 
 
         ImageView service_icon = (ImageView) findViewById(R.id.service_icon);
-        service_icon.setImageDrawable(getResources().getDrawable(c.service().resId));
+        service_icon.setImageDrawable(getResources().getDrawable(connection.service().resId));
 
         final OnClickListener toggle = new OnClickListener() {
             public void onClick(View v) {
-                if (c.isActive()) {
-                    post_publish.toggle();
+                if (connection.isActive()) {
+                    postPublish.toggle();
                 } else {
-                    configureService(c.service());
+                    configureService(connection.service());
                 }
             }
         };
@@ -72,6 +72,6 @@ public class ConnectionItemLayout extends RelativeLayout {
     }
 
     public boolean isEnabled() {
-        return post_publish.isChecked();
+        return postPublish.isChecked();
     }
 }

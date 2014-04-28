@@ -19,13 +19,13 @@ import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 
 public class RecordStream  {
-    private @NotNull final AudioConfig mConfig;
+    private @NotNull final AudioConfig config;
     private @NotNull AudioWriter writer;
-    private @NotNull AmplitudeData mAmplitudeData;
-    private @NotNull final AmplitudeData mPreRecordAmplitudeData;
-    private @NotNull final AmplitudeAnalyzer mAmplitudeAnalyzer;
-    private float mLastAmplitude;
-    private boolean mWasTruncated, mWasFinalized;
+    private @NotNull AmplitudeData amplitudeData;
+    private @NotNull final AmplitudeData preRecordAmplitudeData;
+    private @NotNull final AmplitudeAnalyzer amplitudeAnalyzer;
+    private float lastAmplitude;
+    private boolean wasFinalized;
 
     public interface onAmplitudeGenerationListener {
         void onGenerationFinished(boolean success);
@@ -36,11 +36,11 @@ public class RecordStream  {
      */
     public RecordStream(AudioConfig cfg) {
         if (cfg == null) throw new IllegalArgumentException("config is null");
-        mConfig = cfg;
-        mAmplitudeAnalyzer = new NativeAmplitudeAnalyzer(cfg);
+        config = cfg;
+        amplitudeAnalyzer = new NativeAmplitudeAnalyzer(cfg);
 
-        mAmplitudeData = new AmplitudeData();
-        mPreRecordAmplitudeData = new AmplitudeData();
+        amplitudeData = new AmplitudeData();
+        preRecordAmplitudeData = new AmplitudeData();
         writer = new EmptyWriter(cfg);
     }
 
@@ -56,7 +56,7 @@ public class RecordStream  {
         setWriters(raw, encoded);
         try {
             if (amplitudeFile != null && amplitudeFile.exists()){
-                mAmplitudeData = AmplitudeData.fromFile(amplitudeFile);
+                amplitudeData = AmplitudeData.fromFile(amplitudeFile);
             } else {
                 Log.d(SoundRecorder.TAG, "Amplitude file not found at " + (amplitudeFile == null ? "<null>" : amplitudeFile.getPath()));
             }
@@ -77,7 +77,7 @@ public class RecordStream  {
                         SoundCloudApplication.instance.getResources().getDisplayMetrics().density) * playDuration)
                 * .95); // 5 percent tolerance
 
-        int delta = (int) ((requiredSize / 1000d) -  mAmplitudeData.size());
+        int delta = (int) ((requiredSize / 1000d) -  amplitudeData.size());
 
         return Math.abs(delta) <= 5;
     }
@@ -98,26 +98,26 @@ public class RecordStream  {
 
         try {
             final long start = System.currentTimeMillis();
-            mAmplitudeData = new AmplitudeData();
-            final int bufferSize = mConfig.getvalidBufferSizeForValueRate((int) (SoundRecorder.PIXELS_PER_SECOND * SoundCloudApplication.instance.getResources().getDisplayMetrics().density));
+            amplitudeData = new AmplitudeData();
+            final int bufferSize = config.getvalidBufferSizeForValueRate((int) (SoundRecorder.PIXELS_PER_SECOND * SoundCloudApplication.instance.getResources().getDisplayMetrics().density));
             ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bufferSize);
 
             final PlaybackStream playbackStream = new PlaybackStream(getAudioReader());
             playbackStream.initializePlayback();
             int n;
             while ((n = playbackStream.readForPlayback(buffer, bufferSize)) > -1) {
-                mAmplitudeData.add(mAmplitudeAnalyzer.frameAmplitude(buffer, n));
+                amplitudeData.add(amplitudeAnalyzer.frameAmplitude(buffer, n));
                 buffer.clear();
             }
             playbackStream.close();
 
-            if (outFile != null) mAmplitudeData.store(outFile);
+            if (outFile != null) amplitudeData.store(outFile);
             Log.d(SoundRecorder.TAG, "Amplitude file regenerated in " + (System.currentTimeMillis() - start) + " milliseconds");
             onAmplitudeGenerationListener listener2 = listenerWeakReference.get();
             if (listener2 != null) listener2.onGenerationFinished(true);
 
         } catch (IOException e) {
-            mAmplitudeData = new AmplitudeData();
+            amplitudeData = new AmplitudeData();
             Log.w(SoundRecorder.TAG, "error regenerating amplitude data", e);
             onAmplitudeGenerationListener listener2 = listenerWeakReference.get();
             if (listener2 != null) listener2.onGenerationFinished(false);
@@ -131,25 +131,25 @@ public class RecordStream  {
     public final void setWriters(@Nullable File raw, @Nullable File encoded) {
         AudioWriter w;
 
-        if (raw == null && encoded == null)      w = new EmptyWriter(mConfig);
-        else if (encoded != null && raw == null) w = new VorbisWriter(encoded, mConfig);
-        else if (encoded == null) w = new WavWriter(raw, mConfig);
-        else w = new MultiAudioWriter(new VorbisWriter(encoded, mConfig), new WavWriter(raw, mConfig));
+        if (raw == null && encoded == null)      w = new EmptyWriter(config);
+        else if (encoded != null && raw == null) w = new VorbisWriter(encoded, config);
+        else if (encoded == null) w = new WavWriter(raw, config);
+        else w = new MultiAudioWriter(new VorbisWriter(encoded, config), new WavWriter(raw, config));
         setWriter(w);
     }
 
     public int write(ByteBuffer samples, int length) throws IOException {
         samples.limit(length);
-        mLastAmplitude = mAmplitudeAnalyzer.frameAmplitude(samples, length);
+        lastAmplitude = amplitudeAnalyzer.frameAmplitude(samples, length);
         if (writer instanceof EmptyWriter) {
-            mPreRecordAmplitudeData.add(mLastAmplitude);
+            preRecordAmplitudeData.add(lastAmplitude);
             return -1;
         } else {
-            mAmplitudeData.add(mLastAmplitude);
-            if (mWasFinalized) {
+            amplitudeData.add(lastAmplitude);
+            if (wasFinalized) {
                 // apply short fade at the beginning of new recording session
                 new FadeFilter(FadeFilter.FADE_TYPE_BEGINNING, length).apply(samples, 0, length);
-                mWasFinalized = false;
+                wasFinalized = false;
             }
             return writer.write(samples, length);
         }
@@ -164,31 +164,31 @@ public class RecordStream  {
     }
 
     public AmplitudeData getAmplitudeData() {
-        return mAmplitudeData;
+        return amplitudeData;
     }
 
     public AmplitudeData getPreRecordAmplitudeData() {
-        return mPreRecordAmplitudeData;
+        return preRecordAmplitudeData;
     }
 
     public boolean truncate(long pos, int valuesPerSecond) throws IOException {
-        mAmplitudeData.truncate((int) ((pos / 1000d) * valuesPerSecond));
+        amplitudeData.truncate((int) ((pos / 1000d) * valuesPerSecond));
         return writer.setNewPosition(pos);
     }
 
     public void finalizeStream(File amplitudeFile) throws IOException {
         writeFadeOut(100);
-        mWasFinalized = true;
+        wasFinalized = true;
         writer.finalizeStream();
         if (amplitudeFile != null) {
-            mAmplitudeData.store(amplitudeFile);
+            amplitudeData.store(amplitudeFile);
         }
     }
 
     private void writeFadeOut(long msecs) throws IOException {
-        double last = mAmplitudeAnalyzer.getLastValue();
+        double last = amplitudeAnalyzer.getLastValue();
         if (last != 0) {
-            int bytesToWrite = (int) mConfig.msToByte(msecs);
+            int bytesToWrite = (int) config.msToByte(msecs);
             ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bytesToWrite + 2);
             final double slope = last / (bytesToWrite / 2);
             for (int i = 0; i< bytesToWrite; i+= 2) {
@@ -206,14 +206,14 @@ public class RecordStream  {
             writer.close();
         } catch (IOException ignored) {
         }
-        writer = new EmptyWriter(mConfig);
-        mAmplitudeData.clear();
-        mPreRecordAmplitudeData.clear();
-        mLastAmplitude = 0f;
+        writer = new EmptyWriter(config);
+        amplitudeData.clear();
+        preRecordAmplitudeData.clear();
+        lastAmplitude = 0f;
     }
 
     public float getLastAmplitude() {
-        return mLastAmplitude;
+        return lastAmplitude;
     }
 
 }

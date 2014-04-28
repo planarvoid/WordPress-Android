@@ -22,27 +22,27 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class Encoder extends BroadcastReceiver implements Runnable, ProgressListener {
-    private final Recording mRecording;
-    private LocalBroadcastManager mBroadcastManager;
-    private volatile boolean mCancelled;
-    private long mLastProgressSent;
+    private final Recording recording;
+    private final LocalBroadcastManager broadcastManager;
+    private volatile boolean cancelled;
+    private long lastProgressSent;
 
     public Encoder(Context context, Recording recording) {
-        mRecording = recording;
-        mBroadcastManager = LocalBroadcastManager.getInstance(context);
-        mBroadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
+        this.recording = recording;
+        broadcastManager = LocalBroadcastManager.getInstance(context);
+        broadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
     }
 
     @Override
     public void run() {
-        Log.d(TAG, "Encoder.run(" + mRecording + ")");
+        Log.d(TAG, "Encoder.run(" + recording + ")");
 
-        final File wav  = mRecording.getFile();
-        final File ogg  = mRecording.getEncodedFile();
+        final File wav  = recording.getFile();
+        final File ogg  = recording.getEncodedFile();
 
         File tmp = null;
         try {
-            PlaybackStream stream = mRecording.getPlaybackStream();
+            PlaybackStream stream = recording.getPlaybackStream();
             if (stream == null) throw new IOException("No playbackstream available");
             final File in;
             if (wav.exists()) {
@@ -54,7 +54,7 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
             }
 
             final File out = stream.isFiltered() ?
-                    mRecording.getProcessedFile() : mRecording.getEncodedFile();
+                    recording.getProcessedFile() : recording.getEncodedFile();
 
             EncoderOptions options = new EncoderOptions(EncoderOptions.DEFAULT.quality,
                     stream.getStartPos(),
@@ -63,7 +63,7 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
                     stream.getPlaybackFilter());
 
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "encoding from source " + in.getAbsolutePath());
-            tmp = File.createTempFile("encoder-" + mRecording.getId(), ".ogg", out.getParentFile());
+            tmp = File.createTempFile("encoder-" + recording.getId(), ".ogg", out.getParentFile());
             broadcast(UploadService.PROCESSING_STARTED);
             long now = System.currentTimeMillis();
             VorbisEncoder.encodeFile(in, tmp, options);
@@ -94,19 +94,19 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
     @Override
     public void onReceive(Context context, Intent intent) {
         Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
-        if (mRecording.equals(recording)) {
+        if (this.recording.equals(recording)) {
             Log.d(TAG, "canceling encoding of " + recording);
             cancel();
         }
     }
 
     private void cancel() {
-        mCancelled = true;
+        cancelled = true;
     }
 
     private void broadcast(String action) {
-        mBroadcastManager.sendBroadcast(new Intent(action)
-                .putExtra(UploadService.EXTRA_RECORDING, mRecording));
+        broadcastManager.sendBroadcast(new Intent(action)
+                .putExtra(UploadService.EXTRA_RECORDING, recording));
     }
 
     @Override
@@ -114,15 +114,15 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Encoder#onProgress(" + current + ", " + max + ")");
         }
-        if (mCancelled) throw new UserCanceledException();
+        if (cancelled) throw new UserCanceledException();
 
-        if (mLastProgressSent == 0 || System.currentTimeMillis() - mLastProgressSent > 1000) {
+        if (lastProgressSent == 0 || System.currentTimeMillis() - lastProgressSent > 1000) {
             final int percent = (int) Math.min(100, Math.round(100 * (current / (double) max)));
-            mBroadcastManager.sendBroadcast(new Intent(UploadService.PROCESSING_PROGRESS)
-                    .putExtra(UploadService.EXTRA_RECORDING, mRecording)
+            broadcastManager.sendBroadcast(new Intent(UploadService.PROCESSING_PROGRESS)
+                    .putExtra(UploadService.EXTRA_RECORDING, recording)
                     .putExtra(UploadService.EXTRA_PROGRESS, percent));
 
-            mLastProgressSent = System.currentTimeMillis();
+            lastProgressSent = System.currentTimeMillis();
         }
     }
 }

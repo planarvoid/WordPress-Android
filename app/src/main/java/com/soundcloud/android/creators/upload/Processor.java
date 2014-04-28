@@ -14,30 +14,30 @@ import android.util.Log;
 import java.io.File;
 
 public class Processor implements Runnable {
-    private final Recording mRecording;
-    private LocalBroadcastManager mBroadcastManager;
+    private final Recording recording;
+    private final LocalBroadcastManager broadcastManager;
 
 
     public Processor(Context context, Recording recording) {
-        mRecording = recording;
-        mBroadcastManager = LocalBroadcastManager.getInstance(context);
+        this.recording = recording;
+        broadcastManager = LocalBroadcastManager.getInstance(context);
     }
 
     @Override
     public void run() {
 
-        File encoded = mRecording.getEncodedFile();
-        File processFile = mRecording.getProcessedFile();
+        File encoded = recording.getEncodedFile();
+        File processFile = recording.getProcessedFile();
 
-        long start = mRecording.getPlaybackStream().getStartPos();
-        long end   = mRecording.getPlaybackStream().getEndPos();
+        long start = recording.getPlaybackStream().getStartPos();
+        long end   = recording.getPlaybackStream().getEndPos();
 
-        Log.d(TAG, String.format("Processor.run(%s, start=%d, end=%d)", mRecording, start, end));
+        Log.d(TAG, String.format("Processor.run(%s, start=%d, end=%d)", recording, start, end));
 
         if (start > 0 || end != -1) {
             try {
                 broadcast(UploadService.PROCESSING_STARTED);
-                VorbisEncoder.extract(mRecording.getEncodedFile(), processFile, start / 1000d, end / 1000d);
+                VorbisEncoder.extract(recording.getEncodedFile(), processFile, start / 1000d, end / 1000d);
                 broadcast(UploadService.PROCESSING_SUCCESS);
             } catch (EncoderException e) {
                 Log.w(TAG, "error processing "+encoded, e);
@@ -50,7 +50,7 @@ public class Processor implements Runnable {
     }
 
     private void broadcast(String action) {
-        mBroadcastManager.sendBroadcast(new Intent(action)
-                .putExtra(UploadService.EXTRA_RECORDING, mRecording));
+        broadcastManager.sendBroadcast(new Intent(action)
+                .putExtra(UploadService.EXTRA_RECORDING, recording));
     }
 }

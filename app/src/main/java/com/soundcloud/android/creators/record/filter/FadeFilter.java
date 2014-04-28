@@ -17,9 +17,9 @@ public class FadeFilter implements PlaybackFilter {
     private static final int FADE_LENGTH_MS = 1000;
     private static final int FADE_EXP_CURVE = 2;
 
-    private final long mFadeSize;
-    private final int mFadeType;
-    private final int mFadeExpCurve;
+    private final long fadeSize;
+    private final int fadeType;
+    private final int fadeExpCurve;
 
     public FadeFilter(AudioConfig config) {
         this(config, FADE_TYPE_BOTH);
@@ -34,22 +34,22 @@ public class FadeFilter implements PlaybackFilter {
     }
 
     public FadeFilter(int fadeType, long fadeSizeInBytes, int fadeExpCurve) {
-        mFadeSize = fadeSizeInBytes;
-        mFadeType = fadeType;
-        mFadeExpCurve = fadeExpCurve;
+        fadeSize = fadeSizeInBytes;
+        this.fadeType = fadeType;
+        this.fadeExpCurve = fadeExpCurve;
     }
 
     @Override
     public ByteBuffer apply(ByteBuffer buffer, long position, long length) {
         final int remaining = (int) Math.min(length - position, buffer.remaining());
-        if (position < mFadeSize && (mFadeType == FADE_TYPE_BEGINNING || mFadeType == FADE_TYPE_BOTH)) {
-            final int count = (int) Math.min(remaining, mFadeSize - position);
+        if (position < fadeSize && (fadeType == FADE_TYPE_BEGINNING || fadeType == FADE_TYPE_BOTH)) {
+            final int count = (int) Math.min(remaining, fadeSize - position);
             applyVolumeChangeToBuffer(buffer, position, 0, count, 0, false);
         }
 
-        final long fadeOutIdx = length - mFadeSize;
+        final long fadeOutIdx = length - fadeSize;
 
-        if (position + buffer.remaining() > fadeOutIdx && (mFadeType == FADE_TYPE_END || mFadeType == FADE_TYPE_BOTH)) {
+        if (position + buffer.remaining() > fadeOutIdx && (fadeType == FADE_TYPE_END || fadeType == FADE_TYPE_BOTH)) {
             int start = (int) (position >= fadeOutIdx ? 0 : fadeOutIdx - position);
             applyVolumeChangeToBuffer(buffer, position, start, remaining - start, fadeOutIdx, true);
         }
@@ -68,8 +68,8 @@ public class FadeFilter implements PlaybackFilter {
     private void applyVolumeChangeToBuffer(ByteBuffer buffer, long position, int start, int count, long fadeOffset, boolean invert) {
         start = Math.max(0, start - (start % 2)); //validate short
         for (int i = start; i < start + count; i += 2) {
-            final double x = (position + i - fadeOffset) / ((double) mFadeSize);
-            final double v = Math.pow(x, mFadeExpCurve);
+            final double x = (position + i - fadeOffset) / ((double) fadeSize);
+            final double v = Math.pow(x, fadeExpCurve);
             final short orig = buffer.getShort(i);
             final short faded = (short) (orig * (invert ? 1 - v : v));
             buffer.putShort(i, faded);
@@ -83,9 +83,9 @@ public class FadeFilter implements PlaybackFilter {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(mFadeType);
-        dest.writeLong(mFadeSize);
-        dest.writeInt(mFadeExpCurve);
+        dest.writeInt(fadeType);
+        dest.writeLong(fadeSize);
+        dest.writeInt(fadeExpCurve);
     }
 
     public static final Parcelable.Creator<FadeFilter> CREATOR = new Parcelable.Creator<FadeFilter>() {
@@ -101,9 +101,9 @@ public class FadeFilter implements PlaybackFilter {
     @Override
     public String toString() {
         return "FadeFilter{" +
-                "mFadeSize=" + mFadeSize +
-                ", mFadeType=" + mFadeType +
-                ", mFadeExpCurve=" + mFadeExpCurve +
+                "fadeSize=" + fadeSize +
+                ", fadeType=" + fadeType +
+                ", fadeExpCurve=" + fadeExpCurve +
                 '}';
     }
 }

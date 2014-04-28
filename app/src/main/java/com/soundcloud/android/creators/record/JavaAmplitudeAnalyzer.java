@@ -9,10 +9,9 @@ public class JavaAmplitudeAnalyzer implements AmplitudeAnalyzer {
 
     private final AudioConfig config;
 
-    private int mLastMax;
-    private int mLastValue;
-    private int mCurrentAdjustedMaxAmplitude;
-
+    private int lastMax;
+    private int lastValue;
+    private int currentAdjustedMaxAmplitude;
 
     public JavaAmplitudeAnalyzer(AudioConfig config) {
         this.config = config;
@@ -21,31 +20,31 @@ public class JavaAmplitudeAnalyzer implements AmplitudeAnalyzer {
     public float frameAmplitude(ByteBuffer buffer, int length) {
         int max = getMax(buffer, length);
 
-        mLastValue = buffer.getShort(length-2);
+        lastValue = buffer.getShort(length-2);
 
         // max amplitude returns false 0's sometimes, so just
         // use the last value. It is usually only for a frame
         if (max == 0) {
-            max = mLastMax;
+            max = lastMax;
         } else {
-            mLastMax = max;
+            lastMax = max;
         }
 
         // Simple peak follower, cf. http://www.musicdsp.org/showone.php?id=19
-        if (max >= mCurrentAdjustedMaxAmplitude) {
+        if (max >= currentAdjustedMaxAmplitude) {
             /* When we hit a peak, ride the peak to the top. */
-            mCurrentAdjustedMaxAmplitude = max;
+            currentAdjustedMaxAmplitude = max;
         } else {
             /*  decay of output when signal is low. */
-            mCurrentAdjustedMaxAmplitude *= 0.6;
+            currentAdjustedMaxAmplitude *= 0.6;
         }
 
         return Math.max(.1f,
-                ((float) FloatMath.sqrt(FloatMath.sqrt(mCurrentAdjustedMaxAmplitude))) / MAX_ADJUSTED_AMPLITUDE);
+                ((float) FloatMath.sqrt(FloatMath.sqrt(currentAdjustedMaxAmplitude))) / MAX_ADJUSTED_AMPLITUDE);
     }
 
     public int getLastValue() {
-        return mLastValue;
+        return lastValue;
     }
 
     private int getMax(ByteBuffer buffer, int length) {

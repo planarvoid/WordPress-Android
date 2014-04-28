@@ -13,11 +13,11 @@ import android.util.Log;
  * example after a service crash.
  */
 public class StuckUploadCheck implements Runnable {
-    public StuckUploadCheck(Context context) {
-        this.mContext = context;
-    }
+    private final Context context;
 
-    private Context mContext;
+    public StuckUploadCheck(Context context) {
+        this.context = context;
+    }
 
     @Override
     public void run() {
@@ -25,7 +25,7 @@ public class StuckUploadCheck implements Runnable {
 
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Recordings.UPLOAD_STATUS, Recording.Status.NOT_YET_UPLOADED);
-        final int changed = mContext.getContentResolver().update(
+        final int changed = context.getContentResolver().update(
                 Content.RECORDINGS.uri,
                 cv,
                 "upload_status = ?",

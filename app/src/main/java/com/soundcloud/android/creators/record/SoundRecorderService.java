@@ -32,23 +32,34 @@ public class SoundRecorderService extends Service  {
     private static final String TAG = SoundRecorderService.class.getSimpleName();
 
     // recorder/player
-    private SoundRecorder mRecorder;
+    private SoundRecorder recorder;
 
     // state
-    private int mServiceStartId = -1;
+    private int serviceStartId = -1;
 
     // notifications
-    private PendingIntent mRecordPendingIntent;
-    private NotificationManager nm;
-    private Notification mRecordNotification;
+    private PendingIntent recordPendingIntent;
+    private NotificationManager notificationManager;
+    private Notification recordNotification;
 
-    private LocalBroadcastManager mBroadcastManager;
+    private LocalBroadcastManager broadcastManager;
     private static final int IDLE_DELAY = 30*1000;  // interval after which we stop the service when idle
 
-    private long mLastNotifiedTime;
+    private long lastNotifiedTime;
 
-    private WakeLock mWakeLock;
-    private final IBinder mBinder = new LocalBinder<SoundRecorderService>() {
+    private WakeLock wakeLock;
+
+    private final Handler delayedStopHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (!recorder.isActive()) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "DelayedStopHandler: stopping service");
+                stopSelf(serviceStartId);
+            }
+        }
+    };
+
+    private final IBinder binder = new LocalBinder<SoundRecorderService>() {
         @Override public SoundRecorderService getService() {
             return SoundRecorderService.this;
         }
@@ -56,13 +67,13 @@ public class SoundRecorderService extends Service  {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return mBinder;
+        return binder;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mServiceStartId = startId;
-        mDelayedStopHandler.removeCallbacksAndMessages(null);
+        serviceStartId = startId;
+        delayedStopHandler.removeCallbacksAndMessages(null);
 
         // make sure the service will shut down on its own if it was
         // just started but not bound to and nothing is playing
@@ -70,29 +81,19 @@ public class SoundRecorderService extends Service  {
         return START_STICKY;
     }
 
-    private final Handler mDelayedStopHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (!mRecorder.isActive()) {
-                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "DelayedStopHandler: stopping service");
-                stopSelf(mServiceStartId);
-            }
-        }
-    };
-
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "create service started");
 
-        mRecorder = SoundRecorder.getInstance(this);
+        recorder = SoundRecorder.getInstance(this);
 
-        nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        PowerManager mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, TAG);
-        mRecorder = SoundRecorder.getInstance(this);
-        mBroadcastManager = LocalBroadcastManager.getInstance(this);
-        mBroadcastManager.registerReceiver(receiver, SoundRecorder.getIntentFilter());
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, TAG);
+        recorder = SoundRecorder.getInstance(this);
+        broadcastManager = LocalBroadcastManager.getInstance(this);
+        broadcastManager.registerReceiver(receiver, SoundRecorder.getIntentFilter());
 
         // If the service was idle, but got killed before it stopped itself, the
         // system will relaunch it. Make sure it gets stopped again in that case.
@@ -103,20 +104,20 @@ public class SoundRecorderService extends Service  {
     public void onDestroy() {
         super.onDestroy();
 
-        mBroadcastManager.unregisterReceiver(receiver);
+        broadcastManager.unregisterReceiver(receiver);
         gotoIdleState(RECORD_NOTIFY_ID);
         gotoIdleState(PLAYBACK_NOTIFY_ID);
 
         releaseWakeLock();
-        mWakeLock = null;
+        wakeLock = null;
     }
 
     private void scheduleServiceShutdownCheck() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "scheduleServiceShutdownCheck()");
         }
-        mDelayedStopHandler.removeCallbacksAndMessages(null);
-        mDelayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
+        delayedStopHandler.removeCallbacksAndMessages(null);
+        delayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
     }
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -129,7 +130,7 @@ public class SoundRecorderService extends Service  {
 
             if (SoundRecorder.PLAYBACK_STARTED.equals(action)) {
                 if (intent.getBooleanExtra(SoundRecorder.EXTRA_SHOULD_NOTIFY, true)){
-                    sendPlayingNotification(mRecorder.getRecording());
+                    sendPlayingNotification(recorder.getRecording());
                 }
 
             } else if (SoundRecorder.PLAYBACK_STOPPED.equals(action) ||
@@ -140,14 +141,14 @@ public class SoundRecorderService extends Service  {
             } else if (SoundRecorder.RECORD_STARTED.equals(action)) {
                 acquireWakeLock();
                 if (intent.getBooleanExtra(SoundRecorder.EXTRA_SHOULD_NOTIFY, true)){
-                    sendRecordingNotification(mRecorder.getRecording());
+                    sendRecordingNotification(recorder.getRecording());
                 }
 
             } else if (SoundRecorder.RECORD_PROGRESS.equals(action)) {
                 final long time = intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l) / 1000;
-                if (!ScTextUtils.usesSameTimeElapsedString(mLastNotifiedTime,time) && mRecordNotification != null){
-                    mLastNotifiedTime = time;
-                    updateRecordTicker(mRecordNotification, time);
+                if (!ScTextUtils.usesSameTimeElapsedString(lastNotifiedTime,time) && recordNotification != null){
+                    lastNotifiedTime = time;
+                    updateRecordTicker(recordNotification, time);
                 }
 
             } else if (SoundRecorder.RECORD_FINISHED.equals(action)) {
@@ -158,13 +159,13 @@ public class SoundRecorderService extends Service  {
 
             } else if (SoundRecorder.NOTIFICATION_STATE.equals(action)) {
                 if (intent.getBooleanExtra(SoundRecorder.EXTRA_SHOULD_NOTIFY, true)){
-                    if (mRecorder.isRecording()) {
-                        sendRecordingNotification(mRecorder.getRecording());
-                    } else if (mRecorder.isPlaying()) {
-                        sendPlayingNotification(mRecorder.getRecording());
+                    if (recorder.isRecording()) {
+                        sendRecordingNotification(recorder.getRecording());
+                    } else if (recorder.isPlaying()) {
+                        sendPlayingNotification(recorder.getRecording());
                     }
                 } else {
-                    mLastNotifiedTime = -1;
+                    lastNotifiedTime = -1;
                     killNotification(PLAYBACK_NOTIFY_ID);
                     killNotification(RECORD_NOTIFY_ID);
                 }
@@ -176,24 +177,24 @@ public class SoundRecorderService extends Service  {
     private void gotoIdleState(int cancelNotificationId) {
         killNotification(cancelNotificationId);
         scheduleServiceShutdownCheck();
-        if (!mRecorder.isActive()) stopForeground(true);
+        if (!recorder.isActive()) stopForeground(true);
     }
 
     private void killNotification(int id) {
         if (id == RECORD_NOTIFY_ID) {
-            mRecordNotification = null;
+            recordNotification = null;
         }
-        nm.cancel(id);
+        notificationManager.cancel(id);
     }
 
     private Notification createRecordingNotification(Recording recording) {
-        mRecordPendingIntent = PendingIntent.getActivity(this, 0, recording.getViewIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
-        mRecordNotification = createOngoingNotification(this, mRecordPendingIntent);
-        mRecordNotification.setLatestEventInfo(this, getString(R.string.cloud_recorder_event_title),
+        recordPendingIntent = PendingIntent.getActivity(this, 0, recording.getViewIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
+        recordNotification = createOngoingNotification(this, recordPendingIntent);
+        recordNotification.setLatestEventInfo(this, getString(R.string.cloud_recorder_event_title),
                 getString(R.string.cloud_recorder_event_message, 0),
-                mRecordPendingIntent);
+                recordPendingIntent);
 
-        return mRecordNotification;
+        return recordNotification;
     }
 
     private void sendRecordingNotification(Recording recording) {
@@ -233,8 +234,8 @@ public class SoundRecorderService extends Service  {
         notification.setLatestEventInfo(this,
                 getString(R.string.cloud_recorder_event_title),
                 getString(R.string.cloud_recorder_event_message, ScTextUtils.getTimeString(getResources(),recordTime, false)),
-                mRecordPendingIntent);
-        nm.notify(RECORD_NOTIFY_ID, notification);
+                recordPendingIntent);
+        notificationManager.notify(RECORD_NOTIFY_ID, notification);
     }
 
     public static Notification createOngoingNotification(Context context, PendingIntent pendingIntent) {
@@ -246,14 +247,14 @@ public class SoundRecorderService extends Service  {
     }
 
     private void acquireWakeLock() {
-        if (mWakeLock != null && !mWakeLock.isHeld()) {
-            mWakeLock.acquire();
+        if (wakeLock != null && !wakeLock.isHeld()) {
+            wakeLock.acquire();
         }
     }
 
     private void releaseWakeLock() {
-        if (mWakeLock != null && mWakeLock.isHeld()) {
-            mWakeLock.release();
+        if (wakeLock != null && wakeLock.isHeld()) {
+            wakeLock.release();
         }
     }
 }

@@ -19,13 +19,13 @@ public class RecordAppWidgetProvider extends AppWidgetProvider {
             new ComponentName("com.soundcloud.android",
                     "com.soundcloud.android.service.record.RecordAppWidgetProvider");
 
-    private static RecordAppWidgetProvider sInstance;
+    private static RecordAppWidgetProvider instance;
 
     public static synchronized RecordAppWidgetProvider getInstance() {
-        if (sInstance == null) {
-            sInstance = new RecordAppWidgetProvider();
+        if (instance == null) {
+            instance = new RecordAppWidgetProvider();
         }
-        return sInstance;
+        return instance;
     }
 
 

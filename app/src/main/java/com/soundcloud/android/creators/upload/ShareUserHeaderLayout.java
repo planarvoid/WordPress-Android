@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 public class ShareUserHeaderLayout extends RelativeLayout {
 
-    public ShareUserHeaderLayout(final ScActivity activity, User user, ImageOperations mImageOperations) {
+    public ShareUserHeaderLayout(final ScActivity activity, User user, ImageOperations imageOperations) {
         super(activity);
         View.inflate(getContext(), R.layout.share_user_header, this);
 
@@ -33,7 +33,7 @@ public class ShareUserHeaderLayout extends RelativeLayout {
 
         if (user.shouldLoadIcon()) {
             final ImageView icon = (ImageView) findViewById(R.id.icon);
-            mImageOperations.displayWithPlaceholder(user.getUrn(), ImageSize.LARGE, icon);
+            imageOperations.displayWithPlaceholder(user.getUrn(), ImageSize.LARGE, icon);
         }
     }
 

@@ -20,7 +20,7 @@ public class WavWriter implements AudioWriter {
     public final File file;
     public final AudioConfig config;
 
-    private @Nullable RandomAccessFile mWriter;
+    private @Nullable RandomAccessFile writer;
 
     public WavWriter(File file, AudioConfig config) {
         this.file = file;
@@ -47,20 +47,20 @@ public class WavWriter implements AudioWriter {
     }
 
     public int write(ByteBuffer samples, int length) throws IOException {
-        if (mWriter == null) {
+        if (writer == null) {
             // initialize writer lazily so this can be offloaded easily to a thread
-            mWriter = initializeWriter();
+            writer = initializeWriter();
         }
-        return mWriter.getChannel().write(samples);
+        return writer.getChannel().write(samples);
     }
 
     public void finalizeStream() throws IOException {
-        if (mWriter != null) {
-            final long fileLength = mWriter.length();
+        if (writer != null) {
+            final long fileLength = writer.length();
             Log.d(TAG, "finalising recording file (length=" + fileLength + ")");
-            WavHeader.fixLength(mWriter);
-            mWriter.close();
-            mWriter = null;
+            WavHeader.fixLength(writer);
+            writer.close();
+            writer = null;
         }
     }
 
@@ -69,15 +69,15 @@ public class WavWriter implements AudioWriter {
         // truncate file to new length
         if (pos >= 0) {
             long newPos = config.msToByte(pos) + WavHeader.LENGTH;
-            if (mWriter == null) {
-                mWriter = initializeWriter();
+            if (writer == null) {
+                writer = initializeWriter();
             }
-            if (newPos < mWriter.length()) {
+            if (newPos < writer.length()) {
 
                 Log.d(TAG, "setting new pos " + newPos);
-                mWriter.setLength(newPos);
-                WavHeader.fixLength(mWriter);
-                mWriter.seek(newPos);
+                writer.setLength(newPos);
+                WavHeader.fixLength(writer);
+                writer.seek(newPos);
                 return true;
             } else {
                 return false;
@@ -87,7 +87,7 @@ public class WavWriter implements AudioWriter {
 
     @Override
     public boolean isClosed() {
-        return mWriter == null;
+        return writer == null;
     }
 
     /**

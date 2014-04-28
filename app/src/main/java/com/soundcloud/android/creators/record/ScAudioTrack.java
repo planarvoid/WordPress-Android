@@ -6,7 +6,7 @@ import android.media.AudioTrack;
 import java.nio.ByteBuffer;
 
 public class ScAudioTrack extends AudioTrack {
-    private final byte[] mAudioData;
+    private final byte[] audioData;
 
     public ScAudioTrack(AudioConfig config, int bufferSize) {
         super(AudioManager.STREAM_MUSIC,
@@ -17,11 +17,11 @@ public class ScAudioTrack extends AudioTrack {
                 AudioTrack.MODE_STREAM);
 
         // performance: pre-allocate buffer
-        mAudioData = new byte[bufferSize];
+        audioData = new byte[bufferSize];
     }
 
     public int write(ByteBuffer buffer, int length) {
-        buffer.get(mAudioData, 0, length);
-        return write(mAudioData, 0, length);
+        buffer.get(audioData, 0, length);
+        return write(audioData, 0, length);
     }
 }

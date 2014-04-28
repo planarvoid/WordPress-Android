@@ -14,174 +14,174 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class PlaybackStream implements Parcelable {
-    private long mCurrentPos;
-    private long mStartPos;
-    private long mEndPos;
+    private long currentPos;
+    private long startPos;
+    private long endPos;
 
-    private AudioConfig mConfig;
-    private @NotNull AudioReader mPlaybackFile;
+    private final AudioConfig config;
+    private @NotNull AudioReader playbackFile;
 
-    private PlaybackFilter mFilter;
-    private boolean mOptimize;
+    private PlaybackFilter filter;
+    private boolean optimize;
 
-    private float[] mTrimWindow = new float[2];
+    private float[] trimWindow = new float[2];
 
     public PlaybackStream(@NotNull AudioReader audioReader) {
-        mPlaybackFile = audioReader;
-        mConfig = audioReader.getConfig();
+        playbackFile = audioReader;
+        config = audioReader.getConfig();
         resetBounds();
-        mCurrentPos = -1;
+        currentPos = -1;
     }
 
     public void reset() {
         resetBounds();
-        mFilter = null;
-        mOptimize = false;
+        filter = null;
+        optimize = false;
     }
 
     public final void resetBounds() {
-        mStartPos = 0;
-        mEndPos   = getTotalDuration();
-        mTrimWindow[0] = 0.0f;
-        mTrimWindow[1] = 1.0f;
+        startPos = 0;
+        endPos = getTotalDuration();
+        trimWindow[0] = 0.0f;
+        trimWindow[1] = 1.0f;
     }
 
     public long getDuration(){
-        return mEndPos - mStartPos;
+        return endPos - startPos;
     }
 
     public long getPosition() {
-        return Math.max(0,mCurrentPos - mStartPos);
+        return Math.max(0, currentPos - startPos);
     }
 
     public AudioConfig getConfig() {
-        return mConfig;
+        return config;
     }
 
     public TrimPreview setStartPositionByPercent(float newPos, long moveTime) {
         if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("Illegal start percent " + newPos);
 
-        mTrimWindow[0] = newPos;
+        trimWindow[0] = newPos;
 
-        final long old = mStartPos;
-        mStartPos = (long) (newPos * getTotalDuration());
-        return new TrimPreview(this,old,mStartPos, moveTime);
+        final long old = startPos;
+        startPos = (long) (newPos * getTotalDuration());
+        return new TrimPreview(this,old, startPos, moveTime);
     }
 
     public TrimPreview setEndPositionByPercent(float newPos, long moveTime) {
         if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("Illegal end percent " + newPos);
 
-        mTrimWindow[1] = newPos;
+        trimWindow[1] = newPos;
 
-        final long old = mEndPos;
-        mEndPos = (long) (newPos * getTotalDuration());
-        return new TrimPreview(this, old, mEndPos, moveTime);
+        final long old = endPos;
+        endPos = (long) (newPos * getTotalDuration());
+        return new TrimPreview(this, old, endPos, moveTime);
     }
 
     public int read(ByteBuffer buffer, int bufferSize) throws IOException {
-        final int n = mPlaybackFile.read(buffer, bufferSize);
+        final int n = playbackFile.read(buffer, bufferSize);
         buffer.flip();
         return n;
     }
 
     public int readForPlayback(ByteBuffer buffer, int bufferSize) throws IOException {
-        if (mCurrentPos < mEndPos) {
-            final int n = mPlaybackFile.read(buffer, bufferSize);
+        if (currentPos < endPos) {
+            final int n = playbackFile.read(buffer, bufferSize);
             buffer.flip();
-            if (mFilter != null) {
-                mFilter.apply(buffer, mConfig.msToByte(mCurrentPos - mStartPos), mConfig.msToByte(mEndPos - mStartPos));
+            if (filter != null) {
+                filter.apply(buffer, config.msToByte(currentPos - startPos), config.msToByte(endPos - startPos));
             }
-            mCurrentPos = mPlaybackFile.getPosition();
+            currentPos = playbackFile.getPosition();
             return n;
         }
         return -1;
     }
 
     public boolean isFinished() {
-        return mCurrentPos >= mEndPos;
+        return currentPos >= endPos;
     }
 
     public void resetPlayback() {
-        mCurrentPos = -1;
+        currentPos = -1;
     }
 
     public void initializePlayback() throws IOException {
-        mCurrentPos = getValidPosition(mCurrentPos);
-        initializePlayback(mCurrentPos);
+        currentPos = getValidPosition(currentPos);
+        initializePlayback(currentPos);
     }
 
     public void initializePlayback(long atPosition) throws IOException {
-        mPlaybackFile.seek(atPosition);
+        playbackFile.seek(atPosition);
     }
 
     private long getValidPosition(long currentPosition) {
-        return (currentPosition < mStartPos) ? mStartPos :
-                (currentPosition > mEndPos) ? mEndPos : currentPosition;
+        return (currentPosition < startPos) ? startPos :
+                (currentPosition > endPos) ? endPos : currentPosition;
     }
 
     public void close() {
-        IOUtils.close(mPlaybackFile);
-        mPlaybackFile = new EmptyReader();
+        IOUtils.close(playbackFile);
+        playbackFile = new EmptyReader();
     }
 
     public void setCurrentPosition(long pos) {
-        mCurrentPos = pos;
+        currentPos = pos;
     }
 
     public void reopen() throws IOException {
-        mPlaybackFile.reopen();
-        if (mCurrentPos >= 0) {
-            mPlaybackFile.seek(mCurrentPos);
+        playbackFile.reopen();
+        if (currentPos >= 0) {
+            playbackFile.seek(currentPos);
         }
-        mEndPos = Math.min(getTotalDuration(), mEndPos);
+        endPos = Math.min(getTotalDuration(), endPos);
     }
 
     /**
      * @return start position in msecs
      */
     public long getStartPos() {
-        return mStartPos;
+        return startPos;
     }
 
     /**
      * @return end position in msecs, or -1 for whole file
      */
     public long getEndPos() {
-        return mEndPos == getTotalDuration() ? -1 : mEndPos;
+        return endPos == getTotalDuration() ? -1 : endPos;
     }
 
     public boolean isOptimized() {
-        return mOptimize;
+        return optimize;
     }
 
     public boolean isFading() {
-        return mFilter instanceof FadeFilter;
+        return filter instanceof FadeFilter;
     }
 
     public void setFading(boolean enabled) {
-        mFilter = enabled ? new FadeFilter(mPlaybackFile.getConfig()) : null;
+        filter = enabled ? new FadeFilter(playbackFile.getConfig()) : null;
     }
 
     public void setOptimize(boolean enabled) {
-        mOptimize = enabled;
+        optimize = enabled;
     }
 
     public void setTrim(long start, long end) {
-        mStartPos = start;
-        mEndPos = end == -1 ? getTotalDuration() : end;
+        startPos = start;
+        endPos = end == -1 ? getTotalDuration() : end;
         refreshTrimWindow();
     }
 
     public long getTrimRight() {
-        return getTotalDuration() - mEndPos;
+        return getTotalDuration() - endPos;
     }
 
-    public boolean isFiltered() { return mFilter != null || mOptimize; }
-    public boolean isTrimmed()  { return mStartPos > 0 || (mEndPos > 0 && mEndPos < getTotalDuration()); }
+    public boolean isFiltered() { return filter != null || optimize; }
+    public boolean isTrimmed()  { return startPos > 0 || (endPos > 0 && endPos < getTotalDuration()); }
     public boolean isModified() { return isTrimmed() || isFiltered(); }
 
     public long getTotalDuration() {
-        return mPlaybackFile.getDuration();
+        return playbackFile.getDuration();
     }
 
     @Override
@@ -193,21 +193,21 @@ public class PlaybackStream implements Parcelable {
     @Override
     public String toString() {
         return "PlaybackStream{" +
-                "mStartPos=" + mStartPos +
-                ", mEndPos=" + mEndPos +
-                ", mPlaybackFile=" + mPlaybackFile +
-                ", mFilter=" + mFilter +
-                ", mOptimize=" + mOptimize +
+                "startPos=" + startPos +
+                ", endPos=" + endPos +
+                ", playbackFile=" + playbackFile +
+                ", filter=" + filter +
+                ", optimize=" + optimize +
                 '}';
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(mPlaybackFile.getFile().getAbsolutePath());
-        dest.writeLong(mStartPos);
-        dest.writeLong(mEndPos);
-        dest.writeInt(mOptimize ? 1 : 0);
-        dest.writeParcelable(mFilter, flags);
+        dest.writeString(playbackFile.getFile().getAbsolutePath());
+        dest.writeLong(startPos);
+        dest.writeLong(endPos);
+        dest.writeInt(optimize ? 1 : 0);
+        dest.writeParcelable(filter, flags);
     }
 
     public ByteBuffer buffer() {
@@ -215,12 +215,12 @@ public class PlaybackStream implements Parcelable {
     }
 
     public void refreshTrimWindow() {
-        mTrimWindow[0] = Math.max(0.0f, (float) mStartPos / getTotalDuration());
-        mTrimWindow[1] = Math.min(1.0f, (float) mEndPos / getTotalDuration());
+        trimWindow[0] = Math.max(0.0f, (float) startPos / getTotalDuration());
+        trimWindow[1] = Math.min(1.0f, (float) endPos / getTotalDuration());
     }
 
     public PlaybackFilter getPlaybackFilter() {
-        return  mFilter;
+        return filter;
     }
 
     public static final Parcelable.Creator<PlaybackStream> CREATOR = new Parcelable.Creator<PlaybackStream>() {
@@ -229,10 +229,10 @@ public class PlaybackStream implements Parcelable {
 
             try {
                 PlaybackStream ps = new PlaybackStream(AudioReader.guess(file));
-                ps.mStartPos = in.readLong();
-                ps.mEndPos   = in.readLong();
-                ps.mOptimize = in.readInt() == 1;
-                ps.mFilter   = in.readParcelable(getClass().getClassLoader());
+                ps.startPos = in.readLong();
+                ps.endPos = in.readLong();
+                ps.optimize = in.readInt() == 1;
+                ps.filter = in.readParcelable(getClass().getClassLoader());
                 ps.refreshTrimWindow();
                 return ps;
             } catch (IOException e) {
@@ -246,6 +246,6 @@ public class PlaybackStream implements Parcelable {
     };
 
     public float[] getTrimWindow() {
-        return mTrimWindow;
+        return trimWindow;
     }
 }

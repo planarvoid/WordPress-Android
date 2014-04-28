@@ -28,16 +28,16 @@ public class TrimHandleView extends ImageButton {
         }
     }
 
-    private HandleType mType;
-    private int mMarginOffset;
+    private final HandleType type;
+    private final int marginOffset;
 
     public TrimHandleView(Context context, HandleType type) {
         super(context);
         setLayoutParams(type.layoutParams);
         setBackgroundResource(type.backgroundResId);
         setClickable(false);
-        mType = type;
-        mMarginOffset = (int) context.getResources().getDimension(type.marginOffsetDimenId);
+        this.type = type;
+        marginOffset = (int) context.getResources().getDimension(type.marginOffsetDimenId);
     }
 
 
@@ -47,10 +47,10 @@ public class TrimHandleView extends ImageButton {
     }
 
     public void update(int position){
-        if (mType == HandleType.LEFT){
-            getLayoutParams().leftMargin = position + mMarginOffset;
+        if (type == HandleType.LEFT){
+            getLayoutParams().leftMargin = position + marginOffset;
         } else {
-            getLayoutParams().rightMargin = position + mMarginOffset;
+            getLayoutParams().rightMargin = position + marginOffset;
         }
         requestLayout();
     }

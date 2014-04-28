@@ -37,17 +37,17 @@ import android.widget.Toast;
 
 public class UploadActivity extends ScActivity implements ISimpleDialogListener {
 
-    private RadioGroup mRdoPrivacy;
-    private RadioButton mRdoPrivate, mRdoPublic;
-    private ConnectionListLayout mConnectionList;
-    private Recording mRecording;
-    private RecordingMetaDataLayout mRecordingMetadata;
-    private boolean mUploading;
+    private RadioGroup rdoPrivacy;
+    private RadioButton rdoPrivate, rdoPublic;
+    private ConnectionListLayout connectionList;
+    private Recording recording;
+    private RecordingMetaDataLayout recordingMetadata;
+    private boolean uploading;
 
-    private ImageOperations mImageOperations;
+    private ImageOperations imageOperations;
 
-    private RecordingStorage mStorage;
-    private PublicCloudAPI mOldCloudAPI;
+    private RecordingStorage storage;
+    private PublicCloudAPI oldCloudAPI;
 
     private static final int REC_ANOTHER = 0, POST = 1;
 
@@ -56,25 +56,25 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        mOldCloudAPI = new PublicApi(this);
+        oldCloudAPI = new PublicApi(this);
         setTitle(R.string.share);
 
-        mImageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
-        mStorage = new RecordingStorage();
+        imageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
+        storage = new RecordingStorage();
 
         final Intent intent = getIntent();
-        if (intent != null && (mRecording = Recording.fromIntent(intent, this, getCurrentUserId())) != null) {
+        if (intent != null && (recording = Recording.fromIntent(intent, this, getCurrentUserId())) != null) {
             setUploadLayout(R.layout.sc_upload);
-            mRecordingMetadata.setRecording(mRecording, false);
+            recordingMetadata.setRecording(recording, false);
 
-            if (mRecording.external_upload) {
+            if (recording.external_upload) {
                 // 3rd party upload, disable "record another playable button"
                 ((ViewGroup) findViewById(R.id.share_user_layout)).addView(
-                        new ShareUserHeaderLayout(this, getApp().getLoggedInUser(), mImageOperations));
+                        new ShareUserHeaderLayout(this, getApp().getLoggedInUser(), imageOperations));
             }
 
-            if (mRecording.exists()) {
-                mapFromRecording(mRecording);
+            if (recording.exists()) {
+                mapFromRecording(recording);
             } else {
                 recordingNotFound();
             }
@@ -87,30 +87,30 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
 
     private void setUploadLayout(int layoutId){
         super.setContentView(layoutId);
-        mRecordingMetadata = (RecordingMetaDataLayout) findViewById(R.id.metadata_layout);
-        mRecordingMetadata.setActivity(this);
+        recordingMetadata = (RecordingMetaDataLayout) findViewById(R.id.metadata_layout);
+        recordingMetadata.setActivity(this);
 
-        final int backStringId = !mRecording.external_upload ? R.string.record_another_sound :
-                mRecording.isLegacyRecording() ? R.string.delete : R.string.cancel;
+        final int backStringId = !recording.external_upload ? R.string.record_another_sound :
+                recording.isLegacyRecording() ? R.string.delete : R.string.cancel;
 
         ((ButtonBar) findViewById(R.id.bottom_bar)).addItem(new ButtonBar.MenuItem(REC_ANOTHER, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mRecording.external_upload){
-                    mStorage.delete(mRecording);
+                if (recording.external_upload){
+                    storage.delete(recording);
                 } else {
-                    setResult(RESULT_OK, new Intent().setData(mRecording.toUri()));
+                    setResult(RESULT_OK, new Intent().setData(recording.toUri()));
                 }
                 finish();
             }
         }), backStringId).addItem(new ButtonBar.MenuItem(POST, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mRecording != null) {
+                if (recording != null) {
                     saveRecording();
-                    mRecording.upload(UploadActivity.this);
-                    setResult(RESULT_OK, new Intent().setData(mRecording.toUri()).putExtra(Actions.UPLOAD_EXTRA_UPLOADING, true));
-                    mUploading = true;
+                    recording.upload(UploadActivity.this);
+                    setResult(RESULT_OK, new Intent().setData(recording.toUri()).putExtra(Actions.UPLOAD_EXTRA_UPLOADING, true));
+                    uploading = true;
                     finish();
                 } else {
                     recordingNotFound();
@@ -118,34 +118,34 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
             }
         }), R.string.post);
 
-        mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);
-        mRdoPublic = (RadioButton) findViewById(R.id.rdo_public);
-        mRdoPrivate = (RadioButton) findViewById(R.id.rdo_private);
+        rdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);
+        rdoPublic = (RadioButton) findViewById(R.id.rdo_public);
+        rdoPrivate = (RadioButton) findViewById(R.id.rdo_private);
 
-        mRdoPrivacy.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        rdoPrivacy.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId) {
                     case R.id.rdo_public:
-                        mConnectionList.setVisibility(View.VISIBLE);
+                        connectionList.setVisibility(View.VISIBLE);
                         ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_public);
                         break;
                     case R.id.rdo_private:
-                        mConnectionList.setVisibility(View.GONE);
+                        connectionList.setVisibility(View.GONE);
                         ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_private);
                         break;
                 }
             }
         });
 
-        mConnectionList = (ConnectionListLayout) findViewById(R.id.connectionList);
-        mConnectionList.setAdapter(new ConnectionListLayout.Adapter(mOldCloudAPI));
+        connectionList = (ConnectionListLayout) findViewById(R.id.connectionList);
+        connectionList.setAdapter(new ConnectionListLayout.Adapter(oldCloudAPI));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mConnectionList.getAdapter().loadIfNecessary(this);
+        connectionList.getAdapter().loadIfNecessary(this);
         if (shouldTrackScreen()) {
             eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.RECORD_UPLOAD.get());
         }
@@ -155,59 +155,59 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
     protected void onStop() {
         super.onStop();
 
-        if (mRecording != null && !mUploading && (!mRecording.external_upload)) {
+        if (recording != null && !uploading && (!recording.external_upload)) {
             // recording exists and hasn't been uploaded
             saveRecording();
         }
     }
 
     private void saveRecording() {
-        mapToRecording(mRecording);
-        if (mRecording != null) {
-            mStorage.store(mRecording);
+        mapToRecording(recording);
+        if (recording != null) {
+            storage.store(recording);
         }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mRecordingMetadata != null) mRecordingMetadata.onDestroy();
+        if (recordingMetadata != null) recordingMetadata.onDestroy();
     }
 
     @Override
     public void onSaveInstanceState(Bundle state) {
-        state.putInt("createPrivacyValue", mRdoPrivacy.getCheckedRadioButtonId());
-        mRecordingMetadata.onSaveInstanceState(state);
+        state.putInt("createPrivacyValue", rdoPrivacy.getCheckedRadioButtonId());
+        recordingMetadata.onSaveInstanceState(state);
         super.onSaveInstanceState(state);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
         if (state.getInt("createPrivacyValue") == R.id.rdo_private) {
-            mRdoPrivate.setChecked(true);
+            rdoPrivate.setChecked(true);
         } else {
-            mRdoPublic.setChecked(true);
+            rdoPublic.setChecked(true);
         }
 
-        mRecordingMetadata.onRestoreInstanceState(state);
+        recordingMetadata.onRestoreInstanceState(state);
         super.onRestoreInstanceState(state);
     }
 
     private void mapFromRecording(final Recording recording) {
-        mRecordingMetadata.mapFromRecording(recording);
+        recordingMetadata.mapFromRecording(recording);
         if (recording.is_private) {
-            mRdoPrivate.setChecked(true);
+            rdoPrivate.setChecked(true);
         } else {
-            mRdoPublic.setChecked(true);
+            rdoPublic.setChecked(true);
         }
     }
 
     private void mapToRecording(final Recording recording) {
-        mRecordingMetadata.mapToRecording(recording);
-        recording.is_private = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
+        recordingMetadata.mapToRecording(recording);
+        recording.is_private = rdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
         if (!recording.is_private) {
-            if (mConnectionList.postToServiceIds() != null) {
-                recording.service_ids = TextUtils.join(",", mConnectionList.postToServiceIds());
+            if (connectionList.postToServiceIds() != null) {
+                recording.service_ids = TextUtils.join(",", connectionList.postToServiceIds());
             }
             recording.shared_emails = null;
         } else {
@@ -224,7 +224,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
     public void onPositiveButtonClicked(int requestCode) {
         switch (requestCode){
             case DIALOG_PICK_IMAGE :
-                ImageUtils.startTakeNewPictureIntent(this, mRecording.generateImageFile(Recording.IMAGE_DIR),
+                ImageUtils.startTakeNewPictureIntent(this, recording.generateImageFile(Recording.IMAGE_DIR),
                         Consts.RequestCodes.GALLERY_IMAGE_TAKE);
                 break;
         }
@@ -243,18 +243,18 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         switch (requestCode) {
             case Consts.RequestCodes.GALLERY_IMAGE_PICK:
                 if (resultCode == RESULT_OK) {
-                    ImageUtils.sendCropIntent(this, result.getData(), Uri.fromFile(mRecording.generateImageFile(Recording.IMAGE_DIR)));
+                    ImageUtils.sendCropIntent(this, result.getData(), Uri.fromFile(recording.generateImageFile(Recording.IMAGE_DIR)));
                 }
                 break;
             case Consts.RequestCodes.GALLERY_IMAGE_TAKE:
                 if (resultCode == RESULT_OK) {
-                    ImageUtils.sendCropIntent(this, Uri.fromFile(mRecording.generateImageFile(Recording.IMAGE_DIR)));
+                    ImageUtils.sendCropIntent(this, Uri.fromFile(recording.generateImageFile(Recording.IMAGE_DIR)));
                 }
                 break;
 
             case Crop.REQUEST_CROP: {
                 if (resultCode == RESULT_OK) {
-                    mRecordingMetadata.setImage(mRecording.generateImageFile(Recording.IMAGE_DIR));
+                    recordingMetadata.setImage(recording.generateImageFile(Recording.IMAGE_DIR));
                 } else if (resultCode == Crop.RESULT_ERROR) {
                     handleSilentException("error cropping image", Crop.getError(result));
                     Toast.makeText(this, R.string.crop_image_error, Toast.LENGTH_SHORT).show();
@@ -264,7 +264,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
             case Consts.RequestCodes.PICK_VENUE:
                 if (resultCode == RESULT_OK && result != null && result.hasExtra(LocationPickerActivity.EXTRA_NAME)) {
                     // XXX candidate for model?
-                    mRecordingMetadata.setWhere(result.getStringExtra(LocationPickerActivity.EXTRA_NAME),
+                    recordingMetadata.setWhere(result.getStringExtra(LocationPickerActivity.EXTRA_NAME),
                             result.getStringExtra(LocationPickerActivity.EXTRA_4SQ_ID),
                             result.getDoubleExtra(LocationPickerActivity.EXTRA_LONGITUDE, 0),
                             result.getDoubleExtra(LocationPickerActivity.EXTRA_LATITUDE, 0));

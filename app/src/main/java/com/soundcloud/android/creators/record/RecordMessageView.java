@@ -13,12 +13,11 @@ import android.widget.TextView;
 
 public class RecordMessageView extends TextView {
 
-    private static final int MAX_TRIES = 5;
     public static final String STRING_RESOURCE_PREFIX = "rectip_";
 
-    private String[] mRecordSuggestionKeys;
-    private String[] mRecordSuggestionKeysPrivate;
-    private String mCurrentSuggestionKey;
+    private String[] recordSuggestionKeys;
+    private String[] recordSuggestionKeysPrivate;
+    private String currentSuggestionKey;
 
     @SuppressWarnings("UnusedDeclaration")
     public RecordMessageView(Context context, AttributeSet attrs) {
@@ -38,29 +37,29 @@ public class RecordMessageView extends TextView {
 
     public void setMessage(String message){
         super.setText(message);
-        mCurrentSuggestionKey = "";
+        currentSuggestionKey = "";
     }
 
     private void init(){
-        mRecordSuggestionKeys = getResources().getStringArray(R.array.record_suggestion_keys);
-        mRecordSuggestionKeysPrivate = getResources().getStringArray(R.array.record_suggestion_keys_private);
+        recordSuggestionKeys = getResources().getStringArray(R.array.record_suggestion_keys);
+        recordSuggestionKeysPrivate = getResources().getStringArray(R.array.record_suggestion_keys_private);
     }
 
     public String getCurrentSuggestionKey(){
-        return mCurrentSuggestionKey;
+        return currentSuggestionKey;
     }
 
     public void loadSuggestion(String privateUserName){
 
-        mCurrentSuggestionKey = (TextUtils.isEmpty(privateUserName)) ?
-                                mRecordSuggestionKeys[((int) Math.floor(Math.random() * mRecordSuggestionKeys.length))] :
-                                mRecordSuggestionKeysPrivate[((int) Math.floor(Math.random() * mRecordSuggestionKeysPrivate.length))];
+        currentSuggestionKey = (TextUtils.isEmpty(privateUserName)) ?
+                                recordSuggestionKeys[((int) Math.floor(Math.random() * recordSuggestionKeys.length))] :
+                                recordSuggestionKeysPrivate[((int) Math.floor(Math.random() * recordSuggestionKeysPrivate.length))];
 
-        final int resId = getResources().getIdentifier(STRING_RESOURCE_PREFIX + mCurrentSuggestionKey, "string", getContext().getPackageName());
+        final int resId = getResources().getIdentifier(STRING_RESOURCE_PREFIX + currentSuggestionKey, "string", getContext().getPackageName());
 
         if (resId == 0){
             // missing resource, should be caught by tests
-            mCurrentSuggestionKey = "";
+            currentSuggestionKey = "";
             setText(getContext().getString(R.string.rectip_default));
         } else if (TextUtils.isEmpty(privateUserName)){
             setText(getContext().getString(resId));

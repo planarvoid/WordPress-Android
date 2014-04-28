@@ -30,14 +30,14 @@ public class FoursquareVenueTask extends AsyncTask<Location, Void, List<Foursqua
     public static final String client_id     = "KO0RS1BR5VCXT4CR2GRCYA1Z2KSMM3QJVWJ35V2CVBUWFYWP";
     public static final String client_secret = "MDAXDKVZRURKHDBRSW0KKTL4NNLQW1WEKUM2IDHELZKPJRWI";
     private static final ObjectMapper mapper = new ObjectMapper();
-    private int mVenueLimit;
+    private int venueLimit;
 
     public FoursquareVenueTask() {
         this(VENUE_LIMIT);
     }
 
     public FoursquareVenueTask(int venuelimit) {
-        mVenueLimit = venuelimit;
+        venueLimit = venuelimit;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class FoursquareVenueTask extends AsyncTask<Location, Void, List<Foursqua
         //http://developer.foursquare.com/docs/venues/search.html
         Request r = new Request("https://api.foursquare.com/v2/venues/search").with(
                 "ll",            ll,
-                "limit",         mVenueLimit,
+                "limit", venueLimit,
                 "client_id",     client_id,
                 "client_secret", client_secret);
 

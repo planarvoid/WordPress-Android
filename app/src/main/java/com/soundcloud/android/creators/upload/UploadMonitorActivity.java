@@ -33,43 +33,43 @@ public class UploadMonitorActivity extends TrackedActivity {
     public static final int BUTTON_BAR_RETRY_ID = 1;
     public static final String EXTRA_IN_TRANSFER_STATE = "transferState";
     public static final String EXTRA_PROGRESS = "progress";
-    private Recording mRecording;
+    private Recording recording;
 
-    private ProgressBar mProcessingProgress, mTransferProgress;
-    private RelativeLayout mUploadingLayout, mFinishedLayout;
-    private ButtonBar mButtonBar;
+    private ProgressBar processingProgress, transferProgress;
+    private RelativeLayout uploadingLayout, finishedLayout;
+    private ButtonBar buttonBar;
 
-    private TextView mProcessingProgressText, mUploadingProgressText;
-    private TextView mTrackTitle;
+    private TextView processingProgressText, uploadingProgressText;
+    private TextView trackTitle;
 
-    private boolean mTransferState;
-    private int mProgress;
+    private boolean transferState;
+    private int progress;
 
-    private final Handler mHandler = new Handler();
+    private final Handler handler = new Handler();
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.upload_monitor);
 
-        mUploadingLayout = (RelativeLayout) findViewById(R.id.uploading_layout);
-        mFinishedLayout = (RelativeLayout) findViewById(R.id.finished_layout);
+        uploadingLayout = (RelativeLayout) findViewById(R.id.uploading_layout);
+        finishedLayout = (RelativeLayout) findViewById(R.id.finished_layout);
 
-        mButtonBar = (ButtonBar) findViewById(R.id.bottom_bar);
+        buttonBar = (ButtonBar) findViewById(R.id.bottom_bar);
 
-        mProcessingProgress = (ProgressBar) findViewById(R.id.progress_bar_processing);
-        mProcessingProgress.setMax(MAX);
+        processingProgress = (ProgressBar) findViewById(R.id.progress_bar_processing);
+        processingProgress.setMax(MAX);
 
-        mTransferProgress = (ProgressBar) findViewById(R.id.progress_bar_uploading);
-        mTransferProgress.setMax(MAX);
+        transferProgress = (ProgressBar) findViewById(R.id.progress_bar_uploading);
+        transferProgress.setMax(MAX);
 
-        mProcessingProgressText = (TextView) findViewById(R.id.txt_progress_processing);
-        mUploadingProgressText = (TextView) findViewById(R.id.txt_progress_uploading);
+        processingProgressText = (TextView) findViewById(R.id.txt_progress_processing);
+        uploadingProgressText = (TextView) findViewById(R.id.txt_progress_uploading);
 
-        mTrackTitle = (TextView) findViewById(R.id.track);
-        mButtonBar.addItem(new ButtonBar.MenuItem(BUTTON_BAR_CANCEL_ID, new View.OnClickListener() {
+        trackTitle = (TextView) findViewById(R.id.track);
+        buttonBar.addItem(new ButtonBar.MenuItem(BUTTON_BAR_CANCEL_ID, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mRecording.isUploading()) {
+                if (recording.isUploading()) {
                     confirmCancel();
                 } else {
                     finish();
@@ -77,13 +77,13 @@ public class UploadMonitorActivity extends TrackedActivity {
             }
         }), R.string.cancel);
 
-        mButtonBar.addItem(new ButtonBar.MenuItem(BUTTON_BAR_RETRY_ID, new View.OnClickListener() {
+        buttonBar.addItem(new ButtonBar.MenuItem(BUTTON_BAR_RETRY_ID, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showUploading();
                 setProcessProgress(-1);
 
-                mRecording.upload(UploadMonitorActivity.this);
+                recording.upload(UploadMonitorActivity.this);
             }
         }), R.string.retry);
 
@@ -105,7 +105,7 @@ public class UploadMonitorActivity extends TrackedActivity {
                 intent.removeExtra(UploadService.EXTRA_PROGRESS);
             }
 
-            LocalBroadcastManager.getInstance(this).registerReceiver(mUploadStatusListener,
+            LocalBroadcastManager.getInstance(this).registerReceiver(uploadStatusListener,
                     UploadService.getIntentFilter());
         } else {
             Log.d(TAG, "recording not found");
@@ -117,14 +117,14 @@ public class UploadMonitorActivity extends TrackedActivity {
     protected void onDestroy() {
         super.onDestroy();
         ImageUtils.recycleImageViewBitmap((ImageView) findViewById(R.id.icon));
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mUploadStatusListener);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(uploadStatusListener);
     }
 
 
     @Override
     public void onSaveInstanceState(Bundle state) {
-        state.putInt(EXTRA_PROGRESS, mProgress);
-        state.putBoolean(EXTRA_IN_TRANSFER_STATE, mTransferState);
+        state.putInt(EXTRA_PROGRESS, progress);
+        state.putBoolean(EXTRA_IN_TRANSFER_STATE, transferState);
     }
 
     @Override
@@ -139,8 +139,8 @@ public class UploadMonitorActivity extends TrackedActivity {
     }
 
     private void setRecording(final Recording recording) {
-        mRecording = recording;
-        mTrackTitle.setText(recording.sharingNote(getResources()));
+        this.recording = recording;
+        trackTitle.setText(recording.sharingNote(getResources()));
 
         if (recording.external_upload) {
             ViewStub stub = (ViewStub) findViewById(R.id.share_header_stub);
@@ -168,14 +168,14 @@ public class UploadMonitorActivity extends TrackedActivity {
         }
     }
 
-    private final BroadcastReceiver mUploadStatusListener = new BroadcastReceiver() {
+    private final BroadcastReceiver uploadStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
-            if (!mRecording.equals(recording)) return;
+            if (!UploadMonitorActivity.this.recording.equals(recording)) return;
 
             // update with latest broadcasted attributes
-            mRecording = recording;
+            UploadMonitorActivity.this.recording = recording;
 
             final String action = intent.getAction();
             final int progress = intent.getIntExtra(UploadService.EXTRA_PROGRESS, 0);
@@ -206,46 +206,46 @@ public class UploadMonitorActivity extends TrackedActivity {
     };
 
     private void setProcessProgress(int progress) {
-        mProgress = progress;
+        this.progress = progress;
         if (progress < 0) {
-            mProcessingProgress.setIndeterminate(true);
-            mProcessingProgressText.setText(R.string.uploader_event_processing);
+            processingProgress.setIndeterminate(true);
+            processingProgressText.setText(R.string.uploader_event_processing);
 
-            mTransferProgress.setProgress(0);
-            mUploadingProgressText.setText(R.string.uploader_event_not_yet_uploading);
+            transferProgress.setProgress(0);
+            uploadingProgressText.setText(R.string.uploader_event_not_yet_uploading);
         } else {
-            mProcessingProgress.setIndeterminate(false);
-            mProcessingProgress.setProgress(progress);
+            processingProgress.setIndeterminate(false);
+            processingProgress.setProgress(progress);
 
-            if (progress == mProcessingProgress.getMax()) {
-                mProcessingProgressText.setText(R.string.uploader_event_processing_finished);
+            if (progress == processingProgress.getMax()) {
+                processingProgressText.setText(R.string.uploader_event_processing_finished);
             } else {
-                mProcessingProgressText.setText(getString(R.string.uploader_event_processing_percent, progress));
+                processingProgressText.setText(getString(R.string.uploader_event_processing_percent, progress));
             }
-            mUploadingProgressText.setText(R.string.uploader_event_not_yet_uploading);
+            uploadingProgressText.setText(R.string.uploader_event_not_yet_uploading);
         }
     }
 
     private void setTransferProgress(int progress) {
-        mProgress = progress;
-        if (!mTransferState) {
-            mTransferState = true;
+        this.progress = progress;
+        if (!transferState) {
+            transferState = true;
 
-            mProcessingProgress.setIndeterminate(false);
-            mProcessingProgress.setProgress(100);
-            mProcessingProgressText.setTextColor(getResources().getColor(R.color.upload_monitor_text_inactive));
-            mProcessingProgressText.setText(R.string.uploader_event_processing_finished);
+            processingProgress.setIndeterminate(false);
+            processingProgress.setProgress(100);
+            processingProgressText.setTextColor(getResources().getColor(R.color.upload_monitor_text_inactive));
+            processingProgressText.setText(R.string.uploader_event_processing_finished);
 
-            mUploadingProgressText.setTextColor(getResources().getColor(R.color.upload_monitor_text));
+            uploadingProgressText.setTextColor(getResources().getColor(R.color.upload_monitor_text));
         }
 
         if (progress < 0) {
-            mTransferProgress.setIndeterminate(true);
-            mUploadingProgressText.setText(R.string.uploader_event_not_yet_uploading);
+            transferProgress.setIndeterminate(true);
+            uploadingProgressText.setText(R.string.uploader_event_not_yet_uploading);
         } else {
-            mTransferProgress.setIndeterminate(false);
-            mTransferProgress.setProgress(progress);
-            mUploadingProgressText.setText(getString(R.string.uploader_event_uploading_percent, progress));
+            transferProgress.setIndeterminate(false);
+            transferProgress.setProgress(progress);
+            uploadingProgressText.setText(getString(R.string.uploader_event_uploading_percent, progress));
         }
     }
 
@@ -253,11 +253,11 @@ public class UploadMonitorActivity extends TrackedActivity {
         if (!isFinishing()) {
             showUploading();
 
-            mProcessingProgress.setIndeterminate(true);
-            mTransferProgress.setIndeterminate(true);
+            processingProgress.setIndeterminate(true);
+            transferProgress.setIndeterminate(true);
 
-            mProcessingProgressText.setText(R.string.uploader_event_cancelling);
-            mUploadingProgressText.setText(null);
+            processingProgressText.setText(R.string.uploader_event_cancelling);
+            uploadingProgressText.setText(null);
         }
     }
 
@@ -266,7 +266,7 @@ public class UploadMonitorActivity extends TrackedActivity {
         if (success) {
             ((ImageView) findViewById(R.id.result_icon)).setImageResource(R.drawable.success);
             ((TextView) findViewById(R.id.result_message)).setText(R.string.share_success_message);
-            mHandler.postDelayed(new Runnable() {
+            handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     if (!isFinishing()) {
@@ -274,25 +274,25 @@ public class UploadMonitorActivity extends TrackedActivity {
                     }
                 }
             }, 2000);
-            mButtonBar.setVisibility(View.GONE);
+            buttonBar.setVisibility(View.GONE);
         } else {
             ((ImageView) findViewById(R.id.result_icon)).setImageResource(R.drawable.fail);
             ((TextView) findViewById(R.id.result_message)).setText(R.string.share_fail_message);
-            mButtonBar.setVisibility(View.VISIBLE);
-            mButtonBar.toggleVisibility(BUTTON_BAR_RETRY_ID, true, true);
+            buttonBar.setVisibility(View.VISIBLE);
+            buttonBar.toggleVisibility(BUTTON_BAR_RETRY_ID, true, true);
         }
     }
 
     private void showFinished() {
-        mUploadingLayout.setVisibility(View.GONE);
-        mFinishedLayout.setVisibility(View.VISIBLE);
+        uploadingLayout.setVisibility(View.GONE);
+        finishedLayout.setVisibility(View.VISIBLE);
     }
 
     private void showUploading() {
-        mUploadingLayout.setVisibility(View.VISIBLE);
-        mFinishedLayout.setVisibility(View.GONE);
-        mButtonBar.toggleVisibility(BUTTON_BAR_RETRY_ID, false, true);
-        mButtonBar.setVisibility(View.VISIBLE);
+        uploadingLayout.setVisibility(View.VISIBLE);
+        finishedLayout.setVisibility(View.GONE);
+        buttonBar.toggleVisibility(BUTTON_BAR_RETRY_ID, false, true);
+        buttonBar.setVisibility(View.VISIBLE);
     }
 
     private void confirmCancel() {
@@ -302,8 +302,8 @@ public class UploadMonitorActivity extends TrackedActivity {
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (mRecording.isUploading()) {
-                            mRecording.cancelUpload(UploadMonitorActivity.this);
+                        if (recording.isUploading()) {
+                            recording.cancelUpload(UploadMonitorActivity.this);
                             onCancelling();
                         }
                     }

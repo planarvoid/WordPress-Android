@@ -30,46 +30,46 @@ import java.io.IOException;
 import java.util.Locale;
 
 public class Uploader extends BroadcastReceiver implements Runnable {
-    private final SoundAssociationStorage mSoundAssociationStorage = new SoundAssociationStorage();
-    private final TrackStorage mTrackStorage = new TrackStorage();
-    private final RecordingStorage mRecordingStorage = new RecordingStorage();
-    private final SyncStateManager mSyncStateManager;
+    private final SoundAssociationStorage soundAssociationStorage = new SoundAssociationStorage();
+    private final TrackStorage trackStorage = new TrackStorage();
+    private final RecordingStorage recordingStorage = new RecordingStorage();
+    private final SyncStateManager syncStateManager;
 
-    private PublicCloudAPI api;
-    private Recording mUpload;
-    private volatile boolean mCanceled;
-    private LocalBroadcastManager mBroadcastManager;
-    private final Resources mResources;
+    private final PublicCloudAPI api;
+    private final Recording upload;
+    private volatile boolean canceled;
+    private final LocalBroadcastManager broadcastManager;
+    private final Resources resources;
 
     private static final int MAX_TRIES = 1;
 
     public Uploader(Context context, PublicCloudAPI api, Recording recording) {
         this.api = api;
-        mUpload = recording;
-        mBroadcastManager = LocalBroadcastManager.getInstance(context);
-        mBroadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
-        mResources = context.getResources();
-        mSyncStateManager = new SyncStateManager(context);
+        upload = recording;
+        broadcastManager = LocalBroadcastManager.getInstance(context);
+        broadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
+        resources = context.getResources();
+        syncStateManager = new SyncStateManager(context);
     }
 
     public boolean isCancelled() {
-        return mCanceled;
+        return canceled;
     }
 
     public void cancel() {
-        mCanceled = true;
+        canceled = true;
     }
 
     @Override
     public void run() {
-        Log.d(UploadService.TAG, "Uploader.run("+ mUpload+")");
+        Log.d(UploadService.TAG, "Uploader.run("+ upload +")");
 
         try {
             upload(0);
         } catch (IllegalArgumentException e) {
             onUploadFailed(e);
         } finally {
-            mBroadcastManager.unregisterReceiver(this);
+            broadcastManager.unregisterReceiver(this);
         }
     }
 
@@ -77,12 +77,12 @@ public class Uploader extends BroadcastReceiver implements Runnable {
      * @throws IllegalArgumentException
      */
     private boolean upload(int tries) {
-        final File toUpload = mUpload.getUploadFile();
+        final File toUpload = upload.getUploadFile();
         if (toUpload == null || !toUpload.exists()) throw new IllegalArgumentException("File to be uploaded does not exist");
         if (toUpload.length() == 0) throw new IllegalArgumentException("File to be uploaded is empty");
 
         final FileBody soundBody = new FileBody(toUpload);
-        final FileBody artworkBody = mUpload.hasArtwork() ? new FileBody(mUpload.getArtwork()) : null;
+        final FileBody artworkBody = upload.hasArtwork() ? new FileBody(upload.getArtwork()) : null;
 
         final long totalTransfer = soundBody.getContentLength() + (artworkBody == null ? 0 : artworkBody.getContentLength());
 
@@ -91,7 +91,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             Log.v(TAG, "starting upload of " + toUpload);
 
             broadcast(UploadService.TRANSFER_STARTED);
-            HttpResponse response = api.post(mUpload.getRequest(mResources, toUpload, new Request.TransferProgressListener() {
+            HttpResponse response = api.post(upload.getRequest(resources, toUpload, new Request.TransferProgressListener() {
                 long lastPublished;
 
                 @Override
@@ -100,8 +100,8 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
                     if (System.currentTimeMillis() - lastPublished > 1000) {
                         final int progress = (int) Math.min(100, (100 * transferred) / totalTransfer);
-                        mBroadcastManager.sendBroadcast(new Intent(UploadService.TRANSFER_PROGRESS)
-                                .putExtra(UploadService.EXTRA_RECORDING, mUpload)
+                        broadcastManager.sendBroadcast(new Intent(UploadService.TRANSFER_PROGRESS)
+                                .putExtra(UploadService.EXTRA_RECORDING, upload)
                                 .putExtra(UploadService.EXTRA_TRANSFERRED, transferred)
                                 .putExtra(UploadService.EXTRA_PROGRESS, progress)
                                 .putExtra(UploadService.EXTRA_TOTAL, totalTransfer));
@@ -151,25 +151,25 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     private void onUploadSuccess(HttpResponse response) {
         try {
             Track track = api.getMapper().readValue(response.getEntity().getContent(), Track.class);
-            mTrackStorage.createOrUpdate(track);
-            mSoundAssociationStorage.addCreation(track);
+            trackStorage.createOrUpdate(track);
+            soundAssociationStorage.addCreation(track);
 
             //request to update my collection
-            mSyncStateManager.forceToStale(Content.ME_SOUNDS);
+            syncStateManager.forceToStale(Content.ME_SOUNDS);
 
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + track);
 
-            mUpload.markUploaded();
-            if (!mUpload.external_upload) {
-                IOUtils.deleteFile(mUpload.getFile());
-                IOUtils.deleteFile(mUpload.getEncodedFile());
+            upload.markUploaded();
+            if (!upload.external_upload) {
+                IOUtils.deleteFile(upload.getFile());
+                IOUtils.deleteFile(upload.getEncodedFile());
             }
-            File artworkPath = mUpload.resized_artwork_path;
+            File artworkPath = upload.resized_artwork_path;
             if (artworkPath != null) {
                 IOUtils.deleteFile(artworkPath);
             }
 
-            mRecordingStorage.updateStatus(mUpload);
+            recordingStorage.updateStatus(upload);
 
             broadcast(UploadService.TRANSFER_SUCCESS, track);
         } catch (IOException e) {
@@ -178,18 +178,18 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     }
 
     private void broadcast(String action, Track... track) {
-        final Intent intent = new Intent(action).putExtra(UploadService.EXTRA_RECORDING, mUpload);
+        final Intent intent = new Intent(action).putExtra(UploadService.EXTRA_RECORDING, upload);
         if (track.length > 0) {
             intent.putExtra(Track.EXTRA, track[0]);
         }
-        mBroadcastManager.sendBroadcast(intent);
+        broadcastManager.sendBroadcast(intent);
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
-        if (mUpload.equals(recording)) {
-            Log.d(TAG, "canceling upload of "+ mUpload);
+        if (upload.equals(recording)) {
+            Log.d(TAG, "canceling upload of "+ upload);
             cancel();
         }
     }

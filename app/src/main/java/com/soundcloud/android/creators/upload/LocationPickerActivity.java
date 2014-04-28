@@ -60,10 +60,10 @@ public class LocationPickerActivity extends ListActivity {
 
     private static final int LOADING = 0;
 
-    private ImageOperations mImageOperations;
+    private ImageOperations imageOperations;
 
-    private String mProvider;
-    private Location mLocation;
+    private String provider;
+    private Location location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +71,7 @@ public class LocationPickerActivity extends ListActivity {
 
         setContentView(R.layout.location_picker);
 
-        mImageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
+        imageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
         final FoursquareVenueAdapter adapter = new FoursquareVenueAdapter();
         final EditText where = (EditText) findViewById(R.id.where);
         where.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -84,9 +84,9 @@ public class LocationPickerActivity extends ListActivity {
                     data.setData(Uri.parse("location://manual"));
                     data.putExtra(EXTRA_NAME, v.getText().toString());
 
-                    if (mLocation != null) {
-                        data.putExtra(EXTRA_LONGITUDE, mLocation.getLongitude());
-                        data.putExtra(EXTRA_LATITUDE, mLocation.getLatitude());
+                    if (location != null) {
+                        data.putExtra(EXTRA_LONGITUDE, location.getLongitude());
+                        data.putExtra(EXTRA_LATITUDE, location.getLatitude());
                     }
                     setResult(RESULT_OK, data);
                     finish();
@@ -96,9 +96,9 @@ public class LocationPickerActivity extends ListActivity {
         });
         where.addTextChangedListener(new Capitalizer(where));
 
-        mProvider = getBestProvider(true);
+        provider = getBestProvider(true);
         String alternativeProvider = getBestProvider(false);
-        if (alternativeProvider != null && !alternativeProvider.equals(mProvider)) {
+        if (alternativeProvider != null && !alternativeProvider.equals(provider)) {
             // request updates in case provider gets enabled later
             requestLocationUpdates(alternativeProvider, adapter);
         }
@@ -107,7 +107,7 @@ public class LocationPickerActivity extends ListActivity {
         if (intent != null) {
             if (intent.hasExtra(EXTRA_NAME)) where.setText(intent.getStringExtra(EXTRA_NAME));
             if (intent.hasExtra(EXTRA_LOCATION)) {
-                mLocation = intent.getParcelableExtra(EXTRA_LOCATION);
+                location = intent.getParcelableExtra(EXTRA_LOCATION);
             }
             if (intent.hasExtra(EXTRA_VENUES)) {
                 ArrayList<FoursquareVenue> venues = intent.getParcelableArrayListExtra(EXTRA_VENUES);
@@ -115,13 +115,13 @@ public class LocationPickerActivity extends ListActivity {
             }
         }
 
-        if (mLocation == null) {
-            if (Log.isLoggable(TAG, Log.VERBOSE)) Log.v(TAG, "best provider: " + mProvider);
-            mLocation = getManager().getLastKnownLocation(mProvider);
+        if (location == null) {
+            if (Log.isLoggable(TAG, Log.VERBOSE)) Log.v(TAG, "best provider: " + provider);
+            location = getManager().getLastKnownLocation(provider);
         }
 
-        if (mLocation == null) {
-            if (LocationManager.PASSIVE_PROVIDER.equals(mProvider)) {
+        if (location == null) {
+            if (LocationManager.PASSIVE_PROVIDER.equals(provider)) {
                 // no location & no location provider enabled, display warning
                 new AlertDialog.Builder(this)
                         .setMessage(R.string.location_picker_no_providers_enabled)
@@ -138,7 +138,7 @@ public class LocationPickerActivity extends ListActivity {
                         .show();
             }
         } else {
-            adapter.onLocationChanged(mLocation);
+            adapter.onLocationChanged(location);
         }
         setListAdapter(adapter);
     }
@@ -146,8 +146,8 @@ public class LocationPickerActivity extends ListActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mProvider = getBestProvider(true);
-        requestLocationUpdates(mProvider, getListAdapter());
+        provider = getBestProvider(true);
+        requestLocationUpdates(provider, getListAdapter());
     }
 
     @Override
@@ -180,9 +180,9 @@ public class LocationPickerActivity extends ListActivity {
         data.putExtra(EXTRA_4SQ_ID, venue.id);
         data.putExtra(EXTRA_NAME, venue.name);
 
-        if (mLocation != null) {
-            data.putExtra(EXTRA_LONGITUDE, mLocation.getLongitude());
-            data.putExtra(EXTRA_LATITUDE, mLocation.getLatitude());
+        if (location != null) {
+            data.putExtra(EXTRA_LONGITUDE, location.getLongitude());
+            data.putExtra(EXTRA_LATITUDE, location.getLatitude());
         }
         setResult(RESULT_OK, data);
         finish();
@@ -211,21 +211,21 @@ public class LocationPickerActivity extends ListActivity {
     }
 
     class FoursquareVenueAdapter extends BaseAdapter implements LocationListener {
-        private List<FoursquareVenue> mVenues;
+        private List<FoursquareVenue> venues;
 
         @Override
         public int getCount() {
-            return mVenues == null ? 0 : mVenues.size();
+            return venues == null ? 0 : venues.size();
         }
 
         @Override
         public FoursquareVenue getItem(int position) {
-            return mVenues.get(position);
+            return venues.get(position);
         }
 
         @Override
         public long getItemId(int position) {
-            return mVenues.get(position).id.hashCode();
+            return venues.get(position).id.hashCode();
         }
 
         @Override
@@ -250,28 +250,28 @@ public class LocationPickerActivity extends ListActivity {
             FoursquareVenue venue = getItem(position);
             URI categoryIconUri = venue.getHttpIcon(); // Android has problems with HTTPS
             if (categoryIconUri != null) {
-                mImageOperations.display(categoryIconUri.toString(), image);
+                imageOperations.display(categoryIconUri.toString(), image);
             }
             name.setText(venue.name);
             return view;
         }
 
         public void setVenues(List<FoursquareVenue> venues) {
-            this.mVenues = venues;
+            this.venues = venues;
             notifyDataSetChanged();
         }
 
         @Override
         public void onLocationChanged(Location location) {
             if (location != null) {
-                if (mLocation != null &&
-                   !mLocation.equals(location) &&
-                    mLocation.distanceTo(location) < MIN_DISTANCE) {
+                if (LocationPickerActivity.this.location != null &&
+                   !LocationPickerActivity.this.location.equals(location) &&
+                    LocationPickerActivity.this.location.distanceTo(location) < MIN_DISTANCE) {
                     // the preloaded location was good enough, stop here
                     getManager().removeUpdates(this);
                 } else {
-                    mLocation = location;
-                    loadVenues(mLocation, FoursquareVenueTask.VENUE_LIMIT);
+                    LocationPickerActivity.this.location = location;
+                    loadVenues(LocationPickerActivity.this.location, FoursquareVenueTask.VENUE_LIMIT);
 
                     // stop requesting updates when we have a recent update with good accuracy
                     if (System.currentTimeMillis() - location.getTime() < 60 * 1000 &&
@@ -291,7 +291,7 @@ public class LocationPickerActivity extends ListActivity {
             if (loc == null) return;
             new FoursquareVenueTask(max) {
                 @Override protected void onPreExecute() {
-                    if (mVenues == null || mVenues.isEmpty()) {
+                    if (venues == null || venues.isEmpty()) {
                         showDialog(LOADING);
                     }
                 }
@@ -313,19 +313,19 @@ public class LocationPickerActivity extends ListActivity {
         public void onProviderEnabled(String name) {
             LocationProvider provider = getManager().getProvider(name);
             if (provider != null &&
-                mProvider != null &&
-                getManager().getProvider(mProvider).getAccuracy() > provider.getAccuracy()) {
+                LocationPickerActivity.this.provider != null &&
+                getManager().getProvider(LocationPickerActivity.this.provider).getAccuracy() > provider.getAccuracy()) {
                 // this provider is better, use it
                 requestLocationUpdates(name, this);
-                mProvider = name;
+                LocationPickerActivity.this.provider = name;
             }
         }
 
         @Override
         public void onProviderDisabled(String name) {
-            if (name.equals(mProvider)) {
-                mProvider = getBestProvider(true);
-                requestLocationUpdates(mProvider, this);
+            if (name.equals(provider)) {
+                provider = getBestProvider(true);
+                requestLocationUpdates(provider, this);
             }
         }
     }
@@ -340,7 +340,7 @@ public class LocationPickerActivity extends ListActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case Consts.OptionsMenu.REFRESH:
-                getListAdapter().loadVenues(mLocation, FoursquareVenueTask.VENUE_LIMIT_MAX);
+                getListAdapter().loadVenues(location, FoursquareVenueTask.VENUE_LIMIT_MAX);
                 return true;
 
             default:

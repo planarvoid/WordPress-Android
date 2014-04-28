@@ -11,8 +11,8 @@ import android.widget.TextView;
  */
 
 public class ChronometerView extends TextView {
-    private long mDurationSec = -1l, mProgressSec = -1l;
-    private String mDurationString;
+    private long durationSec = -1l, progressSec = -1l;
+    private String durationString;
 
     private int mode;
     private static final int MODE_EMPTY = 0;
@@ -42,29 +42,29 @@ public class ChronometerView extends TextView {
     public void setDurationOnly(long ms) {
         if (setDuration(ms) || mode != MODE_DURATION_ONLY) {
             mode = MODE_DURATION_ONLY;
-            setText(mDurationString);
+            setText(durationString);
         }
     }
 
     public void setPlaybackProgress(long ms, long durationMs) {
         setDuration(durationMs);
         final long newProgressSec = ms / 1000;
-        if (newProgressSec != mProgressSec || mode != MODE_PLAYBACK) {
-            mProgressSec = newProgressSec;
+        if (newProgressSec != progressSec || mode != MODE_PLAYBACK) {
+            progressSec = newProgressSec;
             mode = MODE_PLAYBACK;
             setText(new StringBuilder()
                     .append(ScTextUtils.formatTimestamp(ms))
                     .append(" / ")
-                    .append(mDurationString));
+                    .append(durationString));
 
         }
     }
 
     private boolean setDuration(long ms) {
         final long newDurationSec = ms / 1000;
-        if (newDurationSec != mDurationSec) {
-            mDurationSec = newDurationSec;
-            mDurationString = ScTextUtils.formatTimestamp(ms);
+        if (newDurationSec != durationSec) {
+            durationSec = newDurationSec;
+            durationString = ScTextUtils.formatTimestamp(ms);
             return true;
         } else {
             return false;

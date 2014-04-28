@@ -11,7 +11,7 @@ public class NativeAmplitudeAnalyzer implements AmplitudeAnalyzer {
     private int current_adjusted_max_amplitude;
 
     @SuppressWarnings("FieldCanBeLocal")
-    private int channels, bytes_per_sample;
+    private final int channels, bytes_per_sample;
 
     public NativeAmplitudeAnalyzer(AudioConfig config) {
         channels = config.channels;

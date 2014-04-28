@@ -15,21 +15,21 @@ import java.io.File;
 import java.io.IOException;
 
 public class ImageResizer implements Runnable {
-    private final Recording mRecording;
-    private Context mContext;
-    private LocalBroadcastManager mBroadcastManager;
+    private final Recording recording;
+    private final Context context;
+    private final LocalBroadcastManager broadcastManager;
 
     public ImageResizer(Context context, Recording recording) {
-        mRecording = recording;
-        mContext = context.getApplicationContext();
-        mBroadcastManager = LocalBroadcastManager.getInstance(context);
+        this.recording = recording;
+        this.context = context.getApplicationContext();
+        broadcastManager = LocalBroadcastManager.getInstance(context);
     }
 
     @Override
     public void run() {
-        Log.d(UploadService.TAG, "ImageResizer.run("+ mRecording +")");
+        Log.d(UploadService.TAG, "ImageResizer.run("+ recording +")");
 
-        if (!mRecording.hasArtwork()) {
+        if (!recording.hasArtwork()) {
             broadcast(UploadService.RESIZE_ERROR);
         } else {
             resize();
@@ -37,21 +37,21 @@ public class ImageResizer implements Runnable {
     }
 
     private void resize() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "resizing "+ mRecording.artwork_path);
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "resizing "+ recording.artwork_path);
         try {
             broadcast(UploadService.RESIZE_STARTED);
-            File resized = IOUtils.getCacheFile(mContext, "upload_tmp_"+ mRecording.getId() +".jpg");
+            File resized = IOUtils.getCacheFile(context, "upload_tmp_"+ recording.getId() +".jpg");
             final long start = System.currentTimeMillis();
-            if (ImageUtils.resizeImageFile(mRecording.artwork_path, resized, ImageUtils.RECOMMENDED_IMAGE_SIZE, ImageUtils.RECOMMENDED_IMAGE_SIZE)) {
-                mRecording.resized_artwork_path = resized;
+            if (ImageUtils.resizeImageFile(recording.artwork_path, resized, ImageUtils.RECOMMENDED_IMAGE_SIZE, ImageUtils.RECOMMENDED_IMAGE_SIZE)) {
+                recording.resized_artwork_path = resized;
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.d(TAG, String.format("resized %s => %s  in %d ms", mRecording.artwork_path, mRecording.resized_artwork_path,
+                    Log.d(TAG, String.format("resized %s => %s  in %d ms", recording.artwork_path, recording.resized_artwork_path,
                             System.currentTimeMillis() - start));
                 }
                 broadcast(UploadService.RESIZE_SUCCESS);
             } else {
-                Log.w(TAG, "did not resize image "+ mRecording.artwork_path);
-                mRecording.resized_artwork_path = mRecording.artwork_path;
+                Log.w(TAG, "did not resize image "+ recording.artwork_path);
+                recording.resized_artwork_path = recording.artwork_path;
                 broadcast(UploadService.RESIZE_SUCCESS);
             }
         } catch (IOException e) {
@@ -61,6 +61,6 @@ public class ImageResizer implements Runnable {
     }
 
     private void broadcast(String action) {
-        mBroadcastManager.sendBroadcast(new Intent(action).putExtra(UploadService.EXTRA_RECORDING, mRecording));
+        broadcastManager.sendBroadcast(new Intent(action).putExtra(UploadService.EXTRA_RECORDING, recording));
     }
 }
