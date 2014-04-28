@@ -1,6 +1,8 @@
 package com.soundcloud.android.tests;
 
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.screens.MenuScreen;
 
 import android.app.Activity;
@@ -8,6 +10,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 
@@ -16,10 +19,13 @@ import android.util.Log;
  * screenshots for test failures.
  */
 public abstract class ActivityTestCase<T extends Activity> extends ActivityInstrumentationTestCase2<T> {
+
     protected String testCaseName;
     protected ApplicationProperties applicationProperties;
     protected MenuScreen menuScreen;
     protected Waiter waiter;
+
+    private Feature dependency;
 
     protected Han solo;
 
@@ -29,6 +35,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
 
     @Override
     protected void setUp() throws Exception {
+        if (shouldSkip()) return;
         solo = new Han(getInstrumentation());
         menuScreen = new MenuScreen(solo);
         waiter = new Waiter(solo);
@@ -52,6 +59,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
 
     @Override
     protected void tearDown() throws Exception {
+        if (shouldSkip()) return;
         if (solo != null) {
             solo.finishOpenedActivities();
         }
@@ -87,6 +95,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
 
     @Override
     protected void runTest() throws Throwable {
+        if (shouldSkip()) return;
         try {
             super.runTest();
             LogCollector.markFileForDeletion();
@@ -101,4 +110,18 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
     protected void log(Object msg, Object... args) {
         Log.d(getClass().getSimpleName(), msg == null ? null : String.format(msg.toString(), args));
     }
+
+    protected void setDependsOn(Feature dependency) {
+        this.dependency = dependency;
+    }
+
+    private boolean shouldSkip() {
+        return dependency != null && getFeatureFlags().isDisabled(dependency);
+    }
+
+    private FeatureFlags getFeatureFlags() {
+        Resources res = getActivity().getResources();
+        return new FeatureFlags(res);
+    }
+
 }

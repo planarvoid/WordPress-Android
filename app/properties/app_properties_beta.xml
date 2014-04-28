@@ -5,4 +5,8 @@
     <bool name="analytics_enabled">true</bool>
     <string name="api_mobile_base_uri_path">/app/mobileapps-staging</string>
     <string name="api_host">api.soundcloud.com</string>
+
+    <!-- Feature flags -->
+    <bool name="feature_new_stream">false</bool>
+    <bool name="feature_visual_player">false</bool>
 </resources>

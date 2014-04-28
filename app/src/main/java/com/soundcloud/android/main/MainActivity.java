@@ -19,8 +19,11 @@ import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.stream.SoundStreamFragment;
 import net.hockeyapp.android.UpdateManager;
 import rx.subscriptions.CompositeSubscription;
 
@@ -54,6 +57,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     SoundCloudApplication mApplication;
     @Inject
     UserOperations mUserOperations;
+    @Inject
+    StreamFragmentFactory streamFragmentFactory;
 
     private CompositeSubscription mSubscription = new CompositeSubscription();
 
@@ -252,13 +257,10 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     }
 
     private void displayStream() {
-        final Uri contentUri = getIntent().getBooleanExtra(EXTRA_ONBOARDING_USERS_RESULT, true) ?
-                Content.ME_SOUND_STREAM.uri :
-                Content.ME_SOUND_STREAM.uri.buildUpon()
-                        .appendQueryParameter(Consts.Keys.ONBOARDING, Consts.StringValues.ERROR).build();
+         boolean onboardingResult = getIntent().getBooleanExtra(EXTRA_ONBOARDING_USERS_RESULT, true);
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(STREAM_FRAGMENT_TAG);
         if (fragment == null) {
-            fragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream, Screen.SIDE_MENU_STREAM);
+            fragment = streamFragmentFactory.create(onboardingResult);
             attachFragment(fragment, STREAM_FRAGMENT_TAG, R.string.side_menu_stream);
         }
     }
