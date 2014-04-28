@@ -7,12 +7,18 @@ import android.net.Uri;
 
 public class ResolveTrackSoundCloudUriTest extends ResolveBaseTest {
 
-    public void testShouldOpenPlayerScreen() throws Exception {
+    private static final String TRACK_NAME = "STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]";
+
+    public void testShouldOpenPlayerScreenAndLoadRecommendations() throws Exception {
         playerScreen = new PlayerScreen(solo);
         playerScreen.stopPlayback();
 
         waiter.expect(playerScreen.trackTitleElement())
-                .toHaveText("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]");
+                .toHaveText(TRACK_NAME);
+
+        // make sure recommendations load
+        playerScreen.swipeLeft();
+        assertNotSame(TRACK_NAME, playerScreen.trackTitle());
     }
 
     @Override

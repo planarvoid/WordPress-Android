@@ -90,7 +90,7 @@ public class PlaybackOperations {
     public void playExploreTrack(Context context, Track track, String exploreTag, String screenTag) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screenTag);
         playSessionSource.setExploreVersion(exploreTag);
-        playTrack(context, track, playSessionSource);
+        playTrack(context, track, playSessionSource, true);
     }
 
     public String buildHLSUrlForTrack(Track track) {
@@ -102,8 +102,8 @@ public class PlaybackOperations {
                 .build().toString();
     }
 
-    private void playTrack(Context context, Track track, PlaySessionSource playSessionSource) {
-        playFromIdList(context, Lists.newArrayList(track.getId()), 0, track, playSessionSource);
+    private void playTrack(Context context, Track track, PlaySessionSource playSessionSource, boolean loadRelated) {
+        playFromIdList(context, Lists.newArrayList(track.getId()), 0, track, playSessionSource, loadRelated);
     }
 
     /**
@@ -154,13 +154,13 @@ public class PlaybackOperations {
         }
     }
 
-    public void startPlayback(final Context context, Track track, Screen screen) {
+    public void startPlaybackWithRecommendations(final Context context, Track track, Screen screen) {
         modelManager.cache(track);
-        startPlayback(context, track.getId(), screen);
+        startPlaybackWithRecommendations(context, track.getId(), screen);
     }
 
-    public void startPlayback(final Context context, long id, Screen screen) {
-        context.startService(getPlayIntent(Lists.newArrayList(id), 0, new PlaySessionSource(screen)));
+    public void startPlaybackWithRecommendations(final Context context, long id, Screen screen) {
+        context.startService(getPlayIntent(Lists.newArrayList(id), 0, new PlaySessionSource(screen), true));
     }
 
     public void togglePlayback(final Context context) {
@@ -201,12 +201,18 @@ public class PlaybackOperations {
         }
     }
 
-    private void playFromIdList(Context context, List<Long> idList, int startPosition, Track initialTrack, PlaySessionSource playSessionSource) {
+    private void playFromIdList(Context context, List<Long> idList, int startPosition, Track initialTrack,
+                                PlaySessionSource playSessionSource) {
+        playFromIdList(context, idList, startPosition, initialTrack, playSessionSource, false);
+    }
+
+    private void playFromIdList(Context context, List<Long> idList, int startPosition, Track initialTrack,
+                                PlaySessionSource playSessionSource, boolean loadRelated) {
         cacheAndGoToPlayer(context, initialTrack);
 
         if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
             final int adjustedPosition = getDeduplicatedIdList(idList, startPosition);
-            final Intent playIntent = getPlayIntent(idList, adjustedPosition, playSessionSource);
+            final Intent playIntent = getPlayIntent(idList, adjustedPosition, playSessionSource, loadRelated);
             context.startService(playIntent);
         }
     }
@@ -229,13 +235,19 @@ public class PlaybackOperations {
                 playSessionSource.getPlaylistId() != playbackStateProvider.getPlayQueuePlaylistId();
     }
 
-    public Intent getPlayIntent(final List<Long> trackList, int startPosition,
-                                         PlaySessionSource playSessionSource) {
+    private Intent getPlayIntent(final List<Long> trackList, int startPosition,
+                                PlaySessionSource playSessionSource) {
+        return getPlayIntent(trackList, startPosition, playSessionSource, false);
+    }
+
+    private Intent getPlayIntent(final List<Long> trackList, int startPosition,
+                                         PlaySessionSource playSessionSource, boolean loadRecommended) {
 
         final Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(PlaybackService.PlayExtras.TRACK_ID_LIST, Longs.toArray(trackList));
         intent.putExtra(PlaybackService.PlayExtras.START_POSITION, startPosition);
         intent.putExtra(PlaybackService.PlayExtras.PLAY_SESSION_SOURCE, playSessionSource);
+        intent.putExtra(PlaybackService.PlayExtras.LOAD_RECOMMENDED, loadRecommended);
         return intent;
     }
 

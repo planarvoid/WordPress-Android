@@ -142,6 +142,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         String TRACK_ID_LIST = "track_id_list";
         String START_POSITION = "start_position";
         String PLAY_SESSION_SOURCE = "play_session_source";
+        String LOAD_RECOMMENDED = "load_recommended";
     }
 
     public interface BroadcastExtras{

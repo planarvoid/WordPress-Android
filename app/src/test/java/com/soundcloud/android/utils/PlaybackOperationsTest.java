@@ -48,10 +48,13 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class PlaybackOperationsTest {
 
+    private static final String EXPLORE_VERSION = "explore-version";
+    private static final Screen ORIGIN_SCREEN = Screen.EXPLORE_TRENDING_MUSIC;
+
     private PlaybackOperations playbackOperations;
     private Track track;
 
-    private Screen ORIGIN_SCREEN = Screen.EXPLORE_TRENDING_MUSIC;
+
 
     @Mock
     private ScModelManager modelManager;
@@ -113,6 +116,26 @@ public class PlaybackOperationsTest {
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService()).not.toBeNull();
+    }
+
+    @Test
+    public void playExploreTrackSendsServiceIntentWithPlayQueueAndOriginSet() {
+        playbackOperations.playExploreTrack(Robolectric.application, track, EXPLORE_VERSION, ORIGIN_SCREEN.get());
+
+        final PlaySessionSource expected = new PlaySessionSource(ORIGIN_SCREEN.get());
+        expected.setExploreVersion(EXPLORE_VERSION);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        checkStartIntent(application.getNextStartedService(), 0, expected, track.getId());
+    }
+
+    @Test
+    public void playExploreTrackSetsLoadRecommendedOnIntent() {
+        playbackOperations.playExploreTrack(Robolectric.application, track, EXPLORE_VERSION, ORIGIN_SCREEN.get());
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        final Intent nextStartedService = application.getNextStartedService();
+        expect(nextStartedService.getBooleanExtra(PlayExtras.LOAD_RECOMMENDED, false)).toBeTrue();
     }
 
     @Test
@@ -302,7 +325,7 @@ public class PlaybackOperationsTest {
     @Test
     public void startPlaybackWithTrackCachesTrackAndSendsConfiguredPlaybackIntent() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        playbackOperations.startPlayback(Robolectric.application, track, ORIGIN_SCREEN);
+        playbackOperations.startPlaybackWithRecommendations(Robolectric.application, track, ORIGIN_SCREEN);
 
         verify(modelManager).cache(track);
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -311,12 +334,44 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void startPlaybackSendsConfiguredPlaybackIntent() throws Exception {
-        playbackOperations.startPlayback(Robolectric.application, 123L, ORIGIN_SCREEN);
-
+    public void startPlaybackWithRecommendationsByTrackSendsConfiguredPlaybackIntent() throws Exception {
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        playbackOperations.startPlaybackWithRecommendations(Robolectric.application, track, ORIGIN_SCREEN);
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_SCREEN.get()), 123L);
+        final Intent nextStartedService = application.getNextStartedService();
+        checkStartIntent(nextStartedService, 0, new PlaySessionSource(ORIGIN_SCREEN.get()), track.getId());
+    }
 
+    @Test
+    public void startPlaybackWithRecommendationsByTrackCachesTrackParameter() throws Exception {
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        playbackOperations.startPlaybackWithRecommendations(Robolectric.application, track, ORIGIN_SCREEN);
+        verify(modelManager).cache(track);
+    }
+
+    @Test
+    public void startPlaybackWithRecommendationsByTrackSendsIntentWithLoadRecommendedExtraAsTrue() throws Exception {
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        playbackOperations.startPlaybackWithRecommendations(Robolectric.application, track, ORIGIN_SCREEN);
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        final Intent nextStartedService = application.getNextStartedService();
+        expect(nextStartedService.getBooleanExtra(PlayExtras.LOAD_RECOMMENDED, false)).toBeTrue();
+    }
+
+    @Test
+    public void startPlaybackWithRecommendationsByIdSendsConfiguredPlaybackIntent() throws Exception {
+        playbackOperations.startPlaybackWithRecommendations(Robolectric.application, 123L, ORIGIN_SCREEN);
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        final Intent nextStartedService = application.getNextStartedService();
+        checkStartIntent(nextStartedService, 0, new PlaySessionSource(ORIGIN_SCREEN.get()), 123L);
+    }
+
+    @Test
+    public void startPlaybackWithRecommendationsByIdSendsIntentWithLoadRecommendedExtraAsTrue() throws Exception {
+        playbackOperations.startPlaybackWithRecommendations(Robolectric.application, 123L, ORIGIN_SCREEN);
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        final Intent nextStartedService = application.getNextStartedService();
+        expect(nextStartedService.getBooleanExtra(PlayExtras.LOAD_RECOMMENDED, false)).toBeTrue();
     }
 
     @Test

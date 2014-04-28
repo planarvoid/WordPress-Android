@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -131,16 +132,29 @@ public class PlaybackReceiverTest {
     }
 
     @Test
-    public void sendingNewPlayQueueShouldOptionallyFetchRelatedTracks() {
-        when(playSessionSource.originatedInExplore()).thenReturn(true);
+    public void sendingNewPlayQueueShouldFetchRelatedTracksIfLoadRecommendedExtraIsTrue() {
         Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(PlaybackService.PlayExtras.TRACK_ID_LIST, new long[]{1L});
         intent.putExtra(PlaybackService.PlayExtras.PLAY_SESSION_SOURCE, playSessionSource);
         intent.putExtra(PlaybackService.PlayExtras.START_POSITION, 0);
+        intent.putExtra(PlaybackService.PlayExtras.LOAD_RECOMMENDED, true);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(playQueueManager).fetchRelatedTracks(1L);
+    }
+
+    @Test
+    public void sendingNewPlayQueueShouldNotFetchRelatedTracksIfLoadRecommendedExtraIsFalse() {
+        Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
+        intent.putExtra(PlaybackService.PlayExtras.TRACK_ID_LIST, new long[]{1L});
+        intent.putExtra(PlaybackService.PlayExtras.PLAY_SESSION_SOURCE, playSessionSource);
+        intent.putExtra(PlaybackService.PlayExtras.START_POSITION, 0);
+        intent.putExtra(PlaybackService.PlayExtras.LOAD_RECOMMENDED, false);
+
+        playbackReceiver.onReceive(Robolectric.application, intent);
+
+        verify(playQueueManager, never()).fetchRelatedTracks(anyLong());
     }
 
     @Test

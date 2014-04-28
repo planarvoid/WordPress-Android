@@ -8,6 +8,7 @@ import android.net.Uri;
 
 public class ResolveTrackDeeplink extends FacebookResolveBaseTest {
 
+    private static final String TRACK_NAME = "Celebrate 5 years of finding each other on SoundCloud";
     private PlayerScreen playerScreen;
 
     @Override
@@ -15,11 +16,15 @@ public class ResolveTrackDeeplink extends FacebookResolveBaseTest {
         return TestConsts.FACEBOOK_SOUND_URI;
     }
 
-    public void testFacebookTrackDeeplink() {
+    public void testFacebookTrackDeeplinkOpensPlayerScreenAndLoadRecommendations() {
         playerScreen = new PlayerScreen(solo);
         solo.assertActivity(com.soundcloud.android.playback.PlayerActivity.class, DEFAULT_WAIT);
         solo.clickOnView(R.id.pause);
         waiter.expect(playerScreen.trackTitleElement())
-                .toHaveText("Celebrate 5 years of finding each other on SoundCloud");
+                .toHaveText(TRACK_NAME);
+
+        // make sure recommendations load
+        playerScreen.swipeLeft();
+        assertNotSame(TRACK_NAME, playerScreen.trackTitle());
     }
 }
