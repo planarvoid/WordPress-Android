@@ -23,142 +23,142 @@ import java.util.List;
 
 public class PublicApi implements PublicCloudAPI {
 
-    private PublicApiWrapper mApiWrapper;
+    private final PublicApiWrapper apiWrapper;
 
-    public PublicApi(Context context){
+    public PublicApi(Context context) {
         this(PublicApiWrapper.getInstance(context));
     }
 
     @VisibleForTesting
     protected PublicApi(PublicApiWrapper wrapper) {
-        mApiWrapper = wrapper;
+        apiWrapper = wrapper;
     }
 
     public HttpResponse head(Request resource) throws IOException {
-        return mApiWrapper.head(resource);
+        return apiWrapper.head(resource);
     }
 
     public HttpResponse get(Request resource) throws IOException {
-        return mApiWrapper.get(resource);
+        return apiWrapper.get(resource);
     }
 
     public Token clientCredentials(String... scopes) throws IOException {
-        return mApiWrapper.clientCredentials(scopes);
+        return apiWrapper.clientCredentials(scopes);
     }
 
     public Token extensionGrantType(String grantType, String... scopes) throws IOException {
-        return mApiWrapper.extensionGrantType(grantType, scopes);
+        return apiWrapper.extensionGrantType(grantType, scopes);
     }
 
     public Token login(String username, String password, String... scopes) throws IOException {
-        return mApiWrapper.login(username, password, scopes);
+        return apiWrapper.login(username, password, scopes);
     }
 
     public URI authorizationCodeUrl(String... options) {
-        return mApiWrapper.authorizationCodeUrl(options);
+        return apiWrapper.authorizationCodeUrl(options);
     }
 
     public HttpResponse put(Request request) throws IOException {
-        return mApiWrapper.put(request);
+        return apiWrapper.put(request);
     }
 
     public HttpResponse post(Request request) throws IOException {
-        return mApiWrapper.post(request);
+        return apiWrapper.post(request);
     }
 
     public HttpResponse delete(Request request) throws IOException {
-        return mApiWrapper.delete(request);
+        return apiWrapper.delete(request);
     }
 
     public Token refreshToken() throws IOException {
-        return mApiWrapper.refreshToken();
+        return apiWrapper.refreshToken();
     }
 
     public Token getToken() {
-        return mApiWrapper.getToken();
+        return apiWrapper.getToken();
     }
 
     public long resolve(String uri) throws IOException {
-        return mApiWrapper.resolve(uri);
+        return apiWrapper.resolve(uri);
     }
 
     public void setToken(Token token) {
-        mApiWrapper.setToken(token);
+        apiWrapper.setToken(token);
     }
 
     public void setTokenListener(TokenListener listener) {
-        mApiWrapper.setTokenListener(listener);
+        apiWrapper.setTokenListener(listener);
     }
 
     public Token invalidateToken() {
-        return mApiWrapper.invalidateToken();
+        return apiWrapper.invalidateToken();
     }
 
     public ObjectMapper getMapper() {
-        return mApiWrapper.getMapper();
+        return apiWrapper.getMapper();
     }
 
     public <T extends ScResource> T read(Request req) throws IOException {
-        return mApiWrapper.read(req);
+        return apiWrapper.read(req);
     }
 
     public <T extends ScResource> T update(Request request) throws NotFoundException, IOException {
-        return mApiWrapper.update(request);
+        return apiWrapper.update(request);
     }
 
     public <T extends ScResource> T create(Request request) throws IOException {
-        return mApiWrapper.create(request);
+        return apiWrapper.create(request);
     }
 
     public <T extends ScResource> List<T> readList(Request req) throws IOException {
-        return mApiWrapper.readList(req);
+        return apiWrapper.readList(req);
     }
 
     public <T extends ScResource> ScResource.ScResourceHolder<T> readCollection(Request req) throws IOException {
-        return mApiWrapper.readCollection(req);
+        return apiWrapper.readCollection(req);
     }
 
     @NotNull
     public <T, C extends CollectionHolder<T>> List<T> readFullCollection(Request request, Class<C> ch) throws IOException {
-        return mApiWrapper.readFullCollection(request, ch);
+        return apiWrapper.readFullCollection(request, ch);
     }
 
 
     public <T extends ScResource> List<T> readListFromIds(Request request, List<Long> ids) throws IOException {
-        return mApiWrapper.readListFromIds(request, ids);
+        return apiWrapper.readListFromIds(request, ids);
     }
 
     public Token authorizationCode(String code, String... scopes) throws IOException {
-        return mApiWrapper.authorizationCode(code, scopes);
+        return apiWrapper.authorizationCode(code, scopes);
     }
 
     public void setDefaultContentType(String contentType) {
-        mApiWrapper.setDefaultContentType(contentType);
+        apiWrapper.setDefaultContentType(contentType);
     }
 
     public void setDefaultAcceptEncoding(String encoding) {
-        mApiWrapper.setDefaultAcceptEncoding(encoding);
+        apiWrapper.setDefaultAcceptEncoding(encoding);
     }
 
     public HttpClient getHttpClient() {
-        return mApiWrapper.getHttpClient();
+        return apiWrapper.getHttpClient();
     }
 
     public HttpResponse safeExecute(HttpHost target, HttpUriRequest request) throws IOException {
-        return mApiWrapper.safeExecute(target, request);
+        return apiWrapper.safeExecute(target, request);
     }
 
     public Stream resolveStreamUrl(String uri, boolean skipLogging) throws IOException {
-        return mApiWrapper.resolveStreamUrl(uri, skipLogging);
+        return apiWrapper.resolveStreamUrl(uri, skipLogging);
     }
 
     @Override
     public String getUserAgent() {
-        return mApiWrapper.getUserAgent();
+        return apiWrapper.getUserAgent();
     }
 
     @Override
     public Env getEnv() {
-        return mApiWrapper.getEnv();
+        return apiWrapper.getEnv();
     }
 }

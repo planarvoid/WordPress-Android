@@ -34,7 +34,7 @@ public enum APIEndpoints {
     SEARCH_PLAYLISTS("/search/sets"),
     SEARCH_USERS("/search/people");
 
-    private String path;
+    private final String path;
 
     APIEndpoints(String path) {
         this.path = path;

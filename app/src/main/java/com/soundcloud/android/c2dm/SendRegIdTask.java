@@ -26,7 +26,7 @@ public class SendRegIdTask extends AsyncApiTask<String,Void, String> {
             throw new IllegalArgumentException("need reg_id, app_identifier and device");
 
         try {
-            HttpResponse resp = mApi.post(Request.to(DEVICE_ENDPOINT).with(
+            HttpResponse resp = api.post(Request.to(DEVICE_ENDPOINT).with(
                     "device_token",   params[0],
                     "app_identifier", params[1],
                     "device",         params[2]));

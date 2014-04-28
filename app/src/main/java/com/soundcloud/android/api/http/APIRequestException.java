@@ -12,10 +12,9 @@ import java.io.IOException;
 
 public class APIRequestException extends Exception {
 
-    private APIResponse mResponse;
-    private APIRequest mRequest;
-
-    private APIErrorReason errorReason;
+    private final APIResponse response;
+    private final APIRequest request;
+    private final APIErrorReason errorReason;
 
     public enum APIErrorReason {
         TOKEN_AUTH_ERROR,
@@ -26,10 +25,10 @@ public class APIRequestException extends Exception {
     }
 
     public static APIRequestException badResponse(APIRequest request, APIResponse response) {
-        return new APIRequestException(BAD_RESPONSE, request, response, (Exception)null);
+        return new APIRequestException(BAD_RESPONSE, request, response, (Exception) null);
     }
 
-    public static APIRequestException badResponse(APIRequest request, APIResponse response,Exception exception) {
+    public static APIRequestException badResponse(APIRequest request, APIResponse response, Exception exception) {
         return new APIRequestException(BAD_RESPONSE, request, response, exception);
     }
 
@@ -42,26 +41,26 @@ public class APIRequestException extends Exception {
     }
 
     public static APIRequestException rateLimited(APIRequest request, APIResponse response) {
-        return new APIRequestException(RATE_LIMITED, request, response, (Exception)null);
+        return new APIRequestException(RATE_LIMITED, request, response, (Exception) null);
     }
 
     public static APIRequestException authError(APIRequest request, CloudAPI.InvalidTokenException e) {
-        return new APIRequestException(TOKEN_AUTH_ERROR,  request, null, e);
+        return new APIRequestException(TOKEN_AUTH_ERROR, request, null, e);
     }
 
 
     private APIRequestException(APIErrorReason errorReason, APIRequest request, APIResponse response, Exception e) {
         super(e);
         this.errorReason = errorReason;
-        this.mRequest = request;
-        this.mResponse = response;
+        this.request = request;
+        this.response = response;
     }
 
     private APIRequestException(APIErrorReason errorReason, APIRequest request, APIResponse response, String msg) {
         super(msg);
         this.errorReason = errorReason;
-        this.mRequest = request;
-        this.mResponse = response;
+        this.request = request;
+        this.response = response;
     }
 
     public APIErrorReason reason() {
@@ -69,7 +68,7 @@ public class APIRequestException extends Exception {
     }
 
     public APIResponse response() {
-        return mResponse;
+        return response;
     }
 
     @Override
@@ -77,7 +76,7 @@ public class APIRequestException extends Exception {
         return Objects.toStringHelper(this).omitNullValues()
                 .add("errorReason", errorReason)
                 .add("exceptionMessage", getMessage())
-                .add("mRequest", mRequest)
-                .add("mResponse", mResponse).toString();
+                .add("mRequest", request)
+                .add("mResponse", response).toString();
     }
 }

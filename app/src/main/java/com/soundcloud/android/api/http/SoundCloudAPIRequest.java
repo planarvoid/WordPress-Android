@@ -21,76 +21,76 @@ import android.net.Uri;
 
 import java.util.Collection;
 
-public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceType>{
+public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceType> {
 
-    private final Uri mUri;
-    private final String mHttpMethod;
-    private final int mEndpointVersion;
-    private final TypeToken<ResourceType> mResourceType;
-    private final Boolean mIsPrivate;
-    private final Multimap<String, String> mQueryParams;
-    private final Object mContent;
+    private final Uri uri;
+    private final String httpMethod;
+    private final int endpointVersion;
+    private final TypeToken<ResourceType> resourceType;
+    private final Boolean isPrivate;
+    private final Multimap<String, String> queryParams;
+    private final Object content;
 
     private SoundCloudAPIRequest(Uri uri, String method, int endpointVersion, TypeToken<ResourceType> typeToken,
                                  Boolean isPrivate, Multimap<String, String> queryParams, Object content) {
-        mUri = uri;
-        mHttpMethod = method;
-        mEndpointVersion = endpointVersion;
-        mResourceType = typeToken;
-        mIsPrivate = isPrivate;
-        mQueryParams = queryParams;
-        mContent = content;
+        this.uri = uri;
+        this.httpMethod = method;
+        this.endpointVersion = endpointVersion;
+        this.resourceType = typeToken;
+        this.isPrivate = isPrivate;
+        this.queryParams = queryParams;
+        this.content = content;
     }
 
     @Override
     public String getEncodedPath() {
-        return mUri.getEncodedPath();
+        return uri.getEncodedPath();
     }
 
     @Override
     public TypeToken<ResourceType> getResourceType() {
-        return mResourceType;
+        return resourceType;
     }
 
     @Override
     public String getMethod() {
-        return mHttpMethod;
+        return httpMethod;
     }
 
     @Override
     public int getVersion() {
-        return mEndpointVersion;
+        return endpointVersion;
     }
 
     @Override
     public boolean isPrivate() {
-        return mIsPrivate;
+        return isPrivate;
     }
 
     @Override
-    public Multimap<String, String> getQueryParameters(){
-        return mQueryParams;
+    public Multimap<String, String> getQueryParameters() {
+        return queryParams;
     }
 
     @Override
     public Object getContent() {
-        return mContent;
+        return content;
     }
 
 
     public static class RequestBuilder<ResourceType> {
-        private final String mUri;
-        private final String mHttpMethod;
-        private int mEndpointVersion;
-        private TypeToken<ResourceType> mResourceType;
-        private Boolean mIsPrivate;
-        private final Multimap<String, String> mParameters;
-        private Object mContent;
+        private final String uri;
+        private final String httpMethod;
+        private int endpointVersion;
+        private TypeToken<ResourceType> resourceType;
+        private Boolean isPrivate;
+        private final Multimap<String, String> parameters;
+        private Object content;
 
         public RequestBuilder(String uri, String methodName) {
-            mUri = uri;
-            mHttpMethod = methodName;
-            mParameters = UriUtils.getQueryParameters(uri);
+            this.uri = uri;
+            httpMethod = methodName;
+            parameters = UriUtils.getQueryParameters(uri);
         }
 
         public static <ResourceType> RequestBuilder<ResourceType> get(String uri) {
@@ -109,53 +109,53 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
             return new RequestBuilder<ResourceType>(uri, HttpDelete.METHOD_NAME);
         }
 
-        public APIRequest<ResourceType> build(){
-            checkArgument(isNotBlank(mUri), "URI needs to be valid value");
-            checkNotNull(mIsPrivate, "Must specify api mode");
-            if(mIsPrivate){
-                checkArgument(mEndpointVersion > 0, "Not a valid api version: %s", mEndpointVersion);
+        public APIRequest<ResourceType> build() {
+            checkArgument(isNotBlank(uri), "URI needs to be valid value");
+            checkNotNull(isPrivate, "Must specify api mode");
+            if (isPrivate) {
+                checkArgument(endpointVersion > 0, "Not a valid api version: %s", endpointVersion);
             }
-            return new SoundCloudAPIRequest<ResourceType>(Uri.parse(mUri), mHttpMethod, mEndpointVersion,
-                    mResourceType, mIsPrivate, mParameters, mContent);
+            return new SoundCloudAPIRequest<ResourceType>(Uri.parse(uri), httpMethod, endpointVersion,
+                    resourceType, isPrivate, parameters, content);
         }
 
         public RequestBuilder<ResourceType> forResource(TypeToken<ResourceType> typeToken) {
-            mResourceType = typeToken;
+            resourceType = typeToken;
             return this;
         }
 
         public RequestBuilder<ResourceType> forResource(Class<ResourceType> clazz) {
-            if(!equal(clazz, null)){
-                mResourceType = TypeToken.of(clazz);
+            if (!equal(clazz, null)) {
+                resourceType = TypeToken.of(clazz);
             }
             return this;
         }
 
         public RequestBuilder<ResourceType> forPrivateAPI(int version) {
-            mIsPrivate = true;
-            mEndpointVersion = version;
+            isPrivate = true;
+            endpointVersion = version;
             return this;
         }
 
         public RequestBuilder<ResourceType> forPublicAPI() {
-            mIsPrivate = false;
+            isPrivate = false;
             return this;
         }
 
-        public RequestBuilder<ResourceType> addQueryParameters(String key, Object... values){
-            for(Object object : values){
-                mParameters.put(key, object.toString());
+        public RequestBuilder<ResourceType> addQueryParameters(String key, Object... values) {
+            for (Object object : values) {
+                parameters.put(key, object.toString());
             }
             return this;
         }
 
-        public RequestBuilder<ResourceType> addQueryParametersAsCollection(String key, Collection<? extends Object> values){
-            mParameters.putAll(key, Collections2.transform(values, Functions.toStringFunction()));
+        public RequestBuilder<ResourceType> addQueryParametersAsCollection(String key, Collection<? extends Object> values) {
+            parameters.putAll(key, Collections2.transform(values, Functions.toStringFunction()));
             return this;
         }
 
         public RequestBuilder<ResourceType> withContent(Object content) {
-            mContent = content;
+            this.content = content;
             return this;
         }
 
@@ -164,11 +164,11 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
     @Override
     public String toString() {
         return Objects.toStringHelper(this).omitNullValues()
-                .add("uri", mUri.toString())
-                .add("httpMethod", mHttpMethod)
-                .add("endPointVersion", mEndpointVersion)
-                .add("isPrivate", mIsPrivate)
-                .add("resourceType", mResourceType)
-                .add("content", ScTextUtils.safeToString(mContent)).toString();
+                .add("uri", uri.toString())
+                .add("httpMethod", httpMethod)
+                .add("endPointVersion", endpointVersion)
+                .add("isPrivate", isPrivate)
+                .add("resourceType", resourceType)
+                .add("content", ScTextUtils.safeToString(content)).toString();
     }
 }

@@ -17,11 +17,11 @@ import java.util.List;
 public abstract class AsyncApiTask<Params, Progress, Result>
         extends AsyncTask<Params, Progress, Result>
         implements Endpoints, HttpStatus {
-    protected List<String> mErrors = new ArrayList<String>();
-    protected PublicCloudAPI mApi;
+    protected final List<String> errors = new ArrayList<String>();
+    protected final PublicCloudAPI api;
 
     public AsyncApiTask(PublicCloudAPI api) {
-        this.mApi = api;
+        this.api = api;
     }
 
     public void warn(String s, HttpResponse response) {
@@ -37,14 +37,14 @@ public abstract class AsyncApiTask<Params, Progress, Result>
     }
 
     public List<String> getErrors() {
-        return new ArrayList<String>(mErrors);
+        return new ArrayList<String>(errors);
     }
 
     protected void extractErrors(HttpResponse resp) throws IOException {
-        mErrors.addAll(IOUtils.parseError(mApi.getMapper().reader(), resp.getEntity().getContent()));
+        errors.addAll(IOUtils.parseError(api.getMapper().reader(), resp.getEntity().getContent()));
     }
 
     protected String getFirstError() {
-        return mErrors.isEmpty() ? null : mErrors.get(0);
+        return errors.isEmpty() ? null : errors.get(0);
     }
 }

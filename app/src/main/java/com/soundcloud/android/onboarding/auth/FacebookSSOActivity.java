@@ -475,13 +475,13 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
             HttpGet me = new HttpGet("https://graph.facebook.com/me");
             me.setHeader("Authorization", "OAuth "+token.accessToken);
             try {
-                final HttpResponse resp = mApi.safeExecute(null, me);
+                final HttpResponse resp = api.safeExecute(null, me);
                 int status = resp.getStatusLine().getStatusCode();
                 if (status == HttpStatus.SC_OK) {
                     JSONObject o = Http.getJSON(resp);
                     Object id = o.get("id");
                     if (id != null) {
-                        final HttpResponse scResp = mApi.post(Request.to(TempEndpoints.i1.ME_FACEBOOK_TOKEN).with(
+                        final HttpResponse scResp = api.post(Request.to(TempEndpoints.i1.ME_FACEBOOK_TOKEN).with(
                                 "uid",   id.toString(),
                                 "token", token.accessToken));
 

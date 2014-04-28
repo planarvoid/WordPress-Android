@@ -11,22 +11,22 @@ import java.io.IOException;
 @Singleton
 public class JacksonJsonTransformer implements JsonTransformer {
 
-    private final ObjectMapper mObjectMapper;
-    private final TypeFactory mTypeFactory;
+    private final ObjectMapper objectMapper;
+    private final TypeFactory typeFactory;
 
-    public JacksonJsonTransformer(){
-        mObjectMapper = PublicApiWrapper.buildObjectMapper();
-        mTypeFactory = mObjectMapper.getTypeFactory();
+    public JacksonJsonTransformer() {
+        objectMapper = PublicApiWrapper.buildObjectMapper();
+        typeFactory = objectMapper.getTypeFactory();
     }
 
     @Override
     public <T> T fromJson(String json, TypeToken<?> classToTransformTo) throws Exception {
-        return mObjectMapper.readValue(json, mTypeFactory.constructType(classToTransformTo.getType()));
+        return objectMapper.readValue(json, typeFactory.constructType(classToTransformTo.getType()));
 
     }
 
     @Override
     public String toJson(Object source) throws IOException {
-        return mObjectMapper.writeValueAsString(source);
+        return objectMapper.writeValueAsString(source);
     }
 }

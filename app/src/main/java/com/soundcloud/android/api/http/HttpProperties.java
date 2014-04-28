@@ -16,19 +16,20 @@ import java.util.Random;
 
 public class HttpProperties {
 
-    private static String HTTPS_API_URL_FORMAT = "http://%s";
+    private static final String HTTPS_API_URL_FORMAT = "http://%s";
+    private static final String CLIENT_ID = "40ccfee680a844780a41fbe23ea89934";
 
     public enum Parameter {
         OAUTH_PARAMETER("oauth_token");
 
         private final String parameter;
 
-        private Parameter(String parameter){
+        private Parameter(String parameter) {
             this.parameter = parameter;
         }
 
         @Override
-        public String toString(){
+        public String toString() {
             return parameter;
         }
 
@@ -38,20 +39,19 @@ public class HttpProperties {
             new long[]{0xCFDBF8AB10DCADA3L, 0x6C580A13A4B7801L, 0x607547EC749EBFB4L,
                     0x300C455E649B39A7L, 0x20A6BAC9576286CBL};
 
-    private static final String CLIENT_ID = "40ccfee680a844780a41fbe23ea89934";
     private final String apiMobileBaseUriPath;
     private final String httpsApiHost;
 
-    public HttpProperties(){
+    public HttpProperties() {
         this(SoundCloudApplication.instance);
     }
 
-    public HttpProperties(Context context){
+    public HttpProperties(Context context) {
         this(context.getResources());
     }
 
     @Inject
-    public HttpProperties(Resources resources){
+    public HttpProperties(Resources resources) {
         apiMobileBaseUriPath = resources.getString(R.string.api_mobile_base_uri_path);
         checkArgument(isNotBlank(apiMobileBaseUriPath), "API mobile base uri path cannot be blank");
 
@@ -67,23 +67,24 @@ public class HttpProperties {
     }
 
 
-    public String getClientId(){
+    public String getClientId() {
         return CLIENT_ID;
     }
 
-    public String getApiMobileBaseUriPath(){
+    public String getApiMobileBaseUriPath() {
         return apiMobileBaseUriPath;
     }
 
-    public String getPrivateApiHostWithHttpScheme(){
+    public String getPrivateApiHostWithHttpScheme() {
         return httpsApiHost;
     }
 
     /**
      * Based on
      * <a href="http://truelicense.java.net/apidocs/de/schlichtherle/util/ObfuscatedString.html">
-     *  ObfuscatedString
+     * ObfuscatedString
      * </a>
+     *
      * @param obfuscated the obfuscated array
      * @return unobfuscated string
      */

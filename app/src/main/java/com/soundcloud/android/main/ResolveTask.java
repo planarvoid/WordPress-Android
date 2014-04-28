@@ -29,13 +29,13 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, Uri> {
     }
 
     public Uri resolve(Uri uri) {
-        Uri local = resolveSoundCloudURI(uri, mApi.getEnv());
+        Uri local = resolveSoundCloudURI(uri, api.getEnv());
         if (local != null) {
             return local;
         }
 
         try {
-            HttpResponse resp = mApi.get(Request.to(Endpoints.RESOLVE).add("url", uri.toString()));
+            HttpResponse resp = api.get(Request.to(Endpoints.RESOLVE).add("url", uri.toString()));
             switch (resp.getStatusLine().getStatusCode()) {
                 case HttpStatus.SC_MOVED_TEMPORARILY: {
                     final Header location = resp.getFirstHeader("Location");

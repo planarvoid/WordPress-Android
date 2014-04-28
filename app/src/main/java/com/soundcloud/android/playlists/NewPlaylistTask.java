@@ -17,7 +17,7 @@ public class NewPlaylistTask extends AsyncApiTask<Request, Void, Playlist> {
         Request request = params[0];
 
         try {
-            return mApi.create(request);
+            return api.create(request);
         } catch (IOException e) {
             warn("IO error", e);
             return null;

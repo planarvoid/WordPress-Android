@@ -35,7 +35,7 @@ public class DeleteRegIdTask extends AsyncApiTask<String, Void, Boolean> {
     @Override
     protected Boolean doInBackground(String... params) {
         try {
-            HttpResponse resp = mApi.delete(Request.to(params[0]));
+            HttpResponse resp = api.delete(Request.to(params[0]));
             final int code = resp.getStatusLine().getStatusCode();
             switch (code) {
                 case HttpStatus.SC_OK:

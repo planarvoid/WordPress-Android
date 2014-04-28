@@ -39,16 +39,17 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
-public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHttpClient  {
+public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHttpClient {
     private static final String PRIVATE_API_ACCEPT_CONTENT_TYPE = "application/vnd.com.soundcloud.mobile.v%d+json";
     // do not use MediaType.JSON_UTF8; the public API does not accept qualified media types that include charsets
     private static final String PUBLIC_API_ACCEPT_CONTENT_TYPE = "application/json";
 
-    public static final String URI_APP_PREFIX = "/app";
+    @VisibleForTesting
+    static final String URI_APP_PREFIX = "/app";
 
-    private final JsonTransformer mJsonTransformer;
-    private final WrapperFactory mWrapperFactory;
-    private final HttpProperties mHttpProperties;
+    private final JsonTransformer jsonTransformer;
+    private final WrapperFactory wrapperFactory;
+    private final HttpProperties httpProperties;
 
     public SoundCloudRxHttpClient() {
         this(ScSchedulers.API_SCHEDULER);
@@ -69,9 +70,9 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
     @VisibleForTesting
     protected SoundCloudRxHttpClient(JsonTransformer jsonTransformer, WrapperFactory wrapperFactory,
                                      HttpProperties httpProperties) {
-        mJsonTransformer = jsonTransformer;
-        mWrapperFactory = wrapperFactory;
-        mHttpProperties = httpProperties;
+        this.jsonTransformer = jsonTransformer;
+        this.wrapperFactory = wrapperFactory;
+        this.httpProperties = httpProperties;
     }
 
 
@@ -133,7 +134,7 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
     private Object parseJsonResponse(APIResponse apiResponse, APIRequest apiRequest) throws APIRequestException {
         Object resource;
         try {
-            resource = mJsonTransformer.fromJson(apiResponse.getResponseBody(), apiRequest.getResourceType());
+            resource = jsonTransformer.fromJson(apiResponse.getResponseBody(), apiRequest.getResourceType());
         } catch (Exception e) {
             throw APIRequestException.badResponse(apiRequest, apiResponse, e);
         }
@@ -149,7 +150,7 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
      */
     private APIResponse executeRequest(APIRequest apiRequest) throws APIRequestException {
 
-        ApiWrapper apiWrapper = mWrapperFactory.createWrapper(apiRequest);
+        ApiWrapper apiWrapper = wrapperFactory.createWrapper(apiRequest);
         try {
             HttpMethod httpMethod = HttpMethod.valueOf(apiRequest.getMethod().toUpperCase(Locale.US));
             Log.d(this, "executing request: " + apiRequest);
@@ -174,11 +175,11 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
 
     private Request createSCRequest(APIRequest<?> apiRequest) throws IOException {
         final boolean needsPrefix = apiRequest.isPrivate() && !apiRequest.getEncodedPath().startsWith(URI_APP_PREFIX);
-        String baseUriPath = needsPrefix ? mHttpProperties.getApiMobileBaseUriPath() : ScTextUtils.EMPTY_STRING;
+        String baseUriPath = needsPrefix ? httpProperties.getApiMobileBaseUriPath() : ScTextUtils.EMPTY_STRING;
         Request request = Request.to(baseUriPath + apiRequest.getEncodedPath());
 
 
-        final Multimap<String,String> queryParameters = apiRequest.getQueryParameters();
+        final Multimap<String, String> queryParameters = apiRequest.getQueryParameters();
         Map<String, String> transformedParameters = Maps.toMap(queryParameters.keySet(), new Function<String, String>() {
             @Nullable
             @Override
@@ -187,38 +188,39 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
             }
         });
 
-        for(String key : transformedParameters.keySet()){
+        for (String key : transformedParameters.keySet()) {
             request.add(key, transformedParameters.get(key));
         }
 
         final Object content = apiRequest.getContent();
         if (content != null) {
-            request.withContent(mJsonTransformer.toJson(content), PUBLIC_API_ACCEPT_CONTENT_TYPE);
+            request.withContent(jsonTransformer.toJson(content), PUBLIC_API_ACCEPT_CONTENT_TYPE);
         }
         return request;
     }
 
     protected static class WrapperFactory {
-        private final Context mContext;
-        private final HttpProperties mHttpProperties;
-        private final AccountOperations mAccountOperations;
-        private final ApplicationProperties mApplicationProperties;
+        private final Context context;
+        private final HttpProperties httpProperties;
+        private final AccountOperations accountOperations;
+        private final ApplicationProperties applicationProperties;
 
-        public WrapperFactory(Context context){
+        public WrapperFactory(Context context) {
             this(context, new HttpProperties(context.getResources()), new AccountOperations(context),
                     new ApplicationProperties(context.getResources()));
         }
+
         @VisibleForTesting
         public WrapperFactory(Context context, HttpProperties httpProperties, AccountOperations accountOperations,
                               ApplicationProperties applicationProperties) {
-            mContext = context;
-            mHttpProperties = httpProperties;
-            mAccountOperations = accountOperations;
-            mApplicationProperties = applicationProperties;
+            this.context = context;
+            this.httpProperties = httpProperties;
+            this.accountOperations = accountOperations;
+            this.applicationProperties = applicationProperties;
         }
 
-        public ApiWrapper createWrapper(APIRequest apiRequest){
-            PublicApiWrapper publicApiWrapper = new PublicApiWrapper(mContext, mHttpProperties,mAccountOperations, mApplicationProperties);
+        public ApiWrapper createWrapper(APIRequest apiRequest) {
+            PublicApiWrapper publicApiWrapper = new PublicApiWrapper(context, httpProperties, accountOperations, applicationProperties);
             String acceptContentType = apiRequest.isPrivate()
                     ? format(Locale.US, PRIVATE_API_ACCEPT_CONTENT_TYPE, apiRequest.getVersion())
                     : PUBLIC_API_ACCEPT_CONTENT_TYPE;

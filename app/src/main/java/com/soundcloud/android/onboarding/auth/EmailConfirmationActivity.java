@@ -71,7 +71,7 @@ public class EmailConfirmationActivity extends ScActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                HttpResponse resp = mApi.post(Request.to(MY_CONFIRMATION));
+                HttpResponse resp = api.post(Request.to(MY_CONFIRMATION));
                 switch (resp.getStatusLine().getStatusCode()) {
                     case SC_ACCEPTED:   return true;  // email sent
                     case SC_OK:         return false; // already confirmed, no email sent

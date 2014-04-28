@@ -69,7 +69,7 @@ public class LoadCommentsTask extends AsyncApiTask<Long, Void, List<Comment>> {
 
     private List<Comment> list(Request path) {
         try {
-            return mApi.readList(path);
+            return api.readList(path);
         } catch (IOException e) {
             Log.w(TAG, "error fetching JSON", e);
             return null;

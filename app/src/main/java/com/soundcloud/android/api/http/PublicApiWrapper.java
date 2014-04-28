@@ -76,11 +76,11 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     private static final int API_LOOKUP_BATCH_SIZE = 200;
 
     private static PublicApiWrapper instance;
-    private ApplicationProperties mApplicationProperties;
-    private ObjectMapper mObjectMapper;
-    private Context mContext;
+    private ApplicationProperties applicationProperties;
+    private ObjectMapper objectMapper;
+    private Context context;
     private String userAgent;
-    private UnauthorisedRequestRegistry mUnauthorisedRequestRegistry;
+    private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
 
     public synchronized static PublicApiWrapper getInstance(Context context) {
         if (instance == null) {
@@ -109,10 +109,10 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
         super(clientId, clientSecret, redirectUri, token);
         // context can be null in tests
         if (context == null) return;
-        mUnauthorisedRequestRegistry = unauthorisedRequestRegistry;
-        mApplicationProperties = applicationProperties;
-        mContext = context;
-        mObjectMapper = mapper;
+        this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
+        this.applicationProperties = applicationProperties;
+        this.context = context;
+        objectMapper = mapper;
         setTokenListener(new SoundCloudTokenListener(context));
         userAgent = deviceHelper.getUserAgent();
         final IntentFilter filter = new IntentFilter();
@@ -148,7 +148,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     public void setProxy(URI proxy) {
         super.setProxy(proxy);
 
-        if (mApplicationProperties.shouldEnableNetworkProxy()) {
+        if (applicationProperties.shouldEnableNetworkProxy()) {
             getHttpClient().getConnectionManager().getSchemeRegistry()
                     .register(new Scheme("https",
                             proxy != null ? unsafeSocketFactory() : getSSLSocketFactory(), 443));
@@ -160,10 +160,10 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     @Override
     protected SSLSocketFactory getSSLSocketFactory() {
         //Why do we do this differentiation? Why not just use the standard one?
-        if (mApplicationProperties.isRunningOnDalvik()) {
+        if (applicationProperties.isRunningOnDalvik()) {
             // make use of android's implementation
             return SSLCertificateSocketFactory.getHttpSocketFactory(ApiWrapper.TIMEOUT,
-                    new SSLSessionCache(mContext));
+                    new SSLSessionCache(context));
         } else {
             // httpclient default
             return super.getSSLSocketFactory();
@@ -172,7 +172,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
     @Override
     public ObjectMapper getMapper() {
-        return mObjectMapper;
+        return objectMapper;
     }
 
     // add a bunch of logging in debug mode to make it easier to see and debug API request
@@ -192,12 +192,12 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
     private void recordUnauthorisedRequestIfRequired(HttpResponse response) {
         if (responseIsUnauthorised(response)) {
-            mUnauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
+            unauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
         }
     }
 
     private void logRequest(HttpUriRequest request, @Nullable HttpResponse response) {
-        if (!mApplicationProperties.isReleaseBuild()) {
+        if (!applicationProperties.isReleaseBuild()) {
             String report = generateRequestResponseLog(request, response);
             // we log using INFO level, since request logs can be useful in beta builds
             Log.i(TAG, report);
@@ -302,7 +302,8 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
                     new Request(request)
                             .add(LINKED_PARTITIONING, "1")
                             .add("limit", API_LOOKUP_BATCH_SIZE)
-                            .add("ids", TextUtils.join(",", batch)));
+                            .add("ids", TextUtils.join(",", batch))
+            );
 
             resources.addAll(res);
             i += API_LOOKUP_BATCH_SIZE;
@@ -341,7 +342,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     @SuppressWarnings("unchecked")
     public <T extends ScResource> ScResource.ScResourceHolder<T> readCollection(Request req) throws IOException {
         InputStream inputStream = getInputStream(get(req), req);
-        try{
+        try {
             return getMapper().readValue(inputStream, ScResource.ScResourceHolder.class);
         } finally {
             IOUtils.close(inputStream);

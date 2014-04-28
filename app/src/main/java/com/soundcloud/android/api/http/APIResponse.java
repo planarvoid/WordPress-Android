@@ -33,43 +33,43 @@ public class APIResponse {
         }
     };
 
-    private final int mStatusCode;
-    private final String mResponseBody;
-    private final Map<String, String> mResponseHeaders;
+    private final int statusCode;
+    private final String responseBody;
+    private final Map<String, String> responseHeaders;
 
     protected APIResponse(int statusCode, String responseBody, Header[] responseHeaders) {
-        mStatusCode = statusCode;
-        mResponseBody = responseBody;
-        mResponseHeaders = createHeadersMap(responseHeaders);
+        this.statusCode = statusCode;
+        this.responseBody = responseBody;
+        this.responseHeaders = createHeadersMap(responseHeaders);
     }
 
     public boolean isSuccess() {
         //TODO Wondering if this should not go beyond 300 status code
-        return mStatusCode >= HttpStatus.SC_OK && mStatusCode < HttpStatus.SC_BAD_REQUEST;
+        return statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_BAD_REQUEST;
     }
 
     public boolean accountIsRateLimited() {
-        return mStatusCode == SC_REQUEST_TOO_MANY_REQUESTS;
+        return statusCode == SC_REQUEST_TOO_MANY_REQUESTS;
     }
 
     public boolean responseCodeisForbidden() {
-        return mStatusCode == HttpStatus.SC_FORBIDDEN;
+        return statusCode == HttpStatus.SC_FORBIDDEN;
     }
 
     public boolean hasResponseBody() {
-        return !isNullOrEmpty(nullToEmpty(mResponseBody).trim());
+        return !isNullOrEmpty(nullToEmpty(responseBody).trim());
     }
 
     public String getHeader(String key) {
-        return mResponseHeaders.get(key);
+        return responseHeaders.get(key);
     }
 
     public int getStatusCode() {
-        return mStatusCode;
+        return statusCode;
     }
 
     public String getResponseBody() {
-        return mResponseBody;
+        return responseBody;
     }
 
     public boolean isNotSuccess() {
@@ -83,7 +83,7 @@ public class APIResponse {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add("statusCode", mStatusCode)
-                .add("responseHeader", mResponseHeaders).toString();
+                .add("statusCode", statusCode)
+                .add("responseHeader", responseHeaders).toString();
     }
 }
