@@ -11,22 +11,22 @@ import android.content.Intent;
 
 public class PlaylistChangedReceiver extends BroadcastReceiver {
 
-    private final ScBaseAdapter mAdapter;
+    private final ScBaseAdapter adapter;
 
     public PlaylistChangedReceiver(ScBaseAdapter baseAdapter) {
-        mAdapter = baseAdapter;
+        adapter = baseAdapter;
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (mAdapter != null) {
+        if (adapter != null) {
 
             long playlistId = intent.getLongExtra(Playlist.EXTRA_ID, -1);
             int newTracksCount = intent.getIntExtra(Playlist.EXTRA_TRACKS_COUNT, -1);
 
-            for (int i = 0; i < mAdapter.getCount(); i++) {
-                if (mAdapter.getItem(i) instanceof PlayableHolder) {
-                    updatePlayableIfNecessary(((PlayableHolder) mAdapter.getItem(i)).getPlayable(),
+            for (int i = 0; i < adapter.getCount(); i++) {
+                if (adapter.getItem(i) instanceof PlayableHolder) {
+                    updatePlayableIfNecessary(((PlayableHolder) adapter.getItem(i)).getPlayable(),
                             playlistId, newTracksCount);
                 }
 
@@ -37,7 +37,7 @@ public class PlaylistChangedReceiver extends BroadcastReceiver {
     private void updatePlayableIfNecessary(Playable playable, long playlistId, int newTracksCount) {
         if (playable instanceof Playlist && playable.getId() == playlistId) {
             ((Playlist) playable).setTrackCount(newTracksCount);
-            mAdapter.notifyDataSetChanged();
+            adapter.notifyDataSetChanged();
         }
     }
 }

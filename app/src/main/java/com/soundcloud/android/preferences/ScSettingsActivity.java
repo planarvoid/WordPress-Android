@@ -1,45 +1,46 @@
 package com.soundcloud.android.preferences;
 
-import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 
+import android.os.Bundle;
+import android.preference.PreferenceActivity;
+
 public abstract class ScSettingsActivity extends PreferenceActivity {
 
     private static final String BUNDLE_CONFIGURATION_CHANGE = "BUNDLE_CONFIGURATION_CHANGE";
 
-    private boolean mOnCreateCalled;
-    private boolean mIsConfigurationChange;
+    private boolean onCreateCalled;
+    private boolean isConfigurationChange;
 
-    protected EventBus mEventBus;
+    protected EventBus eventBus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mEventBus = SoundCloudApplication.fromContext(this).getEventBus();
-        mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
+        eventBus = SoundCloudApplication.fromContext(this).getEventBus();
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
 
-        mOnCreateCalled = true;
+        onCreateCalled = true;
         if (savedInstanceState != null) {
-            mIsConfigurationChange = savedInstanceState.getBoolean(BUNDLE_CONFIGURATION_CHANGE, false);
+            isConfigurationChange = savedInstanceState.getBoolean(BUNDLE_CONFIGURATION_CHANGE, false);
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
 
-        mOnCreateCalled = false;
+        onCreateCalled = false;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this.getClass()));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this.getClass()));
     }
 
     @Override
@@ -49,11 +50,11 @@ public abstract class ScSettingsActivity extends PreferenceActivity {
     }
 
     protected boolean isReallyResuming() {
-        return !mOnCreateCalled;
+        return !onCreateCalled;
     }
 
     protected boolean isConfigurationChange() {
-        return mIsConfigurationChange;
+        return isConfigurationChange;
     }
 
     protected boolean shouldTrackScreen() {

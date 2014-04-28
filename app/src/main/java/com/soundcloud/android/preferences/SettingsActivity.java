@@ -57,16 +57,16 @@ public class SettingsActivity extends ScSettingsActivity {
 
     public static final String CRASH_REPORTING_ENABLED = "acra.enable";
 
-    private int mClicksToDebug = CLICKS_TO_DEBUG_MODE;
+    private int clicksToDebug = CLICKS_TO_DEBUG_MODE;
 
-    private ProgressDialog mDeleteDialog;
-    private ApplicationProperties mApplicationProperties;
+    private ProgressDialog deleteDialog;
+    private ApplicationProperties applicationProperties;
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         addPreferencesFromResource(R.xml.settings);
-        mApplicationProperties = new ApplicationProperties(getResources());
+        applicationProperties = new ApplicationProperties(getResources());
         PreferenceGroup extras = (PreferenceGroup) findPreference(EXTRAS);
         getPreferenceScreen().removePreference(extras);
 
@@ -94,7 +94,7 @@ public class SettingsActivity extends ScSettingsActivity {
         findPreference(CHANGE_LOG).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SETTINGS_CHANGE_LOG.get());
+                        eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SETTINGS_CHANGE_LOG.get());
                         cl.getDialog().show();
                         return true;
                     }
@@ -131,10 +131,10 @@ public class SettingsActivity extends ScSettingsActivity {
 
                             @Override
                             protected void onProgressUpdate(Integer... progress) {
-                                if (mDeleteDialog != null) {
-                                    mDeleteDialog.setIndeterminate(false);
-                                    mDeleteDialog.setProgress(progress[0]);
-                                    mDeleteDialog.setMax(progress[1]);
+                                if (deleteDialog != null) {
+                                    deleteDialog.setIndeterminate(false);
+                                    deleteDialog.setProgress(progress[0]);
+                                    deleteDialog.setMax(progress[1]);
                                 }
                             }
 
@@ -159,10 +159,10 @@ public class SettingsActivity extends ScSettingsActivity {
 
                             @Override
                             protected void onProgressUpdate(Integer... progress) {
-                                if (mDeleteDialog != null) {
-                                    mDeleteDialog.setIndeterminate(false);
-                                    mDeleteDialog.setProgress(progress[0]);
-                                    mDeleteDialog.setMax(progress[1]);
+                                if (deleteDialog != null) {
+                                    deleteDialog.setIndeterminate(false);
+                                    deleteDialog.setProgress(progress[0]);
+                                    deleteDialog.setMax(progress[1]);
                                 }
                             }
 
@@ -193,10 +193,10 @@ public class SettingsActivity extends ScSettingsActivity {
         versionPref.setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        mClicksToDebug--;
-                        if (mClicksToDebug == 0) {
+                        clicksToDebug--;
+                        if (clicksToDebug == 0) {
                             togglePlaybackDebugMode();
-                            mClicksToDebug = CLICKS_TO_DEBUG_MODE; // reset for another toggle
+                            clicksToDebug = CLICKS_TO_DEBUG_MODE; // reset for another toggle
                         }
                         return true;
                     }
@@ -211,7 +211,7 @@ public class SettingsActivity extends ScSettingsActivity {
         }
 
 
-        if (mApplicationProperties.isDebugBuild()) {
+        if (applicationProperties.isDebugBuild()) {
             DevSettings.setup(this, getApp());
         } else {
             getPreferenceScreen().removePreference(findPreference(DevSettings.PREF_KEY));
@@ -248,7 +248,7 @@ public class SettingsActivity extends ScSettingsActivity {
         updateClearCacheTitles();
         super.onResume();
         if (shouldTrackScreen()) {
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SETTINGS_MAIN.get());
+            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SETTINGS_MAIN.get());
         }
     }
 
@@ -274,15 +274,15 @@ public class SettingsActivity extends ScSettingsActivity {
     protected Dialog onCreateDialog(int id) {
         switch (id) {
             case DIALOG_CACHE_DELETING:
-                if (mDeleteDialog == null) {
-                    mDeleteDialog = new ProgressDialog(this);
-                    mDeleteDialog.setTitle(R.string.cache_clearing);
-                    mDeleteDialog.setMessage(getString(R.string.cache_clearing_message));
-                    mDeleteDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                    mDeleteDialog.setIndeterminate(true);
-                    mDeleteDialog.setCancelable(false);
+                if (deleteDialog == null) {
+                    deleteDialog = new ProgressDialog(this);
+                    deleteDialog.setTitle(R.string.cache_clearing);
+                    deleteDialog.setMessage(getString(R.string.cache_clearing_message));
+                    deleteDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                    deleteDialog.setIndeterminate(true);
+                    deleteDialog.setCancelable(false);
                 }
-                return mDeleteDialog;
+                return deleteDialog;
 
             case DIALOG_USER_LOGOUT_CONFIRM:
                 return createLogoutDialog();

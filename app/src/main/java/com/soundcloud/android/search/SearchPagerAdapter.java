@@ -14,26 +14,26 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     protected static final int TAB_PLAYLISTS = 2;
     protected static final int TAB_PEOPLE = 3;
 
-    private final Resources mResources;
-    private final String mQuery;
+    private final Resources resources;
+    private final String query;
 
     public SearchPagerAdapter(Resources resources, FragmentManager fm, String query) {
         super(fm);
-        mResources = resources;
-        mQuery = query;
+        this.resources = resources;
+        this.query = query;
     }
 
     @Override
     public Fragment getItem(int position) {
         switch(position) {
             case TAB_ALL:
-                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_ALL, mQuery);
+                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_ALL, query);
             case TAB_TRACKS:
-                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_TRACKS, mQuery);
+                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_TRACKS, query);
             case TAB_PLAYLISTS:
-                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_PLAYLISTS, mQuery);
+                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_PLAYLISTS, query);
             case TAB_PEOPLE:
-                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_USERS, mQuery);
+                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_USERS, query);
         }
         throw new IllegalArgumentException("Unexpected position for getItem " + position);
     }
@@ -42,13 +42,13 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case TAB_ALL:
-                return mResources.getString(R.string.search_type_all);
+                return resources.getString(R.string.search_type_all);
             case TAB_TRACKS:
-                return mResources.getString(R.string.search_type_tracks);
+                return resources.getString(R.string.search_type_tracks);
             case TAB_PLAYLISTS:
-                return mResources.getString(R.string.search_type_playlists);
+                return resources.getString(R.string.search_type_playlists);
             case TAB_PEOPLE:
-                return mResources.getString(R.string.search_type_people);
+                return resources.getString(R.string.search_type_people);
         }
         throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
     }

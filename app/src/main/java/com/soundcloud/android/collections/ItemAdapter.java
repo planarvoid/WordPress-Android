@@ -20,10 +20,10 @@ public abstract class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter 
 
     protected static final String EXTRA_KEY_ITEMS = "adapter.items";
 
-    protected ArrayList<ItemT> mItems;
+    protected ArrayList<ItemT> items;
 
     protected ItemAdapter(int initalDataSize) {
-        mItems = new ArrayList<ItemT>(initalDataSize);
+        items = new ArrayList<ItemT>(initalDataSize);
     }
 
     @Override
@@ -33,24 +33,24 @@ public abstract class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter 
 
     @Override
     public int getCount() {
-        return mItems.size();
+        return items.size();
     }
 
     @Override
     public ItemT getItem(int location) {
-        return mItems.get(location);
+        return items.get(location);
     }
 
     public List<ItemT> getItems() {
-        return mItems;
+        return items;
     }
 
     public void addItem(ItemT item) {
-        mItems.add(item);
+        items.add(item);
     }
 
     public void clear() {
-        mItems.clear();
+        items.clear();
     }
 
     @Override
@@ -67,7 +67,7 @@ public abstract class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter 
      * {@link #restoreInstanceState(android.os.Bundle)}
      */
     public void saveInstanceState(Bundle bundle) {
-        bundle.putParcelableArrayList(EXTRA_KEY_ITEMS, mItems);
+        bundle.putParcelableArrayList(EXTRA_KEY_ITEMS, items);
     }
 
     /**
@@ -75,7 +75,7 @@ public abstract class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter 
      * {@link #saveInstanceState(android.os.Bundle)}
      */
     public void restoreInstanceState(Bundle bundle) {
-        mItems = bundle.getParcelableArrayList(EXTRA_KEY_ITEMS);
+        items = bundle.getParcelableArrayList(EXTRA_KEY_ITEMS);
     }
 
     protected abstract View createItemView(int position, ViewGroup parent);

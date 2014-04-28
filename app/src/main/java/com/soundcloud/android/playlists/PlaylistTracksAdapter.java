@@ -14,21 +14,21 @@ class PlaylistTracksAdapter extends ItemAdapter<Track> {
 
     private static final int INITIAL_SIZE = 20;
 
-    private final ImageOperations mImageOperations;
+    private final ImageOperations imageOperations;
 
     @Inject
     PlaylistTracksAdapter(ImageOperations imageOperations) {
         super(INITIAL_SIZE);
-        mImageOperations = imageOperations;
+        this.imageOperations = imageOperations;
     }
 
     @Override
     protected View createItemView(int position, ViewGroup parent) {
-        return new PlayableRow(parent.getContext(), mImageOperations);
+        return new PlayableRow(parent.getContext(), imageOperations);
     }
 
     @Override
     protected void bindItemView(int position, View itemView) {
-        ((PlayableRow) itemView).display(position, mItems.get(position));
+        ((PlayableRow) itemView).display(position, items.get(position));
     }
 }

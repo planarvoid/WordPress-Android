@@ -12,7 +12,7 @@ import android.net.Uri;
 import javax.inject.Inject;
 
 public class UserStorage extends ScheduledOperations implements Storage<User> {
-    private UserDAO mUserDAO;
+    private UserDAO userDAO;
 
     @Deprecated // use @Inject instead
     public UserStorage() {
@@ -22,12 +22,12 @@ public class UserStorage extends ScheduledOperations implements Storage<User> {
     @Inject
     public UserStorage(UserDAO userDAO) {
         super(ScSchedulers.STORAGE_SCHEDULER);
-        mUserDAO = userDAO;
+        this.userDAO = userDAO;
     }
 
     @Override
     public User store(User user) {
-        mUserDAO.create(user.buildContentValues());
+        userDAO.create(user.buildContentValues());
         return user;
     }
 
@@ -43,7 +43,7 @@ public class UserStorage extends ScheduledOperations implements Storage<User> {
     }
 
     public User createOrUpdate(User user) {
-        mUserDAO.createOrUpdate(user.getId(), user.buildContentValues());
+        userDAO.createOrUpdate(user.getId(), user.buildContentValues());
         return user;
     }
 
@@ -58,11 +58,11 @@ public class UserStorage extends ScheduledOperations implements Storage<User> {
     }
 
     public User getUser(long id) {
-        return mUserDAO.queryById(id);
+        return userDAO.queryById(id);
     }
 
     public User getUserByUri(Uri uri) {
-        return mUserDAO.queryByUri(uri);
+        return userDAO.queryByUri(uri);
     }
 
 }

@@ -28,25 +28,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
-    private Cursor mCursor;
-    private boolean mDataValid;
-    private List<Recording> mRecordingData;
+    private Cursor cursor;
+    private boolean dataValid;
+    private List<Recording> recordingData;
 
     private static final int TYPE_PENDING_RECORDING = 0;
     private static final int TYPE_TRACK = 1;
-    private ChangeObserver mChangeObserver;
-    private PlaybackOperations mPlaybackOperations;
-    private ImageOperations mImageOperations;
+    private ChangeObserver changeObserver;
+    private PlaybackOperations playbackOperations;
+    private ImageOperations imageOperations;
 
     public MyTracksAdapter(ScActivity activity, ImageOperations imageOperations) {
         super(Content.ME_SOUNDS.uri);
         ContentResolver contentResolver = activity.getApplicationContext().getContentResolver();
         refreshCursor(contentResolver);
 
-        mPlaybackOperations = new PlaybackOperations();
-        mChangeObserver = new ChangeObserver(activity);
-        mImageOperations = imageOperations;
-        contentResolver.registerContentObserver(Content.RECORDINGS.uri, true, mChangeObserver);
+        playbackOperations = new PlaybackOperations();
+        changeObserver = new ChangeObserver(activity);
+        this.imageOperations = imageOperations;
+        contentResolver.registerContentObserver(Content.RECORDINGS.uri, true, changeObserver);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     @Override
     protected IconLayout createRow(Context context, int position) {
         return getItemViewType(position) == TYPE_PENDING_RECORDING ?
-                new MyTracklistRow(context, mImageOperations) : new PlayableRow(context, mImageOperations);
+                new MyTracklistRow(context, imageOperations) : new PlayableRow(context, imageOperations);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
 
     @Override
     public int getItemCount() {
-        return mRecordingData == null ? super.getItemCount() : mRecordingData.size() + super.getItemCount();
+        return recordingData == null ? super.getItemCount() : recordingData.size() + super.getItemCount();
     }
 
     public boolean needsItems() {
@@ -83,31 +83,31 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     }
 
     public int getPendingRecordingsCount(){
-        return mRecordingData == null ? 0 : mRecordingData.size();
+        return recordingData == null ? 0 : recordingData.size();
     }
 
     private void refreshCursor(ContentResolver contentResolver) {
-        mCursor = contentResolver.query(Content.RECORDINGS.uri, null,
+        cursor = contentResolver.query(Content.RECORDINGS.uri, null,
                 TableColumns.Recordings.UPLOAD_STATUS + " < " + Recording.Status.UPLOADED + " OR " + TableColumns.Recordings.UPLOAD_STATUS + " = " + Recording.Status.ERROR,
                 null,
                 TableColumns.Recordings.TIMESTAMP + " DESC");
 
-        if (mCursor != null) {
-            mDataValid = true;
-            mRecordingData = loadRecordings(mCursor);
+        if (cursor != null) {
+            dataValid = true;
+            recordingData = loadRecordings(cursor);
         } else {
-            mDataValid = false;
+            dataValid = false;
         }
 
-        if (mCursor != null) {
-            mCursor.close();
-            mCursor = null;
+        if (cursor != null) {
+            cursor.close();
+            cursor = null;
         }
 
         notifyDataSetChanged();
 
         // updated recording functionality requires special handling of old recordings
-        DeprecatedRecordingProfile.migrateRecordings(mRecordingData, contentResolver);
+        DeprecatedRecordingProfile.migrateRecordings(recordingData, contentResolver);
     }
 
 
@@ -121,19 +121,19 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
 
     @Override
     public int getCount() {
-        if (mRecordingData != null) {
-            return mRecordingData.size() + super.getCount();
+        if (recordingData != null) {
+            return recordingData.size() + super.getCount();
         } else {
             return super.getCount();
         }
     }
     @Override
     public ScResource getItem(int position) {
-        if (mRecordingData != null) {
-            if (position < mRecordingData.size()) {
-                return mRecordingData.get(position);
+        if (recordingData != null) {
+            if (position < recordingData.size()) {
+                return recordingData.get(position);
             } else {
-                return super.getItem(position - mRecordingData.size());
+                return super.getItem(position - recordingData.size());
             }
         } else {
             return super.getItem(position);
@@ -149,8 +149,8 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
      * @param activity
      */
     protected void onContentChanged(ScActivity activity) {
-        mDataValid = false;
-        if (activity.isForeground() && mCursor == null) {
+        dataValid = false;
+        if (activity.isForeground() && cursor == null) {
             refreshCursor(activity.getContentResolver());
         }
         notifyDataSetChanged();
@@ -158,7 +158,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
 
     @Override
     public void onResume(ScActivity activity) {
-        if (!mDataValid) {
+        if (!dataValid) {
             onContentChanged(activity);
         }
     }
@@ -173,15 +173,15 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
                 context.startActivity(new Intent(context,(r.external_upload ? UploadActivity.class : RecordActivity.class)).setData(r.toUri()));
             }
         } else {
-            mPlaybackOperations.playFromAdapter(context, mData, position - mRecordingData.size(), mContentUri, screen);
+            playbackOperations.playFromAdapter(context, mData, position - recordingData.size(), mContentUri, screen);
         }
         return ItemClickResults.LEAVING;
     }
 
     public void onDestroy() {
-        Context context = mChangeObserver.mContextRef.get();
+        Context context = changeObserver.mContextRef.get();
         if (context != null ) {
-            context.getContentResolver().unregisterContentObserver(mChangeObserver);
+            context.getContentResolver().unregisterContentObserver(changeObserver);
         }
     }
 
@@ -208,8 +208,8 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     @Override
     public String toString() {
         return "MyTracksAdapter{" +
-                "mDataValid=" + mDataValid +
-                ", mRecordingData=" + mRecordingData +
+                "dataValid=" + dataValid +
+                ", recordingData=" + recordingData +
                 ", mData=" + mData +
                 '}';
     }

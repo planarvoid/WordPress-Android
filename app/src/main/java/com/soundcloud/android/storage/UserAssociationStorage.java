@@ -38,9 +38,9 @@ import java.util.List;
  * @see com.soundcloud.android.model.UserAssociation.Type
  */
 public class UserAssociationStorage extends ScheduledOperations {
-    private final ContentResolver mResolver;
-    private final UserAssociationDAO mUserAssociationDAO;
-    private final UserAssociationDAO mFollowingsDAO;
+    private final ContentResolver resolver;
+    private final UserAssociationDAO userAssociationDAO;
+    private final UserAssociationDAO followingsDAO;
 
     public UserAssociationStorage(Context context) {
         this(ScSchedulers.STORAGE_SCHEDULER, SoundCloudApplication.fromContext(context).getContentResolver());
@@ -48,9 +48,9 @@ public class UserAssociationStorage extends ScheduledOperations {
 
     public UserAssociationStorage(Scheduler scheduler, ContentResolver resolver) {
         super(scheduler);
-        mResolver = resolver;
-        mUserAssociationDAO = new UserAssociationDAO(mResolver);
-        mFollowingsDAO = UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, mResolver);
+        this.resolver = resolver;
+        userAssociationDAO = new UserAssociationDAO(this.resolver);
+        followingsDAO = UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, this.resolver);
     }
 
     public Observable<UserAssociation> getFollowings() {
@@ -58,7 +58,7 @@ public class UserAssociationStorage extends ScheduledOperations {
             @Override
             public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
                 RxUtils.emitIterable(userAssociationObserver,
-                        mFollowingsDAO.buildQuery().
+                        followingsDAO.buildQuery().
                                 where(TableColumns.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NULL").queryAll()
                 );
                 userAssociationObserver.onCompleted();
@@ -80,7 +80,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                 UserAssociation following = queryFollowingByTargetUserId(user.getId());
                 if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL) {
                     following = new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition();
-                    mFollowingsDAO.create(following);
+                    followingsDAO.create(following);
 
                 }
                 userAssociationObserver.onNext(following);
@@ -98,7 +98,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                 if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL) {
                     following = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(suggestedUser))
                             .markForAddition(suggestedUser.getToken());
-                    mFollowingsDAO.create(following);
+                    followingsDAO.create(following);
                 }
                 userAssociationObserver.onNext(following);
                 userAssociationObserver.onCompleted();
@@ -122,7 +122,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                 for (User user : users) {
                     userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition());
                 }
-                mFollowingsDAO.createCollection(userAssociations);
+                followingsDAO.createCollection(userAssociations);
                 RxUtils.emitIterable(userAssociationObserver, userAssociations);
                 userAssociationObserver.onCompleted();
             }
@@ -148,7 +148,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                             UserAssociation.Type.FOLLOWING, new User(suggestedUser)
                     ).markForAddition(suggestedUser.getToken()));
                 }
-                mFollowingsDAO.createCollection(userAssociations);
+                followingsDAO.createCollection(userAssociations);
                 RxUtils.emitIterable(userAssociationObserver, userAssociations);
                 userAssociationObserver.onCompleted();
             }
@@ -168,8 +168,8 @@ public class UserAssociationStorage extends ScheduledOperations {
             @Override
             public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
                 final UserAssociation following = new UserAssociation(SoundAssociation.Type.FOLLOWING, user).markForRemoval();
-                if (mUserAssociationDAO.update(following)) {
-                    new UserDAO(mResolver).update(user);
+                if (userAssociationDAO.update(following)) {
+                    new UserDAO(resolver).update(user);
                     userAssociationObserver.onNext(following);
                     userAssociationObserver.onCompleted();
                 } else {
@@ -194,7 +194,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                 for (User user : users) {
                     userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForRemoval());
                 }
-                mFollowingsDAO.createCollection(userAssociations);
+                followingsDAO.createCollection(userAssociations);
                 RxUtils.emitIterable(userAssociationObserver, userAssociations);
                 userAssociationObserver.onCompleted();
             }
@@ -206,7 +206,7 @@ public class UserAssociationStorage extends ScheduledOperations {
         final String selection = Content.ME_FOLLOWINGS.uri.equals(uri)
                 ? TableColumns.UserAssociations.REMOVED_AT + " IS NULL AND " + TableColumns.UserAssociations.ADDED_AT + " IS NULL"
                 : null;
-        return ResolverHelper.idCursorToList(mResolver.query(ResolverHelper.addIdOnlyParameter(uri), null, selection, null, null));
+        return ResolverHelper.idCursorToList(resolver.query(ResolverHelper.addIdOnlyParameter(uri), null, selection, null, null));
     }
 
     @Deprecated
@@ -214,7 +214,7 @@ public class UserAssociationStorage extends ScheduledOperations {
         if (!itemDeletions.isEmpty()) {
             for (int i = 0; i < itemDeletions.size(); i += BaseDAO.RESOLVER_BATCH_SIZE) {
                 List<Long> batch = itemDeletions.subList(i, Math.min(i + BaseDAO.RESOLVER_BATCH_SIZE, itemDeletions.size()));
-                mResolver.delete(uri, getWhereInClause(TableColumns.UserAssociations.TARGET_ID, batch.size()), longListToStringArr(batch));
+                resolver.delete(uri, getWhereInClause(TableColumns.UserAssociations.TARGET_ID, batch.size()), longListToStringArr(batch));
             }
         }
         return itemDeletions;
@@ -234,7 +234,7 @@ public class UserAssociationStorage extends ScheduledOperations {
             contentValues.put(TableColumns.UserAssociations.OWNER_ID, userId);
             map.add(collectionUri, contentValues);
         }
-        return map.insert(mResolver);
+        return map.insert(resolver);
     }
 
     @Deprecated//TODO: batching logic should be centralized somewhere, e.g. in BaseDAO
@@ -254,22 +254,22 @@ public class UserAssociationStorage extends ScheduledOperations {
                 cv[j].put(TableColumns.UserAssociations.OWNER_ID, ownerId);
             }
             positionOffset += idBatch.size();
-            mResolver.bulkInsert(content.uri, cv);
+            resolver.bulkInsert(content.uri, cv);
         }
     }
 
     public void clear() {
-        UserAssociationDAO.forContent(Content.USER_ASSOCIATIONS, mResolver).deleteAll();
+        UserAssociationDAO.forContent(Content.USER_ASSOCIATIONS, resolver).deleteAll();
     }
 
     public List<UserAssociation> getFollowingsNeedingSync() {
-        return mFollowingsDAO.buildQuery().where(TableColumns.UserAssociationView.USER_ASSOCIATION_ADDED_AT + " IS NOT NULL OR " +
+        return followingsDAO.buildQuery().where(TableColumns.UserAssociationView.USER_ASSOCIATION_ADDED_AT + " IS NOT NULL OR " +
                 TableColumns.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NOT NULL"
         ).queryAll();
     }
 
     public boolean hasFollowingsNeedingSync() {
-        return mUserAssociationDAO.count(
+        return userAssociationDAO.count(
                 TableColumns.UserAssociations.ASSOCIATION_TYPE + " = ? AND (" +
                         TableColumns.UserAssociations.ADDED_AT + " IS NOT NULL OR " +
                         TableColumns.UserAssociations.REMOVED_AT + " IS NOT NULL )"
@@ -282,9 +282,9 @@ public class UserAssociationStorage extends ScheduledOperations {
             switch (following.getLocalSyncState()) {
                 case PENDING_ADDITION:
                     following.clearLocalSyncState();
-                    return mUserAssociationDAO.update(following);
+                    return userAssociationDAO.update(following);
                 case PENDING_REMOVAL:
-                    return mFollowingsDAO.delete(following);
+                    return followingsDAO.delete(following);
             }
         }
         return false;
@@ -292,7 +292,7 @@ public class UserAssociationStorage extends ScheduledOperations {
 
     public boolean deleteFollowings(Collection<UserAssociation> followings){
         for (UserAssociation following : followings){
-            if (!mFollowingsDAO.delete(following)) return false;
+            if (!followingsDAO.delete(following)) return false;
         }
         return true;
     }
@@ -306,7 +306,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                     ua.clearLocalSyncState();
                 }
                 // TODO: this will trigger an upsert, but we should have an explicit updateAll method
-                mFollowingsDAO.createCollection(userAssociations);
+                followingsDAO.createCollection(userAssociations);
                 observer.onNext(userAssociations);
                 observer.onCompleted();
             }
@@ -318,7 +318,7 @@ public class UserAssociationStorage extends ScheduledOperations {
         String where = TableColumns.UserAssociationView._ID + " = ? AND " +
                 TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE + " = ?";
 
-        return mFollowingsDAO.buildQuery()
+        return followingsDAO.buildQuery()
                 .where(where, String.valueOf(targetUserId), String.valueOf(Association.Type.FOLLOWING.collectionType))
                 .first();
     }

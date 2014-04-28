@@ -31,10 +31,10 @@ import java.util.List;
 import java.util.Set;
 
 public class PlaylistStorage extends ScheduledOperations implements Storage<Playlist> {
-    private final ContentResolver mResolver;
-    private final PlaylistDAO mPlaylistDAO;
-    private final TrackDAO mTrackDAO;
-    private final ScModelManager mModelManager;
+    private final ContentResolver resolver;
+    private final PlaylistDAO playlistDAO;
+    private final TrackDAO trackDAO;
+    private final ScModelManager modelManager;
 
     @Deprecated
     public PlaylistStorage() {
@@ -47,18 +47,18 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     @Inject
     public PlaylistStorage(ContentResolver resolver, PlaylistDAO playlistDAO, TrackDAO trackDAO, ScModelManager modelManager) {
         super(ScSchedulers.STORAGE_SCHEDULER);
-        mResolver = resolver;
-        mPlaylistDAO = playlistDAO;
-        mTrackDAO = trackDAO;
-        mModelManager = modelManager;
+        this.resolver = resolver;
+        this.playlistDAO = playlistDAO;
+        this.trackDAO = trackDAO;
+        this.modelManager = modelManager;
     }
 
     public Playlist loadPlaylist(long playlistId) throws NotFoundException {
-        final Playlist playlist = mPlaylistDAO.queryById(playlistId);
+        final Playlist playlist = playlistDAO.queryById(playlistId);
         if (playlist == null) {
             throw new NotFoundException(playlistId);
         } else {
-            return mModelManager.cache(playlist);
+            return modelManager.cache(playlist);
         }
     }
 
@@ -80,7 +80,7 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         final Playlist playlist = loadPlaylist(playlistId);
         playlist.tracks = loadTracksForPlaylist(playlist);
 
-        return mModelManager.cache(playlist, ScResource.CacheUpdateMode.FULL);
+        return modelManager.cache(playlist, ScResource.CacheUpdateMode.FULL);
     }
 
     public Observable<Playlist> loadPlaylistWithTracksAsync(final long playlistId) {
@@ -99,10 +99,10 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
 
     @Override
     public Playlist store(Playlist playlist) {
-        mPlaylistDAO.create(playlist);
+        playlistDAO.create(playlist);
         if (playlist.getTrackCount() == 0){
             // this needs to be run on an empty playlist, if not empty, they would have been removed by a bulkInsert of the new tracks
-            mResolver.delete(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.getId())), null, null);
+            resolver.delete(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.getId())), null, null);
         }
 
         return playlist;
@@ -134,7 +134,7 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     public Observable<Playlist> createNewUserPlaylistAsync(User user, String title, boolean isPrivate, long... trackIds) {
         ArrayList<Track> tracks = new ArrayList<Track>(trackIds.length);
         for (long trackId : trackIds){
-            Track track = mModelManager.getCachedTrack(trackId);
+            Track track = modelManager.getCachedTrack(trackId);
             tracks.add(track == null ? new Track(trackId) : track);
         }
 
@@ -148,14 +148,14 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
 
     public Playlist addTrackToPlaylist(Playlist playlist, long trackId, long timeAdded) {
         playlist.setTrackCount(playlist.getTrackCount() + 1);
-        mModelManager.cache(playlist, ScResource.CacheUpdateMode.MINI);
+        modelManager.cache(playlist, ScResource.CacheUpdateMode.MINI);
 
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlist.getId());
         cv.put(TableColumns.PlaylistTracks.TRACK_ID, trackId);
         cv.put(TableColumns.PlaylistTracks.ADDED_AT, timeAdded);
         cv.put(TableColumns.PlaylistTracks.POSITION, playlist.getTrackCount());
-        mResolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.getId())), cv);
+        resolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.getId())), cv);
 
         return playlist;
     }
@@ -164,34 +164,34 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
      * Remove a playlist and all associations such as likes, reposts or sharings from the database.
      */
     public void removePlaylist(Uri playlistUri) {
-        Playlist p = mModelManager.getPlaylist(playlistUri);
+        Playlist p = modelManager.getPlaylist(playlistUri);
         if (p != null) {
             p.removed = true;
-            mModelManager.removeFromCache(p.toUri());
+            modelManager.removeFromCache(p.toUri());
         }
         long playlistId = UriUtils.getLastSegmentAsLong(playlistUri);
 
         final String playlistIdString = String.valueOf(playlistId);
-        mResolver.delete(Content.PLAYLIST.forQuery(playlistIdString), null, null);
-        mResolver.delete(Content.PLAYLIST_TRACKS.forQuery(playlistIdString), null, null);
+        resolver.delete(Content.PLAYLIST.forQuery(playlistIdString), null, null);
+        resolver.delete(Content.PLAYLIST_TRACKS.forQuery(playlistIdString), null, null);
 
         // delete from collections
         String where = TableColumns.CollectionItems.ITEM_ID + " = " + playlistId + " AND "
                 + TableColumns.CollectionItems.RESOURCE_TYPE + " = " + Playable.DB_TYPE_PLAYLIST;
 
-        mResolver.delete(Content.ME_PLAYLISTS.uri, where, null);
-        mResolver.delete(Content.ME_SOUNDS.uri, where, null);
-        mResolver.delete(Content.ME_LIKES.uri, where, null);
+        resolver.delete(Content.ME_PLAYLISTS.uri, where, null);
+        resolver.delete(Content.ME_SOUNDS.uri, where, null);
+        resolver.delete(Content.ME_LIKES.uri, where, null);
 
         // delete from activities
         where = TableColumns.Activities.SOUND_ID + " = " + playlistId + " AND " +
                 TableColumns.ActivityView.TYPE + " IN ( " + Activity.getDbPlaylistTypesForQuery() + " ) ";
-        mResolver.delete(Content.ME_ALL_ACTIVITIES.uri, where, null);
+        resolver.delete(Content.ME_ALL_ACTIVITIES.uri, where, null);
     }
 
     // Local i.e. unpushed playlists are currently identified by having a negative timestamp
     public boolean hasLocalPlaylists() {
-        Cursor itemsCursor = mResolver.query(Content.PLAYLISTS.uri,
+        Cursor itemsCursor = resolver.query(Content.PLAYLISTS.uri,
                 new String[]{TableColumns.SoundView._ID}, TableColumns.SoundView._ID + " < 0",
                 null, null);
 
@@ -205,14 +205,14 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
 
     // Local i.e. unpushed playlists are currently identified by having a negative timestamp
     public List<Playlist> getLocalPlaylists() {
-        Cursor itemsCursor = mResolver.query(Content.PLAYLISTS.uri,
+        Cursor itemsCursor = resolver.query(Content.PLAYLISTS.uri,
                 null, TableColumns.SoundView._ID + " < 0",
                 null, TableColumns.SoundView._ID + " DESC");
 
         if (itemsCursor != null) {
             List<Playlist> playlists = new ArrayList<Playlist>(itemsCursor.getCount());
             while (itemsCursor.moveToNext()) {
-                playlists.add(mModelManager.getCachedPlaylistFromCursor(itemsCursor));
+                playlists.add(modelManager.getCachedPlaylistFromCursor(itemsCursor));
             }
             itemsCursor.close();
 
@@ -227,18 +227,18 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     }
 
     private List<Track> loadTracksForPlaylist(Playlist playlist) {
-        final List<Track> tracks = mTrackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forId(playlist.getId()));
+        final List<Track> tracks = trackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forId(playlist.getId()));
         // make sure we loops database records through the cache
         return Lists.newArrayList(Lists.transform(tracks, new Function<Track, Track>() {
             @Override
             public Track apply(Track input) {
-                return mModelManager.cache(input);
+                return modelManager.cache(input);
             }
         }));
     }
 
     public @Nullable Set<Uri> getPlaylistsDueForSync() {
-        Cursor c = mResolver.query(Content.PLAYLIST_ALL_TRACKS.uri, new String[]{TableColumns.PlaylistTracks.PLAYLIST_ID},
+        Cursor c = resolver.query(Content.PLAYLIST_ALL_TRACKS.uri, new String[]{TableColumns.PlaylistTracks.PLAYLIST_ID},
                 TableColumns.PlaylistTracks.ADDED_AT + " IS NOT NULL AND " + TableColumns.PlaylistTracks.PLAYLIST_ID + " > 0", null, null);
 
         if (c != null) {
@@ -253,11 +253,11 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     }
 
     public @Nullable List<Long> getPlaylistTrackIds(long playlistId) {
-        return mTrackDAO.queryIdsByUri(Content.PLAYLIST_TRACKS.forId(playlistId));
+        return trackDAO.queryIdsByUri(Content.PLAYLIST_TRACKS.forId(playlistId));
     }
 
     public List<Long> getUnpushedTracksForPlaylist(long playlistId) {
-        Cursor cursor = mResolver.query(
+        Cursor cursor = resolver.query(
                 Content.PLAYLIST_ALL_TRACKS.uri,
                 new String[]{ TableColumns.PlaylistTracks.TRACK_ID },
                 TableColumns.PlaylistTracks.ADDED_AT + " IS NOT NULL AND " + TableColumns.PlaylistTracks.PLAYLIST_ID + " = ?",

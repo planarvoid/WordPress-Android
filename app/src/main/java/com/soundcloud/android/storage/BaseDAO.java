@@ -33,10 +33,10 @@ import java.util.Set;
 public abstract class BaseDAO<T extends Identifiable & Persisted> {
     public static final int RESOLVER_BATCH_SIZE = 500;
 
-    protected final ContentResolver mResolver;
+    protected final ContentResolver resolver;
 
     protected BaseDAO(ContentResolver contentResolver) {
-        this.mResolver = contentResolver;
+        this.resolver = contentResolver;
     }
 
     public long create(T resource) {
@@ -57,7 +57,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
         for (T r : resources) {
             r.putFullContentValues(map);
         }
-        return map.insert(mResolver);
+        return map.insert(resolver);
     }
 
     @Deprecated
@@ -67,7 +67,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
 
     @Deprecated
     protected long create(Uri uri, ContentValues values) {
-        Uri objUri = mResolver.insert(uri, values);
+        Uri objUri = resolver.insert(uri, values);
         if (objUri != null) {
             try {
                 return Long.parseLong(objUri.getLastPathSegment());
@@ -82,7 +82,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
     protected void createDependencies(T resource) {
         final BulkInsertMap dependencies = new BulkInsertMap();
         resource.putDependencyValues(dependencies);
-        dependencies.insert(mResolver);
+        dependencies.insert(resolver);
     }
 
     public long createOrUpdate(T resource) {
@@ -95,7 +95,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
             toRemove.add(res.getId());
         }
         if (!toRemove.isEmpty()) {
-            return mResolver.delete(getContent().uri,
+            return resolver.delete(getContent().uri,
                     getWhereInClause(BaseColumns._ID, toRemove.size()),
                     longListToStringArr(toRemove));
         } else {
@@ -118,7 +118,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
     }
 
     public boolean update(long id, ContentValues values) {
-        return mResolver.update(getContent().forId(id), values, null, null) == 1;
+        return resolver.update(getContent().forId(id), values, null, null) == 1;
     }
 
     public boolean delete(T resource) {
@@ -135,7 +135,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
 
     @Deprecated
     protected boolean delete(Uri uri, @Nullable String where, String... whereArgs) {
-        return mResolver.delete(uri, where, whereArgs) == 1;
+        return resolver.delete(uri, where, whereArgs) == 1;
     }
 
     @NotNull
@@ -165,7 +165,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
 
     @NotNull
     private List<Long> queryIdsByUri(Uri contentUri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        Cursor cursor = mResolver.query(contentUri, new String[]{BaseColumns._ID}, selection, selectionArgs, null);
+        Cursor cursor = resolver.query(contentUri, new String[]{BaseColumns._ID}, selection, selectionArgs, null);
         if (cursor == null) return Collections.emptyList();
 
         try {
@@ -181,7 +181,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
 
     @NotNull
     private List<T> queryAllByUri(Uri contentUri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String order) {
-        Cursor cursor = mResolver.query(contentUri, projection, selection, selectionArgs, order);
+        Cursor cursor = resolver.query(contentUri, projection, selection, selectionArgs, order);
         if (cursor == null) return Collections.emptyList();
 
         try {
@@ -197,7 +197,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
 
     @Nullable
     public T queryById(long id) {
-        Cursor cursor = mResolver.query(getContent().forId(id), null, null, null, null);
+        Cursor cursor = resolver.query(getContent().forId(id), null, null, null, null);
         if (cursor == null) return null;
 
         try {
@@ -220,7 +220,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
     }
 
     public int count(@Nullable String where, String... whereArgs) {
-        Cursor cursor = mResolver.query(getContent().uri, null, where, whereArgs, null);
+        Cursor cursor = resolver.query(getContent().uri, null, where, whereArgs, null);
         if (cursor == null) return 0;
 
         try {
@@ -244,7 +244,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
     // Once we've removed ContentProvider, those interaction tests should be replaced
     // with mocked calls to the actual DB
     /* package */ ContentResolver getContentResolver() {
-        return mResolver;
+        return resolver;
     }
 
     @NotNull
@@ -258,31 +258,31 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
     public final class QueryBuilder {
         private static final int INITIAL_SELECTION_CAPACITY = 200;
 
-        private final Uri mContentUri;
-        private @Nullable String[] mProjection;
-        private @Nullable String mOrder;
-        private StringBuilder mSelection;
-        private List<String> mSelectionArgs;
-        private int mLimit;
+        private final Uri contentUri;
+        private @Nullable String[] projection;
+        private @Nullable String order;
+        private StringBuilder selection;
+        private List<String> selectionArgs;
+        private int limit;
 
         public QueryBuilder(Uri contentUri) {
-            mSelection = new StringBuilder(INITIAL_SELECTION_CAPACITY);
-            mSelectionArgs = new LinkedList<String>();
-            mContentUri = contentUri;
+            selection = new StringBuilder(INITIAL_SELECTION_CAPACITY);
+            selectionArgs = new LinkedList<String>();
+            this.contentUri = contentUri;
         }
 
         public QueryBuilder where(final String selection, final String... selectionArgs) {
-            mSelection.append(selection);
-            mSelectionArgs.addAll(Arrays.asList(selectionArgs));
+            this.selection.append(selection);
+            this.selectionArgs.addAll(Arrays.asList(selectionArgs));
             return this;
         }
 
         public QueryBuilder whereIn(final String column, final List<String> values) {
-            mSelection.append(column).append(" IN (");
+            selection.append(column).append(" IN (");
             List<String> wildcards = Collections.nCopies(values.size(), "?");
-            Joiner.on(",").appendTo(mSelection, wildcards);
-            mSelection.append(") ");
-            mSelectionArgs.addAll(values);
+            Joiner.on(",").appendTo(selection, wildcards);
+            selection.append(") ");
+            selectionArgs.addAll(values);
             return this;
         }
 
@@ -291,17 +291,17 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
         }
 
         public QueryBuilder select(final String... projection) {
-            mProjection = projection;
+            this.projection = projection;
             return this;
         }
 
         public QueryBuilder order(final String order) {
-            mOrder = order;
+            this.order = order;
             return this;
         }
 
         public QueryBuilder limit(final int limit) {
-            mLimit = limit;
+            this.limit = limit;
             return this;
         }
 
@@ -310,7 +310,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
 
             String selection = resolveSelection();
             String[] selectionArgs = resolveSelectionArgs();
-            return queryAllByUri(contentUri, mProjection, selection, selectionArgs, mOrder);
+            return queryAllByUri(contentUri, projection, selection, selectionArgs, order);
         }
 
         public List<Long> queryIds() {
@@ -332,9 +332,9 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
         }
 
         private Uri resolveContentUri() {
-            Uri contentUri = mContentUri;
-            if (mLimit > 0) {
-                contentUri = mContentUri.buildUpon().appendQueryParameter(ScContentProvider.Parameter.LIMIT, String.valueOf(mLimit)).build();
+            Uri contentUri = this.contentUri;
+            if (limit > 0) {
+                contentUri = this.contentUri.buildUpon().appendQueryParameter(ScContentProvider.Parameter.LIMIT, String.valueOf(limit)).build();
             }
             return contentUri;
         }
@@ -342,8 +342,8 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
         @Nullable
         private String[] resolveSelectionArgs() {
             String[] selectionArgs = null;
-            if (!mSelectionArgs.isEmpty()) {
-                selectionArgs = Iterables.toArray(mSelectionArgs, String.class);
+            if (!this.selectionArgs.isEmpty()) {
+                selectionArgs = Iterables.toArray(this.selectionArgs, String.class);
             }
             return selectionArgs;
         }
@@ -351,8 +351,8 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
         @Nullable
         private String resolveSelection() {
             String selection = null;
-            if (!TextUtils.isEmpty(mSelection)) {
-                selection = mSelection.toString().trim();
+            if (!TextUtils.isEmpty(this.selection)) {
+                selection = this.selection.toString().trim();
             }
             return selection;
         }

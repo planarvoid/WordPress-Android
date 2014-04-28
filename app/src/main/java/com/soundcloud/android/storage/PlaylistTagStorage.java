@@ -22,15 +22,15 @@ public class PlaylistTagStorage extends ScheduledOperations {
     private static final String KEY_RECENT_TAGS = "recent_tags";
     private static final int MAX_TAGS = 5;
 
-    private final SharedPreferences mSharedPreferences;
+    private final SharedPreferences sharedPreferences;
 
     @Inject
     public PlaylistTagStorage(@Named("PlaylistTags") SharedPreferences sharedPreferences) {
-        mSharedPreferences = sharedPreferences;
+        this.sharedPreferences = sharedPreferences;
     }
 
     public PlaylistTagStorage(Context context) {
-        mSharedPreferences = context.getSharedPreferences(StorageModule.PLAYLIST_TAGS, Context.MODE_PRIVATE);
+        sharedPreferences = context.getSharedPreferences(StorageModule.PLAYLIST_TAGS, Context.MODE_PRIVATE);
     }
 
     public void addRecentTag(String tag) {
@@ -43,7 +43,7 @@ public class PlaylistTagStorage extends ScheduledOperations {
         }
         recentTags.addFirst(sanitizeTag(tag));
 
-        mSharedPreferences.edit().putString(KEY_RECENT_TAGS, serialize(recentTags)).apply();
+        sharedPreferences.edit().putString(KEY_RECENT_TAGS, serialize(recentTags)).apply();
     }
 
     public Observable<PlaylistTagsCollection> getRecentTagsAsync() {
@@ -57,12 +57,12 @@ public class PlaylistTagStorage extends ScheduledOperations {
     }
 
     public void clear() {
-        mSharedPreferences.edit().clear().apply();
+        sharedPreferences.edit().clear().apply();
     }
 
     @VisibleForTesting
     List<String> getRecentTags() {
-        String storedTags = mSharedPreferences.getString(KEY_RECENT_TAGS, "");
+        String storedTags = sharedPreferences.getString(KEY_RECENT_TAGS, "");
         if (ScTextUtils.isBlank(storedTags)) {
             return new LinkedList<String>();
         }

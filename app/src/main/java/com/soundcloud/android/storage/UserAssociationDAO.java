@@ -50,7 +50,7 @@ import java.util.List;
                 TableColumns.UserAssociations.ASSOCIATION_TYPE + " = ?";
         final String[] args = {String.valueOf(userAssociation.getItemId()),
                 String.valueOf(userAssociation.associationType)};
-        return mResolver.update(getContent().uri, userAssociation.buildContentValues(), where, args) == 1;
+        return resolver.update(getContent().uri, userAssociation.buildContentValues(), where, args) == 1;
     }
 
     @Override

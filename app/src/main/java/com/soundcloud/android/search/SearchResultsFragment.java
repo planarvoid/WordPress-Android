@@ -55,24 +55,24 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     private static final String KEY_TYPE = "type";
 
     @Inject
-    SearchOperations mSearchOperations;
+    SearchOperations searchOperations;
     @Inject
-    PlaybackOperations mPlaybackOperations;
+    PlaybackOperations playbackOperations;
     @Inject
-    ImageOperations mImageOperations;
+    ImageOperations imageOperations;
     @Inject
-    EventBus mEventBus;
+    EventBus eventBus;
     @Inject
-    SearchResultsAdapter mAdapter;
+    SearchResultsAdapter adapter;
 
-    private int mSearchType;
-    private ConnectableObservable<Page<SearchResultsCollection>> mSearchObservable;
-    private Subscription mSearchSubscription = Subscriptions.empty();
-    private Subscription mPlayEventSubscription = Subscriptions.empty();
-    private Subscription mListViewSubscription = Subscriptions.empty();
+    private int searchType;
+    private ConnectableObservable<Page<SearchResultsCollection>> searchObservable;
+    private Subscription searchSubscription = Subscriptions.empty();
+    private Subscription playEventSubscription = Subscriptions.empty();
+    private Subscription listViewSubscription = Subscriptions.empty();
 
-    private EmptyListView mEmptyListView;
-    private int mEmptyViewStatus = EmptyListView.Status.WAITING;
+    private EmptyListView emptyListView;
+    private int emptyViewStatus = EmptyListView.Status.WAITING;
 
     public static SearchResultsFragment newInstance(int type, String query) {
         SearchResultsFragment fragment = new SearchResultsFragment();
@@ -91,22 +91,22 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     @VisibleForTesting
     SearchResultsFragment(SearchOperations searchOperations, PlaybackOperations playbackOperations,
                           ImageOperations imageOperations, EventBus eventBus, SearchResultsAdapter adapter) {
-        mSearchOperations = searchOperations;
-        mPlaybackOperations = playbackOperations;
-        mImageOperations = imageOperations;
-        mEventBus = eventBus;
-        mAdapter = adapter;
+        this.searchOperations = searchOperations;
+        this.playbackOperations = playbackOperations;
+        this.imageOperations = imageOperations;
+        this.eventBus = eventBus;
+        this.adapter = adapter;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSearchType = getArguments().getInt(KEY_TYPE);
-        setListAdapter(mAdapter);
+        searchType = getArguments().getInt(KEY_TYPE);
+        setListAdapter(adapter);
 
-        mSearchObservable = prepareSearchResultsObservable();
-        mSearchSubscription = loadSearchResults();
+        searchObservable = prepareSearchResultsObservable();
+        searchSubscription = loadSearchResults();
     }
 
     @Override
@@ -118,80 +118,80 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
-        new EmptyViewBuilder().configureForSearch(mEmptyListView);
+        emptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
+        new EmptyViewBuilder().configureForSearch(emptyListView);
 
-        mEmptyListView.setStatus(mEmptyViewStatus);
-        mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
+        emptyListView.setStatus(emptyViewStatus);
+        emptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
-                mSearchObservable = prepareSearchResultsObservable();
-                mSearchSubscription = loadSearchResults();
-                mListViewSubscription = mSearchObservable.subscribe(
+                searchObservable = prepareSearchResultsObservable();
+                searchSubscription = loadSearchResults();
+                listViewSubscription = searchObservable.subscribe(
                         new ListFragmentSubscriber<Page<SearchResultsCollection>>(SearchResultsFragment.this));
             }
         });
 
-        getListView().setEmptyView(mEmptyListView);
+        getListView().setEmptyView(emptyListView);
         getListView().setOnItemClickListener(this);
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
-        getListView().setOnScrollListener(mImageOperations.createScrollPauseListener(false, true, mAdapter));
+        getListView().setOnScrollListener(imageOperations.createScrollPauseListener(false, true, adapter));
 
-        mListViewSubscription = mSearchObservable.subscribe(new ListFragmentSubscriber<Page<SearchResultsCollection>>(this));
+        listViewSubscription = searchObservable.subscribe(new ListFragmentSubscriber<Page<SearchResultsCollection>>(this));
     }
 
     @Override
     public void onDestroyView() {
-        mListViewSubscription.unsubscribe();
+        listViewSubscription.unsubscribe();
         super.onDestroyView();
     }
 
     @Override
     public void onDestroy() {
-        mSearchSubscription.unsubscribe();
+        searchSubscription.unsubscribe();
         super.onDestroy();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mAdapter.notifyDataSetChanged();
-        mPlayEventSubscription = mEventBus.subscribe(EventQueue.PLAY_CONTROL, new PlayEventSubscriber());
+        adapter.notifyDataSetChanged();
+        playEventSubscription = eventBus.subscribe(EventQueue.PLAY_CONTROL, new PlayEventSubscriber());
     }
 
     @Override
     public void onPause() {
-        mPlayEventSubscription.unsubscribe();
+        playEventSubscription.unsubscribe();
         super.onPause();
     }
 
     @Override
     public void setEmptyViewStatus(int status) {
-        mEmptyViewStatus = status;
-        if (mEmptyListView != null) {
-            mEmptyListView.setStatus(status);
+        emptyViewStatus = status;
+        if (emptyListView != null) {
+            emptyListView.setStatus(status);
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        ScResource item = mAdapter.getItem(position);
+        ScResource item = adapter.getItem(position);
         Context context = getActivity();
         if (item instanceof Track) {
-            mEventBus.publish(EventQueue.SEARCH, SearchEvent.tapTrackOnScreen(getTrackingScreen()));
-            mPlaybackOperations.playFromAdapter(context, mAdapter.getItems(), position, null, getTrackingScreen());
+            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapTrackOnScreen(getTrackingScreen()));
+            playbackOperations.playFromAdapter(context, adapter.getItems(), position, null, getTrackingScreen());
         } else if (item instanceof Playlist) {
-            mEventBus.publish(EventQueue.SEARCH, SearchEvent.tapPlaylistOnScreen(getTrackingScreen()));
-            mPlaybackOperations.playFromAdapter(context, mAdapter.getItems(), position, null, getTrackingScreen());
+            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapPlaylistOnScreen(getTrackingScreen()));
+            playbackOperations.playFromAdapter(context, adapter.getItems(), position, null, getTrackingScreen());
         } else if (item instanceof User) {
-            mEventBus.publish(EventQueue.SEARCH, SearchEvent.tapUserOnScreen(getTrackingScreen()));
+            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapUserOnScreen(getTrackingScreen()));
             context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, item));
         }
     }
 
     private Screen getTrackingScreen() {
-        switch(mSearchType) {
+        switch(searchType) {
             case TYPE_ALL:
                 return Screen.SEARCH_EVERYTHING;
             case TYPE_TRACKS:
@@ -208,37 +208,37 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     private ConnectableObservable<Page<SearchResultsCollection>> prepareSearchResultsObservable() {
         final String query = getArguments().getString(KEY_QUERY);
         Observable<Page<SearchResultsCollection>> observable;
-        switch (mSearchType) {
+        switch (searchType) {
             case TYPE_ALL:
-                observable = mSearchOperations.getAllSearchResults(query);
+                observable = searchOperations.getAllSearchResults(query);
                 break;
             case TYPE_TRACKS:
-                observable = mSearchOperations.getTrackSearchResults(query);
+                observable = searchOperations.getTrackSearchResults(query);
                 break;
             case TYPE_PLAYLISTS:
-                observable = mSearchOperations.getPlaylistSearchResults(query);
+                observable = searchOperations.getPlaylistSearchResults(query);
                 break;
             case TYPE_USERS:
-                observable = mSearchOperations.getUserSearchResults(query);
+                observable = searchOperations.getUserSearchResults(query);
                 break;
             default:
                 throw new IllegalArgumentException("Query type not valid");
         }
         ConnectableObservable<Page<SearchResultsCollection>> connectableObservable
                 = observable.observeOn(mainThread()).replay();
-        connectableObservable.subscribe(mAdapter);
+        connectableObservable.subscribe(adapter);
         return connectableObservable;
     }
 
     private Subscription loadSearchResults() {
         setEmptyViewStatus(EmptyListView.Status.WAITING);
-        return mSearchObservable.connect();
+        return searchObservable.connect();
     }
 
     private final class PlayEventSubscriber extends DefaultSubscriber<PlayControlEvent> {
         @Override
         public void onNext(PlayControlEvent event) {
-            mAdapter.notifyDataSetChanged();
+            adapter.notifyDataSetChanged();
         }
     }
 

@@ -14,16 +14,16 @@ import java.util.List;
 
 public class PlayQueueStorage extends ScheduledOperations {
 
-    private final PlayQueueDAO mPlayQueueDAO;
+    private final PlayQueueDAO playQueueDAO;
 
     @Inject
     public PlayQueueStorage(ContentResolver contentResolver) {
         super(ScSchedulers.STORAGE_SCHEDULER);
-        mPlayQueueDAO = new PlayQueueDAO(contentResolver);
+        playQueueDAO = new PlayQueueDAO(contentResolver);
     }
 
     public void clearState() {
-        mPlayQueueDAO.deleteAll();
+        playQueueDAO.deleteAll();
     }
 
     public Observable<Collection<PlayQueueItem>> storeCollectionAsync(final Collection<PlayQueueItem> playQueueItems) {
@@ -37,7 +37,7 @@ public class PlayQueueStorage extends ScheduledOperations {
     }
 
     public Collection<PlayQueueItem> storeCollection(Collection<PlayQueueItem> playQueueItems) {
-        mPlayQueueDAO.createCollection(playQueueItems);
+        playQueueDAO.createCollection(playQueueItems);
         return playQueueItems;
     }
 
@@ -52,6 +52,6 @@ public class PlayQueueStorage extends ScheduledOperations {
     }
 
     public List<PlayQueueItem> getPlayQueueItems() {
-        return mPlayQueueDAO.queryAll();
+        return playQueueDAO.queryAll();
     }
 }

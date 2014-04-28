@@ -49,10 +49,10 @@ import java.util.Set;
         }
 
         for (Map.Entry<Uri, List<ContentValues>> entry : values.entrySet()) {
-            mResolver.bulkInsert(entry.getKey(), entry.getValue().toArray(new ContentValues[entry.getValue().size()]));
+            resolver.bulkInsert(entry.getKey(), entry.getValue().toArray(new ContentValues[entry.getValue().size()]));
         }
 
-        return mResolver.bulkInsert(content.uri, activities.buildContentValues(content.id));
+        return resolver.bulkInsert(content.uri, activities.buildContentValues(content.id));
     }
 
     @Override protected  Activity objFromCursor(Cursor cursor) {

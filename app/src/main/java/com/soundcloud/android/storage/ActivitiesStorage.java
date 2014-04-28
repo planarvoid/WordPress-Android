@@ -17,9 +17,9 @@ import android.net.Uri;
 import java.util.List;
 
 public class ActivitiesStorage extends ScheduledOperations {
-    private SyncStateManager mSyncStateManager;
-    private ActivityDAO mActivitiesDAO;
-    private final ContentResolver mResolver;
+    private SyncStateManager syncStateManager;
+    private ActivityDAO activitiesDAO;
+    private final ContentResolver resolver;
 
     public ActivitiesStorage() {
         this(SoundCloudApplication.instance);
@@ -27,9 +27,9 @@ public class ActivitiesStorage extends ScheduledOperations {
 
     public ActivitiesStorage(Context context) {
         super(ScSchedulers.STORAGE_SCHEDULER);
-        mResolver = context.getContentResolver();
-        mSyncStateManager = new SyncStateManager(context);
-        mActivitiesDAO = new ActivityDAO(mResolver);
+        resolver = context.getContentResolver();
+        syncStateManager = new SyncStateManager(context);
+        activitiesDAO = new ActivityDAO(resolver);
     }
 
     @Deprecated
@@ -37,10 +37,10 @@ public class ActivitiesStorage extends ScheduledOperations {
         log("get activities " + contentUri + ", since=" + since);
 
         Activities activities = new Activities();
-        LocalCollection lc = mSyncStateManager.fromContent(contentUri);
+        LocalCollection lc = syncStateManager.fromContent(contentUri);
         activities.future_href = lc.extra;
 
-        BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
+        BaseDAO.QueryBuilder query = activitiesDAO.buildQuery(contentUri);
         if (since > 0) {
             query.where(TableColumns.ActivityView.CREATED_AT + "> ?", String.valueOf(since));
         }
@@ -65,7 +65,7 @@ public class ActivitiesStorage extends ScheduledOperations {
     @Deprecated
     @Nullable
     public Activity getOldestActivity(final Content content) {
-        return mActivitiesDAO.buildQuery(content.uri)
+        return activitiesDAO.buildQuery(content.uri)
                 .where(TableColumns.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
                 .order(TableColumns.ActivityView.CREATED_AT + " ASC")
                 .first();
@@ -74,7 +74,7 @@ public class ActivitiesStorage extends ScheduledOperations {
     @Deprecated
     @Nullable
     public Activity getLatestActivity(final Content content) {
-        return mActivitiesDAO.buildQuery(content.uri)
+        return activitiesDAO.buildQuery(content.uri)
                 .where(TableColumns.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
                 .order(TableColumns.ActivityView.CREATED_AT + " DESC")
                 .first();
@@ -84,7 +84,7 @@ public class ActivitiesStorage extends ScheduledOperations {
     public Activities getCollectionBefore(final Uri contentUri, final long before)  {
         log("get activities " + contentUri + ", before=" + before);
 
-        BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
+        BaseDAO.QueryBuilder query = activitiesDAO.buildQuery(contentUri);
         if (before > 0) {
             query.where(TableColumns.ActivityView.CREATED_AT + "< ?", String.valueOf(before));
         }
@@ -102,7 +102,7 @@ public class ActivitiesStorage extends ScheduledOperations {
     @Deprecated
     public int getCountSince(long since, Content content) {
         String selection = TableColumns.ActivityView.CONTENT_ID + " = ? AND " + TableColumns.ActivityView.CREATED_AT + "> ?";
-        return mActivitiesDAO.count(selection, String.valueOf(content.id), String.valueOf(since));
+        return activitiesDAO.count(selection, String.valueOf(content.id), String.valueOf(since));
     }
 
     @Deprecated
@@ -118,17 +118,17 @@ public class ActivitiesStorage extends ScheduledOperations {
         if (contentToDelete == Content.ME_ALL_ACTIVITIES) {
 
             for (Content c : Content.ACTIVITIES) {
-                mSyncStateManager.delete(c);
+                syncStateManager.delete(c);
             }
         } else {
-            mSyncStateManager.delete(contentToDelete);
+            syncStateManager.delete(contentToDelete);
         }
-        return mResolver.delete(contentToDelete.uri, null, null);
+        return resolver.delete(contentToDelete.uri, null, null);
     }
 
     @Deprecated
     public int insert(Content content, Activities activities) {
-        return mActivitiesDAO.insert(content, activities);
+        return activitiesDAO.insert(content, activities);
     }
 
 }

@@ -21,12 +21,12 @@ import java.util.List;
 
 class PlaylistResultsAdapter extends EndlessPagingAdapter<PlaylistSummary> {
 
-    private final ImageOperations mImageOperations;
+    private final ImageOperations imageOperations;
 
     @Inject
     public PlaylistResultsAdapter(ImageOperations imageOperations) {
         super(Consts.CARD_PAGE_SIZE);
-        mImageOperations = imageOperations;
+        this.imageOperations = imageOperations;
     }
 
     @Override
@@ -56,7 +56,7 @@ class PlaylistResultsAdapter extends EndlessPagingAdapter<PlaylistSummary> {
         viewHolder.tagList.setText(formatTags(playlist.getTags()));
 
         final ImageSize imageSize = ImageSize.getFullImageSize(itemView.getResources());
-        mImageOperations.displayInAdapterView(playlist.getUrn(), imageSize, viewHolder.imageView);
+        imageOperations.displayInAdapterView(playlist.getUrn(), imageSize, viewHolder.imageView);
     }
 
     private String formatTags(List<String> tags) {

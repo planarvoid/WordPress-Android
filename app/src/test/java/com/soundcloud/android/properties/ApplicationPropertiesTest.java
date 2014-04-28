@@ -69,12 +69,12 @@ public class ApplicationPropertiesTest {
 
     @Test
     public void shouldDetectThatItsNotRunningOnDalvikVM(){
-        expect(ApplicationProperties.mIsRunningOnDalvik).toBeFalse();
+        expect(ApplicationProperties.IS_RUNNING_ON_DALVIK).toBeFalse();
     }
 
     @Test
     public void shouldDetectThatItsNotRunningOnEmulator(){
-        expect(ApplicationProperties.mIsRunningOnEmulator).toBeFalse();
+        expect(ApplicationProperties.IS_RUNNING_ON_EMULATOR).toBeFalse();
     }
 
 }

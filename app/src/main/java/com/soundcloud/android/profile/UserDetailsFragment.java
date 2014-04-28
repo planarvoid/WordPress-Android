@@ -22,10 +22,10 @@ import android.widget.TextView;
 
 public class UserDetailsFragment extends Fragment {
 
-    private long mUserId;
-    private EmptyViewBuilder mEmptyViewFactory;
-    private int mEmptyViewStatus = EmptyListView.Status.WAITING;
-    private boolean mDisplayedInfo;
+    private long userId;
+    private EmptyViewBuilder emptyViewFactory;
+    private int emptyViewStatus = EmptyListView.Status.WAITING;
+    private boolean displayedInfo;
 
     public static UserDetailsFragment newInstance(long userId) {
         UserDetailsFragment fragment = new UserDetailsFragment();
@@ -39,14 +39,14 @@ public class UserDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mEmptyViewFactory = new EmptyViewBuilder();
+        emptyViewFactory = new EmptyViewBuilder();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mUserId = getArguments().getLong("userId");
+        userId = getArguments().getLong("userId");
         ViewGroup fragmentLayout = (ViewGroup) inflater.inflate(R.layout.user_browser_details_view, null);
-        User user = SoundCloudApplication.sModelManager.getUser(mUserId);
+        User user = SoundCloudApplication.sModelManager.getUser(userId);
         if (user != null) {
             updateViews(fragmentLayout, user);
         }
@@ -60,7 +60,7 @@ public class UserDetailsFragment extends Fragment {
     }
 
     public void onSuccess(User user) {
-        mEmptyViewStatus = EmptyListView.Status.OK;
+        emptyViewStatus = EmptyListView.Status.OK;
         ViewGroup fragmentLayout = (ViewGroup) getView();
         if (fragmentLayout != null) {
             updateViews(fragmentLayout, user);
@@ -69,7 +69,7 @@ public class UserDetailsFragment extends Fragment {
     }
 
     public void onError() {
-        mEmptyViewStatus = EmptyListView.Status.ERROR;
+        emptyViewStatus = EmptyListView.Status.ERROR;
         ViewGroup fragmentLayout = (ViewGroup) getView();
         if (fragmentLayout != null) {
             configureEmptyView(fragmentLayout);
@@ -77,7 +77,7 @@ public class UserDetailsFragment extends Fragment {
     }
 
     private void updateViews(ViewGroup fragmentLayout, User user) {
-        mDisplayedInfo = setupWebsite(fragmentLayout, user)
+        displayedInfo = setupWebsite(fragmentLayout, user)
                 | setupDiscogs(fragmentLayout, user)
                 | setupMyspace(fragmentLayout, user)
                 | setupLocation(fragmentLayout, user)
@@ -88,20 +88,20 @@ public class UserDetailsFragment extends Fragment {
         EmptyListView emptyView = (EmptyListView) fragmentLayout.findViewById(android.R.id.empty);
         if (emptyView != null) fragmentLayout.removeView(emptyView);
 
-        if (!mDisplayedInfo) {
-            if (mEmptyViewStatus == EmptyListView.Status.OK) {
-                if (mUserId == SoundCloudApplication.getUserId()) {
-                    mEmptyViewFactory.withMessageText(getString(R.string.info_empty_you_message))
+        if (!displayedInfo) {
+            if (emptyViewStatus == EmptyListView.Status.OK) {
+                if (userId == SoundCloudApplication.getUserId()) {
+                    emptyViewFactory.withMessageText(getString(R.string.info_empty_you_message))
                                      .withSecondaryText(getString(R.string.info_empty_you_secondary))
                                      .withImage(R.drawable.empty_profile);
                 } else {
-                    mEmptyViewFactory.withMessageText(getString(R.string.info_empty_other_message))
+                    emptyViewFactory.withMessageText(getString(R.string.info_empty_other_message))
                                      .withImage(R.drawable.empty_info);
                 }
             }
-            emptyView = mEmptyViewFactory.build(getActivity());
+            emptyView = emptyViewFactory.build(getActivity());
             emptyView.setId(android.R.id.empty);
-            emptyView.setStatus(mEmptyViewStatus);
+            emptyView.setStatus(emptyViewStatus);
 
             fragmentLayout.addView(emptyView,
                     new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));

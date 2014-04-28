@@ -44,22 +44,22 @@ public class PlaylistResultsFragment extends Fragment implements EmptyViewAware,
     static final String KEY_PLAYLIST_TAG = "playlist_tag";
 
     @Inject
-    SearchOperations mSearchOperations;
+    SearchOperations searchOperations;
     @Inject
-    ImageOperations mImageOperations;
+    ImageOperations imageOperations;
     @Inject
-    PlaylistResultsAdapter mAdapter;
+    PlaylistResultsAdapter adapter;
     @Inject
-    ScModelManager mModelManager;
+    ScModelManager modelManager;
     @Inject
-    EventBus mEventBus;
+    EventBus eventBus;
 
-    private EmptyListView mEmptyListView;
-    private int mEmptyViewStatus = EmptyListView.Status.WAITING;
+    private EmptyListView emptyListView;
+    private int emptyViewStatus = EmptyListView.Status.WAITING;
 
-    private ConnectableObservable<Page<PlaylistSummaryCollection>> mPlaylistsObservable;
-    private Subscription mPlaylistsSubscription = Subscriptions.empty();
-    private Subscription mListViewSubscription;
+    private ConnectableObservable<Page<PlaylistSummaryCollection>> playlistsObservable;
+    private Subscription playlistsSubscription = Subscriptions.empty();
+    private Subscription listViewSubscription;
 
     public static PlaylistResultsFragment newInstance(String tag) {
         PlaylistResultsFragment fragment = new PlaylistResultsFragment();
@@ -77,27 +77,27 @@ public class PlaylistResultsFragment extends Fragment implements EmptyViewAware,
     @VisibleForTesting
     PlaylistResultsFragment(SearchOperations searchOperations, ImageOperations imageOperations,
                             PlaylistResultsAdapter adapter, ScModelManager modelManager, EventBus eventBus) {
-        mSearchOperations = searchOperations;
-        mImageOperations = imageOperations;
-        mAdapter = adapter;
-        mModelManager = modelManager;
-        mEventBus = eventBus;
+        this.searchOperations = searchOperations;
+        this.imageOperations = imageOperations;
+        this.adapter = adapter;
+        this.modelManager = modelManager;
+        this.eventBus = eventBus;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_PLAYLIST_DISCO.get());
-        mPlaylistsObservable = preparePlaylistsObservable();
-        mPlaylistsSubscription = triggerPlaylistsObservable();
+        eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_PLAYLIST_DISCO.get());
+        playlistsObservable = preparePlaylistsObservable();
+        playlistsSubscription = triggerPlaylistsObservable();
     }
 
     private ConnectableObservable<Page<PlaylistSummaryCollection>> preparePlaylistsObservable() {
         String playlistTag = getArguments().getString(KEY_PLAYLIST_TAG);
-        ConnectableObservable<Page<PlaylistSummaryCollection>> observable = mSearchOperations.getPlaylistResults(playlistTag)
+        ConnectableObservable<Page<PlaylistSummaryCollection>> observable = searchOperations.getPlaylistResults(playlistTag)
                 .observeOn(mainThread())
                 .replay();
-        observable.subscribe(mAdapter);
+        observable.subscribe(adapter);
         return observable;
     }
 
@@ -110,34 +110,34 @@ public class PlaylistResultsFragment extends Fragment implements EmptyViewAware,
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
-        new EmptyViewBuilder().configureForSearch(mEmptyListView);
-        mEmptyListView.setStatus(mEmptyViewStatus);
-        mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
+        emptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
+        new EmptyViewBuilder().configureForSearch(emptyListView);
+        emptyListView.setStatus(emptyViewStatus);
+        emptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
-                mPlaylistsObservable = preparePlaylistsObservable();
-                mPlaylistsSubscription = triggerPlaylistsObservable();
-                mListViewSubscription = mPlaylistsObservable.subscribe(
+                playlistsObservable = preparePlaylistsObservable();
+                playlistsSubscription = triggerPlaylistsObservable();
+                listViewSubscription = playlistsObservable.subscribe(
                         new ListFragmentSubscriber<Page<PlaylistSummaryCollection>>(PlaylistResultsFragment.this));
             }
         });
 
         GridView gridView = (GridView) view.findViewById(android.R.id.list);
-        gridView.setEmptyView(mEmptyListView);
+        gridView.setEmptyView(emptyListView);
         gridView.setOnItemClickListener(this);
-        gridView.setAdapter(mAdapter);
+        gridView.setAdapter(adapter);
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
-        gridView.setOnScrollListener(new AbsListViewParallaxer(mImageOperations.createScrollPauseListener(false, true, mAdapter)));
+        gridView.setOnScrollListener(new AbsListViewParallaxer(imageOperations.createScrollPauseListener(false, true, adapter)));
 
-        mListViewSubscription = mPlaylistsObservable.subscribe(
+        listViewSubscription = playlistsObservable.subscribe(
                 new ListFragmentSubscriber<Page<PlaylistSummaryCollection>>(this));
     }
 
     @Override
     public void onDestroyView() {
-        mListViewSubscription.unsubscribe();
+        listViewSubscription.unsubscribe();
         GridView gridView = (GridView) getView().findViewById(android.R.id.list);
         gridView.setAdapter(null);
         super.onDestroyView();
@@ -145,27 +145,27 @@ public class PlaylistResultsFragment extends Fragment implements EmptyViewAware,
 
     @Override
     public void onDestroy() {
-        mPlaylistsSubscription.unsubscribe();
+        playlistsSubscription.unsubscribe();
         super.onDestroy();
     }
 
     private Subscription triggerPlaylistsObservable() {
         setEmptyViewStatus(EmptyListView.Status.WAITING);
-        return mPlaylistsObservable.connect();
+        return playlistsObservable.connect();
     }
 
     @Override
     public void setEmptyViewStatus(int status) {
-        mEmptyViewStatus = status;
-        if (mEmptyListView != null) {
-            mEmptyListView.setStatus(status);
+        emptyViewStatus = status;
+        if (emptyListView != null) {
+            emptyListView.setStatus(status);
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        PlaylistSummary playlist = mAdapter.getItem(position);
-        PlaylistDetailActivity.start(getActivity(), new Playlist(playlist), mModelManager, Screen.SEARCH_PLAYLIST_DISCO);
-        mEventBus.publish(EventQueue.SEARCH, SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_PLAYLIST_DISCO));
+        PlaylistSummary playlist = adapter.getItem(position);
+        PlaylistDetailActivity.start(getActivity(), new Playlist(playlist), modelManager, Screen.SEARCH_PLAYLIST_DISCO);
+        eventBus.publish(EventQueue.SEARCH, SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_PLAYLIST_DISCO));
     }
 }

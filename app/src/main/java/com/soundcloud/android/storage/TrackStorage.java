@@ -25,9 +25,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class TrackStorage extends ScheduledOperations implements Storage<Track> {
-    private TrackDAO mTrackDAO;
-    private ContentResolver mResolver;
-    private ScModelManager mModelManager;
+    private TrackDAO trackDAO;
+    private ContentResolver resolver;
+    private ScModelManager modelManager;
 
     // Use @Inject instead
     @Deprecated
@@ -43,11 +43,11 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
     }
 
     @VisibleForTesting
-    TrackStorage(ContentResolver contentResolver, TrackDAO trackDAO, ScModelManager modelManager, Scheduler scheduler){
+    TrackStorage(ContentResolver resolver, TrackDAO trackDAO, ScModelManager modelManager, Scheduler scheduler){
         super(scheduler);
-        mResolver = contentResolver;
-        mTrackDAO = trackDAO;
-        mModelManager = modelManager;
+        this.resolver = resolver;
+        this.trackDAO = trackDAO;
+        this.modelManager = modelManager;
     }
 
     public Observable<Track> createPlayImpressionAsync(final Track track) {
@@ -65,13 +65,13 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
     public boolean createPlayImpression(Track track) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(TableColumns.TrackMetadata._ID, track.getId());
-        return mResolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
+        return resolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 
     @Override
     public Track store(Track track) {
-        mModelManager.cache(track, ScResource.CacheUpdateMode.FULL);
-        mTrackDAO.create(track);
+        modelManager.cache(track, ScResource.CacheUpdateMode.FULL);
+        trackDAO.create(track);
         return track;
     }
 
@@ -98,12 +98,12 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
     }
 
     private int storeCollection(Collection<Track> tracks) {
-        return mTrackDAO.createCollection(tracks);
+        return trackDAO.createCollection(tracks);
     }
 
 
     public long createOrUpdate(Track track) {
-        return mTrackDAO.createOrUpdate(track);
+        return trackDAO.createOrUpdate(track);
     }
 
     public Observable<Track> getTrackAsync(final long id) {
@@ -111,7 +111,7 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
             @Override
             public void call(Subscriber<? super Track> observer) {
                 try {
-                    final Track cachedTrack = mModelManager.getCachedTrack(id);
+                    final Track cachedTrack = modelManager.getCachedTrack(id);
                     if (cachedTrack != null){
                         observer.onNext(cachedTrack);
                     } else {
@@ -126,11 +126,11 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
     }
 
     public Track getTrack(long id) throws NotFoundException {
-        final Track track = mTrackDAO.queryById(id);
+        final Track track = trackDAO.queryById(id);
         if (track == null) {
             throw new NotFoundException(id);
         } else {
-            return mModelManager.cache(track);
+            return modelManager.cache(track);
         }
     }
 
@@ -148,7 +148,7 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
                 final Uri adjustedUri = (Content.match(uri) == Content.PLAYLIST) ?
                         Content.PLAYLIST_TRACKS.forQuery(uri.getLastPathSegment()) : uri;
 
-                Cursor cursor = mResolver.query(adjustedUri, new String[]{idColumn}, TableColumns.SoundView._TYPE + " = ?",
+                Cursor cursor = resolver.query(adjustedUri, new String[]{idColumn}, TableColumns.SoundView._TYPE + " = ?",
                         new String[]{String.valueOf(Playable.DB_TYPE_TRACK)}, null);
                 if (!observer.isUnsubscribed()) {
                     if (cursor == null) {

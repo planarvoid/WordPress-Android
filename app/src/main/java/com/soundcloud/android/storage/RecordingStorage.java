@@ -30,12 +30,12 @@ import java.util.Map;
 
 public class RecordingStorage extends ScheduledOperations implements Storage<Recording> {
 
-    private final RecordingDAO mRecordingDAO;
+    private final RecordingDAO recordingDAO;
 
     public RecordingStorage() {
         super(ScSchedulers.STORAGE_SCHEDULER);
         ContentResolver resolver = SoundCloudApplication.instance.getContentResolver();
-        mRecordingDAO = new RecordingDAO(resolver);
+        recordingDAO = new RecordingDAO(resolver);
     }
 
     @Override
@@ -52,13 +52,13 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
 
     @Override
     public Recording store(Recording recording) {
-        mRecordingDAO.create(recording);
+        recordingDAO.create(recording);
         return recording;
     }
 
     public void createFromBaseValues(Recording recording) {
-        mRecordingDAO.createDependencies(recording);
-        long id = mRecordingDAO.create(recording.toUri(), recording.buildBaseContentValues());
+        recordingDAO.createDependencies(recording);
+        long id = recordingDAO.create(recording.toUri(), recording.buildBaseContentValues());
         recording.setId(id);
     }
 
@@ -67,18 +67,18 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
             ContentValues cv = new ContentValues();
             cv.put(TableColumns.Recordings.UPLOAD_STATUS, recording.upload_status);
             cv.put(TableColumns.Recordings.AUDIO_PATH, recording.audio_path.getAbsolutePath());
-            return mRecordingDAO.update(recording.getId(), cv);
+            return recordingDAO.update(recording.getId(), cv);
         } else {
             return false;
         }
     }
 
     public @Nullable Recording getRecordingByUri(Uri uri) {
-        return mRecordingDAO.queryByUri(uri);
+        return recordingDAO.queryByUri(uri);
     }
 
     public @Nullable Recording getRecordingByPath(File file) {
-        return mRecordingDAO.buildQuery()
+        return recordingDAO.buildQuery()
                 .where(TableColumns.Recordings.AUDIO_PATH + " LIKE ?", IOUtils.removeExtension(file).getAbsolutePath() + "%")
                 .first();
     }
@@ -133,7 +133,7 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
         IOUtils.deleteFile(recording.getEncodedFile());
         IOUtils.deleteFile(recording.getAmplitudeFile());
         if (recording.getId() > 0) {
-            mRecordingDAO.delete(recording);
+            recordingDAO.delete(recording);
         }
         return deleted;
     }

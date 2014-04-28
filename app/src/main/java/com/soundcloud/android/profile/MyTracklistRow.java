@@ -6,13 +6,10 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.collections.views.PlayableRow;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewStub;
@@ -22,7 +19,7 @@ import android.widget.TextView;
 // It doesn't even operate on a Playable. Could make nicer by wrapping the Recording in PlayableAdapter.
 public class MyTracklistRow extends PlayableRow {
 
-    private Recording mRecording;
+    private Recording recording;
 
     public MyTracklistRow(Context activity, ImageOperations imageOperations) {
         super(activity, imageOperations);
@@ -35,7 +32,7 @@ public class MyTracklistRow extends PlayableRow {
 
     @Override
     protected void setTitle() {
-        mTitle.setText(mRecording.sharingNote(getResources()));
+        mTitle.setText(recording.sharingNote(getResources()));
     }
 
     @Override
@@ -49,18 +46,18 @@ public class MyTracklistRow extends PlayableRow {
             return;
         }
 
-        mRecording = ((Recording) p);
+        recording = ((Recording) p);
         setTitle();
 
         final TextView createdAt = (TextView) findViewById(R.id.playable_created_at);
         createdAt.setTextColor(getContext().getResources().getColor(R.color.listTxtRecSecondary));
-        createdAt.setText(mRecording.getStatus(getContext().getResources()));
+        createdAt.setText(recording.getStatus(getContext().getResources()));
 
-        findViewById(R.id.playable_private_indicator).setVisibility(mRecording.is_private ? VISIBLE : GONE);
+        findViewById(R.id.playable_private_indicator).setVisibility(recording.is_private ? VISIBLE : GONE);
 
-        loadIcon(mRecording);
+        loadIcon(recording);
 
-        if (mRecording.isUploading()) {
+        if (recording.isUploading()) {
             if (findViewById(R.id.processing_progress) != null) {
                 findViewById(R.id.processing_progress).setVisibility(VISIBLE);
             } else {

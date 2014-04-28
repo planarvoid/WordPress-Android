@@ -76,7 +76,7 @@ public abstract class SectionedAdapter<ModelType extends Parcelable> extends Ite
             isSectionHeader = false;
 
             addItem(item);
-            mListPositionsToSections.put(mItems.size() - 1, descriptor);
+            mListPositionsToSections.put(items.size() - 1, descriptor);
         }
     }
 

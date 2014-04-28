@@ -18,18 +18,18 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<Track> implements EmptyVie
 
     private static final int INITIAL_SIZE = 20;
 
-    private final ImageOperations mImageOperations;
+    private final ImageOperations imageOperations;
 
-    private int mEmptyViewStatus = EmptyListView.Status.WAITING;
+    private int emptyViewStatus = EmptyListView.Status.WAITING;
 
     InlinePlaylistTracksAdapter(ImageOperations imageOperations) {
         super(INITIAL_SIZE);
-        mImageOperations = imageOperations;
+        this.imageOperations = imageOperations;
     }
 
     @Override
     public int getItemViewType(int position) {
-        return mItems.isEmpty() ? IGNORE_ITEM_VIEW_TYPE : super.getItemViewType(position);
+        return items.isEmpty() ? IGNORE_ITEM_VIEW_TYPE : super.getItemViewType(position);
     }
 
     @Override
@@ -44,21 +44,21 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<Track> implements EmptyVie
             emptyView.setPadding(0, ViewUtils.dpToPx(context, 48), 0, ViewUtils.dpToPx(context, 48));
             return emptyView;
         } else {
-            return new PlayableRow(context, mImageOperations);
+            return new PlayableRow(context, imageOperations);
         }
     }
 
     @Override
     protected void bindItemView(int position, View itemView) {
         if (getItemViewType(position) == IGNORE_ITEM_VIEW_TYPE) {
-            ((EmptyListView) itemView).setStatus(mEmptyViewStatus);
+            ((EmptyListView) itemView).setStatus(emptyViewStatus);
         } else {
-            ((PlayableRow) itemView).display(position, mItems.get(position));
+            ((PlayableRow) itemView).display(position, items.get(position));
         }
     }
 
     protected boolean hasContentItems() {
-        return !mItems.isEmpty();
+        return !items.isEmpty();
     }
 
     @Override
@@ -68,7 +68,7 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<Track> implements EmptyVie
 
     @Override
     public int getCount() {
-        return Math.max(1, mItems.size()); // at least 1 for the empty view
+        return Math.max(1, items.size()); // at least 1 for the empty view
     }
 
     @Override
@@ -77,7 +77,7 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<Track> implements EmptyVie
     }
 
     public void setEmptyViewStatus(int emptyViewStatus){
-        mEmptyViewStatus = emptyViewStatus;
+        this.emptyViewStatus = emptyViewStatus;
         notifyDataSetChanged();
     }
 }

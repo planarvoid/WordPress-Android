@@ -28,9 +28,9 @@ public class ApplicationProperties {
     private static BuildType BUILD_TYPE;
     //TODO Need to keep these static as we need to do more refactoring around ACRA reporting. Do not reference directly
     @VisibleForTesting
-    protected static final boolean mIsRunningOnDalvik = Build.PRODUCT != null;
+    protected static final boolean IS_RUNNING_ON_DALVIK = Build.PRODUCT != null;
     @VisibleForTesting
-    protected static final boolean mIsRunningOnEmulator = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
+    protected static final boolean IS_RUNNING_ON_EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
             "full_x86".equals(Build.PRODUCT)   || "sdk_x86".equals(Build.PRODUCT);
 
 
@@ -59,32 +59,32 @@ public class ApplicationProperties {
     }
 
     public boolean shouldEnableNetworkProxy(){
-        return isDebugBuild() && mIsRunningOnDalvik;
+        return isDebugBuild() && IS_RUNNING_ON_DALVIK;
     }
 
     public boolean isRunningOnDalvik(){
-        return mIsRunningOnDalvik;
+        return IS_RUNNING_ON_DALVIK;
     }
 
     public boolean isRunningOnEmulator(){
-        return mIsRunningOnEmulator;
+        return IS_RUNNING_ON_EMULATOR;
     }
 
     public boolean isDevBuildRunningOnDalvik(){
-        return isDebugBuild() && mIsRunningOnDalvik;
+        return isDebugBuild() && IS_RUNNING_ON_DALVIK;
     }
 
     public boolean isBetaBuildRunningOnDalvik(){
-        return isBetaBuild() && mIsRunningOnDalvik;
+        return isBetaBuild() && IS_RUNNING_ON_DALVIK;
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("buildType", BUILD_TYPE).add("isDalvik", mIsRunningOnDalvik).
-                add("isEmulator", mIsRunningOnEmulator).toString();
+        return Objects.toStringHelper(this).add("buildType", BUILD_TYPE).add("isDalvik", IS_RUNNING_ON_DALVIK).
+                add("isEmulator", IS_RUNNING_ON_EMULATOR).toString();
     }
 
     public static boolean shouldReportCrashes(){
-        return !mIsRunningOnEmulator && mIsRunningOnDalvik && !BuildType.DEBUG.equals(BUILD_TYPE);
+        return !IS_RUNNING_ON_EMULATOR && IS_RUNNING_ON_DALVIK && !BuildType.DEBUG.equals(BUILD_TYPE);
     }
 }

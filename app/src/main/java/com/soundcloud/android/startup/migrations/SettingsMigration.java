@@ -12,7 +12,7 @@ class SettingsMigration implements Migration {
     @VisibleForTesting
     protected static final String CRASHLOGS_OLD_KEY = "crashlogs";
 
-    private final SharedPreferences mSharedPreferences;
+    private final SharedPreferences sharedPreferences;
 
     public SettingsMigration(Context context){
         this(PreferenceManager.getDefaultSharedPreferences(context));
@@ -20,15 +20,15 @@ class SettingsMigration implements Migration {
 
     @VisibleForTesting
     protected SettingsMigration(SharedPreferences defaultSharedPreferences) {
-        mSharedPreferences = defaultSharedPreferences;
+        sharedPreferences = defaultSharedPreferences;
 
     }
 
     @Override
     public void applyMigration() {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(SettingsActivity.ANALYTICS_ENABLED, mSharedPreferences.getBoolean(SettingsActivity.CRASH_REPORTING_ENABLED, true));
-        editor.putBoolean(SettingsActivity.CRASH_REPORTING_ENABLED, mSharedPreferences.getBoolean(CRASHLOGS_OLD_KEY, true));
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(SettingsActivity.ANALYTICS_ENABLED, sharedPreferences.getBoolean(SettingsActivity.CRASH_REPORTING_ENABLED, true));
+        editor.putBoolean(SettingsActivity.CRASH_REPORTING_ENABLED, sharedPreferences.getBoolean(CRASHLOGS_OLD_KEY, true));
         editor.apply();
     }
 

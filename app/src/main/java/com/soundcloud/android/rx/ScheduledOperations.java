@@ -7,46 +7,46 @@ import rx.Scheduler;
 
 public abstract class ScheduledOperations {
 
-    private Scheduler mSubscribeOn;
-    private Scheduler mObserveOn;
+    private Scheduler subscribeOn;
+    private Scheduler observeOn;
 
     protected ScheduledOperations() {
     }
 
     protected ScheduledOperations(@Nullable Scheduler subscribeOn) {
-        mSubscribeOn = subscribeOn;
+        this.subscribeOn = subscribeOn;
     }
 
     protected ScheduledOperations(@Nullable Scheduler subscribeOn, @Nullable Scheduler observeOn) {
-        mSubscribeOn = subscribeOn;
-        mObserveOn = observeOn;
+        this.subscribeOn = subscribeOn;
+        this.observeOn = observeOn;
     }
 
     @SuppressWarnings("unchecked")
     public <R extends ScheduledOperations> R scheduleDefault() {
-        mSubscribeOn = mObserveOn = null;
+        subscribeOn = observeOn = null;
         return (R) this;
     }
 
     @SuppressWarnings("unchecked")
     public <R extends ScheduledOperations> R subscribeOn(Scheduler scheduler) {
-        mSubscribeOn = scheduler;
+        subscribeOn = scheduler;
         return (R) this;
     }
 
     @SuppressWarnings("unchecked")
     public <R extends ScheduledOperations> R observeOn(Scheduler scheduler) {
-        mObserveOn = scheduler;
+        observeOn = scheduler;
         return (R) this;
     }
 
     protected <R> Observable<R> schedule(final Observable<R> observable) {
         Observable<R> scheduledObservable = observable;
-        if (mSubscribeOn != null) {
-            scheduledObservable = scheduledObservable.subscribeOn(mSubscribeOn);
+        if (subscribeOn != null) {
+            scheduledObservable = scheduledObservable.subscribeOn(subscribeOn);
         }
-        if (mObserveOn != null) {
-            scheduledObservable = scheduledObservable.observeOn(mObserveOn);
+        if (observeOn != null) {
+            scheduledObservable = scheduledObservable.observeOn(observeOn);
         }
         return scheduledObservable;
     }

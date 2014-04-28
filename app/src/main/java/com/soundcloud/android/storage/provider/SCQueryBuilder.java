@@ -40,19 +40,19 @@ import java.util.regex.Pattern;
 public class SCQueryBuilder
 {
     private static final String TAG = "SQLiteQueryBuilder";
-    private static final Pattern sLimitPattern =
+    private static final Pattern LIMIT_PATTERN =
             Pattern.compile("\\s*\\d+\\s*(,\\s*\\d+\\s*)?");
 
-    private Map<String, String> mProjectionMap = null;
-    private String mTables = "";
-    private StringBuilder mWhereClause = null;  // lazily created
-    private boolean mDistinct;
-    private SQLiteDatabase.CursorFactory mFactory;
-    private boolean mStrict;
+    private Map<String, String> projectionMap = null;
+    private String tables = "";
+    private StringBuilder whereClause = null;  // lazily created
+    private boolean distinct;
+    private SQLiteDatabase.CursorFactory factory;
+    private boolean strict;
 
     public SCQueryBuilder() {
-        mDistinct = false;
-        mFactory = null;
+        distinct = false;
+        factory = null;
     }
 
     /**
@@ -61,7 +61,7 @@ public class SCQueryBuilder
      * @param distinct if true the query is DISTINCT, otherwise it isn't
      */
     public void setDistinct(boolean distinct) {
-        mDistinct = distinct;
+        this.distinct = distinct;
     }
 
     /**
@@ -70,7 +70,7 @@ public class SCQueryBuilder
      * @return the list of tables being queried
      */
     public String getTables() {
-        return mTables;
+        return tables;
     }
 
     /**
@@ -82,7 +82,7 @@ public class SCQueryBuilder
      * @param inTables the list of tables to query on
      */
     public void setTables(String inTables) {
-        mTables = inTables;
+        tables = inTables;
     }
 
     /**
@@ -95,13 +95,13 @@ public class SCQueryBuilder
      * @param inWhere the chunk of text to executeAppendTask to the WHERE clause.
      */
     public void appendWhere(CharSequence inWhere) {
-        if (mWhereClause == null) {
-            mWhereClause = new StringBuilder(inWhere.length() + 16);
+        if (whereClause == null) {
+            whereClause = new StringBuilder(inWhere.length() + 16);
         }
-        if (mWhereClause.length() == 0) {
-            mWhereClause.append('(');
+        if (whereClause.length() == 0) {
+            whereClause.append('(');
         }
-        mWhereClause.append(inWhere);
+        whereClause.append(inWhere);
     }
 
     /**
@@ -115,13 +115,13 @@ public class SCQueryBuilder
      * to avoid SQL injection attacks
      */
     public void appendWhereEscapeString(String inWhere) {
-        if (mWhereClause == null) {
-            mWhereClause = new StringBuilder(inWhere.length() + 16);
+        if (whereClause == null) {
+            whereClause = new StringBuilder(inWhere.length() + 16);
         }
-        if (mWhereClause.length() == 0) {
-            mWhereClause.append('(');
+        if (whereClause.length() == 0) {
+            whereClause.append('(');
         }
-        DatabaseUtils.appendEscapedSQLString(mWhereClause, inWhere);
+        DatabaseUtils.appendEscapedSQLString(whereClause, inWhere);
     }
 
     /**
@@ -136,7 +136,7 @@ public class SCQueryBuilder
      * @param columnMap maps from the user column names to the database column names
      */
     public void setProjectionMap(Map<String, String> columnMap) {
-        mProjectionMap = columnMap;
+        projectionMap = columnMap;
     }
 
     /**
@@ -146,7 +146,7 @@ public class SCQueryBuilder
      * factory the factor to use
      */
     public void setCursorFactory(SQLiteDatabase.CursorFactory factory) {
-        mFactory = factory;
+        this.factory = factory;
     }
 
     /**
@@ -171,7 +171,7 @@ public class SCQueryBuilder
      * By default, this value is false.
      */
     public void setStrict(boolean flag) {
-        mStrict = flag;
+        strict = flag;
     }
 
     /**
@@ -207,7 +207,7 @@ public class SCQueryBuilder
             throw new IllegalArgumentException(
                     "HAVING clauses are only permitted when using a groupBy clause");
         }
-        if (!TextUtils.isEmpty(limit) && !sLimitPattern.matcher(limit).matches()) {
+        if (!TextUtils.isEmpty(limit) && !LIMIT_PATTERN.matcher(limit).matches()) {
             throw new IllegalArgumentException("invalid LIMIT clauses:" + limit);
         }
 
@@ -332,11 +332,11 @@ public class SCQueryBuilder
     public Cursor query(SQLiteDatabase db, String[] projectionIn,
             String selection, String[] selectionArgs, String groupBy,
             String having, String sortOrder, String limit) {
-        if (mTables == null) {
+        if (tables == null) {
             return null;
         }
 
-        if (mStrict && selection != null && selection.length() > 0) {
+        if (strict && selection != null && selection.length() > 0) {
             // Validate the user-supplied selection to detect syntactic anomalies
             // in the selection string that could indicate a SQL injection attempt.
             // The idea is to ensure that the selection clause is a valid SQL expression
@@ -357,8 +357,8 @@ public class SCQueryBuilder
             Log.d(TAG, "Performing query: " + sql);
         }
         return db.rawQueryWithFactory(
-                mFactory, sql, selectionArgs,
-                SQLiteDatabase.findEditTable(mTables)); // will throw if query is invalid
+                factory, sql, selectionArgs,
+                SQLiteDatabase.findEditTable(tables)); // will throw if query is invalid
     }
 
     /**
@@ -410,10 +410,10 @@ public class SCQueryBuilder
         String[] projection = computeProjection(projectionIn);
 
         StringBuilder where = new StringBuilder();
-        boolean hasBaseWhereClause = mWhereClause != null && mWhereClause.length() > 0;
+        boolean hasBaseWhereClause = whereClause != null && whereClause.length() > 0;
 
         if (hasBaseWhereClause) {
-            where.append(mWhereClause.toString());
+            where.append(whereClause.toString());
             where.append(')');
         }
 
@@ -429,7 +429,7 @@ public class SCQueryBuilder
         }
 
         return buildQueryString(
-                mDistinct, mTables, projection, where.toString(),
+                distinct, tables, projection, where.toString(),
                 groupBy, having, sortOrder, limit);
     }
 
@@ -557,7 +557,7 @@ public class SCQueryBuilder
     public String buildUnionQuery(String[] subQueries, String sortOrder, String limit) {
         StringBuilder query = new StringBuilder(128);
         int subQueryCount = subQueries.length;
-        String unionOperator = mDistinct ? " UNION " : " UNION ALL ";
+        String unionOperator = distinct ? " UNION " : " UNION ALL ";
 
         for (int i = 0; i < subQueryCount; i++) {
             if (i > 0) {
@@ -572,20 +572,20 @@ public class SCQueryBuilder
 
     private String[] computeProjection(String[] projectionIn) {
         if (projectionIn != null && projectionIn.length > 0) {
-            if (mProjectionMap != null) {
+            if (projectionMap != null) {
                 String[] projection = new String[projectionIn.length];
                 int length = projectionIn.length;
 
                 for (int i = 0; i < length; i++) {
                     String userColumn = projectionIn[i];
-                    String column = mProjectionMap.get(userColumn);
+                    String column = projectionMap.get(userColumn);
 
                     if (column != null) {
                         projection[i] = column;
                         continue;
                     }
 
-                    if (!mStrict &&
+                    if (!strict &&
                             ( userColumn.contains(" AS ") || userColumn.contains(" as "))) {
                         /* A column alias already exist */
                         projection[i] = userColumn;
@@ -599,9 +599,9 @@ public class SCQueryBuilder
             } else {
                 return projectionIn;
             }
-        } else if (mProjectionMap != null) {
+        } else if (projectionMap != null) {
             // Return all columns in projection map.
-            Set<Entry<String, String>> entrySet = mProjectionMap.entrySet();
+            Set<Entry<String, String>> entrySet = projectionMap.entrySet();
             String[] projection = new String[entrySet.size()];
             Iterator<Entry<String, String>> entryIter = entrySet.iterator();
             int i = 0;

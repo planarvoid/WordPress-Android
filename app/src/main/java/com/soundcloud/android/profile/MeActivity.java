@@ -18,7 +18,7 @@ public class MeActivity extends ProfileActivity {
         if (!TextUtils.isEmpty(action)) {
             Tab t = Tab.fromAction(action);
             if (t != null){
-                mPager.setCurrentItem(Tab.indexOf(t.tag));
+                pager.setCurrentItem(Tab.indexOf(t.tag));
                 intent.setAction(null);
             }
         }

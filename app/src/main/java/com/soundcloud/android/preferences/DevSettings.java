@@ -128,11 +128,11 @@ public final class DevSettings {
     }
 
     private static class DeleteRecordings implements Runnable {
-        private final Context mContext;
+        private final Context context;
         private Handler handler = new Handler();
 
         private DeleteRecordings(Context context) {
-            this.mContext = context;
+            this.context = context;
         }
 
         @Override
@@ -140,11 +140,11 @@ public final class DevSettings {
             synchronized (DeleteRecordings.class) {
                 IOUtils.deleteDir(SoundRecorder.RECORD_DIR);
                 IOUtils.mkdirs(SoundRecorder.RECORD_DIR);
-                final int count = mContext.getContentResolver().delete(Content.RECORDINGS.uri, null, null);
+                final int count = context.getContentResolver().delete(Content.RECORDINGS.uri, null, null);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        AndroidUtils.showToast(mContext, "Deleted " + count + " recordings");
+                        AndroidUtils.showToast(context, "Deleted " + count + " recordings");
                     }
                 });
             }

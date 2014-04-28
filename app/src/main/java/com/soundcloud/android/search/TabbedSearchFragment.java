@@ -27,11 +27,11 @@ public class TabbedSearchFragment extends Fragment {
     private final static String KEY_QUERY = "query";
 
     @Inject
-    EventBus mEventBus;
+    EventBus eventBus;
     @Inject
-    Resources mResources;
+    Resources resources;
 
-    private ViewPager mPager;
+    private ViewPager pager;
 
     public static TabbedSearchFragment newInstance(String query) {
         TabbedSearchFragment fragment = new TabbedSearchFragment();
@@ -49,15 +49,15 @@ public class TabbedSearchFragment extends Fragment {
 
     @VisibleForTesting
     TabbedSearchFragment(EventBus eventBus, Resources resources) {
-        mEventBus = eventBus;
-        mResources = resources;
+        this.eventBus = eventBus;
+        this.resources = resources;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Workaround for onPageSelected not being triggered on creation
-        mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_EVERYTHING.get());
+        eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_EVERYTHING.get());
     }
 
     @Override
@@ -70,22 +70,22 @@ public class TabbedSearchFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         String query = getArguments().getString(KEY_QUERY);
-        SearchPagerAdapter searchPagerAdapter = new SearchPagerAdapter(mResources, this.getChildFragmentManager(), query);
+        SearchPagerAdapter searchPagerAdapter = new SearchPagerAdapter(resources, this.getChildFragmentManager(), query);
 
-        mPager = (ViewPager) view.findViewById(R.id.pager);
-        mPager.setAdapter(searchPagerAdapter);
-        mPager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
-        mPager.setPageMargin(mResources.getDimensionPixelOffset(R.dimen.view_pager_divider_width));
+        pager = (ViewPager) view.findViewById(R.id.pager);
+        pager.setAdapter(searchPagerAdapter);
+        pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
+        pager.setPageMargin(resources.getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
         SlidingTabLayout tabIndicator = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
-        tabIndicator.setViewPager(mPager);
-        tabIndicator.setOnPageChangeListener(new SearchPagerScreenListener(mEventBus));
+        tabIndicator.setViewPager(pager);
+        tabIndicator.setOnPageChangeListener(new SearchPagerScreenListener(eventBus));
     }
 
     @Override
     public void onDestroyView() {
         // Avoid leaking context through internal dataset observer in adapter
-        mPager = null;
+        pager = null;
         super.onDestroyView();
     }
 

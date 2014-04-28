@@ -58,8 +58,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SuggestionsAdapter extends CursorAdapter implements DetachableResultReceiver.Receiver {
-    private final ContentResolver mContentResolver;
-    private final Context mContext;
+    private final ContentResolver contentResolver;
+    private final Context context;
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
@@ -97,8 +97,8 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     public SuggestionsAdapter(Context context, PublicCloudAPI api, ContentResolver contentResolver) {
         super(context, null, 0);
-        mContentResolver = contentResolver;
-        mContext = context;
+        this.contentResolver = contentResolver;
+        this.context = context;
         mImageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
 
         mSuggestionsHandlerThread = new HandlerThread("SuggestionsHandler", THREAD_PRIORITY_DEFAULT);
@@ -219,16 +219,16 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         if (!playlistIds.isEmpty()) toSync.add(Content.PLAYLIST_LOOKUP.forQuery(TextUtils.join(",", playlistIds)));
 
         if (!toSync.isEmpty()) {
-            Intent intent = new Intent(mContext, ApiSyncService.class)
+            Intent intent = new Intent(context, ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
                     .putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, toSync)
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true);
-            mContext.startService(intent);
+            context.startService(intent);
         }
     }
 
     private boolean shouldPrefetch() {
-        return IOUtils.isWifiConnected(mContext);
+        return IOUtils.isWifiConnected(context);
     }
 
     private Cursor getMixedCursor() {
@@ -269,7 +269,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     }
 
     private SearchSuggestions fetchLocalSuggestions(String constraint, int max) {
-        final Cursor cursor = mContentResolver.query(
+        final Cursor cursor = contentResolver.query(
                 Content.ANDROID_SEARCH_SUGGEST.uri
                         .buildUpon()
                         .appendQueryParameter("limit", String.valueOf(max))
@@ -301,7 +301,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             cursor.addRow(new Object[]{
                     -1,
                     -1,
-                    mContext.getResources().getString(R.string.search_for_query, constraint),
+                    context.getResources().getString(R.string.search_for_query, constraint),
                     Content.SEARCH_ITEM.forQuery(constraint),
                     "",
                     1 /* local */,
@@ -318,7 +318,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         View view = convertView;
         SearchTag tag;
         if (convertView == null) {
-            view = View.inflate(mContext, R.layout.search_suggestion, null);
+            view = View.inflate(context, R.layout.search_suggestion, null);
             tag = new SearchTag();
             tag.iv_icon = (ImageView) view.findViewById(R.id.icon);
             tag.iv_search_type = (ImageView) view.findViewById(R.id.iv_search_type);
@@ -359,7 +359,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             }
 
             mImageOperations.displayInAdapterView(urn,
-                    ImageSize.getListItemImageSize(mContext),
+                    ImageSize.getListItemImageSize(context),
                     tag.iv_icon);
         }
         return view;

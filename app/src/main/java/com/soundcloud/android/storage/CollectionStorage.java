@@ -23,14 +23,14 @@ import java.util.List;
 import java.util.Set;
 
 public class CollectionStorage {
-    private final ContentResolver mResolver;
+    private final ContentResolver resolver;
 
     public CollectionStorage() {
         this(SoundCloudApplication.instance);
     }
 
     public CollectionStorage(@NotNull Context context) {
-        mResolver = context.getContentResolver();;
+        resolver = context.getContentResolver();;
     }
 
     /**
@@ -101,7 +101,7 @@ public class CollectionStorage {
     }
 
     private BaseDAO<ScResource> getDaoForContent(final Content content) {
-        return new BaseDAO<ScResource>(mResolver) {
+        return new BaseDAO<ScResource>(resolver) {
             @Override
             public Content getContent() {
                 return content;

@@ -17,51 +17,51 @@ import android.widget.TextView;
 public class SeekBarPreference extends DialogPreference implements SeekBar.OnSeekBarChangeListener {
     private static final String androidns="http://schemas.android.com/apk/res/android";
 
-    private SeekBar mSeekBar;
-    private TextView mSplashText, mValueText;
-    private Context mContext;
+    private SeekBar seekBar;
+    private TextView splashText, valueText;
+    private Context context;
 
-    private String mDialogMessage, mSuffix;
-    private int mDefault, mMaxValue, mValue = 0;
+    private String dialogMessage, suffix;
+    private int defaultValue, maxValue, value = 0;
 
     public SeekBarPreference(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
 
-        mContext       = context;
-        mDialogMessage = attributeSet.getAttributeValue(androidns, "dialogMessage");
-        mSuffix        = attributeSet.getAttributeValue(androidns, "text");
-        mDefault       = attributeSet.getAttributeIntValue(androidns, "defaultValue", 50);
-        mMaxValue      = attributeSet.getAttributeIntValue(androidns, "max", 100);
+        this.context = context;
+        dialogMessage = attributeSet.getAttributeValue(androidns, "dialogMessage");
+        suffix = attributeSet.getAttributeValue(androidns, "text");
+        defaultValue = attributeSet.getAttributeIntValue(androidns, "defaultValue", 50);
+        maxValue = attributeSet.getAttributeIntValue(androidns, "max", 100);
     }
 
     protected View onCreateDialogView() {
         LinearLayout.LayoutParams params;
-        LinearLayout layout = new LinearLayout(mContext);
+        LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(6, 6, 6, 6);
 
-        mSplashText = new TextView(mContext);
-        if (mDialogMessage != null)
-            mSplashText.setText(mDialogMessage);
-        layout.addView(mSplashText);
+        splashText = new TextView(context);
+        if (dialogMessage != null)
+            splashText.setText(dialogMessage);
+        layout.addView(splashText);
 
-        mValueText = new TextView(mContext);
-        mValueText.setGravity(Gravity.CENTER_HORIZONTAL);
-        mValueText.setTextSize(32);
+        valueText = new TextView(context);
+        valueText.setGravity(Gravity.CENTER_HORIZONTAL);
+        valueText.setTextSize(32);
         params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        layout.addView(mValueText, params);
+        layout.addView(valueText, params);
 
-        mSeekBar = new SeekBar(mContext);
-        mSeekBar.setOnSeekBarChangeListener(this);
-        layout.addView(mSeekBar, params);
+        seekBar = new SeekBar(context);
+        seekBar.setOnSeekBarChangeListener(this);
+        layout.addView(seekBar, params);
 
         if (shouldPersist())
-            mValue = getPersistedInt(mDefault);
+            value = getPersistedInt(defaultValue);
 
-        mSeekBar.setMax(mMaxValue);
-        mSeekBar.setProgress(mValue);
+        seekBar.setMax(maxValue);
+        seekBar.setProgress(value);
 
         return layout;
     }
@@ -71,15 +71,15 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
     {
         super.onSetInitialValue(restore, defaultValue);
         if (restore)
-            mValue = shouldPersist() ? getPersistedInt(mDefault) : 0;
+            value = shouldPersist() ? getPersistedInt(this.defaultValue) : 0;
         else
-            mValue = (Integer)defaultValue;
+            value = (Integer)defaultValue;
     }
 
     public void onProgressChanged(SeekBar seek, int value, boolean fromTouch)
     {
         String t = String.valueOf(value);
-        mValueText.setText(mSuffix == null ? t : t.concat(mSuffix));
+        valueText.setText(suffix == null ? t : t.concat(suffix));
 
         if (shouldPersist())
             persistInt(value);
@@ -89,14 +89,14 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
     public void onStartTrackingTouch(SeekBar seek) {}
     public void onStopTrackingTouch(SeekBar seek) {}
 
-    public void setMax(int max) { mMaxValue = max; }
-    public int getMax() { return mMaxValue; }
+    public void setMax(int max) { maxValue = max; }
+    public int getMax() { return maxValue; }
 
     public void setProgress(int progress) {
-        mValue = progress;
-        if (mSeekBar != null)
-            mSeekBar.setProgress(progress);
+        value = progress;
+        if (seekBar != null)
+            seekBar.setProgress(progress);
     }
 
-    public int getProgress() { return mValue; }
+    public int getProgress() { return value; }
 }

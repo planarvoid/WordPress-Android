@@ -56,37 +56,37 @@ import java.util.List;
 public class PlaylistFragment extends Fragment implements AdapterView.OnItemClickListener, OnRefreshListener {
 
     @Inject
-    PlaylistOperations mPlaylistOperations;
+    PlaylistOperations playlistOperations;
     @Inject
-    PlaybackOperations mPlaybackOperations;
+    PlaybackOperations playbackOperations;
     @Inject
-    PlaybackStateProvider mPlaybackStateProvider;
+    PlaybackStateProvider playbackStateProvider;
     @Inject
-    ImageOperations mImageOperations;
+    ImageOperations imageOperations;
     @Inject
-    EngagementsController mEngagementsController;
+    EngagementsController engagementsController;
     @Inject
-    Provider<PlaylistDetailsController> mControllerProvider;
+    Provider<PlaylistDetailsController> controllerProvider;
     @Inject
-    PullToRefreshController mPullToRefreshController;
+    PullToRefreshController pullToRefreshController;
 
-    private PlaylistDetailsController mController;
+    private PlaylistDetailsController controller;
 
-    private ListView mListView;
-    private View mProgressView;
+    private ListView listView;
+    private View progressView;
 
-    private Observable<Playlist> mLoadPlaylist;
-    private Subscription mSubscription = Subscriptions.empty();
+    private Observable<Playlist> loadPlaylist;
+    private Subscription subscription = Subscriptions.empty();
 
-    private PlayablePresenter mPlayablePresenter;
-    private View mHeaderUsernameText;
-    private TextView mInfoHeaderText;
-    private ToggleButton mPlayToggle;
+    private PlayablePresenter playablePresenter;
+    private View headerUsernameText;
+    private TextView infoHeaderText;
+    private ToggleButton playToggle;
 
-    private boolean mListShown;
+    private boolean listShown;
 
     // We still need to use broadcasts on this screen, since header does not fire play control events
-    private final BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
+    private final BroadcastReceiver playbackStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (isAdded()) {
@@ -95,22 +95,22 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         }
     };
 
-    private final View.OnClickListener mOnPlayToggleClick = new View.OnClickListener() {
+    private final View.OnClickListener onPlayToggleClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            final Playlist playlist = (Playlist) mPlayablePresenter.getPlayable();
-            if (mPlaybackStateProvider.getPlayQueuePlaylistId() == playlist.getId()) {
-                mPlaybackOperations.togglePlayback(getActivity());
+            final Playlist playlist = (Playlist) playablePresenter.getPlayable();
+            if (playbackStateProvider.getPlayQueuePlaylistId() == playlist.getId()) {
+                playbackOperations.togglePlayback(getActivity());
             } else {
-                mPlaybackOperations.playPlaylist(getActivity(), playlist, Screen.fromBundle(getArguments()));
+                playbackOperations.playPlaylist(getActivity(), playlist, Screen.fromBundle(getArguments()));
             }
         }
     };
 
-    private final View.OnClickListener mOnHeaderTextClick = new View.OnClickListener() {
+    private final View.OnClickListener onHeaderTextClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            ProfileActivity.startFromPlayable(getActivity(), mPlayablePresenter.getPlayable());
+            ProfileActivity.startFromPlayable(getActivity(), playablePresenter.getPlayable());
         }
     };
 
@@ -127,13 +127,13 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
                      EngagementsController engagementsController,
                      Provider<PlaylistDetailsController> adapterProvider,
                      PullToRefreshController pullToRefreshController) {
-        mPlaybackOperations = playbackOperations;
-        mPlaylistOperations = playlistOperations;
-        mPlaybackStateProvider = playbackStateProvider;
-        mImageOperations = imageOperations;
-        mEngagementsController = engagementsController;
-        mControllerProvider = adapterProvider;
-        mPullToRefreshController = pullToRefreshController;
+        this.playbackOperations = playbackOperations;
+        this.playlistOperations = playlistOperations;
+        this.playbackStateProvider = playbackStateProvider;
+        this.imageOperations = imageOperations;
+        this.engagementsController = engagementsController;
+        this.controllerProvider = adapterProvider;
+        this.pullToRefreshController = pullToRefreshController;
     }
 
     public static PlaylistFragment create(Bundle args) {
@@ -145,7 +145,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mLoadPlaylist = mPlaylistOperations.loadPlaylist(getPlaylistUrn())
+        loadPlaylist = playlistOperations.loadPlaylist(getPlaylistUrn())
                 .observeOn(mainThread())
                 .cache();
     }
@@ -159,31 +159,31 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     public void onViewCreated(View layout, Bundle savedInstanceState) {
         super.onViewCreated(layout, savedInstanceState);
 
-        mController = mControllerProvider.get();
-        mController.onViewCreated(layout, getResources());
+        controller = controllerProvider.get();
+        controller.onViewCreated(layout, getResources());
 
-        mPlayablePresenter = new PlayablePresenter(getActivity());
+        playablePresenter = new PlayablePresenter(getActivity());
 
-        mProgressView = layout.findViewById(R.id.progress_container);
+        progressView = layout.findViewById(R.id.progress_container);
 
-        mListView = (ListView) layout.findViewById(android.R.id.list);
-        mListView.setOnItemClickListener(this);
-        mListView.setOnScrollListener(mImageOperations.createScrollPauseListener(false, true));
+        listView = (ListView) layout.findViewById(android.R.id.list);
+        listView.setOnItemClickListener(this);
+        listView.setOnScrollListener(imageOperations.createScrollPauseListener(false, true));
 
         configureInfoViews(layout);
-        mListView.setAdapter(mController.getAdapter());
+        listView.setAdapter(controller.getAdapter());
 
         PullToRefreshLayout mPullToRefreshLayout = (PullToRefreshLayout) layout.findViewById(R.id.ptr_layout);
-        mPullToRefreshController.attach(getActivity(), mPullToRefreshLayout, this);
+        pullToRefreshController.attach(getActivity(), mPullToRefreshLayout, this);
 
-        showContent(mListShown);
+        showContent(listShown);
 
-        mSubscription = mLoadPlaylist.subscribe(new PlaylistSubscriber());
+        subscription = loadPlaylist.subscribe(new PlaylistSubscriber());
     }
 
     @Override
     public void onRefreshStarted(View view) {
-        mSubscription = mPlaylistOperations.refreshPlaylist(getPlaylistUrn())
+        subscription = playlistOperations.refreshPlaylist(getPlaylistUrn())
                 .observeOn(mainThread())
                 .subscribe(new RefreshSubscriber());
     }
@@ -195,39 +195,39 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     }
 
     private void refreshNowPlayingState() {
-        mController.getAdapter().notifyDataSetChanged();
-        mPlayToggle.setChecked(mPlaybackStateProvider.isPlaylistPlaying(getPlaylistUrn().numericId));
+        controller.getAdapter().notifyDataSetChanged();
+        playToggle.setChecked(playbackStateProvider.isPlaylistPlaying(getPlaylistUrn().numericId));
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        mEngagementsController.startListeningForChanges();
+        engagementsController.startListeningForChanges();
         // Listen for playback changes, so that we can update the now-playing indicator
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(PlaybackService.Broadcasts.META_CHANGED);
         intentFilter.addAction(PlaybackService.Broadcasts.PLAYSTATE_CHANGED);
-        getActivity().registerReceiver(mPlaybackStatusListener, intentFilter);
+        getActivity().registerReceiver(playbackStatusListener, intentFilter);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        getActivity().unregisterReceiver(mPlaybackStatusListener);
-        mEngagementsController.stopListeningForChanges();
+        getActivity().unregisterReceiver(playbackStatusListener);
+        engagementsController.stopListeningForChanges();
     }
 
     @Override
     public void onDestroyView() {
-        mSubscription.unsubscribe();
-        mController = null;
+        subscription.unsubscribe();
+        controller = null;
         super.onDestroyView();
     }
 
     private PlaylistUrn getPlaylistUrn() {
         // if possible, use the instance to get the ID as it can change during syncing
-        if (mPlayablePresenter != null) {
-            final Playlist playlist = (Playlist) mPlayablePresenter.getPlayable();
+        if (playablePresenter != null) {
+            final Playlist playlist = (Playlist) playablePresenter.getPlayable();
             if (playlist != null) {
                 return playlist.getUrn();
             }
@@ -246,69 +246,69 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
     private View createDetailsHeader() {
         View headerView = View.inflate(getActivity(), R.layout.playlist_details_view, null);
-        mListView.addHeaderView(headerView, null, false);
+        listView.addHeaderView(headerView, null, false);
         return headerView;
     }
 
     private void setupPlaylistDetails(View detailsView) {
-        mPlayablePresenter.setTitleView((TextView) detailsView.findViewById(R.id.title))
+        playablePresenter.setTitleView((TextView) detailsView.findViewById(R.id.title))
                 .setUsernameView((TextView) detailsView.findViewById(R.id.username))
                 .setArtwork((ImageView) detailsView.findViewById(R.id.artwork),
                         ImageSize.getFullImageSize(getActivity().getResources()));
 
-        mEngagementsController.bindView(detailsView, new OriginProvider() {
+        engagementsController.bindView(detailsView, new OriginProvider() {
             @Override
             public String getScreenTag() {
                 return Screen.fromBundle(getArguments()).get();
             }
         });
 
-        mPlayToggle = (ToggleButton) detailsView.findViewById(R.id.toggle_play_pause);
-        mPlayToggle.setOnClickListener(mOnPlayToggleClick);
+        playToggle = (ToggleButton) detailsView.findViewById(R.id.toggle_play_pause);
+        playToggle.setOnClickListener(onPlayToggleClick);
 
-        mHeaderUsernameText = detailsView.findViewById(R.id.username);
-        mHeaderUsernameText.setOnClickListener(mOnHeaderTextClick);
+        headerUsernameText = detailsView.findViewById(R.id.username);
+        headerUsernameText.setOnClickListener(onHeaderTextClick);
     }
 
     private void addInfoHeader() {
         View mInfoHeader = View.inflate(getActivity(), R.layout.playlist_header, null);
-        mInfoHeaderText = (TextView) mInfoHeader.findViewById(android.R.id.text1);
-        mListView.addHeaderView(mInfoHeader, null, false);
+        infoHeaderText = (TextView) mInfoHeader.findViewById(android.R.id.text1);
+        listView.addHeaderView(mInfoHeader, null, false);
     }
 
     private void showContent(boolean show) {
-        mListShown = show;
-        mController.setListShown(show);
-        mProgressView.setVisibility(mListShown ? View.GONE : View.VISIBLE);
+        listShown = show;
+        controller.setListShown(show);
+        progressView.setVisibility(listShown ? View.GONE : View.VISIBLE);
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final int trackPosition = position - mListView.getHeaderViewsCount();
-        final Track initialTrack = mController.getAdapter().getItem(trackPosition);
-        final Playlist playlist = (Playlist) mPlayablePresenter.getPlayable();
-        mPlaybackOperations.playPlaylistFromPosition(getActivity(), playlist, trackPosition, initialTrack,
+        final int trackPosition = position - listView.getHeaderViewsCount();
+        final Track initialTrack = controller.getAdapter().getItem(trackPosition);
+        final Playlist playlist = (Playlist) playablePresenter.getPlayable();
+        playbackOperations.playPlaylistFromPosition(getActivity(), playlist, trackPosition, initialTrack,
                 Screen.fromBundle(getArguments()));
     }
 
     protected void refreshMetaData(Playlist playlist) {
-        mPlayablePresenter.setPlayable(playlist);
-        mEngagementsController.setPlayable(playlist);
-        mInfoHeaderText.setText(createHeaderText(playlist));
+        playablePresenter.setPlayable(playlist);
+        engagementsController.setPlayable(playlist);
+        infoHeaderText.setText(createHeaderText(playlist));
 
         // don't register clicks before we have a valid playlist
         final List<Track> tracks = playlist.getTracks();
         if (tracks != null && tracks.size() > 0) {
-            if (mPlayToggle.getVisibility() != View.VISIBLE) {
-                mPlayToggle.setVisibility(View.VISIBLE);
-                AnimUtils.runFadeInAnimationOn(getActivity(), mPlayToggle);
+            if (playToggle.getVisibility() != View.VISIBLE) {
+                playToggle.setVisibility(View.VISIBLE);
+                AnimUtils.runFadeInAnimationOn(getActivity(), playToggle);
             }
         } else {
-            mPlayToggle.setVisibility(View.GONE);
+            playToggle.setVisibility(View.GONE);
         }
 
-        mPlayablePresenter.setTextVisibility(View.VISIBLE);
-        mHeaderUsernameText.setEnabled(true);
+        playablePresenter.setTextVisibility(View.VISIBLE);
+        headerUsernameText.setEnabled(true);
     }
 
     private String createHeaderText(Playlist playlist) {
@@ -319,7 +319,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     }
 
     private void updateTracksAdapter(Playlist playlist) {
-        final ItemAdapter<Track> adapter = mController.getAdapter();
+        final ItemAdapter<Track> adapter = controller.getAdapter();
         adapter.clear();
         for (Track track : playlist.getTracks()) {
             adapter.addItem(track);
@@ -339,24 +339,24 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-            mController.setEmptyViewStatus(EmptyListView.Status.ERROR);
+            controller.setEmptyViewStatus(EmptyListView.Status.ERROR);
             showContent(true);
-            mPullToRefreshController.stopRefreshing();
+            pullToRefreshController.stopRefreshing();
         }
 
         @Override
         public void onCompleted() {
-            mController.setEmptyViewStatus(EmptyListView.Status.OK);
-            mPullToRefreshController.stopRefreshing();
+            controller.setEmptyViewStatus(EmptyListView.Status.OK);
+            pullToRefreshController.stopRefreshing();
         }
     }
 
     private class RefreshSubscriber extends PlaylistSubscriber {
         @Override
         public void onError(Throwable e) {
-            if (mController.hasContent()) {
+            if (controller.hasContent()) {
                 Toast.makeText(getActivity(), R.string.connection_list_error, Toast.LENGTH_SHORT).show();
-                mPullToRefreshController.stopRefreshing();
+                pullToRefreshController.stopRefreshing();
             } else {
                 super.onError(e);
             }

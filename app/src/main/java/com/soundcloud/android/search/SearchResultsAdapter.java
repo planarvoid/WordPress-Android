@@ -20,12 +20,12 @@ public class SearchResultsAdapter extends EndlessPagingAdapter<ScResource> {
     public static final int TYPE_PLAYABLE = 0;
     public static final int TYPE_USER = 1;
 
-    private final ImageOperations mImageOperations;
+    private final ImageOperations imageOperations;
 
     @Inject
     public SearchResultsAdapter(ImageOperations imageOperations) {
         super(Consts.LIST_PAGE_SIZE);
-        mImageOperations = imageOperations;
+        this.imageOperations = imageOperations;
     }
 
     @Override
@@ -33,9 +33,9 @@ public class SearchResultsAdapter extends EndlessPagingAdapter<ScResource> {
         int type = getItemViewType(position);
         switch (type) {
             case TYPE_PLAYABLE:
-                return new PlayableRow(parent.getContext(), mImageOperations);
+                return new PlayableRow(parent.getContext(), imageOperations);
             case TYPE_USER:
-                return new UserlistRow(parent.getContext(), Screen.SEARCH_EVERYTHING, mImageOperations);
+                return new UserlistRow(parent.getContext(), Screen.SEARCH_EVERYTHING, imageOperations);
             default:
                 throw new IllegalArgumentException("no view for playlists yet");
         }

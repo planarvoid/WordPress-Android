@@ -1,11 +1,5 @@
 package com.soundcloud.android.preferences;
 
-import android.accounts.Account;
-import android.content.ContentResolver;
-import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
@@ -13,18 +7,25 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.SyncConfig;
 
+import android.accounts.Account;
+import android.content.ContentResolver;
+import android.os.Bundle;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
+import android.preference.PreferenceCategory;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationSettingsActivity extends ScSettingsActivity {
 
     final List<CheckBoxPreference> syncPreferences = new ArrayList<CheckBoxPreference>();
-    private AccountOperations mAccountOperations;
+    private AccountOperations accountOperations;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAccountOperations = new AccountOperations(this);
+        accountOperations = new AccountOperations(this);
         addPreferencesFromResource(R.xml.notifications_settings);
 
         for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++) {
@@ -59,7 +60,7 @@ public class NotificationSettingsActivity extends ScSettingsActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SETTINGS_NOTIFICATIONS.get());
+            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SETTINGS_NOTIFICATIONS.get());
         }
     }
 
@@ -71,8 +72,8 @@ public class NotificationSettingsActivity extends ScSettingsActivity {
                 break;
             }
         }
-        if (mAccountOperations.soundCloudAccountExists()) {
-            final Account account = mAccountOperations.getSoundCloudAccount();
+        if (accountOperations.soundCloudAccountExists()) {
+            final Account account = accountOperations.getSoundCloudAccount();
             final boolean autoSyncing = ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY);
             if (sync && !autoSyncing) {
                 ScContentProvider.enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);

@@ -11,9 +11,9 @@ import android.support.v4.app.FragmentManager;
 
 public class UnauthorisedRequestReceiver extends BroadcastReceiver {
 
-    private final UnauthorisedRequestRegistry mRequestRegistry;
-    private final FragmentManager mFragmentManager;
-    private final TokenExpiredDialogFragment mTokenExpiredDialog;
+    private final UnauthorisedRequestRegistry requestRegistry;
+    private final FragmentManager fragmentManager;
+    private final TokenExpiredDialogFragment tokenExpiredDialog;
 
     public UnauthorisedRequestReceiver(Context context, FragmentManager fragmentManager) {
         this(UnauthorisedRequestRegistry.getInstance(context), fragmentManager, new TokenExpiredDialogFragment());
@@ -23,17 +23,17 @@ public class UnauthorisedRequestReceiver extends BroadcastReceiver {
     protected UnauthorisedRequestReceiver(UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                                           FragmentManager fragmentManager,
                                           TokenExpiredDialogFragment tokenExpiredDialog) {
-        mRequestRegistry = unauthorisedRequestRegistry;
-        mFragmentManager = fragmentManager;
-        mTokenExpiredDialog = tokenExpiredDialog;
+        requestRegistry = unauthorisedRequestRegistry;
+        this.fragmentManager = fragmentManager;
+        this.tokenExpiredDialog = tokenExpiredDialog;
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if(mRequestRegistry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()){
-            mRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
-            if (mFragmentManager.findFragmentByTag(TokenExpiredDialogFragment.TAG) == null) {
-                mTokenExpiredDialog.show(mFragmentManager, TokenExpiredDialogFragment.TAG);
+        if(requestRegistry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()){
+            requestRegistry.clearObservedUnauthorisedRequestTimestamp();
+            if (fragmentManager.findFragmentByTag(TokenExpiredDialogFragment.TAG) == null) {
+                tokenExpiredDialog.show(fragmentManager, TokenExpiredDialogFragment.TAG);
             }
         }
     }

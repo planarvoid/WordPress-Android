@@ -37,10 +37,10 @@ public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAda
 
     @Override
     public int getCount() {
-        if (mItems.isEmpty()) {
+        if (items.isEmpty()) {
             return 0;
         } else {
-            return mAppendState == AppendState.IDLE ? mItems.size() : mItems.size() + 1;
+            return mAppendState == AppendState.IDLE ? items.size() : items.size() + 1;
         }
     }
 
@@ -104,7 +104,7 @@ public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAda
 
     @Override
     public int getItemViewType(int position) {
-        return mAppendState != AppendState.IDLE && position == mItems.size() ? IGNORE_ITEM_VIEW_TYPE
+        return mAppendState != AppendState.IDLE && position == items.size() ? IGNORE_ITEM_VIEW_TYPE
                 : super.getItemViewType(position);
     }
 

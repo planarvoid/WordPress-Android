@@ -25,7 +25,7 @@ public class LocalCollectionDAO extends BaseDAO<LocalCollection> {
     @Nullable public LocalCollection fromContentUri(Uri contentUri, boolean createIfNecessary) {
         LocalCollection lc = null;
         final Uri cleanUri = UriUtils.clearQueryParams(contentUri);
-        Cursor c = mResolver.query(getContent().uri, null, "uri = ?", new String[]{cleanUri.toString()}, null);
+        Cursor c = resolver.query(getContent().uri, null, "uri = ?", new String[]{cleanUri.toString()}, null);
         if (c != null && c.moveToFirst()) {
             lc = new LocalCollection(c);
         }
@@ -40,7 +40,7 @@ public class LocalCollectionDAO extends BaseDAO<LocalCollection> {
 
 
     public boolean deleteUri(Uri contentUri) {
-        return mResolver.delete(getContent().uri,
+        return resolver.delete(getContent().uri,
                 "uri = ?",
                 new String[]{UriUtils.clearQueryParams(contentUri).toString()}) == 1;
 

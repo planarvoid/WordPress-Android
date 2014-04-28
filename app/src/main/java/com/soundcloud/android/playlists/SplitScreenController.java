@@ -12,41 +12,41 @@ import android.widget.ListView;
 
 class SplitScreenController implements PlaylistDetailsController {
 
-    private final PlaylistTracksAdapter mAdapter;
-    private EmptyListView mEmptyView;
-    private View mListViewContainer;
+    private final PlaylistTracksAdapter adapter;
+    private EmptyListView emptyView;
+    private View listViewContainer;
 
     SplitScreenController(ImageOperations imageOperations) {
-        mAdapter = new PlaylistTracksAdapter(imageOperations);
+        adapter = new PlaylistTracksAdapter(imageOperations);
     }
 
     @Override
     public ItemAdapter<Track> getAdapter() {
-        return mAdapter;
+        return adapter;
     }
 
     @Override
     public boolean hasContent() {
-        return !mAdapter.isEmpty();
+        return !adapter.isEmpty();
     }
 
     @Override
     public void onViewCreated(View layout, Resources resources) {
-        mEmptyView  = (EmptyListView) layout.findViewById(android.R.id.empty);
-        mEmptyView.setMessageText(resources.getString(R.string.empty_playlist_description));
+        emptyView = (EmptyListView) layout.findViewById(android.R.id.empty);
+        emptyView.setMessageText(resources.getString(R.string.empty_playlist_description));
 
-        mListViewContainer = layout.findViewById(R.id.container);
+        listViewContainer = layout.findViewById(R.id.container);
         ListView listView = (ListView) layout.findViewById(android.R.id.list);
-        listView.setEmptyView(mEmptyView);
+        listView.setEmptyView(emptyView);
     }
 
     @Override
     public void setListShown(boolean show) {
-        mListViewContainer.setVisibility(show ? View.VISIBLE : View.GONE);
+        listViewContainer.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     @Override
     public void setEmptyViewStatus(int status) {
-        mEmptyView.setStatus(status);
+        emptyView.setStatus(status);
     }
 }

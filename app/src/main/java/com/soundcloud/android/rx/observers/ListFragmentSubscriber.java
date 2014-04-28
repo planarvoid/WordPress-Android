@@ -10,24 +10,24 @@ import rx.Subscriber;
  */
 public class ListFragmentSubscriber<T> extends Subscriber<T> {
 
-    private final EmptyViewAware mEmptyViewHolder;
+    private final EmptyViewAware emptyViewHolder;
 
     public ListFragmentSubscriber(EmptyViewAware emptyViewHolder) {
-        mEmptyViewHolder = emptyViewHolder;
+        this.emptyViewHolder = emptyViewHolder;
     }
 
     @Override
     public void onCompleted() {
-        mEmptyViewHolder.setEmptyViewStatus(EmptyListView.Status.OK);
+        emptyViewHolder.setEmptyViewStatus(EmptyListView.Status.OK);
     }
 
     @Override
     public void onError(Throwable error) {
         if (error instanceof APIRequestException){
             boolean commsError= ((APIRequestException) error).reason() == APIRequestException.APIErrorReason.NETWORK_COMM_ERROR;
-            mEmptyViewHolder.setEmptyViewStatus(commsError ? EmptyListView.Status.CONNECTION_ERROR : EmptyListView.Status.SERVER_ERROR);
+            emptyViewHolder.setEmptyViewStatus(commsError ? EmptyListView.Status.CONNECTION_ERROR : EmptyListView.Status.SERVER_ERROR);
         } else {
-            mEmptyViewHolder.setEmptyViewStatus(EmptyListView.Status.ERROR);
+            emptyViewHolder.setEmptyViewStatus(EmptyListView.Status.ERROR);
         }
     }
 

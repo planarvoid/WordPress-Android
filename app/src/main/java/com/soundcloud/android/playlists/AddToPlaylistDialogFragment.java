@@ -50,7 +50,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
     private static final int NEW_PLAYLIST_ITEM = -1;
     private static final int CLOSE_DELAY_MILLIS = 500;
 
-    private MyPlaylistsAdapter mAdapter;
+    private MyPlaylistsAdapter adapter;
 
     @Inject
     PlaylistOperations mPlaylistOperations;
@@ -75,11 +75,11 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
     @Override
     protected Builder build(Builder builder) {
         builder.setTitle(getString(R.string.add_track_to_playlist));
-        mAdapter = new MyPlaylistsAdapter(getActivity());
-        builder.setItems(mAdapter, 0, new AdapterView.OnItemClickListener() {
+        adapter = new MyPlaylistsAdapter(getActivity());
+        builder.setItems(adapter, 0, new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final long rowId = mAdapter.getItemId(position);
+                final long rowId = adapter.getItemId(position);
                 if (rowId == NEW_PLAYLIST_ITEM) {
                     final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
                     final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
@@ -149,12 +149,12 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mAdapter.setCursor(data);
+        adapter.setCursor(data);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mAdapter.setCursor(null);
+        adapter.setCursor(null);
     }
 
     private final class TrackAddedSubscriber extends DefaultSubscriber<Playlist> {

@@ -64,26 +64,26 @@ public class ProfileActivity extends ScActivity implements
     public static final String EXTRA_USER_ID = "userId";
     public static final String EXTRA_USER = "user";
 
-    /* package */ @Nullable User mUser;
+    /* package */ @Nullable User user;
 
-    private ImageOperations mImageOperations;
+    private ImageOperations imageOperations;
 
-    private TextView mUsername, mFullName, mFollowerCount, mFollowerMessage, mTrackCount, mLocation;
-    private ToggleButton mToggleFollow;
-    private View mVrStats;
-    private ImageView mUserImage;
-    private UserFragmentAdapter mAdapter;
-    private FetchUserTask mLoadUserTask;
-    protected ViewPager mPager;
-    protected SlidingTabLayout mIndicator;
+    private TextView username, fullName, followerCount, followerMessage, trackCount, location;
+    private ToggleButton toggleFollow;
+    private View vrStats;
+    private ImageView userImage;
+    private UserFragmentAdapter adapter;
+    private FetchUserTask loadUserTask;
+    protected ViewPager pager;
+    protected SlidingTabLayout indicator;
 
-    private UserDetailsFragment mUserDetailsFragment;
-    private PublicCloudAPI mOldCloudAPI;
-    private AccountOperations mAccountOperations;
-    private FollowingOperations mFollowingOperations;
-    private final UserStorage mUserStorage = new UserStorage();
+    private UserDetailsFragment userDetailsFragment;
+    private PublicCloudAPI oldCloudAPI;
+    private AccountOperations accountOperations;
+    private FollowingOperations followingOperations;
+    private final UserStorage userStorage = new UserStorage();
 
-    private int mInitialOtherFollowers;
+    private int initialOtherFollowers;
 
     public static boolean startFromPlayable(Context context, Playable playable) {
         if (playable != null) {
@@ -100,49 +100,49 @@ public class ProfileActivity extends ScActivity implements
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.profile_activity);
-        mImageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
-        mOldCloudAPI = new PublicApi(this);
-        mFollowingOperations = new FollowingOperations();
-        mAccountOperations = new AccountOperations(this);
-        mUserImage = (ImageView) findViewById(R.id.user_image);
-        mUsername = (TextView) findViewById(R.id.username);
-        mFullName = (TextView) findViewById(R.id.fullname);
-        mLocation = (TextView) findViewById(R.id.location);
+        imageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
+        oldCloudAPI = new PublicApi(this);
+        followingOperations = new FollowingOperations();
+        accountOperations = new AccountOperations(this);
+        userImage = (ImageView) findViewById(R.id.user_image);
+        username = (TextView) findViewById(R.id.username);
+        fullName = (TextView) findViewById(R.id.fullname);
+        location = (TextView) findViewById(R.id.location);
 
-        mFollowerCount = (TextView) findViewById(R.id.followers);
-        mFollowerMessage = (TextView) findViewById(R.id.followers_message);
-        mTrackCount = (TextView) findViewById(R.id.tracks);
-        mVrStats = findViewById(R.id.vr_stats);
+        followerCount = (TextView) findViewById(R.id.followers);
+        followerMessage = (TextView) findViewById(R.id.followers_message);
+        trackCount = (TextView) findViewById(R.id.tracks);
+        vrStats = findViewById(R.id.vr_stats);
 
         setTitle(isLoggedInUser() ? R.string.side_menu_you : R.string.side_menu_profile);
-        AndroidUtils.setTextShadowForGrayBg(mUsername, mFullName, mFollowerCount, mTrackCount);
+        AndroidUtils.setTextShadowForGrayBg(username, fullName, followerCount, trackCount);
 
-        mUserImage.setOnClickListener(new View.OnClickListener() {
+        userImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mUser != null) {
-                    new FullImageDialog(ProfileActivity.this, mUser.getUrn(), mImageOperations).show();
+                if (user != null) {
+                    new FullImageDialog(ProfileActivity.this, user.getUrn(), imageOperations).show();
                 }
 
             }
         });
-        mToggleFollow = (ToggleButton) findViewById(R.id.toggle_btn_follow);
+        toggleFollow = (ToggleButton) findViewById(R.id.toggle_btn_follow);
 
-        mAdapter = new UserFragmentAdapter(getSupportFragmentManager());
-        mPager = (ViewPager) findViewById(R.id.pager);
-        mPager.setAdapter(mAdapter);
-        mPager.setBackgroundColor(Color.WHITE);
-        mPager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
-        mPager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
+        adapter = new UserFragmentAdapter(getSupportFragmentManager());
+        pager = (ViewPager) findViewById(R.id.pager);
+        pager.setAdapter(adapter);
+        pager.setBackgroundColor(Color.WHITE);
+        pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
+        pager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        mIndicator = (SlidingTabLayout) findViewById(R.id.indicator);
-        mIndicator.setViewPager(mPager);
-        mIndicator.setOnPageChangeListener(this);
+        indicator = (SlidingTabLayout) findViewById(R.id.indicator);
+        indicator.setViewPager(pager);
+        indicator.setOnPageChangeListener(this);
 
         // make sure to call this only after we fully set up the view pager and the indicator, so as to receive
         // the callback to the page changed listener
         if (bundle == null) {
-            mPager.setCurrentItem(Tab.tracks.ordinal());
+            pager.setCurrentItem(Tab.tracks.ordinal());
         }
 
         Intent intent = getIntent();
@@ -153,19 +153,19 @@ public class ProfileActivity extends ScActivity implements
             handleIntent(intent);
         }
 
-        if (mUser != null) {
-            mUserDetailsFragment = UserDetailsFragment.newInstance(mUser.getId());
+        if (user != null) {
+            userDetailsFragment = UserDetailsFragment.newInstance(user.getId());
 
             if (isLoggedInUser()){
-                mToggleFollow.setVisibility(View.GONE);
+                toggleFollow.setVisibility(View.GONE);
             } else {
-                mToggleFollow.setChecked(mFollowingOperations.isFollowing(mUser));
-                mToggleFollow.setOnClickListener(new View.OnClickListener() {
+                toggleFollow.setChecked(followingOperations.isFollowing(user));
+                toggleFollow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        toggleFollowing(mUser);
-                        mEventBus.publish(EventQueue.UI, UIEvent.fromToggleFollow(mToggleFollow.isChecked(),
-                                Screen.USER_HEADER.get(), mUser.getId()));
+                        toggleFollowing(user);
+                        mEventBus.publish(EventQueue.UI, UIEvent.fromToggleFollow(toggleFollow.isChecked(),
+                                Screen.USER_HEADER.get(), user.getId()));
                     }
                 });
             }
@@ -186,10 +186,10 @@ public class ProfileActivity extends ScActivity implements
             loadYou();
         }
 
-        if (!isLoggedInUser()) mFollowingOperations.requestUserFollowings(this);
+        if (!isLoggedInUser()) followingOperations.requestUserFollowings(this);
 
         if (intent.hasExtra(Tab.EXTRA)) {
-            mPager.setCurrentItem(Tab.indexOf(intent.getStringExtra(Tab.EXTRA)));
+            pager.setCurrentItem(Tab.indexOf(intent.getStringExtra(Tab.EXTRA)));
             intent.removeExtra(Tab.EXTRA);
         }
     }
@@ -253,20 +253,20 @@ public class ProfileActivity extends ScActivity implements
             final User u = SoundCloudApplication.sModelManager.getUser(userId);
             setUser(u != null ? u : SoundCloudApplication.sModelManager.getCachedUser(userId));
         }
-        if (mUser == null) {
-            mUser = new User();
-            mUser.setId(userId);
+        if (user == null) {
+            user = new User();
+            user.setId(userId);
         }
     }
 
     private boolean loadUserByUri(Uri uri) {
         if (uri != null) {
-            mUser = mUserStorage.getUserByUri(uri); //FIXME: DB access on UI thread
-            if (mUser == null) {
+            user = userStorage.getUserByUri(uri); //FIXME: DB access on UI thread
+            if (user == null) {
                 loadUserById(UriUtils.getLastSegmentAsLong(uri));
             }
         }
-        return mUser != null;
+        return user != null;
     }
 
     private void loadUserByObject(User user) {
@@ -279,26 +279,26 @@ public class ProfileActivity extends ScActivity implements
     }
 
     private void loadDetails() {
-        if (mLoadUserTask == null && mUser != null) {
-            mLoadUserTask = new FetchUserTask(mOldCloudAPI);
-            mLoadUserTask.addListener(this);
-            mLoadUserTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.getId()));
+        if (loadUserTask == null && user != null) {
+            loadUserTask = new FetchUserTask(oldCloudAPI);
+            loadUserTask.addListener(this);
+            loadUserTask.execute(Request.to(Endpoints.USER_DETAILS, user.getId()));
         }
     }
 
     @Override
     public void onFollowChanged() {
-        mToggleFollow.setChecked(mFollowingOperations.isFollowing(mUser));
+        toggleFollow.setChecked(followingOperations.isFollowing(user));
         setFollowersMessage();
     }
 
     protected boolean isLoggedInUser() {
-       return mUser != null && mUser.getId() == getCurrentUserId();
+       return user != null && user.getId() == getCurrentUserId();
     }
 
     private void toggleFollowing(User user) {
-        final SyncInitiator syncInitiator = new SyncInitiator(this, mAccountOperations);
-        mFollowingOperations.toggleFollowing(user).subscribe(new DefaultSubscriber<UserAssociation>() {
+        final SyncInitiator syncInitiator = new SyncInitiator(this, accountOperations);
+        followingOperations.toggleFollowing(user).subscribe(new DefaultSubscriber<UserAssociation>() {
             @Override
             public void onCompleted() {
                 syncInitiator.pushFollowingsToApi();
@@ -306,7 +306,7 @@ public class ProfileActivity extends ScActivity implements
 
             @Override
             public void onError(Throwable e) {
-                mToggleFollow.setChecked(mFollowingOperations.isFollowing(mUser));
+                toggleFollow.setChecked(followingOperations.isFollowing(ProfileActivity.this.user));
             }
         });
         setFollowersMessage();
@@ -318,107 +318,107 @@ public class ProfileActivity extends ScActivity implements
         setUser(user);
 
         // update user locally and ensure 1 instance
-        mUser = SoundCloudApplication.sModelManager.cache(user, ScResource.CacheUpdateMode.FULL);
+        this.user = SoundCloudApplication.sModelManager.cache(user, ScResource.CacheUpdateMode.FULL);
 
         // TODO: move to a *Operations class to decouple from storage layer
-        fireAndForget(mUserStorage.storeAsync(mUser));
-        mUserDetailsFragment.onSuccess(mUser);
+        fireAndForget(userStorage.storeAsync(this.user));
+        userDetailsFragment.onSuccess(this.user);
     }
 
     @Override
     public void onError(Object context) {
-        mUserDetailsFragment.onError();
+        userDetailsFragment.onError();
     }
 
     private void setUser(final User user) {
         if (user == null || user.getId() < 0) return;
-        mUser = user;
+        this.user = user;
 
         // Initial count prevents fluctuations from being reflected in followers message
-        mInitialOtherFollowers = user.followers_count;
-        if (mFollowingOperations.isFollowing(mUser)) {
-            mInitialOtherFollowers--;
+        initialOtherFollowers = user.followers_count;
+        if (followingOperations.isFollowing(this.user)) {
+            initialOtherFollowers--;
         }
 
-        if (!isEmpty(user.username)) mUsername.setText(user.username);
+        if (!isEmpty(user.username)) username.setText(user.username);
 
-        if (mFullName != null){
+        if (fullName != null){
             if (isEmpty(user.full_name)) {
-                mFullName.setVisibility(View.GONE);
+                fullName.setVisibility(View.GONE);
             } else {
-                mFullName.setText(user.full_name);
-                mFullName.setVisibility(View.VISIBLE);
+                fullName.setText(user.full_name);
+                fullName.setVisibility(View.VISIBLE);
             }
         }
 
-        if (mVrStats != null){
-            mVrStats.setVisibility((user.followers_count <= 0 || user.track_count <= 0) ? View.GONE : View.VISIBLE);
+        if (vrStats != null){
+            vrStats.setVisibility((user.followers_count <= 0 || user.track_count <= 0) ? View.GONE : View.VISIBLE);
         }
 
-        if (mTrackCount != null){
+        if (trackCount != null){
             if (user.track_count <= 0) {
-                mTrackCount.setVisibility(View.GONE);
+                trackCount.setVisibility(View.GONE);
             } else {
-                mTrackCount.setVisibility(View.VISIBLE);
-                mTrackCount.setText(String.valueOf(user.track_count));
+                trackCount.setVisibility(View.VISIBLE);
+                trackCount.setText(String.valueOf(user.track_count));
             }
         }
 
-        if (mFollowerCount != null){
+        if (followerCount != null){
             if (user.followers_count <= 0) {
-                mFollowerCount.setVisibility(View.GONE);
+                followerCount.setVisibility(View.GONE);
             } else {
-                mFollowerCount.setVisibility(View.VISIBLE);
-                mFollowerCount.setText(String.valueOf(user.followers_count));
+                followerCount.setVisibility(View.VISIBLE);
+                followerCount.setText(String.valueOf(user.followers_count));
             }
         }
 
         setFollowersMessage();
 
-        if (mLocation != null){
+        if (location != null){
             if (ScTextUtils.isBlank(user.getLocation())) {
-                mLocation.setVisibility(View.GONE);
+                location.setVisibility(View.GONE);
             } else {
-                mLocation.setVisibility(View.VISIBLE);
-                mLocation.setText(String.valueOf(user.getLocation()));
+                location.setVisibility(View.VISIBLE);
+                location.setText(String.valueOf(user.getLocation()));
             }
         }
 
-        mImageOperations.displayWithPlaceholder(mUser.getUrn(),
+        imageOperations.displayWithPlaceholder(this.user.getUrn(),
                 ImageSize.getFullImageSize(getResources()),
-                mUserImage);
+                userImage);
 
         supportInvalidateOptionsMenu();
     }
 
     private void setFollowersMessage() {
-        if (mFollowerMessage != null) {
+        if (followerMessage != null) {
             if (isLoggedInUser()) {
-                mFollowerMessage.setVisibility(View.GONE);
+                followerMessage.setVisibility(View.GONE);
             } else {
-                mFollowerMessage.setVisibility(View.VISIBLE);
-                mFollowerMessage.setText(generateFollowersMessage());
+                followerMessage.setVisibility(View.VISIBLE);
+                followerMessage.setText(generateFollowersMessage());
             }
         }
     }
 
     private String generateFollowersMessage() {
-        if (mToggleFollow.isChecked()) {
-            return ScTextUtils.formatFollowingMessage(getResources(), mInitialOtherFollowers);
+        if (toggleFollow.isChecked()) {
+            return ScTextUtils.formatFollowingMessage(getResources(), initialOtherFollowers);
         } else {
-            return ScTextUtils.formatFollowersMessage(getResources(), mInitialOtherFollowers);
+            return ScTextUtils.formatFollowersMessage(getResources(), initialOtherFollowers);
         }
     }
 
     public User getUser() {
-        return mUser;
+        return user;
     }
 
     private Configuration toConfiguration() {
         Configuration c = new Configuration();
-        c.loadUserTask = mLoadUserTask;
-        c.user = mUser;
-        c.pagerIndex = mPager.getCurrentItem();
+        c.loadUserTask = loadUserTask;
+        c.user = user;
+        c.pagerIndex = pager.getCurrentItem();
         return c;
     }
 
@@ -426,9 +426,9 @@ public class ProfileActivity extends ScActivity implements
         setUser(c.user);
 
         if (c.loadUserTask != null) {
-            mLoadUserTask = c.loadUserTask;
+            loadUserTask = c.loadUserTask;
         }
-        mPager.setCurrentItem(c.pagerIndex);
+        pager.setCurrentItem(c.pagerIndex);
     }
 
     private static class Configuration {
@@ -500,7 +500,7 @@ public class ProfileActivity extends ScActivity implements
         public Fragment getItem(int position) {
             Tab currentTab = Tab.values()[position];
             if (currentTab == Tab.details){
-                return mUserDetailsFragment;
+                return userDetailsFragment;
             } else {
                 Content content;
                 Uri contentUri;
@@ -511,11 +511,11 @@ public class ProfileActivity extends ScActivity implements
                     screen = currentTab.youScreen;
                 } else {
                     content = currentTab.userContent;
-                    contentUri = content.forId(mUser.getId());
+                    contentUri = content.forId(user.getId());
                     screen = currentTab.userScreen;
                 }
                 ScListFragment listFragment = ScListFragment.newInstance(contentUri, screen);
-                listFragment.setEmptyViewFactory(new EmptyViewBuilder().forContent(ProfileActivity.this, contentUri, mUser));
+                listFragment.setEmptyViewFactory(new EmptyViewBuilder().forContent(ProfileActivity.this, contentUri, user));
                 return listFragment;
             }
         }

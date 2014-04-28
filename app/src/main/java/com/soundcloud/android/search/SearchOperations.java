@@ -55,7 +55,7 @@ public class SearchOperations {
                 }
             };
 
-    private final Pager<SearchResultsCollection> mSearchResultsPager = new Pager<SearchResultsCollection>() {
+    private final Pager<SearchResultsCollection> searchResultsPager = new Pager<SearchResultsCollection>() {
         @Override
         public Observable<Page<SearchResultsCollection>> call(SearchResultsCollection searchResultsCollection) {
             final String nextHref = searchResultsCollection.getNextHref();
@@ -67,37 +67,37 @@ public class SearchOperations {
         }
     };
 
-    private final Func1<SearchResultsCollection, SearchResultsCollection> mCacheResources = new Func1<SearchResultsCollection, SearchResultsCollection>() {
+    private final Func1<SearchResultsCollection, SearchResultsCollection> cacheResources = new Func1<SearchResultsCollection, SearchResultsCollection>() {
         @Override
         public SearchResultsCollection call(SearchResultsCollection results) {
             List<ScResource> cachedResults = new ArrayList<ScResource>(results.size());
             for (ScResource resource : results) {
-                ScResource cachedResource = mModelManager.cache(resource, ScResource.CacheUpdateMode.FULL);
+                ScResource cachedResource = modelManager.cache(resource, ScResource.CacheUpdateMode.FULL);
                 cachedResults.add(cachedResource);
             }
             return new SearchResultsCollection(cachedResults, results.getNextHref());
         }
     };
 
-    private final Action1<PlaylistSummaryCollection> mPreCachePlaylistResults = new Action1<PlaylistSummaryCollection>() {
+    private final Action1<PlaylistSummaryCollection> preCachePlaylistResults = new Action1<PlaylistSummaryCollection>() {
         @Override
         public void call(PlaylistSummaryCollection collection) {
-            fireAndForget(mBulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), PlaylistSummary.TO_PLAYLIST)));
+            fireAndForget(bulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), PlaylistSummary.TO_PLAYLIST)));
         }
     };
 
-    private final ScModelManager mModelManager;
-    private final RxHttpClient mRxHttpClient;
-    private final PlaylistTagStorage mTagStorage;
-    private final BulkStorage mBulkStorage;
+    private final ScModelManager modelManager;
+    private final RxHttpClient rxHttpClient;
+    private final PlaylistTagStorage tagStorage;
+    private final BulkStorage bulkStorage;
 
     @Inject
     public SearchOperations(RxHttpClient rxHttpClient, PlaylistTagStorage tagStorage,
                             BulkStorage bulkStorage, ScModelManager modelManager) {
-        mRxHttpClient = rxHttpClient;
-        mTagStorage = tagStorage;
-        mBulkStorage = bulkStorage;
-        mModelManager = modelManager;
+        this.rxHttpClient = rxHttpClient;
+        this.tagStorage = tagStorage;
+        this.bulkStorage = bulkStorage;
+        this.modelManager = modelManager;
     }
 
     public Observable<Page<SearchResultsCollection>> getAllSearchResults(String query) {
@@ -134,20 +134,20 @@ public class SearchOperations {
     }
 
     private Observable<Page<SearchResultsCollection>> getPageObservable(APIRequest<SearchResultsCollection> request) {
-        Observable<SearchResultsCollection> source = mRxHttpClient.<SearchResultsCollection>fetchModels(request)
+        Observable<SearchResultsCollection> source = rxHttpClient.<SearchResultsCollection>fetchModels(request)
                 .map(FILTER_UNKOWN_RESOURCES)
-                .map(mCacheResources)
+                .map(cacheResources)
                 .doOnNext(new Action1<SearchResultsCollection>() {
                     @Override
                     public void call(SearchResultsCollection collection) {
-                        fireAndForget(mBulkStorage.bulkInsertAsync(collection));
+                        fireAndForget(bulkStorage.bulkInsertAsync(collection));
                     }
                 });
-        return source.lift(pagedWith(mSearchResultsPager));
+        return source.lift(pagedWith(searchResultsPager));
     }
 
     Observable<PlaylistTagsCollection> getRecentPlaylistTags() {
-        return mTagStorage.getRecentTagsAsync();
+        return tagStorage.getRecentTagsAsync();
     }
 
     Observable<PlaylistTagsCollection> getPlaylistTags() {
@@ -155,7 +155,7 @@ public class SearchOperations {
                 .forPrivateAPI(1)
                 .forResource(TypeToken.of(PlaylistTagsCollection.class))
                 .build();
-        return mRxHttpClient.fetchModels(request);
+        return rxHttpClient.fetchModels(request);
     }
 
     Observable<Page<PlaylistSummaryCollection>> getPlaylistResults(final String query) {
@@ -167,7 +167,7 @@ public class SearchOperations {
         return getPlaylistResultsPage(query, request).finallyDo(new Action0() {
             @Override
             public void call() {
-                mTagStorage.addRecentTag(query);
+                tagStorage.addRecentTag(query);
             }
         });
     }
@@ -185,8 +185,8 @@ public class SearchOperations {
 
     private Observable<Page<PlaylistSummaryCollection>> getPlaylistResultsPage(
             String query, APIRequest<PlaylistSummaryCollection> request) {
-        Observable<PlaylistSummaryCollection> source = mRxHttpClient.fetchModels(request);
-        source = source.doOnNext(mPreCachePlaylistResults).map(withSearchTag(query));
+        Observable<PlaylistSummaryCollection> source = rxHttpClient.fetchModels(request);
+        source = source.doOnNext(preCachePlaylistResults).map(withSearchTag(query));
         return source.lift(pagedWith(discoveryResultsPager(query)));
     }
 

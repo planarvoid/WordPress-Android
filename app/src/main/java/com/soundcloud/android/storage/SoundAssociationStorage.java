@@ -30,18 +30,18 @@ import java.util.Map;
  */
 public class SoundAssociationStorage extends ScheduledOperations {
 
-    private final ContentResolver mResolver;
-    private final SoundAssociationDAO mAllSoundAssocsDAO, mLikesDAO, mRepostsDAO, mTrackCreationsDAO, mPlaylistCreationsDAO;
+    private final ContentResolver resolver;
+    private final SoundAssociationDAO allSoundAssocsDAO, likesDAO, repostsDAO, trackCreationsDAO, playlistCreationsDAO;
 
     @Inject
     public SoundAssociationStorage() {
         super(ScSchedulers.STORAGE_SCHEDULER);
-        mResolver = SoundCloudApplication.instance.getContentResolver();
-        mAllSoundAssocsDAO = new SoundAssociationDAO(mResolver);
-        mLikesDAO = SoundAssociationDAO.forContent(Content.ME_LIKES, mResolver);
-        mRepostsDAO = SoundAssociationDAO.forContent(Content.ME_REPOSTS, mResolver);
-        mTrackCreationsDAO = SoundAssociationDAO.forContent(Content.ME_SOUNDS, mResolver);
-        mPlaylistCreationsDAO = SoundAssociationDAO.forContent(Content.ME_PLAYLISTS, mResolver);
+        resolver = SoundCloudApplication.instance.getContentResolver();
+        allSoundAssocsDAO = new SoundAssociationDAO(resolver);
+        likesDAO = SoundAssociationDAO.forContent(Content.ME_LIKES, resolver);
+        repostsDAO = SoundAssociationDAO.forContent(Content.ME_REPOSTS, resolver);
+        trackCreationsDAO = SoundAssociationDAO.forContent(Content.ME_SOUNDS, resolver);
+        playlistCreationsDAO = SoundAssociationDAO.forContent(Content.ME_PLAYLISTS, resolver);
     }
 
     /**
@@ -53,7 +53,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
         playable.likes_count = Math.max(1, playable.likes_count + 1);
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
         SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
-        mLikesDAO.create(like);
+        likesDAO.create(like);
         return like;
     }
 
@@ -76,7 +76,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
         playable.likes_count = Math.max(0, playable.likes_count - 1);
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
         SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
-        mLikesDAO.delete(like);
+        likesDAO.delete(like);
         updatePlayable(playable);
         return like;
     }
@@ -100,7 +100,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
         playable.reposts_count = Math.max(1, playable.reposts_count + 1);
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_REPOST : SoundAssociation.Type.PLAYLIST_REPOST;
         SoundAssociation repost = new SoundAssociation(playable, new Date(), assocType);
-        mRepostsDAO.create(repost);
+        repostsDAO.create(repost);
         return repost;
     }
 
@@ -123,7 +123,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
         playable.reposts_count = Math.max(0, playable.reposts_count - 1);
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_REPOST : SoundAssociation.Type.PLAYLIST_REPOST;
         SoundAssociation repost = new SoundAssociation(playable, new Date(), assocType);
-        mRepostsDAO.delete(repost);
+        repostsDAO.delete(repost);
         updatePlayable(playable);
         return repost;
     }
@@ -140,18 +140,18 @@ public class SoundAssociationStorage extends ScheduledOperations {
 
     private void updatePlayable(Playable playable) {
         if (playable instanceof Track) {
-            new TrackDAO(mResolver).update((Track) playable);
+            new TrackDAO(resolver).update((Track) playable);
         } else {
-            new PlaylistDAO(mResolver).update((Playlist) playable);
+            new PlaylistDAO(resolver).update((Playlist) playable);
         }
     }
 
     public SoundAssociation addCreation(final Track track) {
-        return addCreation(track, mTrackCreationsDAO, SoundAssociation.Type.TRACK);
+        return addCreation(track, trackCreationsDAO, SoundAssociation.Type.TRACK);
     }
 
     public SoundAssociation addCreation(final Playlist playlist) {
-        return addCreation(playlist, mPlaylistCreationsDAO, SoundAssociation.Type.PLAYLIST);
+        return addCreation(playlist, playlistCreationsDAO, SoundAssociation.Type.PLAYLIST);
     }
 
     private SoundAssociation addCreation(Playable playable, BaseDAO<SoundAssociation> dao, SoundAssociation.Type assocType) {
@@ -162,7 +162,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
     }
 
     public Observable<SoundAssociation> addCreationAsync(final Playlist playlist) {
-        return addCreationAsync(playlist, mPlaylistCreationsDAO, SoundAssociation.Type.PLAYLIST);
+        return addCreationAsync(playlist, playlistCreationsDAO, SoundAssociation.Type.PLAYLIST);
     }
 
     private Observable<SoundAssociation> addCreationAsync(final Playable playable, final BaseDAO<SoundAssociation> dao, final SoundAssociation.Type assocType) {
@@ -177,19 +177,19 @@ public class SoundAssociationStorage extends ScheduledOperations {
     }
 
     public List<SoundAssociation> getSoundStreamItemsForCurrentUser() {
-        return mAllSoundAssocsDAO.queryAllByUri(Content.ME_SOUNDS.uri);
+        return allSoundAssocsDAO.queryAllByUri(Content.ME_SOUNDS.uri);
     }
 
     public List<SoundAssociation> getLikesForCurrentUser() {
-        return mAllSoundAssocsDAO.queryAllByUri(Content.ME_LIKES.uri);
+        return allSoundAssocsDAO.queryAllByUri(Content.ME_LIKES.uri);
     }
 
     public List<SoundAssociation> getPlaylistCreationsForCurrentUser() {
-        return mAllSoundAssocsDAO.queryAllByUri(Content.ME_PLAYLISTS.uri);
+        return allSoundAssocsDAO.queryAllByUri(Content.ME_PLAYLISTS.uri);
     }
 
     public List<Long> getTrackLikesAsIds() {
-        return mLikesDAO.buildQuery()
+        return likesDAO.buildQuery()
                 .select(TableColumns.SoundAssociationView._ID)
                 .where(TableColumns.SoundAssociationView._TYPE + " = ?", String.valueOf(Track.DB_TYPE_TRACK))
                 .queryIds();
@@ -215,7 +215,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
     @Deprecated
     public boolean syncToLocal(List<SoundAssociation> soundAssociations, Uri contentUri) {
         // get current local id and types for this uri
-        Cursor c = mResolver.query(contentUri,
+        Cursor c = resolver.query(contentUri,
                 new String[]{TableColumns.SoundAssociationView._ID, TableColumns.SoundAssociationView._TYPE,
                         TableColumns.SoundAssociationView.SOUND_ASSOCIATION_TYPE}, null, null, null);
 
@@ -252,7 +252,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
             } else {
                 for (Integer type : deletions.keySet()) {
                     for (Long id : deletions.get(type)) {
-                        mResolver.delete(contentUri,
+                        resolver.delete(contentUri,
                                 TableColumns.CollectionItems.ITEM_ID + " = ? AND " + TableColumns.CollectionItems.RESOURCE_TYPE + " = ?",
                                 new String[]{String.valueOf(id), String.valueOf(type)});
                     }
@@ -260,7 +260,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
             }
         }
 
-        mAllSoundAssocsDAO.createCollection(soundAssociations);
+        allSoundAssocsDAO.createCollection(soundAssociations);
 
         return changed;
     }

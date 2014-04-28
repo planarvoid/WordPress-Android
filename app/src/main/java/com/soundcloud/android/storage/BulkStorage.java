@@ -14,7 +14,7 @@ import javax.inject.Inject;
 
 public class BulkStorage extends ScheduledOperations {
 
-    private final ContentResolver mContentResolver;
+    private final ContentResolver contentResolver;
 
     @Inject
     public BulkStorage(ContentResolver contentResolver) {
@@ -23,7 +23,7 @@ public class BulkStorage extends ScheduledOperations {
 
     BulkStorage(Scheduler scheduler, ContentResolver contentResolver) {
         super(scheduler);
-        mContentResolver = contentResolver;
+        this.contentResolver = contentResolver;
     }
 
     public void bulkInsert(Iterable<? extends ScResource> resources) {
@@ -31,7 +31,7 @@ public class BulkStorage extends ScheduledOperations {
         for (ScResource r : resources) {
             r.putFullContentValues(insertMap);
         }
-        insertMap.insert(mContentResolver);
+        insertMap.insert(contentResolver);
     }
 
     public <T extends Iterable<? extends ScResource>> Observable<T> bulkInsertAsync(final T resources) {
