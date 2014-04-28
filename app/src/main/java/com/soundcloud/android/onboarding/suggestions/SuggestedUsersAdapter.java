@@ -21,28 +21,28 @@ import java.util.List;
 
 class SuggestedUsersAdapter extends BaseAdapter {
 
-    private ImageOperations mImageOperations;
+    private ImageOperations imageOperations;
 
-    private final List<SuggestedUser> mSuggestedUsers;
+    private final List<SuggestedUser> suggestedUsers;
 
     public SuggestedUsersAdapter(List<SuggestedUser> suggestedUsers, ImageOperations imageOperations) {
-        mSuggestedUsers = suggestedUsers;
-        mImageOperations = imageOperations;
+        this.suggestedUsers = suggestedUsers;
+        this.imageOperations = imageOperations;
     }
 
     @Override
     public int getCount() {
-        return mSuggestedUsers.size();
+        return suggestedUsers.size();
     }
 
     @Override
     public SuggestedUser getItem(int position) {
-        return mSuggestedUsers.get(position);
+        return suggestedUsers.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return mSuggestedUsers.get(position).getId();
+        return suggestedUsers.get(position).getId();
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridviewcompat getCheckedItemPositions
@@ -89,7 +89,7 @@ class SuggestedUsersAdapter extends BaseAdapter {
         }
 
         Resources resources = viewHolder.imageView.getResources();
-        mImageOperations.displayInAdapterView(
+        imageOperations.displayInAdapterView(
                 suggestedUser.getUrn(),
                 ImageSize.getFullImageSize(resources),
                 viewHolder.imageView);

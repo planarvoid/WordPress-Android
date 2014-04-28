@@ -19,12 +19,12 @@ import java.lang.ref.WeakReference;
 public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
     private static final String TAG = ResolveFetchTask.class.getSimpleName();
 
-    private WeakReference<FetchModelTask.Listener<ScResource>> mListener;
-    private PublicCloudAPI mApi;
-    private Uri mUnresolvedUrl;
+    private WeakReference<FetchModelTask.Listener<ScResource>> listener;
+    private PublicCloudAPI api;
+    private Uri unresolvedUrl;
 
     public ResolveFetchTask(PublicCloudAPI api) {
-        mApi = api;
+        this.api = api;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
 
         // first resolve any click tracking urls
         if (isClickTrackingUrl(uri)) {
-            Uri resolved = HttpUtils.getRedirectUri(mApi.getHttpClient(), uri);
+            Uri resolved = HttpUtils.getRedirectUri(api.getHttpClient(), uri);
             if (resolved == null) {
                 resolved = extractClickTrackingRedirectUrl(uri);
             }
@@ -48,16 +48,16 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
 
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "resolving uri "+uri+" remotely");
 
-        Uri resolvedUri = new ResolveTask(mApi).resolve(uri);
+        Uri resolvedUri = new ResolveTask(api).resolve(uri);
         if (resolvedUri != null) {
             try {
                 return fetchResource(resolvedUri);
             } catch (IllegalArgumentException e) {
-                mUnresolvedUrl = uri;
+                unresolvedUrl = uri;
                 return null;
             }
         } else {
-            mUnresolvedUrl = uri;
+            unresolvedUrl = uri;
             return null;
         }
     }
@@ -66,7 +66,7 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
         final Request request = Request.to(resolvedUri.getPath() +
             (resolvedUri.getQuery() != null ? ("?"+resolvedUri.getQuery()) : ""));
 
-        return new FetchModelTask(mApi){
+        return new FetchModelTask(api){
             @Override
             protected void persist(ScResource scResource) {
                 // TODO: since we don't know which type of resource we're fetching, not sure how to persist it
@@ -81,17 +81,17 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
             if (resource != null) {
                 listener.onSuccess(resource);
             } else {
-                listener.onError(mUnresolvedUrl);
+                listener.onError(unresolvedUrl);
             }
         }
     }
 
     public void setListener(FetchModelTask.Listener<ScResource> listener) {
-        mListener = new WeakReference<FetchModelTask.Listener<ScResource>>(listener);
+        this.listener = new WeakReference<FetchModelTask.Listener<ScResource>>(listener);
     }
 
     private FetchModelTask.Listener<ScResource> getListener() {
-        return mListener == null ? null : mListener.get();
+        return listener == null ? null : listener.get();
     }
 
     static boolean isClickTrackingUrl(Uri uri) {

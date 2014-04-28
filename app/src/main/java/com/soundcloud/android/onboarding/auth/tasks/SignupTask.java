@@ -27,14 +27,14 @@ public class SignupTask extends AuthTask {
     private static final String TAG = SignupTask.class.getSimpleName();
     public static final String KEY_USERNAME = "username";
     public static final String KEY_PASSWORD = "password";
-    private TokenInformationGenerator mTokenInformationGenerator;
-    private PublicCloudAPI mOldCloudAPI;
+    private TokenInformationGenerator tokenInformationGenerator;
+    private PublicCloudAPI oldCloudAPI;
 
     protected SignupTask(SoundCloudApplication app, TokenInformationGenerator tokenInformationGenerator,
                          UserStorage userStorage, PublicCloudAPI oldCloudAPI) {
         super(app, userStorage);
-        mTokenInformationGenerator = tokenInformationGenerator;
-        mOldCloudAPI = oldCloudAPI;
+        this.tokenInformationGenerator = tokenInformationGenerator;
+        this.oldCloudAPI = oldCloudAPI;
     }
 
     public SignupTask(SoundCloudApplication soundCloudApplication){
@@ -51,7 +51,7 @@ public class SignupTask extends AuthTask {
             // do token exchange
             Token token;
             try {
-                token = mTokenInformationGenerator.getToken(params[0]);
+                token = tokenInformationGenerator.getToken(params[0]);
                 if (token == null || !app.addUserAccountAndEnableSync(result.getUser(), token, SignupVia.API)) {
                     return AuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
                 }
@@ -65,11 +65,11 @@ public class SignupTask extends AuthTask {
     protected AuthTaskResult doSignup(SoundCloudApplication app, Bundle params){
         try {
             // explicitly request signup scope
-            final Token signup = mOldCloudAPI.clientCredentials(Token.SCOPE_SIGNUP);
+            final Token signup = oldCloudAPI.clientCredentials(Token.SCOPE_SIGNUP);
 
             Log.d(TAG, signup.toString());
 
-            HttpResponse resp = mOldCloudAPI.post(Request.to(Endpoints.USERS).with(
+            HttpResponse resp = oldCloudAPI.post(Request.to(Endpoints.USERS).with(
                     Params.User.EMAIL, params.getString(KEY_USERNAME),
                     Params.User.PASSWORD, params.getString(KEY_PASSWORD),
                     Params.User.PASSWORD_CONFIRMATION, params.getString(KEY_PASSWORD),
@@ -80,7 +80,7 @@ public class SignupTask extends AuthTask {
 
             switch (statusCode) {
                 case HttpStatus.SC_CREATED: // success case
-                    final User user = mOldCloudAPI.getMapper().readValue(resp.getEntity().getContent(), User.class);
+                    final User user = oldCloudAPI.getMapper().readValue(resp.getEntity().getContent(), User.class);
                     return AuthTaskResult.success(user,SignupVia.API);
 
                 case HttpStatus.SC_UNPROCESSABLE_ENTITY:

@@ -58,7 +58,7 @@ public class PlaylistDetailActivity extends ScActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYLIST_DETAILS.get());
+            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYLIST_DETAILS.get());
         }
     }
 }

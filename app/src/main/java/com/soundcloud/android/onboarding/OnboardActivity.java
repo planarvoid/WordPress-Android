@@ -88,62 +88,62 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private static final Uri PRIVACY_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy");
     private static final Uri COOKIE_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy#cookies");
 
-    private StartState mLastAuthState;
+    private StartState lastAuthState;
 
-    private StartState mState = StartState.TOUR;
+    private StartState state = StartState.TOUR;
 
-    private String mLastGoogleAccountSelected;
-    @Nullable private User mUser;
+    private String lastGoogleAccountSelected;
+    @Nullable private User user;
 
-    private View mTourBottomBar, mTourLogo, mOverlayBg, mOverlayHolder;
+    private View tourBottomBar, tourLogo, overlayBg, overlayHolder;
 
-    private List<TourLayout> mTourPages;
+    private List<TourLayout> tourPages;
 
-    private ViewPager mViewPager;
+    private ViewPager viewPager;
 
-    @Nullable private LoginLayout mLogin;
-    @Nullable private SignUpLayout mSignUp;
-    @Nullable private UserDetailsLayout mUserDetails;
-    @Nullable private AcceptTermsLayout mAcceptTerms;
-    @Nullable private Bundle mLoginBundle, mSignUpBundle, mUserDetailsBundle, mAcceptTermsBundle;
+    @Nullable private LoginLayout login;
+    @Nullable private SignUpLayout signUp;
+    @Nullable private UserDetailsLayout userDetails;
+    @Nullable private AcceptTermsLayout acceptTerms;
+    @Nullable private Bundle loginBundle, signUpBundle, userDetailsBundle, acceptTermsBundle;
 
-    private PublicCloudAPI mOldCloudAPI;
-    private ApplicationProperties mApplicationProperties;
-    private EventBus mEventBus;
+    private PublicCloudAPI oldCloudAPI;
+    private ApplicationProperties applicationProperties;
+    private EventBus eventBus;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
         setContentView(R.layout.start);
 
-        mEventBus = SoundCloudApplication.fromContext(this).getEventBus();
-        mOldCloudAPI = new PublicApi(this);
+        eventBus = SoundCloudApplication.fromContext(this).getEventBus();
+        oldCloudAPI = new PublicApi(this);
         overridePendingTransition(0, 0);
 
-        mTourBottomBar  = findViewById(R.id.tour_bottom_bar);
-        mTourLogo       = findViewById(R.id.tour_logo);
-        mViewPager      = (ViewPager) findViewById(R.id.tour_view);
-        mOverlayBg      = findViewById(R.id.overlay_bg);
-        mOverlayHolder  = findViewById(R.id.overlay_holder);
+        tourBottomBar = findViewById(R.id.tour_bottom_bar);
+        tourLogo = findViewById(R.id.tour_logo);
+        viewPager = (ViewPager) findViewById(R.id.tour_view);
+        overlayBg = findViewById(R.id.overlay_bg);
+        overlayHolder = findViewById(R.id.overlay_holder);
 
-        mTourPages = new ArrayList<TourLayout>();
-        mTourPages.add(new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1));
-        mTourPages.add(new TourLayout(this, R.layout.tour_page_2, R.drawable.tour_image_2));
-        mTourPages.add(new TourLayout(this, R.layout.tour_page_3, R.drawable.tour_image_3));
-        mApplicationProperties = new ApplicationProperties(getResources());
+        tourPages = new ArrayList<TourLayout>();
+        tourPages.add(new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1));
+        tourPages.add(new TourLayout(this, R.layout.tour_page_2, R.drawable.tour_image_2));
+        tourPages.add(new TourLayout(this, R.layout.tour_page_3, R.drawable.tour_image_3));
+        applicationProperties = new ApplicationProperties(getResources());
         // randomize for variety
-        Collections.shuffle(mTourPages);
+        Collections.shuffle(tourPages);
 
 
-        mViewPager.setAdapter(new PagerAdapter() {
+        viewPager.setAdapter(new PagerAdapter() {
             @Override
             public int getCount() {
-                return mTourPages.size();
+                return tourPages.size();
             }
 
             @Override
             public Object instantiateItem(ViewGroup container, int position) {
-                View v = mTourPages.get(position);
+                View v = tourPages.get(position);
                 v.setLayoutParams(new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
                 container.addView(v);
@@ -162,8 +162,8 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             }
         });
 
-        mViewPager.setCurrentItem(0);
-        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        viewPager.setCurrentItem(0);
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
             }
@@ -187,18 +187,18 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             @Override
             public void onClick(View v) {
                 setState(StartState.LOGIN);
-                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_LOG_IN.get());
-                mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.logInPrompt());
+                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_LOG_IN.get());
+                eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.logInPrompt());
             }
         });
 
         findViewById(R.id.signup_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_SIGN_UP.get());
-                mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.signUpPrompt());
+                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_SIGN_UP.get());
+                eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.signUpPrompt());
 
-                if (!mApplicationProperties.isDevBuildRunningOnDalvik() && SignupLog.shouldThrottleSignup()) {
+                if (!applicationProperties.isDevBuildRunningOnDalvik() && SignupLog.shouldThrottleSignup()) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.soundcloud.com")));
                     finish();
                 } else {
@@ -207,7 +207,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             }
         });
 
-        if (mApplicationProperties.isBetaBuildRunningOnDalvik()) {
+        if (applicationProperties.isBetaBuildRunningOnDalvik()) {
             UpdateManager.register(this, getString(R.string.hockey_app_id));
         }
 
@@ -216,13 +216,13 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             trackTourScreen();
         }
 
-        TourLayout.load(this, mTourPages.toArray(new TourLayout[mTourPages.size()]));
+        TourLayout.load(this, tourPages.toArray(new TourLayout[tourPages.size()]));
 
         final View splash = findViewById(R.id.splash);
         // don't show splash screen on config changes
         splash.setVisibility(bundle == null ? View.VISIBLE : View.GONE);
 
-        mTourPages.get(0).setLoadHandler(new Handler() {
+        tourPages.get(0).setLoadHandler(new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what) {
@@ -240,7 +240,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         super.onDestroy();
         UpdateManager.unregister();
 
-        for (TourLayout layout : mTourPages) {
+        for (TourLayout layout : tourPages) {
             layout.recycle();
         }
     }
@@ -249,91 +249,91 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putString(LAST_GOOGLE_ACCT_USED, mLastGoogleAccountSelected);
+        outState.putString(LAST_GOOGLE_ACCT_USED, lastGoogleAccountSelected);
         outState.putSerializable(BUNDLE_STATE, getState());
-        outState.putParcelable(BUNDLE_USER,    mUser);
+        outState.putParcelable(BUNDLE_USER, user);
 
-        if (mLogin       != null) outState.putBundle(BUNDLE_LOGIN, mLogin.getStateBundle());
-        if (mSignUp      != null) outState.putBundle(BUNDLE_SIGN_UP, mSignUp.getStateBundle());
-        if (mUserDetails != null) outState.putBundle(BUNDLE_SIGN_UP_DETAILS, mUserDetails.getStateBundle());
-        if (mAcceptTerms != null) outState.putBundle(BUNDLE_ACCEPT_TERMS, mAcceptTerms.getStateBundle());
+        if (login != null) outState.putBundle(BUNDLE_LOGIN, login.getStateBundle());
+        if (signUp != null) outState.putBundle(BUNDLE_SIGN_UP, signUp.getStateBundle());
+        if (userDetails != null) outState.putBundle(BUNDLE_SIGN_UP_DETAILS, userDetails.getStateBundle());
+        if (acceptTerms != null) outState.putBundle(BUNDLE_ACCEPT_TERMS, acceptTerms.getStateBundle());
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        mUser = savedInstanceState.getParcelable(BUNDLE_USER);
-        mLastGoogleAccountSelected = savedInstanceState.getString(LAST_GOOGLE_ACCT_USED);
+        user = savedInstanceState.getParcelable(BUNDLE_USER);
+        lastGoogleAccountSelected = savedInstanceState.getString(LAST_GOOGLE_ACCT_USED);
 
-        mLoginBundle       = savedInstanceState.getBundle(BUNDLE_LOGIN);
-        mSignUpBundle      = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
-        mUserDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
-        mAcceptTermsBundle = savedInstanceState.getBundle(BUNDLE_ACCEPT_TERMS);
+        loginBundle = savedInstanceState.getBundle(BUNDLE_LOGIN);
+        signUpBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
+        userDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
+        acceptTermsBundle = savedInstanceState.getBundle(BUNDLE_ACCEPT_TERMS);
 
         final StartState state = (StartState) savedInstanceState.getSerializable(BUNDLE_STATE);
         setState(state, false);
     }
 
     private void trackTourScreen() {
-        mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.TOUR.get());
+        eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.TOUR.get());
     }
 
     private LoginLayout getLogin() {
-        if (mLogin == null) {
+        if (login == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.login_stub);
 
-            mLogin = (LoginLayout) stub.inflate();
-            mLogin.setLoginHandler(this);
-            mLogin.setVisibility(View.GONE);
-            mLogin.setState(mLoginBundle);
+            login = (LoginLayout) stub.inflate();
+            login.setLoginHandler(this);
+            login.setVisibility(View.GONE);
+            login.setState(loginBundle);
         }
 
-        return mLogin;
+        return login;
     }
 
     private SignUpLayout getSignUp() {
-        if (mSignUp == null) {
+        if (signUp == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.sign_up_stub);
 
-            mSignUp = (SignUpLayout) stub.inflate();
-            mSignUp.setSignUpHandler(this);
-            mSignUp.setVisibility(View.GONE);
-            mSignUp.setState(mSignUpBundle);
+            signUp = (SignUpLayout) stub.inflate();
+            signUp.setSignUpHandler(this);
+            signUp.setVisibility(View.GONE);
+            signUp.setState(signUpBundle);
         }
 
-        return mSignUp;
+        return signUp;
     }
 
     private UserDetailsLayout getUserDetails() {
-        if (mUserDetails == null) {
+        if (userDetails == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.user_details_stub);
 
-            mUserDetails = (UserDetailsLayout) stub.inflate();
-            mUserDetails.setUserDetailsHandler(this);
-            mUserDetails.setVisibility(View.GONE);
-            mUserDetails.setState(mUserDetailsBundle);
+            userDetails = (UserDetailsLayout) stub.inflate();
+            userDetails.setUserDetailsHandler(this);
+            userDetails.setVisibility(View.GONE);
+            userDetails.setState(userDetailsBundle);
         }
 
-        return mUserDetails;
+        return userDetails;
     }
 
     private AcceptTermsLayout getAcceptTerms(){
-        if (mAcceptTerms == null) {
+        if (acceptTerms == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.accept_terms_stub);
 
-            mAcceptTerms = (AcceptTermsLayout) stub.inflate();
-            mAcceptTerms.setAcceptTermsHandler(this);
-            mAcceptTerms.setState(mAcceptTermsBundle);
-            mAcceptTerms.setVisibility(View.GONE);
+            acceptTerms = (AcceptTermsLayout) stub.inflate();
+            acceptTerms.setAcceptTermsHandler(this);
+            acceptTerms.setState(acceptTermsBundle);
+            acceptTerms.setVisibility(View.GONE);
         }
-        return mAcceptTerms;
+        return acceptTerms;
     }
 
     @Override
     public void onLogin(String email, String password) {
         LoginTaskFragment.create(email, password).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
-        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.nativeAuthEvent());
+        eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.nativeAuthEvent());
     }
 
     @Override
@@ -345,7 +345,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     @Override
     public void onSignUp(final String email, final String password) {
         proposeTermsOfUse(SignupVia.API, SignupTaskFragment.getParams(email, password));
-        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.nativeAuthEvent());
+        eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.nativeAuthEvent());
     }
 
     @Override
@@ -356,13 +356,13 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     public void onSubmitDetails(String username, File avatarFile) {
-        if (mUser == null) {
+        if (user == null) {
             Log.w(TAG, "no user");
             return;
         }
 
         AddUserInfoTaskFragment.create(username, avatarFile).show(getSupportFragmentManager(), "add_user_task");
-        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.savedUserInfo(username, avatarFile));
+        eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.savedUserInfo(username, avatarFile));
     }
 
     @Override
@@ -370,16 +370,16 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         new AuthTask(getApp(), new UserStorage()){
             @Override
             protected AuthTaskResult doInBackground(Bundle... params) {
-                addAccount(mUser, mOldCloudAPI.getToken(), SignupVia.API);
+                addAccount(user, oldCloudAPI.getToken(), SignupVia.API);
                 return null;
             }
 
             @Override
             protected void onPostExecute(AuthTaskResult result) {
-                onAuthTaskComplete(mUser, SignupVia.API, false);
+                onAuthTaskComplete(user, SignupVia.API, false);
             }
         }.execute();
-        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.skippedUserInfo());
+        eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.skippedUserInfo());
     }
 
     @Override
@@ -408,7 +408,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     }
 
     public StartState getState() {
-        return mState;
+        return state;
     }
 
     public void setState(StartState state) {
@@ -416,58 +416,58 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     }
 
     public void setState(StartState state, boolean animated) {
-        mState = state;
+        this.state = state;
 
         // check for nulls when hiding to avoid unnecessary instantiation
-        switch (mState) {
+        switch (this.state) {
             case TOUR:
                 onHideOverlay(animated);
                 break;
 
             case LOGIN:
-                mLastAuthState = StartState.LOGIN;
-                if (mSignUp != null)        hideView(this, getSignUp(), animated);
-                if (mUserDetails != null)   hideView(this, getUserDetails(), animated);
-                if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
+                lastAuthState = StartState.LOGIN;
+                if (signUp != null)        hideView(this, getSignUp(), animated);
+                if (userDetails != null)   hideView(this, getUserDetails(), animated);
+                if (acceptTerms != null)   hideView(this, getAcceptTerms(), animated);
                 showOverlay(getLogin(), animated);
                 break;
 
             case SIGN_UP:
-                mLastAuthState = StartState.SIGN_UP;
-                if (mLogin != null)         hideView(this, getLogin(), animated);
-                if (mUserDetails != null)   hideView(this, getUserDetails(), animated);
-                if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
+                lastAuthState = StartState.SIGN_UP;
+                if (login != null)         hideView(this, getLogin(), animated);
+                if (userDetails != null)   hideView(this, getUserDetails(), animated);
+                if (acceptTerms != null)   hideView(this, getAcceptTerms(), animated);
                 showOverlay(getSignUp(), animated);
                 break;
 
             case SIGN_UP_DETAILS:
-                if (mLogin != null)         hideView(this, getLogin(), animated);
-                if (mSignUp != null)        hideView(this, getSignUp(), animated);
-                if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
+                if (login != null)         hideView(this, getLogin(), animated);
+                if (signUp != null)        hideView(this, getSignUp(), animated);
+                if (acceptTerms != null)   hideView(this, getAcceptTerms(), animated);
                 showOverlay(getUserDetails(), animated);
                 break;
 
             case ACCEPT_TERMS:
-                if (mLogin != null)         hideView(this, getLogin(), false);
-                if (mSignUp != null)        hideView(this, getSignUp(), false);
-                if (mUserDetails != null)   hideView(this, getUserDetails(), false);
+                if (login != null)         hideView(this, getLogin(), false);
+                if (signUp != null)        hideView(this, getSignUp(), false);
+                if (userDetails != null)   hideView(this, getUserDetails(), false);
                 showOverlay(getAcceptTerms(), animated);
                 break;
         }
     }
 
     private void onHideOverlay(boolean animated){
-        showView(this, mTourBottomBar, animated);
-        showView(this, mTourLogo, animated);
-        hideView(this, mOverlayBg, animated);
+        showView(this, tourBottomBar, animated);
+        showView(this, tourLogo, animated);
+        hideView(this, overlayBg, animated);
 
         // show foreground views
         for (View view : allChildViewsOf(getCurrentTourLayout())) {
             if (isForegroundView(view)) showView(this, view, false);
         }
 
-        if (animated && mOverlayHolder.getVisibility() == View.VISIBLE){
-            hideView(this, mOverlayHolder, mHideScrollViewListener);
+        if (animated && overlayHolder.getVisibility() == View.VISIBLE){
+            hideView(this, overlayHolder, mHideScrollViewListener);
         } else {
             mHideScrollViewListener.onAnimationEnd(null);
         }
@@ -480,11 +480,11 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
         @Override
         public void onAnimationEnd(Animation animation) {
-            mOverlayHolder.setVisibility(View.GONE);
-            if (mLogin != null) hideView(OnboardActivity.this, getLogin(), false);
-            if (mSignUp != null) hideView(OnboardActivity.this, getSignUp(), false);
-            if (mUserDetails != null) hideView(OnboardActivity.this, getUserDetails(), false);
-            if (mAcceptTerms != null) hideView(OnboardActivity.this, getAcceptTerms(), false);
+            overlayHolder.setVisibility(View.GONE);
+            if (login != null) hideView(OnboardActivity.this, getLogin(), false);
+            if (signUp != null) hideView(OnboardActivity.this, getSignUp(), false);
+            if (userDetails != null) hideView(OnboardActivity.this, getUserDetails(), false);
+            if (acceptTerms != null) hideView(OnboardActivity.this, getAcceptTerms(), false);
         }
 
         @Override
@@ -493,20 +493,20 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     };
 
     private void showOverlay(View overlay, boolean animated){
-        hideView(this, mTourBottomBar, animated);
-        hideView(this, mTourLogo, animated);
+        hideView(this, tourBottomBar, animated);
+        hideView(this, tourLogo, animated);
 
         // hide foreground views
         for (View view : allChildViewsOf(getCurrentTourLayout())) {
             if (isForegroundView(view)) hideView(this, view, animated);
         }
-        showView(this, mOverlayHolder, animated);
-        showView(this, mOverlayBg, animated);
+        showView(this, overlayHolder, animated);
+        showView(this, overlayBg, animated);
         showView(this, overlay, animated);
     }
 
     private TourLayout getCurrentTourLayout() {
-        return mTourPages.get(mViewPager.getCurrentItem());
+        return tourPages.get(viewPager.getCurrentItem());
     }
 
     private static boolean isForegroundView(View view) {
@@ -532,13 +532,13 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             });
             builder.show();
         }
-        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.googleAuthEvent());
+        eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.googleAuthEvent());
     }
 
     @Override
     public void onFacebookAuth() {
         proposeTermsOfUse(SignupVia.FACEBOOK_SSO, null);
-        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.facebookAuthEvent());
+        eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.facebookAuthEvent());
     }
 
     @Override
@@ -574,7 +574,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
                 break;
             case FACEBOOK_SSO:
                 startActivityForResult(new Intent(this, FacebookSwitcherActivity.class)
-                        .putExtra(FacebookSSOActivity.VIA_SIGNUP_SCREEN, mLastAuthState == StartState.SIGN_UP),
+                        .putExtra(FacebookSSOActivity.VIA_SIGNUP_SCREEN, lastAuthState == StartState.SIGN_UP),
                         RequestCodes.SIGNUP_VIA_FACEBOOK);
                 break;
             case API:
@@ -583,7 +583,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         }
 
         hideView(this, getAcceptTerms(), true);
-        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.termsAccepted());
+        eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.termsAccepted());
 
     }
 
@@ -591,17 +591,17 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     public void onRejectTerms() {
         setState(StartState.TOUR);
         trackTourScreen();
-        mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.termsRejected());
+        eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.termsRejected());
     }
 
     @Override
     public void onAuthTaskComplete(User user, SignupVia via, boolean wasApiSignupTask) {
         if (wasApiSignupTask){
             SignupLog.writeNewSignupAsync();
-            mUser = user;
+            this.user = user;
             setState(StartState.SIGN_UP_DETAILS);
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_USER_DETAILS.get());
-            mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
+            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_USER_DETAILS.get());
+            eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
         } else {
             super.onAuthTaskComplete(user, via, wasApiSignupTask);
         }
@@ -609,12 +609,12 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     protected boolean wasAuthorizedViaSignupScreen() {
-        return mLastAuthState == StartState.SIGN_UP;
+        return lastAuthState == StartState.SIGN_UP;
     }
 
     private void onGoogleAccountSelected(String name) {
         // store the last account name in case we have to retry after startActivityForResult with G+ app
-        mLastGoogleAccountSelected = name;
+        lastGoogleAccountSelected = name;
         proposeTermsOfUse(SignupVia.GOOGLE_PLUS, GooglePlusSignInTaskFragment.getParams(name, RequestCodes.SIGNUP_VIA_GOOGLE));
     }
 
@@ -626,7 +626,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private void proposeTermsOfUse(SignupVia signupVia, Bundle params){
         getAcceptTerms().setSignupParams(signupVia, params);
         setState(StartState.ACCEPT_TERMS);
-        mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_TERMS.get());
+        eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_TERMS.get());
     }
 
     private SoundCloudApplication getApp() {
@@ -716,7 +716,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private void onGoogleActivityResult(int resultCode) {
         if (resultCode == RESULT_OK) {
             // just kick off another task with the last account selected
-            final Bundle params = GooglePlusSignInTaskFragment.getParams(mLastGoogleAccountSelected, RequestCodes.SIGNUP_VIA_GOOGLE);
+            final Bundle params = GooglePlusSignInTaskFragment.getParams(lastGoogleAccountSelected, RequestCodes.SIGNUP_VIA_GOOGLE);
             GooglePlusSignInTaskFragment.create(params).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
         }
     }

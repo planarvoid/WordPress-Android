@@ -69,7 +69,7 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
     private static final String COM_FACEBOOK_APPLICATION = "com.facebook.application.";
     public static final String ACCESS_DENIED = "access_denied";
     public static final String ACCESS_DENIED_EXCEPTION = "OAuthAccessDeniedException";
-    private Bundle mLoginBundle;
+    private Bundle loginBundle;
     private TokenInformationGenerator tokenInformationGenerator;
 
     @Override
@@ -93,9 +93,9 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
          * Workaround for https://code.google.com/p/android/issues/detail?id=17787
          * Login fragment has to be shown on or after onResume
          */
-        if (mLoginBundle != null){
-            login(mLoginBundle);
-            mLoginBundle = null;
+        if (loginBundle != null){
+            login(loginBundle);
+            loginBundle = null;
         }
     }
 
@@ -109,7 +109,7 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
                 }
                 token.store(this);
                 // save login bundle for login in onResume
-                mLoginBundle = tokenInformationGenerator.getGrantBundle(CloudAPI.FACEBOOK_GRANT_TYPE, token.accessToken);
+                loginBundle = tokenInformationGenerator.getGrantBundle(CloudAPI.FACEBOOK_GRANT_TYPE, token.accessToken);
 
             } catch (SSOException e) {
                 Log.w(TAG, "error getting Facebook token", e);

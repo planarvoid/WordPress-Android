@@ -3,9 +3,6 @@ package com.soundcloud.android.onboarding.auth;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -46,15 +43,15 @@ public class AuthenticatorService extends Service {
     }
 
     public static class SoundCloudAuthenticator extends AbstractAccountAuthenticator {
-        private final AccountOperations mAccountOperations;
-        private final Context mContext;
+        private final AccountOperations accountOperations;
+        private final Context context;
         private final Handler handler = new Handler();
 
         @Inject
         public SoundCloudAuthenticator(Context context, AccountOperations accountOperations) {
             super(context);
-            this.mContext = context;
-            this.mAccountOperations = accountOperations;
+            this.context = context;
+            this.accountOperations = accountOperations;
         }
 
         @Override
@@ -65,21 +62,21 @@ public class AuthenticatorService extends Service {
         @Override
         public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
             final Bundle reply = new Bundle();
-            AccountManager mgr = AccountManager.get(mContext);
+            AccountManager mgr = AccountManager.get(context);
             Account[] accounts = mgr.getAccountsByType(accountType);
             if (accounts.length == 0) {
-                Intent intent = new Intent(mContext, OnboardActivity.class);
+                Intent intent = new Intent(context, OnboardActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
                 reply.putParcelable(AccountManager.KEY_INTENT, intent);
             } else {
                 reply.putInt(AccountManager.KEY_ERROR_CODE, 0);
-                reply.putString(AccountManager.KEY_ERROR_MESSAGE, mContext.getString(R.string.account_one_active));
+                reply.putString(AccountManager.KEY_ERROR_MESSAGE, context.getString(R.string.account_one_active));
 
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        AndroidUtils.showToast(mContext, R.string.account_one_active);
+                        AndroidUtils.showToast(context, R.string.account_one_active);
                     }
                 });
             }
@@ -100,7 +97,7 @@ public class AuthenticatorService extends Service {
                 final boolean removalAllowed = result.getBoolean(AccountManager.KEY_BOOLEAN_RESULT);
 
                 if (removalAllowed) {
-                    mAccountOperations.purgeUserData().subscribeOn(ScSchedulers.STORAGE_SCHEDULER).subscribe();
+                    accountOperations.purgeUserData().subscribeOn(ScSchedulers.STORAGE_SCHEDULER).subscribe();
                 }
             }
 

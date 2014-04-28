@@ -6,7 +6,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.AsyncApiTask;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
@@ -25,21 +24,19 @@ import java.io.IOException;
 
 public class EmailConfirmationActivity extends ScActivity {
 
-    private AccountOperations mAccountOperations;
-    private PublicCloudAPI mPublicCloudAPI;
+    private PublicCloudAPI publicCloudAPI;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAccountOperations = new AccountOperations(this);
-        mPublicCloudAPI = new PublicApi(this);
+        publicCloudAPI = new PublicApi(this);
 
         setContentView(R.layout.email_confirmation_activity);
         findViewById(R.id.btn_resend).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setResult(RESULT_OK, new Intent(Actions.RESEND));
-                new ResendConfirmationTask(mPublicCloudAPI).execute((Void)null);
+                new ResendConfirmationTask(publicCloudAPI).execute((Void)null);
                 finish();
             }
         });
@@ -59,7 +56,7 @@ public class EmailConfirmationActivity extends ScActivity {
     }
 
     private void updateLastReminded() {
-        mAccountOperations.setAccountData(Consts.PrefKeys.LAST_EMAIL_CONFIRMATION_REMINDER,
+        accountOperations.setAccountData(Consts.PrefKeys.LAST_EMAIL_CONFIRMATION_REMINDER,
                 String.valueOf(System.currentTimeMillis()));
     }
 

@@ -7,21 +7,21 @@ import java.util.List;
  */
 public class AuthTaskException extends Exception {
 
-    private final String[] mErrors;
+    private final String[] errors;
 
     public AuthTaskException(String... errors) {
-        mErrors = errors;
+        this.errors = errors;
     }
 
     public AuthTaskException(List<String> errors) {
-        mErrors = errors.toArray(new String[errors.size()]);
+        this.errors = errors.toArray(new String[errors.size()]);
     }
 
     public String[] getErrors() {
-        return mErrors;
+        return errors;
     }
 
     public String getFirstError() {
-        return mErrors == null || mErrors.length == 0 ? "" : mErrors[0];
+        return errors == null || errors.length == 0 ? "" : errors[0];
     }
 }

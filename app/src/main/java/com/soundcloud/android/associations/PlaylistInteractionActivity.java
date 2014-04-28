@@ -42,7 +42,7 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, getCurrentScreen().get());
+            eventBus.publish(EventQueue.SCREEN_ENTERED, getCurrentScreen().get());
         }
     }
 

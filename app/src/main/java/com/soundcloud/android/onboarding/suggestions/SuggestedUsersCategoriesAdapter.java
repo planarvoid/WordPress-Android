@@ -37,13 +37,13 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     private static final int INITIAL_LIST_CAPACITY = 30;
 
-    private final List<Category> mCategories;
-    private final Set<CategoryGroup> mCategoryGroups;
+    private final List<Category> categories;
+    private final Set<CategoryGroup> categoryGroups;
 
 
-    private final SparseArray<Section> mListPositionsToSections;
-    private final FollowingOperations mFollowingOperations;
-    private EnumSet<Section> mActiveSections;
+    private final SparseArray<Section> listPositionsToSections;
+    private final FollowingOperations followingOperations;
+    private EnumSet<Section> activeSections;
 
     public enum Section {
         FACEBOOK(CategoryGroup.KEY_FACEBOOK, R.string.suggested_users_section_facebook, true),
@@ -53,27 +53,27 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         public static final EnumSet<Section> ALL_EXCEPT_FACEBOOK = EnumSet.of(MUSIC, SPEECH_AND_SOUNDS);
 
         public static final EnumSet<Section> ALL_SECTIONS = EnumSet.allOf(Section.class);
-        private final String mKey;
-        private final int mLabelResId;
-        private final boolean mShowLoading;
-        private String mLabel;
+        private final String key;
+        private final int labelResId;
+        private final boolean showLoading;
+        private String label;
 
         Section(String key, int labelId, boolean showLoading) {
-            mKey = key;
-            mLabelResId = labelId;
-            mShowLoading = showLoading;
+            this.key = key;
+            this.labelResId = labelId;
+            this.showLoading = showLoading;
         }
 
         String getLabel(Resources resources) {
-            if (mLabel == null) {
-                mLabel = resources.getString(mLabelResId);
+            if (label == null) {
+                label = resources.getString(labelResId);
             }
-            return mLabel;
+            return label;
         }
 
         static Section fromKey(String key) {
             for (Section section : values()) {
-                if (section.mKey.equals(key)) {
+                if (section.key.equals(key)) {
                     return section;
                 }
             }
@@ -90,52 +90,52 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     }
 
     public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections, FollowingOperations followingOperations) {
-        mFollowingOperations = followingOperations;
-        mCategories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
-        mCategoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
-        mListPositionsToSections = new SparseArray<Section>();
-        mActiveSections = activeSections;
+        this.followingOperations = followingOperations;
+        categories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
+        categoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
+        listPositionsToSections = new SparseArray<Section>();
+        this.activeSections = activeSections;
     }
 
     public void setActiveSections(EnumSet<Section> activeSections){
-        mActiveSections = activeSections;
+        this.activeSections = activeSections;
     }
 
     public void addItem(CategoryGroup categoryGroup) {
-        mCategoryGroups.remove(categoryGroup);
-        mCategoryGroups.add(categoryGroup);
+        categoryGroups.remove(categoryGroup);
+        categoryGroups.add(categoryGroup);
 
-        if (mCategoryGroups.size() < mActiveSections.size()) {
-            for (Section section : mActiveSections) {
-                if (section.mShowLoading) {
-                    mCategoryGroups.add(CategoryGroup.createProgressGroup(section.mKey));
+        if (categoryGroups.size() < activeSections.size()) {
+            for (Section section : activeSections) {
+                if (section.showLoading) {
+                    categoryGroups.add(CategoryGroup.createProgressGroup(section.key));
                 }
             }
         }
 
-        mCategories.clear();
-        mListPositionsToSections.clear();
+        categories.clear();
+        listPositionsToSections.clear();
 
         final Set<SuggestedUser> uniqueSuggestedUsersSet = new HashSet<SuggestedUser>();
-        for (CategoryGroup group : mCategoryGroups) {
+        for (CategoryGroup group : categoryGroups) {
             group.removeDuplicateUsers(uniqueSuggestedUsersSet);
-            mListPositionsToSections.put(mCategories.size(), Section.fromKey(group.getKey()));
-            mCategories.addAll(group.isEmpty() ? Lists.newArrayList(Category.empty()) : group.getNonEmptyCategories());
+            listPositionsToSections.put(categories.size(), Section.fromKey(group.getKey()));
+            categories.addAll(group.isEmpty() ? Lists.newArrayList(Category.empty()) : group.getNonEmptyCategories());
         }
     }
 
     @Override
     public int getCount() {
-        return mCategories.size();
+        return categories.size();
     }
 
     @Override
     public Category getItem(int position) {
-        return mCategories.get(position);
+        return categories.get(position);
     }
 
     public List<Category> getItems() {
-        return mCategories;
+        return categories;
     }
 
     @Override
@@ -159,7 +159,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     }
 
     protected SparseArray<Section> getListPositionsToSectionsMap() {
-        return mListPositionsToSections;
+        return listPositionsToSections;
     }
 
     @Override
@@ -216,14 +216,14 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
             public void onClick(View v) {
                 final boolean shouldFollow = ((CompoundButton) v).isChecked();
                 final Category toggleCategory = getItem((Integer) v.getTag());
-                final Set<Long> followedUserIds = mFollowingOperations.getFollowedUserIds();
+                final Set<Long> followedUserIds = followingOperations.getFollowedUserIds();
                 Observable<UserAssociation> toggleFollowings;
                 if (shouldFollow) {
                     final List<SuggestedUser> notFollowedUsers = toggleCategory.getNotFollowedUsers(followedUserIds);
-                    toggleFollowings = mFollowingOperations.addFollowingsBySuggestedUsers(notFollowedUsers);
+                    toggleFollowings = followingOperations.addFollowingsBySuggestedUsers(notFollowedUsers);
                 } else {
                     final List<SuggestedUser> followedUsers = toggleCategory.getFollowedUsers(followedUserIds);
-                    toggleFollowings = mFollowingOperations.removeFollowingsBySuggestedUsers(followedUsers);
+                    toggleFollowings = followingOperations.removeFollowingsBySuggestedUsers(followedUsers);
                 }
                 toggleFollowings.observeOn(AndroidSchedulers.mainThread()).subscribe(mNotifyWhenDoneObserver);
             }
@@ -240,12 +240,12 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     private void configureItemContent(Context context, Category category, ItemViewHolder viewHolder) {
         viewHolder.genreTitle.setText(category.getName(context));
-        viewHolder.toggleFollow.setChecked(category.isFollowed(mFollowingOperations.getFollowedUserIds()));
+        viewHolder.toggleFollow.setChecked(category.isFollowed(followingOperations.getFollowedUserIds()));
         viewHolder.genreSubtitle.setDisplayItems(getSubtextUsers(category));
     }
 
     /* package */ List<String> getSubtextUsers(Category category) {
-        final Set<Long> followedUserIds = mFollowingOperations.getFollowedUserIds();
+        final Set<Long> followedUserIds = followingOperations.getFollowedUserIds();
         final List<SuggestedUser> followedUsers = category.getFollowedUsers(followedUserIds);
         final List<SuggestedUser> subtextUsers = followedUsers.isEmpty() ? category.getUsers() : followedUsers;
         return Lists.transform(subtextUsers, new Function<SuggestedUser, String>() {
@@ -258,7 +258,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     }
 
     private void configureSectionHeader(int position, View convertView, ItemViewHolder viewHolder) {
-        Section section = mListPositionsToSections.get(position);
+        Section section = listPositionsToSections.get(position);
         if (section != null) {
             viewHolder.sectionHeader.setText(section.getLabel(convertView.getResources()));
             viewHolder.sectionHeader.setVisibility(View.VISIBLE);

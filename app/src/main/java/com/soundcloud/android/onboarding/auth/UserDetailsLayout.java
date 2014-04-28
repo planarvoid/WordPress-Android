@@ -50,9 +50,9 @@ public class UserDetailsLayout extends RelativeLayout {
         super(context, attrs, defStyle);
     }
 
-    @Nullable private UserDetailsHandler mUserDetailsHandler;
+    @Nullable private UserDetailsHandler userDetailsHandler;
 
-    @Nullable private File mAvatarFile;
+    @Nullable private File avatarFile;
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -72,7 +72,7 @@ public class UserDetailsLayout extends RelativeLayout {
                 boolean downAction = event != null && event.getAction() == KeyEvent.ACTION_DOWN;
 
                 if (done || pressedEnter && downAction) {
-                    return mAvatarFile == null && avatarText.performClick();
+                    return avatarFile == null && avatarText.performClick();
                 } else {
                     return false;
                 }
@@ -92,7 +92,7 @@ public class UserDetailsLayout extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 if (getUserDetailsHandler() != null) {
-                    getUserDetailsHandler().onSubmitDetails(username.getText().toString(), mAvatarFile);
+                    getUserDetailsHandler().onSubmitDetails(username.getText().toString(), avatarFile);
                 }
             }
         });
@@ -100,7 +100,7 @@ public class UserDetailsLayout extends RelativeLayout {
         avatarText.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                final FragmentActivity activity = mUserDetailsHandler.getFragmentActivity();
+                final FragmentActivity activity = userDetailsHandler.getFragmentActivity();
                 ImageUtils.showImagePickerDialog(activity, activity.getSupportFragmentManager(),
                         OnboardActivity.DIALOG_PICK_IMAGE);
 
@@ -110,7 +110,7 @@ public class UserDetailsLayout extends RelativeLayout {
         avatarView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                mAvatarFile = null;
+                avatarFile = null;
                 avatarView.setVisibility(View.GONE);
                 avatarText.setVisibility(View.VISIBLE);
 
@@ -126,7 +126,7 @@ public class UserDetailsLayout extends RelativeLayout {
             final TextView  avatarText = (TextView)  findViewById(R.id.txt_artwork_bg);
             final ImageView avatarView = (ImageView) findViewById(R.id.artwork);
 
-            mAvatarFile = file;
+            avatarFile = file;
             ImageUtils.setImage(
                 file,
                 avatarView,
@@ -140,29 +140,29 @@ public class UserDetailsLayout extends RelativeLayout {
     }
 
     public File generateTempAvatarFile(){
-        mAvatarFile = ImageUtils.createTempAvatarFile(getContext());
-        return mAvatarFile;
+        avatarFile = ImageUtils.createTempAvatarFile(getContext());
+        return avatarFile;
     }
 
     public void onImagePick(int resultCode, Intent result) {
         if (resultCode == Activity.RESULT_OK) {
             File tmpAvatar = ImageUtils.createTempAvatarFile(getContext());
             if (tmpAvatar != null) {
-                mAvatarFile = tmpAvatar;
-                ImageUtils.sendCropIntent((Activity) getContext(), result.getData(), Uri.fromFile(mAvatarFile));
+                avatarFile = tmpAvatar;
+                ImageUtils.sendCropIntent((Activity) getContext(), result.getData(), Uri.fromFile(avatarFile));
             }
         }
     }
 
     public void onImageTake(int resultCode, Intent result) {
-        if (resultCode == Activity.RESULT_OK && mAvatarFile != null) {
-            ImageUtils.sendCropIntent((Activity) getContext(), Uri.fromFile(mAvatarFile));
+        if (resultCode == Activity.RESULT_OK && avatarFile != null) {
+            ImageUtils.sendCropIntent((Activity) getContext(), Uri.fromFile(avatarFile));
         }
     }
 
     public void onImageCrop(int resultCode, Intent result) {
         if (resultCode == Activity.RESULT_OK) {
-            setImage(mAvatarFile);
+            setImage(avatarFile);
         } else if (resultCode == Crop.RESULT_ERROR) {
             handleSilentException("error cropping image", Crop.getError(result));
             Toast.makeText(getContext(), R.string.crop_image_error, Toast.LENGTH_SHORT).show();
@@ -171,11 +171,11 @@ public class UserDetailsLayout extends RelativeLayout {
 
     @Nullable
     public UserDetailsHandler getUserDetailsHandler() {
-        return mUserDetailsHandler;
+        return userDetailsHandler;
     }
 
     public void setUserDetailsHandler(@Nullable UserDetailsHandler mUserDetailsHandler) {
-        this.mUserDetailsHandler = mUserDetailsHandler;
+        this.userDetailsHandler = mUserDetailsHandler;
     }
 
     public Bundle getStateBundle() {
@@ -183,7 +183,7 @@ public class UserDetailsLayout extends RelativeLayout {
 
         Bundle bundle = new Bundle();
         bundle.putCharSequence(BUNDLE_USERNAME, username.getText());
-        bundle.putSerializable(BUNDLE_FILE, mAvatarFile);
+        bundle.putSerializable(BUNDLE_FILE, avatarFile);
         return bundle;
     }
 

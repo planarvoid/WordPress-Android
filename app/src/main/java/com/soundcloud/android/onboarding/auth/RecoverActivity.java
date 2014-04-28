@@ -23,20 +23,20 @@ import android.widget.TextView;
 
 public class RecoverActivity extends TrackedActivity {
 
-    private PublicCloudAPI mPublicCloudAPI;
+    private PublicCloudAPI publicCloudAPI;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         build();
         if (savedInstanceState == null) {
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_FORGOT_PASSWORD.get());
+            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_FORGOT_PASSWORD.get());
         }
     }
 
     protected void build() {
         setContentView(R.layout.recover);
-        mPublicCloudAPI = new PublicApi(this);
+        publicCloudAPI = new PublicApi(this);
         final EditText emailField = (EditText) findViewById(R.id.txt_email_address);
         final Button recoverBtn = (Button) findViewById(R.id.btn_ok);
 
@@ -81,7 +81,7 @@ public class RecoverActivity extends TrackedActivity {
     }
 
     private void recoverPassword(final String email) {
-        new RecoverPasswordTask(mPublicCloudAPI) {
+        new RecoverPasswordTask(publicCloudAPI) {
             private ProgressDialog progressDialog;
             @Override
             protected void onPreExecute() {

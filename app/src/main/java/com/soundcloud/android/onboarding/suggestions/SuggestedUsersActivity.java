@@ -28,7 +28,7 @@ public class SuggestedUsersActivity extends SuggestedUsersBaseActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.ONBOARDING_MAIN.get());
+            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.ONBOARDING_MAIN.get());
         }
     }
 
@@ -36,7 +36,7 @@ public class SuggestedUsersActivity extends SuggestedUsersBaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.finish) {
             startActivity(new Intent(this, SuggestedUsersSyncActivity.class));
-            mEventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.onboardingComplete());
+            eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.onboardingComplete());
             finish();
             return true;
         } else {

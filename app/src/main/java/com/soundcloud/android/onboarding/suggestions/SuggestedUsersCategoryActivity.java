@@ -14,8 +14,8 @@ import android.view.MenuItem;
 
 public class SuggestedUsersCategoryActivity extends ScActivity {
 
-    private Category mCategory;
-    private SuggestedUsersCategoryFragment mCategoryFragment;
+    private Category category;
+    private SuggestedUsersCategoryFragment categoryFragment;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -24,16 +24,16 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
         if (!getIntent().hasExtra(Category.EXTRA)) {
             finish();
         } else {
-            mCategory = getIntent().getParcelableExtra(Category.EXTRA);
+            category = getIntent().getParcelableExtra(Category.EXTRA);
             if (state == null) {
-                mCategoryFragment = new SuggestedUsersCategoryFragment();
-                mCategoryFragment.setArguments(getIntent().getExtras());
+                categoryFragment = new SuggestedUsersCategoryFragment();
+                categoryFragment.setArguments(getIntent().getExtras());
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .add(R.id.holder, mCategoryFragment)
+                        .add(R.id.holder, categoryFragment)
                         .commit();
             } else {
-                mCategoryFragment = (SuggestedUsersCategoryFragment) getSupportFragmentManager().findFragmentById(R.id.holder);
+                categoryFragment = (SuggestedUsersCategoryFragment) getSupportFragmentManager().findFragmentById(R.id.holder);
             }
         }
     }
@@ -42,22 +42,22 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            if (mCategory.isFacebookCategory()) {
-                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.ONBOARDING_FACEBOOK.get());
+            if (category.isFacebookCategory()) {
+                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.ONBOARDING_FACEBOOK.get());
             } else {
-                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.ONBOARDING_GENRE.get());
+                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.ONBOARDING_GENRE.get());
             }
         }
     }
 
     protected ActionBarController createActionBarController() {
-        return new ActionBarController(this, mEventBus);
+        return new ActionBarController(this, eventBus);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        if (mCategory.isFollowed(new FollowingOperations().getFollowedUserIds())){
+        if (category.isFollowed(new FollowingOperations().getFollowedUserIds())){
             menu.findItem(R.id.menu_select_all).setVisible(false);
         } else {
             menu.findItem(R.id.menu_deselect_all).setVisible(false);
@@ -69,7 +69,7 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         final long itemId = item.getItemId();
         if (itemId == R.id.menu_select_all || itemId == R.id.menu_deselect_all) {
-            mCategoryFragment.toggleFollowings(itemId == R.id.menu_select_all);
+            categoryFragment.toggleFollowings(itemId == R.id.menu_select_all);
             supportInvalidateOptionsMenu();
             return true;
         } else {

@@ -17,9 +17,9 @@ public class AcceptTermsLayout extends RelativeLayout {
     private static final String BUNDLE_SIGNUP_VIA    = "BUNDLE_TERMS_SIGNUP_VIA";
     private static final String BUNDLE_SIGNUP_PARAMS = "BUNDLE_TERMS_SIGNUP_PARAMS";
 
-    private AcceptTermsHandler mAcceptTermsHandler;
-    private SignupVia mSignupVia;
-    private Bundle mSignupParams;
+    private AcceptTermsHandler acceptTermsHandler;
+    private SignupVia signupVia;
+    private Bundle signupParams;
 
     public interface AcceptTermsHandler {
         void onAcceptTerms(SignupVia signupVia, Bundle signupParams);
@@ -42,16 +42,16 @@ public class AcceptTermsLayout extends RelativeLayout {
     }
 
     public AcceptTermsHandler getAcceptTermsHandler() {
-        return mAcceptTermsHandler;
+        return acceptTermsHandler;
     }
 
     public void setAcceptTermsHandler(AcceptTermsHandler acceptTermsHandler) {
-        mAcceptTermsHandler = acceptTermsHandler;
+        this.acceptTermsHandler = acceptTermsHandler;
     }
 
     public void setSignupParams(SignupVia signupVia, Bundle signupParams){
-        mSignupVia = signupVia;
-        mSignupParams = signupParams;
+        this.signupVia = signupVia;
+        this.signupParams = signupParams;
     }
 
     @Override
@@ -71,7 +71,7 @@ public class AcceptTermsLayout extends RelativeLayout {
         findViewById(R.id.btn_accept_terms).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                getAcceptTermsHandler().onAcceptTerms(mSignupVia, mSignupParams);
+                getAcceptTermsHandler().onAcceptTerms(signupVia, signupParams);
             }
         });
 
@@ -97,14 +97,14 @@ public class AcceptTermsLayout extends RelativeLayout {
 
     public Bundle getStateBundle() {
         Bundle bundle = new Bundle();
-        bundle.putBundle(BUNDLE_SIGNUP_PARAMS, mSignupParams);
-        bundle.putCharSequence(BUNDLE_SIGNUP_VIA, mSignupVia.name);
+        bundle.putBundle(BUNDLE_SIGNUP_PARAMS, signupParams);
+        bundle.putCharSequence(BUNDLE_SIGNUP_VIA, signupVia.name);
         return bundle;
     }
 
     public void setState(@Nullable Bundle bundle) {
         if (bundle == null) return;
-        mSignupVia = SignupVia.fromString(bundle.getString(BUNDLE_SIGNUP_VIA));
-        mSignupParams = bundle.getBundle(BUNDLE_SIGNUP_PARAMS);
+        signupVia = SignupVia.fromString(bundle.getString(BUNDLE_SIGNUP_VIA));
+        signupParams = bundle.getBundle(BUNDLE_SIGNUP_PARAMS);
     }
 }

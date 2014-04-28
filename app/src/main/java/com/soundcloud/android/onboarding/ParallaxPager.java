@@ -29,7 +29,7 @@ public class ParallaxPager extends SafeViewPager {
         }
     }
 
-    private List<ParallaxInfo> mParallaxViews = new ArrayList<ParallaxInfo>();
+    private List<ParallaxInfo> parallaxViews = new ArrayList<ParallaxInfo>();
 
     public ParallaxPager(Context context) {
         super(context);
@@ -44,7 +44,7 @@ public class ParallaxPager extends SafeViewPager {
         super.onPageScrolled(position, offset, offsetPixels);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            for (ParallaxInfo info : mParallaxViews) {
+            for (ParallaxInfo info : parallaxViews) {
                 float targetX = info.page * getWidth();
                 float actualX = position  * getWidth() + offsetPixels;
 
@@ -73,7 +73,7 @@ public class ParallaxPager extends SafeViewPager {
                 if (page instanceof ViewGroup) {
                     for (View view : allChildViewsOf((ViewGroup) page)) {
                         if ("parallax".equals(view.getTag())) {
-                            mParallaxViews.add(new ParallaxInfo(view, position));
+                            parallaxViews.add(new ParallaxInfo(view, position));
                         }
                     }
                 }
@@ -87,11 +87,11 @@ public class ParallaxPager extends SafeViewPager {
 
                 Set<ParallaxInfo> toRemove = new HashSet<ParallaxInfo>();
 
-                for (ParallaxInfo info : mParallaxViews) {
+                for (ParallaxInfo info : parallaxViews) {
                     if (info.page == position) toRemove.add(info);
                 }
 
-                mParallaxViews.removeAll(toRemove);
+                parallaxViews.removeAll(toRemove);
             }
         };
 

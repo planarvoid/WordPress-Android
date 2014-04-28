@@ -41,13 +41,13 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
     private static final String FRAGMENT_TAG = "suggested_users_fragment";
     private static final String LOG_TAG = "suggested_users_frag";
 
-    private SuggestedUsersCategoriesAdapter mAdapter;
-    private SuggestedUsersOperations mSuggestions;
-    private Subscription mSubscription;
-    private Observer<CategoryGroup> mObserver;
+    private SuggestedUsersCategoriesAdapter adapter;
+    private SuggestedUsersOperations suggestedUserOps;
+    private Subscription subscription;
+    private Observer<CategoryGroup> observer;
 
-    private ListView mListView;
-    private EmptyListView mEmptyListView;
+    private ListView listView;
+    private EmptyListView emptyListView;
 
     public SuggestedUsersCategoriesFragment() {
         this(new SuggestedUsersOperations(), null,
@@ -55,18 +55,18 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
     }
 
     @VisibleForTesting
-    protected SuggestedUsersCategoriesFragment(SuggestedUsersOperations onboardingOps,
+    protected SuggestedUsersCategoriesFragment(SuggestedUsersOperations suggestedUserOps,
                                                @Nullable Observer<CategoryGroup> observer,
                                                SuggestedUsersCategoriesAdapter adapter) {
-        mSuggestions = onboardingOps;
-        mObserver = observer;
-        mAdapter = adapter;
+        this.suggestedUserOps = suggestedUserOps;
+        this.observer = observer;
+        this.adapter = adapter;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAdapter.setActiveSections(shouldShowFacebook() ?
+        adapter.setActiveSections(shouldShowFacebook() ?
                 SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS :
                 SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK);
     }
@@ -79,30 +79,30 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
     @Override
     public void onResume() {
         super.onResume();
-        mAdapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged();
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
-        mEmptyListView.setMessageText(R.string.problem_connecting_to_SoundCloud);
-        mEmptyListView.setActionText(getResources().getString(R.string.try_again));
-        mEmptyListView.setActionListener(new EmptyListView.ActionListener() {
+        emptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
+        emptyListView.setMessageText(R.string.problem_connecting_to_SoundCloud);
+        emptyListView.setActionText(getResources().getString(R.string.try_again));
+        emptyListView.setActionListener(new EmptyListView.ActionListener() {
             @Override
             public void onAction() {
                 refresh();
             }
         });
 
-        mListView = (ListView) view.findViewById(android.R.id.list);
-        mListView.setDrawSelectorOnTop(false);
-        mListView.setSelector(new StateListDrawable());
-        mListView.setHeaderDividersEnabled(false);
-        mListView.addHeaderView(getLayoutInflater(null).inflate(R.layout.suggested_users_category_list_header, null), null, false);
-        mListView.setOnItemClickListener(this);
-        mListView.setAdapter(mAdapter);
+        listView = (ListView) view.findViewById(android.R.id.list);
+        listView.setDrawSelectorOnTop(false);
+        listView.setSelector(new StateListDrawable());
+        listView.setHeaderDividersEnabled(false);
+        listView.addHeaderView(getLayoutInflater(null).inflate(R.layout.suggested_users_category_list_header, null), null, false);
+        listView.setOnItemClickListener(this);
+        listView.setAdapter(adapter);
 
         // TODO: get rid of StateHolderFragment in favor of setRetainInstanceState or Memento
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG);
@@ -119,13 +119,13 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mListView = null;
-        mEmptyListView = null;
+        listView = null;
+        emptyListView = null;
     }
 
     private Observable<CategoryGroup> createCategoriesObservable() {
         final Observable<CategoryGroup> categoryGroups = shouldShowFacebook() ?
-                mSuggestions.getCategoryGroups() : mSuggestions.getMusicAndSoundsSuggestions();
+                suggestedUserOps.getCategoryGroups() : suggestedUserOps.getMusicAndSoundsSuggestions();
         return categoryGroups.cache().observeOn(AndroidSchedulers.mainThread());
     }
 
@@ -136,8 +136,8 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
     }
 
     private void loadCategories(Observable<CategoryGroup> observable) {
-        if (mObserver == null) mObserver = new CategoryGroupsObserver(this);
-        mSubscription = observable.subscribe(mObserver);
+        if (observer == null) observer = new CategoryGroupsObserver(this);
+        subscription = observable.subscribe(observer);
         setDisplayMode(DisplayMode.LOADING);
     }
 
@@ -145,12 +145,12 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
     public void onDestroy() {
         super.onDestroy();
         Log.d(LOG_TAG, "UNSUBSCRIBING");
-        mSubscription.unsubscribe();
+        subscription.unsubscribe();
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final Category item = mAdapter.getItem(position - mListView.getHeaderViewsCount());
+        final Category item = adapter.getItem(position - listView.getHeaderViewsCount());
         if (item.isError()){
             refresh();
         } else {
@@ -168,20 +168,20 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
         mMode = mode;
         switch (mMode){
             case LOADING:
-                mEmptyListView.setStatus(EmptyListView.Status.WAITING);
-                mEmptyListView.setVisibility(View.VISIBLE);
-                mListView.setVisibility(View.GONE);
+                emptyListView.setStatus(EmptyListView.Status.WAITING);
+                emptyListView.setVisibility(View.VISIBLE);
+                listView.setVisibility(View.GONE);
                 break;
 
             case CONTENT:
-                mListView.setVisibility(View.VISIBLE);
-                mEmptyListView.setVisibility(View.GONE);
+                listView.setVisibility(View.VISIBLE);
+                emptyListView.setVisibility(View.GONE);
                 break;
 
             case ERROR:
-                mEmptyListView.setStatus(EmptyListView.Status.OK);
-                mEmptyListView.setVisibility(View.VISIBLE);
-                mListView.setVisibility(View.GONE);
+                emptyListView.setStatus(EmptyListView.Status.OK);
+                emptyListView.setVisibility(View.VISIBLE);
+                listView.setVisibility(View.GONE);
                 break;
         }
     }
@@ -195,8 +195,8 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
         @Override
         public void onNext(SuggestedUsersCategoriesFragment fragment, CategoryGroup categoryGroup) {
             Log.d(LOG_TAG, "got category group: " + categoryGroup);
-            fragment.mAdapter.addItem(categoryGroup);
-            fragment.mAdapter.notifyDataSetChanged();
+            fragment.adapter.addItem(categoryGroup);
+            fragment.adapter.notifyDataSetChanged();
 
             if (!categoryGroup.isFacebook()){
                 fragment.setDisplayMode(DisplayMode.CONTENT);

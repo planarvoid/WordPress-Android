@@ -42,20 +42,20 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private static final String STREAM_FRAGMENT_TAG = "stream_fragment";
     private static final int NO_SELECTION = -1;
 
-    private NavigationFragment mNavigationFragment;
-    private CharSequence mLastTitle;
-    private int mLastSelection = NO_SELECTION;
+    private NavigationFragment navigationFragment;
+    private CharSequence lastTitle;
+    private int lastSelection = NO_SELECTION;
 
     @Inject
-    ApplicationProperties mApplicationProperties;
+    ApplicationProperties applicationProperties;
     @Inject
-    SoundCloudApplication mApplication;
+    SoundCloudApplication application;
     @Inject
-    UserOperations mUserOperations;
+    UserOperations userOperations;
     @Inject
     StreamFragmentFactory streamFragmentFactory;
 
-    private final CompositeSubscription mSubscription = new CompositeSubscription();
+    private final CompositeSubscription subscription = new CompositeSubscription();
 
     public MainActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -65,21 +65,21 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        mNavigationFragment = findNavigationFragment();
-        mNavigationFragment.initState(savedInstanceState);
+        navigationFragment = findNavigationFragment();
+        navigationFragment.initState(savedInstanceState);
 
         if (savedInstanceState != null) {
-            mLastTitle = savedInstanceState.getCharSequence(EXTRA_ACTIONBAR_TITLE);
+            lastTitle = savedInstanceState.getCharSequence(EXTRA_ACTIONBAR_TITLE);
         } else {
-            mLastTitle = getTitle();
-            if (mAccountOperations.soundCloudAccountExists()) {
-                handleLoggedInUser(mApplicationProperties);
+            lastTitle = getTitle();
+            if (accountOperations.soundCloudAccountExists()) {
+                handleLoggedInUser(applicationProperties);
             }
         }
 
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
-        mSubscription.add(mEventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber()));
+        subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber()));
     }
 
     private NavigationFragment findNavigationFragment() {
@@ -91,9 +91,9 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     private void handleLoggedInUser(ApplicationProperties appProperties) {
         boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
-        User currentUser = mApplication.getLoggedInUser();
-        if (!justAuthenticated && mAccountOperations.shouldCheckForConfirmedEmailAddress(currentUser)) {
-            mSubscription.add(fromActivity(this, mUserOperations.refreshCurrentUser()).subscribe(new UserSubscriber()));
+        User currentUser = application.getLoggedInUser();
+        if (!justAuthenticated && accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)) {
+            subscription.add(fromActivity(this, userOperations.refreshCurrentUser()).subscribe(new UserSubscriber()));
         }
 
         if (appProperties.isBetaBuildRunningOnDalvik()) {
@@ -105,18 +105,18 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        final boolean setFragmentViaIntent = mNavigationFragment.handleIntent(intent);
+        final boolean setFragmentViaIntent = navigationFragment.handleIntent(intent);
         if (setFragmentViaIntent && isNotBlank(getSupportActionBar().getTitle())) {
             // the title/selection changed as a result of this intent, so store the new title to prevent overwriting
-            mLastTitle = getSupportActionBar().getTitle();
+            lastTitle = getSupportActionBar().getTitle();
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (!mAccountOperations.soundCloudAccountExists()) {
-            mAccountOperations.addSoundCloudAccountManually(this);
+        if (!accountOperations.soundCloudAccountExists()) {
+            accountOperations.addSoundCloudAccountManually(this);
             finish();
         }
 
@@ -126,40 +126,40 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     }
 
     private void publishContentChangeEvent() {
-        final int position = mNavigationFragment.getCurrentSelectedPosition();
+        final int position = navigationFragment.getCurrentSelectedPosition();
         switch (NavigationFragment.NavItem.values()[position]) {
             case STREAM:
-                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_STREAM.get());
+                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_STREAM.get());
                 break;
             case EXPLORE:
                 // Publish event for default page in the explore fragment
                 // Doesn't fire in onPageSelected() due to https://code.google.com/p/android/issues/detail?id=27526
-                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.EXPLORE_GENRES.get());
+                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.EXPLORE_GENRES.get());
                 break;
             case LIKES:
-                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_LIKES.get());
+                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_LIKES.get());
                 break;
             case PLAYLISTS:
-                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_PLAYLISTS.get());
+                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_PLAYLISTS.get());
             default:
                 break; // the remaining content fragments are tracked individually
         }
     }
 
     private void publishNavSelectedEvent() {
-        final int position = mNavigationFragment.getCurrentSelectedPosition();
+        final int position = navigationFragment.getCurrentSelectedPosition();
         switch (NavigationFragment.NavItem.values()[position]) {
             case STREAM:
-                mEventBus.publish(EventQueue.UI, UIEvent.fromStreamNav());
+                eventBus.publish(EventQueue.UI, UIEvent.fromStreamNav());
                 break;
             case EXPLORE:
-                mEventBus.publish(EventQueue.UI, UIEvent.fromExploreNav());
+                eventBus.publish(EventQueue.UI, UIEvent.fromExploreNav());
                 break;
             case LIKES:
-                mEventBus.publish(EventQueue.UI, UIEvent.fromLikesNav());
+                eventBus.publish(EventQueue.UI, UIEvent.fromLikesNav());
                 break;
             case PLAYLISTS:
-                mEventBus.publish(EventQueue.UI, UIEvent.fromPlaylistsNav());
+                eventBus.publish(EventQueue.UI, UIEvent.fromPlaylistsNav());
             default:
                 break;
         }
@@ -168,25 +168,25 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     @Override
     protected void onDestroy() {
         UpdateManager.unregister();
-        mSubscription.unsubscribe();
+        subscription.unsubscribe();
         super.onDestroy();
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putCharSequence(EXTRA_ACTIONBAR_TITLE, mLastTitle);
-        mNavigationFragment.storeState(savedInstanceState);
+        savedInstanceState.putCharSequence(EXTRA_ACTIONBAR_TITLE, lastTitle);
+        navigationFragment.storeState(savedInstanceState);
     }
 
     @Override
     public void onNavigationItemSelected(int position, boolean setTitle) {
-        if (position == mLastSelection) return;
+        if (position == lastSelection) return;
         switch (NavigationFragment.NavItem.values()[position]) {
             case PROFILE:
                 displayProfile();
                 // This click is tracked separately since profile item is never selected
-                mEventBus.publish(EventQueue.UI, UIEvent.fromProfileNav());
+                eventBus.publish(EventQueue.UI, UIEvent.fromProfileNav());
                 return;
             case STREAM:
                 displayStream();
@@ -206,16 +206,16 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
              * In this case, restoreActionBar will not be called since it is already closed.
              * This probably came from {@link NavigationFragment#handleIntent(android.content.Intent)}
              */
-            getSupportActionBar().setTitle(mLastTitle);
+            getSupportActionBar().setTitle(lastTitle);
         }
-        if (mLastSelection != NO_SELECTION) {
+        if (lastSelection != NO_SELECTION) {
             // only publish content change events here that were user initiated, not those coming from rotation changes
             // and stuff.
             publishContentChangeEvent();
             publishNavSelectedEvent();
         }
         if (position != NavigationFragment.NavItem.PROFILE.ordinal()) {
-            mLastSelection = position;
+            lastSelection = position;
         }
     }
 
@@ -264,19 +264,19 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, fragment, tag)
                 .commit();
-        mLastTitle = getString(titleResId);
+        lastTitle = getString(titleResId);
     }
 
     public void restoreActionBar() {
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mLastTitle);
+        actionBar.setTitle(lastTitle);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Keep null check. This might fire as a result of setContentView in which case this var won't be assigned
-        if (mNavigationFragment != null) {
+        if (navigationFragment != null) {
             return super.onCreateOptionsMenu(menu);
         }
         return true;
@@ -299,7 +299,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     }
 
     private void updateUser(User user) {
-        mNavigationFragment.updateProfileItem(user);
+        navigationFragment.updateProfileItem(user);
         if (!user.isPrimaryEmailConfirmed()) {
             startActivityForResult(new Intent(this, EmailConfirmationActivity.class)
                     .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);

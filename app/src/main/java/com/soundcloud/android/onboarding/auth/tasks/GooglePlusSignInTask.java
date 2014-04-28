@@ -22,9 +22,9 @@ public class GooglePlusSignInTask extends LoginTask {
 
     private static final String[] REQUEST_ACTIVITIES = { ADD_ACTIVITY, CREATE_ACTIVITY, LISTEN_ACTIVITY };
 
-    private Bundle mExtras;
-    protected String mAccountName, mScope;
-    private AccountOperations mAccountOperations;
+    private Bundle extras;
+    protected String accountName, scope;
+    private AccountOperations accountOperations;
 
     public GooglePlusSignInTask(SoundCloudApplication application, String accountName, String scope) {
         this(application, accountName, scope, new TokenInformationGenerator(new PublicApi(application)), new FetchUserTask(new PublicApi(application)),
@@ -35,11 +35,11 @@ public class GooglePlusSignInTask extends LoginTask {
                                    TokenInformationGenerator tokenInformationGenerator, FetchUserTask fetchUserTask, UserStorage userStorage,
                                    AccountOperations accountOperations) {
         super(application, tokenInformationGenerator, fetchUserTask, userStorage);
-        mAccountName = accountName;
-        mScope = scope;
-        mExtras = new Bundle();
-        mExtras.putString(GoogleAuthUtil.KEY_REQUEST_VISIBLE_ACTIVITIES, TextUtils.join(" ", REQUEST_ACTIVITIES));
-        mAccountOperations = accountOperations;
+        this.accountName = accountName;
+        this.scope = scope;
+        extras = new Bundle();
+        extras.putString(GoogleAuthUtil.KEY_REQUEST_VISIBLE_ACTIVITIES, TextUtils.join(" ", REQUEST_ACTIVITIES));
+        this.accountOperations = accountOperations;
     }
 
     @Override
@@ -48,13 +48,13 @@ public class GooglePlusSignInTask extends LoginTask {
         boolean googleTokenValid = false;
         for (int triesLeft = 2; triesLeft > 0 && !googleTokenValid; triesLeft--){
             try {
-                String token = mAccountOperations.getGoogleAccountToken(mAccountName, mScope, mExtras);
+                String token = accountOperations.getGoogleAccountToken(accountName, scope, extras);
                 result = login(token);
 
                 googleTokenValid = !(result.getException() instanceof CloudAPI.InvalidTokenException);
                 if (!googleTokenValid){
                     // whatever token we got from g+ is invalid. force it to invalid and we should get a new one next try
-                    mAccountOperations.invalidateGoogleAccountToken(token);
+                    accountOperations.invalidateGoogleAccountToken(token);
                 }
             } catch (Exception e) {
                 Log.e(TAG, "error retrieving google token", e);

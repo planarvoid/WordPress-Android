@@ -40,7 +40,7 @@ public class SearchByTagActivity extends ScActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_BY_TAG.get());
+            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_BY_TAG.get());
         }
     }
 

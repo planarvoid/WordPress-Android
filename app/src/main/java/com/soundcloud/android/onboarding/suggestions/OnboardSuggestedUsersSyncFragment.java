@@ -27,26 +27,26 @@ import android.widget.RelativeLayout;
 @SuppressLint("ValidFragment")
 public class OnboardSuggestedUsersSyncFragment extends Fragment {
 
-    private FollowingOperations mFollowingOperations;
-    private Subscription mSubscription;
+    private FollowingOperations followingOperations;
+    private Subscription subscription;
 
     public OnboardSuggestedUsersSyncFragment() {
     }
 
     @VisibleForTesting
     OnboardSuggestedUsersSyncFragment(@Nullable FollowingOperations followingOperations) {
-        mFollowingOperations = followingOperations;
+        this.followingOperations = followingOperations;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        if (mFollowingOperations == null) {
-            mFollowingOperations = new FollowingOperations();
+        if (followingOperations == null) {
+            followingOperations = new FollowingOperations();
         }
 
-        mSubscription = fromFragment(this, mFollowingOperations.waitForActivities(getActivity()))
+        subscription = fromFragment(this, followingOperations.waitForActivities(getActivity()))
                 .subscribe(new FollowingsSyncSubscriber());
     }
 
@@ -65,7 +65,7 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mSubscription.unsubscribe();
+        subscription.unsubscribe();
     }
 
     private void finish(boolean success) {

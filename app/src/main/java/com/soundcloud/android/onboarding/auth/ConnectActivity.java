@@ -24,16 +24,16 @@ import android.webkit.WebViewClient;
 
 public class ConnectActivity extends TrackedActivity {
 
-    private WebView mWebView;
+    private WebView webView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.connect);
-        mWebView = (WebView) findViewById(R.id.webview);
-        mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.getSettings().setBlockNetworkImage(false);
-        mWebView.getSettings().setLoadsImagesAutomatically(true);
+        webView = (WebView) findViewById(R.id.webview);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setBlockNetworkImage(false);
+        webView.getSettings().setLoadsImagesAutomatically(true);
 
         final String service =
                 getIntent().hasExtra("service") ?
@@ -47,15 +47,15 @@ public class ConnectActivity extends TrackedActivity {
         progress.setTitle(R.string.connect_progress);
         progress.setMax(100);
 
-        mWebView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY); // fix white bar
-        mWebView.setWebChromeClient(new WebChromeClient() {
+        webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY); // fix white bar
+        webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 progress.setProgress(newProgress);
             }
         });
 
-        mWebView.setWebViewClient(new WebViewClient() {
+        webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String u, Bitmap favicon) {
                 if (url.equals(u) && !isFinishing()) progress.show();
@@ -81,8 +81,8 @@ public class ConnectActivity extends TrackedActivity {
                       */
                     try {
                         progress.dismiss();
-                    } catch (IllegalArgumentException e){
-                        Log.e(SoundCloudApplication.TAG,"Error dismissing dialog: ", e);
+                    } catch (IllegalArgumentException e) {
+                        Log.e(SoundCloudApplication.TAG, "Error dismissing dialog: ", e);
                     }
                 }
             }
@@ -104,7 +104,7 @@ public class ConnectActivity extends TrackedActivity {
         });
 
         removeAllCookies();
-        mWebView.loadUrl(url);
+        webView.loadUrl(url);
     }
 
     private void removeAllCookies() {
@@ -129,8 +129,8 @@ public class ConnectActivity extends TrackedActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_BACK) && mWebView.canGoBack()) {
-            mWebView.goBack();
+        if ((keyCode == KeyEvent.KEYCODE_BACK) && webView.canGoBack()) {
+            webView.goBack();
             return true;
         } else {
             return super.onKeyDown(keyCode, event);

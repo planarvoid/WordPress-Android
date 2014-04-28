@@ -1,7 +1,6 @@
 package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
@@ -25,10 +24,10 @@ import android.widget.TextView;
 public class SignUpLayout extends AuthLayout {
     private static final String BUNDLE_EMAIL    = "BUNDLE_EMAIL";
     private static final String BUNDLE_PASSWORD = "BUNDLE_PASSWORD";
-    private Button mSignUpButton;
+    private Button signUpButton;
 
-    private boolean mEmailValid, mPasswordValid;
-    private Drawable mValidDrawable, mPlaceholderDrawable;
+    private boolean emailValid, passwordValid;
+    private Drawable validDrawable, placeholderDrawable;
 
     public interface SignUpHandler extends AuthHandler {
         void onSignUp(String email, String password);
@@ -50,11 +49,11 @@ public class SignUpLayout extends AuthLayout {
 
     private static final int MIN_PASSWORD_LENGTH = 6;
 
-    @Nullable private SignUpHandler mSignUpHandler;
+    @Nullable private SignUpHandler signUpHandler;
 
     @Override
     AuthHandler getAuthHandler() {
-        return mSignUpHandler;
+        return signUpHandler;
     }
 
     @Override
@@ -66,26 +65,26 @@ public class SignUpLayout extends AuthLayout {
         final AutoCompleteTextView emailField = (AutoCompleteTextView)  findViewById(R.id.auto_txt_email_address);
         final EditText passwordField = (EditText) findViewById(R.id.txt_choose_a_password);
         final Button   cancelButton       = (Button)   findViewById(R.id.btn_cancel);
-        mSignUpButton = (Button)   findViewById(R.id.btn_signup);
+        signUpButton = (Button)   findViewById(R.id.btn_signup);
 
-        mValidDrawable = getResources().getDrawable(R.drawable.ic_done_dark_sm);
-        mPlaceholderDrawable = new ColorDrawable(Color.TRANSPARENT);
-        mPlaceholderDrawable.setBounds(0, 0, mValidDrawable.getIntrinsicWidth(), mValidDrawable.getIntrinsicHeight());
+        validDrawable = getResources().getDrawable(R.drawable.ic_done_dark_sm);
+        placeholderDrawable = new ColorDrawable(Color.TRANSPARENT);
+        placeholderDrawable.setBounds(0, 0, validDrawable.getIntrinsicWidth(), validDrawable.getIntrinsicHeight());
 
 
         emailField.addTextChangedListener(new InputValidator(emailField) {
             @Override
             boolean validate(String text) {
-                mEmailValid = ScTextUtils.isEmail(text);
-                return mEmailValid;
+                emailValid = ScTextUtils.isEmail(text);
+                return emailValid;
             }
         });
 
         passwordField.addTextChangedListener(new InputValidator(passwordField) {
             @Override
             boolean validate(String text) {
-                mPasswordValid = checkPassword(text);
-                return mPasswordValid;
+                passwordValid = checkPassword(text);
+                return passwordValid;
             }
         });
 
@@ -97,13 +96,13 @@ public class SignUpLayout extends AuthLayout {
         findViewById(R.id.google_plus_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSignUpHandler.onGooglePlusAuth();
+                signUpHandler.onGooglePlusAuth();
             }
         });
         findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSignUpHandler.onFacebookAuth();
+                signUpHandler.onFacebookAuth();
             }
         });
 
@@ -115,14 +114,14 @@ public class SignUpLayout extends AuthLayout {
                 boolean downAction = event != null && event.getAction() == KeyEvent.ACTION_DOWN;
 
                 if (done || pressedEnter && downAction) {
-                    return mSignUpButton.performClick();
+                    return signUpButton.performClick();
                 } else {
                     return false;
                 }
             }
         });
 
-        mSignUpButton.setOnClickListener(new View.OnClickListener() {
+        signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (emailField.getText().length() == 0 || passwordField.getText().length() == 0) {
@@ -137,8 +136,8 @@ public class SignUpLayout extends AuthLayout {
 
                     hideKeyboardOnSignup(emailField, passwordField);
 
-                    if (mSignUpHandler != null) {
-                        mSignUpHandler.onSignUp(email, password);
+                    if (signUpHandler != null) {
+                        signUpHandler.onSignUp(email, password);
                     }
                 }
             }
@@ -160,8 +159,8 @@ public class SignUpLayout extends AuthLayout {
                 new ScTextUtils.ClickSpan.OnClickListener() {
                     @Override
                     public void onClick() {
-                        if (mSignUpHandler != null) {
-                            mSignUpHandler.onShowTermsOfUse();
+                        if (signUpHandler != null) {
+                            signUpHandler.onShowTermsOfUse();
                         }
                     }
                 }, false, false);
@@ -171,8 +170,8 @@ public class SignUpLayout extends AuthLayout {
                 new ScTextUtils.ClickSpan.OnClickListener() {
                     @Override
                     public void onClick() {
-                        if (mSignUpHandler != null) {
-                            mSignUpHandler.onShowPrivacyPolicy();
+                        if (signUpHandler != null) {
+                            signUpHandler.onShowPrivacyPolicy();
                         }
                     }
                 }, false, false);
@@ -187,7 +186,7 @@ public class SignUpLayout extends AuthLayout {
     }
 
     private void validateForm() {
-        mSignUpButton.setEnabled(mEmailValid && mPasswordValid);
+        signUpButton.setEnabled(emailValid && passwordValid);
     }
 
     static boolean checkPassword(CharSequence password) {
@@ -196,11 +195,11 @@ public class SignUpLayout extends AuthLayout {
 
     @Nullable
     public SignUpHandler getSignUpHandler() {
-        return mSignUpHandler;
+        return signUpHandler;
     }
 
     public void setSignUpHandler(@Nullable SignUpHandler mSignUpHandler) {
-        this.mSignUpHandler = mSignUpHandler;
+        this.signUpHandler = mSignUpHandler;
     }
 
     public Bundle getStateBundle() {
@@ -234,9 +233,9 @@ public class SignUpLayout extends AuthLayout {
         @Override
         public void validate(TextView textView, String text) {
             if (validate(text)){
-                textView.setCompoundDrawablesWithIntrinsicBounds(null, null, mValidDrawable, null);
+                textView.setCompoundDrawablesWithIntrinsicBounds(null, null, validDrawable, null);
             } else {
-                textView.setCompoundDrawables(null,null, mPlaceholderDrawable,null);
+                textView.setCompoundDrawables(null,null, placeholderDrawable,null);
             }
             validateForm();
         }

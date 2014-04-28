@@ -38,15 +38,15 @@ public class NavigationFragment extends Fragment {
     private static final int NO_IMAGE = -1;
 
     @Inject
-    ImageOperations mImageOperations;
+    ImageOperations imageOperations;
 
-    private NavigationCallbacks mCallbacks;
+    private NavigationCallbacks callbacks;
 
-    private ListView mListView;
+    private ListView listView;
 
-    private int mCurrentSelectedPosition = NavItem.STREAM.ordinal();
+    private int currentSelectedPosition = NavItem.STREAM.ordinal();
 
-    private ProfileViewHolder mProfileViewHolder;
+    private ProfileViewHolder profileViewHolder;
 
     public enum NavItem {
         PROFILE(R.string.side_menu_profile, NO_IMAGE),
@@ -74,7 +74,7 @@ public class NavigationFragment extends Fragment {
 
     @VisibleForTesting
     protected NavigationFragment(ImageOperations imageOperations) {
-        mImageOperations = imageOperations;
+        this.imageOperations = imageOperations;
     }
 
     @Override
@@ -82,7 +82,7 @@ public class NavigationFragment extends Fragment {
         super.onAttach(activity);
         configureLocalContextActionBar();
         try {
-            mCallbacks = (NavigationCallbacks) activity;
+            callbacks = (NavigationCallbacks) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException("Activity must implement NavigationCallbacks.");
         }
@@ -102,7 +102,7 @@ public class NavigationFragment extends Fragment {
 
     @VisibleForTesting
     int getCurrentSelectedPosition() {
-        return mCurrentSelectedPosition;
+        return currentSelectedPosition;
     }
 
     public boolean handleIntent(Intent intent) {
@@ -142,31 +142,31 @@ public class NavigationFragment extends Fragment {
         // Update the checked state of the nav items to the last known position. It's important to do this in onResume
         // as long as the user profile opens in a new activity, since when returning via the up button would otherwise
         // not update it to the last selected content fragment
-        mListView.setItemChecked(mCurrentSelectedPosition, true);
+        listView.setItemChecked(currentSelectedPosition, true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mListView = setupListView(inflater, container);
-        return mListView;
+        listView = setupListView(inflater, container);
+        return listView;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mCallbacks = null;
+        callbacks = null;
     }
 
     public void storeState(Bundle bundle) {
-        bundle.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
+        bundle.putInt(STATE_SELECTED_POSITION, currentSelectedPosition);
     }
 
     public void initState(Bundle bundle) {
         if (bundle != null) {
             selectItem(bundle.getInt(STATE_SELECTED_POSITION));
         } else if (!handleIntent(getActivity().getIntent())) {
-            selectItem(mCurrentSelectedPosition);
+            selectItem(currentSelectedPosition);
         }
     }
 
@@ -199,10 +199,10 @@ public class NavigationFragment extends Fragment {
     private View setupUserProfileHeader(LayoutInflater inflater, ViewGroup container) {
         final View view = inflater.inflate(R.layout.nav_profile_item, container, false);
 
-        mProfileViewHolder = new ProfileViewHolder();
-        mProfileViewHolder.imageView = (ImageView) view.findViewById(R.id.avatar);
-        mProfileViewHolder.username = (TextView) view.findViewById(R.id.username);
-        mProfileViewHolder.followers = (TextView) view.findViewById(R.id.followers_count);
+        profileViewHolder = new ProfileViewHolder();
+        profileViewHolder.imageView = (ImageView) view.findViewById(R.id.avatar);
+        profileViewHolder.username = (TextView) view.findViewById(R.id.username);
+        profileViewHolder.followers = (TextView) view.findViewById(R.id.followers_count);
 
         updateProfileItem(((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser());
 
@@ -210,24 +210,24 @@ public class NavigationFragment extends Fragment {
     }
 
     public void updateProfileItem(User user) {
-        mProfileViewHolder.username.setText(user.getUsername());
+        profileViewHolder.username.setText(user.getUsername());
         int followersCount = user.followers_count < 0 ? 0 : user.followers_count;
-        mProfileViewHolder.followers.setText(getResources().getQuantityString(
+        profileViewHolder.followers.setText(getResources().getQuantityString(
                 R.plurals.number_of_followers, followersCount, followersCount));
 
-        mImageOperations.displayWithPlaceholder(user.getUrn(),
+        imageOperations.displayWithPlaceholder(user.getUrn(),
                 ImageSize.getFullImageSize(getResources()),
-                mProfileViewHolder.imageView);
+                profileViewHolder.imageView);
     }
 
     protected void selectItem(int position) {
         // TODO: Since the user profile currently opens in a new activity, we must not adjust the current selection
         // index. Remove this workaround when the user browser has become a fragment too
         if (position != NavItem.PROFILE.ordinal()) {
-            mCurrentSelectedPosition = position;
+            currentSelectedPosition = position;
         }
-        if (mCallbacks != null) {
-            mCallbacks.onNavigationItemSelected(position, shouldSetActionBarTitle());
+        if (callbacks != null) {
+            callbacks.onNavigationItemSelected(position, shouldSetActionBarTitle());
         }
         getActivity().supportInvalidateOptionsMenu();
     }

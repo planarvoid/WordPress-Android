@@ -26,7 +26,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
         }
     };
 
-    private final RxHttpClient mRxHttpClient;
+    private final RxHttpClient rxHttpClient;
 
     public SuggestedUsersOperations() {
         this(new SoundCloudRxHttpClient());
@@ -34,7 +34,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
 
     @VisibleForTesting
     protected SuggestedUsersOperations(RxHttpClient rxHttpClient) {
-        mRxHttpClient = rxHttpClient;
+        this.rxHttpClient = rxHttpClient;
     }
 
     public Observable<CategoryGroup> getMusicAndSoundsSuggestions() {
@@ -42,7 +42,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
                 .forPrivateAPI(1)
                 .forResource(new CategoryGroupListToken())
                 .build();
-        return schedule(mRxHttpClient.<CategoryGroup>fetchModels(request));
+        return schedule(rxHttpClient.<CategoryGroup>fetchModels(request));
     }
 
     public Observable<CategoryGroup> getFacebookSuggestions() {
@@ -50,7 +50,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
                 .forPrivateAPI(1)
                 .forResource(new CategoryGroupListToken())
                 .build();
-        return schedule(mRxHttpClient.<CategoryGroup>fetchModels(request).onErrorReturn(EMPTY_FACEBOOK_GROUP));
+        return schedule(rxHttpClient.<CategoryGroup>fetchModels(request).onErrorReturn(EMPTY_FACEBOOK_GROUP));
     }
 
     public Observable<CategoryGroup> getCategoryGroups() {

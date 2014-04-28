@@ -25,9 +25,9 @@ import java.lang.ref.WeakReference;
 public abstract class AuthTaskFragment extends DialogFragment {
     private static final String TAG = AuthTaskFragment.class.getSimpleName();
 
-    private AuthTask mTask;
-    private AuthTaskResult mResult;
-    private WeakReference<OnAuthResultListener> mListenerRef;
+    private AuthTask task;
+    private AuthTaskResult result;
+    private WeakReference<OnAuthResultListener> listenerRef;
 
     public interface OnAuthResultListener {
         void onAuthTaskComplete(User user, SignupVia signupVia, boolean shouldAddUserInfo);
@@ -44,9 +44,9 @@ public abstract class AuthTaskFragment extends DialogFragment {
         setRetainInstance(true);
         setCancelable(false);
 
-        mTask = createAuthTask();
-        mTask.setTaskOwner(this);
-        mTask.executeOnThreadPool(getArguments());
+        task = createAuthTask();
+        task.setTaskOwner(this);
+        task.executeOnThreadPool(getArguments());
     }
 
     @Override
@@ -69,7 +69,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListenerRef = new WeakReference<OnAuthResultListener>((OnAuthResultListener) activity);
+            listenerRef = new WeakReference<OnAuthResultListener>((OnAuthResultListener) activity);
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement OnAuthResultListener");
         }
@@ -90,7 +90,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     public void onDismiss(DialogInterface dialog)
     {
         super.onDismiss(dialog);
-        if (mTask != null) mTask.cancel(false);
+        if (task != null) task.cancel(false);
     }
 
     @Override
@@ -98,12 +98,12 @@ public abstract class AuthTaskFragment extends DialogFragment {
     {
         super.onResume();
         // Dismiss if the task finished while we were away
-        if (mTask == null) deliverResultAndDismiss();
+        if (task == null) deliverResultAndDismiss();
     }
 
     public void onTaskResult(AuthTaskResult result) {
-        mTask = null;
-        mResult = result;
+        task = null;
+        this.result = result;
         // Don't try to dismiss if we aren't in the foreground
         if (isResumed()) deliverResultAndDismiss();
     }
@@ -127,13 +127,13 @@ public abstract class AuthTaskFragment extends DialogFragment {
     }
 
     private void deliverResultAndDismiss(){
-        final OnAuthResultListener listener = mListenerRef.get();
+        final OnAuthResultListener listener = listenerRef.get();
         if (listener != null){
-            if (mResult.wasSuccess()){
-                listener.onAuthTaskComplete(mResult.getUser(), mResult.getSignupVia(),
+            if (result.wasSuccess()){
+                listener.onAuthTaskComplete(result.getUser(), result.getSignupVia(),
                         this instanceof SignupTaskFragment);
             } else {
-                listener.onError(getErrorFromResult((Activity) listener, mResult));
+                listener.onError(getErrorFromResult((Activity) listener, result));
             }
         }
         dismiss();

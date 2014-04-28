@@ -147,7 +147,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         super.onResume();
         mConnectionList.getAdapter().loadIfNecessary(this);
         if (shouldTrackScreen()) {
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.RECORD_UPLOAD.get());
+            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.RECORD_UPLOAD.get());
         }
     }
 

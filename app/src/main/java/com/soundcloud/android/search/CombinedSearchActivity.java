@@ -28,7 +28,7 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
 
     private static final String STATE_QUERY = "query";
 
-    private SearchActionBarController actionBarController;
+    private SearchActionBarController searchActionBarController;
     private String query;
 
     private final SearchActionBarController.SearchCallback mSearchCallback = new SearchActionBarController.SearchCallback() {
@@ -44,7 +44,7 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
 
         @Override
         public void exitSearchMode() {
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_MAIN.get());
+            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_MAIN.get());
             getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     };
@@ -54,15 +54,15 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
     }
 
     @VisibleForTesting
-    CombinedSearchActivity(SearchActionBarController actionBarController) {
-        this.actionBarController = actionBarController;
+    CombinedSearchActivity(SearchActionBarController searchActionBarController) {
+        this.searchActionBarController = searchActionBarController;
     }
 
     @Override
     public void onBackPressed() {
         boolean isShowingResults = getSupportFragmentManager().getBackStackEntryCount() > 0;
         if (isShowingResults) {
-            actionBarController.clearQuery();
+            searchActionBarController.clearQuery();
         } else {
             super.onBackPressed();
         }
@@ -91,23 +91,23 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         if (ScTextUtils.isNotBlank(query)) {
-            actionBarController.setQuery(query);
+            searchActionBarController.setQuery(query);
         }
         return true;
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putString(STATE_QUERY, actionBarController.getQuery());
+        outState.putString(STATE_QUERY, searchActionBarController.getQuery());
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected ActionBarController createActionBarController() {
-        if (actionBarController == null) {
-            actionBarController = new SearchActionBarController(this, new PublicApi(this), mSearchCallback, mEventBus);
+        if (searchActionBarController == null) {
+            searchActionBarController = new SearchActionBarController(this, new PublicApi(this), mSearchCallback, eventBus);
         }
-        return actionBarController;
+        return searchActionBarController;
     }
 
     private void addPlaylistTagsFragment() {
@@ -137,13 +137,13 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
 
     @Override
     public void onTagSelected(String tag) {
-        actionBarController.setQuery("#" + tag);
+        searchActionBarController.setQuery("#" + tag);
         addContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
     }
 
     @Override
     public void onTagsScrolled() {
-        actionBarController.clearFocus();
+        searchActionBarController.clearFocus();
     }
 
     private void handleIntent() {
@@ -157,7 +157,7 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
                 && !intent.getData().getPath().equals(INTENT_URI_SEARCH_PATH)) {
             handleUri(intent);
         } else {
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_MAIN.get());
+            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_MAIN.get());
         }
     }
 

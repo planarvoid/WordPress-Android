@@ -26,40 +26,40 @@ public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskR
 
     private static final int ME_SYNC_DELAY_MILLIS = 30 * 1000;
 
-    private final SoundCloudApplication mApp;
-    private UserStorage mUserStorage;
-    private AuthTaskFragment mFragment;
+    private final SoundCloudApplication app;
+    private UserStorage userStorage;
+    private AuthTaskFragment fragment;
 
     public AuthTask(SoundCloudApplication application, UserStorage userStorage) {
-        this.mApp = application;
-        this.mUserStorage = userStorage;
+        this.app = application;
+        this.userStorage = userStorage;
     }
 
     public void setTaskOwner(AuthTaskFragment taskOwner) {
-        mFragment = taskOwner;
+        fragment = taskOwner;
     }
 
     protected SoundCloudApplication getSoundCloudApplication() {
-        return mApp;
+        return app;
     }
 
     @Override
     protected void onPostExecute(AuthTaskResult result)
     {
-        if (mFragment == null) return;
-        mFragment.onTaskResult(result);
+        if (fragment == null) return;
+        fragment.onTaskResult(result);
     }
 
     protected Boolean addAccount(User user, Token token, SignupVia via) {
-        if (mApp.addUserAccountAndEnableSync(user, token, via)) {
-            mUserStorage.createOrUpdate(user);
+        if (app.addUserAccountAndEnableSync(user, token, via)) {
+            userStorage.createOrUpdate(user);
             if (via != SignupVia.NONE) {
                 // user has signed up, schedule sync of user data to possibly refresh image data
                 // which gets processed asynchronously by the backend and is only available after signup has happened
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        mApp.startService(new Intent(mApp, ApiSyncService.class).setData(Content.ME.uri));
+                        app.startService(new Intent(app, ApiSyncService.class).setData(Content.ME.uri));
                     }
                 }, ME_SYNC_DELAY_MILLIS);
             }

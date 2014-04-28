@@ -29,9 +29,9 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
      * Extracted account authenticator functions. Extracted because of Fragment usage, we have to extend FragmentActivity.
      * See {@link AccountAuthenticatorActivity} for documentation
      */
-    private AccountAuthenticatorResponse mAccountAuthenticatorResponse;
-    private Bundle mResultBundle;
-    private EventBus mEventBus;
+    private AccountAuthenticatorResponse accountAuthenticatorResponse;
+    private Bundle resultBundle;
+    private EventBus eventBus;
 
     // a bullshit fix for https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/533f4054fabb27481b26624a
     // We need to redo onboarding, so this is just a quick fix to prevent the crashes during the sign in flow
@@ -40,12 +40,12 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        mEventBus = SoundCloudApplication.fromContext(this).getEventBus();
-        mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
+        eventBus = SoundCloudApplication.fromContext(this).getEventBus();
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
 
-        mAccountAuthenticatorResponse = getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
-        if (mAccountAuthenticatorResponse != null) {
-            mAccountAuthenticatorResponse.onRequestContinued();
+        accountAuthenticatorResponse = getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
+        if (accountAuthenticatorResponse != null) {
+            accountAuthenticatorResponse.onRequestContinued();
         }
     }
 
@@ -53,13 +53,13 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
     protected void onResume() {
         super.onResume();
         isBeingDestroyed = false;
-        mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this.getClass()));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this.getClass()));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
     }
 
     @Override
@@ -69,14 +69,14 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
     }
 
     public void finish() {
-        if (mAccountAuthenticatorResponse != null) {
+        if (accountAuthenticatorResponse != null) {
             // send the result bundle back if set, otherwise send an error.
-            if (mResultBundle != null) {
-                mAccountAuthenticatorResponse.onResult(mResultBundle);
+            if (resultBundle != null) {
+                accountAuthenticatorResponse.onResult(resultBundle);
             } else {
-                mAccountAuthenticatorResponse.onError(AccountManager.ERROR_CODE_CANCELED, "canceled");
+                accountAuthenticatorResponse.onError(AccountManager.ERROR_CODE_CANCELED, "canceled");
             }
-            mAccountAuthenticatorResponse = null;
+            accountAuthenticatorResponse = null;
         }
         super.finish();
     }
@@ -97,7 +97,7 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
         result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
         result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
         result.putBoolean(Consts.Keys.WAS_SIGNUP, via != SignupVia.NONE);
-        mResultBundle = result;
+        resultBundle = result;
 
         sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
                 .putExtra(User.EXTRA_ID, user.getId())
@@ -131,6 +131,6 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
     }
 
     protected void setBundle(Bundle bundle){
-        this.mResultBundle = bundle;
+        this.resultBundle = bundle;
     }
 }

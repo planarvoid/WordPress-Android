@@ -10,7 +10,7 @@ import java.io.IOException;
 public class TokenInformationGenerator {
 
     public static final String[] DEFAULT_SCOPES = {Token.SCOPE_NON_EXPIRING};
-    private PublicCloudAPI mOldCloudAPI;
+    private PublicCloudAPI oldCloudAPI;
 
     public interface TokenKeys {
         String CODE_EXTRA = "code";
@@ -20,7 +20,7 @@ public class TokenInformationGenerator {
     }
 
     public TokenInformationGenerator(PublicCloudAPI oldCloudAPI){
-        mOldCloudAPI = oldCloudAPI;
+        this.oldCloudAPI = oldCloudAPI;
     }
 
     public Bundle getGrantBundle(String grantType, String token) {
@@ -31,15 +31,15 @@ public class TokenInformationGenerator {
 
     public Token getToken(Bundle param) throws IOException {
         if (param.containsKey(TokenKeys.CODE_EXTRA)) {
-            return mOldCloudAPI.authorizationCode(param.getString(TokenKeys.CODE_EXTRA), DEFAULT_SCOPES);
+            return oldCloudAPI.authorizationCode(param.getString(TokenKeys.CODE_EXTRA), DEFAULT_SCOPES);
 
         } else if (param.containsKey(TokenKeys.USERNAME_EXTRA)
                 && param.containsKey(TokenKeys.PASSWORD_EXTRA)) {
-            return mOldCloudAPI.login(param.getString(TokenKeys.USERNAME_EXTRA),
+            return oldCloudAPI.login(param.getString(TokenKeys.USERNAME_EXTRA),
                     param.getString(TokenKeys.PASSWORD_EXTRA), DEFAULT_SCOPES);
 
         } else if (param.containsKey(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA)) {
-            return mOldCloudAPI.extensionGrantType(param.getString(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA), DEFAULT_SCOPES);
+            return oldCloudAPI.extensionGrantType(param.getString(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA), DEFAULT_SCOPES);
 
         } else {
             throw new IllegalArgumentException("invalid param " + param);

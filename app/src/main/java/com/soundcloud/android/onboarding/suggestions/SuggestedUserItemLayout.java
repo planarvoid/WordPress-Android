@@ -10,9 +10,9 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 
 public class SuggestedUserItemLayout extends LinearLayout implements Checkable {
-    private boolean mChecked;
-    private CompoundButton mFollowButton;
-    private View mSuggestedUserLayout;
+    private boolean checked;
+    private CompoundButton followButton;
+    private View suggestedUserLayout;
 
     public SuggestedUserItemLayout(Context context) {
         super(context);
@@ -25,32 +25,32 @@ public class SuggestedUserItemLayout extends LinearLayout implements Checkable {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        mFollowButton = ((CompoundButton) findViewById(R.id.toggle_btn_follow));
-        mSuggestedUserLayout = findViewById(R.id.suggested_user_selector);
+        followButton = ((CompoundButton) findViewById(R.id.toggle_btn_follow));
+        suggestedUserLayout = findViewById(R.id.suggested_user_selector);
     }
 
     @Override
     public void setChecked(boolean checked) {
-        mFollowButton.setChecked(checked);
+        followButton.setChecked(checked);
         if (checked){
-            mSuggestedUserLayout.setBackgroundResource(R.drawable.suggested_user_grid_item_checked_selector);
+            suggestedUserLayout.setBackgroundResource(R.drawable.suggested_user_grid_item_checked_selector);
         } else {
-            mSuggestedUserLayout.setBackgroundResource(R.drawable.suggested_user_grid_item_selector);
+            suggestedUserLayout.setBackgroundResource(R.drawable.suggested_user_grid_item_selector);
         }
     }
 
     @Override
     public boolean isChecked() {
-        return mChecked;
+        return checked;
     }
 
     @Override
     public void toggle() {
-        mChecked = !mChecked;
+        checked = !checked;
     }
 
     @Override
     protected void dispatchSetPressed(boolean pressed) {
-        mSuggestedUserLayout.setPressed(pressed);
+        suggestedUserLayout.setPressed(pressed);
     }
 }

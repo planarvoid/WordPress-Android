@@ -30,17 +30,17 @@ public class TourLayout extends FrameLayout {
 
     private final int[] bitmapSize = new int[] { -1, -1 };
 
-    private ImageView mBgImageView;
-    private final int mBgResId;
-    private Handler mLoadHandler;
+    private ImageView bgImageView;
+    private final int bgResId;
+    private Handler loadHandler;
 
     public TourLayout(Context context, int layoutResId, final int bgResId) {
         super(context);
         View.inflate(context, layoutResId, this);
 
-        mBgResId = bgResId;
-        mBgImageView = (ImageView) findViewById(R.id.tour_background_image);
-        mBgImageView.setVisibility(View.GONE);
+        this.bgResId = bgResId;
+        bgImageView = (ImageView) findViewById(R.id.tour_background_image);
+        bgImageView.setVisibility(View.GONE);
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             private int lastHeight = -1, lastWidth = -1;
 
@@ -69,7 +69,7 @@ public class TourLayout extends FrameLayout {
                     (size.y - ratio * height ) / 2
                 );
 
-                mBgImageView.setImageMatrix(matrix);
+                bgImageView.setImageMatrix(matrix);
             }
         });
     }
@@ -78,11 +78,11 @@ public class TourLayout extends FrameLayout {
         if (bitmap != null) {
             bitmapSize[0] = bitmap.getWidth();
             bitmapSize[1] = bitmap.getHeight();
-            mBgImageView.setImageBitmap(bitmap);
+            bgImageView.setImageBitmap(bitmap);
         }
-        AnimUtils.showView(getContext(), mBgImageView, true);
-        if (mLoadHandler != null) {
-            mLoadHandler.sendEmptyMessage(bitmap == null ? IMAGE_ERROR : IMAGE_LOADED);
+        AnimUtils.showView(getContext(), bgImageView, true);
+        if (loadHandler != null) {
+            loadHandler.sendEmptyMessage(bitmap == null ? IMAGE_ERROR : IMAGE_LOADED);
         }
     }
 
@@ -98,7 +98,7 @@ public class TourLayout extends FrameLayout {
     }
 
     public void recycle() {
-        ImageUtils.recycleImageViewBitmap(mBgImageView);
+        ImageUtils.recycleImageViewBitmap(bgImageView);
     }
 
     public static void load(final Context context, TourLayout... layouts) {
@@ -117,7 +117,7 @@ public class TourLayout extends FrameLayout {
                     try {
                         bitmap = ImageUtils.decodeSampledBitmapFromResource(
                                 context.getResources(),
-                                layout.mBgResId,
+                                layout.bgResId,
                                 size.x,
                                 size.y
                         );
@@ -138,6 +138,6 @@ public class TourLayout extends FrameLayout {
     }
 
     public void setLoadHandler(Handler handler) {
-        mLoadHandler = handler;
+        loadHandler = handler;
     }
 }

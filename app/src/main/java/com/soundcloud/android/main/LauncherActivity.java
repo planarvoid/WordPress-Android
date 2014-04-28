@@ -9,13 +9,13 @@ import android.os.Handler;
 
 public class LauncherActivity extends TrackedActivity {
 
-    private AccountOperations mAccountOperations;
+    private AccountOperations accountOperations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.launch);
-        mAccountOperations = new AccountOperations(this);
+        accountOperations = new AccountOperations(this);
     }
 
     @Override
@@ -24,10 +24,10 @@ public class LauncherActivity extends TrackedActivity {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                if (mAccountOperations.soundCloudAccountExists()) {
+                if (accountOperations.soundCloudAccountExists()) {
                     startActivity(new Intent(LauncherActivity.this, MainActivity.class));
                 } else {
-                    mAccountOperations.addSoundCloudAccountManually(LauncherActivity.this);
+                    accountOperations.addSoundCloudAccountManually(LauncherActivity.this);
                 }
             }
         });

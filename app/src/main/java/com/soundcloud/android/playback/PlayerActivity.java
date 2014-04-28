@@ -162,7 +162,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         if (shouldTrackScreen()) {
             // we track whatever sound gets played first here, and then every subsequent sound through the view pager,
             // to accommodate for lazy loading of sounds
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYER_MAIN.get());
+            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYER_MAIN.get());
         }
     }
 
@@ -198,7 +198,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 && (mTransportBarTrackChange || mPlaybackStateProvider.isSupposedToBePlaying()) // responding to transport click or already playing
                 ) {
             sendTrackChangeOnDelay();
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYER_MAIN.get());
+            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYER_MAIN.get());
             trackPlayControlSwipe();
         }
 
@@ -210,10 +210,10 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private void trackPlayControlSwipe() {
         if (!mTransportBarTrackChange) {
             if (getCurrentDisplayedTrackPosition() > mPlaybackStateProvider.getPlayPosition()) {
-                mEventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerSwipeSkip());
+                eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerSwipeSkip());
             }
             if (getCurrentDisplayedTrackPosition() < mPlaybackStateProvider.getPlayPosition()) {
-                mEventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerSwipePrevious());
+                eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerSwipePrevious());
             }
         }
     }
@@ -297,7 +297,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     @Override
     protected ActionBarController createActionBarController() {
-        return new ActionBarController(this, mEventBus);
+        return new ActionBarController(this, eventBus);
     }
 
     @Override
@@ -474,7 +474,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 startService(new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
             }
 
-            mEventBus.publish(EventQueue.PLAY_CONTROL, mPlaybackStateProvider.isSupposedToBePlaying()
+            eventBus.publish(EventQueue.PLAY_CONTROL, mPlaybackStateProvider.isSupposedToBePlaying()
                     ? PlayControlEvent.playerClickPlay()
                     : PlayControlEvent.playerClickPause());
 
@@ -488,7 +488,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
-            mEventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerClickPrevious());
+            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerClickPrevious());
 
             if (mPlaybackService != null) {
                 final int playPosition = mPlayQueue.getPosition();
@@ -520,7 +520,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
-            mEventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerClickSkip());
+            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerClickSkip());
 
             if (mPlaybackService != null) {
                 final int playPosition = mPlayQueue.getPosition();

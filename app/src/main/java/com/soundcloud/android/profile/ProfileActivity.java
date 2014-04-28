@@ -164,7 +164,7 @@ public class ProfileActivity extends ScActivity implements
                     @Override
                     public void onClick(View v) {
                         toggleFollowing(user);
-                        mEventBus.publish(EventQueue.UI, UIEvent.fromToggleFollow(toggleFollow.isChecked(),
+                        eventBus.publish(EventQueue.UI, UIEvent.fromToggleFollow(toggleFollow.isChecked(),
                                 Screen.USER_HEADER.get(), user.getId()));
                     }
                 });
@@ -236,7 +236,7 @@ public class ProfileActivity extends ScActivity implements
     @Override
     public void onPageSelected(int position) {
         Tab currentTab = Tab.values()[position];
-        mEventBus.publish(EventQueue.SCREEN_ENTERED, isLoggedInUser() ? currentTab.youScreen.get() : currentTab.userScreen.get());
+        eventBus.publish(EventQueue.SCREEN_ENTERED, isLoggedInUser() ? currentTab.youScreen.get() : currentTab.userScreen.get());
     }
 
     @Override

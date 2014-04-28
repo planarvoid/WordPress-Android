@@ -25,8 +25,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class FacebookWebFlowActivity extends FacebookBaseActivity {
-    private WebView mWebview;
-    private PublicCloudAPI mPublicCloudAPI;
+    private WebView webview;
+    private PublicCloudAPI publicCloudAPI;
 
     //FIXME: way too long, break this method up
     @Override
@@ -34,12 +34,12 @@ public class FacebookWebFlowActivity extends FacebookBaseActivity {
         super.onCreate(bundle);
 
         setContentView(R.layout.facebook);
-        mPublicCloudAPI = new PublicApi(this);
+        publicCloudAPI = new PublicApi(this);
 
-        mWebview = (WebView) findViewById(R.id.webview);
-        mWebview.getSettings().setJavaScriptEnabled(true);
-        mWebview.getSettings().setBlockNetworkImage(false);
-        mWebview.getSettings().setLoadsImagesAutomatically(true);
+        webview = (WebView) findViewById(R.id.webview);
+        webview.getSettings().setJavaScriptEnabled(true);
+        webview.getSettings().setBlockNetworkImage(false);
+        webview.getSettings().setLoadsImagesAutomatically(true);
 
         final ProgressDialog progress = new ProgressDialog(this);
         progress.setIndeterminate(false);
@@ -47,15 +47,15 @@ public class FacebookWebFlowActivity extends FacebookBaseActivity {
         progress.setTitle(R.string.connect_progress);
         progress.setMax(100);
 
-        mWebview.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY); // fix white bar
-        mWebview.setWebChromeClient(new WebChromeClient() {
+        webview.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY); // fix white bar
+        webview.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 progress.setProgress(newProgress);
             }
         });
 
-        mWebview.setWebViewClient(new WebViewClient() {
+        webview.setWebViewClient(new WebViewClient() {
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                 showConnectionError(description);
@@ -113,9 +113,8 @@ public class FacebookWebFlowActivity extends FacebookBaseActivity {
                     }
                     return true;
                 } else if (url.startsWith("http://www.facebook.com/apps") || /* link to app */
-                           url.contains("/r.php") ||    /* signup */
-                           url.contains("/reset.php"))  /* password reset */
-                {
+                        url.contains("/r.php") ||    /* signup */
+                        url.contains("/reset.php"))  /* password reset */ {
                     // launch in external browser
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                     return true;
@@ -131,7 +130,7 @@ public class FacebookWebFlowActivity extends FacebookBaseActivity {
             options[0] = Endpoints.FACEBOOK_CONNECT;
             System.arraycopy(TokenInformationGenerator.DEFAULT_SCOPES, 0, options, 1, TokenInformationGenerator.DEFAULT_SCOPES.length);
 
-            mWebview.loadUrl(mPublicCloudAPI.authorizationCodeUrl(options).toString());
+            webview.loadUrl(publicCloudAPI.authorizationCodeUrl(options).toString());
         } else {
             showConnectionError(null);
         }
@@ -166,11 +165,11 @@ public class FacebookWebFlowActivity extends FacebookBaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mWebview.stopLoading();
+        webview.stopLoading();
     }
 
     // for testing
     public WebView getWebView() {
-        return mWebview;
+        return webview;
     }
 }

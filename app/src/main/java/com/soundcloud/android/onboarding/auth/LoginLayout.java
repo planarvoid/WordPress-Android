@@ -1,7 +1,6 @@
 package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +27,7 @@ public class LoginLayout extends AuthLayout {
         void onCancelLogin();
         void onRecover(String email);
     }
-    @Nullable private LoginHandler mLoginHandler;
+    @Nullable private LoginHandler loginHandler;
 
     public LoginLayout(Context context) {
         super(context);
@@ -44,7 +43,7 @@ public class LoginLayout extends AuthLayout {
 
     @Override
     AuthHandler getAuthHandler() {
-        return mLoginHandler;
+        return loginHandler;
     }
 
     @Override
@@ -121,11 +120,11 @@ public class LoginLayout extends AuthLayout {
     }
 
     public LoginHandler getLoginHandler() {
-        return mLoginHandler;
+        return loginHandler;
     }
 
-    public void setLoginHandler(LoginHandler mLoginHandler) {
-        this.mLoginHandler = mLoginHandler;
+    public void setLoginHandler(LoginHandler loginHandler) {
+        this.loginHandler = loginHandler;
     }
 
     public Bundle getStateBundle() {

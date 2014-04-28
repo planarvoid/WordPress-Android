@@ -29,42 +29,42 @@ import java.util.Set;
 @SuppressLint("ValidFragment")
 public class SuggestedUsersCategoryFragment extends Fragment implements AdapterView.OnItemClickListener {
 
-    private SuggestedUsersAdapter mAdapter;
-    private Category mCategory;
-    private GridViewCompat mAdapterView;
-    private FollowingOperations mFollowingOperations;
-    private ImageOperations mImageOperations;
-    private final CompositeSubscription mSubscription = new CompositeSubscription();
+    private SuggestedUsersAdapter adapter;
+    private Category category;
+    private GridViewCompat adapterView;
+    private FollowingOperations followingOperations;
+    private ImageOperations imageOperations;
+    private final CompositeSubscription subscription = new CompositeSubscription();
 
     public SuggestedUsersCategoryFragment() {
         this(new FollowingOperations());
     }
 
     public SuggestedUsersCategoryFragment(FollowingOperations followingOperations) {
-        mFollowingOperations = followingOperations;
+        this.followingOperations = followingOperations;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mImageOperations = SoundCloudApplication.fromContext(getActivity()).getImageOperations();
+        imageOperations = SoundCloudApplication.fromContext(getActivity()).getImageOperations();
         if (getArguments() != null && getArguments().containsKey(Category.EXTRA)) {
-            mCategory = getArguments().getParcelable(Category.EXTRA);
+            category = getArguments().getParcelable(Category.EXTRA);
         } else {
-            mCategory = Category.empty();
+            category = Category.empty();
         }
-        setAdapter(new SuggestedUsersAdapter(mCategory.getUsers(), mImageOperations));
+        setAdapter(new SuggestedUsersAdapter(category.getUsers(), imageOperations));
 
     }
 
     @Override
     public void onDestroy() {
-        mSubscription.unsubscribe();
+        subscription.unsubscribe();
         super.onDestroy();
     }
 
     public void setAdapter(SuggestedUsersAdapter adapter) {
-        mAdapter = adapter;
+        this.adapter = adapter;
     }
 
     @Override
@@ -77,36 +77,36 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mAdapterView = (GridViewCompat) view.findViewById(R.id.suggested_users_grid);
-        mAdapterView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
-        mAdapterView.setOnItemClickListener(this);
-        mAdapterView.setAdapter(mAdapter);
+        adapterView = (GridViewCompat) view.findViewById(R.id.suggested_users_grid);
+        adapterView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
+        adapterView.setOnItemClickListener(this);
+        adapterView.setAdapter(adapter);
 
-        for (int i = 0; i < mAdapter.getCount(); i++) {
-            mAdapterView.setItemChecked(i, mFollowingOperations.getFollowedUserIds().contains(mAdapter.getItemId(i)));
+        for (int i = 0; i < adapter.getCount(); i++) {
+            adapterView.setItemChecked(i, followingOperations.getFollowedUserIds().contains(adapter.getItemId(i)));
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        mSubscription.add(fromFragment(this, mFollowingOperations.toggleFollowingBySuggestedUser(mAdapter.getItem(position)))
+        subscription.add(fromFragment(this, followingOperations.toggleFollowingBySuggestedUser(adapter.getItem(position)))
                 .subscribe(new ToggleFollowingObserver(this)));
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridview setItemChecked
     public void toggleFollowings(final boolean shouldFollow) {
-        for (int i = 0; i < mAdapter.getCount(); i++) {
-            mAdapterView.setItemChecked(i, shouldFollow);
+        for (int i = 0; i < adapter.getCount(); i++) {
+            adapterView.setItemChecked(i, shouldFollow);
         }
 
-        final Set<Long> followedUserIds = mFollowingOperations.getFollowedUserIds();
+        final Set<Long> followedUserIds = followingOperations.getFollowedUserIds();
         Observable<UserAssociation> toggleFollowings;
         if (shouldFollow) {
-            toggleFollowings = mFollowingOperations.addFollowingsBySuggestedUsers(mCategory.getNotFollowedUsers(followedUserIds));
+            toggleFollowings = followingOperations.addFollowingsBySuggestedUsers(category.getNotFollowedUsers(followedUserIds));
         } else {
-            toggleFollowings = mFollowingOperations.removeFollowingsBySuggestedUsers(mCategory.getFollowedUsers(followedUserIds));
+            toggleFollowings = followingOperations.removeFollowingsBySuggestedUsers(category.getFollowedUsers(followedUserIds));
         }
-        mSubscription.add(fromFragment(this, toggleFollowings).subscribe(new ToggleAllObserver(this)));
+        subscription.add(fromFragment(this, toggleFollowings).subscribe(new ToggleAllObserver(this)));
     }
 
     private static final class ToggleFollowingObserver extends RxFragmentObserver<SuggestedUsersCategoryFragment, UserAssociation> {
@@ -122,7 +122,7 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
         @Override
         public void onError(SuggestedUsersCategoryFragment fragment, Throwable error) {
             error.printStackTrace();
-            fragment.mAdapter.notifyDataSetChanged();
+            fragment.adapter.notifyDataSetChanged();
         }
     }
 
@@ -134,7 +134,7 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
         @Override
         public void onError(SuggestedUsersCategoryFragment fragment, Throwable error) {
             error.printStackTrace();
-            fragment.mAdapter.notifyDataSetChanged();
+            fragment.adapter.notifyDataSetChanged();
         }
     }
 }

@@ -22,26 +22,26 @@ public final class StateHolderFragment extends Fragment {
         return fragment;
     }
 
-    private final HashMap<String, Object> mData;
+    private final HashMap<String, Object> data;
 
     public StateHolderFragment() {
         setRetainInstance(true);
-        mData = new HashMap<String, Object>();
+        data = new HashMap<String, Object>();
     }
 
     public <T> void put(String key, T value) {
-        mData.put(key, value);
+        data.put(key, value);
     }
 
     @SuppressWarnings("unchecked")
     public <T> T get(String key) {
-        return (T) mData.get(key);
+        return (T) data.get(key);
     }
 
     @SuppressWarnings("unchecked")
     public <T> T getOrPut(String key, T defaultValue) {
         Class<?> clazz = defaultValue.getClass();
-        Object value = mData.get(key);
+        Object value = data.get(key);
         if (value == null) {
             value = defaultValue;
             put(key, value);
@@ -54,6 +54,6 @@ public final class StateHolderFragment extends Fragment {
     }
 
     public boolean has(String key) {
-        return mData.containsKey(key);
+        return data.containsKey(key);
     }
 }

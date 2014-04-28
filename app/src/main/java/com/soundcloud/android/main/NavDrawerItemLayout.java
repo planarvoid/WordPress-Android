@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 public class NavDrawerItemLayout extends LinearLayout implements Checkable {
 
     private boolean checked = false;
-    private CheckableImageView mIcon;
+    private CheckableImageView icon;
 
     public NavDrawerItemLayout(Context context) {
         super(context);
@@ -24,7 +24,7 @@ public class NavDrawerItemLayout extends LinearLayout implements Checkable {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        mIcon = (CheckableImageView) findViewById(R.id.nav_item_image);
+        icon = (CheckableImageView) findViewById(R.id.nav_item_image);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class NavDrawerItemLayout extends LinearLayout implements Checkable {
     @Override
     public void setChecked(boolean checked) {
         this.checked = checked;
-        mIcon.setChecked(checked);
+        icon.setChecked(checked);
     }
 
     @Override

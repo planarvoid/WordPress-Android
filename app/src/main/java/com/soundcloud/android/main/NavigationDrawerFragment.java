@@ -26,12 +26,12 @@ import javax.inject.Inject;
 public class NavigationDrawerFragment extends NavigationFragment {
 
     @Nullable
-    private ActionBarDrawerToggle mDrawerToggle;
+    private ActionBarDrawerToggle drawerToggle;
 
-    private DrawerLayout mDrawerLayout;
+    private DrawerLayout drawerLayout;
 
     @Inject
-    EventBus mEventBus;
+    EventBus eventBus;
 
     public NavigationDrawerFragment() {
     }
@@ -39,25 +39,25 @@ public class NavigationDrawerFragment extends NavigationFragment {
     @VisibleForTesting
     protected NavigationDrawerFragment(ImageOperations imageOperations, EventBus eventBus) {
         super(imageOperations);
-        this.mEventBus = eventBus;
+        this.eventBus = eventBus;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mDrawerLayout = setupDrawerLayout();
+        drawerLayout = setupDrawerLayout();
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         // Forward the new configuration the drawer toggle component.
-        mDrawerToggle.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item)) {
+        if (drawerToggle != null && drawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
         closeDrawer();
@@ -81,20 +81,20 @@ public class NavigationDrawerFragment extends NavigationFragment {
 
     public boolean isDrawerOpen() {
         final View view = getView();
-        return mDrawerLayout != null && view != null && mDrawerLayout.isDrawerOpen(view);
+        return drawerLayout != null && view != null && drawerLayout.isDrawerOpen(view);
     }
 
     public void closeDrawer() {
         if (isDrawerOpen()) {
-            mDrawerLayout.closeDrawer(getView());
+            drawerLayout.closeDrawer(getView());
         }
     }
 
     @Override
     protected void selectItem(int position) {
         super.selectItem(position);
-        if (mDrawerLayout != null) {
-            mDrawerLayout.closeDrawer(getView());
+        if (drawerLayout != null) {
+            drawerLayout.closeDrawer(getView());
         }
     }
 
@@ -123,7 +123,7 @@ public class NavigationDrawerFragment extends NavigationFragment {
     }
 
     private void setupDrawerToggle(final DrawerLayout drawerLayout) {
-        mDrawerToggle = new ActionBarDrawerToggle(
+        drawerToggle = new ActionBarDrawerToggle(
                 getActivity(),                    /* host Activity */
                 drawerLayout,                    /* DrawerLayout object */
                 R.drawable.ic_drawer,             /* nav drawer image to replace 'Up' caret */
@@ -146,7 +146,7 @@ public class NavigationDrawerFragment extends NavigationFragment {
                     return;
                 }
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-                mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_DRAWER.get());
+                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_DRAWER.get());
             }
         };
 
@@ -154,9 +154,9 @@ public class NavigationDrawerFragment extends NavigationFragment {
         drawerLayout.post(new Runnable() {
             @Override
             public void run() {
-                mDrawerToggle.syncState();
+                drawerToggle.syncState();
             }
         });
-        drawerLayout.setDrawerListener(mDrawerToggle);
+        drawerLayout.setDrawerListener(drawerToggle);
     }
 }

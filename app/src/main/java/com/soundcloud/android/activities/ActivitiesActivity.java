@@ -23,7 +23,7 @@ public class ActivitiesActivity extends ScActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.ACTIVITIES.get());
+            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.ACTIVITIES.get());
         }
     }
 

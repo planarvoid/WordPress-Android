@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 public class ResolveTask extends AsyncApiTask<Uri, Void, Uri> {
-    private WeakReference<ResolveListener> mListener;
+    private WeakReference<ResolveListener> listener;
 
     public ResolveTask(PublicCloudAPI api) {
         super(api);
@@ -60,7 +60,7 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, Uri> {
     }
 
     public void setListener(ResolveListener listener) {
-        mListener = new WeakReference<ResolveListener>(listener);
+        this.listener = new WeakReference<ResolveListener>(listener);
     }
 
     @Override
@@ -73,14 +73,14 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, Uri> {
     }
 
     private void onUrlError() {
-        ResolveListener listener = mListener != null ? mListener.get() : null;
+        ResolveListener listener = this.listener != null ? this.listener.get() : null;
         if (listener != null) {
             listener.onUrlError();
         }
     }
 
     private void onUrlResolved(Uri url, @Nullable String action) {
-        ResolveListener listener = mListener != null ? mListener.get() : null;
+        ResolveListener listener = this.listener != null ? this.listener.get() : null;
         if (listener != null) {
             listener.onUrlResolved(url, action);
         }

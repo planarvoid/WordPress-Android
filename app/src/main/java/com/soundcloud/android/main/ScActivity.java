@@ -52,23 +52,23 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     private static final String BUNDLE_CONFIGURATION_CHANGE = "BUNDLE_CONFIGURATION_CHANGE";
 
     protected NetworkConnectivityListener connectivityListener;
-    private long mCurrentUserId;
+    private long currentUserId;
 
-    private Boolean mIsConnected;
-    private boolean mIsForeground;
-    private boolean mOnCreateCalled;
-    private boolean mIsConfigurationChange;
+    private Boolean isConnected;
+    private boolean isForeground;
+    private boolean onCreateCalled;
+    private boolean isConfigurationChange;
 
-    private Subscription mUserEventSubscription = Subscriptions.empty();
+    private Subscription userEventSubscription = Subscriptions.empty();
 
-    private ImageOperations mImageOperations;
+    private ImageOperations imageOperations;
 
-    protected AccountOperations mAccountOperations;
-    protected EventBus mEventBus;
+    protected AccountOperations accountOperations;
+    protected EventBus eventBus;
 
     @Nullable
-    protected ActionBarController mActionBarController;
-    private UnauthorisedRequestReceiver mUnauthoriedRequestReceiver;
+    protected ActionBarController actionBarController;
+    private UnauthorisedRequestReceiver unauthoriedRequestReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,26 +76,26 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
         setContentView();
 
-        mImageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
-        mEventBus = SoundCloudApplication.fromContext(this).getEventBus();
-        mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
+        imageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
+        eventBus = SoundCloudApplication.fromContext(this).getEventBus();
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
 
-        mAccountOperations = new AccountOperations(this);
+        accountOperations = new AccountOperations(this);
         connectivityListener = new NetworkConnectivityListener();
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
-        mUnauthoriedRequestReceiver = new UnauthorisedRequestReceiver(getApplicationContext(), getSupportFragmentManager());
+        unauthoriedRequestReceiver = new UnauthorisedRequestReceiver(getApplicationContext(), getSupportFragmentManager());
         // Volume mode should always be music in this app
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        mUserEventSubscription = mEventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, mUserEventObserver);
+        userEventSubscription = eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, mUserEventObserver);
         if (getSupportActionBar() != null) {
-            mActionBarController = createActionBarController();
+            actionBarController = createActionBarController();
         }
 
-        mOnCreateCalled = true;
+        onCreateCalled = true;
 
         if (savedInstanceState != null) {
-            mIsConfigurationChange = savedInstanceState.getBoolean(BUNDLE_CONFIGURATION_CHANGE, false);
+            isConfigurationChange = savedInstanceState.getBoolean(BUNDLE_CONFIGURATION_CHANGE, false);
         }
     }
 
@@ -124,7 +124,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     }
 
     protected ActionBarController createActionBarController() {
-        return new NowPlayingActionBarController(this, mEventBus);
+        return new NowPlayingActionBarController(this, eventBus);
     }
 
     public void restoreActionBar() {
@@ -135,11 +135,11 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     protected void onDestroy() {
         super.onDestroy();
 
-        mUserEventSubscription.unsubscribe();
+        userEventSubscription.unsubscribe();
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
-        if (mActionBarController != null) {
-            mActionBarController.onDestroy();
+        if (actionBarController != null) {
+            actionBarController.onDestroy();
         }
     }
 
@@ -158,34 +158,34 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     @Override
     protected void onResume() {
         super.onResume();
-        mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this.getClass()));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this.getClass()));
 
         //Ensures that ImageLoader will be resumed if the preceding activity was killed during scrolling
-        mImageOperations.resume();
+        imageOperations.resume();
 
-        registerReceiver(mUnauthoriedRequestReceiver, new IntentFilter(Consts.GeneralIntents.UNAUTHORIZED));
-        if (!mAccountOperations.soundCloudAccountExists()) {
+        registerReceiver(unauthoriedRequestReceiver, new IntentFilter(Consts.GeneralIntents.UNAUTHORIZED));
+        if (!accountOperations.soundCloudAccountExists()) {
             pausePlayback();
             finish();
             return;
         }
 
-        mIsForeground = true;
-        if (mActionBarController != null) {
-            mActionBarController.onResume();
+        isForeground = true;
+        if (actionBarController != null) {
+            actionBarController.onResume();
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mEventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
 
-        safeUnregisterReceiver(mUnauthoriedRequestReceiver);
-        mIsForeground = false;
-        mOnCreateCalled = false;
-        if (mActionBarController != null) {
-            mActionBarController.onPause();
+        safeUnregisterReceiver(unauthoriedRequestReceiver);
+        isForeground = false;
+        onCreateCalled = false;
+        if (actionBarController != null) {
+            actionBarController.onPause();
         }
     }
 
@@ -209,11 +209,11 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
      * activity further up the task stack.
      */
     protected boolean isReallyResuming() {
-        return !mOnCreateCalled;
+        return !onCreateCalled;
     }
 
     protected boolean isConfigurationChange() {
-        return mIsConfigurationChange;
+        return isConfigurationChange;
     }
 
     protected boolean shouldTrackScreen() {
@@ -221,20 +221,20 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     }
 
     public boolean isForeground() {
-        return mIsForeground;
+        return isForeground;
     }
 
     public boolean isConnected() {
-        if (mIsConnected == null) {
+        if (isConnected == null) {
             if (connectivityListener == null) {
-                mIsConnected = true;
+                isConnected = true;
             } else {
-                // mIsConnected not set yet
+                // isConnected not set yet
                 NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
-                mIsConnected = networkInfo == null || networkInfo.isConnectedOrConnecting();
+                isConnected = networkInfo == null || networkInfo.isConnectedOrConnecting();
             }
         }
-        return mIsConnected;
+        return isConnected;
     }
 
     public void showToast(int stringId) {
@@ -252,7 +252,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     }
 
     protected void onDataConnectionChanged(boolean isConnected) {
-        mIsConnected = isConnected;
+        this.isConnected = isConnected;
     }
 
     @Override
@@ -308,8 +308,8 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (mActionBarController != null) {
-            mActionBarController.onCreateOptionsMenu(menu);
+        if (actionBarController != null) {
+            actionBarController.onCreateOptionsMenu(menu);
         }
         return true;
     }
@@ -321,18 +321,18 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (mActionBarController != null) {
-            return mActionBarController.onOptionsItemSelected(item);
+        if (actionBarController != null) {
+            return actionBarController.onOptionsItemSelected(item);
         } else {
             return super.onOptionsItemSelected(item);
         }
     }
 
     public long getCurrentUserId() {
-        if (mCurrentUserId == 0) {
-            mCurrentUserId = SoundCloudApplication.getUserId();
+        if (currentUserId == 0) {
+            currentUserId = SoundCloudApplication.getUserId();
         }
-        return mCurrentUserId;
+        return currentUserId;
     }
 
     private static final class ConnectivityHandler extends Handler {

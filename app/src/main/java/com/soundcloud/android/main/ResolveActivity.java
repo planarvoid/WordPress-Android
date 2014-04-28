@@ -20,14 +20,14 @@ import android.view.View;
 public class ResolveActivity extends TrackedActivity implements FetchModelTask.Listener<ScResource> {
 
     @Nullable
-    private ResolveFetchTask mResolveTask;
-    private PublicCloudAPI mOldCloudAPI;
+    private ResolveFetchTask resolveTask;
+    private PublicCloudAPI oldCloudAPI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.resolve);
-        mOldCloudAPI = new PublicApi(this);
+        oldCloudAPI = new PublicApi(this);
     }
 
     @Override
@@ -42,9 +42,9 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
 
         if (shouldResolve) {
             findViewById(R.id.progress).setVisibility(View.VISIBLE);
-            mResolveTask = new ResolveFetchTask(mOldCloudAPI);
-            mResolveTask.setListener(this);
-            mResolveTask.execute(data);
+            resolveTask = new ResolveFetchTask(oldCloudAPI);
+            resolveTask.setListener(this);
+            resolveTask.execute(data);
         } else {
             finish();
         }
@@ -56,7 +56,7 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
 
     @Override
     public void onError(Object context) {
-        mResolveTask = null;
+        resolveTask = null;
         if (context instanceof Uri) {
             Uri unresolved = (Uri) context;
             // resolved to a soundcloud.com url ?
@@ -74,7 +74,7 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
     @Override
     public void onSuccess(ScResource resource) {
 
-        mResolveTask = null;
+        resolveTask = null;
         Intent intent = resource.getViewIntent();
         if (intent != null){
             Screen.DEEPLINK.addToIntent(intent);
