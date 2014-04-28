@@ -31,32 +31,32 @@ import javax.inject.Inject;
 
 public class EngagementsController {
 
-    private Context mContext;
+    private Context context;
 
     @Nullable
-    private ToggleButton mToggleLike;
+    private ToggleButton toggleLike;
     @Nullable
-    private ToggleButton mToggleRepost;
+    private ToggleButton toggleRepost;
     @Nullable
-    private ImageButton mShareButton;
+    private ImageButton shareButton;
     @Nullable
-    private AddToPlaylistListener mAddToPlaylistListener;
+    private AddToPlaylistListener addToPlaylistListener;
 
-    private Playable mPlayable;
-    private final SoundAssociationOperations mSoundAssociationOps;
-    private OriginProvider mOriginProvider;
-    private final EventBus mEventBus;
+    private Playable playable;
+    private final SoundAssociationOperations soundAssociationOps;
+    private final EventBus eventBus;
+    private OriginProvider originProvider;
 
-    private CompositeSubscription mSubscription = new CompositeSubscription();
+    private CompositeSubscription subscription = new CompositeSubscription();
 
     public interface AddToPlaylistListener {
         void onAddToPlaylist(Track track);
     }
 
     @Inject
-    public EngagementsController(EventBus eventBus, SoundAssociationOperations soundAssocOperations) {
-        mEventBus = eventBus;
-        mSoundAssociationOps = soundAssocOperations;
+    public EngagementsController(EventBus eventBus, SoundAssociationOperations soundAssociationOps) {
+        this.eventBus = eventBus;
+        this.soundAssociationOps = soundAssociationOps;
     }
 
     public void bindView(View rootView) {
@@ -69,59 +69,59 @@ public class EngagementsController {
     }
 
     public void bindView(View rootView, OriginProvider originProvider) {
-        mContext = rootView.getContext();
-        mOriginProvider = originProvider;
+        context = rootView.getContext();
+        this.originProvider = originProvider;
 
-        mToggleLike = (ToggleButton) rootView.findViewById(R.id.toggle_like);
-        if (mToggleLike != null) {
-            mToggleLike.setOnClickListener(new View.OnClickListener() {
+        toggleLike = (ToggleButton) rootView.findViewById(R.id.toggle_like);
+        if (toggleLike != null) {
+            toggleLike.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (mPlayable != null) {
-                        mEventBus.publish(EventQueue.UI, UIEvent.fromToggleLike(mToggleLike.isChecked(),
-                                mOriginProvider.getScreenTag(), mPlayable));
+                    if (playable != null) {
+                        eventBus.publish(EventQueue.UI, UIEvent.fromToggleLike(toggleLike.isChecked(),
+                                EngagementsController.this.originProvider.getScreenTag(), playable));
 
-                        mToggleLike.setEnabled(false);
-                        mSubscription.add(
-                                mSoundAssociationOps.toggleLike(mToggleLike.isChecked(), mPlayable)
+                        toggleLike.setEnabled(false);
+                        subscription.add(
+                                soundAssociationOps.toggleLike(toggleLike.isChecked(), playable)
                                         .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(new ResetToggleButton(mToggleLike))
+                                        .subscribe(new ResetToggleButton(toggleLike))
                         );
                     }
                 }
             });
         }
 
-        mToggleRepost = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
-        if (mToggleRepost != null) {
-            mToggleRepost.setOnClickListener(new View.OnClickListener() {
+        toggleRepost = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
+        if (toggleRepost != null) {
+            toggleRepost.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (mPlayable != null) {
-                        mEventBus.publish(EventQueue.UI, UIEvent.fromToggleRepost(mToggleRepost.isChecked(),
-                                mOriginProvider.getScreenTag(), mPlayable));
+                    if (playable != null) {
+                        eventBus.publish(EventQueue.UI, UIEvent.fromToggleRepost(toggleRepost.isChecked(),
+                                EngagementsController.this.originProvider.getScreenTag(), playable));
 
-                        mToggleRepost.setEnabled(false);
-                        mSubscription.add(
-                                mSoundAssociationOps.toggleRepost(mToggleRepost.isChecked(), mPlayable)
+                        toggleRepost.setEnabled(false);
+                        subscription.add(
+                                soundAssociationOps.toggleRepost(toggleRepost.isChecked(), playable)
                                         .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(new ResetToggleButton(mToggleRepost))
+                                        .subscribe(new ResetToggleButton(toggleRepost))
                         );
                     }
                 }
             });
         }
 
-        mShareButton = (ImageButton) rootView.findViewById(R.id.btn_share);
-        if (mShareButton != null) {
-            mShareButton.setOnClickListener(new View.OnClickListener() {
+        shareButton = (ImageButton) rootView.findViewById(R.id.btn_share);
+        if (shareButton != null) {
+            shareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mPlayable != null) {
-                        mEventBus.publish(EventQueue.UI, UIEvent.fromShare(mOriginProvider.getScreenTag(), mPlayable));
-                        Intent shareIntent = mPlayable.getShareIntent();
+                    if (playable != null) {
+                        eventBus.publish(EventQueue.UI, UIEvent.fromShare(EngagementsController.this.originProvider.getScreenTag(), playable));
+                        Intent shareIntent = playable.getShareIntent();
                         if (shareIntent != null) {
-                            mContext.startActivity(shareIntent);
+                            context.startActivity(shareIntent);
                         }
                     }
                 }
@@ -133,8 +133,8 @@ public class EngagementsController {
             mAddToPlaylistBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mPlayable instanceof Track && mAddToPlaylistListener != null) {
-                        mAddToPlaylistListener.onAddToPlaylist((Track) mPlayable);
+                    if (playable instanceof Track && addToPlaylistListener != null) {
+                        addToPlaylistListener.onAddToPlaylist((Track) playable);
                     }
                 }
             });
@@ -142,12 +142,12 @@ public class EngagementsController {
     }
 
     public void startListeningForChanges() {
-        mSubscription = new CompositeSubscription();
+        subscription = new CompositeSubscription();
         // make sure we pick up changes to the current playable that come via the event bus
-        mSubscription.add(mEventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new DefaultSubscriber<PlayableChangedEvent>() {
+        subscription.add(eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new DefaultSubscriber<PlayableChangedEvent>() {
             @Override
             public void onNext(PlayableChangedEvent event) {
-                if (mPlayable != null && mPlayable.getId() == event.getPlayable().getId()) {
+                if (playable != null && playable.getId() == event.getPlayable().getId()) {
                     updateLikeButton((int) event.getPlayable().likes_count, event.getPlayable().user_like);
                     updateRepostButton((int) event.getPlayable().reposts_count, event.getPlayable().user_repost);
                 }
@@ -156,42 +156,42 @@ public class EngagementsController {
     }
 
     public void stopListeningForChanges() {
-        mSubscription.unsubscribe();
+        subscription.unsubscribe();
     }
 
     public void setAddToPlaylistListener(AddToPlaylistListener listener) {
-        mAddToPlaylistListener = listener;
+        addToPlaylistListener = listener;
     }
 
     public void setOriginProvider(OriginProvider originProvider) {
-        mOriginProvider = originProvider;
+        this.originProvider = originProvider;
     }
 
     public void setPlayable(@NotNull Playable playable) {
         Log.d("SoundAssociations", "playable changed! " + playable.getId());
-        mPlayable = playable;
+        this.playable = playable;
 
-        if (mToggleLike != null) {
-            updateLikeButton((int) mPlayable.likes_count, mPlayable.user_like);
+        if (toggleLike != null) {
+            updateLikeButton((int) this.playable.likes_count, this.playable.user_like);
         }
 
-        if (mToggleRepost != null) {
-            updateRepostButton((int) mPlayable.reposts_count, mPlayable.user_repost);
+        if (toggleRepost != null) {
+            updateRepostButton((int) this.playable.reposts_count, this.playable.user_repost);
         }
 
-        boolean showRepost = mPlayable.isPublic() && mPlayable.getUserId() != SoundCloudApplication.getUserId();
-        if (mToggleRepost != null) {
-            mToggleRepost.setVisibility(showRepost ? View.VISIBLE : View.GONE);
+        boolean showRepost = this.playable.isPublic() && this.playable.getUserId() != SoundCloudApplication.getUserId();
+        if (toggleRepost != null) {
+            toggleRepost.setVisibility(showRepost ? View.VISIBLE : View.GONE);
         }
 
-        if (mShareButton != null) {
-            mShareButton.setVisibility(mPlayable.isPublic() ? View.VISIBLE : View.GONE);
+        if (shareButton != null) {
+            shareButton.setVisibility(this.playable.isPublic() ? View.VISIBLE : View.GONE);
         }
     }
 
 
     private void updateLikeButton(int count, boolean userLiked) {
-        updateToggleButton(mToggleLike,
+        updateToggleButton(toggleLike,
                 R.string.accessibility_like_action,
                 R.plurals.accessibility_stats_likes,
                 count,
@@ -200,7 +200,7 @@ public class EngagementsController {
     }
 
     private void updateRepostButton(int count, boolean userReposted) {
-        updateToggleButton(mToggleRepost,
+        updateToggleButton(toggleRepost,
                 R.string.accessibility_repost_action,
                 R.plurals.accessibility_stats_reposts,
                 count,
@@ -220,19 +220,19 @@ public class EngagementsController {
         button.invalidate();
 
 
-        if (AndroidUtils.accessibilityFeaturesAvailable(mContext)
+        if (AndroidUtils.accessibilityFeaturesAvailable(context)
                 && TextUtils.isEmpty(button.getContentDescription())) {
             final StringBuilder builder = new StringBuilder();
-            builder.append(mContext.getResources().getString(actionStringID));
+            builder.append(context.getResources().getString(actionStringID));
 
             if (count >= 0) {
                 builder.append(", ");
-                builder.append(mContext.getResources().getQuantityString(descriptionPluralID, count, count));
+                builder.append(context.getResources().getQuantityString(descriptionPluralID, count, count));
             }
 
             if (checked) {
                 builder.append(", ");
-                builder.append(mContext.getResources().getString(checkedStringId));
+                builder.append(context.getResources().getString(checkedStringId));
             }
 
             button.setContentDescription(builder.toString());

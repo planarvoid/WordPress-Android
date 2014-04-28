@@ -34,10 +34,10 @@ public class SoundAssociationOperations {
 
     public static final String TAG = "SoundAssociations";
 
-    private final EventBus mEventBus;
-    private final SoundAssociationStorage mSoundAssocStorage;
-    private final RxHttpClient mHttpClient;
-    private final ScModelManager mModelManager;
+    private final EventBus eventBus;
+    private final SoundAssociationStorage soundAssocStorage;
+    private final RxHttpClient httpClient;
+    private final ScModelManager modelManager;
 
     @Inject
     public SoundAssociationOperations(
@@ -45,10 +45,10 @@ public class SoundAssociationOperations {
             SoundAssociationStorage soundAssocStorage,
             RxHttpClient httpClient,
             ScModelManager modelManager) {
-        mEventBus = eventBus;
-        mSoundAssocStorage = soundAssocStorage;
-        mHttpClient = httpClient;
-        mModelManager = modelManager;
+        this.eventBus = eventBus;
+        this.soundAssocStorage = soundAssocStorage;
+        this.httpClient = httpClient;
+        this.modelManager = modelManager;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ public class SoundAssociationOperations {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public Observable<List<Long>> getLikedTracksIds() {
-        return mSoundAssocStorage.getTrackLikesAsIdsAsync();
+        return soundAssocStorage.getTrackLikesAsIdsAsync();
     }
 
     public Observable<SoundAssociation> toggleLike(boolean addLike, final Playable playable) {
@@ -65,14 +65,14 @@ public class SoundAssociationOperations {
 
     public Observable<SoundAssociation> like(final Playable playable) {
         logPlayable("LIKE", playable);
-        return mHttpClient.fetchResponse(buildRequestForLike(playable, true)).mergeMap(mapAddLikeResponse(playable))
+        return httpClient.fetchResponse(buildRequestForLike(playable, true)).mergeMap(mapAddLikeResponse(playable))
                 .doOnCompleted(handlePlayableStateChanged(playable));
     }
 
     public Observable<SoundAssociation> unlike(final Playable playable) {
         logPlayable("UNLIKE", playable);
-        return mHttpClient.fetchResponse(buildRequestForLike(playable, false)).mergeMap(mapRemoveLikeResponse(playable))
-                .onErrorResumeNext(handle404(mSoundAssocStorage.removeLikeAsync(playable)))
+        return httpClient.fetchResponse(buildRequestForLike(playable, false)).mergeMap(mapRemoveLikeResponse(playable))
+                .onErrorResumeNext(handle404(soundAssocStorage.removeLikeAsync(playable)))
                 .doOnCompleted(handlePlayableStateChanged(playable));
     }
 
@@ -103,7 +103,7 @@ public class SoundAssociationOperations {
             @Override
             public Observable<SoundAssociation> call(APIResponse response) {
                 logPlayable("STORE", playable);
-                return mSoundAssocStorage.addLikeAsync(playable);
+                return soundAssocStorage.addLikeAsync(playable);
             }
         };
     }
@@ -113,7 +113,7 @@ public class SoundAssociationOperations {
             @Override
             public Observable<SoundAssociation> call(APIResponse response) {
                 logPlayable("REMOVE", playable);
-                return mSoundAssocStorage.removeLikeAsync(playable);
+                return soundAssocStorage.removeLikeAsync(playable);
             }
         };
     }
@@ -135,14 +135,14 @@ public class SoundAssociationOperations {
 
     public Observable<SoundAssociation> repost(final Playable playable) {
         logPlayable("REPOST", playable);
-        return mHttpClient.fetchResponse(buildRequestForReposts(playable, true)).mergeMap(mapAddRepostResponse(playable))
+        return httpClient.fetchResponse(buildRequestForReposts(playable, true)).mergeMap(mapAddRepostResponse(playable))
                 .doOnCompleted(handlePlayableStateChanged(playable));
     }
 
     public Observable<SoundAssociation> unrepost(final Playable playable) {
         logPlayable("UNREPOST", playable);
-        return mHttpClient.fetchResponse(buildRequestForReposts(playable, false)).mergeMap(mapRemoveRepostResponse(playable))
-                .onErrorResumeNext(handle404(mSoundAssocStorage.removeRepostAsync(playable)))
+        return httpClient.fetchResponse(buildRequestForReposts(playable, false)).mergeMap(mapRemoveRepostResponse(playable))
+                .onErrorResumeNext(handle404(soundAssocStorage.removeRepostAsync(playable)))
                 .doOnCompleted(handlePlayableStateChanged(playable));
     }
 
@@ -158,7 +158,7 @@ public class SoundAssociationOperations {
             @Override
             public Observable<SoundAssociation> call(APIResponse response) {
                 logPlayable("STORE", playable);
-                return mSoundAssocStorage.addRepostAsync(playable);
+                return soundAssocStorage.addRepostAsync(playable);
             }
         };
     }
@@ -168,7 +168,7 @@ public class SoundAssociationOperations {
             @Override
             public Observable<SoundAssociation> call(APIResponse response) {
                 logPlayable("REMOVE", playable);
-                return mSoundAssocStorage.removeRepostAsync(playable);
+                return soundAssocStorage.removeRepostAsync(playable);
             }
         };
     }
@@ -180,9 +180,9 @@ public class SoundAssociationOperations {
             @Override
             public void call() {
                 logPlayable("CACHE/PUBLISH", playable);
-                mModelManager.cache(playable, ScResource.CacheUpdateMode.NONE);
+                modelManager.cache(playable, ScResource.CacheUpdateMode.NONE);
                 Log.d(TAG, "publishing playable change event");
-                mEventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.create(playable));
+                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.create(playable));
             }
         };
     }

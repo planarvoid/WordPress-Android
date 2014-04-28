@@ -14,12 +14,12 @@ public class RemoveAssociationTask extends AssociatedSoundTask {
 
     @Override
     protected int executeResponse(Request request) throws IOException {
-        return mApi.delete(request).getStatusLine().getStatusCode();
+        return api.delete(request).getStatusLine().getStatusCode();
     }
 
     @Override
     protected boolean isAssociated(int responseCode) {
-        mChanged = responseCode >= 200 && responseCode < 300;
-        return !(mChanged || responseCode == 404);
+        changed = responseCode >= 200 && responseCode < 300;
+        return !(changed || responseCode == 404);
     }
 }

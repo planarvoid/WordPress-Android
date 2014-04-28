@@ -30,25 +30,25 @@ public class AffiliationActivityRow extends ActivityRow {
 
     @Override
     protected boolean fillParcelable(Parcelable p) {
-        return mActivity.getUser() != null;
+        return activity.getUser() != null;
     }
 
     @Override
     protected SpannableStringBuilder createSpan() {
-        mSpanBuilder = new SpannableStringBuilder();
-        mSpanBuilder.append("  ").append(mActivity.getUser().username);
-        mSpanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 1, mSpanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mSpanBuilder.append(" " + getContext().getResources().getString(R.string.started_following_you));
-        return mSpanBuilder;
+        spanBuilder = new SpannableStringBuilder();
+        spanBuilder.append("  ").append(activity.getUser().username);
+        spanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 1, spanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spanBuilder.append(" " + getContext().getResources().getString(R.string.started_following_you));
+        return spanBuilder;
     }
 
     @Override
     public CharSequence getContentDescription() {
         StringBuilder builder = new StringBuilder();
-        builder.append(mActivity.getUser().getDisplayName());
+        builder.append(activity.getUser().getDisplayName());
         builder.append(getContext().getResources().getString(R.string.started_following_you));
         builder.append(". ");
-        builder.append(getTimeElapsed(getContext().getResources(), mActivity.getCreatedAt().getTime(), true));
+        builder.append(getTimeElapsed(getContext().getResources(), activity.getCreatedAt().getTime(), true));
 
         return builder.toString();
     }

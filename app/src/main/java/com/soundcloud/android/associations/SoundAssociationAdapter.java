@@ -14,24 +14,24 @@ import android.net.Uri;
 
 public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> {
 
-    private PlaybackOperations mPlaybackOperations;
-    private ImageOperations mImageOperations;
+    private final PlaybackOperations playbackOperations;
+    private final ImageOperations imageOperations;
 
     public SoundAssociationAdapter(Uri uri, ImageOperations imageOperations) {
         super(uri);
-        mPlaybackOperations = new PlaybackOperations();
-        mImageOperations = imageOperations;
+        playbackOperations = new PlaybackOperations();
+        this.imageOperations = imageOperations;
     }
 
     @Override
     protected IconLayout createRow(Context context, int position) {
-        return new PlayableRow(context, mImageOperations);
+        return new PlayableRow(context, imageOperations);
     }
 
     @Override
     public int handleListItemClick(Context context, int position, long id, Screen screen) {
         Uri streamUri = Content.match(mContentUri).isMine() ? mContentUri : null;
-        mPlaybackOperations.playFromAdapter(context, mData, position, streamUri, screen);
+        playbackOperations.playFromAdapter(context, mData, position, streamUri, screen);
         return ItemClickResults.LEAVING;
     }
 

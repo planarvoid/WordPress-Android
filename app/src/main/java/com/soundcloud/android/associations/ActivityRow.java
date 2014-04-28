@@ -29,21 +29,21 @@ import android.widget.TextView;
 import java.util.Date;
 
 public abstract class ActivityRow extends IconLayout implements ListRow {
-    protected Activity mActivity;
+    protected Activity activity;
 
-    protected final TextView mUser;
-    private final TextView mTitle;
-    private final TextView mCreatedAt;
+    private final TextView user;
+    private final TextView title;
+    private final TextView createdAt;
 
-    private Drawable mDrawable;
-    protected SpannableStringBuilder mSpanBuilder;
+    private Drawable drawable;
+    protected SpannableStringBuilder spanBuilder;
 
     public ActivityRow(Context context, ImageOperations imageOperations) {
         super(context, imageOperations);
 
-        mTitle = (TextView) findViewById(R.id.title);
-        mUser = (TextView) findViewById(R.id.user);
-        mCreatedAt = (TextView) findViewById(R.id.created_at);
+        title = (TextView) findViewById(R.id.title);
+        user = (TextView) findViewById(R.id.user);
+        createdAt = (TextView) findViewById(R.id.created_at);
         mIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -60,32 +60,32 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
 
     // override these for non-dashboard activities to account for different parcelable structures
     protected Playable getPlayable() {
-        return mActivity.getPlayable();
+        return activity.getPlayable();
     }
 
     protected User getOriginUser() {
-        return (mActivity == null || mActivity.getUser() == null) ? null : mActivity.getUser();
+        return (activity == null || activity.getUser() == null) ? null : activity.getUser();
     }
 
     protected Date getOriginCreatedAt() {
-        return mActivity.getCreatedAt();
+        return activity.getCreatedAt();
     }
 
     protected SpannableStringBuilder createSpan() {
-        mSpanBuilder = new SpannableStringBuilder();
-        mSpanBuilder.append("  ").append(getPlayable().title);
-        addSpan(mSpanBuilder);
-        return mSpanBuilder;
+        spanBuilder = new SpannableStringBuilder();
+        spanBuilder.append("  ").append(getPlayable().title);
+        addSpan(spanBuilder);
+        return spanBuilder;
     }
 
     protected void addSpan(SpannableStringBuilder builder) {
-        mSpanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 1, mSpanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 1, spanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     @Override
     public Urn getResourceUrn() {
-        if (mActivity != null && mActivity.getUser() != null) {
-            return mActivity.getUser().getUrn();
+        if (activity != null && activity.getUser() != null) {
+            return activity.getUser().getUrn();
         }
         return null;
     }
@@ -104,37 +104,37 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
 
     @Override
     public void display(int position, Parcelable p) {
-        mActivity = (Activity) p;
+        activity = (Activity) p;
         if (!fillParcelable(p)) return;
 
         loadIcon();
 
-        mActivity = (Activity) p;
-        mSpanBuilder = createSpan();
+        activity = (Activity) p;
+        spanBuilder = createSpan();
 
         setImageSpan();
-        mCreatedAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));
+        createdAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));
 
-        mUser.setText(getOriginUser().username);
-        mCreatedAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));
+        user.setText(getOriginUser().username);
+        createdAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));
 
     }
 
     private void setImageSpan() {
-        if (mSpanBuilder == null) return;
-        mSpanBuilder.setSpan(new DrawableSpan(getDrawable(), DrawableSpan.ALIGN_BASELINE),
+        if (spanBuilder == null) return;
+        spanBuilder.setSpan(new DrawableSpan(getDrawable(), DrawableSpan.ALIGN_BASELINE),
                 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mTitle.setText(mSpanBuilder);
+        title.setText(spanBuilder);
     }
 
     protected abstract Drawable doGetDrawable();
 
 
     private Drawable getDrawable() {
-        if (mDrawable == null) {
-            mDrawable = doGetDrawable();
+        if (drawable == null) {
+            drawable = doGetDrawable();
         }
-        return mDrawable;
+        return drawable;
     }
 
 }

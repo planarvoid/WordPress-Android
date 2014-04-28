@@ -18,7 +18,7 @@ public class LikeActivityRow extends ActivityRow {
 
     @Override
     protected boolean fillParcelable(Parcelable p) {
-        return mActivity != null;
+        return activity != null;
     }
 
     @Override
@@ -32,13 +32,13 @@ public class LikeActivityRow extends ActivityRow {
     @Override
     public CharSequence getContentDescription() {
         StringBuilder builder = new StringBuilder();
-        builder.append(mActivity.getUser().getDisplayName());
+        builder.append(activity.getUser().getDisplayName());
         builder.append(" ");
         builder.append(getContext().getResources().getString(R.string.accessibility_infix_liked));
         builder.append(" ");
-        builder.append(mActivity.getPlayable().title);
+        builder.append(activity.getPlayable().title);
         builder.append(". ");
-        builder.append(getTimeElapsed(getContext().getResources(), mActivity.getCreatedAt().getTime(), true));
+        builder.append(getTimeElapsed(getContext().getResources(), activity.getCreatedAt().getTime(), true));
 
         return builder.toString();
     }

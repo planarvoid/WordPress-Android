@@ -16,13 +16,13 @@ import android.view.View;
 
 public class TrackInteractionActivity extends PlayableInteractionActivity {
 
-    private PlaybackOperations mPlaybackOperations;
+    private PlaybackOperations playbackOperations;
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
-        switch (mInteraction) {
+        switch (interaction) {
             case TRACK_LIKE:
                 setTitle(R.string.list_header_track_likers);
                 break;
@@ -33,16 +33,16 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
                 setTitle(R.string.list_header_track_comments);
                 break;
             default:
-                throw new IllegalArgumentException("Unexpected track interation: " + mInteraction);
+                throw new IllegalArgumentException("Unexpected track interation: " + interaction);
         }
 
-        mPlaybackOperations = new PlaybackOperations();
+        playbackOperations = new PlaybackOperations();
         findViewById(R.id.playable_bar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // if it comes from a mention, might not have a user
-                if (mPlayable.user != null) {
-                    mPlaybackOperations.playTrack(TrackInteractionActivity.this, (Track) mPlayable, getCurrentScreen());
+                if (playable.user != null) {
+                    playbackOperations.playTrack(TrackInteractionActivity.this, (Track) playable, getCurrentScreen());
                 }
             }
         });
@@ -57,7 +57,7 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
     }
 
     protected Screen getCurrentScreen() {
-        switch (mInteraction) {
+        switch (interaction) {
             case TRACK_LIKE:
                 return Screen.PLAYER_LIKES;
             case TRACK_REPOST:
@@ -65,7 +65,7 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
             case COMMENT:
                 return Screen.PLAYER_COMMENTS;
             default:
-                throw new IllegalArgumentException("Unexpected track interation: " + mInteraction);
+                throw new IllegalArgumentException("Unexpected track interation: " + interaction);
         }
     }
 
@@ -87,7 +87,7 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
     @Override
     protected Uri getContentUri() {
         Content content = null;
-        switch (mInteraction) {
+        switch (interaction) {
             case TRACK_LIKE:
                 content = Content.TRACK_LIKERS;
                 break;
@@ -98,6 +98,6 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
                 content = Content.TRACK_COMMENTS;
                 break;
         }
-        return content.forId(mPlayable.getId());
+        return content.forId(playable.getId());
     }
 }

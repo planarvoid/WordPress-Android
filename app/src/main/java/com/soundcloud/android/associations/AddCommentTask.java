@@ -20,9 +20,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
-    private Context context;
+    private final Context context;
+    private final PublicCloudAPI oldCloudAPI;
     private IOException exception;
-    private PublicCloudAPI oldCloudAPI;
 
     public AddCommentTask(Context applicationContext) {
         this(applicationContext, new PublicApi(applicationContext));

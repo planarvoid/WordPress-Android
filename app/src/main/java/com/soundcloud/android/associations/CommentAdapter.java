@@ -14,16 +14,16 @@ import android.net.Uri;
 
 public class CommentAdapter extends ScBaseAdapter<Comment> {
 
-    private ImageOperations mImageOperations;
+    private final ImageOperations imageOperations;
 
     public CommentAdapter(Uri uri, ImageOperations imageOperations) {
         super(uri);
-        mImageOperations = imageOperations;
+        this.imageOperations = imageOperations;
     }
 
     @Override
     protected IconLayout createRow(Context context, int position) {
-        return new CommentRow(context, mImageOperations);
+        return new CommentRow(context, imageOperations);
     }
 
     @Override

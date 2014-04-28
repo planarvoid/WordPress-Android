@@ -28,33 +28,33 @@ import java.util.WeakHashMap;
 @Deprecated
 /* package */ class FollowStatus {
     private final Set<Long> followings = Collections.synchronizedSet(new HashSet<Long>());
-    private static FollowStatus sInstance;
+    private static FollowStatus instance;
 
     private WeakHashMap<FollowStatusChangedListener,FollowStatusChangedListener> listeners =
             new WeakHashMap<FollowStatusChangedListener, FollowStatusChangedListener>();
 
     private AsyncQueryHandler asyncQueryHandler;
-    private Context mContext;
+    private Context context;
     private long last_sync_success = -1;
-    private LocalCollection mFollowingCollectionState;
+    private LocalCollection followingCollectionState;
 
     private HashMap<Long,Long> followedAtStamps = new HashMap<Long, Long>();
     private HashMap<Long,Long> unFollowedAtStamps = new HashMap<Long, Long>();
 
-    private SyncStateManager mSyncStateManager;
+    private SyncStateManager syncStateManager;
 
     protected FollowStatus(final Context context) {
-        mContext = context;
-        mSyncStateManager = new SyncStateManager(context);
+        this.context = context;
+        syncStateManager = new SyncStateManager(context);
 
-        mFollowingCollectionState = mSyncStateManager.fromContent(Content.ME_FOLLOWINGS);
-        mSyncStateManager.addChangeListener(mFollowingCollectionState, new LocalCollection.OnChangeListener() {
+        followingCollectionState = syncStateManager.fromContent(Content.ME_FOLLOWINGS);
+        syncStateManager.addChangeListener(followingCollectionState, new LocalCollection.OnChangeListener() {
             @Override
             public void onLocalCollectionChanged(LocalCollection localCollection) {
-                mFollowingCollectionState = localCollection;
+                followingCollectionState = localCollection;
                 // if last sync has changed, do a new query
-                if (mFollowingCollectionState.last_sync_success != last_sync_success) {
-                    last_sync_success = mFollowingCollectionState.last_sync_success;
+                if (followingCollectionState.last_sync_success != last_sync_success) {
+                    last_sync_success = followingCollectionState.last_sync_success;
                     doQuery();
                 }
             }
@@ -62,21 +62,21 @@ import java.util.WeakHashMap;
     }
 
     public synchronized static FollowStatus get() {
-        if (sInstance == null) {
-            sInstance = new FollowStatus(SoundCloudApplication.instance);
+        if (instance == null) {
+            instance = new FollowStatus(SoundCloudApplication.instance);
         }
-        return sInstance;
+        return instance;
     }
 
     public synchronized static void clearState(){
-        if (sInstance != null){
-            sInstance.stopListening();
-            sInstance = null;
+        if (instance != null){
+            instance.stopListening();
+            instance = null;
         }
     }
 
     public void stopListening(){
-        mSyncStateManager.removeChangeListener(mFollowingCollectionState);
+        syncStateManager.removeChangeListener(followingCollectionState);
     }
 
     public boolean isFollowing(long id) {
@@ -104,7 +104,7 @@ import java.util.WeakHashMap;
     }
 
     private void doQuery(){
-        asyncQueryHandler = new FollowingQueryHandler(mContext);
+        asyncQueryHandler = new FollowingQueryHandler(context);
         asyncQueryHandler.startQuery(0, null, ResolverHelper.addIdOnlyParameter(Content.ME_FOLLOWINGS.uri),
                 null, TableColumns.UserAssociations.REMOVED_AT + " IS NULL", null, null);
     }

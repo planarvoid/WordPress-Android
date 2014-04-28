@@ -26,10 +26,10 @@ import java.util.Map;
  *     </a>
  */
 public class LruCache<K, V> {
-    private final HashMap<K, V> mLruMap;
-    private final HashMap<K, Entry<K, V>> mSoftmap = new HashMap<K, Entry<K, V>>();
+    private final HashMap<K, V> lruMap;
+    private final HashMap<K, Entry<K, V>> softmap = new HashMap<K, Entry<K, V>>();
 
-    private ReferenceQueue<V> mQueue = new ReferenceQueue<V>();
+    private ReferenceQueue<V> queue = new ReferenceQueue<V>();
 
     private long lruHits, softHits, requests, softRequests;
 
@@ -39,7 +39,7 @@ public class LruCache<K, V> {
      * @param capacity max capacity for the LRU cache
      */
     public LruCache(final long capacity) {
-        mLruMap = new LinkedHashMap<K, V>(16, 0.75f, true) {
+        lruMap = new LinkedHashMap<K, V>(16, 0.75f, true) {
             @Override protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
                 return size() > capacity;
             }
@@ -55,17 +55,17 @@ public class LruCache<K, V> {
     }
 
     private void cleanUpSoftMap() {
-        Entry<K, V> entry = (Entry<K, V>) mQueue.poll();
+        Entry<K, V> entry = (Entry<K, V>) queue.poll();
         while (entry != null) {
-            mSoftmap.remove(entry.mKey);
-            entry = (Entry<K, V>) mQueue.poll();
+            softmap.remove(entry.mKey);
+            entry = (Entry<K, V>) queue.poll();
         }
     }
 
     public synchronized V put(K key, V value) {
         cleanUpSoftMap();
-        mLruMap.put(key, value);
-        Entry<K, V> entry = mSoftmap.put(key, new Entry<K, V>(key, value, mQueue));
+        lruMap.put(key, value);
+        Entry<K, V> entry = softmap.put(key, new Entry<K, V>(key, value, queue));
         return entry == null ? null : entry.get();
     }
 
@@ -73,7 +73,7 @@ public class LruCache<K, V> {
         requests++;
 
         cleanUpSoftMap();
-        V value = mLruMap.get(key);
+        V value = lruMap.get(key);
         if (value != null) {
             lruHits++;
             return value;
@@ -81,7 +81,7 @@ public class LruCache<K, V> {
 
         softRequests++;
 
-        Entry<K, V> entry = mSoftmap.get(key);
+        Entry<K, V> entry = softmap.get(key);
         if (entry != null) {
             V v = entry.get();
             if (v != null) softHits++;
@@ -92,23 +92,23 @@ public class LruCache<K, V> {
     }
 
     public synchronized void clear() {
-        mLruMap.clear();
-        mSoftmap.clear();
-        mQueue = new ReferenceQueue<V>();
+        lruMap.clear();
+        softmap.clear();
+        queue = new ReferenceQueue<V>();
         softHits = lruHits = requests = 0;
     }
 
     public boolean containsKey(K key) {
-        return mLruMap.containsKey(key);
+        return lruMap.containsKey(key);
     }
 
     public void remove(K key) {
-        mLruMap.remove(key);
-        mSoftmap.remove(key);
+        lruMap.remove(key);
+        softmap.remove(key);
     }
 
     public String toString() {
-        return "LruCache{lru: " +mLruMap.size() + " soft: "+mSoftmap.size() +
+        return "LruCache{lru: " + lruMap.size() + " soft: "+ softmap.size() +
                " lru ratio: " +String.format("%.2f", lruHits / (double) (requests)) +
                " soft ratio: "+String.format("%.2f", softHits / (double) (softRequests))+
                "}";

@@ -11,19 +11,19 @@ import android.os.AsyncTask;
 import java.io.IOException;
 
 public abstract class AssociatedSoundTask extends AsyncTask<String, String, Boolean> {
-    protected PublicCloudAPI mApi;
-    private AssociatedListener mAssociatedListener;
-    protected boolean mChanged;
+    protected PublicCloudAPI api;
+    private AssociatedListener associatedListener;
+    protected boolean changed;
 
     protected Playable playable;
 
     public AssociatedSoundTask(PublicCloudAPI api, Playable playable) {
-        this.mApi = api;
+        this.api = api;
         this.playable = playable;
     }
 
     public void setOnAssociatedListener(AssociatedListener likeListener){
-        mAssociatedListener = likeListener;
+        associatedListener = likeListener;
     }
 
     @Override
@@ -43,8 +43,8 @@ public abstract class AssociatedSoundTask extends AsyncTask<String, String, Bool
 
     @Override
     protected void onPostExecute(Boolean associated) {
-        if (mAssociatedListener != null) {
-            mAssociatedListener.onNewStatus(playable, associated, mChanged);
+        if (associatedListener != null) {
+            associatedListener.onNewStatus(playable, associated, changed);
         }
     }
 

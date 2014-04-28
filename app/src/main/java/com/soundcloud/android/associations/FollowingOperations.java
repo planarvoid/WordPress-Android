@@ -48,11 +48,11 @@ public class FollowingOperations {
 
     private static final String LOG_TAG = FollowingOperations.class.getSimpleName();
 
-    private final FollowStatus mFollowStatus;
-    private final SyncStateManager mSyncStateManager;
-    private final ScModelManager mModelManager;
-    private final UserAssociationStorage mUserAssociationStorage;
-    private final RxHttpClient mRxHttpClient;
+    private final FollowStatus followStatus;
+    private final SyncStateManager syncStateManager;
+    private final ScModelManager modelManager;
+    private final UserAssociationStorage userAssociationStorage;
+    private final RxHttpClient rxHttpClient;
 
     public FollowingOperations() {
         this(new SoundCloudRxHttpClient(), new UserAssociationStorage(SoundCloudApplication.instance),
@@ -77,31 +77,31 @@ public class FollowingOperations {
     @VisibleForTesting
     protected FollowingOperations(RxHttpClient httpClient, UserAssociationStorage userAssociationStorage,
                                SyncStateManager syncStateManager, FollowStatus followStatus, ScModelManager modelManager) {
-        mRxHttpClient = httpClient;
-        mUserAssociationStorage = userAssociationStorage;
-        mSyncStateManager = syncStateManager;
-        mFollowStatus = followStatus;
-        mModelManager = modelManager;
+        rxHttpClient = httpClient;
+        this.userAssociationStorage = userAssociationStorage;
+        this.syncStateManager = syncStateManager;
+        this.followStatus = followStatus;
+        this.modelManager = modelManager;
     }
 
     public Observable<UserAssociation> addFollowing(@NotNull final User user) {
         updateLocalStatus(true, user.getId());
-        return mUserAssociationStorage.follow(user);
+        return userAssociationStorage.follow(user);
     }
 
     public Observable<UserAssociation> addFollowingBySuggestedUser(@NotNull final SuggestedUser suggestedUser) {
         updateLocalStatus(true, suggestedUser.getId());
-        return mUserAssociationStorage.followSuggestedUser(suggestedUser);
+        return userAssociationStorage.followSuggestedUser(suggestedUser);
     }
 
     public Observable<UserAssociation> removeFollowing(final User user) {
         updateLocalStatus(false, user.getId());
-        return mUserAssociationStorage.unfollow(user);
+        return userAssociationStorage.unfollow(user);
     }
 
     public Observable<UserAssociation> addFollowingsBySuggestedUsers(final List<SuggestedUser> suggestedUsers) {
         updateLocalStatus(true, ScModel.getIdList(suggestedUsers));
-        return mUserAssociationStorage.followSuggestedUserList(suggestedUsers);
+        return userAssociationStorage.followSuggestedUserList(suggestedUsers);
     }
 
     public Observable<UserAssociation> removeFollowingsBySuggestedUsers(List<SuggestedUser> suggestedUsers) {
@@ -115,11 +115,11 @@ public class FollowingOperations {
 
     private Observable<UserAssociation> removeFollowings(final List<User> users) {
         updateLocalStatus(false, ScModel.getIdList(users));
-        return mUserAssociationStorage.unfollowList(users);
+        return userAssociationStorage.unfollowList(users);
     }
 
     public Observable<UserAssociation> toggleFollowing(User user) {
-        if (mFollowStatus.isFollowing(user)) {
+        if (followStatus.isFollowing(user)) {
             return removeFollowing(user);
         } else {
             return addFollowing(user);
@@ -127,7 +127,7 @@ public class FollowingOperations {
     }
 
     public Observable<UserAssociation> toggleFollowingBySuggestedUser(SuggestedUser suggestedUser) {
-        if (mFollowStatus.isFollowing(suggestedUser.getId())) {
+        if (followStatus.isFollowing(suggestedUser.getId())) {
             return removeFollowing(new User(suggestedUser));
         } else {
             return addFollowingBySuggestedUser(suggestedUser);
@@ -141,11 +141,11 @@ public class FollowingOperations {
             return Observable.empty();
         } else {
             Log.d(LOG_TAG, "Executing bulk follow request: " + apiRequest);
-            return mRxHttpClient.fetchResponse(apiRequest).flatMap(new Func1<APIResponse, Observable<Collection<UserAssociation>>>() {
+            return rxHttpClient.fetchResponse(apiRequest).flatMap(new Func1<APIResponse, Observable<Collection<UserAssociation>>>() {
                 @Override
                 public Observable<Collection<UserAssociation>> call(APIResponse apiResponse) {
                     Log.d(LOG_TAG, "Bulk follow request returned with response: " + apiResponse);
-                    return mUserAssociationStorage.setFollowingsAsSynced(userAssociations);
+                    return userAssociationStorage.setFollowingsAsSynced(userAssociations);
                 }
             });
         }
@@ -213,22 +213,22 @@ public class FollowingOperations {
         return Observable.create(new Observable.OnSubscribe<UserAssociation>() {
             @Override
             public void call(Subscriber<? super UserAssociation> subscriber) {
-                RxUtils.emitIterable(subscriber, mUserAssociationStorage.getFollowingsNeedingSync());
+                RxUtils.emitIterable(subscriber, userAssociationStorage.getFollowingsNeedingSync());
                 subscriber.onCompleted();
             }
         });
     }
 
     public Set<Long> getFollowedUserIds() {
-        return mFollowStatus.getFollowedUserIds();
+        return followStatus.getFollowedUserIds();
     }
 
     public boolean isFollowing(User user) {
-        return mFollowStatus.isFollowing(user);
+        return followStatus.isFollowing(user);
     }
 
     public void requestUserFollowings(FollowStatusChangedListener listener) {
-        mFollowStatus.requestUserFollowings(listener);
+        followStatus.requestUserFollowings(listener);
     }
 
     public static void init() {
@@ -241,17 +241,17 @@ public class FollowingOperations {
 
 
     public void updateLocalStatus(boolean shouldFollow, long... userIds) {
-        final boolean hadNoFollowings = mFollowStatus.isEmpty();
+        final boolean hadNoFollowings = followStatus.isEmpty();
         // update followings ID cache
-        mFollowStatus.toggleFollowing(userIds);
+        followStatus.toggleFollowing(userIds);
         // make sure the cache reflects the new state of each following
         for (long userId : userIds) {
-            final User cachedUser = mModelManager.getCachedUser(userId);
+            final User cachedUser = modelManager.getCachedUser(userId);
             if (cachedUser != null) cachedUser.user_following = shouldFollow;
         }
         // invalidate stream SyncState if necessary
-        if (hadNoFollowings && !mFollowStatus.isEmpty()) {
-            fireAndForget(mSyncStateManager.forceToStaleAsync(Content.ME_SOUND_STREAM));
+        if (hadNoFollowings && !followStatus.isEmpty()) {
+            fireAndForget(syncStateManager.forceToStaleAsync(Content.ME_SOUND_STREAM));
         }
     }
 

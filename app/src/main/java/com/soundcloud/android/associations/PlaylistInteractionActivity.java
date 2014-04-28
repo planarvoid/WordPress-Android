@@ -22,7 +22,7 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
         super.onCreate(bundle);
 
         // TODO: do we need different titles for playlists?
-        if (mInteraction == Activity.Type.PLAYLIST_LIKE) {
+        if (interaction == Activity.Type.PLAYLIST_LIKE) {
             setTitle(R.string.list_header_track_likers);
         } else {
             setTitle(R.string.list_header_track_reposters);
@@ -32,7 +32,7 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
             @Override
             public void onClick(View v) {
                 PlaylistDetailActivity.start(
-                        PlaylistInteractionActivity.this, (Playlist) mPlayable,
+                        PlaylistInteractionActivity.this, (Playlist) playable,
                         SoundCloudApplication.sModelManager, getCurrentScreen());
             }
         });
@@ -48,7 +48,7 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
 
     @Override
     protected Screen getCurrentScreen() {
-        if (mInteraction == Activity.Type.PLAYLIST_LIKE) {
+        if (interaction == Activity.Type.PLAYLIST_LIKE) {
             return Screen.PLAYLIST_LIKES;
         } else {
             return Screen.PLAYLIST_REPOSTS;
@@ -74,7 +74,7 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
 
     @Override
     protected Uri getContentUri() {
-        Content content = mInteraction == Activity.Type.PLAYLIST_LIKE ? Content.PLAYLIST_LIKERS : Content.PLAYLIST_REPOSTERS;
-        return content.forQuery(String.valueOf(mPlayable.getId()));
+        Content content = interaction == Activity.Type.PLAYLIST_LIKE ? Content.PLAYLIST_LIKERS : Content.PLAYLIST_REPOSTERS;
+        return content.forQuery(String.valueOf(playable.getId()));
     }
 }

@@ -23,29 +23,29 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 public class ConnectionsCache implements DetachableResultReceiver.Receiver {
-    @Nullable private Set<Connection> mConnections;
-    private DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
+    @Nullable private Set<Connection> connections;
+    private DetachableResultReceiver detachableReceiver = new DetachableResultReceiver(new Handler());
 
-    private static ConnectionsCache sInstance;
+    private static ConnectionsCache instance;
     private WeakHashMap<Listener, Listener> listeners = new WeakHashMap<Listener, Listener>();
-    AsyncQueryHandler asyncQueryHandler;
-    private Context mContext;
-    private LocalCollection mLocalCollection;
+    private AsyncQueryHandler asyncQueryHandler;
+    private final Context context;
+    private LocalCollection localCollection;
 
-    public ConnectionsCache(final Context c) {
-        mContext = c;
-        c.getContentResolver().registerContentObserver(Content.ME_CONNECTIONS.uri,true,new ChangeObserver());
+    public ConnectionsCache(final Context context) {
+        this.context = context;
+        context.getContentResolver().registerContentObserver(Content.ME_CONNECTIONS.uri,true,new ChangeObserver());
     }
 
-    public synchronized static ConnectionsCache get(Context c) {
-        if (sInstance == null) {
-            sInstance = new ConnectionsCache(c);
+    public synchronized static ConnectionsCache get(Context context) {
+        if (instance == null) {
+            instance = new ConnectionsCache(context);
         }
-        return sInstance;
+        return instance;
     }
 
     public synchronized static void reset() {
-        sInstance = null;
+        instance = null;
     }
 
     private void onContentChanged() {
@@ -53,8 +53,8 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
     }
 
     public boolean isConnected(Connection.Service service) {
-        if (mConnections != null) {
-            for (Connection connection : mConnections){
+        if (connections != null) {
+            for (Connection connection : connections){
                 if (connection.service() == service) return true;
             }
         }
@@ -71,8 +71,8 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
 
     private void doQuery(@Nullable final Listener listener){
         if (listener != null) addListener(listener);
-        mLocalCollection = new SyncStateManager(mContext).fromContent(Content.ME_CONNECTIONS);
-        asyncQueryHandler = new ConnectionsQueryHandler(mContext, this);
+        localCollection = new SyncStateManager(context).fromContent(Content.ME_CONNECTIONS);
+        asyncQueryHandler = new ConnectionsQueryHandler(context, this);
         asyncQueryHandler.startQuery(0, null, Content.ME_CONNECTIONS.uri, null, null, null, null);
     }
 
@@ -106,7 +106,7 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
 
         @Override
         protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
-            if (mLocalCollection.hasSyncedBefore()) {
+            if (localCollection.hasSyncedBefore()) {
                 if (cursor != null) {
 
                     Set<Connection> newConnections = new HashSet<Connection>();
@@ -118,14 +118,14 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
                     cursor.close();
 
 
-                    final boolean changed = newConnections.equals(mConnections);
+                    final boolean changed = newConnections.equals(connections);
 
-                    if (mConnections == null) {
-                        mConnections = Collections.synchronizedSet(new HashSet<Connection>());
+                    if (connections == null) {
+                        connections = Collections.synchronizedSet(new HashSet<Connection>());
                     } else {
-                        mConnections.clear();
+                        connections.clear();
                     }
-                    mConnections.addAll(newConnections);
+                    connections.addAll(newConnections);
 
                     if (connectionsCacheRef != null && connectionsCacheRef.get() != null) {
                         connectionsCacheRef.get().onConnectionsChanged(changed);
@@ -133,7 +133,7 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
                 }
             } else {
                 // load connections
-                mContext.startService(new Intent(mContext, ApiSyncService.class)
+                context.startService(new Intent(context, ApiSyncService.class)
                         .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
                         .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                         .setData(Content.ME_CONNECTIONS.uri));
@@ -143,17 +143,17 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
 
     public void onConnectionsChanged(boolean changed) {
         for (Listener l : listeners.keySet()) {
-            l.onConnectionsRefreshed(mConnections,changed);
+            l.onConnectionsRefreshed(connections,changed);
         }
     }
 
     public Set<Connection> getConnections(){
-        return mConnections;
+        return connections;
     }
 
     protected DetachableResultReceiver getReceiver() {
-        mDetachableReceiver.setReceiver(this);
-        return mDetachableReceiver;
+        detachableReceiver.setReceiver(this);
+        return detachableReceiver;
     }
 
     private class ChangeObserver extends ContentObserver {

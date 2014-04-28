@@ -20,8 +20,8 @@ public abstract class PlayableInteractionActivity extends ScActivity {
 
     public static final String EXTRA_INTERACTION_TYPE = "com.soundcloud.android.activity_type";
 
-    protected Activity.Type mInteraction;
-    protected Playable mPlayable;
+    protected Activity.Type interaction;
+    protected Playable playable;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -32,13 +32,13 @@ public abstract class PlayableInteractionActivity extends ScActivity {
             throw new IllegalArgumentException("need to pass in EXTRA_INTERACTION_TYPE");
         }
 
-        mInteraction = (Activity.Type) getIntent().getSerializableExtra(EXTRA_INTERACTION_TYPE);
-        mPlayable = getPlayableFromIntent(getIntent());
+        interaction = (Activity.Type) getIntent().getSerializableExtra(EXTRA_INTERACTION_TYPE);
+        playable = getPlayableFromIntent(getIntent());
 
         new PlayablePresenter(this)
                 .setPlayableRowView(findViewById(R.id.playable_bar))
                 .setArtwork((ImageView) findViewById(R.id.icon), ImageSize.getListItemImageSize(this))
-                .setPlayable(mPlayable);
+                .setPlayable(playable);
 
 
         if (bundle == null) {

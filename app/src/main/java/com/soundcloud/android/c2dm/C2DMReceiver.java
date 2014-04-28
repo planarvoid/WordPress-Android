@@ -51,20 +51,20 @@ public class C2DMReceiver extends BroadcastReceiver {
     @SuppressWarnings("UnusedDeclaration")
     public static final String SC_URI                  = "uri";
 
-    private PowerManager.WakeLock mWakeLock;
-    private AccountOperations mAccountOperations;
+    private PowerManager.WakeLock wakeLock;
+    private AccountOperations accountOperations;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        mAccountOperations = new AccountOperations(context);
+        accountOperations = new AccountOperations(context);
 
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceive(" + intent + ")");
 
-        if (mWakeLock == null) {
-            mWakeLock = makeLock(context);
+        if (wakeLock == null) {
+            wakeLock = makeLock(context);
         }
 
-        mWakeLock.acquire();
+        wakeLock.acquire();
         try {
             if (intent.getAction().equals(ACTION_REGISTRATION)) {
                 final String error = intent.getStringExtra(C2DM_EXTRA_ERROR);
@@ -84,7 +84,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                 Log.w(TAG, "unhandled intent: "+intent);
             }
         } finally {
-            mWakeLock.release();
+            wakeLock.release();
         }
     }
 
@@ -231,8 +231,8 @@ public class C2DMReceiver extends BroadcastReceiver {
     private void onReceiveMessage(Context context, Intent intent) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceiveMessage(" + intent + ")");
 
-        if (mAccountOperations.soundCloudAccountExists()) {
-            Account account = mAccountOperations.getSoundCloudAccount();
+        if (accountOperations.soundCloudAccountExists()) {
+            Account account = accountOperations.getSoundCloudAccount();
             final PushEvent event = PushEvent.fromIntent(intent);
             switch (event) {
                 case LIKE:

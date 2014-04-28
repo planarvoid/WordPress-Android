@@ -14,12 +14,12 @@ public class AddAssociationTask extends AssociatedSoundTask {
 
     @Override
     protected int executeResponse(Request request) throws IOException{
-        return mApi.put(request).getStatusLine().getStatusCode();
+        return api.put(request).getStatusLine().getStatusCode();
     }
 
     @Override
     protected boolean isAssociated(int responseCode){
-        mChanged = responseCode == 201;
-        return (responseCode == 200 /* if was already associated */ || mChanged /* new association */);
+        changed = responseCode == 201;
+        return (responseCode == 200 /* if was already associated */ || changed /* new association */);
     }
 }
