@@ -224,7 +224,7 @@ public class WavHeader {
         /* RIFF header */
         readId(in, "RIFF");
         @SuppressWarnings("UnusedDeclaration")
-        int numBytes = readInt(in) - 36;
+        int numOfBytes = readInt(in) - 36;
         readId(in, "WAVE");
 
         /* fmt chunk */
