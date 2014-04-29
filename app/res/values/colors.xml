@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="scOrange">#ff6600</color>
+    <color name="scOrange">#ff5500</color>
     <color name="scDarkOrange">#CCe36711</color>
 
     <color name="gray_text">#CCCCCC</color>
@@ -83,6 +83,8 @@
     <color name="dialog_separator">@color/scOrange</color>
     <color name="dialog_button_focused">#fff</color>
     <color name="dialog_button_pressed">#dbdbdb</color>
+    <color name="dialog_text">#666666</color>
+    <color name="dialog_subtext">#999999</color>
 
     <color name="playerTrackDetailsBg">#fff</color>
     <color name="dark_gray_background">#333</color>
@@ -100,11 +102,10 @@
     <color name="overlay_text_background">#CC000000</color>
     <color name="overlay_text_background_pressed">#333333</color>
 
+
     <color name="placeholder_image_purple">#846170</color>
     <color name="placeholder_image_blue">#70929c</color>
     <color name="placeholder_image_orange">#e6846e</color>
     <color name="placeholder_image_beige">#8e8485</color>
-
-    <color name="ptr_orange">#ff5500</color>
 
 </resources>

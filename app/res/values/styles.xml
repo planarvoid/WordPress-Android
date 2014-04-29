@@ -115,6 +115,7 @@
         <item name="titleSeparatorColor">@color/dialog_separator</item>
         <item name="buttonBackgroundColorPressed">@color/dialog_button_pressed</item>
         <item name="buttonBackgroundColorFocused">@color/dialog_button_focused</item>
+        <item name="buttonTextColor">@color/dialog_text</item>
     </style>
 
     <style name="DialogListView" parent="SDL.ListView">
@@ -1493,13 +1494,13 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">15sp</item>
-        <item name="android:textColor">#666</item>
+        <item name="android:textColor">@color/dialog_text</item>
     </style>
     <style name="DialogSubText">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">13sp</item>
-        <item name="android:textColor">#999</item>
+        <item name="android:textColor">@color/dialog_subtext</item>
     </style>
 
 </resources>
