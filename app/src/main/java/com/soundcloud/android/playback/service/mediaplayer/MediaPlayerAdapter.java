@@ -320,29 +320,22 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         mInternalState = playbackState;
 
         if (mPlayaListener != null) {
-            mPlayaListener.onPlaystateChanged(getLastStateTransition());
+            mPlayaListener.onPlaystateChanged( new StateTransition(getTranslatedState(), getTranslatedReason()));
         }
     }
 
-    public boolean isPlaying(){
-        return getState().isPlaying();
+    boolean isInErrorState(){
+        return mInternalState.isError();
     }
 
-    public boolean isPlayerPlaying(){
-        return getState().isPlayerPlaying();
-    }
-
-    public boolean isBuffering(){
-        return getState().isBuffering();
+    boolean isPlayerPlaying() {
+        return mInternalState == PlaybackState.PLAYING;
     }
 
     @Override
-    public boolean resume() {
+    public void resume() {
         if (mMediaPlayer != null && mInternalState.isStartable()) {
             play();
-            return true;
-        } else {
-            return false;
         }
     }
 
@@ -428,17 +421,6 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         } else {
             return 0;
         }
-    }
-
-    @Override
-    public StateTransition getLastStateTransition() {
-        return new StateTransition(getState(), getTranslatedReason());
-    }
-
-    @Override
-    public PlayaState getState() {
-        PlayaState playaState = getTranslatedState();
-        return playaState == null ? PlayaState.IDLE : playaState;
     }
 
     private PlayaState getTranslatedState() {

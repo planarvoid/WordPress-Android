@@ -131,7 +131,6 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         verify(mediaPlayer, never()).start();
-        expect(mediaPlayerAdapter.getState()).toBe(PlayaState.IDLE);
     }
 
     @Test
@@ -153,7 +152,7 @@ public class MediaPlayerAdapterTest {
         final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
         expect(event.getMetricValue()).toBeGreaterThan(0L);
-        expect(event.getUri()).toEqual(track.getStreamUrl());
+        expect(event.getCdnHost()).toEqual(track.getStreamUrl());
         expect(event.getPlayerType()).toEqual(PlayerType.MEDIA_PLAYER);
         expect(event.getProtocol()).toEqual(PlaybackProtocol.HTTPS);
         expect(event.getConnectionType()).toEqual(PlaybackPerformanceEvent.ConnectionType.TWO_G);
@@ -520,7 +519,6 @@ public class MediaPlayerAdapterTest {
         playUrlAndSetPrepared();
         mediaPlayerAdapter.destroy();
         verify(mediaPlayer).stop();
-        expect(mediaPlayerAdapter.getState()).toEqual(PlayaState.IDLE);
     }
 
     @Test

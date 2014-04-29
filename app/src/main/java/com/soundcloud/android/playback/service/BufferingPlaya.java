@@ -6,8 +6,6 @@ import javax.inject.Inject;
 
 public class BufferingPlaya implements Playa {
 
-    public static final StateTransition BUFFERING_TRANSITION = new StateTransition(PlayaState.BUFFERING, Reason.NONE);
-
     @Inject
     public BufferingPlaya() {
     }
@@ -23,8 +21,8 @@ public class BufferingPlaya implements Playa {
     }
 
     @Override
-    public boolean resume() {
-        return false;
+    public void resume() {
+
     }
 
     @Override
@@ -63,16 +61,6 @@ public class BufferingPlaya implements Playa {
     }
 
     @Override
-    public StateTransition getLastStateTransition() {
-        return BUFFERING_TRANSITION;
-    }
-
-    @Override
-    public PlayaState getState() {
-        return PlayaState.BUFFERING;
-    }
-
-    @Override
     public boolean isSeekable() {
         return false;
     }
@@ -80,20 +68,5 @@ public class BufferingPlaya implements Playa {
     @Override
     public boolean isNotSeekablePastBuffer() {
         return false;
-    }
-
-    @Override
-    public boolean isPlaying() {
-        return true;
-    }
-
-    @Override
-    public boolean isPlayerPlaying() {
-        return false;
-    }
-
-    @Override
-    public boolean isBuffering() {
-        return true;
     }
 }

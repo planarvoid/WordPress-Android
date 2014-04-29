@@ -36,6 +36,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
     // store start info so we can fallback and retry after Skippy failures
     private TrackPlaybackInfo trackPlaybackInfo;
+    private StateTransition lastStateTransition = StateTransition.DEFAULT;
 
     @Inject
     public StreamPlaya(Context context, SharedPreferences sharedPreferences, MediaPlayerAdapter mediaPlayerAdapter,
@@ -51,7 +52,37 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
         }
     }
 
+    /** state storage. should be gone in player v2 **/
 
+    @Deprecated
+    public StateTransition  getLastStateTransition() {
+        return lastStateTransition;
+    }
+
+    @Deprecated
+    public PlayaState getState() {
+        return lastStateTransition.getNewState();
+    }
+
+    @Deprecated
+    public boolean isPlaying() {
+        return lastStateTransition.isPlaying();
+    }
+
+    @Deprecated
+    public boolean isPlayerPlaying() {
+        return lastStateTransition.isPlayerPlaying();
+    }
+
+    @Deprecated
+    public boolean isBuffering() {
+        return lastStateTransition.isBuffering();
+    }
+
+    @Deprecated
+    public boolean playbackHasPaused() {
+        return lastStateTransition.isPaused();
+    }
 
     @Override
     public void play(Track track) {
@@ -68,8 +99,8 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     }
 
     @Override
-    public boolean resume() {
-        return currentPlaya.resume();
+    public void resume() {
+        currentPlaya.resume();
     }
 
     @Override
@@ -98,16 +129,6 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     }
 
     @Override
-    public StateTransition getLastStateTransition() {
-        return currentPlaya.getLastStateTransition();
-    }
-
-    @Override
-    public PlayaState getState() {
-        return currentPlaya.getState();
-    }
-
-    @Override
     public boolean isSeekable() {
         return currentPlaya.isSeekable();
     }
@@ -117,20 +138,6 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
         return currentPlaya.isNotSeekablePastBuffer();
     }
 
-    @Override
-    public boolean isPlaying() {
-        return currentPlaya.isPlaying();
-    }
-
-    @Override
-    public boolean isPlayerPlaying() {
-        return currentPlaya.isPlayerPlaying();
-    }
-
-    @Override
-    public boolean isBuffering() {
-        return currentPlaya.isBuffering();
-    }
 
     @Override
     public void destroy() {
@@ -158,6 +165,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
         } else {
             Preconditions.checkNotNull(playaListener, "Stream Player Listener is unexpectedly null when passing state");
+            lastStateTransition = stateTransition;
             playaListener.onPlaystateChanged(stateTransition);
         }
     }
@@ -171,7 +179,9 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     public void startBufferingMode(){
         final Playa lastPlaya = currentPlaya;
         currentPlaya = bufferingPlayaDelegate;
-        onPlaystateChanged(bufferingPlayaDelegate.getLastStateTransition());
+
+        lastStateTransition = new StateTransition(PlayaState.BUFFERING, Reason.NONE);
+        onPlaystateChanged(lastStateTransition);
 
         if (lastPlaya != null) {
             lastPlaya.setListener(null);

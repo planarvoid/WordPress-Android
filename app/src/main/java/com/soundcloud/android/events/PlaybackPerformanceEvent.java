@@ -48,43 +48,43 @@ public final class PlaybackPerformanceEvent {
     private final long metricValue;
     private final PlaybackProtocol protocol;
     private final PlayerType playerType;
-    private final String uri;
+    private final String cdnHost;
     private final ConnectionType connectionType;
 
     private PlaybackPerformanceEvent(int metric, long value, PlaybackProtocol protocol, PlayerType playerType,
-                ConnectionType connectionType, String uri) {
+                ConnectionType connectionType, String cdnHost) {
         this.metric = metric;
         this.metricValue = value;
         this.timestamp = System.currentTimeMillis();
         this.protocol = protocol;
         this.playerType = playerType;
-        this.uri = uri;
+        this.cdnHost = cdnHost;
         this.connectionType = connectionType;
     }
 
     public static PlaybackPerformanceEvent timeToPlay(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                      ConnectionType connectionType, String uri) {
-        return new PlaybackPerformanceEvent(METRIC_TIME_TO_PLAY, value, protocol, playerType, connectionType, uri);
+                                                      ConnectionType connectionType, String cdnHost) {
+        return new PlaybackPerformanceEvent(METRIC_TIME_TO_PLAY, value, protocol, playerType, connectionType, cdnHost);
     }
 
     public static PlaybackPerformanceEvent timeToPlaylist(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                          ConnectionType connectionType, String uri) {
-        return new PlaybackPerformanceEvent(METRIC_TIME_TO_PLAYLIST, value, protocol, playerType, connectionType, uri);
+                                                          ConnectionType connectionType, String cdnHost) {
+        return new PlaybackPerformanceEvent(METRIC_TIME_TO_PLAYLIST, value, protocol, playerType, connectionType, cdnHost);
     }
 
     public static PlaybackPerformanceEvent timeToBuffer(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                        ConnectionType connectionType, String uri) {
-        return new PlaybackPerformanceEvent(METRIC_TIME_TO_BUFFER, value, protocol, playerType, connectionType, uri);
+                                                        ConnectionType connectionType, String cdnHost) {
+        return new PlaybackPerformanceEvent(METRIC_TIME_TO_BUFFER, value, protocol, playerType, connectionType, cdnHost);
     }
 
     public static PlaybackPerformanceEvent timeToSeek(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                      ConnectionType connectionType, String uri) {
-        return new PlaybackPerformanceEvent(METRIC_TIME_TO_SEEK, value, protocol, playerType, connectionType, uri);
+                                                      ConnectionType connectionType, String cdnHost) {
+        return new PlaybackPerformanceEvent(METRIC_TIME_TO_SEEK, value, protocol, playerType, connectionType, cdnHost);
     }
 
     public static PlaybackPerformanceEvent fragmentDownloadRate(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                                ConnectionType connectionType, String uri) {
-        return new PlaybackPerformanceEvent(METRIC_FRAGMENT_DOWNLOAD_RATE, value, protocol, playerType, connectionType, uri);
+                                                                ConnectionType connectionType, String cdnHost) {
+        return new PlaybackPerformanceEvent(METRIC_FRAGMENT_DOWNLOAD_RATE, value, protocol, playerType, connectionType, cdnHost);
     }
 
     public int getMetric() {
@@ -107,8 +107,8 @@ public final class PlaybackPerformanceEvent {
         return playerType;
     }
 
-    public String getUri() {
-        return uri;
+    public String getCdnHost() {
+        return cdnHost;
     }
 
     public ConnectionType getConnectionType() {

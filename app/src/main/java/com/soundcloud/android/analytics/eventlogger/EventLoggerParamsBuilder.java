@@ -68,7 +68,7 @@ public class EventLoggerParamsBuilder {
         builder.appendQueryParameter(Parameters.PROTOCOL.value(), eventData.getProtocol().getValue());
         builder.appendQueryParameter(Parameters.PLAYER_TYPE.value(), eventData.getPlayerType().getValue());
         builder.appendQueryParameter(Parameters.TYPE.value(), getPerformanceEventType(eventData.getMetric()));
-        builder.appendQueryParameter(Parameters.HOST.value(), Uri.parse(eventData.getUri()).getHost());
+        builder.appendQueryParameter(Parameters.HOST.value(), Uri.parse(eventData.getCdnHost()).getHost());
         builder.appendQueryParameter(Parameters.CONNECTION_TYPE.value(), eventData.getConnectionType().getValue());
         return builder.build().getEncodedQuery();
     }
@@ -80,7 +80,7 @@ public class EventLoggerParamsBuilder {
         builder.appendQueryParameter(Parameters.OS.value(), deviceHelper.getUserAgent());
         builder.appendQueryParameter(Parameters.BITRATE.value(), eventData.getBitrate());
         builder.appendQueryParameter(Parameters.FORMAT.value(), eventData.getFormat());
-        builder.appendQueryParameter(Parameters.URL.value(), eventData.getCdnUrl());
+        builder.appendQueryParameter(Parameters.URL.value(), eventData.getCdnHost());
         builder.appendQueryParameter(Parameters.ERROR_CODE.value(), eventData.getCategory());
         return builder.build().getEncodedQuery();
     }

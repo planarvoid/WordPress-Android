@@ -8,8 +8,8 @@ import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason;
 import static com.soundcloud.android.skippy.Skippy.State;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
@@ -35,7 +35,7 @@ import android.os.Message;
 @RunWith(SoundCloudTestRunner.class)
 public class SkippyAdapterTest {
 
-    public static final String CDN_URI = "http://ec-rtmp-media.soundcloud.com/123456?param=1";
+    public static final String CDN_HOST = "ec-rtmp-media.soundcloud.com";
     private SkippyAdapter skippyAdapter;
 
     private static final String STREAM_URL = "https://api.soundcloud.com/app/mobileapps/tracks/soundcloud:tracks:1/streams/hls?oauth_token=access";
@@ -67,17 +67,13 @@ public class SkippyAdapterTest {
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, playbackOperations,
                 stateChangeHandler, eventBus, connectionHelper);
         skippyAdapter.setListener(listener);
-    }
 
-    @Test
-    public void getStateDefaultsToIdle() throws Exception {
-        expect(skippyAdapter.getState()).toBe(PlayaState.IDLE);
+        when(playbackOperations.buildHLSUrlForTrack(track)).thenReturn(STREAM_URL);
+        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
     }
 
     @Test
     public void playCallsPlayUrlOnSkippy(){
-        when(playbackOperations.buildHLSUrlForTrack(track)).thenReturn(STREAM_URL);
-        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
 
         skippyAdapter.play(track);
         verify(skippy).play(STREAM_URL, 0);
@@ -122,16 +118,8 @@ public class SkippyAdapterTest {
 
     @Test
     public void resumeCallsResumeOnSkippyIfInPausedState(){
-        skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK);
         skippyAdapter.resume();
         verify(skippy).resume();
-    }
-
-    @Test
-    public void resumeReturnsFalseAndDoesNotResumeIfInCompleteState(){
-        skippyAdapter.onStateChanged(State.IDLE, Reason.NOTHING, Error.OK);
-        expect(skippyAdapter.resume()).toBeFalse();
-        verifyZeroInteractions(skippy);
     }
 
     @Test
@@ -141,77 +129,72 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void getLastStateTransitionDefaultsToIdleComplete() throws Exception {
-        expect(skippyAdapter.getLastStateTransition()).toEqual(new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.COMPLETE));
-    }
-
-    @Test
-    public void skippyIdleNothingEventTranslatesToListenerIdleCompleteEvent() throws Exception {
-        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.COMPLETE);
-        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
-        skippyAdapter.onStateChanged(State.IDLE, Reason.NOTHING, Error.OK);
-        verify(stateChangeHandler).sendMessage(message);
+    public void doesNotPropogateStateChangesForIncorrectUrl(){
+        skippyAdapter.play(track);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK, "WrongStreamUrl");
+        verify(stateChangeHandler, never()).sendMessage(any(Message.class));
     }
 
     @Test
     public void skippyIdlePausedEventTranslatesToListenerIdleEvent() throws Exception {
+        skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
-        skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK, STREAM_URL);
         verify(stateChangeHandler).sendMessage(message);
     }
 
     @Test
     public void skippyPlayingTranslatesToListenerPlayingEvent() throws Exception {
+        skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.PLAYING, Playa.Reason.NONE);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
-        skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK);
+        skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK, STREAM_URL);
         verify(stateChangeHandler).sendMessage(message);
     }
 
     @Test
-    public void shouldStoreLastStateInformation(){
-        skippyAdapter.onStateChanged(State.PLAYING, Reason.BUFFERING, Error.OK);
-        expect(skippyAdapter.getLastStateTransition()).toEqual(new Playa.StateTransition(PlayaState.BUFFERING, Playa.Reason.NONE));
-    }
-
-    @Test
     public void skippyPlayBufferingTranslatesToListenerBufferingEvent() throws Exception {
+        skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.BUFFERING, Playa.Reason.NONE);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
-        skippyAdapter.onStateChanged(State.PLAYING, Reason.BUFFERING, Error.OK);
+        skippyAdapter.onStateChanged(State.PLAYING, Reason.BUFFERING, Error.OK, STREAM_URL);
         verify(stateChangeHandler).sendMessage(message);
     }
 
     @Test
     public void skippyIdleErrorTimeoutTranslatesToListenerTimeoutError() throws Exception {
+        skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FAILED);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
-        skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.TIMEOUT);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.TIMEOUT, STREAM_URL);
         verify(stateChangeHandler).sendMessage(message);
     }
 
     @Test
     public void skippyFailedErrorTranslatesToListenerErrorFailed() throws Exception {
+        skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FAILED);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
-        skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FAILED);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FAILED, STREAM_URL);
         verify(stateChangeHandler).sendMessage(message);
     }
 
     @Test
     public void skippyIdleErrorForbiddenTranslatesToListenerErrorForbiddenEvent() throws Exception {
+        skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FORBIDDEN);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
-        skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FORBIDDEN);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FORBIDDEN, STREAM_URL);
         verify(stateChangeHandler).sendMessage(message);
     }
 
     @Test
     public void skippyIdleErrorNotFoundTranslatesToListenerErrorNotFoundEvent() throws Exception {
+        skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
-        skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.MEDIA_NOT_FOUND);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.MEDIA_NOT_FOUND, STREAM_URL);
         verify(stateChangeHandler).sendMessage(message);
     }
 
@@ -219,12 +202,12 @@ public class SkippyAdapterTest {
     public void performanceMetricPublishesTimeToPlayEventEvent() throws Exception {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
-        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY, 1000L, CDN_URI);
+        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY, 1000L, STREAM_URL, CDN_HOST);
 
         final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
         expect(event.getMetricValue()).toEqual(1000L);
-        expect(event.getUri()).toEqual(CDN_URI);
+        expect(event.getCdnHost()).toEqual(CDN_HOST);
         expect(event.getPlayerType()).toEqual(PlayerType.SKIPPY);
         expect(event.getProtocol()).toEqual(PlaybackProtocol.HLS);
     }
@@ -233,12 +216,12 @@ public class SkippyAdapterTest {
     public void performanceMetricPublishesTimeToBufferEvent() throws Exception {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
-        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_BUFFER, 1000L, CDN_URI);
+        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_BUFFER, 1000L, STREAM_URL, CDN_HOST);
 
         final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_BUFFER);
         expect(event.getMetricValue()).toEqual(1000L);
-        expect(event.getUri()).toEqual(CDN_URI);
+        expect(event.getCdnHost()).toEqual(CDN_HOST);
         expect(event.getPlayerType()).toEqual(PlayerType.SKIPPY);
         expect(event.getProtocol()).toEqual(PlaybackProtocol.HLS);
     }
@@ -247,12 +230,12 @@ public class SkippyAdapterTest {
     public void performanceMetricPublishesTimeToPlaylistEvent() throws Exception {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
-        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_GET_PLAYLIST, 1000L, CDN_URI);
+        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_GET_PLAYLIST, 1000L, STREAM_URL, CDN_HOST);
 
         final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST);
         expect(event.getMetricValue()).toEqual(1000L);
-        expect(event.getUri()).toEqual(CDN_URI);
+        expect(event.getCdnHost()).toEqual(CDN_HOST);
         expect(event.getPlayerType()).toEqual(PlayerType.SKIPPY);
         expect(event.getProtocol()).toEqual(PlaybackProtocol.HLS);
     }
@@ -261,12 +244,12 @@ public class SkippyAdapterTest {
     public void performanceMetricPublishesTimeToSeekEvent() throws Exception {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
-        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_SEEK, 1000L, CDN_URI);
+        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_SEEK, 1000L, STREAM_URL, CDN_HOST);
 
         final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK);
         expect(event.getMetricValue()).toEqual(1000L);
-        expect(event.getUri()).toEqual(CDN_URI);
+        expect(event.getCdnHost()).toEqual(CDN_HOST);
         expect(event.getPlayerType()).toEqual(PlayerType.SKIPPY);
         expect(event.getProtocol()).toEqual(PlaybackProtocol.HLS);
     }
@@ -275,12 +258,12 @@ public class SkippyAdapterTest {
     public void performanceMetricPublishesFragmentDownloadRateEvent() throws Exception {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
-        skippyAdapter.onPerformanceMeasured(PlaybackMetric.FRAGMENT_DOWNLOAD_RATE, 1000L, CDN_URI);
+        skippyAdapter.onPerformanceMeasured(PlaybackMetric.FRAGMENT_DOWNLOAD_RATE, 1000L, STREAM_URL, CDN_HOST);
 
         final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE);
         expect(event.getMetricValue()).toEqual(1000L);
-        expect(event.getUri()).toEqual(CDN_URI);
+        expect(event.getCdnHost()).toEqual(CDN_HOST);
         expect(event.getPlayerType()).toEqual(PlayerType.SKIPPY);
         expect(event.getProtocol()).toEqual(PlaybackProtocol.HLS);
     }
@@ -289,14 +272,14 @@ public class SkippyAdapterTest {
     public void onErrorPublishesPlaybackErrorEvent() throws Exception {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
-        skippyAdapter.onErrorMessage("category", "message", CDN_URI);
+        skippyAdapter.onErrorMessage("category", "message", STREAM_URL, CDN_HOST);
 
         final PlaybackErrorEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_ERROR);
         expect(event.getBitrate()).toEqual("128");
         expect(event.getFormat()).toEqual("mp3");
         expect(event.getProtocol()).toEqual(PlaybackProtocol.HLS);
         expect(event.getCategory()).toEqual("category");
-        expect(event.getCdnUrl()).toEqual(CDN_URI);
+        expect(event.getCdnHost()).toEqual(CDN_HOST);
     }
 
 }

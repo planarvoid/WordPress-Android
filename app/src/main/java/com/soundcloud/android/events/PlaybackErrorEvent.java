@@ -9,23 +9,23 @@ public class PlaybackErrorEvent {
 
     private final String category;
     private final PlaybackProtocol protocol;
-    private final String cdnUri;
+    private final String cdnHost;
 
     private final String format;
     private final String bitrate;
     private final long timestamp;
 
-    public PlaybackErrorEvent(String category, PlaybackProtocol protocol, String cdnUri, String bitrate, String format){
+    public PlaybackErrorEvent(String category, PlaybackProtocol protocol, String cdnHost, String bitrate, String format){
         this.category = category;
         this.protocol = protocol;
-        this.cdnUri = cdnUri;
+        this.cdnHost = cdnHost;
         this.bitrate = bitrate;
         this.format = format;
         this.timestamp = System.currentTimeMillis();
     }
 
-    public PlaybackErrorEvent(String category, PlaybackProtocol protocol, String cdnUri){
-        this(category, protocol, cdnUri, BITRATE_128, FORMAT_MP3);
+    public PlaybackErrorEvent(String category, PlaybackProtocol protocol, String cdnHost){
+        this(category, protocol, cdnHost, BITRATE_128, FORMAT_MP3);
     }
 
     public String getCategory() {
@@ -44,8 +44,8 @@ public class PlaybackErrorEvent {
         return format;
     }
 
-    public String getCdnUrl() {
-        return cdnUri;
+    public String getCdnHost() {
+        return cdnHost;
     }
 
     public long getTimestamp() {

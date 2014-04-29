@@ -533,8 +533,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     /* package */ void play() {
         if (!mStreamPlayer.isPlaying() && mCurrentTrack != null && mRemoteAudioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
-            if (!mStreamPlayer.resume()) {
-                // must have been a playback error or we are in stop state
+            if (mStreamPlayer.playbackHasPaused()){
+                mStreamPlayer.resume();
+            } else {
                 openCurrent();
             }
         }

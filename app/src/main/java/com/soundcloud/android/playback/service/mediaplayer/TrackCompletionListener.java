@@ -30,7 +30,7 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
             Log.w(PlaybackService.TAG, "premature end of track [lastPosition = " + lastPosition
                     + ", duration = " + mediaPlayer.getDuration() + ", diff = "+ (mediaPlayer.getDuration() - lastPosition) + "]");
 
-        } else if (mMediaPlayerAdapter.getLastStateTransition().wasError()) {
+        } else if (mMediaPlayerAdapter.isInErrorState()) {
             // onComplete must have been called in error state
             mMediaPlayerAdapter.stop(mediaPlayer);
 
@@ -69,6 +69,6 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
     }
 
     private boolean mediaPlayerHasReset(MediaPlayer mp) {
-        return mp.getCurrentPosition() <= 0 && mMediaPlayerAdapter.getState().isPlayerPlaying();
+        return mp.getCurrentPosition() <= 0 && mMediaPlayerAdapter.isPlayerPlaying();
     }
 }

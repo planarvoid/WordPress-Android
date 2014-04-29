@@ -12,7 +12,7 @@ public interface Playa {
 
     public void play(Track track);
     public void play(Track track, long fromPos);
-    public boolean resume();
+    public void resume();
     public void pause();
     public long seek(long ms, boolean performSeek);
     public long getProgress();
@@ -20,79 +20,87 @@ public interface Playa {
     public void stop();
     public void destroy();
     public void setListener(PlayaListener playaListener);
-    public  StateTransition getLastStateTransition();
-    public PlayaState getState();
     // MediaPlayer specific. We can drop these when we drop mediaplayer, as they will be constant booleans in skippy
     public boolean isSeekable();
     public boolean isNotSeekablePastBuffer();
-    public boolean isPlaying();
-
-    public boolean isPlayerPlaying();
-    public boolean isBuffering();
-
 
     public static class StateTransition {
-        private PlayaState mNewState;
-        private Reason mReason;
+        private PlayaState newState;
+        private Reason reason;
+
+        static final StateTransition DEFAULT = new StateTransition(PlayaState.IDLE, Reason.NONE);
 
         public StateTransition(PlayaState newState, Reason reason) {
-            mNewState = newState;
-            mReason = reason;
+            this.newState = newState;
+            this.reason = reason;
         }
 
         public PlayaState getNewState() {
-            return mNewState;
+            return newState;
         }
 
         public Reason getReason() {
-            return mReason;
+            return reason;
         }
 
         public boolean isPlaying(){
-            return mNewState.isPlaying();
+            return newState.isPlaying();
+        }
+
+        public boolean isPlayerPlaying(){
+            return newState.isPlayerPlaying();
+        }
+
+        public boolean isBuffering(){
+            return newState.isBuffering();
         }
 
         public boolean playbackHasStopped(){
-            return Reason.PLAYBACK_STOPPED.contains(mReason);
+            return Reason.PLAYBACK_STOPPED.contains(reason);
         }
 
         public boolean wasError(){
-            return Reason.ERRORS.contains(mReason);
+            return Reason.ERRORS.contains(reason);
         }
 
         public boolean trackEnded() {
-            return mNewState == Playa.PlayaState.IDLE && mReason == Reason.COMPLETE;
+            return newState == Playa.PlayaState.IDLE && reason == Reason.COMPLETE;
+        }
+
+        public boolean isPaused() {
+            return newState == PlayaState.IDLE && reason == Reason.NONE;
         }
 
         public void addToIntent(Intent intent) {
-            mNewState.addToIntent(intent);
-            mReason.addToIntent(intent);
+            newState.addToIntent(intent);
+            reason.addToIntent(intent);
         }
 
         public static StateTransition fromIntent(Intent intent) {
             return new StateTransition(PlayaState.fromIntent(intent), Reason.fromIntent(intent));
         }
 
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             StateTransition that = (StateTransition) o;
-            return Objects.equal(mNewState, that.mNewState) && Objects.equal(mReason, that.mReason);
+            return Objects.equal(newState, that.newState) && Objects.equal(reason, that.reason);
         }
 
         @Override
         public int hashCode() {
-            int result = mNewState.hashCode();
-            result = 31 * result + mReason.hashCode();
+            int result = newState.hashCode();
+            result = 31 * result + reason.hashCode();
             return result;
         }
 
         @Override
         public String toString() {
             return "StateTransition{" +
-                    "mNewState=" + mNewState +
-                    ", mReason=" + mReason +
+                    "newState=" + newState +
+                    ", reason=" + reason +
                     '}';
         }
     }
