@@ -66,6 +66,7 @@ public class SoundCloudApplication extends Application {
 
     // Remove these fields when we've moved to a full DI solution
     @Deprecated
+    @SuppressFBWarnings({ "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
     public static SoundCloudApplication instance;
 
     @Deprecated
