@@ -3,12 +3,12 @@ package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.preferences.DevSettings;
 import com.soundcloud.android.creators.record.filter.FadeFilter;
-import com.soundcloud.android.playback.service.managers.AudioManagerFactory;
-import com.soundcloud.android.playback.service.managers.IAudioManager;
-import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.playback.service.managers.FroyoAudioManager;
+import com.soundcloud.android.playback.service.managers.IAudioManager;
+import com.soundcloud.android.preferences.DevSettings;
+import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +71,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
       PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS, WAVEFORM_GENERATED
     };
     public static final int MAX_PLAYBACK_RATE = AudioTrack.getNativeOutputSampleRate(AudioTrack.MODE_STREAM);
-    private final IAudioManager audioFocusManager;
+    private IAudioManager audioFocusManager;
     private final RecordingStorage recordingStorage = new RecordingStorage();
 
 
@@ -107,7 +107,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     private @Nullable PlaybackStream playbackStream;
     private PlayerThread playbackThread;
     /*package*/ @Nullable ReaderThread readerThread;
-    private final AudioConfig config;
+    private final AudioConfig audioConfig;
 
     private final ByteBuffer recBuffer;
     private final int recBufferReadSize;
@@ -122,18 +122,20 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     private final LocalBroadcastManager broadcastManager;
 
-    public static synchronized SoundRecorder getInstance(Context context) {
+    public static synchronized SoundRecorder getInstance(final Context context) {
         if (instance == null) {
             // this must be tied to the application context so it can be kept alive by the service
             instance = new SoundRecorder(context.getApplicationContext(), AudioConfig.detect());
         }
         return instance;
     }
-    protected SoundRecorder(Context context, AudioConfig config) {
+
+    protected SoundRecorder(final Context context, AudioConfig audioConfig) {
         this.context = context;
-        this.config = config;
+        this.audioConfig = audioConfig;
+
         state = State.IDLE;
-        audioRecord = config.createAudioRecord();
+        audioRecord = audioConfig.createAudioRecord();
         audioRecord.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
             @Override
             public void onMarkerReached(AudioRecord audioRecord) {
@@ -151,8 +153,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             }
         });
 
-        final int playbackBufferSize = config.getPlaybackMinBufferSize();
-        audioTrack = config.createAudioTrack(playbackBufferSize);
+        final int playbackBufferSize = audioConfig.getPlaybackMinBufferSize();
+        audioTrack = audioConfig.createAudioTrack(playbackBufferSize);
         audioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
             @Override
             public void onMarkerReached(AudioTrack track) {
@@ -165,21 +167,22 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 }
             }
         });
-        audioTrack.setPositionNotificationPeriod(this.config.sampleRate / 60);
+        audioTrack.setPositionNotificationPeriod(this.audioConfig.sampleRate / 60);
         broadcastManager = LocalBroadcastManager.getInstance(context);
-        remainingTimeCalculator = config.createCalculator();
+        remainingTimeCalculator = audioConfig.createCalculator();
 
         valuesPerSecond = (int) (PIXELS_PER_SECOND * context.getResources().getDisplayMetrics().density);
-        recBufferReadSize = (int) config.validBytePosition((long) (this.config.bytesPerSecond / valuesPerSecond));
+        recBufferReadSize = (int) audioConfig.validBytePosition((long) (this.audioConfig.bytesPerSecond / valuesPerSecond));
         recBuffer = BufferUtils.allocateAudioBuffer(recBufferReadSize);
 
         // small reads for performance, but no larger than our audiotrack buffer size
         playBufferReadSize = playbackBufferSize < MAX_PLAYBACK_READ_SIZE ? playbackBufferSize : MAX_PLAYBACK_READ_SIZE;
         playBuffer = BufferUtils.allocateAudioBuffer(playBufferReadSize);
 
-        audioFocusManager = AudioManagerFactory.createAudioManager(context);
+        // we just need focus, which is provided by going directly to the FroyoAudioManager
+        audioFocusManager = new FroyoAudioManager(context);
 
-        recordStream = new RecordStream(this.config);
+        recordStream = new RecordStream(this.audioConfig);
         reset();
     }
 
@@ -219,7 +222,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
             if (isActive()) reset();
             this.recording = recording;
-            recordStream = new RecordStream(config,
+            recordStream = new RecordStream(audioConfig,
                     recording.getRawFile(),
                     shouldEncodeWhileRecording() ? recording.getEncodedFile() : null,
                     this.recording.getAmplitudeFile());
@@ -565,7 +568,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
 
         private void playLoop(@NotNull PlaybackStream playbackStream) throws IOException {
-            audioTrack.setPlaybackRate(config.sampleRate);
+            audioTrack.setPlaybackRate(audioConfig.sampleRate);
             playbackStream.initializePlayback();
             state = SoundRecorder.State.PLAYING;
             broadcast(PLAYBACK_STARTED);
@@ -583,8 +586,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             TrimPreview preview;
             while ((preview = previewQueue.poll()) != null) {
                 final FadeFilter fadeFilter = preview.getFadeFilter();
-                final int byteRange = (int) preview.getByteRange(config);
-                playbackStream.initializePlayback(preview.lowPos(config));
+                final int byteRange = (int) preview.getByteRange(audioConfig);
+                playbackStream.initializePlayback(preview.lowPos(audioConfig));
 
                 int read = 0;
                 int lastRead;
@@ -601,13 +604,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 // try to get the speed close to the actual speed of the swipe movement
                 audioTrack.setPlaybackRate(preview.playbackRate);
                 if (preview.isReverse()) {
-                    for (int i = (byteRange / config.sampleSize) - 1; i >= 0; i--) {
-                        int written = audioTrack.write(readBuff, i * config.sampleSize, config.sampleSize);
+                    for (int i = (byteRange / audioConfig.sampleSize) - 1; i >= 0; i--) {
+                        int written = audioTrack.write(readBuff, i * audioConfig.sampleSize, audioConfig.sampleSize);
                         if (written < 0) onWriteError(written);
                     }
                 } else {
-                    for (int i = 0; i < byteRange / config.sampleSize; i++) {
-                        int written = audioTrack.write(readBuff, i * config.sampleSize, config.sampleSize);
+                    for (int i = 0; i < byteRange / audioConfig.sampleSize; i++) {
+                        int written = audioTrack.write(readBuff, i * audioConfig.sampleSize, audioConfig.sampleSize);
                         if (written < 0) onWriteError(written);
                     }
                 }
@@ -717,7 +720,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 }
 
                 audioRecord.startRecording();
-                audioRecord.setPositionNotificationPeriod(config.sampleRate);
+                audioRecord.setPositionNotificationPeriod(audioConfig.sampleRate);
                 while (state == SoundRecorder.State.READING || state == SoundRecorder.State.RECORDING) {
                     recBuffer.rewind();
                     final int read = audioRecord.read(recBuffer, recBufferReadSize);

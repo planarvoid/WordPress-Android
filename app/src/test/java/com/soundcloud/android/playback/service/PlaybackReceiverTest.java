@@ -24,6 +24,7 @@ import org.mockito.Mock;
 
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
+import android.media.AudioManager;
 
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class PlaybackReceiverTest {
     @Before
     public void setup() {
         SoundCloudApplication.sModelManager.clear();
-        playbackReceiver = new PlaybackReceiver(playbackService, accountOperations, playQueueManager, eventBus);
+        playbackReceiver = new PlaybackReceiver.Factory().create(playbackService, accountOperations, playQueueManager, eventBus);
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(playbackService.getPlayQueueOriginScreen()).thenReturn("screen_tag");
     }
@@ -155,6 +156,15 @@ public class PlaybackReceiverTest {
         playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(playQueueManager, never()).fetchRelatedTracks(anyLong());
+    }
+
+    @Test
+    public void shouldCallPauseOnServiceOnAudioBecomingNoisyAction() {
+        Intent intent = new Intent(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+
+        playbackReceiver.onReceive(Robolectric.application, intent);
+
+        verify(playbackService).pause();
     }
 
     @Test

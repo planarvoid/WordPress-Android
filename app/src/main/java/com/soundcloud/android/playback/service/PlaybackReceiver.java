@@ -14,7 +14,9 @@ import com.soundcloud.android.utils.Log;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 
+import javax.inject.Inject;
 import java.util.List;
 
 class PlaybackReceiver extends BroadcastReceiver {
@@ -24,7 +26,7 @@ class PlaybackReceiver extends BroadcastReceiver {
     private final PlayQueueManager mPlayQueueManager;
     private final EventBus mEventBus;
 
-    public PlaybackReceiver(PlaybackService playbackService, AccountOperations accountOperations,
+    private PlaybackReceiver(PlaybackService playbackService, AccountOperations accountOperations,
                             PlayQueueManager playQueueManager, EventBus eventBus) {
         mPlaybackService = playbackService;
         mAccountOperations = accountOperations;
@@ -70,6 +72,9 @@ class PlaybackReceiver extends BroadcastReceiver {
                 if (mPlaybackService.isWaitingForPlaylist()) {
                     mPlaybackService.openCurrent();
                 }
+            } else if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(action)) {
+                mPlaybackService.pause();
+
             } else if (Actions.STOP_ACTION.equals(action)) {
                 if (mPlaybackService.isSupposedToBePlaying()) {
                     mPlaybackService.saveProgressAndStop();
@@ -118,5 +123,16 @@ class PlaybackReceiver extends BroadcastReceiver {
         } else if (Actions.PREVIOUS_ACTION.equals(intent.getAction())) {
             mEventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.previous(source));
         }
+    }
+
+    static class Factory {
+        @Inject
+        Factory() { }
+
+        PlaybackReceiver create(PlaybackService playbackService, AccountOperations accountOperations,
+                                PlayQueueManager playQueueManager, EventBus eventBus) {
+            return new PlaybackReceiver(playbackService, accountOperations, playQueueManager, eventBus);
+        }
+
     }
 }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.service;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -12,7 +13,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.peripherals.PeripheralsOperations;
-import com.soundcloud.android.playback.service.managers.AudioManagerFactory;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
@@ -20,6 +20,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.track.TrackOperations;
 import com.soundcloud.android.utils.images.ImageUtils;
+import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -28,11 +29,10 @@ import rx.subscriptions.Subscriptions;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.media.AudioManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -94,6 +94,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     PlayerAppWidgetProvider mAppWidgetProvider;
     @Inject
     StreamPlaya mStreamPlayer;
+    @Inject
+    PlaybackReceiver.Factory mPlaybackReceiverFactory;
+    @Inject
+    Lazy<IRemoteAudioManager> remoteAudioManagerProvider;
 
     // XXX : would be great to not have these boolean states
     private boolean mWaitingForPlaylist;
@@ -110,7 +114,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private static final int IDLE_DELAY = 180*1000;  // interval after which we stop the service when idle
 
     // audio focus related
-    private IRemoteAudioManager mFocus;
+    private IRemoteAudioManager mRemoteAudioManager;
     private FocusLossState mFocusLossState = FocusLossState.NONE;
     private enum FocusLossState {
         NONE, TRANSIENT, LOST
@@ -126,12 +130,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private PlaybackReceiver mPlaybackReceiver;
     private final Handler mFadeHandler = new FadeHandler(this);
     private final Handler mDelayedStopHandler = new DelayedStopHandler(this);
-
-    private final BroadcastReceiver mNoisyReceiver = new BroadcastReceiver() {
-        @Override public void onReceive(Context context, Intent intent) {
-            pause();
-        }
-    };
 
     private Subscription mStreamableTrackSubscription = Subscriptions.empty();
     private Subscription mLoadTrackSubscription = Subscriptions.empty();
@@ -160,12 +158,34 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
+    @VisibleForTesting
+    PlaybackService(PlayQueueManager playQueueManager, EventBus eventBus, TrackOperations trackOperations,
+                           PeripheralsOperations peripheralsOperations, PlaybackEventSource playbackEventSource,
+                           AccountOperations accountOperations, ImageOperations imageOperations,
+                           PlayerAppWidgetProvider playerAppWidgetProvider, StreamPlaya streamPlaya,
+                           PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider) {
+
+        mEventBus = eventBus;
+        mPlayQueueManager = playQueueManager;
+        mTrackOperations = trackOperations;
+        mPeripheralsOperations = peripheralsOperations;
+        mPlaybackEventSource = playbackEventSource;
+        mAccountOperations = accountOperations;
+        mImageOperations = imageOperations;
+        mAppWidgetProvider = playerAppWidgetProvider;
+        mStreamPlayer = streamPlaya;
+        mPlaybackReceiverFactory = playbackReceiverFactory;
+        this.remoteAudioManagerProvider = remoteAudioManagerProvider;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
 
-        mPlaybackReceiver = new PlaybackReceiver(this, mAccountOperations, mPlayQueueManager, mEventBus);
         mStreamPlayer.setListener(this);
+
+        mPlaybackReceiver = mPlaybackReceiverFactory.create(this, mAccountOperations, mPlayQueueManager, mEventBus);
+        mRemoteAudioManager = remoteAudioManagerProvider.get();
 
         IntentFilter playbackFilter = new IntentFilter();
         playbackFilter.addAction(Actions.PLAY_ACTION);
@@ -178,11 +198,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         playbackFilter.addAction(Broadcasts.PLAYQUEUE_CHANGED);
         playbackFilter.addAction(Actions.RELOAD_QUEUE);
         playbackFilter.addAction(Actions.RETRY_RELATED_TRACKS);
-
+        playbackFilter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
         registerReceiver(mPlaybackReceiver, playbackFilter);
-        registerReceiver(mNoisyReceiver, new IntentFilter(Consts.AUDIO_BECOMING_NOISY));
-
-        mFocus = AudioManagerFactory.createRemoteAudioManager(this);
 
         // If the service was idle, but got killed before it stopped itself, the
         // system will relaunch it. Make sure it gets stopped again in that case.
@@ -198,9 +215,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mFadeHandler.removeCallbacksAndMessages(null);
-        mFocus.abandonMusicFocus(false);
+        mRemoteAudioManager.abandonMusicFocus(false);
         unregisterReceiver(mPlaybackReceiver);
-        unregisterReceiver(mNoisyReceiver);
         mEventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
         instance = null;
         super.onDestroy();
@@ -295,7 +311,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         stop();
         mCurrentTrack = null;
         mAppWidgetProvider.performUpdate(this, new Intent(Broadcasts.RESET_ALL));
-        mFocus.abandonMusicFocus(false); // kills lockscreen
+        mRemoteAudioManager.abandonMusicFocus(false); // kills lockscreen
     }
 
     public void saveProgressAndStop() {
@@ -333,7 +349,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public boolean requestAudioFocus() {
-        return mFocus.requestMusicFocus(PlaybackService.this, IAudioManager.FOCUS_GAIN);
+        return mRemoteAudioManager.requestMusicFocus(PlaybackService.this, IAudioManager.FOCUS_GAIN);
     }
 
     void notifyChange(String what) {
@@ -361,7 +377,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         if (Consts.SdkSwitches.useRichNotifications) {
             if (what.equals(Broadcasts.PLAYSTATE_CHANGED)) {
-                mFocus.setPlaybackState(isPlaying);
+                mRemoteAudioManager.setPlaybackState(isPlaying);
                 setPlayingNotification(mCurrentTrack);
                 mPeripheralsOperations.notifyPlayStateChanged(this, getCurrentTrack(), isPlaying);
             } else if (what.equals(Broadcasts.META_CHANGED)) {
@@ -380,9 +396,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     private void onTrackChanged(final Track track) {
-        if (mFocus.isTrackChangeSupported()) {
+        if (mRemoteAudioManager.isTrackChangeSupported()) {
             // set initial data without bitmap so it doesn't have to wait
-            mFocus.onTrackChanged(track, null);
+            mRemoteAudioManager.onTrackChanged(track, null);
 
             // Loads the current track artwork into the lock screen controls
             // this is quite ugly; should move into ImageOperations really!
@@ -396,9 +412,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     if (track == mCurrentTrack) {
                         // use a copy of the bitmap because it is going to get recycled afterwards
                         try {
-                            mFocus.onTrackChanged(track, loadedImage.copy(Bitmap.Config.ARGB_8888, false));
+                            mRemoteAudioManager.onTrackChanged(track, loadedImage.copy(Bitmap.Config.ARGB_8888, false));
                         } catch (OutOfMemoryError e) {
-                            mFocus.onTrackChanged(track, null);
+                            mRemoteAudioManager.onTrackChanged(track, null);
                         }
                     }
 
@@ -516,7 +532,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
 
     /* package */ void play() {
-        if (!mStreamPlayer.isPlaying() && mCurrentTrack != null && mFocus.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
+        if (!mStreamPlayer.isPlaying() && mCurrentTrack != null && mRemoteAudioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
             if (!mStreamPlayer.resume()) {
                 // must have been a playback error or we are in stop state
                 openCurrent();

@@ -33,8 +33,6 @@ public final class Consts {
     public static final int CARD_PAGE_SIZE = 20;
     public static final int MAX_COMMENTS_TO_LOAD      = 50;
 
-    public static final String AUDIO_BECOMING_NOISY = "android.media.AUDIO_BECOMING_NOISY";
-
 
     public static interface RequestCodes {
         int GALLERY_IMAGE_PICK  = 9000;
