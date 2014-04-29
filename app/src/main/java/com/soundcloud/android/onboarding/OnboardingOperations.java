@@ -12,7 +12,7 @@ import javax.inject.Inject;
 
 public class OnboardingOperations {
 
-    private RxHttpClient rxHttpClient;
+    private final RxHttpClient rxHttpClient;
 
     @Inject
     public OnboardingOperations(RxHttpClient rxHttpClient) {
