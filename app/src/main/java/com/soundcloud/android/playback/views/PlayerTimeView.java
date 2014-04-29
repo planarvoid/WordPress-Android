@@ -62,7 +62,7 @@ public class PlayerTimeView extends RelativeLayout {
         mBgPaint.setMaskFilter(new EmbossMaskFilter(new float[]{0, .5f, 1}, 0.85f, 10, 1f));
 
         mLinePaint = new Paint();
-        mLinePaint.setColor(getResources().getColor(R.color.portraitPlayerCommentLine));
+        mLinePaint.setColor(getResources().getColor(R.color.portrait_player_comment_line));
         mLinePaint.setStyle(Paint.Style.STROKE);
 
         mArc = (int) (getResources().getDisplayMetrics().density * 10);
@@ -76,7 +76,7 @@ public class PlayerTimeView extends RelativeLayout {
     public void setCommenting(boolean commenting) {
         if (commenting && !mCommenting) {
             mCommenting = true;
-            mCurrentTime.setTextColor(getResources().getColor(R.color.portraitPlayerCommentLine));
+            mCurrentTime.setTextColor(getResources().getColor(R.color.portrait_player_comment_line));
             mCommentInstructions.setVisibility(View.VISIBLE);
             getLayoutParams().width = mCommentingWidth;
             getLayoutParams().height = mCommentingHeight;

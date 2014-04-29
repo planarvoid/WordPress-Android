@@ -222,14 +222,14 @@
     </style>
 
     <style name="OnboardSuggestedUserCategoryText">
-        <item name="android:textColor">@color/listTxtValue</item>
+        <item name="android:textColor">@color/list_text_value</item>
         <item name="android:textSize">@dimen/list_txt_main_size</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
     </style>
 
     <style name="OnboardSuggestedUserCategoryUsernamesText">
-        <item name="android:textColor">@color/listTxtSecondary</item>
+        <item name="android:textColor">@color/list_text_secondary</item>
         <item name="android:textSize">@dimen/list_txt_sub_size</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
@@ -472,7 +472,7 @@
         <item name="android:clickable">true</item>
         <item name="android:gravity">center</item>
 
-        <item name="android:textColor">@color/listTxtSecondary</item>
+        <item name="android:textColor">@color/list_text_secondary</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -687,7 +687,7 @@
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@android:color/white</item>
-        <item name="android:background">@color/btnDarkFlat</item>
+        <item name="android:background">@color/btn_dark_flat</item>
         <item name="android:textSize">12sp</item>
         <item name="android:paddingTop">5dp</item>
         <item name="android:paddingBottom">5dp</item>
@@ -718,7 +718,7 @@
     </style>
 
     <style name="txt_record_message">
-        <item name="android:textColor">@color/listTxtSecondary</item>
+        <item name="android:textColor">@color/list_text_secondary</item>
         <item name="android:gravity">center</item>
         <item name="android:background">@drawable/rec_tips_bubble</item>
         <item name="android:textSize">16sp</item>
@@ -726,12 +726,12 @@
     </style>
 
     <style name="txt_connection_footer">
-        <item name="android:textColor">@color/listTxtSecondary</item>
+        <item name="android:textColor">@color/list_text_secondary</item>
         <item name="android:textSize">16sp</item>
     </style>
 
     <style name="txt_not_streamable">
-        <item name="android:textColor">@color/listTxtSecondary</item>
+        <item name="android:textColor">@color/list_text_secondary</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -781,7 +781,7 @@
     </style>
 
     <style name="txt_search_rdo">
-        <item name="android:textColor">@color/listTxtValue</item>
+        <item name="android:textColor">@color/list_text_value</item>
         <item name="android:textSize">20sp</item>
     </style>
 
@@ -829,7 +829,7 @@
         <item name="android:paddingLeft">5dip</item>
         <item name="android:paddingRight">5dip</item>
         <item name="android:gravity">center</item>
-        <item name="android:textColor">@color/listTxtValue</item>
+        <item name="android:textColor">@color/list_text_value</item>
     </style>
 
 
@@ -1029,7 +1029,7 @@
     <style name="Widget.TextView.Playable.TrackCount">
         <item name="android:layout_below">@id/playable_user_holder</item>
         <item name="android:layout_alignParentRight">true</item>
-        <item name="android:textColor">@color/listTxtDarkValue</item>
+        <item name="android:textColor">@color/list_text_dark_value</item>
         <item name="android:textSize">@dimen/list_txt_main_size</item>
         <item name="android:background">@drawable/bg_dark_round_rect</item>
         <item name="android:gravity">center</item>
@@ -1071,7 +1071,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingTop">6dp</item>
         <item name="android:paddingBottom">6dp</item>
-        <item name="android:background">@color/playerControlBackground</item>
+        <item name="android:background">@color/player_control_background</item>
     </style>
 
     <style name="PlaylistActionContainer" parent="PlayerActionContainer">
@@ -1122,7 +1122,7 @@
     </style>
 
     <style name="txt_comment_bubble_new" parent="txt_comment_bubble">
-        <item name="android:textColor">@color/commentGray</item>
+        <item name="android:textColor">@color/comment_gray</item>
     </style>
 
     <style name="txt_comment_bubble_new_time" parent="txt_comment_bubble">
@@ -1142,7 +1142,7 @@
     </style>
 
     <style name="txt_comment_bubble_gray" parent="txt_comment_bubble">
-        <item name="android:textColor">@color/commentGray</item>
+        <item name="android:textColor">@color/comment_gray</item>
         <item name="android:paddingLeft">5dip</item>
     </style>
 
@@ -1333,7 +1333,7 @@
         <item name="android:paddingLeft">20dp</item>
         <item name="android:paddingRight">20dp</item>
         <item name="android:paddingBottom">4dp</item>
-        <item name="android:textColor">@color/scOrange</item>
+        <item name="android:textColor">@color/sc_orange</item>
         <item name="android:gravity">bottom</item>
         <item name="android:background">@drawable/divider_list_orange</item>
     </style>
@@ -1477,7 +1477,7 @@
 
     <style name="PlaylistTitle.Username">
         <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/listTxtHeader</item>
+        <item name="android:textColor">@color/list_text_header</item>
     </style>
 
     <style name="PlaylistPlayToggle">

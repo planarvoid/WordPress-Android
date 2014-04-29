@@ -10,7 +10,7 @@
                   android:layout_width="0dp"
                   android:layout_height="match_parent"
                   android:layout_weight="1"
-                  android:background="@color/playerControlBackground"
+                  android:background="@color/player_control_background"
                   android:orientation="vertical">
 
         <include layout="@layout/player_info_and_engagements"/>

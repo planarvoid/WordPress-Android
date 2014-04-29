@@ -3,7 +3,7 @@
                 android:layout_width="match_parent"
                 android:id="@+id/sizer"
                 android:layout_height="match_parent"
-                android:background="@color/playerControlBackground">
+                android:background="@color/player_control_background">
 
     <LinearLayout android:id="@+id/empty_view_progress"
                   android:gravity="center_horizontal"

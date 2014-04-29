@@ -63,7 +63,7 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
 
     private void init(Context context) {
         View.inflate(context, R.layout.track_info, this);
-        setBackgroundResource(R.color.playerTrackDetailsBg);
+        setBackgroundResource(R.color.player_track_details_background);
         setOrientation(VERTICAL);
 
         mInfoView = findViewById(R.id.info_view);

@@ -96,6 +96,6 @@
                                                android:layout_height="60dp"
                                                style="@style/dark_button_bar"
                                                app:button_background="@drawable/item_background_dark"
-                                               app:separator_color="@color/recButtonBarSeparator"/>
+                                               app:separator_color="@color/rec_button_bar_separator"/>
     </RelativeLayout>
 </LinearLayout>

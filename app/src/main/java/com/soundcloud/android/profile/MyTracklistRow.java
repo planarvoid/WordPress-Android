@@ -50,7 +50,7 @@ public class MyTracklistRow extends PlayableRow {
         setTitle();
 
         final TextView createdAt = (TextView) findViewById(R.id.playable_created_at);
-        createdAt.setTextColor(getContext().getResources().getColor(R.color.listTxtRecSecondary));
+        createdAt.setTextColor(getContext().getResources().getColor(R.color.list_text_rec_secondary));
         createdAt.setText(recording.getStatus(getContext().getResources()));
 
         findViewById(R.id.playable_private_indicator).setVisibility(recording.is_private ? VISIBLE : GONE);

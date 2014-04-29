@@ -4,7 +4,7 @@
              android:layout_width="fill_parent"
              android:layout_height="40dip"
              android:layout_alignParentBottom="true"
-             android:background="@color/playerControlAlphaBackground">
+             android:background="@color/player_control_alpha_background">
 
     <TextView android:id="@+id/unplayable_txt"
               android:textColor="#FF000000"

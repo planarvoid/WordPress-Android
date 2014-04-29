@@ -22,10 +22,10 @@
 		<clip>
             <shape>
                 <gradient
-                    android:startColor="@color/cloudProgressBackgroundStart"
-                    android:centerColor="@color/cloudProgressBackgroundCenter"
+                    android:startColor="@color/cloud_progress_background_start"
+                    android:centerColor="@color/cloud_progress_background_center"
                     android:centerY="0.5"
-                    android:endColor="@color/cloudProgressBackgroundEnd"
+                    android:endColor="@color/cloud_progress_background_end"
                     android:angle="270"
                 />
             </shape>
@@ -36,10 +36,10 @@
 		<clip>
             <shape>
                 <gradient
-                    android:startColor="@color/cloudProgressSecondaryStart"
-                    android:centerColor="@color/cloudProgressSecondaryCenter"
+                    android:startColor="@color/cloud_progress_secondary_start"
+                    android:centerColor="@color/cloud_progress_secondary_center"
                     android:centerY="0.5"
-                    android:endColor="@color/cloudProgressSecondaryEnd"
+                    android:endColor="@color/cloud_progress_secondary_end"
                     android:angle="270"
                 />
             </shape>
@@ -51,10 +51,10 @@
 
             <shape>
                 <gradient
-                        android:startColor="@color/cloudProgressStart"
-                        android:centerColor="@color/cloudProgressCenter"
+                        android:startColor="@color/cloud_progress_start"
+                        android:centerColor="@color/cloud_progress_center"
                         android:centerY="0.5"
-                        android:endColor="@color/cloudProgressEnd"
+                        android:endColor="@color/cloud_progress_end"
                         android:angle="270"
                 />
             </shape>

@@ -99,7 +99,7 @@ public class ConnectionListLayout extends LinearLayout {
                 LayoutParams.MATCH_PARENT,
                 getResources().getDimensionPixelOffset(R.dimen.connection_list_divider_height)));
 
-        v.setBackgroundColor(getResources().getColor(R.color.recordUploadBorder));
+        v.setBackgroundColor(getResources().getColor(R.color.record_upload_border));
         return v;
     }
 

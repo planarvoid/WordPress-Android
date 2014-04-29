@@ -62,7 +62,7 @@
                       android:layout_height="wrap_content"/>
 
             <View android:id="@+id/share_options_separator"
-                  android:background="@color/recordUploadBorder"
+                  android:background="@color/record_upload_border"
                   android:layout_width="fill_parent"
                   android:layout_below="@id/txt_record_options"
                   android:layout_height="1dip"/>
@@ -78,5 +78,5 @@
     <com.soundcloud.android.view.ButtonBar android:id="@+id/bottom_bar"
                                                    style="@style/dark_button_bar"
                                                    app:button_background="@drawable/item_background_dark"
-                                                   app:separator_color="@color/recButtonBarSeparator"/>
+                                                   app:separator_color="@color/rec_button_bar_separator"/>
 </LinearLayout>

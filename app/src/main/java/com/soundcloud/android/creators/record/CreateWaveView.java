@@ -256,9 +256,9 @@ public class CreateWaveView extends View {
         maxWaveHeight = height - glowHeight;
         LinearGradient lg = new LinearGradient(0, 0, 0, maxWaveHeight,
                 new int[]{
-                        getResources().getColor(R.color.cloudProgressStart),
-                        getResources().getColor(R.color.cloudProgressCenter),
-                        getResources().getColor(R.color.cloudProgressEnd)
+                        getResources().getColor(R.color.cloud_progress_start),
+                        getResources().getColor(R.color.cloud_progress_center),
+                        getResources().getColor(R.color.cloud_progress_end)
                 },
                 new float[]{0.0f, 0.5f, 1.0f},
                 Shader.TileMode.MIRROR);

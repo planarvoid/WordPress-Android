@@ -61,12 +61,12 @@ public class CommentPanelLayout extends RelativeLayout {
         inflater.inflate(R.layout.comment_panel, this);
 
         mBgPaint = new Paint();
-        mBgPaint.setColor(getResources().getColor(R.color.playerControlBackground));
+        mBgPaint.setColor(getResources().getColor(R.color.player_control_background));
         mBgPaint.setAntiAlias(true);
         mBgPaint.setStyle(Paint.Style.FILL);
 
         mLinePaint = new Paint();
-        mLinePaint.setColor(getResources().getColor(R.color.portraitPlayerCommentLine));
+        mLinePaint.setColor(getResources().getColor(R.color.portrait_player_comment_line));
         mLinePaint.setStyle(Paint.Style.STROKE);
 
         final float density = getResources().getDisplayMetrics().density;

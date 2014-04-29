@@ -2,13 +2,13 @@
 <RelativeLayout android:id="@+id/waveform_frame"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:background="@color/playerControlAlphaBackground"
+                android:background="@color/player_control_alpha_background"
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android">
 
     <com.soundcloud.android.playback.views.WaveformHolderLayout android:id="@+id/waveform_holder"
                                                 android:layout_above="@+id/player_avatar_bar_holder"
-                                                android:background="@color/playerControlAlphaBackground"
+                                                android:background="@color/player_control_alpha_background"
                                                 android:layout_width="fill_parent"
                                                 android:layout_height="fill_parent">
         <ProgressBar
@@ -31,7 +31,7 @@
 
         <RelativeLayout android:id="@+id/connecting_bar"
                         android:layout_width="fill_parent"
-                        android:background="@color/playerControlAlphaBackground"
+                        android:background="@color/player_control_alpha_background"
                         android:visibility="gone"
                         android:layout_height="fill_parent">
 
@@ -50,7 +50,7 @@
                  android:layout_width="fill_parent"
                  android:layout_height="@dimen/player_avatar_bar_height_land"
                  android:layout_alignParentBottom="true"
-                 android:background="@color/playerControlBackground">
+                 android:background="@color/player_control_background">
         <com.soundcloud.android.playback.views.PlayerAvatarBarView android:id="@+id/player_avatar_bar"
                                                      android:layout_width="fill_parent"
                                                      android:layout_height="fill_parent"/>

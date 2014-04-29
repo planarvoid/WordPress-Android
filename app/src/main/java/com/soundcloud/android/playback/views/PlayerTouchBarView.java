@@ -35,7 +35,7 @@ public class PlayerTouchBarView extends View {
     private void init(){
         mMarkerPaint = new Paint();
         mMarkerPaint.setStyle(Paint.Style.FILL);
-        mMarkerPaint.setColor(getResources().getColor(R.color.portraitPlayerCommentLine));
+        mMarkerPaint.setColor(getResources().getColor(R.color.portrait_player_comment_line));
     }
 
 

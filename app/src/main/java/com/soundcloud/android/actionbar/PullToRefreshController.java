@@ -43,7 +43,7 @@ public class PullToRefreshController {
                 .separatorLength(context.getResources().getDimensionPixelSize(R.dimen.ptr_thickness))
                 .strokeWidth(context.getResources().getDimensionPixelSize(R.dimen.ptr_thickness))
                 .speed(.8f)
-                .color(context.getResources().getColor(R.color.scOrange))
+                .color(context.getResources().getColor(R.color.sc_orange))
                 .build();
     }
 

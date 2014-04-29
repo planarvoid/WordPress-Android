@@ -50,7 +50,7 @@
     </RelativeLayout>
     <View android:id="@+id/share_header_separator"
           android:layout_below="@id/share_header_user_holder"
-                                android:background="@color/recordUploadBorder"
+                                android:background="@color/record_upload_border"
                                 android:layout_width="fill_parent"
                                 android:layout_height="1dip"/>
 </RelativeLayout>

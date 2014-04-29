@@ -131,7 +131,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mCurrentTimeDisplay = (PlayerTimeView) findViewById(R.id.currenttime);
 
-        mWaveformColor = context.getResources().getColor(R.color.playerControlBackground);
+        mWaveformColor = context.getResources().getColor(R.color.player_control_background);
         mOverlay = findViewById(R.id.progress_overlay);
         mOverlay.setBackgroundColor(OVERLAY_BG_COLOR);
 

@@ -88,10 +88,10 @@ public class PlayerAvatarBarView extends View {
         mActiveImagePaint.setFilterBitmap(true);
 
         mLinePaint = new Paint();
-        mLinePaint.setColor(getResources().getColor(R.color.commentLine));
+        mLinePaint.setColor(getResources().getColor(R.color.comment_line));
 
         mActiveLinePaint = new Paint();
-        mActiveLinePaint.setColor(getResources().getColor(com.soundcloud.android.R.color.activeCommentLine));
+        mActiveLinePaint.setColor(getResources().getColor(com.soundcloud.android.R.color.active_comment_line));
 
         float mDensity = getContext().getResources().getDisplayMetrics().density;
 

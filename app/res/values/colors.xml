@@ -1,111 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="scOrange">#ff5500</color>
-    <color name="scDarkOrange">#CCe36711</color>
 
-    <color name="gray_text">#CCCCCC</color>
+    <color name="black">#000000</color>
+    <color name="white">#ffffff</color>
+    
+    <!-- Brand -->
+    <color name="sc_orange">#ff5500</color>
+    <color name="sc_dark_orange">#cce36711</color>
 
-    <color name="listTxtValue">#FF000000</color>
-    <color name="listTxtValueInactive">#FFa9a9a9</color>
-    <color name="listTxtSecondary">#FF777777</color>
-    <color name="listTxtRecSecondary">#FFcccccc</color>
-    <color name="listTxtCreatedAt">#FFc9c9c9</color>
-    <color name="listTxtTrackUser">#FF828282</color>
-    <color name="listTxtDarkValue">#FFFFFFFF</color>
-    <color name="statsColor">#FF828282</color>
+    <!-- List items -->
+    <color name="list_text_value">@color/black</color>
+    <color name="list_text_value_inactive">#a9a9a9</color>
+    <color name="list_text_secondary">#777777</color>
+    <color name="list_text_rec_secondary">#cccccc</color>
+    <color name="list_text_created_at">#c9c9c9</color>
+    <color name="list_text_track_user">#828282</color>
+    <color name="list_text_dark_value">@color/white</color>
+    <color name="list_text_header">#666666</color>
+    <color name="stats_color">#828282</color>
 
-    <color name="dark_bg">#FF252525</color>
+    <!-- Comments -->
+    <color name="comment_line">#aad7d7d7</color>
+    <color name="active_comment_line">#cce36711</color>
+    <color name="portrait_player_comment_line">#ffef5002</color>
+    <color name="comment_gray">#9c9c9c</color>
 
-    <color name="listTxtHeader">#666666</color>
-    <color name="commentLine">#AAD7D7D7</color>
-    <color name="activeCommentLine">#CCe36711</color>
+    <!-- Player -->
+    <color name="player_control_background">#f3f3f3</color>
+    <color name="player_control_alpha_background">#aaf3f3f3</color>
+    <color name="player_track_details_background">@color/white</color>
 
-    <color name="portraitPlayerCommentLine">#FFEF5002</color>
+    <!-- Creators -->
+    <color name="record_upload_border">#525252</color>
+    <color name="record_list_item_background">#999999</color>
 
-    <color name="playerControlBackground">#FFF3F3F3</color>
-    <color name="playerControlAlphaBackground">#AAF3F3F3</color>
+    <color name="btn_dark_flat">#242424</color>
+    <color name="rec_button_bar_separator">@color/black</color>
 
-    <color name="commentGray">#ff9c9c9c</color>
+    <color name="cloud_progress_background_start">#444444</color>
+    <color name="cloud_progress_background_center">#666666</color>
+    <color name="cloud_progress_background_end">#444444</color>
 
-    <color name="recordUploadBorder">#ff525252</color>
-    <color name="recordListItemBackground">#ff999999</color>
+    <color name="cloud_progress_secondary_start">#222222</color>
+    <color name="cloud_progress_secondary_center">#444444</color>
+    <color name="cloud_progress_secondary_end">#222222</color>
 
-    <color name="btnDarkFlat">#242424</color>
-    <color name="recButtonBarSeparator">#ff000000</color>
+    <color name="cloud_progress_start">#ff3300</color>
+    <color name="cloud_progress_center">@color/sc_orange</color>
+    <color name="cloud_progress_end">#ff3300</color>
 
-    <color name="cloudProgressBackgroundStart">#FF444444</color>
-    <color name="cloudProgressBackgroundCenter">#FF666666</color>
-    <color name="cloudProgressBackgroundEnd">#FF444444</color>
+    <color name="cloud_progress_landscape_background_start">#444444</color>
+    <color name="cloud_progress_landscape_background_center">#666666</color>
+    <color name="cloud_progress_landscape_background_end">#444444</color>
 
-    <color name="cloudProgressSecondaryStart">#222222</color>
-    <color name="cloudProgressSecondaryCenter">#444444</color>
-    <color name="cloudProgressSecondaryEnd">#222222</color>
+    <color name="cloud_progress_round_background_start">#222222</color>
+    <color name="cloud_progress_round_background_center">#222222</color>
+    <color name="cloud_progress_round_background_end">#222222</color>
 
-    <color name="cloudProgressStart">#ff3300</color>
-    <color name="cloudProgressCenter">@color/scOrange</color>
-    <color name="cloudProgressEnd">#ff3300</color>
+    <color name="cloud_progress_round_start">#fd320c</color>
+    <color name="cloud_progress_round_center">#ef5002</color>
+    <color name="cloud_progress_round_end">#f92600</color>
 
-    <color name="cloudProgressLandscapeBackgroundStart">#FF444444</color>
-    <color name="cloudProgressLandscapeBackgroundCenter">#FF666666</color>
-    <color name="cloudProgressLandscapeBackgroundEnd">#FF444444</color>
+    <color name="cloud_progress_round_border">#4b504c</color>
 
-    <color name="cloudProgressRoundBackgroundStart">#FF222222</color>
-    <color name="cloudProgressRoundBackgroundCenter">#FF222222</color>
-    <color name="cloudProgressRoundBackgroundEnd">#FF222222</color>
+    <color name="upload_monitor_text">@color/black</color>
+    <color name="upload_monitor_text_inactive">#9e9e9e</color>
 
-    <color name="cloudProgressRoundStart">#fd320c</color>
-    <color name="cloudProgressRoundCenter">#ef5002</color>
-    <color name="cloudProgressRoundEnd">#f92600</color>
-
-    <color name="cloudProgressRoundBorder">#4b504c</color>
-
-    <color name="tour_overlay">#CC000000</color>
+    <!-- Onboarding -->
+    <color name="tour_overlay">#cc000000</color>
     <color name="signup_separator">#999999</color>
 
-    <color name="image_gradient_start">#5f000000</color>
-    <color name="image_gradient_end_profile">#aa000000</color>
-
-    <!-- For settings framework -->
-    <color name="darker_gray">#aaa</color>
-
-    <color name="upload_monitor_text">#ff000000</color>
-    <color name="upload_monitor_text_inactive">#ff9e9e9e</color>
-
+    <!-- Search -->
     <color name="search_item_unselected_color">#999999</color>
-    <color name="search_item_selected_color">#ffffff</color>
-    <color name="search_item_pressed_color">@color/scOrange</color>
+    <color name="search_item_selected_color">@color/white</color>
+    <color name="search_item_pressed_color">@color/sc_orange</color>
+    <color name="tag_text">#666666</color>
 
-    <color name="txt_description_color">#FF666666</color>
-
-    <color name="dark_gray_text">#FF333333</color>
-
-    <color name="dialog_title">@color/scOrange</color>
-    <color name="dialog_separator">@color/scOrange</color>
-    <color name="dialog_button_focused">#fff</color>
+    <!-- Dialogs -->
+    <color name="dialog_title">@color/sc_orange</color>
+    <color name="dialog_separator">@color/sc_orange</color>
+    <color name="dialog_button_focused">@color/white</color>
     <color name="dialog_button_pressed">#dbdbdb</color>
     <color name="dialog_text">#666666</color>
     <color name="dialog_subtext">#999999</color>
 
-    <color name="playerTrackDetailsBg">#fff</color>
-    <color name="dark_gray_background">#333</color>
-
-    <color name="tab_bar_divider">#dddddd</color>
-    <color name="tag_text">#666666</color>
-
+    <!-- Playlist -->
     <color name="playlist_background">#f2f2f2</color>
     <color name="playlist_background_pressed">#fafafa</color>
     <color name="playlist_divider">#dddddd</color>
 
-    <color name="overlay_text">#FFFFFF</color>
-    <color name="overlay_subtext">#CCCCCC</color>
-    <color name="overlay_subtext_pressed">#FFFFFF</color>
-    <color name="overlay_text_background">#CC000000</color>
+    <!-- Image overlays -->
+    <color name="overlay_text">@color/white</color>
+    <color name="overlay_subtext">#cccccc</color>
+    <color name="overlay_subtext_pressed">@color/white</color>
+    <color name="overlay_text_background">#cc000000</color>
     <color name="overlay_text_background_pressed">#333333</color>
+    <color name="image_gradient_start">#5f000000</color>
+    <color name="image_gradient_end_profile">#aa000000</color>
 
-
+    <!-- Placeholders -->
     <color name="placeholder_image_purple">#846170</color>
     <color name="placeholder_image_blue">#70929c</color>
     <color name="placeholder_image_orange">#e6846e</color>
     <color name="placeholder_image_beige">#8e8485</color>
+
+    <!-- Misc -->
+    <color name="gray_text">#cccccc</color>
+    <color name="dark_bg">#252525</color>
+    <color name="txt_description_color">#666666</color>
+    <color name="dark_gray_text">#333333</color>
+    <color name="dark_gray_background">#333333</color>
+    <color name="tab_bar_divider">#dddddd</color>
+    <color name="darker_gray">#aaaaaa</color>
 
 </resources>

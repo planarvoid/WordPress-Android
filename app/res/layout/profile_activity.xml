@@ -6,7 +6,7 @@
               android:orientation="vertical"
               android:id="@+id/container">
 
-    <RelativeLayout android:background="@color/playerControlBackground"
+    <RelativeLayout android:background="@color/player_control_background"
                   style="@style/ListItemContainer"
                   android:layout_height="wrap_content"
                   android:gravity="center_vertical"

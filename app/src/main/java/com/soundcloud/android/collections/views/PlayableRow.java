@@ -49,7 +49,7 @@ public class PlayableRow extends IconLayout implements ListRow {
 
     // used to build the string for the title text
     private SpannableStringBuilder spanBuilder;
-    private final ForegroundColorSpan fcs = new ForegroundColorSpan(getResources().getColor(R.color.scOrange));
+    private final ForegroundColorSpan fcs = new ForegroundColorSpan(getResources().getColor(R.color.sc_orange));
     private final PlayablePresenter playablePresenter;
 
     public PlayableRow(Context context, ImageOperations imageOperations) {
