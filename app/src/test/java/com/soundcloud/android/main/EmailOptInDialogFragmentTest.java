@@ -16,18 +16,16 @@ import org.mockito.Mock;
 
 import android.content.DialogInterface;
 
-
 @RunWith(SoundCloudTestRunner.class)
 public class EmailOptInDialogFragmentTest {
 
-    EmailOptInDialogFragment fragment;
+    @Mock
+    private OnboardingOperations onboardingOperations;
 
     @Mock
-    OnboardingOperations onboardingOperations;
+    private EventBus eventBus;
 
-    @Mock
-    EventBus eventBus;
-
+    private EmailOptInDialogFragment fragment;
     private EventMonitor eventMonitor;
 
     @Before
@@ -42,4 +40,5 @@ public class EmailOptInDialogFragmentTest {
         OnboardingEvent event = eventMonitor.verifyEventOn(EventQueue.ONBOARDING);
         expect(event.getAttributes().get("opt_in")).toEqual("dismiss");
     }
+
 }
