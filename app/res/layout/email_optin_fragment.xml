@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/email_optin_body"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:padding="@dimen/dialog_padding">
+
+    <TextView
+            android:text="@string/optin_question"
+            style="@style/DialogText"
+            android:layout_marginBottom="@dimen/dialog_padding" />
+
+    <TextView
+            android:text="@string/optin_info"
+            style="@style/DialogSubText" />
+
+</LinearLayout>

@@ -133,7 +133,7 @@
 
     <string name="title_now_playing">Now Playing</string>
 
-    <!-- onboarding -->
+    <!-- Onboarding -->
     <string name="suggested_users_genres_large_title">Choose your favorite categories</string>
     <string name="suggested_users_genres_sub_title">Follow people trending in the SoundCloud community.</string>
     <string name="suggested_users_section_facebook">Facebook</string>
@@ -154,7 +154,7 @@
 
     <string name="error_onboarding_fail">We\'re still working on filling your stream. We\'ll keep trying until it works! In the meantime, you can search and discover other music &amp; audio.</string>
 
-    <!-- explore -->
+    <!-- Explore -->
     <string name="side_menu_explore">Explore</string>
 
     <string name="explore_genres">Genres</string>
@@ -192,10 +192,19 @@
     <string name="search_empty">No results found</string>
     <string name="search_empty_subtext">Check the spelling or try a different search</string>
 
+    <!-- Skippy -->
     <string name="pref_skippy">Force Skippy Player</string>
     <string name="pref_skippy_desc">Play all tracks through experimental Skippy Player. Will take effect when playing back the next track.</string>
+
     <!-- Pull to refresh -->
     <string name="ptr_swiping">Swipe down to refresh</string>
     <string name="ptr_loading">Loading</string>
+
+    <!-- Email opt-in -->
+    <string name="optin_title">SoundCloud Newsletter</string>
+    <string name="optin_question">Do you want to receive email updates about SoundCloud?</string>
+    <string name="optin_info">This includes Newsletters, Product updates, Special offers and Surveys. You can withdraw your consent at any time. To do so, open Soundcloud.com and go to settings.</string>
+    <string name="optin_yes">Yes, please</string>
+    <string name="optin_no">No, thank you</string>
 
 </resources>

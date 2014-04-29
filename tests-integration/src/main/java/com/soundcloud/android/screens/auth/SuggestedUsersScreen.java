@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
+import com.soundcloud.android.screens.EmailOptInScreen;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
@@ -80,11 +81,11 @@ public class SuggestedUsersScreen extends Screen {
     }
 
     //TODO: Investigate why does it take 60 seconds to show the stream
-    public HomeScreen finish() {
+    public EmailOptInScreen finish() {
         solo.clickOnActionBarItem(R.id.finish);
         solo.waitForActivity(MainActivity.class, 60000);
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return new HomeScreen(solo);
+        return new EmailOptInScreen(solo);
     }
 
     @Override

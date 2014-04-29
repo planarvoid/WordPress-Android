@@ -75,6 +75,9 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
             if (accountOperations.soundCloudAccountExists()) {
                 handleLoggedInUser(applicationProperties);
             }
+            if (getIntent().hasExtra(EXTRA_ONBOARDING_USERS_RESULT)) {
+                EmailOptInDialogFragment.show(this);
+            }
         }
 
         // this must come after setting up the navigation drawer to configure the action bar properly
