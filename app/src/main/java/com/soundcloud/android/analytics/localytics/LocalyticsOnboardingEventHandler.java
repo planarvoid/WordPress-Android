@@ -36,6 +36,9 @@ public class LocalyticsOnboardingEventHandler {
             case OnboardingEvent.ONBOARDING_COMPLETE:
                 localyticsSession.tagEvent(LocalyticsEvents.Onboarding.ONBOARDING_COMPLETE, eventAttributes);
                 break;
+            case OnboardingEvent.EMAIL_MARKETING:
+                localyticsSession.tagEvent(LocalyticsEvents.Onboarding.EMAIL_MARKETING, eventAttributes);
+                break;
             default:
                 throw new IllegalArgumentException("Onboarding Event type is invalid");
         }

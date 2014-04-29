@@ -67,7 +67,11 @@ public class LocalyticsOnboardingEventHandlerTest {
         verify(localyticsSession).tagEvent("Onboarding complete", event.getAttributes());
     }
 
-
-
+    @Test
+    public void shouldHandleEmailMarketingEvent() throws Exception {
+        OnboardingEvent event = OnboardingEvent.acceptEmailOptIn();
+        LocalyticsOnboardingEventHandler.handleEvent(event);
+        verify(localyticsSession).tagEvent("Email marketing", event.getAttributes());
+    }
 
 }

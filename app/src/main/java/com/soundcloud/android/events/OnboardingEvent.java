@@ -14,6 +14,7 @@ public final class OnboardingEvent {
     public static final int AUTH_COMPLETE = 3;
     public static final int USER_INFO = 4;
     public static final int ONBOARDING_COMPLETE = 5;
+    public static final int EMAIL_MARKETING = 6;
 
     private final int kind;
     private final Map<String, String> attributes;
@@ -29,7 +30,6 @@ public final class OnboardingEvent {
 
     public static OnboardingEvent logInPrompt() {
         return new OnboardingEvent(AUTH_PROMPT).put("type", "log in");
-
     }
 
     public static OnboardingEvent nativeAuthEvent() {
@@ -70,6 +70,18 @@ public final class OnboardingEvent {
 
     public static OnboardingEvent onboardingComplete() {
         return new OnboardingEvent(ONBOARDING_COMPLETE);
+    }
+
+    public static OnboardingEvent acceptEmailOptIn() {
+        return new OnboardingEvent(EMAIL_MARKETING).put("opt_in", "yes");
+    }
+
+    public static OnboardingEvent rejectEmailOptIn() {
+        return new OnboardingEvent(EMAIL_MARKETING).put("opt_in", "no");
+    }
+
+    public static OnboardingEvent dismissEmailOptIn() {
+        return new OnboardingEvent(EMAIL_MARKETING).put("opt_in", "dismiss");
     }
 
     public int getKind() {

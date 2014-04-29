@@ -98,4 +98,25 @@ public class OnboardingEventTest {
         expect(onboardingEvent.getKind()).toBe(OnboardingEvent.ONBOARDING_COMPLETE);
     }
 
+    @Test
+    public void shouldCreateEventFromAcceptEmailOptIn() {
+        onboardingEvent = OnboardingEvent.acceptEmailOptIn();
+        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.EMAIL_MARKETING);
+        expect(onboardingEvent.getAttributes().get("opt_in")).toEqual("yes");
+    }
+
+    @Test
+    public void shouldCreateEventFromRejectEmailOptIn() {
+        onboardingEvent = OnboardingEvent.rejectEmailOptIn();
+        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.EMAIL_MARKETING);
+        expect(onboardingEvent.getAttributes().get("opt_in")).toEqual("no");
+    }
+
+    @Test
+    public void shouldCreateEventFromDismissEmailOptIn() {
+        onboardingEvent = OnboardingEvent.dismissEmailOptIn();
+        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.EMAIL_MARKETING);
+        expect(onboardingEvent.getAttributes().get("opt_in")).toEqual("dismiss");
+    }
+
 }
