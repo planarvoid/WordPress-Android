@@ -228,7 +228,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     }
 
     private boolean isInForceSkippyMode() {
-        return playbackPreferences.getBoolean(DevSettings.DEV_ENABLE_SKIPPY, true);
+        return playbackPreferences.getBoolean(DevSettings.DEV_ENABLE_SKIPPY, false);
     }
 
     private static class TrackPlaybackInfo {
