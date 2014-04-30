@@ -235,6 +235,7 @@ module Build
       desc "runs unit tests"
       task :unit do
         mvn_task(:unittests).execute
+        git.checkout('app/AndroidManifest.xml')
       end
 
       desc "runs acceptance tests"

@@ -16,10 +16,10 @@ module Build
       end
       if Build.ci?
         mvn.use_local_repo
+        mvn.set_version_name(Build.version_name)
+        mvn.set_version_code(Build.version_code)
       end
       mvn.with_profiles(config.profiles)
-      mvn.set_version_code(Build.version_code)
-      mvn.set_version_name(Build.version_name)
 
       mvn
     end
