@@ -107,7 +107,7 @@
                 android:key="dev.enableSkippy"
                 android:title="@string/pref_skippy"
                 android:summary="@string/pref_skippy_desc"
-                android:defaultValue="false"
+                android:defaultValue="true"
                 />
 
         <ListPreference
