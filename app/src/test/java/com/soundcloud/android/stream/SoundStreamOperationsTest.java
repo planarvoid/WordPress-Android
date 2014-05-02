@@ -7,6 +7,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static rx.android.OperatorPaged.Page;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Urn;
@@ -44,10 +45,10 @@ public class SoundStreamOperationsTest {
     private SyncInitiator syncInitiator;
 
     @Mock
-    private Observer observer;
+    private Observer<Page> observer;
 
     @Captor
-    private ArgumentCaptor<OperatorPaged.Page> pageCaptor;
+    private ArgumentCaptor<Page> pageCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -102,7 +103,24 @@ public class SoundStreamOperationsTest {
         Urn userUrn = Urn.forUser(123);
         when(soundStreamStorage
                 .loadStreamItemsAsync(eq(userUrn), eq(Long.MAX_VALUE), eq(PAGE_SIZE)))
-                .thenReturn(Observable.from(createItems(PAGE_SIZE - 1)));
+                .thenReturn(Observable.from(createItems(PAGE_SIZE - 1, 123L)));
+        // returning true means new items have been added to local storage
+        when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(true));
+
+        jumpToNextPage();
+
+        InOrder inOrder = inOrder(syncInitiator, soundStreamStorage);
+        inOrder.verify(syncInitiator).backfillSoundStream();
+        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(eq(userUrn), eq(123L), eq(PAGE_SIZE));
+    }
+
+    @Test
+    public void shouldTriggerBackfillAndReloadWhenNoItemsFoundInLocalStorage() {
+        Urn userUrn = Urn.forUser(123);
+        when(soundStreamStorage
+                .loadStreamItemsAsync(eq(userUrn), eq(Long.MAX_VALUE), eq(PAGE_SIZE)))
+                .thenReturn(Observable.<PropertySet>empty());
+        // returning true means new items have been added to local storage
         when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(true));
 
         jumpToNextPage();
@@ -112,9 +130,28 @@ public class SoundStreamOperationsTest {
         inOrder.verify(soundStreamStorage).loadStreamItemsAsync(eq(userUrn), eq(Long.MAX_VALUE), eq(PAGE_SIZE));
     }
 
+    @Test
+    public void shouldStopPaginationIfBackfillSyncReportsNoNewItemsSynced() {
+        Urn userUrn = Urn.forUser(123);
+        when(soundStreamStorage
+                .loadStreamItemsAsync(eq(userUrn), eq(Long.MAX_VALUE), eq(PAGE_SIZE)))
+                .thenReturn(Observable.from(createItems(PAGE_SIZE - 1)));
+        // returning false means no new items have been added to local storage
+        when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(false));
+
+        jumpToNextPage();
+
+        InOrder inOrder = inOrder(syncInitiator, observer);
+        inOrder.verify(syncInitiator).backfillSoundStream();
+        inOrder.verify(observer).onNext(OperatorPaged.emptyPage());
+        inOrder.verify(observer).onCompleted();
+        inOrder.verifyNoMoreInteractions();
+    }
+
     private void jumpToNextPage() {
         operations.getStreamItems().subscribe(observer);
         verify(observer).onNext(pageCaptor.capture());
+        verify(observer).onCompleted();
         pageCaptor.getValue().getNextPage().subscribe(observer);
     }
 

@@ -152,6 +152,19 @@ public class SoundStreamStorageTest {
     }
 
     @Test
+    public void loadingStreamItemsDoesNotIncludeOwnContentRepostedByOtherPeople() throws CreateModelException {
+        final UserSummary reposter = helper.insertUser();
+        final TrackSummary track = helper.insertTrack();
+        helper.insertTrackRepostOfOwnTrack(track, reposter, TIMESTAMP);
+
+        TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
+        storage.loadStreamItemsAsync(Urn.forUser(123), Long.MAX_VALUE, 50).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(0);
+        expect(observer.getOnCompletedEvents()).toNumber(1);
+    }
+
+    @Test
     public void loadingStreamItemsTakesIntoAccountTheGivenLimit() throws CreateModelException {
         final TrackSummary firstTrack = helper.insertTrack();
         helper.insertTrackPost(firstTrack, TIMESTAMP);

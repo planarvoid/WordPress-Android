@@ -62,7 +62,7 @@ public class SearchOperations {
             if (ScTextUtils.isNotBlank(nextHref)) {
                 return getSearchResults(nextHref);
             } else {
-                return OperatorPaged.emptyPageObservable();
+                return OperatorPaged.emptyObservable();
             }
         }
     };
@@ -198,7 +198,7 @@ public class SearchOperations {
                 if (nextLink.isPresent()) {
                     return getPlaylistResultsNextPage(query, nextLink.get().getHref());
                 } else {
-                    return OperatorPaged.emptyPageObservable();
+                    return OperatorPaged.emptyObservable();
                 }
             }
         };

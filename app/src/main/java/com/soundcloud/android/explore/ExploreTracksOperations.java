@@ -77,7 +77,7 @@ class ExploreTracksOperations {
             if (nextLink.isPresent()) {
                 return getSuggestedTracks(nextLink.get().getHref());
             } else {
-                return OperatorPaged.emptyPageObservable();
+                return OperatorPaged.emptyObservable();
             }
         }
     };

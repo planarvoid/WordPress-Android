@@ -14,7 +14,7 @@ public class RxTestHelper {
     }
 
     public static <CollT extends Iterable<?>> Page<CollT> singlePage(CollT source) {
-        return new Page<CollT>(source, OperatorPaged.<CollT>emptyPageObservable());
+        return new Page<CollT>(source, OperatorPaged.<CollT>emptyObservable());
     }
 
     public static <CollT extends Iterable<?>> Pager<CollT> endlessPagerFrom(final Observable<CollT> observable) {

@@ -52,7 +52,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldAddAllItemsFromAnEmittedPage() {
-        final Observable<Page<List<Parcelable>>> finish = OperatorPaged.emptyPageObservable();
+        final Observable<Page<List<Parcelable>>> finish = OperatorPaged.emptyObservable();
 
         loadFirstPageThen(finish);
 
@@ -61,7 +61,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void itemRowsShouldBeClickable() {
-        final Observable<Page<List<Parcelable>>> finish = OperatorPaged.emptyPageObservable();
+        final Observable<Page<List<Parcelable>>> finish = OperatorPaged.emptyObservable();
 
         loadFirstPageThen(finish);
 
@@ -103,7 +103,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldReturnImmediatelyWhenNoNextPageAvailable() {
-        final Observable<Page<List<Parcelable>>> finish = OperatorPaged.emptyPageObservable();
+        final Observable<Page<List<Parcelable>>> finish = OperatorPaged.emptyObservable();
 
         Subscription subscription = loadFirstPageThen(finish);
 
@@ -118,7 +118,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldCreateItemRow() {
-        final Observable<Page<List<Parcelable>>> finish = OperatorPaged.emptyPageObservable();
+        final Observable<Page<List<Parcelable>>> finish = OperatorPaged.emptyObservable();
 
         loadFirstPageThen(finish);
 

@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import static com.google.common.collect.Iterables.getLast;
 import static rx.android.OperatorPaged.Page;
 import static rx.android.OperatorPaged.Pager;
 import static rx.android.OperatorPaged.pagedWith;
@@ -10,6 +11,7 @@ import com.soundcloud.android.storage.PropertySet;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
+import rx.android.OperatorPaged;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -40,15 +42,19 @@ class SoundStreamOperations {
         return source.toList().lift(pagedWith(streamItemPager(userUrn, timestamp)));
     }
 
-    private Pager<List<PropertySet>> streamItemPager(final Urn userUrn, final long currentTimestamp) {
+    private Pager<List<PropertySet>> streamItemPager(final Urn userUrn, final long lastTimestamp) {
         return new Pager<List<PropertySet>>() {
             @Override
             public Observable<Page<List<PropertySet>>> call(final List<PropertySet> propertySets) {
                 logPropertySet(propertySets);
+                // to implement paging, we move the timestamp down reverse chronologically
+                final long nextTimestamp = propertySets.isEmpty() ? lastTimestamp : timestampOfLastItem(propertySets);
                 if (propertySets.size() == DEFAULT_LIMIT) {
-                    return loadNextPage(userUrn, propertySets);
+                    // if we're able to fill a full page, we assume there will be more data stored locally
+                    return loadPagedStreamItems(userUrn, nextTimestamp);
                 } else {
-                    return backfillSoundStreamAndReload(userUrn, currentTimestamp);
+                    // otherwise we assume there might be more data server side, so trigger a backfill sync
+                    return backfillSoundStreamAndReload(userUrn, nextTimestamp);
                 }
             }
 
@@ -56,17 +62,17 @@ class SoundStreamOperations {
             private void logPropertySet(List<PropertySet> propertySets) {
                 Log.d(TAG, "Received " + propertySets.size() + " items");
                 if (!propertySets.isEmpty()) {
-                    Log.d(TAG, "First item = " + propertySets.get(0).get(StreamItemProperty.SOUND_URN));
-                    Log.d(TAG, "Last item = " + propertySets.get(propertySets.size() - 1).get(StreamItemProperty.SOUND_URN));
+                    Log.d(TAG, "First item = " + propertySets.get(0).get(StreamItemProperty.SOUND_URN) +
+                            "; timestamp = " + propertySets.get(0).get(StreamItemProperty.CREATED_AT));
+                    Log.d(TAG, "Last item = " + getLast(propertySets).get(StreamItemProperty.SOUND_URN) +
+                            "; timestamp = " + timestampOfLastItem(propertySets));
                 }
             }
         };
     }
 
-    private Observable<Page<List<PropertySet>>> loadNextPage(Urn userUrn, List<PropertySet> propertySets) {
-        final PropertySet lastItem = propertySets.get(propertySets.size() - 1);
-        final long timestampOfLastItem = lastItem.get(StreamItemProperty.CREATED_AT).getTime();
-        return loadPagedStreamItems(userUrn, timestampOfLastItem);
+    private long timestampOfLastItem(List<PropertySet> propertySets) {
+        return getLast(propertySets).get(StreamItemProperty.CREATED_AT).getTime();
     }
 
     private Observable<Page<List<PropertySet>>> backfillSoundStreamAndReload(
@@ -75,7 +81,11 @@ class SoundStreamOperations {
         return syncInitiator.backfillSoundStream().mergeMap(new Func1<Boolean, Observable<Page<List<PropertySet>>>>() {
             @Override
             public Observable<Page<List<PropertySet>>> call(Boolean streamUpdated) {
-                return loadPagedStreamItems(userUrn, currentTimestamp);
+                if (streamUpdated) {
+                    return loadPagedStreamItems(userUrn, currentTimestamp);
+                } else {
+                    return OperatorPaged.emptyPageObservable();
+                }
             }
         });
     }

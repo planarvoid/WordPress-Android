@@ -11,6 +11,7 @@ import com.soundcloud.android.model.activities.AffiliationActivity;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.provider.Content;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.hamcrest.Matchers;
 
@@ -87,6 +88,7 @@ public class DatabaseHelper {
 
     public long insertTrackPost(TrackSummary track, long timestamp) {
         ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, track.getId());
         cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
         cv.put(TableColumns.Activities.TYPE, "track");
@@ -97,6 +99,18 @@ public class DatabaseHelper {
 
     public long insertTrackRepost(TrackSummary track, UserSummary reposter, long timestamp) {
         ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
+        cv.put(TableColumns.Activities.SOUND_ID, track.getId());
+        cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
+        cv.put(TableColumns.Activities.TYPE, "track-repost");
+        cv.put(TableColumns.Activities.USER_ID, reposter.getId());
+        cv.put(TableColumns.Activities.CREATED_AT, timestamp);
+        return insertInto(Table.ACTIVITIES, cv);
+    }
+
+    public long insertTrackRepostOfOwnTrack(TrackSummary track, UserSummary reposter, long timestamp) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_ACTIVITIES.id);
         cv.put(TableColumns.Activities.SOUND_ID, track.getId());
         cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
         cv.put(TableColumns.Activities.TYPE, "track-repost");
@@ -107,6 +121,7 @@ public class DatabaseHelper {
 
     public long insertPlaylistPost(PlaylistSummary playlist, long timestamp) {
         ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, playlist.getId());
         cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_PLAYLIST);
         cv.put(TableColumns.Activities.TYPE, "playlist");
@@ -117,6 +132,7 @@ public class DatabaseHelper {
 
     public long insertPlaylistRepost(PlaylistSummary playlist, UserSummary reposter, long timestamp) {
         ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, playlist.getId());
         cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_PLAYLIST);
         cv.put(TableColumns.Activities.TYPE, "playlist-repost");
@@ -128,6 +144,7 @@ public class DatabaseHelper {
     public long insertComment(Comment comment) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.COMMENT_ID, comment.getId());
+        cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_ACTIVITIES.id);
         cv.put(TableColumns.Activities.SOUND_ID, comment.track.getId());
         cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
         cv.put(TableColumns.Activities.TYPE, "comment");
@@ -144,6 +161,7 @@ public class DatabaseHelper {
 
     public long insertAffiliation(AffiliationActivity affiliation) {
         ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_ACTIVITIES.id);
         cv.put(TableColumns.Activities.TYPE, "affiliation");
         cv.put(TableColumns.Activities.USER_ID, affiliation.getUser().getId());
         cv.put(TableColumns.Activities.CREATED_AT, affiliation.getCreatedAt().getTime());

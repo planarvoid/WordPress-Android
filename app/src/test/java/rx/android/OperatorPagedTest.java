@@ -8,6 +8,7 @@ import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static rx.android.OperatorPaged.Page;
 import static com.soundcloud.android.rx.RxTestHelper.endlessPagerFrom;
 import static rx.android.OperatorPaged.pagedWith;
@@ -75,18 +76,32 @@ public class OperatorPagedTest {
     }
 
     @Test
-    public void testEmptyPageHelper() {
+    public void emptyPageDoesNotHaveANextPage() {
         assertFalse(OperatorPaged.emptyPage().hasNextPage());
-        assertFalse(OperatorPaged.emptyPage().getPagedCollection().iterator().hasNext());
-        assertSame(OperatorPaged.emptyPage().getNextPage(), OperatorPaged.emptyPageObservable());
+        assertSame(OperatorPaged.emptyPage().getNextPage(), OperatorPaged.emptyObservable());
     }
 
     @Test
-    public void testEmptyPageObservable() {
-        OperatorPaged.emptyPageObservable().subscribe(mockObserver);
+    public void emptyPageWrapsAnEmptyCollection() {
+        assertFalse(OperatorPaged.emptyPage().getPagedCollection().iterator().hasNext());
+    }
+
+    @Test
+    public void emptyObservableShouldOnlyFireCompleted() {
+        OperatorPaged.emptyObservable().subscribe(mockObserver);
         verify(mockObserver, never()).onNext(any());
         verify(mockObserver, never()).onError(any(Throwable.class));
         verify(mockObserver).onCompleted();
+        verifyNoMoreInteractions(mockObserver);
+    }
+
+    @Test
+    public void emptyPageObservableEmitASingleEmptyPage() {
+        OperatorPaged.emptyPageObservable().subscribe(mockObserver);
+        verify(mockObserver).onNext(OperatorPaged.emptyPage());
+        verify(mockObserver, never()).onError(any(Throwable.class));
+        verify(mockObserver).onCompleted();
+        verifyNoMoreInteractions(mockObserver);
     }
 
     private Observable<Page<List<Integer>>> pagedObservableWithNext(Observable<List<Integer>> nextPage) {

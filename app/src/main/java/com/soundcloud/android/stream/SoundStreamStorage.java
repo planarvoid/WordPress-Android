@@ -13,6 +13,7 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.PropertySet;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.Scheduler;
@@ -64,7 +65,7 @@ class SoundStreamStorage extends ScheduledOperations {
                 selection.append(String.format(Locale.US, "%s < %d", ActivityView.CREATED_AT, timestamp));
                 selection.append(" AND ");
                 selection.append(
-                        String.format(Locale.US, "%s NOT IN ('%s', '%s')", ActivityView.TYPE, "comment", "affiliation"));
+                        String.format(Locale.US, "%s = %d", ActivityView.CONTENT_ID, Content.ME_SOUND_STREAM.id));
                 Log.d(TAG, "SELECT on activities: " + selection);
                 final Cursor cursor = database.query(
                         table.name, projection, selection.toString(), null, null, null, null, String.valueOf(limit));

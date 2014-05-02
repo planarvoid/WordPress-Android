@@ -18,7 +18,7 @@ public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAda
 
     private final int progressItemLayoutResId;
 
-    private Page<? extends Iterable<T>> currentPage = OperatorPaged.<T>emptyPage();
+    private Page<? extends Iterable<T>> currentPage = OperatorPaged.emptyPage();
 
     private AppendState appendState = AppendState.IDLE;
 

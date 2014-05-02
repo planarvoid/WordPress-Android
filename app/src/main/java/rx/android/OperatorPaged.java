@@ -6,12 +6,12 @@ import rx.functions.Func1;
 
 import java.util.Collections;
 
+@SuppressWarnings("unchecked")
 public final class OperatorPaged<CollT extends Iterable<?>> implements Observable.Operator<OperatorPaged.Page<CollT>, CollT> {
 
     private static final Observable EMPTY_OBSERVABLE = Observable.empty();
-
-    @SuppressWarnings("unchecked")
     private static final Page EMPTY_PAGE = new Page(Collections.emptyList(), EMPTY_OBSERVABLE);
+    private static final Observable EMPTY_PAGE_OBSERVABLE = Observable.just(EMPTY_PAGE);
 
     private final Pager<CollT> pager;
 
@@ -19,14 +19,16 @@ public final class OperatorPaged<CollT extends Iterable<?>> implements Observabl
         return new OperatorPaged<CollT>(pager);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T> Page<? extends Iterable<T>> emptyPage() {
+    public static <CollT extends Iterable<?>> Page<CollT> emptyPage() {
         return EMPTY_PAGE;
     }
 
-    @SuppressWarnings("unchecked")
-    public static <CollT extends Iterable<?>> Observable<Page<CollT>> emptyPageObservable() {
+    public static <CollT extends Iterable<?>> Observable<Page<CollT>> emptyObservable() {
         return EMPTY_OBSERVABLE;
+    }
+
+    public static <CollT extends Iterable<?>> Observable<Page<CollT>> emptyPageObservable() {
+        return EMPTY_PAGE_OBSERVABLE;
     }
 
     OperatorPaged(Pager<CollT> pager) {
