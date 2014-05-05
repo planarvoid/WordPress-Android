@@ -28,11 +28,20 @@ public interface Playa {
         private PlayaState newState;
         private Reason reason;
 
+        @VisibleForTesting
+        private static final String DEBUG_EXTRA = "DEBUG_EXTRA";
+
+        private String debugExtra;
+
         static final StateTransition DEFAULT = new StateTransition(PlayaState.IDLE, Reason.NONE);
 
         public StateTransition(PlayaState newState, Reason reason) {
             this.newState = newState;
             this.reason = reason;
+        }
+
+        public void setDebugExtra(String debugExtra){
+            this.debugExtra = debugExtra;
         }
 
         public PlayaState getNewState() {
@@ -71,13 +80,20 @@ public interface Playa {
             return newState == PlayaState.IDLE && reason == Reason.NONE;
         }
 
+        public String getDebugExtra() {
+            return debugExtra;
+        }
+
         public void addToIntent(Intent intent) {
             newState.addToIntent(intent);
             reason.addToIntent(intent);
+            intent.putExtra(DEBUG_EXTRA, debugExtra);
         }
 
         public static StateTransition fromIntent(Intent intent) {
-            return new StateTransition(PlayaState.fromIntent(intent), Reason.fromIntent(intent));
+            final StateTransition stateTransition = new StateTransition(PlayaState.fromIntent(intent), Reason.fromIntent(intent));
+            stateTransition.setDebugExtra(intent.getStringExtra(DEBUG_EXTRA));
+            return stateTransition;
         }
 
 

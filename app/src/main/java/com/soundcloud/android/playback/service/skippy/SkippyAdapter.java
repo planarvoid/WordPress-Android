@@ -133,7 +133,9 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         if (uri.equals(currentStreamUrl)){
             final PlayaState translatedState = getTranslatedState(state, reason);
             final Reason translatedReason = getTranslatedReason(reason, errorcode);
-            Message msg = stateHandler.obtainMessage(0, new StateTransition(translatedState, translatedReason));
+            final StateTransition transition = new StateTransition(translatedState, translatedReason);
+            transition.setDebugExtra("Skippy");
+            Message msg = stateHandler.obtainMessage(0, transition);
             stateHandler.sendMessage(msg);
         }
     }

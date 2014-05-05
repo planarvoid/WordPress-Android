@@ -37,6 +37,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
 
+        <include layout="@layout/debug_txt"/>
+
         <View android:layout_width="match_parent"
               android:layout_height="5dip"
               android:background="@drawable/drop_shadow_down"/>

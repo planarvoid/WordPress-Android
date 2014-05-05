@@ -22,6 +22,7 @@ import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
@@ -57,6 +58,8 @@ public class PlayerTrackView extends FrameLayout implements
     private PlayablePresenter mPlayablePresenter;
     private EngagementsController mEngagementsController;
 
+    private TextView mDebugTextView;
+
     public interface PlayerTrackViewListener extends WaveformControllerLayout.WaveformListener {
         void onAddToPlaylist(Track track);
         void onCloseCommentMode();
@@ -83,6 +86,8 @@ public class PlayerTrackView extends FrameLayout implements
         mEngagementsController = new EngagementsController(application.getEventBus(), soundAssocOps);
         mEngagementsController.bindView(this);
         mEngagementsController.setAddToPlaylistListener(this);
+
+        mDebugTextView = (TextView) findViewById(R.id.debug_txt);
 
         final View trackInfoBar = findViewById(R.id.playable_bar);
         if (trackInfoBar != null){
@@ -291,6 +296,14 @@ public class PlayerTrackView extends FrameLayout implements
             }
             setBufferingState(playaState.isBuffering());
 
+            final String debugExtra = stateTransition.getDebugExtra();
+            if (ScTextUtils.isNotBlank(debugExtra)){
+                mDebugTextView.setText(debugExtra);
+                mDebugTextView.setVisibility(View.VISIBLE);
+            } else {
+                mDebugTextView.setVisibility(View.GONE);
+            }
+
 
         } else if (Playable.COMMENTS_UPDATED.equals(action)) {
             if (mTrack.getId() == intent.getLongExtra(BroadcastExtras.ID, -1)) {
@@ -347,6 +360,7 @@ public class PlayerTrackView extends FrameLayout implements
     public void clear() {
         mOnScreen = false;
         onStop(true);
+        mDebugTextView.setVisibility(View.GONE);
         mWaveformController.reset(true);
         mWaveformController.setOnScreen(false);
     }

@@ -35,6 +35,8 @@
             android:layout_height="40dip"
             android:layout_alignParentBottom="true"/>
 
+    <include layout="@layout/debug_txt"/>
+
     <View android:layout_width="match_parent"
           android:layout_height="5dip"
           android:layout_alignParentTop="true"
