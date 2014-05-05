@@ -1,8 +1,8 @@
 package com.soundcloud.android.explore;
 
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.MainScreen;
-import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.explore.ExploreGenreCategoryScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
@@ -13,7 +13,7 @@ public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
     private ExploreScreen exploreScreen;
     private ExploreGenreCategoryScreen categoryScreen;
 
-    private PlayerScreen playerScreen;
+    private LegacyPlayerScreen playerScreen;
 
     public ExploreRecommendations() {
         super(MainActivity.class);

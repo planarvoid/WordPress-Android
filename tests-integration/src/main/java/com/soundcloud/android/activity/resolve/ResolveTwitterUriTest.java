@@ -2,7 +2,7 @@ package com.soundcloud.android.activity.resolve;
 
 import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.main.ResolveActivity;
-import com.soundcloud.android.screens.PlayerScreen;
+import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
@@ -13,7 +13,7 @@ import android.net.Uri;
 
 public class ResolveTwitterUriTest extends ActivityTestCase<ResolveActivity> {
     protected static final int DEFAULT_WAIT = 30 * 1000;
-    protected static PlayerScreen playerScreen;
+    protected static LegacyPlayerScreen playerScreen;
     protected static ProfileScreen profileScreen;
     protected static Waiter waiter;
 
@@ -30,7 +30,7 @@ public class ResolveTwitterUriTest extends ActivityTestCase<ResolveActivity> {
         super.setUp();
 
         waiter = new Waiter(solo);
-        playerScreen = new PlayerScreen(solo);
+        playerScreen = new LegacyPlayerScreen(solo);
     }
 
     public void testResolveExploreUrl() throws Exception {

@@ -1,8 +1,8 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.MainScreen;
-import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
@@ -79,7 +79,7 @@ public class Search extends ActivityTestCase<MainActivity> {
 
     public void testTappingTrackOnAllTabOpensPlayer() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("track");
-        PlayerScreen playerScreen = resultsScreen.clickFirstTrackItem();
+        LegacyPlayerScreen playerScreen = resultsScreen.clickFirstTrackItem();
         assertEquals("Player screen should be visible", true, playerScreen.isVisible());
     }
 
@@ -98,7 +98,7 @@ public class Search extends ActivityTestCase<MainActivity> {
     public void testTappingTrackOnTracksTabOpensPlayer() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("dub");
         resultsScreen.touchTracksTab();
-        PlayerScreen playerScreen = resultsScreen.clickFirstTrackItem();
+        LegacyPlayerScreen playerScreen = resultsScreen.clickFirstTrackItem();
         assertEquals("Player screen should be visible", true, playerScreen.isVisible());
     }
 

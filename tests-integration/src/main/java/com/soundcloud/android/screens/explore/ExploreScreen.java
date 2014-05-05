@@ -9,7 +9,7 @@ import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.screens.PlayerScreen;
+import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.tests.Han;
@@ -90,10 +90,10 @@ public class ExploreScreen extends Screen {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    public PlayerScreen playPopularTrack(int trackNumber) {
+    public LegacyPlayerScreen playPopularTrack(int trackNumber) {
         View view = ((GridView)viewPager.getCurrentPage(GridView.class)).getChildAt(trackNumber);
         solo.clickOnView(view);
-        return new PlayerScreen(solo);
+        return new LegacyPlayerScreen(solo);
     }
 
     private void validateThatClickedTrackMatchesExpectedTrackToPlay(List<TextView> textViewsForClickedItem, TrackSummary trackSummaryForPlayedTrack) {

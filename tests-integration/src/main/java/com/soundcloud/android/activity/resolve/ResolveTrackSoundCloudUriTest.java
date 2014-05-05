@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity.resolve;
 
 import com.soundcloud.android.TestConsts;
-import com.soundcloud.android.screens.PlayerScreen;
+import com.soundcloud.android.screens.LegacyPlayerScreen;
 
 import android.net.Uri;
 
@@ -10,7 +10,7 @@ public class ResolveTrackSoundCloudUriTest extends ResolveBaseTest {
     private static final String TRACK_NAME = "STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]";
 
     public void testShouldOpenPlayerScreenAndLoadRecommendations() throws Exception {
-        playerScreen = new PlayerScreen(solo);
+        playerScreen = new LegacyPlayerScreen(solo);
         playerScreen.stopPlayback();
 
         waiter.expect(playerScreen.trackTitleElement())

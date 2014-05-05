@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.screens.PlayerScreen;
+import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
@@ -35,11 +35,11 @@ public class SearchResultsScreen extends Screen {
         waiter.waitForFragmentByTag(FRAGMENT);
     }
 
-    public PlayerScreen clickFirstTrackItem() {
+    public LegacyPlayerScreen clickFirstTrackItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         View itemView = getFirstResultsItemByClass(Track.class);
         solo.clickOnView(itemView);
-        return new PlayerScreen(solo);
+        return new LegacyPlayerScreen(solo);
     }
 
     public PlaylistDetailsScreen clickFirstPlaylistItem() {

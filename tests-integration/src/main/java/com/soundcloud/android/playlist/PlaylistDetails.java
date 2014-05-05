@@ -3,9 +3,8 @@ package com.soundcloud.android.playlist;
 import static com.soundcloud.android.tests.TestUser.playlistUser;
 
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.screens.MainScreen;
+import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.MenuScreen;
-import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 
@@ -40,7 +39,7 @@ public class PlaylistDetails extends ActivityTestCase<LauncherActivity> {
     }
 
     public void ignoreHeaderPlayClickShouldNotOpenPlayer() {
-        PlayerScreen playerScreen = playlistDetailsScreen.clickHeaderPlay();
+        LegacyPlayerScreen playerScreen = playlistDetailsScreen.clickHeaderPlay();
         assertEquals("Player screen should not be visible", false, playerScreen.isVisible());
 
         playlistDetailsScreen.clickHeaderPause();

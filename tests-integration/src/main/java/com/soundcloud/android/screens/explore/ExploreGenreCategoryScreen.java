@@ -5,7 +5,7 @@ import android.widget.GridView;
 import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.explore.ExploreTracksCategoryActivity;
-import com.soundcloud.android.screens.PlayerScreen;
+import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
 
@@ -28,9 +28,9 @@ public class ExploreGenreCategoryScreen extends Screen {
         return textView.getText().toString();
     }
 
-    public PlayerScreen playTrack(int index) {
+    public LegacyPlayerScreen playTrack(int index) {
         solo.clickOnView(tracksList().getChildAt(index));
-        return new PlayerScreen(solo);
+        return new LegacyPlayerScreen(solo);
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {

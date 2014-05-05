@@ -44,10 +44,10 @@ public class PlaylistDetailsScreen extends Screen {
         return rootContainer().findViewById(USERNAME);
     }
 
-    public PlayerScreen clickHeaderPlay() {
+    public LegacyPlayerScreen clickHeaderPlay() {
         solo.clickOnView(R.id.toggle_play_pause);
         waiter.waitForPlayerPlaying();
-        return new PlayerScreen(solo);
+        return new LegacyPlayerScreen(solo);
     }
 
     public void clickHeaderPause() {
