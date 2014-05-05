@@ -1,11 +1,15 @@
 package com.soundcloud.android.stream;
 
+import static rx.android.OperatorPaged.Page;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.collections.EndlessPagingAdapter;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.PropertySet;
+import com.soundcloud.android.utils.Log;
+import rx.observables.ConnectableObservable;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -15,6 +19,7 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.Date;
+import java.util.List;
 
 public class SoundStreamFragment extends ListFragment {
 
@@ -35,7 +40,29 @@ public class SoundStreamFragment extends ListFragment {
 
         getListView().setOnScrollListener(adapter);
 
-        soundStreamOperations.getStreamItems().observeOn(mainThread()).subscribe(adapter);
+        final ConnectableObservable<Page<List<PropertySet>>> observable =
+                soundStreamOperations.getStreamItems().observeOn(mainThread()).publish();
+        observable.subscribe(adapter);
+        observable.subscribe(new DefaultSubscriber<Page<List<PropertySet>>>() {
+            @Override
+            public void onCompleted() {
+                Log.d("SoundStream", "fragment onCompleted");
+                super.onCompleted();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d("SoundStream", "fragment onError " + e);
+                super.onError(e);
+            }
+
+            @Override
+            public void onNext(Page<List<PropertySet>> args) {
+                Log.d("SoundStream", "fragment onNext: num items = " + args.getPagedCollection().size());
+                super.onNext(args);
+            }
+        });
+        observable.connect();
     }
 
     private static final class StreamItemAdapter extends EndlessPagingAdapter<PropertySet> {

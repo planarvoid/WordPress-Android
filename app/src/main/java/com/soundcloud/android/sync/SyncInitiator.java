@@ -14,7 +14,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.ResultReceiver;
 
 import javax.inject.Inject;
 
@@ -60,6 +59,22 @@ public class SyncInitiator {
         }
     }
 
+    public Observable<Boolean> syncSoundStream() {
+        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+            @Override
+            public void call(Subscriber<? super Boolean> subscriber) {
+                requestSoundStreamSync(new ResultReceiverAdapter(subscriber, Content.ME_SOUND_STREAM.uri));
+            }
+        });
+    }
+
+    private void requestSoundStreamSync(ResultReceiverAdapter resultReceiver) {
+        context.startService(new Intent(context, ApiSyncService.class)
+                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                .setData(Content.ME_SOUND_STREAM.uri));
+    }
+
     /**
      * Triggers a backfill sync for the sound stream.
      * <p/>
@@ -84,11 +99,9 @@ public class SyncInitiator {
     }
 
     public void syncLocalPlaylists() {
-        final Intent intent = new Intent(context, ApiSyncService.class)
+        context.startService(new Intent(context, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, (ResultReceiver) null)
-                .setData(Content.ME_PLAYLISTS.uri);
-        context.startService(intent);
+                .setData(Content.ME_PLAYLISTS.uri));
     }
 
     public Observable<Boolean> syncPlaylist(final Urn playlistUrn) {
