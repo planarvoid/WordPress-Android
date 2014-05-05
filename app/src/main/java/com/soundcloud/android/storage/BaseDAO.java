@@ -30,6 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+@Deprecated
 public abstract class BaseDAO<T extends Identifiable & Persisted> {
     public static final int RESOLVER_BATCH_SIZE = 500;
 
@@ -255,6 +256,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
         return klass;
     }
 
+    @Deprecated
     public final class QueryBuilder {
         private static final int INITIAL_SELECTION_CAPACITY = 200;
 

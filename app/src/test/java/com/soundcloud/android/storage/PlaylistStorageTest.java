@@ -16,7 +16,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.activities.Activity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
-import com.xtremelabs.robolectric.tester.android.database.SimpleTestCursor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -143,7 +142,7 @@ public class PlaylistStorageTest {
         Playlist playlist = new Playlist(1L);
         Track track = new Track();
 
-        Cursor cursor = new FakeCursor(1);
+        Cursor cursor = new TestCursor(1);
         when(resolver.query(Content.PLAYLISTS.uri, null, TableColumns.SoundView._ID + " < 0", null, TableColumns.SoundView._ID + " DESC")).thenReturn(cursor);
         when(modelManager.getCachedPlaylistFromCursor(cursor)).thenReturn(playlist);
         when(modelManager.cache(track)).thenReturn(track);
@@ -174,7 +173,7 @@ public class PlaylistStorageTest {
 
     @Test
     public void shouldSyncChangesToExistingPlaylists() throws Exception {
-        Cursor cursor = new FakeCursor(new Object[][] {{1L}});
+        Cursor cursor = new TestCursor(new Object[][] {{1L}});
 
         when(resolver.query(Content.PLAYLIST_ALL_TRACKS.uri, new String[]{TableColumns.PlaylistTracks.PLAYLIST_ID},
                 TableColumns.PlaylistTracks.ADDED_AT + " IS NOT NULL AND "
@@ -218,7 +217,7 @@ public class PlaylistStorageTest {
 
     @Test
     public void shouldReturnUnpushedTracksForPlaylist() throws Exception {
-        Cursor cursor = new FakeCursor(new Object[][] {{2L}, {3L}});
+        Cursor cursor = new TestCursor(new Object[][] {{2L}, {3L}});
 
         when(resolver.query(Content.PLAYLIST_ALL_TRACKS.uri,
                 new String[]{ TableColumns.PlaylistTracks.TRACK_ID },
@@ -230,23 +229,4 @@ public class PlaylistStorageTest {
     }
 
 
-    private final class FakeCursor extends SimpleTestCursor {
-
-        private int count;
-
-        private FakeCursor(int count) {
-            this.count = count;
-            setResults(new Object[count][]);
-        }
-
-        private FakeCursor(Object[][] fakeResults) {
-            this.count = fakeResults.length;
-            setResults(fakeResults);
-        }
-
-        @Override
-        public int getCount() {
-            return count;
-        }
-    }
 }
