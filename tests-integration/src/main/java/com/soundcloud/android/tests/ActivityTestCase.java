@@ -35,7 +35,6 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
 
     @Override
     protected void setUp() throws Exception {
-        if (shouldSkip()) return;
         solo = new Han(getInstrumentation());
         menuScreen = new MenuScreen(solo);
         waiter = new Waiter(solo);
@@ -59,7 +58,6 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
 
     @Override
     protected void tearDown() throws Exception {
-        if (shouldSkip()) return;
         if (solo != null) {
             solo.finishOpenedActivities();
         }
