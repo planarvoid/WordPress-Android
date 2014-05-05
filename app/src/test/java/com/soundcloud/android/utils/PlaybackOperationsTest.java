@@ -386,7 +386,7 @@ public class PlaybackOperationsTest {
         when(playbackStateProvider.getPlayQueuePlaylistId()).thenReturn(123L);
         final Intent intent = playbackOperations.getServiceBasedUpIntent();
         expect(intent).toHaveAction("com.soundcloud.android.action.PLAYLIST");
-        expect(intent).toHaveData(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/playlists/123"));
+        expect(intent.getParcelableExtra(Playlist.EXTRA_URN)).toEqual(Urn.forPlaylist(123L));
         expect(intent).toHaveFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         expect(intent.getIntExtra("ScreenOrdinal", -1)).toEqual(Screen.PLAYLIST_DETAILS.ordinal());
     }

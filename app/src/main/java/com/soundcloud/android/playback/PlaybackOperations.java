@@ -20,6 +20,7 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -310,8 +311,8 @@ public class PlaybackOperations {
     }
 
     private Intent getUpDestinationFromPlaylist(long playlistId, String originScreen) {
-        Intent upIntent = new Intent(Actions.PLAYLIST).setData(Content.PLAYLIST.forId(playlistId));
-        Screen.fromScreenTag(originScreen).addToIntent(upIntent);
+        final Screen screen = Screen.fromScreenTag(originScreen);
+        final Intent upIntent = PlaylistDetailActivity.getIntent(Urn.forPlaylist(playlistId), screen);
         upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return upIntent;
     }

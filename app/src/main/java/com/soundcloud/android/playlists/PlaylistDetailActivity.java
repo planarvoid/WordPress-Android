@@ -7,6 +7,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.PlaylistUrn;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
@@ -26,9 +27,13 @@ public class PlaylistDetailActivity extends ScActivity {
     }
 
     public static Intent getIntent(@NotNull Playlist playlist, Screen screen) {
+        return getIntent(playlist.getUrn(), screen);
+    }
+
+    public static Intent getIntent(@NotNull PlaylistUrn playlistUrn, Screen screen) {
         Intent intent = new Intent(Actions.PLAYLIST);
         screen.addToIntent(intent);
-        return intent.putExtra(Playlist.EXTRA_URN, playlist.getUrn());
+        return intent.putExtra(Playlist.EXTRA_URN, playlistUrn);
     }
 
     public PlaylistDetailActivity() {
