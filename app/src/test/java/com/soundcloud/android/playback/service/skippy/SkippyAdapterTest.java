@@ -105,9 +105,15 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void seekCallsPauseOnSkippy(){
+    public void seekCallsPauseOnSkippyIfPerformSeekTrue(){
         skippyAdapter.seek(123L, true);
         verify(skippy).seek(123L);
+    }
+
+    @Test
+    public void seekDoesNotCallPauseOnSkippyIfPerformSeekFalse(){
+        skippyAdapter.seek(123L, false);
+        verify(skippy, never()).seek(any(Long.class));
     }
 
     @Test

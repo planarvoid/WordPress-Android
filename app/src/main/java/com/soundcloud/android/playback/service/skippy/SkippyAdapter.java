@@ -56,7 +56,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         this.connectionHelper = connectionHelper;
     }
 
-    public boolean init(Context context){
+    public boolean init(Context context) {
         return skippy.init(context);
     }
 
@@ -87,7 +87,9 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public long seek(long position, boolean performSeek) {
-        skippy.seek(position);
+        if (performSeek) {
+            skippy.seek(position);
+        }
         return position;
     }
 
@@ -130,7 +132,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     public void onStateChanged(Skippy.State state, Skippy.Reason reason, Skippy.Error errorcode, String uri) {
         Log.i(TAG, "State = " + state + " : " + reason + " : " + errorcode);
 
-        if (uri.equals(currentStreamUrl)){
+        if (uri.equals(currentStreamUrl)) {
             final PlayaState translatedState = getTranslatedState(state, reason);
             final Reason translatedReason = getTranslatedReason(reason, errorcode);
             final StateTransition transition = new StateTransition(translatedState, translatedReason);
@@ -246,18 +248,19 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private class SkippyException extends Exception {
         private String category;
 
-        public SkippyException(String category){
+        public SkippyException(String category) {
             this.category = category;
         }
 
         @Override
-        public String getMessage(){
+        public String getMessage() {
             return this.category;
 
         }
+
         @Override
-        public StackTraceElement[] getStackTrace(){
-            StackTraceElement[] stack = new StackTraceElement[]{new StackTraceElement(this.category.replace("/", "."),"","skippy.c",1)};
+        public StackTraceElement[] getStackTrace() {
+            StackTraceElement[] stack = new StackTraceElement[]{new StackTraceElement(this.category.replace("/", "."), "", "skippy.c", 1)};
             return stack;
         }
     }
