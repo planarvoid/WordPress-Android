@@ -285,6 +285,12 @@
             <version>2.16.1</version>
         </dependency>
         <dependency>
+            <groupId>com.sothree.slidinguppanel</groupId>
+            <artifactId>library</artifactId>
+            <version>0.1.1-SOUNDCLOUD</version>
+            <type>aar</type>
+        </dependency>
+        <dependency>
             <groupId>com.soundcloud.android</groupId>
             <artifactId>android-crop</artifactId>
             <version>0.9.7</version>

@@ -153,4 +153,6 @@
     <!-- Override pull to refresh style -->
     <dimen name="ptr_progress_bar_stroke_width" tools:ignore="UnusedResources">@dimen/ptr_thickness</dimen>
 
+    <dimen name="player_footer_height">68dp</dimen>
+
 </resources>

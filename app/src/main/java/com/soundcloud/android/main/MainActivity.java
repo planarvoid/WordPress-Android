@@ -18,6 +18,8 @@ import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import net.hockeyapp.android.UpdateManager;
@@ -54,6 +56,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     UserOperations userOperations;
     @Inject
     StreamFragmentFactory streamFragmentFactory;
+    @Inject
+    FeatureFlags featureFlags;
 
     private final CompositeSubscription subscription = new CompositeSubscription();
 
@@ -63,7 +67,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
+
+        setContentView(featureFlags.isEnabled(Feature.VISUAL_PLAYER) ? R.layout.main_activity : R.layout.main_activity_legacy);
 
         navigationFragment = findNavigationFragment();
         navigationFragment.initState(savedInstanceState);
