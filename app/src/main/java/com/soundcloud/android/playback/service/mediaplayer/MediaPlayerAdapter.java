@@ -372,7 +372,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     @Override
     public long seek(long ms, boolean performSeek) {
         if (isSeekable()) {
-            if (ms <= 0) {
+            if (ms < 0) {
                 throw new IllegalArgumentException("Trying to seek before 0");
             }
 

@@ -16,6 +16,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.nostra13.universalimageloader.utils.L;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -204,6 +205,20 @@ public class MediaPlayerAdapterTest {
         playUrlAndSetPrepared();
         expect(mediaPlayerAdapter.seek(123l)).toEqual(123l);
         verify(mediaPlayer).seekTo(123);
+    }
+
+    @Test
+    public void seekShouldCallSeekOnMediaPlayerWithTimeOfZeroWhenPositionNotZero() {
+        playUrlAndSetPrepared();
+        when(mediaPlayer.getCurrentPosition()).thenReturn(1);
+        expect(mediaPlayerAdapter.seek(0L)).toEqual(0L);
+        verify(mediaPlayer).seekTo(0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void seekShouldThrowAnIllegalArgumentExceptionWithNegativeSeekTime() {
+        playUrlAndSetPrepared();
+        mediaPlayerAdapter.seek(-1L);
     }
 
     @Test
