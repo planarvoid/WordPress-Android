@@ -1503,4 +1503,14 @@
         <item name="android:textColor">@color/dialog_subtext</item>
     </style>
 
+    <!-- Player -->
+
+    <style name="FooterToggle">
+        <item name="android:layout_width">@dimen/player_footer_control</item>
+        <item name="android:layout_height">@dimen/player_footer_control</item>
+        <item name="android:background">@drawable/btn_footer_play_toggle</item>
+        <item name="android:textOn">@null</item>
+        <item name="android:textOff">@null</item>
+    </style>
+
 </resources>

@@ -8,5 +8,5 @@
 
     <!-- Feature flags -->
     <bool name="feature_new_stream">false</bool>
-    <bool name="feature_visual_player">false</bool>
+    <bool name="feature_visual_player">true</bool>
 </resources>

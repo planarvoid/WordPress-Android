@@ -16,9 +16,20 @@
     <RelativeLayout
             android:id="@+id/footer_control"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/player_footer_control">
+            android:layout_height="@dimen/player_footer_control"
+            android:layout_below="@id/player_strip">
 
-            <!-- TODO: we don't have content for this yet but need to click on it in an acceptance test -->
+            <ToggleButton
+                    android:id="@+id/footer_toggle"
+                    style="@style/FooterToggle" />
+
+            <TextView
+                    android:id="@+id/footer_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:textColor="@color/white"
+                    android:layout_toRightOf="@id/footer_toggle" />
     </RelativeLayout>
 
 </RelativeLayout>
