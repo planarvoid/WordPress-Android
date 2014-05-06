@@ -1,8 +1,11 @@
 package com.soundcloud.android.main;
 
+import static com.sothree.slidinguppanel.SlidingUpPanelLayout.*;
+import static com.soundcloud.android.main.NavigationFragment.NavigationCallbacks;
 import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 import static rx.android.observables.AndroidObservable.bindActivity;
 
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.UserOperations;
@@ -30,10 +33,11 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
+import android.view.View;
 
 import javax.inject.Inject;
 
-public class MainActivity extends ScActivity implements NavigationFragment.NavigationCallbacks {
+public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     public static final String EXTRA_ONBOARDING_USERS_RESULT = "onboarding_users_result";
 
@@ -68,7 +72,13 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(featureFlags.isEnabled(Feature.VISUAL_PLAYER) ? R.layout.main_activity : R.layout.main_activity_legacy);
+        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
+            setContentView(R.layout.main_activity);
+            SlidingUpPanelLayout playerPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+            playerPanel.setPanelSlideListener(playerPanelListener);
+        } else {
+            setContentView(R.layout.main_activity_legacy);
+        }
 
         navigationFragment = findNavigationFragment();
         navigationFragment.initState(savedInstanceState);
@@ -88,6 +98,31 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
         subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber()));
+    }
+
+    private PanelSlideListener playerPanelListener = new PanelSlideListener() {
+
+        @Override
+        public void onPanelSlide(View panel, float slideOffset) {}
+
+        @Override
+        public void onPanelCollapsed(View panel) {
+            setDrawerLocked(false);
+        }
+
+        @Override
+        public void onPanelExpanded(View panel) {
+            setDrawerLocked(true);
+        }
+
+        @Override
+        public void onPanelAnchored(View panel) {}
+    };
+
+    private void setDrawerLocked(boolean locked) {
+        if (navigationFragment instanceof NavigationDrawerFragment) {
+            ((NavigationDrawerFragment) navigationFragment).setLocked(locked);
+        }
     }
 
     private NavigationFragment findNavigationFragment() {

@@ -90,6 +90,10 @@ public class NavigationDrawerFragment extends NavigationFragment {
         }
     }
 
+    public void setLocked(boolean locked) {
+        drawerLayout.setDrawerLockMode(locked ? DrawerLayout.LOCK_MODE_LOCKED_CLOSED : DrawerLayout.LOCK_MODE_UNLOCKED);
+    }
+
     @Override
     protected void selectItem(int position) {
         super.selectItem(position);

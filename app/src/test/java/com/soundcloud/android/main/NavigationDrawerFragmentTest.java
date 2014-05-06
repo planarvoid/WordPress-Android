@@ -83,4 +83,15 @@ public class NavigationDrawerFragmentTest {
         verify(actionBar).setTitle(R.string.app_name);
     }
 
+    @Test
+    public void shouldLockDrawerOnSetLockedToTrue() throws Exception {
+        fragment.setLocked(true);
+        verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
+    @Test
+    public void shouldUnlockDrawerToClosedOnSetLockedToFalse() throws Exception {
+        fragment.setLocked(false);
+        verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+    }
 }
