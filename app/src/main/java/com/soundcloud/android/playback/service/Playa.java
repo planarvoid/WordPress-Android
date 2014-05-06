@@ -33,7 +33,7 @@ public interface Playa {
 
         private String debugExtra;
 
-        static final StateTransition DEFAULT = new StateTransition(PlayaState.IDLE, Reason.NONE);
+        public static final StateTransition DEFAULT = new StateTransition(PlayaState.IDLE, Reason.NONE);
 
         public StateTransition(PlayaState newState, Reason reason) {
             this.newState = newState;

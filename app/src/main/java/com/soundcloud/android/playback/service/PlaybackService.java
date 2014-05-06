@@ -343,7 +343,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             if (stateTransition.getNewState() == Playa.PlayaState.IDLE){
                 gotoIdleState(false);
             }
+
             notifyChange(Broadcasts.PLAYSTATE_CHANGED, stateTransition);
+
+            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
         }
     }
 

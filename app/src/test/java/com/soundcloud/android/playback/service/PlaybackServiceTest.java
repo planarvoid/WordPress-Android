@@ -1,14 +1,20 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.peripherals.PeripheralsOperations;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.track.TrackOperations;
 import com.xtremelabs.robolectric.Robolectric;
@@ -18,11 +24,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observable;
+import rx.Scheduler;
 
 import android.content.BroadcastReceiver;
 import android.media.AudioManager;
 
-import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -57,14 +64,20 @@ public class PlaybackServiceTest {
     private Lazy<IRemoteAudioManager> audioManagerProvider;
     @Mock
     private IRemoteAudioManager remoteAudioManager;
+    @Mock
+    private PlayQueue playQueue;
+    @Mock
+    private Playa.StateTransition stateTransition;
 
     @Before
     public void setUp() throws Exception {
         playbackService = new PlaybackService(playQueueManager, eventBus, trackOperations, peripheralsOperations,
                 playbackEventSource, accountOperations, imageOperations, appWidgetProvider, streamPlayer,
                 playbackReceiverFactory, audioManagerProvider);
+
         when(playbackReceiverFactory.create(playbackService, accountOperations, playQueueManager, eventBus)).thenReturn(playbackReceiver);
         when(audioManagerProvider.get()).thenReturn(remoteAudioManager);
+        when(playQueueManager.getCurrentPlayQueue()).thenReturn(playQueue);
     }
 
     @Test
@@ -137,6 +150,55 @@ public class PlaybackServiceTest {
     public void onCreateRegistersNoisyListenerToListenForAudioBecomingNoisyBroadcast() throws Exception {
         playbackService.onCreate();
         expect(getReceiversForAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)).toContain(playbackReceiver);
+    }
+
+    @Test
+    public void onPlaystateChangedPublishesStateTransitionWhenTrackEndedIsFalse() throws Exception {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
+        when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.BUFFERING);
+        when(stateTransition.trackEnded()).thenReturn(false);
+
+        playbackService.onPlaystateChanged(stateTransition);
+
+        Playa.StateTransition broadcasted = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
+        expect(broadcasted).toBe(stateTransition);
+    }
+
+    @Test
+    public void onPlaystateChangedTriesToPlayQueueWithoutManualFlagWhenTrackEnded() throws Exception {
+        when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.IDLE);
+        when(stateTransition.trackEnded()).thenReturn(true);
+
+        playbackService.onPlaystateChanged(stateTransition);
+        verify(playQueue).moveToNext(false);
+    }
+
+    @Test
+    public void onPlaystateChangedPublishesStateWhenTrackEndedIsTrueAndPlayQueueFailsToAdvance() throws Exception {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
+        when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.IDLE);
+        when(stateTransition.trackEnded()).thenReturn(true);
+        when(playQueue.moveToNext(anyBoolean())).thenReturn(false);
+
+        playbackService.onPlaystateChanged(stateTransition);
+
+        Playa.StateTransition broadcasted = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
+        expect(broadcasted).toBe(stateTransition);
+    }
+
+    @Test
+    public void onPlaystateChangedDoesNotPublishStateWhenTrackEndedIsTrueAndPlayQueueAdvances() throws Exception {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
+        when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.IDLE);
+        when(stateTransition.trackEnded()).thenReturn(true);
+        when(playQueue.moveToNext(anyBoolean())).thenReturn(true);
+        when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
+
+        playbackService.onPlaystateChanged(stateTransition);
+        eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
     }
 
     private ArrayList<BroadcastReceiver> getReceiversForAction(String action) {
