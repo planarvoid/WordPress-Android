@@ -7,7 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
@@ -461,7 +461,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 if (streamPlayer.isPlayerPlaying()) {
                     final boolean changedContext = newTrackSourceInfo != null && !newTrackSourceInfo.sharesSameOrigin(currentTrackSourceInfo);
                     playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, getCurrentUserId(),
-                            changedContext ? PlaybackEvent.STOP_REASON_NEW_QUEUE : PlaybackEvent.STOP_REASON_SKIP);
+                            changedContext ? PlaybackSessionEvent.STOP_REASON_NEW_QUEUE : PlaybackSessionEvent.STOP_REASON_SKIP);
                 }
 
                 waitingForPlaylist = false;
@@ -497,18 +497,18 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 playbackEventSource.publishPlayEvent(currentTrack, currentTrackSourceInfo, currentUserId);
                 break;
             case BUFFERING:
-                playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, PlaybackEvent.STOP_REASON_BUFFERING);
+                playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, PlaybackSessionEvent.STOP_REASON_BUFFERING);
                 break;
             case IDLE:
                 if (stateTransition.getReason() == Playa.Reason.COMPLETE){
                     final int stopReason = getPlayQueueInternal().hasNextTrack()
-                            ? PlaybackEvent.STOP_REASON_TRACK_FINISHED
-                            : PlaybackEvent.STOP_REASON_END_OF_QUEUE;
+                            ? PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED
+                            : PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE;
                     playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, stopReason);
                 } else if (stateTransition.wasError()){
-                    playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, PlaybackEvent.STOP_REASON_ERROR);
+                    playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, PlaybackSessionEvent.STOP_REASON_ERROR);
                 } else {
-                    playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, PlaybackEvent.STOP_REASON_PAUSE);
+                    playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, PlaybackSessionEvent.STOP_REASON_PAUSE);
                 }
                 break;
             default:

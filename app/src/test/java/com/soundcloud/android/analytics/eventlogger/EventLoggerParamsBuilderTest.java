@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Maps;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.model.Track;
@@ -143,7 +143,7 @@ public class EventLoggerParamsBuilderTest {
     }
 
     private void checkUrl(String expected) throws UnsupportedEncodingException {
-        final String actualQueryString = eventLoggerParamsBuilder.buildFromPlaybackEvent(PlaybackEvent.forPlay(track, 1L, trackSourceInfo, 321L));
+        final String actualQueryString = eventLoggerParamsBuilder.buildFromPlaybackEvent(PlaybackSessionEvent.forPlay(track, 1L, trackSourceInfo, 321L));
         assertThat(actualQueryString, is(queryStringEqualTo(expected)));
     }
 }

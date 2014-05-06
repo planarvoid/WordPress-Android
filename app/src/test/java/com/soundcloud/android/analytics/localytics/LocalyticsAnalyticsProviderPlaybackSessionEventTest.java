@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
@@ -25,7 +25,7 @@ import org.mockito.Mock;
 import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LocalyticsAnalyticsProviderPlaybackEventTest {
+public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
     private static final String LISTEN = "Listen";
     private static final int DURATION = 100000;
@@ -42,7 +42,7 @@ public class LocalyticsAnalyticsProviderPlaybackEventTest {
 
     private Track track;
     private TrackSourceInfo trackSourceInfo;
-    private PlaybackEvent startEvent, stopEvent;
+    private PlaybackSessionEvent startEvent, stopEvent;
 
     @Before
     public void setUp() throws CreateModelException {
@@ -56,13 +56,13 @@ public class LocalyticsAnalyticsProviderPlaybackEventTest {
         long startTime = System.currentTimeMillis();
         long stopTime = startTime + 1000L;
 
-        startEvent = PlaybackEvent.forPlay(track, 123L, trackSourceInfo, startTime);
-        stopEvent = PlaybackEvent.forStop(track, 123L, trackSourceInfo, startEvent, PlaybackEvent.STOP_REASON_PAUSE, stopTime);
+        startEvent = PlaybackSessionEvent.forPlay(track, 123L, trackSourceInfo, startTime);
+        stopEvent = PlaybackSessionEvent.forStop(track, 123L, trackSourceInfo, startEvent, PlaybackSessionEvent.STOP_REASON_PAUSE, stopTime);
     }
 
     @Test
     public void shouldNotTrackPlaybackStartEvents() throws CreateModelException {
-        localyticsProvider.handlePlaybackEvent(startEvent);
+        localyticsProvider.handlePlaybackSessionEvent(startEvent);
         verifyZeroInteractions(localyticsSession);
     }
 
@@ -74,7 +74,7 @@ public class LocalyticsAnalyticsProviderPlaybackEventTest {
 
     @Test
     public void playbackEventDataForStopEventShouldContainBasicAttributes() throws CreateModelException {
-        localyticsProvider.handlePlaybackEvent(stopEvent);
+        localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq("Listen"), stopEventAttributes.capture());
 
         expect(stopEventAttributes.getValue().get("context")).toEqual(Screen.YOUR_LIKES.get());
@@ -88,8 +88,8 @@ public class LocalyticsAnalyticsProviderPlaybackEventTest {
     public void playbackEventDataForStopEventShouldNotContainNullTag() throws CreateModelException {
         track.genre = null;
         track.tag_list = null;
-        stopEvent = PlaybackEvent.forStop(track, 123L, trackSourceInfo, startEvent, PlaybackEvent.STOP_REASON_PAUSE);
-        localyticsProvider.handlePlaybackEvent(stopEvent);
+        stopEvent = PlaybackSessionEvent.forStop(track, 123L, trackSourceInfo, startEvent, PlaybackSessionEvent.STOP_REASON_PAUSE);
+        localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq("Listen"), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().containsKey("tag")).toBeFalse();
     }
@@ -97,7 +97,7 @@ public class LocalyticsAnalyticsProviderPlaybackEventTest {
     @Test
     public void playbackEventDataForStopEventShouldContainAttributesForTrackBelongingToLoggedInUsersPlaylist() {
         trackSourceInfo.setOriginPlaylist(123L, 0, 123L);
-        localyticsProvider.handlePlaybackEvent(stopEvent);
+        localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("set_id")).toEqual("123");
         expect(stopEventAttributes.getValue().get("set_owner")).toEqual("you");
@@ -106,7 +106,7 @@ public class LocalyticsAnalyticsProviderPlaybackEventTest {
     @Test
     public void playbackEventDataForStopEventShouldContainAttributesForTrackBelongingToOtherUsersPlaylist() {
         trackSourceInfo.setOriginPlaylist(123L, 0, 456L);
-        localyticsProvider.handlePlaybackEvent(stopEvent);
+        localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("set_id")).toEqual("123");
         expect(stopEventAttributes.getValue().get("set_owner")).toEqual("other");
@@ -114,42 +114,42 @@ public class LocalyticsAnalyticsProviderPlaybackEventTest {
 
     @Test
     public void playbackEventDataForStopEventShouldTrackPercentListenedLessThan5() {
-        localyticsProvider.handlePlaybackEvent(createStopEventWithPercentListened(.04));
+        localyticsProvider.handlePlaybackSessionEvent(createStopEventWithPercentListened(.04));
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("percent_listened")).toEqual("<5%");
     }
 
     @Test
     public void playbackEventDataForStopEventShouldTrackPercentListened5to25With5percent() {
-        localyticsProvider.handlePlaybackEvent(createStopEventWithPercentListened(.05));
+        localyticsProvider.handlePlaybackSessionEvent(createStopEventWithPercentListened(.05));
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("percent_listened")).toEqual("5% to 25%");
     }
 
     @Test
     public void playbackEventDataForStopEventShouldTrackPercentListened5to25With25percent() {
-        localyticsProvider.handlePlaybackEvent(createStopEventWithPercentListened(.25));
+        localyticsProvider.handlePlaybackSessionEvent(createStopEventWithPercentListened(.25));
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("percent_listened")).toEqual("5% to 25%");
     }
 
     @Test
     public void playbackEventDataForStopEventShouldTrackPercentListened25to75With26percent() {
-        localyticsProvider.handlePlaybackEvent(createStopEventWithPercentListened(.26));
+        localyticsProvider.handlePlaybackSessionEvent(createStopEventWithPercentListened(.26));
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("percent_listened")).toEqual("25% to 75%");
     }
 
     @Test
     public void playbackEventDataForStopEventShouldTrackPercentListened25to75With75percent() {
-        localyticsProvider.handlePlaybackEvent(createStopEventWithPercentListened(.75));
+        localyticsProvider.handlePlaybackSessionEvent(createStopEventWithPercentListened(.75));
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("percent_listened")).toEqual("25% to 75%");
     }
 
     @Test
     public void playbackEventDataForStopEventShouldTrackPercentListenedGreaterThan75() {
-        localyticsProvider.handlePlaybackEvent(createStopEventWithPercentListened(.76));
+        localyticsProvider.handlePlaybackSessionEvent(createStopEventWithPercentListened(.76));
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("percent_listened")).toEqual(">75%");
     }
@@ -157,7 +157,7 @@ public class LocalyticsAnalyticsProviderPlaybackEventTest {
     @Test
     public void playbackEventDataForStopEventShouldTrackLengthOfTrackIntoLessThan1MinuteBucket() {
         track.duration = 59999;
-        localyticsProvider.handlePlaybackEvent(stopEvent);
+        localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("track_length_bucket")).toEqual("<1min");
     }
@@ -165,7 +165,7 @@ public class LocalyticsAnalyticsProviderPlaybackEventTest {
     @Test
     public void playbackEventDataForStopEventShouldTrackLengthOfTrackInto1to10MinutesBucket() {
         track.duration = 60000;
-        localyticsProvider.handlePlaybackEvent(stopEvent);
+        localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("track_length_bucket")).toEqual("1min to 10min");
     }
@@ -173,7 +173,7 @@ public class LocalyticsAnalyticsProviderPlaybackEventTest {
     @Test
     public void playbackEventDataForStopEventShouldTrackLengthOfTrackInto10to30MinutesBucket() {
         track.duration = 600001;
-        localyticsProvider.handlePlaybackEvent(stopEvent);
+        localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("track_length_bucket")).toEqual("10min to 30min");
     }
@@ -181,7 +181,7 @@ public class LocalyticsAnalyticsProviderPlaybackEventTest {
     @Test
     public void playbackEventDataForStopEventShouldTrackLengthOfTrackInto30to60MinutesBucket() {
         track.duration = 1800001;
-        localyticsProvider.handlePlaybackEvent(stopEvent);
+        localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("track_length_bucket")).toEqual("30min to 1hr");
     }
@@ -189,66 +189,66 @@ public class LocalyticsAnalyticsProviderPlaybackEventTest {
     @Test
     public void playbackEventDataForStopEventShouldTrackLengthOfTrackIntoMoreThan1HourBucket() {
         track.duration = 3600001;
-        localyticsProvider.handlePlaybackEvent(stopEvent);
+        localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("track_length_bucket")).toEqual(">1hr");
     }
 
     @Test
     public void playbackEventDataForStopEventShouldAddStopReasonPause() {
-        localyticsProvider.handlePlaybackEvent(createStopEventWithWithReason(PlaybackEvent.STOP_REASON_PAUSE));
+        localyticsProvider.handlePlaybackSessionEvent(createStopEventWithWithReason(PlaybackSessionEvent.STOP_REASON_PAUSE));
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("stop_reason")).toEqual("pause");
     }
 
     @Test
     public void playbackEventDataForStopEventShouldAddStopReasonTrackFinished() {
-        localyticsProvider.handlePlaybackEvent(createStopEventWithWithReason(PlaybackEvent.STOP_REASON_TRACK_FINISHED));
+        localyticsProvider.handlePlaybackSessionEvent(createStopEventWithWithReason(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED));
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("stop_reason")).toEqual("track_finished");
     }
 
     @Test
     public void playbackEventDataForStopEventShouldAddStopReasonEndOfContent() {
-        localyticsProvider.handlePlaybackEvent(createStopEventWithWithReason(PlaybackEvent.STOP_REASON_END_OF_QUEUE));
+        localyticsProvider.handlePlaybackSessionEvent(createStopEventWithWithReason(PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE));
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("stop_reason")).toEqual("end_of_content");
     }
 
     @Test
     public void playbackEventDataForStopEventShouldAddStopReasonContextChange() {
-        localyticsProvider.handlePlaybackEvent(createStopEventWithWithReason(PlaybackEvent.STOP_REASON_NEW_QUEUE));
+        localyticsProvider.handlePlaybackSessionEvent(createStopEventWithWithReason(PlaybackSessionEvent.STOP_REASON_NEW_QUEUE));
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("stop_reason")).toEqual("context_change");
     }
 
     @Test
     public void playbackEventDataForStopEventShouldAddStopReasonBuffering() {
-        localyticsProvider.handlePlaybackEvent(createStopEventWithWithReason(PlaybackEvent.STOP_REASON_BUFFERING));
+        localyticsProvider.handlePlaybackSessionEvent(createStopEventWithWithReason(PlaybackSessionEvent.STOP_REASON_BUFFERING));
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("stop_reason")).toEqual("buffering");
     }
 
     @Test
     public void playbackEventDataForStopEventShouldAddStopReasonSkip() {
-        localyticsProvider.handlePlaybackEvent(createStopEventWithWithReason(PlaybackEvent.STOP_REASON_SKIP));
+        localyticsProvider.handlePlaybackSessionEvent(createStopEventWithWithReason(PlaybackSessionEvent.STOP_REASON_SKIP));
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("stop_reason")).toEqual("skip");
     }
 
     @Test
     public void playbackEventDataForStopEventShouldAddStopReasonError() {
-        localyticsProvider.handlePlaybackEvent(createStopEventWithWithReason(PlaybackEvent.STOP_REASON_ERROR));
+        localyticsProvider.handlePlaybackSessionEvent(createStopEventWithWithReason(PlaybackSessionEvent.STOP_REASON_ERROR));
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("stop_reason")).toEqual("playback_error");
     }
 
-    private PlaybackEvent createStopEventWithPercentListened(double percent) {
-        return PlaybackEvent.forStop(track, 123L, trackSourceInfo, startEvent, PlaybackEvent.STOP_REASON_PAUSE,
+    private PlaybackSessionEvent createStopEventWithPercentListened(double percent) {
+        return PlaybackSessionEvent.forStop(track, 123L, trackSourceInfo, startEvent, PlaybackSessionEvent.STOP_REASON_PAUSE,
                 (long) (startEvent.getTimeStamp() + DURATION * percent));
     }
 
-    private PlaybackEvent createStopEventWithWithReason(int reason) {
-        return PlaybackEvent.forStop(track, 123L, trackSourceInfo, startEvent, reason);
+    private PlaybackSessionEvent createStopEventWithWithReason(int reason) {
+        return PlaybackSessionEvent.forStop(track, 123L, trackSourceInfo, startEvent, reason);
     }
 }

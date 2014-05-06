@@ -8,7 +8,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SearchEvent;
@@ -74,7 +74,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     public void handleSearchEvent(SearchEvent searchEvent) {}
 
     @Override
-    public void handlePlaybackEvent(final PlaybackEvent eventData) {
+    public void handlePlaybackSessionEvent(final PlaybackSessionEvent eventData) {
         try {
             final String params = eventLoggerParamsBuilder.buildFromPlaybackEvent(eventData);
             final EventLoggerEvent event = new EventLoggerEvent(eventData.getTimeStamp(), EventLoggerEventTypes.PLAYBACK.getPath(), params);

@@ -15,7 +15,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -141,7 +141,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldScheduleFlushesFromPlaybackEvents() {
-        eventMonitor.publish(EventQueue.PLAYBACK, PlaybackEvent.forPlay(new Track(), 1L, mock(TrackSourceInfo.class)));
+        eventMonitor.publish(EventQueue.PLAYBACK_SESSION, PlaybackSessionEvent.forPlay(new Track(), 1L, mock(TrackSourceInfo.class)));
         verify(scheduler).schedule(any(Action1.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 

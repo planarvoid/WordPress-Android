@@ -1,7 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.model.Urn;
@@ -26,20 +26,20 @@ public class EventLoggerParamsBuilder {
         this.deviceHelper = deviceHelper;
     }
 
-    public String buildFromPlaybackEvent(PlaybackEvent playbackEvent) throws UnsupportedEncodingException {
+    public String buildFromPlaybackEvent(PlaybackSessionEvent playbackSessionEvent) throws UnsupportedEncodingException {
         final Uri.Builder builder = new Uri.Builder();
 
-        builder.appendQueryParameter(Parameters.TIMESTAMP.value(), String.valueOf(playbackEvent.getTimeStamp()));
-        builder.appendQueryParameter(Parameters.ACTION.value(), playbackEvent.isPlayEvent() ? "play" : "stop");
-        builder.appendQueryParameter(Parameters.DURATION.value(), String.valueOf(playbackEvent.getTrack().duration));
-        builder.appendQueryParameter(Parameters.SOUND.value(), Urn.forTrack(playbackEvent.getTrack().getId()).toString());
-        builder.appendQueryParameter(Parameters.USER.value(), Urn.forUser(playbackEvent.getUserId()).toString());
+        builder.appendQueryParameter(Parameters.TIMESTAMP.value(), String.valueOf(playbackSessionEvent.getTimeStamp()));
+        builder.appendQueryParameter(Parameters.ACTION.value(), playbackSessionEvent.isPlayEvent() ? "play" : "stop");
+        builder.appendQueryParameter(Parameters.DURATION.value(), String.valueOf(playbackSessionEvent.getTrack().duration));
+        builder.appendQueryParameter(Parameters.SOUND.value(), Urn.forTrack(playbackSessionEvent.getTrack().getId()).toString());
+        builder.appendQueryParameter(Parameters.USER.value(), Urn.forUser(playbackSessionEvent.getUserId()).toString());
 
         for (Map.Entry<String, Integer> entry : experimentOperations.getTrackingParams().entrySet()) {
             builder.appendQueryParameter(entry.getKey(), String.valueOf(entry.getValue()));
         }
 
-        TrackSourceInfo trackSourceInfo = playbackEvent.getTrackSourceInfo();
+        TrackSourceInfo trackSourceInfo = playbackSessionEvent.getTrackSourceInfo();
 
         if (trackSourceInfo.getIsUserTriggered()) {
             builder.appendQueryParameter(Parameters.TRIGGER.value(), "manual");

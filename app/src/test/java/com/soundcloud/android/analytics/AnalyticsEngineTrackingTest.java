@@ -21,7 +21,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Track;
@@ -195,12 +195,12 @@ public class AnalyticsEngineTrackingTest {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
-        PlaybackEvent playbackEvent = PlaybackEvent.forPlay(mock(Track.class), 0, Mockito.mock(TrackSourceInfo.class));
+        PlaybackSessionEvent playbackSessionEvent = PlaybackSessionEvent.forPlay(mock(Track.class), 0, Mockito.mock(TrackSourceInfo.class));
 
-        eventMonitor.publish(EventQueue.PLAYBACK, playbackEvent);
+        eventMonitor.publish(EventQueue.PLAYBACK_SESSION, playbackSessionEvent);
 
-        verify(analyticsProviderOne, times(1)).handlePlaybackEvent(playbackEvent);
-        verify(analyticsProviderTwo, times(1)).handlePlaybackEvent(playbackEvent);
+        verify(analyticsProviderOne, times(1)).handlePlaybackSessionEvent(playbackSessionEvent);
+        verify(analyticsProviderTwo, times(1)).handlePlaybackSessionEvent(playbackSessionEvent);
     }
 
     @Test
@@ -257,14 +257,14 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
-        doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlaybackEvent(any(PlaybackEvent.class));
+        doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlaybackSessionEvent(any(PlaybackSessionEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleScreenEvent(anyString());
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleUIEvent(any(UIEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleOnboardingEvent(any(OnboardingEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleSearchEvent(any(SearchEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlayControlEvent(any(PlayControlEvent.class));
 
-        eventMonitor.publish(EventQueue.PLAYBACK, PlaybackEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
+        eventMonitor.publish(EventQueue.PLAYBACK_SESSION, PlaybackSessionEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
         eventMonitor.publish(EventQueue.UI, UIEvent.fromToggleFollow(true, "screen", 0));
         eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen");
@@ -272,7 +272,7 @@ public class AnalyticsEngineTrackingTest {
         eventMonitor.publish(EventQueue.SEARCH, SearchEvent.popularTagSearch("search"));
         eventMonitor.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerClickPlay());
 
-        verify(analyticsProviderTwo).handlePlaybackEvent(any(PlaybackEvent.class));
+        verify(analyticsProviderTwo).handlePlaybackSessionEvent(any(PlaybackSessionEvent.class));
         verify(analyticsProviderTwo).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
         verify(analyticsProviderTwo).handleScreenEvent(anyString());
         verify(analyticsProviderTwo).handleUIEvent(any(UIEvent.class));

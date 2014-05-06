@@ -10,7 +10,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SearchEvent;
@@ -107,7 +107,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handlePlaybackEvent(PlaybackEvent eventData) {
+    public void handlePlaybackSessionEvent(PlaybackSessionEvent eventData) {
         if (eventData.isStopEvent()) {
             openSession();
 
@@ -236,7 +236,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         Log.d(TAG, toStringHelper.toString());
     }
 
-    private String getPercentListenedBucket(PlaybackEvent eventData, int duration) {
+    private String getPercentListenedBucket(PlaybackSessionEvent eventData, int duration) {
         double percentListened = ((double) eventData.getListenTime()) / duration;
         if (percentListened < .05) {
             return "<5%";
@@ -263,21 +263,21 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         }
     }
 
-    private String getStopReason(PlaybackEvent eventData) {
+    private String getStopReason(PlaybackSessionEvent eventData) {
         switch (eventData.getStopReason()) {
-            case PlaybackEvent.STOP_REASON_PAUSE:
+            case PlaybackSessionEvent.STOP_REASON_PAUSE:
                 return "pause";
-            case PlaybackEvent.STOP_REASON_BUFFERING:
+            case PlaybackSessionEvent.STOP_REASON_BUFFERING:
                 return "buffering";
-            case PlaybackEvent.STOP_REASON_SKIP:
+            case PlaybackSessionEvent.STOP_REASON_SKIP:
                 return "skip";
-            case PlaybackEvent.STOP_REASON_TRACK_FINISHED:
+            case PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED:
                 return "track_finished";
-            case PlaybackEvent.STOP_REASON_END_OF_QUEUE:
+            case PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE:
                 return "end_of_content";
-            case PlaybackEvent.STOP_REASON_NEW_QUEUE:
+            case PlaybackSessionEvent.STOP_REASON_NEW_QUEUE:
                 return "context_change";
-            case PlaybackEvent.STOP_REASON_ERROR:
+            case PlaybackSessionEvent.STOP_REASON_ERROR:
                 return "playback_error";
             default:
                 throw new IllegalArgumentException("Unexpected stop reason : " + eventData.getStopReason());

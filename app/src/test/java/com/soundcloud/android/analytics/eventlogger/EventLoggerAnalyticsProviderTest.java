@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Track;
@@ -37,10 +37,10 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Test
     public void shouldTrackPlaybackEventAsEventLoggerEvent() throws Exception {
-        PlaybackEvent event = PlaybackEvent.forPlay(new Track(1), 123l, new TrackSourceInfo("context", false), 1000L);
+        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(new Track(1), 123l, new TrackSourceInfo("context", false), 1000L);
         when(eventLoggerParamsBuilder.buildFromPlaybackEvent(event)).thenReturn("event-params");
 
-        eventLoggerAnalyticsProvider.handlePlaybackEvent(event);
+        eventLoggerAnalyticsProvider.handlePlaybackSessionEvent(event);
 
         ArgumentCaptor<EventLoggerEvent> captor = ArgumentCaptor.forClass(EventLoggerEvent.class);
         verify(eventLogger).trackEvent(captor.capture());

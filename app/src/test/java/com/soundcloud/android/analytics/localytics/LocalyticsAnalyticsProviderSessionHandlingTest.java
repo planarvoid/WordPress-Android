@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
@@ -97,7 +97,7 @@ public class LocalyticsAnalyticsProviderSessionHandlingTest {
 
     @Test
     public void shouldAlwaysOpenSessionWhenReceivingStopPlaybackEvent() throws Exception {
-        localyticsProvider.handlePlaybackEvent(buildStopEvent());
+        localyticsProvider.handlePlaybackSessionEvent(buildStopEvent());
         verify(localyticsSession).open();
     }
 
@@ -114,8 +114,8 @@ public class LocalyticsAnalyticsProviderSessionHandlingTest {
         verify(localyticsSession, never()).close();
     }
 
-    private PlaybackEvent buildStopEvent() throws CreateModelException {
-        PlaybackEvent startEvent = TestHelper.getModelFactory().createModel(PlaybackEvent.class);
-        return PlaybackEvent.forStop(new Track(), 1L, new TrackSourceInfo("", false),  startEvent, 0);
+    private PlaybackSessionEvent buildStopEvent() throws CreateModelException {
+        PlaybackSessionEvent startEvent = TestHelper.getModelFactory().createModel(PlaybackSessionEvent.class);
+        return PlaybackSessionEvent.forStop(new Track(), 1L, new TrackSourceInfo("", false), startEvent, 0);
     }
 }

@@ -10,7 +10,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -93,7 +93,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         if (analyticsProperties.isAnalyticsAvailable() && analyticsEnabled) {
             Log.d(this, "Subscribing to events");
             eventsSubscription = new CompositeSubscription();
-            eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK, new PlaybackEventSubscriber()));
+            eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_SESSION, new PlaybackEventSubscriber()));
             eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PERFORMANCE, new PlaybackPerformanceEventSubscriber()));
             eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_ERROR, new PlaybackErrorEventSubscriber()));
             eventsSubscription.add(eventBus.subscribe(EventQueue.UI, new UIEventSubscriber()));
@@ -151,10 +151,10 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    private final class PlaybackEventSubscriber extends EventSubscriber<PlaybackEvent> {
+    private final class PlaybackEventSubscriber extends EventSubscriber<PlaybackSessionEvent> {
         @Override
-        protected void handleEvent(AnalyticsProvider provider, PlaybackEvent event) {
-            provider.handlePlaybackEvent(event);
+        protected void handleEvent(AnalyticsProvider provider, PlaybackSessionEvent event) {
+            provider.handlePlaybackSessionEvent(event);
         }
     }
 

@@ -5,7 +5,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import org.jetbrains.annotations.NotNull;
 
-public final class PlaybackEvent {
+public final class PlaybackSessionEvent {
 
     public static final int STOP_REASON_PAUSE = 0;
     public static final int STOP_REASON_BUFFERING = 1;
@@ -29,29 +29,29 @@ public final class PlaybackEvent {
     private int stopReason;
     private long listenTime;
 
-    public static PlaybackEvent forPlay(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo, long timestamp) {
-        return new PlaybackEvent(EVENT_KIND_PLAY, track, userId, trackSourceInfo, timestamp);
+    public static PlaybackSessionEvent forPlay(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo, long timestamp) {
+        return new PlaybackSessionEvent(EVENT_KIND_PLAY, track, userId, trackSourceInfo, timestamp);
     }
 
-    public static PlaybackEvent forPlay(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo) {
+    public static PlaybackSessionEvent forPlay(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo) {
         return forPlay(track, userId, trackSourceInfo, System.currentTimeMillis());
     }
 
-    public static PlaybackEvent forStop(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo,
-                                            PlaybackEvent lastPlayEvent, int stopReason, long timestamp) {
-        final PlaybackEvent playbackEvent =
-                new PlaybackEvent(EVENT_KIND_STOP, track, userId, trackSourceInfo, timestamp);
-        playbackEvent.setListenTime(playbackEvent.timeStamp - lastPlayEvent.getTimeStamp());
-        playbackEvent.setStopReason(stopReason);
-        return playbackEvent;
+    public static PlaybackSessionEvent forStop(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo,
+                                            PlaybackSessionEvent lastPlayEvent, int stopReason, long timestamp) {
+        final PlaybackSessionEvent playbackSessionEvent =
+                new PlaybackSessionEvent(EVENT_KIND_STOP, track, userId, trackSourceInfo, timestamp);
+        playbackSessionEvent.setListenTime(playbackSessionEvent.timeStamp - lastPlayEvent.getTimeStamp());
+        playbackSessionEvent.setStopReason(stopReason);
+        return playbackSessionEvent;
     }
 
-    public static PlaybackEvent forStop(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo,
-                                           PlaybackEvent lastPlayEvent,  int stopReason) {
+    public static PlaybackSessionEvent forStop(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo,
+                                           PlaybackSessionEvent lastPlayEvent,  int stopReason) {
         return forStop(track, userId, trackSourceInfo, lastPlayEvent, stopReason, System.currentTimeMillis());
     }
 
-    private PlaybackEvent(int eventKind, @NotNull Track track, long userId, TrackSourceInfo trackSourceInfo, long timestamp) {
+    private PlaybackSessionEvent(int eventKind, @NotNull Track track, long userId, TrackSourceInfo trackSourceInfo, long timestamp) {
         this.track = track;
         this.kind = eventKind;
         this.userId = userId;
@@ -101,7 +101,7 @@ public final class PlaybackEvent {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(PlaybackEvent.class)
+        return Objects.toStringHelper(PlaybackSessionEvent.class)
                 .add("Track_ID", track.getId())
                 .add("Event", kind)
                 .add("UserID", userId)

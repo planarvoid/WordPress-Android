@@ -5,7 +5,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SearchEvent;
@@ -49,7 +49,7 @@ public interface AnalyticsProvider {
      *
      * @param eventData what the playback event consisted of
      */
-    void handlePlaybackEvent(PlaybackEvent eventData);
+    void handlePlaybackSessionEvent(PlaybackSessionEvent eventData);
 
     /**
      * Signals to the analytics provider that a playback performance event has occurred
