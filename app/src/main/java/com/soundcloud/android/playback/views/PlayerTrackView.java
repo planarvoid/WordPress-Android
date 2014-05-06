@@ -41,9 +41,9 @@ import java.util.List;
 public class PlayerTrackView extends FrameLayout implements
         LoadCommentsTask.LoadCommentsListener, WaveformControllerLayout.WaveformListener, EngagementsController.AddToPlaylistListener {
 
-    protected Track mTrack;
-    protected boolean mOnScreen;
-    protected WaveformControllerLayout mWaveformController;
+    protected Track track;
+    protected boolean onScreen;
+    protected WaveformControllerLayout waveformController;
 
     private FrameLayout mUnplayableLayout;
     private int mQueuePosition;
@@ -74,8 +74,8 @@ public class PlayerTrackView extends FrameLayout implements
         mPlaybackStateProvider = new PlaybackStateProvider();
 
         ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
-        mWaveformController = (WaveformControllerLayout) findViewById(R.id.waveform_controller);
-        mWaveformController.setListener(mListener);
+        waveformController = (WaveformControllerLayout) findViewById(R.id.waveform_controller);
+        waveformController.setListener(mListener);
 
         SoundCloudApplication application = (SoundCloudApplication) context.getApplicationContext();
         SoundAssociationOperations soundAssocOps = new SoundAssociationOperations(
@@ -93,7 +93,7 @@ public class PlayerTrackView extends FrameLayout implements
         if (trackInfoBar != null){
             trackInfoBar.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    ProfileActivity.startFromPlayable(context, mTrack);
+                    ProfileActivity.startFromPlayable(context, track);
                 }
             });
 
@@ -123,29 +123,29 @@ public class PlayerTrackView extends FrameLayout implements
 
     // TODO, this is currently true all the time
     public void setOnScreen(boolean onScreen){
-        mOnScreen = onScreen;
-        mWaveformController.setOnScreen(onScreen);
+        this.onScreen = onScreen;
+        waveformController.setOnScreen(onScreen);
     }
 
     public void setTrackState(Track track, int queuePosition, PlaybackStateProvider playbackStateProvider){
-        mTrack = track;
+        this.track = track;
         mQueuePosition = queuePosition;
         mPlaybackStateProvider = playbackStateProvider;
-        mWaveformController.updateTrack(mTrack, mQueuePosition, true);
+        waveformController.updateTrack(this.track, mQueuePosition, true);
 
-        if (mDuration != mTrack.duration) {
-            mDuration = mTrack.duration;
+        if (mDuration != this.track.duration) {
+            mDuration = this.track.duration;
         }
 
-        if ((mTrack.isWaitingOnState() || mTrack.isStreamable()) && mTrack.last_playback_error == -1) {
+        if ((this.track.isWaitingOnState() || this.track.isStreamable()) && this.track.last_playback_error == -1) {
             hideUnplayable();
         } else {
             showUnplayable();
-            mWaveformController.setBufferingState(false);
+            waveformController.setBufferingState(false);
         }
 
-        if (mTrack.comments != null) {
-            mWaveformController.setComments(mTrack.comments, true);
+        if (this.track.comments != null) {
+            waveformController.setComments(this.track.comments, true);
         } else {
             refreshComments();
         }
@@ -173,34 +173,34 @@ public class PlayerTrackView extends FrameLayout implements
     }
 
     private void refreshComments() {
-        if (mTrack != null){
-            if (AndroidUtils.isTaskFinished(mTrack.load_comments_task)) {
-                mTrack.load_comments_task = new LoadCommentsTask(mPublicApi);
+        if (track != null){
+            if (AndroidUtils.isTaskFinished(track.load_comments_task)) {
+                track.load_comments_task = new LoadCommentsTask(mPublicApi);
             }
-            mTrack.load_comments_task.addListener(this);
-            if (AndroidUtils.isTaskPending(mTrack.load_comments_task)) {
-                mTrack.load_comments_task.execute(mTrack.getId());
+            track.load_comments_task.addListener(this);
+            if (AndroidUtils.isTaskPending(track.load_comments_task)) {
+                track.load_comments_task.execute(track.getId());
             }
         }
     }
 
     public void onCommentsLoaded(long track_id, List<Comment> comments){
-        if (mTrack != null && mTrack.getId() == track_id){
-            mTrack.comments = comments;
-            mWaveformController.setComments(mTrack.comments, true);
+        if (track != null && track.getId() == track_id){
+            track.comments = comments;
+            waveformController.setComments(track.comments, true);
         }
     }
 
     public void onBeingScrolled(){
-        mWaveformController.setSuppressComments(true);
+        waveformController.setSuppressComments(true);
     }
 
     public void onScrollComplete(){
-        mWaveformController.setSuppressComments(false);
+        waveformController.setSuppressComments(false);
     }
 
     public void onDataConnected() {
-        mWaveformController.onDataConnected();
+        waveformController.onDataConnected();
     }
 
     public void setCommentMode(boolean  isCommenting) {
@@ -224,11 +224,11 @@ public class PlayerTrackView extends FrameLayout implements
 
     public void onDestroy() {
         clear();
-        mWaveformController.onDestroy();
+        waveformController.onDestroy();
     }
 
     public WaveformControllerLayout getWaveformController() {
-        return mWaveformController;
+        return waveformController;
     }
 
     private void showUnplayable() {
@@ -239,9 +239,9 @@ public class PlayerTrackView extends FrameLayout implements
         if (mUnplayableLayout != null) {
             final TextView unplayableText = (TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt);
             if (unplayableText != null)  { // sometimes inflation error results in text NPE
-                if (mTrack == null || mTrack.isStreamable()) {
+                if (track == null || track.isStreamable()) {
                     int errorMessage;
-                    switch (mTrack == null ? -1 : mTrack.last_playback_error) {
+                    switch (track == null ? -1 : track.last_playback_error) {
                         case PlayerActivity.PlayerError.PLAYBACK_ERROR:
                             errorMessage = R.string.player_error;
                             break;
@@ -259,21 +259,21 @@ public class PlayerTrackView extends FrameLayout implements
             }
             mUnplayableLayout.setVisibility(View.VISIBLE);
         }
-        mWaveformController.setVisibility(View.GONE);
+        waveformController.setVisibility(View.GONE);
 
     }
 
     private void hideUnplayable() {
-        mWaveformController.setVisibility(View.VISIBLE);
+        waveformController.setVisibility(View.VISIBLE);
         if (mUnplayableLayout != null) mUnplayableLayout.setVisibility(View.GONE);
     }
 
     public void handleIdBasedIntent(Intent intent) {
-        if (mTrack != null && mTrack.getId() == intent.getLongExtra("id", -1)) handleStatusIntent(intent);
+        if (track != null && track.getId() == intent.getLongExtra("id", -1)) handleStatusIntent(intent);
     }
 
     public void handleStatusIntent(Intent intent) {
-        if (mTrack == null) return;
+        if (track == null) return;
 
         String action = intent.getAction();
         if (Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
@@ -283,14 +283,14 @@ public class PlayerTrackView extends FrameLayout implements
 
             if (playaState.isPlaying()) {
                 hideUnplayable();
-                mTrack.last_playback_error = -1;
+                track.last_playback_error = -1;
             } else {
-                mWaveformController.setPlaybackStatus(false, intent.getLongExtra(BroadcastExtras.POSITION, 0));
+                waveformController.setPlaybackStatus(false, intent.getLongExtra(BroadcastExtras.POSITION, 0));
 
                 if (stateTransition.wasError()){
                     // I realize how horrible it is to store error state on the model.
                     // This is not new code and will go away with Player UI refactor
-                    mTrack.last_playback_error = PlayerActivity.PlayerError.PLAYBACK_ERROR;
+                    track.last_playback_error = PlayerActivity.PlayerError.PLAYBACK_ERROR;
                     onUnplayable(intent);
                 }
             }
@@ -306,62 +306,62 @@ public class PlayerTrackView extends FrameLayout implements
 
 
         } else if (Playable.COMMENTS_UPDATED.equals(action)) {
-            if (mTrack.getId() == intent.getLongExtra(BroadcastExtras.ID, -1)) {
+            if (track.getId() == intent.getLongExtra(BroadcastExtras.ID, -1)) {
                 onCommentsChanged();
             }
 
         } else if (Broadcasts.COMMENTS_LOADED.equals(action)) {
-            mWaveformController.setComments(mTrack.comments, true);
+            waveformController.setComments(track.comments, true);
         }
     }
 
     private void onUnplayable(Intent intent) {
-        mWaveformController.setBufferingState(false);
-        mWaveformController.setPlaybackStatus(Playa.StateTransition.fromIntent(intent).getNewState().isPlayerPlaying(),
+        waveformController.setBufferingState(false);
+        waveformController.setPlaybackStatus(Playa.StateTransition.fromIntent(intent).getNewState().isPlayerPlaying(),
                 intent.getLongExtra(BroadcastExtras.POSITION, 0));
 
         showUnplayable();
     }
 
     public void onNewComment(Comment comment) {
-        if (mTrack != null && comment.track_id == mTrack.getId()) {
+        if (track != null && comment.track_id == track.getId()) {
             onCommentsChanged();
-            mWaveformController.showNewComment(comment);
+            waveformController.showNewComment(comment);
         }
     }
 
     private void onCommentsChanged() {
-        if (mTrack != null && mTrack.comments != null) mWaveformController.setComments(mTrack.comments, false, true);
+        if (track != null && track.comments != null) waveformController.setComments(track.comments, false, true);
     }
 
     public void setProgress(long pos, int loadPercent) {
-        mWaveformController.setProgress(pos, loadPercent);
+        waveformController.setProgress(pos, loadPercent);
     }
 
     public void onStop(boolean killLoading) {
-        mWaveformController.onStop(killLoading);
+        waveformController.onStop(killLoading);
     }
 
     public void setBufferingState(boolean isBuffering) {
-        mWaveformController.setBufferingState(isBuffering);
+        waveformController.setBufferingState(isBuffering);
 
         if (isBuffering){
             hideUnplayable();
 
             // TODO: this needs to happen in the service, this should be UI only here
-            if (mTrack != null) mTrack.last_playback_error = -1;
+            if (track != null) track.last_playback_error = -1;
         }
     }
 
     public long getTrackId() {
-        return mTrack == null ? -1 : mTrack.getId();
+        return track == null ? -1 : track.getId();
     }
 
     public void clear() {
-        mOnScreen = false;
+        onScreen = false;
         onStop(true);
         mDebugTextView.setVisibility(View.GONE);
-        mWaveformController.reset(true);
-        mWaveformController.setOnScreen(false);
+        waveformController.reset(true);
+        waveformController.setOnScreen(false);
     }
 }

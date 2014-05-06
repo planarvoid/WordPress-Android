@@ -19,9 +19,9 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
     public static final String EXTRA = "PlayQueue";
     public static final PlayQueueView EMPTY = new PlayQueueView(Collections.<Long>emptyList(), -1);
 
-    private final List<Long> mTrackIds;
-    private final AppendState mAppendState;
-    private int mPosition;
+    private final List<Long> trackIds;
+    private final AppendState appendState;
+    private int position;
 
     public PlayQueueView(Long id) {
         this(Lists.newArrayList(id), 0);
@@ -32,9 +32,9 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
     }
 
     public PlayQueueView(List<Long> trackIds, int playPosition, AppendState appendState) {
-        mTrackIds = ImmutableList.copyOf(trackIds);
-        mPosition = playPosition < 0 || playPosition >= trackIds.size() ? 0 : playPosition;
-        mAppendState = appendState;
+        this.trackIds = ImmutableList.copyOf(trackIds);
+        position = playPosition < 0 || playPosition >= trackIds.size() ? 0 : playPosition;
+        this.appendState = appendState;
     }
 
     private PlayQueueView(Parcel in) {
@@ -42,37 +42,37 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
         long[] trackIds = new long[size];
         in.readLongArray(trackIds);
 
-        mTrackIds = Lists.newArrayListWithExpectedSize(trackIds.length);
-        for (long n : trackIds) mTrackIds.add(n);
-        mPosition = in.readInt();
-        mAppendState = AppendState.valueOf(in.readString());
+        this.trackIds = Lists.newArrayListWithExpectedSize(trackIds.length);
+        for (long n : trackIds) this.trackIds.add(n);
+        position = in.readInt();
+        appendState = AppendState.valueOf(in.readString());
 
     }
 
     @Override
     public Iterator<Long> iterator() {
-        return mTrackIds.iterator();
+        return trackIds.iterator();
     }
 
     public AppendState getAppendState() {
-        return mAppendState;
+        return appendState;
     }
 
     public boolean isEmpty() {
-        return mTrackIds.isEmpty();
+        return trackIds.isEmpty();
     }
 
     public int size() {
-        return mTrackIds.size();
+        return trackIds.size();
     }
 
     public int getPosition() {
-        return mPosition;
+        return position;
     }
 
     public boolean setPosition(int position) {
-        if (position < mTrackIds.size()) {
-            mPosition = position;
+        if (position < trackIds.size()) {
+            this.position = position;
             return true;
         } else {
             return false;
@@ -80,39 +80,39 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
     }
 
     public long getCurrentTrackId() {
-        return getTrackIdAt(mPosition);
+        return getTrackIdAt(position);
     }
 
     public long getTrackIdAt(int position) {
-        return mTrackIds.get(position);
+        return trackIds.get(position);
     }
 
     public int getPositionOfTrackId(long trackId) {
-        return mTrackIds.indexOf(trackId);
+        return trackIds.indexOf(trackId);
     }
 
     public boolean isLastTrack() {
-        return mPosition >= mTrackIds.size() - 1;
+        return position >= trackIds.size() - 1;
     }
 
     public boolean isLoading() {
-        return mAppendState == AppendState.LOADING;
+        return appendState == AppendState.LOADING;
     }
 
     public boolean lastLoadFailed() {
-        return mAppendState == AppendState.ERROR;
+        return appendState == AppendState.ERROR;
     }
 
     public boolean lastLoadWasEmpty() {
-        return mAppendState == AppendState.EMPTY;
+        return appendState == AppendState.EMPTY;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(mTrackIds.size());
-        dest.writeLongArray(Longs.toArray(mTrackIds));
-        dest.writeInt(mPosition);
-        dest.writeString(mAppendState.name());
+        dest.writeInt(trackIds.size());
+        dest.writeLongArray(Longs.toArray(trackIds));
+        dest.writeInt(position);
+        dest.writeString(appendState.name());
     }
 
     @Override
@@ -133,9 +133,9 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
     @Override
     public String toString() {
         return Objects.toStringHelper(getClass())
-                .add("Track IDs", mTrackIds)
+                .add("Track IDs", trackIds)
                 .add("Size", size())
-                .add("Play Position", mPosition)
+                .add("Play Position", position)
                 .toString();
     }
 
@@ -146,18 +146,18 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
 
         PlayQueueView longs = (PlayQueueView) o;
 
-        if (mPosition != longs.mPosition) return false;
-        if (mAppendState != longs.mAppendState) return false;
-        if (mTrackIds != null ? !mTrackIds.equals(longs.mTrackIds) : longs.mTrackIds != null) return false;
+        if (position != longs.position) return false;
+        if (appendState != longs.appendState) return false;
+        if (trackIds != null ? !trackIds.equals(longs.trackIds) : longs.trackIds != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = mTrackIds != null ? mTrackIds.hashCode() : 0;
-        result = 31 * result + (mAppendState != null ? mAppendState.hashCode() : 0);
-        result = 31 * result + mPosition;
+        int result = trackIds != null ? trackIds.hashCode() : 0;
+        result = 31 * result + (appendState != null ? appendState.hashCode() : 0);
+        result = 31 * result + position;
         return result;
     }
 }

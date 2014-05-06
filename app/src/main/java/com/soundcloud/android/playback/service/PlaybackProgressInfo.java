@@ -1,20 +1,20 @@
 package com.soundcloud.android.playback.service;
 
 public class PlaybackProgressInfo {
-    private long mTrackId;
-    private long mTime;
+    private long trackId;
+    private long time;
 
     public PlaybackProgressInfo(long trackId, long time) {
-        this.mTrackId = trackId;
-        this.mTime = time;
+        this.trackId = trackId;
+        this.time = time;
     }
 
     public long getTrackId() {
-        return mTrackId;
+        return trackId;
     }
 
     public long getTime() {
-        return mTime;
+        return time;
     }
 
     @Override
@@ -24,16 +24,16 @@ public class PlaybackProgressInfo {
 
         PlaybackProgressInfo that = (PlaybackProgressInfo) o;
 
-        if (mTime != that.mTime) return false;
-        if (mTrackId != that.mTrackId) return false;
+        if (time != that.time) return false;
+        if (trackId != that.trackId) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (mTrackId ^ (mTrackId >>> 32));
-        result = 31 * result + (int) (mTime ^ (mTime >>> 32));
+        int result = (int) (trackId ^ (trackId >>> 32));
+        result = 31 * result + (int) (time ^ (time >>> 32));
         return result;
     }
 }

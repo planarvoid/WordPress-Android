@@ -12,10 +12,10 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
 
     @VisibleForTesting
     static final int COMPLETION_TOLERANCE_MS = 3000;
-    private MediaPlayerAdapter mMediaPlayerAdapter;
+    private MediaPlayerAdapter mediaPlayerAdapter;
 
     TrackCompletionListener(MediaPlayerAdapter mediaPlayerAdapter) {
-        mMediaPlayerAdapter = mediaPlayerAdapter;
+        this.mediaPlayerAdapter = mediaPlayerAdapter;
     }
 
     @Override
@@ -25,32 +25,32 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
         final long lastPosition = getTargetStopPosition(mediaPlayer);
 
         if (shouldAutoRetry(lastPosition, mediaPlayer.getDuration())) {
-            mMediaPlayerAdapter.setResumeTimeAndInvokeErrorListener(mediaPlayer, lastPosition);
+            mediaPlayerAdapter.setResumeTimeAndInvokeErrorListener(mediaPlayer, lastPosition);
 
             Log.w(PlaybackService.TAG, "premature end of track [lastPosition = " + lastPosition
                     + ", duration = " + mediaPlayer.getDuration() + ", diff = "+ (mediaPlayer.getDuration() - lastPosition) + "]");
 
-        } else if (mMediaPlayerAdapter.isInErrorState()) {
+        } else if (mediaPlayerAdapter.isInErrorState()) {
             // onComplete must have been called in error state
-            mMediaPlayerAdapter.stop(mediaPlayer);
+            mediaPlayerAdapter.stop(mediaPlayer);
 
         } else {
-            mMediaPlayerAdapter.onTrackEnded();
+            mediaPlayerAdapter.onTrackEnded();
         }
     }
 
     private boolean shouldAutoRetry(long lastPosition, long duration) {
-        return mMediaPlayerAdapter.isSeekable() && duration - lastPosition > COMPLETION_TOLERANCE_MS;
+        return mediaPlayerAdapter.isSeekable() && duration - lastPosition > COMPLETION_TOLERANCE_MS;
     }
 
     private long getTargetStopPosition(MediaPlayer mediaPlayer) {
-        if (mMediaPlayerAdapter.hasValidSeekPosition()){
-            final long seekPos = mMediaPlayerAdapter.getSeekPosition();
+        if (mediaPlayerAdapter.hasValidSeekPosition()){
+            final long seekPos = mediaPlayerAdapter.getSeekPosition();
             Log.d(PlaybackService.TAG, "Calculating end pos from Seek position " + seekPos);
             return seekPos;
 
-        } else if (mMediaPlayerAdapter.isTryingToResumeTrack()){
-            final long resumeTime = mMediaPlayerAdapter.getResumeTime();
+        } else if (mediaPlayerAdapter.isTryingToResumeTrack()){
+            final long resumeTime = mediaPlayerAdapter.getResumeTime();
             Log.d(PlaybackService.TAG, "Calculating end pos from resume position " + resumeTime);
             return resumeTime;
 
@@ -69,6 +69,6 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
     }
 
     private boolean mediaPlayerHasReset(MediaPlayer mp) {
-        return mp.getCurrentPosition() <= 0 && mMediaPlayerAdapter.isPlayerPlaying();
+        return mp.getCurrentPosition() <= 0 && mediaPlayerAdapter.isPlayerPlaying();
     }
 }

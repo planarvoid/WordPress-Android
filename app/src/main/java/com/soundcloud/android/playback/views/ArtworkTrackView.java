@@ -76,7 +76,7 @@ public class ArtworkTrackView extends PlayerTrackView {
 
     @Override
     public void setTrackState(Track track, int queuePosition, PlaybackStateProvider playbackStateProvider){
-        final boolean changed = !track.equals(mTrack);
+        final boolean changed = !track.equals(this.track);
         super.setTrackState(track, queuePosition, playbackStateProvider);
 
         updateArtwork(true); //priority is still all wrong
@@ -94,7 +94,7 @@ public class ArtworkTrackView extends PlayerTrackView {
     public void onDataConnected() {
         super.onDataConnected();
 //        if (mCurrentArtBindResult == ImageLoader.BindResult.ERROR) {
-//            updateArtwork(mOnScreen);
+//            updateArtwork(onScreen);
 //        }
     }
 
@@ -135,17 +135,17 @@ public class ArtworkTrackView extends PlayerTrackView {
     }
 
     public void onTrackDetailsFlip(@NotNull ViewFlipper trackFlipper, boolean showDetails) {
-        if (mTrack != null && showDetails && trackFlipper.getDisplayedChild() == 0) {
+        if (track != null && showDetails && trackFlipper.getDisplayedChild() == 0) {
             mListener.onCloseCommentMode();
 
-            mWaveformController.closeComment(false);
+            waveformController.closeComment(false);
             if (mTrackDetailsView == null) {
                 mTrackDetailsView = new PlayerTrackDetailsLayout(getContext());
                 trackFlipper.addView(mTrackDetailsView);
             }
 
 
-            mTrackDetailsView.setTrack(mTrack);
+            mTrackDetailsView.setTrack(track);
             trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.fade_in));
             trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
             trackFlipper.showNext();
@@ -162,12 +162,12 @@ public class ArtworkTrackView extends PlayerTrackView {
 
     private void updateArtwork(boolean priority) {
         // this will cause OOMs
-        if (mTrack == null || ActivityManager.isUserAMonkey()) return;
+        if (track == null || ActivityManager.isUserAMonkey()) return;
 
         showDefaultArtwork(); // during load
-        mImageOperations.displayInPlayerView(mTrack.getUrn(), ImageSize.getFullImageSize(getResources()),
+        mImageOperations.displayInPlayerView(track.getUrn(), ImageSize.getFullImageSize(getResources()),
                 mArtwork, mArtworkHolder, priority,
-                new PlayerArtworkLoadListener(this, mTrack));
+                new PlayerArtworkLoadListener(this, track));
     }
 
     private void showDefaultArtwork() {

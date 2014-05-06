@@ -18,29 +18,31 @@ import android.content.Context;
 import android.content.Intent;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class PlayQueueManager implements Observer<RelatedTracksCollection> {
 
-    private final Context mContext;
+    private final Context context;
 
-    private final ScModelManager mModelManager;
-    private final PlayQueueOperations mPlayQueueOperations;
+    private final ScModelManager modelManager;
+    private final PlayQueueOperations playQueueOperations;
 
-    private PlayQueue mPlayQueue = PlayQueue.empty();
-    private PlaySessionSource mPlaySessionSource = PlaySessionSource.EMPTY;
+    private PlayQueue playQueue = PlayQueue.empty();
+    private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
 
-    private Subscription mFetchRelatedSubscription = Subscriptions.empty();
-    private Subscription mPlayQueueSubscription = Subscriptions.empty();
-    private Observable<RelatedTracksCollection> mRelatedTracksObservable;
+    private Subscription fetchRelatedSubscription = Subscriptions.empty();
+    private Subscription playQueueSubscription = Subscriptions.empty();
+    private Observable<RelatedTracksCollection> relatedTracksObservable;
 
-    private boolean mGotRelatedTracks;
-    private PlaybackOperations.AppendState mAppendState = PlaybackOperations.AppendState.IDLE;
+    private boolean gotRelatedTracks;
+    private PlaybackOperations.AppendState appendState = PlaybackOperations.AppendState.IDLE;
 
     @Inject
     public PlayQueueManager(Context context, PlayQueueOperations playQueueOperations, ScModelManager modelManager) {
-        mContext = context;
-        mPlayQueueOperations = playQueueOperations;
-        mModelManager = modelManager;
+        this.context = context;
+        this.playQueueOperations = playQueueOperations;
+        this.modelManager = modelManager;
     }
 
     public void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
@@ -51,16 +53,16 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         stopLoadingOperations();
 
-        mPlayQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
-        mPlayQueue.setCurrentTrackToUserTriggered();
-        mPlaySessionSource = playSessionSource;
+        this.playQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
+        this.playQueue.setCurrentTrackToUserTriggered();
+        this.playSessionSource = playSessionSource;
 
         broadcastPlayQueueChanged();
     }
 
     public void saveCurrentPosition(long currentTrackProgress) {
-        if (!mPlayQueue.isEmpty()) {
-            mPlayQueueOperations.saveQueue(mPlayQueue, mPlaySessionSource, currentTrackProgress);
+        if (!playQueue.isEmpty()) {
+            playQueueOperations.saveQueue(playQueue, playSessionSource, currentTrackProgress);
         }
     }
 
@@ -69,16 +71,16 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
      */
     public PlaybackProgressInfo loadPlayQueue() {
 
-        Observable<PlayQueue> playQueueObservable = mPlayQueueOperations.getLastStoredPlayQueue();
+        Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
         if (playQueueObservable != null){
-            mPlayQueueSubscription = playQueueObservable.subscribe(new Action1<PlayQueue>() {
+            playQueueSubscription = playQueueObservable.subscribe(new Action1<PlayQueue>() {
                 @Override
                 public void call(PlayQueue playQueue) {
-                    setNewPlayQueueInternal(playQueue, mPlayQueueOperations.getLastStoredPlaySessionSource());
+                    setNewPlayQueueInternal(playQueue, playQueueOperations.getLastStoredPlaySessionSource());
                 }
             });
             // return so player can have the resume information while load is in progress
-            return new PlaybackProgressInfo(mPlayQueueOperations.getLastStoredPlayingTrackId(), mPlayQueueOperations.getLastStoredSeekPosition());
+            return new PlaybackProgressInfo(playQueueOperations.getLastStoredPlayingTrackId(), playQueueOperations.getLastStoredSeekPosition());
         } else {
             // this is so the player can finish() instead of display waiting to the user
             broadcastPlayQueueChanged();
@@ -88,23 +90,23 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
 
     @Nullable
     public TrackSourceInfo getCurrentTrackSourceInfo() {
-        return mPlayQueue.getCurrentTrackSourceInfo(mPlaySessionSource);
+        return playQueue.getCurrentTrackSourceInfo(playSessionSource);
     }
 
     public long getPlaylistId(){
-        return mPlaySessionSource.getPlaylistId();
+        return playSessionSource.getPlaylistId();
     }
 
     public String getOriginScreen() {
-        return mPlaySessionSource.getOriginScreen();
+        return playSessionSource.getOriginScreen();
     }
 
     public boolean shouldReloadQueue(){
-        return mPlayQueue.isEmpty();
+        return playQueue.isEmpty();
     }
 
     public void fetchRelatedTracks(long trackId){
-        mRelatedTracksObservable = mPlayQueueOperations.getRelatedTracks(trackId);
+        relatedTracksObservable = playQueueOperations.getRelatedTracks(trackId);
         loadRelatedTracks();
     }
 
@@ -113,40 +115,40 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     }
 
     public void clearAll(){
-        mPlayQueueOperations.clear();
-        mPlayQueue = PlayQueue.empty();
-        mPlaySessionSource = PlaySessionSource.EMPTY;
+        playQueueOperations.clear();
+        playQueue = PlayQueue.empty();
+        playSessionSource = PlaySessionSource.EMPTY;
     }
 
     public PlayQueue getCurrentPlayQueue() {
-        return mPlayQueue;
+        return playQueue;
     }
 
     public PlayQueueView getPlayQueueView() {
-        return mPlayQueue.getViewWithAppendState(mAppendState);
+        return playQueue.getViewWithAppendState(appendState);
     }
 
     private void loadRelatedTracks() {
         setNewRelatedLoadingState(PlaybackOperations.AppendState.LOADING);
-        mGotRelatedTracks = false;
-        mFetchRelatedSubscription = mRelatedTracksObservable.subscribe(this);
+        gotRelatedTracks = false;
+        fetchRelatedSubscription = relatedTracksObservable.subscribe(this);
     }
 
     @Override
     public void onNext(RelatedTracksCollection relatedTracks) {
         for (TrackSummary item : relatedTracks) {
             final Track track = new Track(item);
-            mModelManager.cache(track);
-            mPlayQueue.addTrack(track.getId(), PlaySessionSource.DiscoverySource.RECOMMENDER.value(),
+            modelManager.cache(track);
+            playQueue.addTrack(track.getId(), PlaySessionSource.DiscoverySource.RECOMMENDER.value(),
                     relatedTracks.getSourceVersion());
         }
-        mGotRelatedTracks = true;
+        gotRelatedTracks = true;
     }
 
     @Override
     public void onCompleted() {
         // TODO, save new tracks to database
-        setNewRelatedLoadingState(mGotRelatedTracks ? PlaybackOperations.AppendState.IDLE : PlaybackOperations.AppendState.EMPTY);
+        setNewRelatedLoadingState(gotRelatedTracks ? PlaybackOperations.AppendState.IDLE : PlaybackOperations.AppendState.EMPTY);
     }
 
     @Override
@@ -155,22 +157,22 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     }
 
     private void setNewRelatedLoadingState(PlaybackOperations.AppendState appendState) {
-        mAppendState = appendState;
+        this.appendState = appendState;
         final Intent intent = new Intent(PlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED)
-                .putExtra(PlayQueueView.EXTRA, mPlayQueue.getViewWithAppendState(appendState));
-        mContext.sendBroadcast(intent);
+                .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(appendState));
+        context.sendBroadcast(intent);
     }
 
     private void broadcastPlayQueueChanged() {
         Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED)
-                .putExtra(PlayQueueView.EXTRA, mPlayQueue.getViewWithAppendState(mAppendState));
-        mContext.sendBroadcast(intent);
+                .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(appendState));
+        context.sendBroadcast(intent);
     }
 
     private void stopLoadingOperations() {
-        mFetchRelatedSubscription.unsubscribe();
-        mFetchRelatedSubscription = Subscriptions.empty();
+        fetchRelatedSubscription.unsubscribe();
+        fetchRelatedSubscription = Subscriptions.empty();
 
-        mPlayQueueSubscription.unsubscribe();
+        playQueueSubscription.unsubscribe();
     }
 }

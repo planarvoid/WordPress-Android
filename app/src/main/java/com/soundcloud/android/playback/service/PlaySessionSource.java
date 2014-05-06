@@ -29,21 +29,21 @@ public class PlaySessionSource implements Parcelable{
         }
     }
 
-    private final String mOriginScreen;
-    private long mPlaylistId = Playlist.NOT_SET;
-    private long mPlaylistOwnerId = User.NOT_SET;
-    private String mExploreVersion;
+    private final String originScreen;
+    private long playlistId = Playlist.NOT_SET;
+    private long playlistOwnerId = User.NOT_SET;
+    private String exploreVersion;
 
     public PlaySessionSource(Parcel in) {
-        mOriginScreen = in.readString();
-        mExploreVersion = in.readString();
-        mPlaylistId = in.readLong();
-        mPlaylistOwnerId = in.readLong();
+        originScreen = in.readString();
+        exploreVersion = in.readString();
+        playlistId = in.readLong();
+        playlistOwnerId = in.readLong();
     }
 
     public PlaySessionSource(SharedPreferences mSharedPreferences) {
-        mOriginScreen = mSharedPreferences.getString(PREF_KEY_ORIGIN_SCREEN_TAG, ScTextUtils.EMPTY_STRING);
-        mPlaylistId = mSharedPreferences.getLong(PREF_KEY_PLAYLIST_ID, ScModel.NOT_SET);
+        originScreen = mSharedPreferences.getString(PREF_KEY_ORIGIN_SCREEN_TAG, ScTextUtils.EMPTY_STRING);
+        playlistId = mSharedPreferences.getLong(PREF_KEY_PLAYLIST_ID, ScModel.NOT_SET);
     }
 
     private PlaySessionSource() {
@@ -55,40 +55,40 @@ public class PlaySessionSource implements Parcelable{
     }
 
     public PlaySessionSource(String originScreen) {
-        mOriginScreen = originScreen;
+        this.originScreen = originScreen;
     }
 
     public String getOriginScreen() {
-        return mOriginScreen;
+        return originScreen;
     }
 
     public long getPlaylistId() {
-        return mPlaylistId;
+        return playlistId;
     }
 
     public long getPlaylistOwnerId() {
-        return mPlaylistOwnerId;
+        return playlistOwnerId;
     }
 
     public void setPlaylist(@NotNull Playlist playlist) {
-        mPlaylistId = playlist.getId();
-        mPlaylistOwnerId = playlist.getUserId();
+        playlistId = playlist.getId();
+        playlistOwnerId = playlist.getUserId();
     }
 
     public void setExploreVersion(String exploreVersion) {
-        this.mExploreVersion = exploreVersion;
+        this.exploreVersion = exploreVersion;
     }
 
     public boolean originatedInExplore(){
-        return mOriginScreen.startsWith("explore");
+        return originScreen.startsWith("explore");
     }
 
     public String getInitialSource() {
-        return ScTextUtils.isNotBlank(mExploreVersion) ? DiscoverySource.EXPLORE.value() : ScTextUtils.EMPTY_STRING;
+        return ScTextUtils.isNotBlank(exploreVersion) ? DiscoverySource.EXPLORE.value() : ScTextUtils.EMPTY_STRING;
     }
 
     public String getInitialSourceVersion() {
-        return ScTextUtils.isNotBlank(mExploreVersion) ? mExploreVersion : ScTextUtils.EMPTY_STRING;
+        return ScTextUtils.isNotBlank(exploreVersion) ? exploreVersion : ScTextUtils.EMPTY_STRING;
     }
 
     @Override
@@ -98,15 +98,15 @@ public class PlaySessionSource implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(mOriginScreen);
-        dest.writeString(mExploreVersion);
-        dest.writeLong(mPlaylistId);
-        dest.writeLong(mPlaylistOwnerId);
+        dest.writeString(originScreen);
+        dest.writeString(exploreVersion);
+        dest.writeLong(playlistId);
+        dest.writeLong(playlistOwnerId);
     }
 
     public void saveToPreferences(SharedPreferences.Editor editor) {
-        editor.putString(PREF_KEY_ORIGIN_SCREEN_TAG, mOriginScreen);
-        editor.putLong(PREF_KEY_PLAYLIST_ID, mPlaylistId);
+        editor.putString(PREF_KEY_ORIGIN_SCREEN_TAG, originScreen);
+        editor.putLong(PREF_KEY_PLAYLIST_ID, playlistId);
     }
 
     public static final Parcelable.Creator<PlaySessionSource> CREATOR = new Parcelable.Creator<PlaySessionSource>() {
@@ -131,18 +131,18 @@ public class PlaySessionSource implements Parcelable{
 
         PlaySessionSource that = (PlaySessionSource) o;
 
-        return Objects.equal(mPlaylistId, that.mPlaylistId)
-                && Objects.equal(mPlaylistOwnerId, that.mPlaylistOwnerId)
-                && Objects.equal(mExploreVersion, that.mExploreVersion)
-                && Objects.equal(mOriginScreen, that.mOriginScreen);
+        return Objects.equal(playlistId, that.playlistId)
+                && Objects.equal(playlistOwnerId, that.playlistOwnerId)
+                && Objects.equal(exploreVersion, that.exploreVersion)
+                && Objects.equal(originScreen, that.originScreen);
     }
 
     @Override
     public int hashCode() {
-        int result = mOriginScreen.hashCode();
-        result = 31 * result + (int) (mPlaylistId ^ (mPlaylistId >>> 32));
-        result = 31 * result + (int) (mPlaylistOwnerId ^ (mPlaylistOwnerId >>> 32));
-        result = 31 * result + (mExploreVersion != null ? mExploreVersion.hashCode() : 0);
+        int result = originScreen.hashCode();
+        result = 31 * result + (int) (playlistId ^ (playlistId >>> 32));
+        result = 31 * result + (int) (playlistOwnerId ^ (playlistOwnerId >>> 32));
+        result = 31 * result + (exploreVersion != null ? exploreVersion.hashCode() : 0);
         return result;
     }
 }

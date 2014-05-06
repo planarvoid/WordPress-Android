@@ -10,26 +10,26 @@ import javax.inject.Inject;
 
 public class PlaybackEventSource {
 
-    private final EventBus mEventBus;
-    private PlaybackEvent mLastPlayEventData;
+    private final EventBus eventBus;
+    private PlaybackEvent lastPlayEventData;
 
     @Inject
     public PlaybackEventSource(EventBus eventBus) {
-        mEventBus = eventBus;
+        this.eventBus = eventBus;
     }
 
     public void publishPlayEvent(@Nullable Track track, @Nullable TrackSourceInfo trackSourceInfo, long userId) {
         if (track != null && trackSourceInfo != null) {
-            mLastPlayEventData = PlaybackEvent.forPlay(track, userId, trackSourceInfo);
-            mEventBus.publish(EventQueue.PLAYBACK, mLastPlayEventData);
+            lastPlayEventData = PlaybackEvent.forPlay(track, userId, trackSourceInfo);
+            eventBus.publish(EventQueue.PLAYBACK, lastPlayEventData);
         }
     }
 
     public void publishStopEvent(@Nullable Track track, @Nullable TrackSourceInfo trackSourceInfo, long userId, int stopReason) {
-        if (mLastPlayEventData != null && track != null && trackSourceInfo != null) {
-            final PlaybackEvent eventData = PlaybackEvent.forStop(track, userId, trackSourceInfo, mLastPlayEventData, stopReason);
-            mEventBus.publish(EventQueue.PLAYBACK, eventData);
-            mLastPlayEventData = null;
+        if (lastPlayEventData != null && track != null && trackSourceInfo != null) {
+            final PlaybackEvent eventData = PlaybackEvent.forStop(track, userId, trackSourceInfo, lastPlayEventData, stopReason);
+            eventBus.publish(EventQueue.PLAYBACK, eventData);
+            lastPlayEventData = null;
         }
     }
 }

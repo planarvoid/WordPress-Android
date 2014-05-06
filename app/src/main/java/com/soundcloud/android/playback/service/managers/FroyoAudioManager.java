@@ -4,13 +4,13 @@ import android.content.Context;
 import android.media.AudioManager;
 
 public class FroyoAudioManager implements IAudioManager {
-    private boolean mAudioFocusLost;
+    private boolean audioFocusLost;
     private AudioManager.OnAudioFocusChangeListener listener;
 
-    private final Context mContext;
+    private final Context context;
 
     public FroyoAudioManager(final Context context) {
-        mContext = context;
+        this.context = context;
     }
 
     @Override
@@ -20,18 +20,18 @@ public class FroyoAudioManager implements IAudioManager {
                 @Override
                 public void onAudioFocusChange(int focusChange) {
                     if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-                        if (mAudioFocusLost) {
+                        if (audioFocusLost) {
                             focusable.focusGained();
-                            mAudioFocusLost = false;
+                            audioFocusLost = false;
                         }
                     } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-                        mAudioFocusLost = true;
+                        audioFocusLost = true;
                         focusable.focusLost(false, false);
                     } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-                        mAudioFocusLost = true;
+                        audioFocusLost = true;
                         focusable.focusLost(true, false);
                     } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
-                        mAudioFocusLost = true;
+                        audioFocusLost = true;
                         focusable.focusLost(true, true);
                     }
                 }
@@ -76,6 +76,6 @@ public class FroyoAudioManager implements IAudioManager {
     }
 
     protected AudioManager getAudioManager() {
-        return (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        return (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 }

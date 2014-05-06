@@ -31,11 +31,11 @@ import javax.inject.Singleton;
 @Singleton
 public class PlayerWidgetController {
 
-    private final Context mContext;
-    private final PlaybackStateProvider mPlaybackStateProvider;
-    private final PlayerAppWidgetProvider mWidgetProvider;
-    private final SoundAssociationOperations mSoundAssocicationOps;
-    private final EventBus mEventBus;
+    private final Context context;
+    private final PlaybackStateProvider playbackStateProvider;
+    private final PlayerAppWidgetProvider widgetProvider;
+    private final SoundAssociationOperations soundAssocicationOps;
+    private final EventBus eventBus;
 
     private Subscription eventSubscription = Subscriptions.empty();
 
@@ -43,15 +43,15 @@ public class PlayerWidgetController {
     public PlayerWidgetController(Context context, PlaybackStateProvider playbackStateProvider,
                                   PlayerAppWidgetProvider widgetProvider,
                                   SoundAssociationOperations soundAssociationOps, EventBus eventBus) {
-        mContext = context;
-        mPlaybackStateProvider = playbackStateProvider;
-        mWidgetProvider = widgetProvider;
-        mSoundAssocicationOps = soundAssociationOps;
-        mEventBus = eventBus;
+        this.context = context;
+        this.playbackStateProvider = playbackStateProvider;
+        this.widgetProvider = widgetProvider;
+        this.soundAssocicationOps = soundAssociationOps;
+        this.eventBus = eventBus;
     }
 
     public void subscribe() {
-        eventSubscription = mEventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new PlayableChangedSubscriber());
+        eventSubscription = eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new PlayableChangedSubscriber());
     }
 
     @VisibleForTesting
@@ -60,10 +60,10 @@ public class PlayerWidgetController {
     }
 
     private void handleWidgetLikeAction(Intent intent) {
-        final Track currentTrack = mPlaybackStateProvider.getCurrentTrack();
+        final Track currentTrack = playbackStateProvider.getCurrentTrack();
         if (currentTrack != null) {
             final boolean isLike = intent.getBooleanExtra(PlaybackService.BroadcastExtras.IS_LIKE, false);
-            fireAndForget(mSoundAssocicationOps.toggleLike(!isLike, currentTrack)
+            fireAndForget(soundAssocicationOps.toggleLike(!isLike, currentTrack)
                     .observeOn(AndroidSchedulers.mainThread()));
         }
     }
@@ -78,8 +78,8 @@ public class PlayerWidgetController {
         public void onNext(PlayableChangedEvent event) {
             final Playable playable = event.getPlayable();
 
-            if (playable.getId() == mPlaybackStateProvider.getCurrentTrackId()) {
-                mWidgetProvider.performUpdate(mContext, playable, mPlaybackStateProvider.isSupposedToBePlaying());
+            if (playable.getId() == playbackStateProvider.getCurrentTrackId()) {
+                widgetProvider.performUpdate(context, playable, playbackStateProvider.isSupposedToBePlaying());
             }
         }
     }

@@ -7,83 +7,83 @@ import com.soundcloud.android.utils.ScTextUtils;
 
 public class TrackSourceInfo {
 
-    private String mOriginScreen;
-    private boolean mUserTriggered;
+    private String originScreen;
+    private boolean userTriggered;
 
-    private String mSource;
-    private String mSourceVersion;
+    private String source;
+    private String sourceVersion;
 
-    private long mPlaylistId = Playable.NOT_SET;
-    private long mPlaylistOwnerId = User.NOT_SET;
-    private int mPlaylistPosition;
+    private long playlistId = Playable.NOT_SET;
+    private long playlistOwnerId = User.NOT_SET;
+    private int playlistPosition;
 
     public TrackSourceInfo(String originScreen, boolean userTriggered) {
-        mOriginScreen = originScreen;
-        mUserTriggered = userTriggered;
+        this.originScreen = originScreen;
+        this.userTriggered = userTriggered;
     }
 
     public void setSource(String source, String sourceVersion) {
-        mSource = source;
-        mSourceVersion = sourceVersion;
+        this.source = source;
+        this.sourceVersion = sourceVersion;
     }
 
     public void setOriginPlaylist(long playlistId, int position, long playlistOwnerId) {
-        mPlaylistId = playlistId;
-        mPlaylistPosition = position;
-        mPlaylistOwnerId = playlistOwnerId;
+        this.playlistId = playlistId;
+        this.playlistPosition = position;
+        this.playlistOwnerId = playlistOwnerId;
     }
 
     public boolean getIsUserTriggered() {
-        return mUserTriggered;
+        return userTriggered;
     }
 
     public String getOriginScreen() {
-        return mOriginScreen;
+        return originScreen;
     }
 
     public String getSource() {
-        return mSource;
+        return source;
     }
 
     public String getSourceVersion() {
-        return mSourceVersion;
+        return sourceVersion;
     }
 
     public long getPlaylistId() {
-        return mPlaylistId;
+        return playlistId;
     }
 
     public int getPlaylistPosition() {
-        return mPlaylistPosition;
+        return playlistPosition;
     }
 
     public long getPlaylistOwnerId() {
-        return mPlaylistOwnerId;
+        return playlistOwnerId;
     }
 
     public boolean hasSource(){
-        return ScTextUtils.isNotBlank(mSource);
+        return ScTextUtils.isNotBlank(source);
     }
 
     public boolean isFromPlaylist(){
-        return mPlaylistId > 0;
+        return playlistId > 0;
     }
 
     public boolean sharesSameOrigin(TrackSourceInfo trackSourceInfo){
-        return trackSourceInfo != null && trackSourceInfo.getOriginScreen().equals(mOriginScreen);
+        return trackSourceInfo != null && trackSourceInfo.getOriginScreen().equals(originScreen);
     }
 
     @Override
     public String toString() {
         final Objects.ToStringHelper toStringHelper = Objects.toStringHelper(TrackSourceInfo.class)
-                .add("originScreen", mOriginScreen)
-                .add("userTriggered", mUserTriggered);
+                .add("originScreen", originScreen)
+                .add("userTriggered", userTriggered);
 
-        if (hasSource()) toStringHelper.add("source", mSource).add("sourceVersion", mSourceVersion);
+        if (hasSource()) toStringHelper.add("source", source).add("sourceVersion", sourceVersion);
         if (isFromPlaylist()) {
-            toStringHelper.add("playlistId", mPlaylistId)
-                    .add("playlistPos", mPlaylistPosition)
-                    .add("playlistOwnerId", mPlaylistOwnerId);
+            toStringHelper.add("playlistId", playlistId)
+                    .add("playlistPos", playlistPosition)
+                    .add("playlistOwnerId", playlistOwnerId);
         }
 
         return toStringHelper.toString();
