@@ -23,7 +23,7 @@ public abstract class Screen {
     }
 
     public void pullToRefresh() {
-        solo.swipeDownToRefresh();
+        solo.swipeDown();
         waiter.waitForTextToDisappear("Loading");
     }
 

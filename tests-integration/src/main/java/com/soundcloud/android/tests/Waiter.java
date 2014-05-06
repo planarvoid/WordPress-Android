@@ -1,6 +1,7 @@
 package com.soundcloud.android.tests;
 
 import com.robotium.solo.Condition;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.NavigationDrawerFragment;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
@@ -59,6 +60,14 @@ public class Waiter {
 
     public boolean waitForKeyboardToBeShown() {
         return solo.waitForCondition(new KeyboardShownCondition(), ELEMENT_TIMEOUT);
+    }
+
+    public boolean waitForExpandedPlayer() {
+        return solo.waitForCondition(new PlayerExpandedCondition(), ELEMENT_TIMEOUT);
+    }
+
+    public boolean waitForCollapsedPlayer() {
+        return solo.waitForCondition(new PlayerCollapsedCondition(), ELEMENT_TIMEOUT);
     }
 
     public boolean waitForTextInView(TextView textView, String text) {
@@ -228,10 +237,26 @@ public class Waiter {
         private Display getDisplay() {
             return ((WindowManager) solo.getCurrentActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         }
+    }
 
+    private class PlayerExpandedCondition implements Condition {
+        private final SlidingUpPanelLayout slidingPanel = (SlidingUpPanelLayout) solo.getView(R.id.sliding_layout);
 
+        @Override
+        public boolean isSatisfied() {
+            return slidingPanel.isExpanded();
+        }
+    }
 
-    };
+    private class PlayerCollapsedCondition implements Condition {
+        private final SlidingUpPanelLayout slidingPanel = (SlidingUpPanelLayout) solo.getView(R.id.sliding_layout);
+
+        @Override
+        public boolean isSatisfied() {
+            return !slidingPanel.isExpanded();
+        }
+
+    }
 
     private class NoTextCondition implements Condition {
         private String searchedText;

@@ -210,7 +210,7 @@ public class Han  {
         swipeHorizontal(Solo.RIGHT);
     }
 
-    public void swipeDownToRefresh() {
+    public void swipeDown() {
         Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
 
         final int screenHeight = display.getHeight();
