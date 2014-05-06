@@ -333,7 +333,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         }
     }
 
-    private class PlayerPanelListener implements PanelSlideListener {
+    private class PlayerPanelListener extends SimplePanelSlideListener {
 
         @Override
         public void onPanelSlide(View panel, float slideOffset) {
@@ -349,9 +349,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         public void onPanelExpanded(View panel) {
             setDrawerLocked(true);
         }
-
-        @Override
-        public void onPanelAnchored(View panel) {}
 
         private void setDrawerLocked(boolean locked) {
             if (navigationFragment instanceof NavigationDrawerFragment) {
