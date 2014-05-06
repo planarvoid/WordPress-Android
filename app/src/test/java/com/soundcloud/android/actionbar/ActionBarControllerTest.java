@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -50,4 +51,23 @@ public class ActionBarControllerTest {
         expect(uiEvent.getAttributes().get("page")).toEqual("search");
     }
 
+    @Test
+    public void shouldShowActionBarOnVisibilitySetToTrue() throws Exception {
+        ActionBar actionBar = mock(ActionBar.class);
+        when(activity.getSupportActionBar()).thenReturn(actionBar);
+
+        actionBarController.setVisible(true);
+
+        verify(actionBar).show();
+    }
+
+    @Test
+    public void shouldHideActionBarOnVisibilitySetToFalse() throws Exception {
+        ActionBar actionBar = mock(ActionBar.class);
+        when(activity.getSupportActionBar()).thenReturn(actionBar);
+
+        actionBarController.setVisible(false);
+
+        verify(actionBar).hide();
+    }
 }

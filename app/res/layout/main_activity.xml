@@ -17,7 +17,8 @@
         <FrameLayout
             android:id="@+id/container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:paddingTop="?attr/actionBarSize" />
 
         <fragment
             android:layout_width="match_parent"
@@ -30,6 +31,7 @@
         android:layout_width="@dimen/navigation_drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:name="com.soundcloud.android.main.NavigationDrawerFragment" />
+        android:name="com.soundcloud.android.main.NavigationDrawerFragment"
+        android:layout_marginTop="?attr/actionBarSize" />
 
 </android.support.v4.widget.DrawerLayout>

@@ -27,12 +27,12 @@ public class ActionBarController {
     protected EventBus eventBus;
 
     public interface ActionBarOwner {
+
         @NotNull
         ActionBarActivity getActivity();
         int getMenuResourceId();
         void restoreActionBar();
     }
-
     public ActionBarController(@NotNull ActionBarOwner owner, @NotNull EventBus eventBus) {
         this.owner = owner;
         this.activity = owner.getActivity();
@@ -81,6 +81,19 @@ public class ActionBarController {
                 return true;
             default:
                 return false;
+        }
+    }
+
+    public boolean isVisible() {
+        return owner.getActivity().getSupportActionBar().isShowing();
+    }
+
+    public void setVisible(boolean isVisible) {
+        ActionBar actionBar = owner.getActivity().getSupportActionBar();
+        if (isVisible) {
+            actionBar.show();
+        } else {
+            actionBar.hide();
         }
     }
 

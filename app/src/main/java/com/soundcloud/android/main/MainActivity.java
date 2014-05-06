@@ -31,6 +31,7 @@ import rx.subscriptions.CompositeSubscription;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.View;
@@ -42,6 +43,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     public static final String EXTRA_ONBOARDING_USERS_RESULT = "onboarding_users_result";
 
     private static final String EXTRA_ACTIONBAR_TITLE = "actionbar_title";
+    private static final String EXTRA_ACTIONBAR_VISIBLE = "actionbar_visible";
     private static final String PLAYLISTS_FRAGMENT_TAG = "playlists_fragment";
     private static final String LIKES_FRAGMENT_TAG = "likes_fragment";
     private static final String EXPLORE_FRAGMENT_TAG = "explore_fragment";
@@ -72,19 +74,12 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
-            setContentView(R.layout.main_activity);
-            SlidingUpPanelLayout playerPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-            playerPanel.setPanelSlideListener(playerPanelListener);
-        } else {
-            setContentView(R.layout.main_activity_legacy);
-        }
-
         navigationFragment = findNavigationFragment();
         navigationFragment.initState(savedInstanceState);
 
         if (savedInstanceState != null) {
             lastTitle = savedInstanceState.getCharSequence(EXTRA_ACTIONBAR_TITLE);
+            actionBarController.setVisible(savedInstanceState.getBoolean(EXTRA_ACTIONBAR_VISIBLE, true));
         } else {
             lastTitle = getTitle();
             if (accountOperations.soundCloudAccountExists()) {
@@ -100,28 +95,15 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber()));
     }
 
-    private PanelSlideListener playerPanelListener = new PanelSlideListener() {
-
-        @Override
-        public void onPanelSlide(View panel, float slideOffset) {}
-
-        @Override
-        public void onPanelCollapsed(View panel) {
-            setDrawerLocked(false);
-        }
-
-        @Override
-        public void onPanelExpanded(View panel) {
-            setDrawerLocked(true);
-        }
-
-        @Override
-        public void onPanelAnchored(View panel) {}
-    };
-
-    private void setDrawerLocked(boolean locked) {
-        if (navigationFragment instanceof NavigationDrawerFragment) {
-            ((NavigationDrawerFragment) navigationFragment).setLocked(locked);
+    @Override
+    protected void setContentView() {
+        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
+            supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+            setContentView(R.layout.main_activity);
+            SlidingUpPanelLayout playerPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+            playerPanel.setPanelSlideListener(new PlayerPanelListener());
+        } else {
+            setContentView(R.layout.main_activity_legacy);
         }
     }
 
@@ -219,6 +201,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putCharSequence(EXTRA_ACTIONBAR_TITLE, lastTitle);
+        savedInstanceState.putBoolean(EXTRA_ACTIONBAR_VISIBLE, actionBarController.isVisible());
         navigationFragment.storeState(savedInstanceState);
     }
 
@@ -341,11 +324,40 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         }
     }
 
+
     private void updateUser(User user) {
-        navigationFragment.updateProfileItem(user);
+                navigationFragment.updateProfileItem(user);
         if (!user.isPrimaryEmailConfirmed()) {
-            startActivityForResult(new Intent(this, EmailConfirmationActivity.class)
-                    .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
+                    startActivityForResult(new Intent(this, EmailConfirmationActivity.class)
+            .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
         }
+    }
+
+    private class PlayerPanelListener implements PanelSlideListener {
+
+        @Override
+        public void onPanelSlide(View panel, float slideOffset) {
+            actionBarController.setVisible(slideOffset > 0.5f);
+        }
+
+        @Override
+        public void onPanelCollapsed(View panel) {
+            setDrawerLocked(false);
+        }
+
+        @Override
+        public void onPanelExpanded(View panel) {
+            setDrawerLocked(true);
+        }
+
+        @Override
+        public void onPanelAnchored(View panel) {}
+
+        private void setDrawerLocked(boolean locked) {
+            if (navigationFragment instanceof NavigationDrawerFragment) {
+                ((NavigationDrawerFragment) navigationFragment).setLocked(locked);
+            }
+        }
+
     }
 }
