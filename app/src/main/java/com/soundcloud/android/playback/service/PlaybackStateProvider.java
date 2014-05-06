@@ -22,7 +22,8 @@ public class PlaybackStateProvider implements OriginProvider {
 
     public long getCurrentTrackId() {
         final PlayQueueView playQueue = getPlayQueue();
-        return PlaybackService.instance == null || playQueue.isEmpty() ? ScModel.NOT_SET : playQueue.getCurrentTrackId();
+        return PlaybackService.instance == null || playQueue == null || playQueue.isEmpty()
+                ? ScModel.NOT_SET : playQueue.getCurrentTrackId();
     }
 
     public PlayQueueView getPlayQueue() {
