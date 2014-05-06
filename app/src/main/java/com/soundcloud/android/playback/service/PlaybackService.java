@@ -77,62 +77,62 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
 
     @Inject
-    EventBus mEventBus;
+    EventBus eventBus;
     @Inject
-    PlayQueueManager mPlayQueueManager;
+    PlayQueueManager playQueueManager;
     @Inject
-    TrackOperations mTrackOperations;
+    TrackOperations trackOperations;
     @Inject
-    PeripheralsOperations mPeripheralsOperations;
+    PeripheralsOperations peripheralsOperations;
     @Inject
-    PlaybackEventSource mPlaybackEventSource;
+    PlaybackEventSource playbackEventSource;
     @Inject
-    AccountOperations mAccountOperations;
+    AccountOperations accountOperations;
     @Inject
-    ImageOperations mImageOperations;
+    ImageOperations imageOperations;
     @Inject
-    PlayerAppWidgetProvider mAppWidgetProvider;
+    PlayerAppWidgetProvider appWidgetProvider;
     @Inject
-    StreamPlaya mStreamPlayer;
+    StreamPlaya streamPlayer;
     @Inject
-    PlaybackReceiver.Factory mPlaybackReceiverFactory;
+    PlaybackReceiver.Factory playbackReceiverFactory;
     @Inject
     Lazy<IRemoteAudioManager> remoteAudioManagerProvider;
 
     // XXX : would be great to not have these boolean states
-    private boolean mWaitingForPlaylist;
+    private boolean waitingForPlaylist;
 
-    private @Nullable Track mCurrentTrack;
-    private @Nullable TrackSourceInfo mCurrentTrackSourceInfo;
+    private @Nullable Track currentTrack;
+    private @Nullable TrackSourceInfo currentTrackSourceInfo;
 
     @Nullable
-    private PlaybackProgressInfo mResumeInfo;      // info to resume a previous play session
+    private PlaybackProgressInfo resumeInfo;      // info to resume a previous play session
 
-    private int mServiceStartId = -1;
-    private boolean mServiceInUse;
+    private int serviceStartId = -1;
+    private boolean serviceInUse;
 
     private static final int IDLE_DELAY = 180*1000;  // interval after which we stop the service when idle
 
     // audio focus related
-    private IRemoteAudioManager mRemoteAudioManager;
-    private FocusLossState mFocusLossState = FocusLossState.NONE;
+    private IRemoteAudioManager remoteAudioManager;
+    private FocusLossState focusLossState = FocusLossState.NONE;
     private enum FocusLossState {
         NONE, TRANSIENT, LOST
     }
 
-    private final IBinder mBinder = new LocalBinder<PlaybackService>() {
+    private final IBinder binder = new LocalBinder<PlaybackService>() {
         @Override public PlaybackService getService() {
             return PlaybackService.this;
         }
     };
 
     private Notification status;
-    private PlaybackReceiver mPlaybackReceiver;
-    private final Handler mFadeHandler = new FadeHandler(this);
-    private final Handler mDelayedStopHandler = new DelayedStopHandler(this);
+    private PlaybackReceiver playbackReceiver;
+    private final Handler fadeHandler = new FadeHandler(this);
+    private final Handler delayedStopHandler = new DelayedStopHandler(this);
 
-    private Subscription mStreamableTrackSubscription = Subscriptions.empty();
-    private Subscription mLoadTrackSubscription = Subscriptions.empty();
+    private Subscription streamableTrackSubscription = Subscriptions.empty();
+    private Subscription loadTrackSubscription = Subscriptions.empty();
 
     public interface PlayExtras{
         String TRACK = Track.EXTRA;
@@ -165,16 +165,16 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                            PlayerAppWidgetProvider playerAppWidgetProvider, StreamPlaya streamPlaya,
                            PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider) {
 
-        mEventBus = eventBus;
-        mPlayQueueManager = playQueueManager;
-        mTrackOperations = trackOperations;
-        mPeripheralsOperations = peripheralsOperations;
-        mPlaybackEventSource = playbackEventSource;
-        mAccountOperations = accountOperations;
-        mImageOperations = imageOperations;
-        mAppWidgetProvider = playerAppWidgetProvider;
-        mStreamPlayer = streamPlaya;
-        mPlaybackReceiverFactory = playbackReceiverFactory;
+        this.eventBus = eventBus;
+        this.playQueueManager = playQueueManager;
+        this.trackOperations = trackOperations;
+        this.peripheralsOperations = peripheralsOperations;
+        this.playbackEventSource = playbackEventSource;
+        this.accountOperations = accountOperations;
+        this.imageOperations = imageOperations;
+        appWidgetProvider = playerAppWidgetProvider;
+        streamPlayer = streamPlaya;
+        this.playbackReceiverFactory = playbackReceiverFactory;
         this.remoteAudioManagerProvider = remoteAudioManagerProvider;
     }
 
@@ -182,10 +182,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public void onCreate() {
         super.onCreate();
 
-        mStreamPlayer.setListener(this);
+        streamPlayer.setListener(this);
 
-        mPlaybackReceiver = mPlaybackReceiverFactory.create(this, mAccountOperations, mPlayQueueManager, mEventBus);
-        mRemoteAudioManager = remoteAudioManagerProvider.get();
+        playbackReceiver = playbackReceiverFactory.create(this, accountOperations, playQueueManager, eventBus);
+        remoteAudioManager = remoteAudioManagerProvider.get();
 
         IntentFilter playbackFilter = new IntentFilter();
         playbackFilter.addAction(Actions.PLAY_ACTION);
@@ -199,7 +199,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         playbackFilter.addAction(Actions.RELOAD_QUEUE);
         playbackFilter.addAction(Actions.RETRY_RELATED_TRACKS);
         playbackFilter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
-        registerReceiver(mPlaybackReceiver, playbackFilter);
+        registerReceiver(playbackReceiver, playbackFilter);
 
         // If the service was idle, but got killed before it stopped itself, the
         // system will relaunch it. Make sure it gets stopped again in that case.
@@ -210,36 +210,36 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Override
     public void onDestroy() {
         stop();
-        mStreamPlayer.destroy();
+        streamPlayer.destroy();
 
         // make sure there aren't any other messages coming
-        mDelayedStopHandler.removeCallbacksAndMessages(null);
-        mFadeHandler.removeCallbacksAndMessages(null);
-        mRemoteAudioManager.abandonMusicFocus(false);
-        unregisterReceiver(mPlaybackReceiver);
-        mEventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
+        delayedStopHandler.removeCallbacksAndMessages(null);
+        fadeHandler.removeCallbacksAndMessages(null);
+        remoteAudioManager.abandonMusicFocus(false);
+        unregisterReceiver(playbackReceiver);
+        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
         instance = null;
         super.onDestroy();
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        mDelayedStopHandler.removeCallbacksAndMessages(null);
-        mServiceInUse = true;
-        return mBinder;
+        delayedStopHandler.removeCallbacksAndMessages(null);
+        serviceInUse = true;
+        return binder;
     }
 
     @Override
     public void onRebind(Intent intent) {
-        mDelayedStopHandler.removeCallbacksAndMessages(null);
-        mServiceInUse = true;
+        delayedStopHandler.removeCallbacksAndMessages(null);
+        serviceInUse = true;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        mServiceInUse = false;
+        serviceInUse = false;
 
-        if (mStreamPlayer.isPlaying() || mFocusLossState != FocusLossState.NONE) {
+        if (streamPlayer.isPlaying() || focusLossState != FocusLossState.NONE) {
             // something is currently playing, or will be playing once
             // an in-progress call ends, so don't stop the service now.
             return true;
@@ -249,12 +249,12 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         // Also delay stopping the service if we're transitioning between
         // tracks.
         } else if (!getPlayQueueInternal().isEmpty()) {
-            mDelayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
+            delayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
             return true;
 
         } else {
             // No active playlist, OK to stop the service right now
-            stopSelf(mServiceStartId);
+            stopSelf(serviceStartId);
             return true;
         }
     }
@@ -262,15 +262,15 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mServiceStartId = startId;
-        mDelayedStopHandler.removeCallbacksAndMessages(null);
+        serviceStartId = startId;
+        delayedStopHandler.removeCallbacksAndMessages(null);
 
         if (intent != null) {
-            boolean hasAccount = mAccountOperations.soundCloudAccountExists();
-            if (hasAccount && !Actions.PLAY_ACTION.equals(intent.getAction()) && mPlayQueueManager.shouldReloadQueue()){
-                mResumeInfo = mPlayQueueManager.loadPlayQueue();
+            boolean hasAccount = accountOperations.soundCloudAccountExists();
+            if (hasAccount && !Actions.PLAY_ACTION.equals(intent.getAction()) && playQueueManager.shouldReloadQueue()){
+                resumeInfo = playQueueManager.loadPlayQueue();
             }
-            mPlaybackReceiver.onReceive(this, intent);
+            playbackReceiver.onReceive(this, intent);
         }
         scheduleServiceShutdownCheck();
         // make sure the service will shut down on its own if it was
@@ -281,13 +281,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Override
     public void focusGained() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "focusGained");
-        if (mFocusLossState == FocusLossState.TRANSIENT) {
-            mFadeHandler.sendEmptyMessage(FadeHandler.FADE_IN);
+        if (focusLossState == FocusLossState.TRANSIENT) {
+            fadeHandler.sendEmptyMessage(FadeHandler.FADE_IN);
         } else {
-            mStreamPlayer.setVolume(1.0f);
+            streamPlayer.setVolume(1.0f);
         }
 
-        mFocusLossState = FocusLossState.NONE;
+        focusLossState = FocusLossState.NONE;
     }
 
     @Override
@@ -295,13 +295,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "focusLost(" + isTransient + ", canDuck=" + canDuck + ")");
         }
-        if (mStreamPlayer.isPlaying()) {
+        if (streamPlayer.isPlaying()) {
 
             if (isTransient){
-                mFocusLossState = FocusLossState.TRANSIENT;
-                mFadeHandler.sendEmptyMessage(canDuck ? FadeHandler.DUCK : FadeHandler.FADE_OUT);
+                focusLossState = FocusLossState.TRANSIENT;
+                fadeHandler.sendEmptyMessage(canDuck ? FadeHandler.DUCK : FadeHandler.FADE_OUT);
             } else {
-                mFocusLossState = FocusLossState.LOST;
+                focusLossState = FocusLossState.LOST;
                 pause();
             }
         }
@@ -309,27 +309,27 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     public void resetAll() {
         stop();
-        mCurrentTrack = null;
-        mAppWidgetProvider.performUpdate(this, new Intent(Broadcasts.RESET_ALL));
-        mRemoteAudioManager.abandonMusicFocus(false); // kills lockscreen
+        currentTrack = null;
+        appWidgetProvider.performUpdate(this, new Intent(Broadcasts.RESET_ALL));
+        remoteAudioManager.abandonMusicFocus(false); // kills lockscreen
     }
 
     public void saveProgressAndStop() {
-        mResumeInfo = new PlaybackProgressInfo(getProgress(), instance == null || instance.getPlayQueueInternal().isEmpty() ?
+        resumeInfo = new PlaybackProgressInfo(getProgress(), instance == null || instance.getPlayQueueInternal().isEmpty() ?
                 -1L : instance.getPlayQueueInternal().getCurrentTrackId());
         stop();
     }
 
     boolean isWaitingForPlaylist() {
-        return mWaitingForPlaylist;
+        return waitingForPlaylist;
     }
 
     private void scheduleServiceShutdownCheck() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "scheduleServiceShutdownCheck()");
         }
-        mDelayedStopHandler.removeCallbacksAndMessages(null);
-        mDelayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
+        delayedStopHandler.removeCallbacksAndMessages(null);
+        delayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
     }
 
     @Override
@@ -349,11 +349,11 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public boolean requestAudioFocus() {
-        return mRemoteAudioManager.requestMusicFocus(PlaybackService.this, IAudioManager.FOCUS_GAIN);
+        return remoteAudioManager.requestMusicFocus(PlaybackService.this, IAudioManager.FOCUS_GAIN);
     }
 
     void notifyChange(String what) {
-        notifyChange(what, mStreamPlayer.getLastStateTransition());
+        notifyChange(what, streamPlayer.getLastStateTransition());
     }
 
     void notifyChange(String what, Playa.StateTransition stateTransition) {
@@ -373,16 +373,16 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         stateTransition.addToIntent(intent);
 
         sendBroadcast(intent);
-        mAppWidgetProvider.performUpdate(this, intent); // Share this notification directly with our widgets
+        appWidgetProvider.performUpdate(this, intent); // Share this notification directly with our widgets
 
         if (Consts.SdkSwitches.useRichNotifications) {
             if (what.equals(Broadcasts.PLAYSTATE_CHANGED)) {
-                mRemoteAudioManager.setPlaybackState(isPlaying);
-                setPlayingNotification(mCurrentTrack);
-                mPeripheralsOperations.notifyPlayStateChanged(this, getCurrentTrack(), isPlaying);
+                remoteAudioManager.setPlaybackState(isPlaying);
+                setPlayingNotification(currentTrack);
+                peripheralsOperations.notifyPlayStateChanged(this, getCurrentTrack(), isPlaying);
             } else if (what.equals(Broadcasts.META_CHANGED)) {
-                onTrackChanged(mCurrentTrack);
-                mPeripheralsOperations.notifyMetaChanged(this, getCurrentTrack(), isPlaying);
+                onTrackChanged(currentTrack);
+                peripheralsOperations.notifyMetaChanged(this, getCurrentTrack(), isPlaying);
             }
         }
 
@@ -392,13 +392,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     private void saveQueue(){
-        mPlayQueueManager.saveCurrentPosition(mCurrentTrack == null ? 0 : getProgress());
+        playQueueManager.saveCurrentPosition(currentTrack == null ? 0 : getProgress());
     }
 
     private void onTrackChanged(final Track track) {
-        if (mRemoteAudioManager.isTrackChangeSupported()) {
+        if (remoteAudioManager.isTrackChangeSupported()) {
             // set initial data without bitmap so it doesn't have to wait
-            mRemoteAudioManager.onTrackChanged(track, null);
+            remoteAudioManager.onTrackChanged(track, null);
 
             // Loads the current track artwork into the lock screen controls
             // this is quite ugly; should move into ImageOperations really!
@@ -409,18 +409,18 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
                 @Override
                 public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    if (track == mCurrentTrack) {
+                    if (track == currentTrack) {
                         // use a copy of the bitmap because it is going to get recycled afterwards
                         try {
-                            mRemoteAudioManager.onTrackChanged(track, loadedImage.copy(Bitmap.Config.ARGB_8888, false));
+                            remoteAudioManager.onTrackChanged(track, loadedImage.copy(Bitmap.Config.ARGB_8888, false));
                         } catch (OutOfMemoryError e) {
-                            mRemoteAudioManager.onTrackChanged(track, null);
+                            remoteAudioManager.onTrackChanged(track, null);
                         }
                     }
 
                 }
             };
-            mImageOperations.load(track.getUrn(), ImageSize.getFullImageSize(getResources()), lockScreenImageListener);
+            imageOperations.load(track.getUrn(), ImageSize.getFullImageSize(getResources()), lockScreenImageListener);
         }
     }
 
@@ -428,11 +428,11 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     /* package */ void openCurrent() {
         if (!getPlayQueueInternal().isEmpty()) {
 
-            mStreamPlayer.startBufferingMode();
+            streamPlayer.startBufferingMode();
 
             final long currentTrackId = getPlayQueueInternal().getCurrentTrackId();
-            mLoadTrackSubscription.unsubscribe();
-            mLoadTrackSubscription = mTrackOperations.loadTrack(currentTrackId, AndroidSchedulers.mainThread())
+            loadTrackSubscription.unsubscribe();
+            loadTrackSubscription = trackOperations.loadTrack(currentTrackId, AndroidSchedulers.mainThread())
                     .subscribe(new TrackInformationSubscriber());
         }
     }
@@ -451,25 +451,25 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     /* package */ void openCurrent(Track track) {
         if (track != null) {
-            if (track.equals(mCurrentTrack) && track.isStreamable()) {
-                if (!mStreamPlayer.isPlayerPlaying()) {
+            if (track.equals(currentTrack) && track.isStreamable()) {
+                if (!streamPlayer.isPlayerPlaying()) {
                     startTrack(track);
                 }
             } else { // new track
-                final TrackSourceInfo newTrackSourceInfo = mPlayQueueManager.getCurrentTrackSourceInfo();
+                final TrackSourceInfo newTrackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
 
-                if (mStreamPlayer.isPlayerPlaying()) {
-                    final boolean changedContext = newTrackSourceInfo != null && !newTrackSourceInfo.sharesSameOrigin(mCurrentTrackSourceInfo);
-                    mPlaybackEventSource.publishStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(),
+                if (streamPlayer.isPlayerPlaying()) {
+                    final boolean changedContext = newTrackSourceInfo != null && !newTrackSourceInfo.sharesSameOrigin(currentTrackSourceInfo);
+                    playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, getCurrentUserId(),
                             changedContext ? PlaybackEvent.STOP_REASON_NEW_QUEUE : PlaybackEvent.STOP_REASON_SKIP);
                 }
 
-                mWaitingForPlaylist = false;
-                mCurrentTrack = track;
-                mCurrentTrackSourceInfo = newTrackSourceInfo;
+                waitingForPlaylist = false;
+                currentTrack = track;
+                currentTrackSourceInfo = newTrackSourceInfo;
 
                 notifyChange(Broadcasts.META_CHANGED);
-                mStreamableTrackSubscription = mTrackOperations.loadStreamableTrack(mCurrentTrack.getId(), AndroidSchedulers.mainThread())
+                streamableTrackSubscription = trackOperations.loadStreamableTrack(currentTrack.getId(), AndroidSchedulers.mainThread())
                         .observeOn(AndroidSchedulers.mainThread()).subscribe(new StreamableTrackInformationSubscriber());
             }
         } else {
@@ -485,7 +485,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         @Override
         public void onNext(Track track) {
-            fireAndForget(mTrackOperations.markTrackAsPlayed(track));
+            fireAndForget(trackOperations.markTrackAsPlayed(track));
             startTrack(track);
         }
     };
@@ -494,21 +494,21 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         final long currentUserId = getCurrentUserId();
         switch (stateTransition.getNewState()) {
             case PLAYING:
-                mPlaybackEventSource.publishPlayEvent(mCurrentTrack, mCurrentTrackSourceInfo, currentUserId);
+                playbackEventSource.publishPlayEvent(currentTrack, currentTrackSourceInfo, currentUserId);
                 break;
             case BUFFERING:
-                mPlaybackEventSource.publishStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, currentUserId, PlaybackEvent.STOP_REASON_BUFFERING);
+                playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, PlaybackEvent.STOP_REASON_BUFFERING);
                 break;
             case IDLE:
                 if (stateTransition.getReason() == Playa.Reason.COMPLETE){
                     final int stopReason = getPlayQueueInternal().hasNextTrack()
                             ? PlaybackEvent.STOP_REASON_TRACK_FINISHED
                             : PlaybackEvent.STOP_REASON_END_OF_QUEUE;
-                    mPlaybackEventSource.publishStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, currentUserId, stopReason);
+                    playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, stopReason);
                 } else if (stateTransition.wasError()){
-                    mPlaybackEventSource.publishStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, currentUserId, PlaybackEvent.STOP_REASON_ERROR);
+                    playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, PlaybackEvent.STOP_REASON_ERROR);
                 } else {
-                    mPlaybackEventSource.publishStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, currentUserId, PlaybackEvent.STOP_REASON_PAUSE);
+                    playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, PlaybackEvent.STOP_REASON_PAUSE);
                 }
                 break;
             default:
@@ -518,23 +518,23 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private void startTrack(Track track) {
         // set current track again as it may have been fetched from the api. This is not necessary with modelmanager, but will be going forward
-        mCurrentTrack = track;
+        currentTrack = track;
         Log.d(TAG, "startTrack("+track.title+")");
 
-        if (mResumeInfo != null && mResumeInfo.getTrackId() == track.getId()){
-            mStreamPlayer.play(mCurrentTrack, mResumeInfo.getTime());
+        if (resumeInfo != null && resumeInfo.getTrackId() == track.getId()){
+            streamPlayer.play(currentTrack, resumeInfo.getTime());
         } else {
-            mStreamPlayer.play(mCurrentTrack);
+            streamPlayer.play(currentTrack);
         }
-        mResumeInfo = null;
+        resumeInfo = null;
     }
 
 
 
     /* package */ void play() {
-        if (!mStreamPlayer.isPlaying() && mCurrentTrack != null && mRemoteAudioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
-            if (mStreamPlayer.playbackHasPaused()){
-                mStreamPlayer.resume();
+        if (!streamPlayer.isPlaying() && currentTrack != null && remoteAudioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
+            if (streamPlayer.playbackHasPaused()){
+                streamPlayer.resume();
             } else {
                 openCurrent();
             }
@@ -543,38 +543,38 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     // Pauses playback (call play() to resume)
     /* package */ void pause() {
-        mStreamPlayer.pause();
+        streamPlayer.pause();
     }
 
     public void togglePlayback() {
-        if (mStreamPlayer.isPlaying()) {
+        if (streamPlayer.isPlaying()) {
             pause();
-        } else if (mCurrentTrack != null) {
+        } else if (currentTrack != null) {
             play();
         } else if (!getPlayQueueInternal().isEmpty()) {
             openCurrent();
         } else {
-            mWaitingForPlaylist = true;
+            waitingForPlaylist = true;
         }
     }
 
     /* package */ void stop() {
         saveQueue();
-        mStreamPlayer.stop();
+        streamPlayer.stop();
         gotoIdleState(true);
     }
 
 
     private void gotoIdleState(boolean stopService) {
-        mEventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forIdle());
+        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forIdle());
         scheduleServiceShutdownCheck();
 
-        mFadeHandler.removeMessages(FadeHandler.FADE_OUT);
-        mFadeHandler.removeMessages(FadeHandler.FADE_IN);
+        fadeHandler.removeMessages(FadeHandler.FADE_OUT);
+        fadeHandler.removeMessages(FadeHandler.FADE_IN);
 
-        if (Consts.SdkSwitches.useRichNotifications && mCurrentTrack != null && !stopService){
+        if (Consts.SdkSwitches.useRichNotifications && currentTrack != null && !stopService){
             stopForeground(false);
-            setPlayingNotification(mCurrentTrack);
+            setPlayingNotification(currentTrack);
         } else {
             stopForeground(true);
             status = null;
@@ -607,7 +607,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private void setPlayingNotification(final Track track) {
 
-        final boolean supposedToBePlaying = mStreamPlayer.isPlaying();
+        final boolean supposedToBePlaying = streamPlayer.isPlaying();
         if (track == null ||
                 (Consts.SdkSwitches.useRichNotifications && status != null && status.contentView != null &&
                     ((NotificationPlaybackRemoteViews) status.contentView).isAlreadyNotifying(track, supposedToBePlaying))){
@@ -636,13 +636,14 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             final String artworkUri = track.getListArtworkUrl(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
                 playbackRemoteViews.clearIcon();
-                mImageOperations.load(artworkUri, new ImageUtils.ViewlessLoadingListener() {
+                imageOperations.load(artworkUri, new ImageUtils.ViewlessLoadingListener() {
                     @Override
-                    public void onLoadingFailed(String s, View view, String failedReason) {}
+                    public void onLoadingFailed(String s, View view, String failedReason) {
+                    }
 
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                        if (mCurrentTrack == track) {
+                        if (currentTrack == track) {
                             playbackRemoteViews.setIcon(loadedImage);
                             startForeground(PLAYBACKSERVICE_STATUS_ID, notification);
                         }
@@ -668,22 +669,22 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     /* package */ int getDuration() {
-        return mCurrentTrack == null ? -1 : mCurrentTrack.duration;
+        return currentTrack == null ? -1 : currentTrack.duration;
     }
 
     /* package */ boolean isBuffering() {
-        return mStreamPlayer.isBuffering();
+        return streamPlayer.isBuffering();
     }
 
     /*
      * Returns the current playback position in milliseconds
      */
     public long getProgress() {
-        return mStreamPlayer.getProgress();
+        return streamPlayer.getProgress();
     }
 
     /* package */ boolean isSeekable() {
-        return mStreamPlayer.isSeekable();
+        return streamPlayer.isSeekable();
     }
 
     public long seek(float percent, boolean performSeek) {
@@ -691,27 +692,27 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     public long seek(long pos, boolean performSeek) {
-        return mStreamPlayer.seek(pos, performSeek);
+        return streamPlayer.seek(pos, performSeek);
     }
 
     public boolean isPlaying() {
-        return mStreamPlayer.isPlaying();
+        return streamPlayer.isPlaying();
     }
 
     public boolean isPlayerPlaying() {
-        return mStreamPlayer.isPlayerPlaying();
+        return streamPlayer.isPlayerPlaying();
     }
 
     public boolean isSupposedToBePlaying() {
-        return mStreamPlayer.isPlaying();
+        return streamPlayer.isPlaying();
     }
 
     public long getPlayQueuePlaylistId() {
-        return mPlayQueueManager.getPlaylistId();
+        return playQueueManager.getPlaylistId();
     }
 
     public String getPlayQueueOriginScreen() {
-        return mPlayQueueManager.getOriginScreen();
+        return playQueueManager.getOriginScreen();
     }
 
     public void restartTrack() {
@@ -719,43 +720,43 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     PlayQueue getPlayQueueInternal() {
-        return mPlayQueueManager.getCurrentPlayQueue();
+        return playQueueManager.getCurrentPlayQueue();
     }
 
     PlayQueueView getPlayQueueView(){
-        return mPlayQueueManager.getPlayQueueView();
+        return playQueueManager.getPlayQueueView();
     }
 
     private long getCurrentUserId() {
-        return mAccountOperations.getLoggedInUserId();
+        return accountOperations.getLoggedInUserId();
     }
 
     private String getUserName() {
-        return mCurrentTrack != null ? mCurrentTrack.getUserName() : null;
+        return currentTrack != null ? currentTrack.getUserName() : null;
     }
 
     private long getTrackUserId() {
-        return mCurrentTrack != null ? mCurrentTrack.user_id : -1;
+        return currentTrack != null ? currentTrack.user_id : -1;
     }
 
     Track getCurrentTrack() {
-        return mCurrentTrack;
+        return currentTrack;
     }
 
     long getTrackId() {
-        return mCurrentTrack == null ? -1 : mCurrentTrack.getId();
+        return currentTrack == null ? -1 : currentTrack.getId();
     }
 
     private String getTrackName() {
-        return mCurrentTrack == null ? null : mCurrentTrack.title;
+        return currentTrack == null ? null : currentTrack.title;
     }
 
     private boolean getIsLike() {
-        return mCurrentTrack != null && mCurrentTrack.user_like;
+        return currentTrack != null && currentTrack.user_like;
     }
 
     private boolean getIsRepost() {
-        return mCurrentTrack != null && mCurrentTrack.user_repost;
+        return currentTrack != null && currentTrack.user_repost;
     }
 
 
@@ -770,14 +771,14 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         public void handleMessage(Message msg) {
             PlaybackService service = serviceRef.get();
             // Check again to make sure nothing is playing right now
-            if (service != null && !service.mStreamPlayer.isPlaying()
-                    && service.mFocusLossState == FocusLossState.NONE
-                    && !service.mServiceInUse) {
+            if (service != null && !service.streamPlayer.isPlaying()
+                    && service.focusLossState == FocusLossState.NONE
+                    && !service.serviceInUse) {
 
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "DelayedStopHandler: stopping service");
                 }
-                service.stopSelf(service.mServiceStartId);
+                service.stopSelf(service.serviceStartId);
             }
         }
     }
@@ -811,9 +812,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
            switch (msg.what) {
                 case FADE_IN:
                     removeMessages(FADE_OUT);
-                    if (!service.mStreamPlayer.isPlaying()) {
+                    if (!service.streamPlayer.isPlaying()) {
                         mCurrentVolume = 0f;
-                        service.mStreamPlayer.setVolume(0f);
+                        service.streamPlayer.setVolume(0f);
                         service.play();
                         sendEmptyMessageDelayed(FADE_IN, 10);
                     } else {
@@ -823,12 +824,12 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                         } else {
                             mCurrentVolume = 1.0f;
                         }
-                        service.mStreamPlayer.setVolume(mCurrentVolume);
+                        service.streamPlayer.setVolume(mCurrentVolume);
                     }
                     break;
                 case FADE_OUT:
                     removeMessages(FADE_IN);
-                    if (service.mStreamPlayer.isPlaying()) {
+                    if (service.streamPlayer.isPlaying()) {
                         mCurrentVolume -= FADE_CHANGE;
                         if (mCurrentVolume > 0f) {
                             sendEmptyMessageDelayed(FADE_OUT, 10);
@@ -838,15 +839,15 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                             }
                             mCurrentVolume = 0f;
                         }
-                        service.mStreamPlayer.setVolume(mCurrentVolume);
+                        service.streamPlayer.setVolume(mCurrentVolume);
                     } else {
-                        service.mStreamPlayer.setVolume(0f);
+                        service.streamPlayer.setVolume(0f);
                     }
                     break;
                 case DUCK:
                     removeMessages(FADE_IN);
                     removeMessages(FADE_OUT);
-                    service.mStreamPlayer.setVolume(DUCK_VOLUME);
+                    service.streamPlayer.setVolume(DUCK_VOLUME);
                     break;
                 default: // NO-OP
                     break;
