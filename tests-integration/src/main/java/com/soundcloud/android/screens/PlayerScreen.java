@@ -29,6 +29,7 @@ public class PlayerScreen extends Screen {
 
     public void tapFooter() {
         solo.clickOnView(R.id.footer_control);
+        waiter.waitForExpandedPlayer();
     }
 
     @Override
