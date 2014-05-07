@@ -12,7 +12,7 @@ import dagger.Provides;
 import android.content.Context;
 import android.os.Build;
 
-@Module(complete = false, injects = {PlaybackService.class, PlayerActivity.class, SoundRecorder.class})
+@Module(complete = false, injects = {PlaybackService.class, PlayerActivity.class, PlayerFragment.class, SoundRecorder.class})
 public class PlaybackModule {
 
     @SuppressWarnings("unchecked")
