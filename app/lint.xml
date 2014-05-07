@@ -3,6 +3,7 @@
      
     <issue id="ViewConstructor" severity="ignore"/>
     <issue id="TypographyEllipsis" severity="ignore"/>
+    <issue id="MissingQuantity" severity="warning"/>
 
     <!-- change before release -->
     <issue id="MissingTranslation" severity="ignore"/>
