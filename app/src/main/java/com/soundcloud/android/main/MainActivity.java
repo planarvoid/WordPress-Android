@@ -107,6 +107,20 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
+            SlidingUpPanelLayout playerPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+            if (playerPanel.isExpanded()) {
+                playerPanel.collapsePane();
+            } else {
+                super.onBackPressed();
+            }
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     private NavigationFragment findNavigationFragment() {
         boolean isLayoutWithFixedNav = findViewById(R.id.navigation_fragment_id) == null;
         return (NavigationFragment) getSupportFragmentManager().findFragmentById(isLayoutWithFixedNav ?
