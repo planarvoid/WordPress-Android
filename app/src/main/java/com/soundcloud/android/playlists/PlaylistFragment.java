@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.PlaylistUrn;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.PlayablePresenter;
@@ -69,6 +70,8 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     Provider<PlaylistDetailsController> controllerProvider;
     @Inject
     PullToRefreshController pullToRefreshController;
+    @Inject
+    PlayQueueManager playQueueManager;
 
     private PlaylistDetailsController controller;
 
@@ -99,7 +102,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         @Override
         public void onClick(View v) {
             final Playlist playlist = (Playlist) playablePresenter.getPlayable();
-            if (playbackStateProvider.getPlayQueuePlaylistId() == playlist.getId()) {
+            if (playQueueManager.isCurrentPlaylist(playlist.getId())) {
                 playbackOperations.togglePlayback(getActivity());
             } else {
                 playbackOperations.playPlaylist(getActivity(), playlist, Screen.fromBundle(getArguments()));
@@ -126,7 +129,8 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
                      ImageOperations imageOperations,
                      EngagementsController engagementsController,
                      Provider<PlaylistDetailsController> adapterProvider,
-                     PullToRefreshController pullToRefreshController) {
+                     PullToRefreshController pullToRefreshController,
+                     PlayQueueManager playQueueManager) {
         this.playbackOperations = playbackOperations;
         this.playlistOperations = playlistOperations;
         this.playbackStateProvider = playbackStateProvider;
@@ -134,6 +138,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         this.engagementsController = engagementsController;
         this.controllerProvider = adapterProvider;
         this.pullToRefreshController = pullToRefreshController;
+        this.playQueueManager = playQueueManager;
     }
 
     public static PlaylistFragment create(Bundle args) {
@@ -196,7 +201,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
     private void refreshNowPlayingState() {
         controller.getAdapter().notifyDataSetChanged();
-        playToggle.setChecked(playbackStateProvider.isPlaylistPlaying(getPlaylistUrn().numericId));
+        playToggle.setChecked(playQueueManager.isCurrentPlaylist(getPlaylistUrn().numericId));
     }
 
     @Override

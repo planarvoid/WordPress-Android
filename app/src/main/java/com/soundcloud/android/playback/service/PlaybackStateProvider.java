@@ -1,15 +1,12 @@
 package com.soundcloud.android.playback.service;
 
-import com.soundcloud.android.analytics.OriginProvider;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 
-public class PlaybackStateProvider implements OriginProvider {
+public class PlaybackStateProvider {
 
     @Inject
     public PlaybackStateProvider() {}
@@ -21,19 +18,13 @@ public class PlaybackStateProvider implements OriginProvider {
     }
 
     public long getCurrentTrackId() {
-        final PlayQueueView playQueue = getPlayQueue();
-        return PlaybackService.instance == null || playQueue == null || playQueue.isEmpty()
-                ? ScModel.NOT_SET : playQueue.getCurrentTrackId();
-    }
-
-    public PlayQueueView getPlayQueue() {
         final PlaybackService instance = PlaybackService.instance;
-        return instance == null ? PlayQueueView.EMPTY : instance.getPlayQueueView();
-    }
-
-    public int getPlayPosition() {
-        final PlaybackService instance = PlaybackService.instance;
-        return instance == null ? -1 : instance.getPlayQueueInternal().getPosition();
+        if (instance == null ){
+            return Track.NOT_SET;
+        } else {
+            final Track currentTrack = instance.getCurrentTrack();
+            return currentTrack == null ? Track.NOT_SET : currentTrack.getId();
+        }
     }
 
     public long getPlayProgress() {
@@ -61,23 +52,12 @@ public class PlaybackStateProvider implements OriginProvider {
         return instance != null && instance.isPlayerPlaying();
     }
 
+    public boolean isPlayingTrack(@NotNull Track track) {
+        return getCurrentTrackId() == track.getId();
+    }
+
     public boolean isSupposedToBePlaying() {
         final PlaybackService instance = PlaybackService.instance;
         return instance != null && instance.isPlaying();
-    }
-
-    public long getPlayQueuePlaylistId() {
-        final PlaybackService instance = PlaybackService.instance;
-        return instance == null ? Playable.NOT_SET : instance.getPlayQueuePlaylistId();
-    }
-
-    public boolean isPlaylistPlaying(long playlistId) {
-        return getPlayQueuePlaylistId() == playlistId && isSupposedToBePlaying();
-    }
-
-    @Override
-    public String getScreenTag() {
-        final PlaybackService instance = PlaybackService.instance;
-        return instance == null ? Screen.UNKNOWN.get() : instance.getPlayQueueOriginScreen();
     }
 }

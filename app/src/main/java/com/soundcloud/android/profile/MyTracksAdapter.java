@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.profile;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
@@ -23,6 +24,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Handler;
 
+import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,18 +37,21 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     private static final int TYPE_PENDING_RECORDING = 0;
     private static final int TYPE_TRACK = 1;
     private ChangeObserver changeObserver;
-    private PlaybackOperations playbackOperations;
     private ImageOperations imageOperations;
+
+    @Inject
+    PlaybackOperations playbackOperations;
 
     public MyTracksAdapter(ScActivity activity, ImageOperations imageOperations) {
         super(Content.ME_SOUNDS.uri);
         ContentResolver contentResolver = activity.getApplicationContext().getContentResolver();
         refreshCursor(contentResolver);
 
-        playbackOperations = new PlaybackOperations();
         changeObserver = new ChangeObserver(activity);
         this.imageOperations = imageOperations;
         contentResolver.registerContentObserver(Content.RECORDINGS.uri, true, changeObserver);
+
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @Override

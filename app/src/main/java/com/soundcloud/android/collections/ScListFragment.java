@@ -334,7 +334,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
             switch (content) {
                 case ME_SOUND_STREAM:
                 case ME_ACTIVITIES:
-                    adapter = new ActivitiesAdapter(contentUri, imageOperations);
+                    adapter = new ActivitiesAdapter(contentUri);
                     break;
                 case USER_FOLLOWINGS:
                 case USER_FOLLOWERS:
@@ -355,7 +355,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                 case ME_LIKES:
                 case USER_LIKES:
                 case USER_SOUNDS:
-                    adapter = new SoundAssociationAdapter(contentUri, imageOperations);
+                    adapter = new SoundAssociationAdapter(contentUri);
                     break;
                 case TRACK_COMMENTS:
                     adapter = new CommentAdapter(contentUri, imageOperations);
@@ -363,7 +363,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                 case ME_PLAYLISTS:
                 case USER_PLAYLISTS:
                 default:
-                    adapter = new DefaultPlayableAdapter(contentUri, imageOperations);
+                    adapter = new DefaultPlayableAdapter(contentUri);
             }
             setListAdapter(adapter);
             configureEmptyView();

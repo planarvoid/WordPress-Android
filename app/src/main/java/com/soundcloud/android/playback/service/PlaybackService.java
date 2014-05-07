@@ -661,8 +661,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         status = notification;
     }
 
-    public void setQueuePosition(int pos) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "setQueuePosition("+pos+")");
+    public void playTrackAtPosition(int pos) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "playTrackAtPosition("+pos+")");
 
         final PlayQueue playQueue = getPlayQueueInternal();
         if (playQueue.getPosition() != pos && playQueue.setPosition(pos)) {
@@ -710,24 +710,12 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         return streamPlayer.isPlaying();
     }
 
-    public long getPlayQueuePlaylistId() {
-        return playQueueManager.getPlaylistId();
-    }
-
-    public String getPlayQueueOriginScreen() {
-        return playQueueManager.getOriginScreen();
-    }
-
     public void restartTrack() {
         openCurrent();
     }
 
     PlayQueue getPlayQueueInternal() {
         return playQueueManager.getCurrentPlayQueue();
-    }
-
-    PlayQueueView getPlayQueueView(){
-        return playQueueManager.getPlayQueueView();
     }
 
     private long getCurrentUserId() {

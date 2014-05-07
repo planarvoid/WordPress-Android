@@ -2,6 +2,8 @@ package com.soundcloud.android.playback.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.soundcloud.android.analytics.OriginProvider;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
@@ -21,7 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class PlayQueueManager implements Observer<RelatedTracksCollection> {
+public class PlayQueueManager implements Observer<RelatedTracksCollection>, OriginProvider {
 
     private final Context context;
 
@@ -50,6 +52,14 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         saveCurrentPosition(0L);
     }
 
+    public long getCurrentTrackId() {
+        return playQueue.getCurrentTrackId();
+    }
+
+    public int getCurrentPosition() {
+        return playQueue.getPosition();
+    }
+
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         stopLoadingOperations();
 
@@ -72,7 +82,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     public PlaybackProgressInfo loadPlayQueue() {
 
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
-        if (playQueueObservable != null){
+        if (playQueueObservable != null) {
             playQueueSubscription = playQueueObservable.subscribe(new Action1<PlayQueue>() {
                 @Override
                 public void call(PlayQueue playQueue) {
@@ -93,28 +103,37 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         return playQueue.getCurrentTrackSourceInfo(playSessionSource);
     }
 
-    public long getPlaylistId(){
+    public long getPlaylistId() {
         return playSessionSource.getPlaylistId();
     }
 
-    public String getOriginScreen() {
+    public boolean isPlaylist() {
+        return getPlaylistId() != Playable.NOT_SET;
+    }
+
+    public boolean isCurrentPlaylist(long playlistId) {
+        return getPlaylistId() == playlistId;
+    }
+
+    @Override
+    public String getScreenTag() {
         return playSessionSource.getOriginScreen();
     }
 
-    public boolean shouldReloadQueue(){
+    public boolean shouldReloadQueue() {
         return playQueue.isEmpty();
     }
 
-    public void fetchRelatedTracks(long trackId){
+    public void fetchRelatedTracks(long trackId) {
         relatedTracksObservable = playQueueOperations.getRelatedTracks(trackId);
         loadRelatedTracks();
     }
 
-    public void retryRelatedTracksFetch(){
+    public void retryRelatedTracksFetch() {
         loadRelatedTracks();
     }
 
-    public void clearAll(){
+    public void clearAll() {
         playQueueOperations.clear();
         playQueue = PlayQueue.empty();
         playSessionSource = PlaySessionSource.EMPTY;

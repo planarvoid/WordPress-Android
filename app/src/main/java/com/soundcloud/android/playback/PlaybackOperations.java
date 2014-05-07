@@ -10,7 +10,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.APIEndpoints;
@@ -22,13 +21,12 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
@@ -57,23 +55,16 @@ public class PlaybackOperations {
 
     private final ScModelManager modelManager;
     private final TrackStorage trackStorage;
-    private final PlaybackStateProvider playbackStateProvider;
+    private final PlayQueueManager playQueueManager;
     private final AccountOperations accountOperations;
     private final HttpProperties httpProperties;
 
-    // Use @Inject instead
-    @Deprecated
-    public PlaybackOperations() {
-        this(SoundCloudApplication.sModelManager, new TrackStorage(), new PlaybackStateProvider(),
-                new AccountOperations(SoundCloudApplication.instance), new HttpProperties());
-    }
-
     @Inject
-    public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage, PlaybackStateProvider playbackStateProvider,
+    public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage, PlayQueueManager playQueueManager,
                               AccountOperations accountOperations, HttpProperties httpProperties) {
         this.modelManager = modelManager;
         this.trackStorage = trackStorage;
-        this.playbackStateProvider = playbackStateProvider;
+        this.playQueueManager = playQueueManager;
         this.accountOperations = accountOperations;
         this.httpProperties = httpProperties;
     }
@@ -231,9 +222,9 @@ public class PlaybackOperations {
     }
 
     private boolean shouldChangePlayQueue(Track track, PlaySessionSource playSessionSource){
-        return playbackStateProvider.getCurrentTrackId() != track.getId() ||
-                !playSessionSource.getOriginScreen().equals(playbackStateProvider.getScreenTag()) ||
-                playSessionSource.getPlaylistId() != playbackStateProvider.getPlayQueuePlaylistId();
+        return playQueueManager.getCurrentTrackId() != track.getId() ||
+                !playSessionSource.getOriginScreen().equals(playQueueManager.getScreenTag()) ||
+                !playQueueManager.isCurrentPlaylist(playSessionSource.getPlaylistId());
     }
 
     private Intent getPlayIntent(final List<Long> trackList, int startPosition,
@@ -297,14 +288,13 @@ public class PlaybackOperations {
     }
 
     public @Nullable Intent getServiceBasedUpIntent() {
-        final String originScreen = playbackStateProvider.getScreenTag();
+        final String originScreen = playQueueManager.getScreenTag();
         if (ScTextUtils.isBlank(originScreen)){
             return null; // might have come from widget and the play queue is empty
         }
 
-        long playlistId = playbackStateProvider.getPlayQueuePlaylistId();
-        if (playlistId != Playable.NOT_SET) {
-            return getUpDestinationFromPlaylist(playlistId, originScreen);
+        if (playQueueManager.isPlaylist()) {
+            return getUpDestinationFromPlaylist(playQueueManager.getPlaylistId(), originScreen);
         } else {
             return Screen.getUpDestinationFromScreenTag(originScreen);
         }

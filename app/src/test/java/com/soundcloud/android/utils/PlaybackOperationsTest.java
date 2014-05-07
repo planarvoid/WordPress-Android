@@ -20,9 +20,9 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TrackStorage;
@@ -63,7 +63,7 @@ public class PlaybackOperationsTest {
     @Mock
     private Observer observer;
     @Mock
-    private PlaybackStateProvider playbackStateProvider;
+    private PlayQueueManager playQueueManager;
     @Mock
     private HttpProperties httpProperties;
     @Mock
@@ -74,7 +74,7 @@ public class PlaybackOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        playbackOperations = new PlaybackOperations(modelManager, trackStorage, playbackStateProvider, accountOperations,
+        playbackOperations = new PlaybackOperations(modelManager, trackStorage, playQueueManager, accountOperations,
                 httpProperties);
         track = TestHelper.getModelFactory().createModel(Track.class);
     }
@@ -101,7 +101,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playTrackShouldNotSendServiceIntentIfTrackAlreadyPlayingWithSameOrigin() {
-        when(playbackStateProvider.getCurrentTrackId()).thenReturn(track.getId());
+        when(playQueueManager.getCurrentTrackId()).thenReturn(track.getId());
         playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -110,8 +110,8 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playTrackShouldSendServiceIntentIfTrackAlreadyPlayingWithDifferentContext() {
-        when(playbackStateProvider.getCurrentTrackId()).thenReturn(track.getId());
-        when(playbackStateProvider.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get());
+        when(playQueueManager.getCurrentTrackId()).thenReturn(track.getId());
+        when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get());
         playbackOperations.playTrack(Robolectric.application, track, Screen.EXPLORE_TRENDING_AUDIO);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -179,9 +179,9 @@ public class PlaybackOperationsTest {
         final ArrayList<Long> trackIds = Lists.newArrayList(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
         when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(trackIds));
 
-        when(playbackStateProvider.getCurrentTrackId()).thenReturn(tracks.get(1).getId()); // same track
-        when(playbackStateProvider.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get()); // same screen origin
-        when(playbackStateProvider.getPlayQueuePlaylistId()).thenReturn(-1L); // different Playlist Id
+        when(playQueueManager.getCurrentTrackId()).thenReturn(tracks.get(1).getId()); // same track
+        when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get()); // same screen origin
+        when(playQueueManager.getPlaylistId()).thenReturn(-1L); // different Playlist Id
 
         playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist, 1, tracks.get(1), Screen.EXPLORE_TRENDING_MUSIC);
 
@@ -191,8 +191,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void shouldTogglePlayback() {
-        Track track = new Track(1L);
-        when(playbackStateProvider.getCurrentTrack()).thenReturn(track);
+        when(playQueueManager.getCurrentTrackId()).thenReturn(1L);
         playbackOperations.togglePlayback(Robolectric.application);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -376,14 +375,15 @@ public class PlaybackOperationsTest {
 
     @Test
     public void getUpIntentShouldReturnNullWithNoOriginScreen() throws Exception {
-        when(playbackStateProvider.getScreenTag()).thenReturn(null);
+        when(playQueueManager.getScreenTag()).thenReturn(null);
         expect(playbackOperations.getServiceBasedUpIntent()).toBeNull();
     }
 
     @Test
     public void getUpIntentShouldReturnPlaylistUpIntent() throws Exception {
-        when(playbackStateProvider.getScreenTag()).thenReturn(Screen.PLAYLIST_DETAILS.get());
-        when(playbackStateProvider.getPlayQueuePlaylistId()).thenReturn(123L);
+        when(playQueueManager.getScreenTag()).thenReturn(Screen.PLAYLIST_DETAILS.get());
+        when(playQueueManager.isPlaylist()).thenReturn(true);
+        when(playQueueManager.getPlaylistId()).thenReturn(123L);
         final Intent intent = playbackOperations.getServiceBasedUpIntent();
         expect(intent).toHaveAction("com.soundcloud.android.action.PLAYLIST");
         expect(intent.getParcelableExtra(Playlist.EXTRA_URN)).toEqual(Urn.forPlaylist(123L));
@@ -393,8 +393,8 @@ public class PlaybackOperationsTest {
 
     @Test
     public void getUpIntentShouldReturnLikeUpIntent() throws Exception {
-        when(playbackStateProvider.getScreenTag()).thenReturn(Screen.SIDE_MENU_LIKES.get());
-        when(playbackStateProvider.getPlayQueuePlaylistId()).thenReturn(-1L);
+        when(playQueueManager.getScreenTag()).thenReturn(Screen.SIDE_MENU_LIKES.get());
+        when(playQueueManager.isPlaylist()).thenReturn(false);
         final Intent intent = playbackOperations.getServiceBasedUpIntent();
         expect(intent).toHaveAction("com.soundcloud.android.action.LIKES");
         expect(intent).toHaveFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP);

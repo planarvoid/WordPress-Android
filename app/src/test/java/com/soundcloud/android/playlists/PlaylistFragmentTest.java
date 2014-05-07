@@ -21,6 +21,7 @@ import com.soundcloud.android.model.PlaylistUrn;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.profile.ProfileActivity;
@@ -70,6 +71,8 @@ public class PlaylistFragmentTest {
     private PlaylistDetailsController controller;
     @Mock
     private PullToRefreshController ptrController;
+    @Mock
+    private PlayQueueManager playQueueManager;
 
     private Provider<PlaylistDetailsController> controllerProvider = new Provider<PlaylistDetailsController>() {
         @Override
@@ -81,7 +84,7 @@ public class PlaylistFragmentTest {
     @Before
     public void setUp() throws Exception {
         fragment = new PlaylistFragment(playbackOperations, playlistOperations, playbackStateProvider,
-                imageOperations, engagementsController, controllerProvider, ptrController);
+                imageOperations, engagementsController, controllerProvider, ptrController, playQueueManager);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
 
@@ -129,7 +132,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldPlayPlaylistOnToggleToPauseState() throws Exception {
-        when(playbackStateProvider.getPlayQueuePlaylistId()).thenReturn(playlist.getId());
+        when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(true);
         View layout = createFragmentView();
 
         View toggleButton = layout.findViewById(R.id.toggle_play_pause);
@@ -140,7 +143,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldSetToggleToPlayStateWhenPlayingCurrentPlaylistOnResume() throws Exception {
-        when(playbackStateProvider.isPlaylistPlaying(playlist.getId())).thenReturn(true);
+        when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(true);
 
         View layout = createFragmentView();
         fragment.onResume();
@@ -159,7 +162,7 @@ public class PlaylistFragmentTest {
         User user = new User();
         playlist.setUser(user);
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
-        when(playbackStateProvider.getPlayQueuePlaylistId()).thenReturn(playlist.getId());
+        when(playQueueManager.getPlaylistId()).thenReturn(playlist.getId());
         View layout = createFragmentView();
 
         View usernameView = layout.findViewById(R.id.username);
@@ -323,7 +326,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldSetPlayingStateWhenPlaybackStateChanges() throws Exception {
-        when(playbackStateProvider.isPlaylistPlaying(playlist.getId())).thenReturn(true);
+        when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(true);
         View layout = createFragmentView();
         fragment.onStart();
 
@@ -335,7 +338,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldSetPlayingStateWhenPlaybackMetaChanges() throws Exception {
-        when(playbackStateProvider.isPlaylistPlaying(playlist.getId())).thenReturn(false);
+        when(playQueueManager.getPlaylistId()).thenReturn(0L);
         View layout = createFragmentView();
         fragment.onStart();
 

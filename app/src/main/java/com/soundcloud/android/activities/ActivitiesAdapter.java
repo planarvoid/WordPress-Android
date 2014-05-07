@@ -25,20 +25,23 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 
 public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
 
     private final ActivitiesStorage activitiesStorage;
-    private final PlaybackOperations playbackOperations;
-    private final ImageOperations imageOperations;
 
-    public ActivitiesAdapter(Uri uri, ImageOperations imageOperations) {
+    @Inject
+    ImageOperations imageOperations;
+    @Inject
+    PlaybackOperations playbackOperations;
+
+    public ActivitiesAdapter(Uri uri) {
         super(uri);
         activitiesStorage = new ActivitiesStorage();
-        playbackOperations = new PlaybackOperations();
-        this.imageOperations = imageOperations;
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @Override

@@ -86,6 +86,20 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void getPlayQueuePositionReturnsCurrentPositionFromPlayQueue() throws Exception {
+        when(playQueue.getPosition()).thenReturn(5);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        expect(playQueueManager.getCurrentPosition()).toEqual(5);
+    }
+
+    @Test
+    public void getCurrentTrackIdReturnsCurrentTrackIdFromPlayQueue() throws Exception {
+        when(playQueue.getCurrentTrackId()).thenReturn(5L);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        expect(playQueueManager.getCurrentTrackId()).toEqual(5L);
+    }
+
+    @Test
     public void shouldSetNewPlayQueueCurrentTrackToManuallyTriggered() throws Exception {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         verify(playQueue).setCurrentTrackToUserTriggered();
@@ -257,6 +271,24 @@ public class PlayQueueManagerTest {
         expect(playQueueManager.getPlaylistId()).not.toEqual((long) Playlist.NOT_SET);
         playQueueManager.clearAll();
         expect(playQueueManager.getPlaylistId()).toEqual((long) Playlist.NOT_SET);
+    }
+
+    @Test
+    public void shouldReturnWhetherPlaylistIdIsCurrentPlayQueue() {
+        Playlist playlist = new Playlist(6L);
+        playSessionSource.setPlaylist(playlist);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+
+        expect(playQueueManager.isCurrentPlaylist(6L)).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnWhetherCurrentPlayQueueIsAPlaylist() {
+        Playlist playlist = new Playlist(6L);
+        playSessionSource.setPlaylist(playlist);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+
+        expect(playQueueManager.isPlaylist()).toBeTrue();
     }
 
     @Test

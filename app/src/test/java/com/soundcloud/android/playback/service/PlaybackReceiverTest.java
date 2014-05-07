@@ -51,7 +51,7 @@ public class PlaybackReceiverTest {
         SoundCloudApplication.sModelManager.clear();
         playbackReceiver = new PlaybackReceiver.Factory().create(playbackService, accountOperations, playQueueManager, eventBus);
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
-        when(playbackService.getPlayQueueOriginScreen()).thenReturn("screen_tag");
+        when(playQueueManager.getScreenTag()).thenReturn("screen_tag");
     }
 
     @Test

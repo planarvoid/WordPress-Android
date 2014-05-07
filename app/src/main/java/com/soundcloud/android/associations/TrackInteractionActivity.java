@@ -14,13 +14,18 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
+import javax.inject.Inject;
+
 public class TrackInteractionActivity extends PlayableInteractionActivity {
 
-    private PlaybackOperations playbackOperations;
+    @Inject
+    PlaybackOperations playbackOperations;
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+
+        SoundCloudApplication.getObjectGraph().inject(this);
 
         switch (interaction) {
             case TRACK_LIKE:
@@ -36,7 +41,6 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
                 throw new IllegalArgumentException("Unexpected track interation: " + interaction);
         }
 
-        playbackOperations = new PlaybackOperations();
         findViewById(R.id.playable_bar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

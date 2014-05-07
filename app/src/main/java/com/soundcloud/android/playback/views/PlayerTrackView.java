@@ -53,7 +53,6 @@ public class PlayerTrackView extends FrameLayout implements
     private PublicApi mPublicApi;
     @NotNull
     protected PlayerTrackViewListener mListener;
-    private PlaybackStateProvider mPlaybackStateProvider;
 
     private PlayablePresenter mPlayablePresenter;
     private EngagementsController mEngagementsController;
@@ -71,7 +70,6 @@ public class PlayerTrackView extends FrameLayout implements
 
         mListener = (PlayerTrackViewListener) context;// NO!!!
         mPublicApi = new PublicApi(context.getApplicationContext());
-        mPlaybackStateProvider = new PlaybackStateProvider();
 
         ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         waveformController = (WaveformControllerLayout) findViewById(R.id.waveform_controller);
@@ -130,7 +128,6 @@ public class PlayerTrackView extends FrameLayout implements
     public void setTrackState(Track track, int queuePosition, PlaybackStateProvider playbackStateProvider){
         this.track = track;
         mQueuePosition = queuePosition;
-        mPlaybackStateProvider = playbackStateProvider;
         waveformController.updateTrack(this.track, mQueuePosition, true);
 
         if (mDuration != this.track.duration) {
@@ -153,8 +150,8 @@ public class PlayerTrackView extends FrameLayout implements
         mPlayablePresenter.setPlayable(track);
         mEngagementsController.setPlayable(track);
 
-        if (mQueuePosition == mPlaybackStateProvider.getPlayPosition()) {
-            setProgress(mPlaybackStateProvider.getPlayProgress(), mPlaybackStateProvider.getLoadingPercent());
+        if (playbackStateProvider.isPlayingTrack(track)) {
+            setProgress(playbackStateProvider.getPlayProgress(), playbackStateProvider.getLoadingPercent());
         }
     }
 

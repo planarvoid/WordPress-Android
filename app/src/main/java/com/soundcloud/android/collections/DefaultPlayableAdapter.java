@@ -1,6 +1,7 @@
 package com.soundcloud.android.collections;
 
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playable;
@@ -11,15 +12,19 @@ import com.soundcloud.android.collections.views.PlayableRow;
 import android.content.Context;
 import android.net.Uri;
 
+import javax.inject.Inject;
+
 public class DefaultPlayableAdapter extends ScBaseAdapter<Playable> {
 
-    private final PlaybackOperations playbackOperations;
-    private final ImageOperations imageOperations;
+    @Inject
+    ImageOperations imageOperations;
 
-    public DefaultPlayableAdapter(Uri uri, ImageOperations imageOperations) {
+    @Inject
+    PlaybackOperations playbackOperations;
+
+    public DefaultPlayableAdapter(Uri uri) {
         super(uri);
-        playbackOperations = new PlaybackOperations();
-        this.imageOperations = imageOperations;
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @Override

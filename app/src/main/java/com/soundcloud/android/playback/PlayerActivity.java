@@ -18,6 +18,7 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
@@ -79,6 +80,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private boolean isFirstLoad;
     private boolean isTabletLandscapeLayout;
 
+    @Inject
+    PlayQueueManager playQueueManager;
     @Inject
     PlaybackStateProvider playbackStateProvider;
     @Inject
@@ -150,7 +153,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 .setCreatedAtView((TextView) findViewById(R.id.playable_created_at))
                 .setPrivacyIndicatorView((TextView) findViewById(R.id.playable_private_indicator));
 
-        engagementsController.bindView(playerInfoLayout, playbackStateProvider);
+        engagementsController.bindView(playerInfoLayout, playQueueManager);
         engagementsController.setAddToPlaylistListener(this);
         engagementsController.startListeningForChanges();
     }
@@ -193,7 +196,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             ptv.onScrollComplete();
         }
 
-        if (playbackStateProvider.getPlayPosition() != getCurrentDisplayedTrackPosition() // different track
+        if (playQueueManager.getCurrentPosition() != getCurrentDisplayedTrackPosition() // different track
                 && !mHandler.hasMessages(SEND_CURRENT_QUEUE_POSITION) // not already changing
                 && (transportBarTrackChange || playbackStateProvider.isSupposedToBePlaying()) // responding to transport click or already playing
                 ) {
@@ -209,10 +212,10 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     private void trackPlayControlSwipe() {
         if (!transportBarTrackChange) {
-            if (getCurrentDisplayedTrackPosition() > playbackStateProvider.getPlayPosition()) {
+            if (getCurrentDisplayedTrackPosition() > playQueueManager.getCurrentPosition()) {
                 eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerSwipeSkip());
             }
-            if (getCurrentDisplayedTrackPosition() < playbackStateProvider.getPlayPosition()) {
+            if (getCurrentDisplayedTrackPosition() < playQueueManager.getCurrentPosition()) {
                 eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerSwipePrevious());
             }
         }
@@ -237,8 +240,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     @Override
     public long setSeekMarker(int queuePosition, float seekPercent) {
         if (playbackService != null) {
-            if (playbackStateProvider.getPlayPosition() != queuePosition) {
-                playbackService.setQueuePosition(queuePosition);
+            if (playQueueManager.getCurrentPosition() != queuePosition) {
+                playbackService.playTrackAtPosition(queuePosition);
             } else {
                 if (playbackStateProvider.isSeekable()) {
                     // returns where would we be if we had seeked
@@ -256,7 +259,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     @Override
     public void onAddToPlaylist(Track track) {
         if (playbackService != null && track != null && isForeground()) {
-            AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track, playbackService.getPlayQueueOriginScreen());
+            AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track, playQueueManager.getScreenTag());
             from.show(getSupportFragmentManager(), "playlist_dialog");
         }
     }
@@ -283,7 +286,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     public void addNewComment(final Comment comment) {
         setCommentMode(false, true);
-        AddCommentDialog.from(comment, playbackService.getPlayQueueOriginScreen()).show(getSupportFragmentManager(), "comment_dialog");
+        AddCommentDialog.from(comment, playQueueManager.getScreenTag()).show(getSupportFragmentManager(), "comment_dialog");
     }
 
     private void setCommentMode(boolean isCommenting, boolean animate) {
@@ -312,7 +315,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     protected void onPlaybackServiceBound(@NotNull PlaybackService service) {
         if (pendingPlayPosition != -1) {
-            service.setQueuePosition(pendingPlayPosition);
+            service.playTrackAtPosition(pendingPlayPosition);
             pendingPlayPosition = -1;
         }
         setPlaybackState();
@@ -466,7 +469,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 if (!playbackStateProvider.isSupposedToBePlaying()
                         && getCurrentDisplayedTrackPosition() != playQueue.getPosition()) {
                     // play whatever track is currently on the screen
-                    playbackService.setQueuePosition(getCurrentDisplayedTrackPosition());
+                    playbackService.playTrackAtPosition(getCurrentDisplayedTrackPosition());
                 } else {
                     playbackService.togglePlayback();
                 }
@@ -498,7 +501,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                         transportBarTrackChange = true;
                         trackPager.prev();
                     } else {
-                        playbackService.setQueuePosition(playPosition - 1);
+                        playbackService.playTrackAtPosition(playPosition - 1);
                         refreshTrackPager();
                     }
 
@@ -529,7 +532,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                         transportBarTrackChange = true;
                         trackPager.next();
                     } else {
-                        playbackService.setQueuePosition(playPosition + 1);
+                        playbackService.playTrackAtPosition(playPosition + 1);
                         refreshTrackPager();
                     }
                 }
@@ -583,7 +586,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                     break;
                 case SEND_CURRENT_QUEUE_POSITION:
                     if (player.playbackService != null) {
-                        player.playbackService.setQueuePosition(player.getCurrentDisplayedTrackPosition());
+                        player.playbackService.playTrackAtPosition(player.getCurrentDisplayedTrackPosition());
                     }
                     break;
                 default:
@@ -602,12 +605,12 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         final PlayQueueView intentPlayQueue = isFirstLoad ? getPlayQueueFromIntent(getIntent()) : PlayQueueView.EMPTY;
 
         final boolean waitingForServiceToLoadQueue = !intentPlayQueue.isEmpty()
-                && intentPlayQueue.getCurrentTrackId() != playbackStateProvider.getCurrentTrackId();
+                && intentPlayQueue.getCurrentTrackId() != playQueueManager.getCurrentTrackId();
 
         if (waitingForServiceToLoadQueue){
             return intentPlayQueue;
         } else {
-            return playbackStateProvider.getPlayQueue();
+            return playQueueManager.getPlayQueueView();
         }
     }
 

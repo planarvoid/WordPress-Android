@@ -1,5 +1,6 @@
 package com.soundcloud.android.associations;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.collections.views.IconLayout;
@@ -12,15 +13,19 @@ import com.soundcloud.android.storage.provider.Content;
 import android.content.Context;
 import android.net.Uri;
 
+import javax.inject.Inject;
+
 public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> {
 
-    private final PlaybackOperations playbackOperations;
-    private final ImageOperations imageOperations;
+    @Inject
+    ImageOperations imageOperations;
 
-    public SoundAssociationAdapter(Uri uri, ImageOperations imageOperations) {
+    @Inject
+    PlaybackOperations playbackOperations;
+
+    public SoundAssociationAdapter(Uri uri) {
         super(uri);
-        playbackOperations = new PlaybackOperations();
-        this.imageOperations = imageOperations;
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.associations.LikesModule;
 import com.soundcloud.android.explore.ExploreModule;
+import com.soundcloud.android.main.LegacyModule;
 import com.soundcloud.android.main.MainModule;
 import com.soundcloud.android.playback.PlaybackModule;
 import com.soundcloud.android.playlists.PlaylistsModule;
@@ -24,7 +25,8 @@ import dagger.Module;
         MainModule.class,
         PlaybackModule.class,
         PlaylistsModule.class,
-        SoundStreamModule.class
+        SoundStreamModule.class,
+        LegacyModule.class
 }, addsTo = ApplicationModule.class)
 public class SoundCloudModule {
 }
