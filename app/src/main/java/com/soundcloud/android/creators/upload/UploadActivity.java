@@ -70,7 +70,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
             if (recording.external_upload) {
                 // 3rd party upload, disable "record another playable button"
                 ((ViewGroup) findViewById(R.id.share_user_layout)).addView(
-                        new ShareUserHeaderLayout(this, getApp().getLoggedInUser(), imageOperations));
+                        new ShareUserHeaderLayout(this, accountOperations.getLoggedInUser(), imageOperations));
             }
 
             if (recording.exists()) {

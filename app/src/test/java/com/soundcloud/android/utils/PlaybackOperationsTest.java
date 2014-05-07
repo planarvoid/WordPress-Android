@@ -402,7 +402,7 @@ public class PlaybackOperationsTest {
 
     @Test(expected = IllegalStateException.class)
     public void shouldThrowExceptionWhenBuilding(){
-        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        when(accountOperations.isUserLoggedIn()).thenReturn(false);
         playbackOperations.buildHLSUrlForTrack(track);
     }
 
@@ -410,7 +410,7 @@ public class PlaybackOperationsTest {
     public void shouldBuildHLSUrlForTrackBasedOnTrackURN() {
         Track mockTrack = mock(Track.class);
         when(mockTrack.getUrn()).thenReturn(Urn.forTrack(123));
-        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(accountOperations.getSoundCloudToken()).thenReturn(token);
         token.access = "access";
         when(httpProperties.getPrivateApiHostWithHttpScheme()).thenReturn("https://somehost/path");

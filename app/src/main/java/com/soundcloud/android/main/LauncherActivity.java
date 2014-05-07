@@ -1,6 +1,7 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 
 import android.content.Intent;
@@ -15,7 +16,7 @@ public class LauncherActivity extends TrackedActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.launch);
-        accountOperations = new AccountOperations(this);
+        accountOperations = SoundCloudApplication.fromContext(this).getAccountOperations();
     }
 
     @Override
@@ -24,10 +25,10 @@ public class LauncherActivity extends TrackedActivity {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                if (accountOperations.soundCloudAccountExists()) {
+                if (accountOperations.isUserLoggedIn()) {
                     startActivity(new Intent(LauncherActivity.this, MainActivity.class));
                 } else {
-                    accountOperations.addSoundCloudAccountManually(LauncherActivity.this);
+                    accountOperations.triggerLoginFlow(LauncherActivity.this);
                 }
             }
         });

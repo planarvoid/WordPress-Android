@@ -27,8 +27,9 @@ public class GooglePlusSignInTask extends LoginTask {
     private AccountOperations accountOperations;
 
     public GooglePlusSignInTask(SoundCloudApplication application, String accountName, String scope) {
-        this(application, accountName, scope, new TokenInformationGenerator(new PublicApi(application)), new FetchUserTask(new PublicApi(application)),
-                new UserStorage(), new AccountOperations(application));
+        this(application, accountName, scope, new TokenInformationGenerator(new PublicApi(application)),
+                new FetchUserTask(new PublicApi(application)),
+                new UserStorage(), application.getAccountOperations());
     }
 
     protected GooglePlusSignInTask(SoundCloudApplication application, String accountName, String scope,

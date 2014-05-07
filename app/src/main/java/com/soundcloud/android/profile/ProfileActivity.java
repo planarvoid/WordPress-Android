@@ -101,9 +101,9 @@ public class ProfileActivity extends ScActivity implements
         super.onCreate(bundle);
         setContentView(R.layout.profile_activity);
         imageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
+        accountOperations = SoundCloudApplication.fromContext(this).getAccountOperations();
         oldCloudAPI = new PublicApi(this);
         followingOperations = new FollowingOperations();
-        accountOperations = new AccountOperations(this);
         userImage = (ImageView) findViewById(R.id.user_image);
         username = (TextView) findViewById(R.id.username);
         fullName = (TextView) findViewById(R.id.fullname);
@@ -244,7 +244,7 @@ public class ProfileActivity extends ScActivity implements
     }
 
     private void loadYou() {
-        setUser(getApp().getLoggedInUser());
+        setUser(accountOperations.getLoggedInUser());
     }
 
     private void loadUserById(long userId) {

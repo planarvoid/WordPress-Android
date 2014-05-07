@@ -52,7 +52,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
 
                 // if we already have all the data, this is a NOP
                 try {
-                    new CollectionStorage().fetchAndStoreMissingCollectionItems(api, storedIds, params.getContent(), false);
+                    new CollectionStorage(resolver).fetchAndStoreMissingCollectionItems(api, storedIds, params.getContent(), false);
                 } catch (CloudAPI.InvalidTokenException e) {
                     // TODO, move this once we centralize our error handling
                     // InvalidTokenException should expose the response code so we don't have to hardcode it here

@@ -123,7 +123,7 @@ public class PlaylistSyncHelperTest {
 
     @Test
     public void syncMePlaylistsShouldNotRemoveLocalPlaylistAfterUnknownResourceResponse() throws Exception {
-        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(publicCloudAPI.readFullCollection(
                         argThat(isLegacyRequestToUrl("/me/playlists?representation=compact&limit=200")),
                         Matchers.<Class<CollectionHolder<Playlist>>>any())
@@ -145,7 +145,7 @@ public class PlaylistSyncHelperTest {
 
     @Test
     public void syncMePlaylistsShouldUpdateLocalStateAfterPlaylistPush() throws Exception {
-        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(publicCloudAPI.readFullCollection(
                         argThat(isLegacyRequestToUrl("/me/playlists?representation=compact&limit=200")),
                         Matchers.<Class<CollectionHolder<Playlist>>>any())

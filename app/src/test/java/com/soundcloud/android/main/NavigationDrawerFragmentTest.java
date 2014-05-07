@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -42,13 +43,15 @@ public class NavigationDrawerFragmentTest {
     @Mock
     ImageOperations imageOperations;
     @Mock
+    AccountOperations accountOperations;
+    @Mock
     Resources resources;
     @Mock
     EventBus eventBus;
 
     @Before
     public void setUp() throws Exception {
-        fragment = new NavigationDrawerFragment(imageOperations, eventBus);
+        fragment = new NavigationDrawerFragment(imageOperations, accountOperations, eventBus);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setView(view);
         when(activity.findViewById(R.id.drawer_layout)).thenReturn(drawerLayout);

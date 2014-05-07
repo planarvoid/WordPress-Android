@@ -67,7 +67,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void play(Track track, long fromPos) {
-        if (!accountOperations.soundCloudAccountExists()) {
+        if (!accountOperations.isUserLoggedIn()) {
             throw new IllegalStateException("Cannot play a track if no soundcloud account exists");
         }
 

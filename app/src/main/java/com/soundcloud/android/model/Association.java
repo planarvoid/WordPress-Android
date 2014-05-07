@@ -75,7 +75,7 @@ public abstract class Association extends ScResource implements PlayableHolder, 
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.CollectionItems.ITEM_ID, getItemId());
-        cv.put(TableColumns.CollectionItems.USER_ID, SoundCloudApplication.getUserId());
+        cv.put(TableColumns.CollectionItems.USER_ID, SoundCloudApplication.instance.getAccountOperations().getLoggedInUserId());
         cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, associationType);
         cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, getResourceType());
         cv.put(TableColumns.CollectionItems.CREATED_AT, created_at.getTime());

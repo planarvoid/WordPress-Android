@@ -1,10 +1,12 @@
 package com.soundcloud.android.storage;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscriber;
 
 import android.net.Uri;
@@ -21,7 +23,12 @@ public class UserStorage extends ScheduledOperations implements Storage<User> {
 
     @Inject
     public UserStorage(UserDAO userDAO) {
-        super(ScSchedulers.STORAGE_SCHEDULER);
+        this(userDAO, ScSchedulers.STORAGE_SCHEDULER);
+    }
+
+    @VisibleForTesting
+    UserStorage(UserDAO userDAO, Scheduler scheduler) {
+        super(scheduler);
         this.userDAO = userDAO;
     }
 
@@ -53,6 +60,16 @@ public class UserStorage extends ScheduledOperations implements Storage<User> {
             public void call(Subscriber<? super User> observer) {
                 observer.onNext(createOrUpdate(user));
                 observer.onCompleted();
+            }
+        }));
+    }
+
+    public Observable<User> getUserAsync(final long id) {
+        return schedule(Observable.create(new Observable.OnSubscribe<User>() {
+            @Override
+            public void call(Subscriber<? super User> subscriber) {
+                subscriber.onNext(getUser(id));
+                subscriber.onCompleted();
             }
         }));
     }

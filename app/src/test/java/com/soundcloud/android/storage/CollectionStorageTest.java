@@ -46,7 +46,7 @@ public class CollectionStorageTest {
     public void before() {
         TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        storage = new CollectionStorage(DefaultTestRunner.application);
+        storage = new CollectionStorage(resolver);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class CollectionStorageTest {
         ContentResolver resolverMock = mock(ContentResolver.class);
         Context mockContext = mock(Context.class);
         when(mockContext.getContentResolver()).thenReturn(resolverMock);
-        storage = new CollectionStorage(mockContext);
+        storage = new CollectionStorage(resolverMock);
 
         Long[] requestedIds = new Long[1300];
         Arrays.fill(requestedIds, 1L);

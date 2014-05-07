@@ -82,7 +82,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             actionBarController.setVisible(savedInstanceState.getBoolean(EXTRA_ACTIONBAR_VISIBLE, true));
         } else {
             lastTitle = getTitle();
-            if (accountOperations.soundCloudAccountExists()) {
+            if (accountOperations.isUserLoggedIn()) {
                 handleLoggedInUser(applicationProperties);
             }
             if (getIntent().hasExtra(EXTRA_ONBOARDING_USERS_RESULT)) {
@@ -130,7 +130,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     private void handleLoggedInUser(ApplicationProperties appProperties) {
         boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
-        User currentUser = application.getLoggedInUser();
+        User currentUser = accountOperations.getLoggedInUser();
         if (!justAuthenticated && accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)) {
             subscription.add(bindActivity(this, userOperations.refreshCurrentUser()).subscribe(new UserSubscriber()));
         }
@@ -154,8 +154,8 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!accountOperations.soundCloudAccountExists()) {
-            accountOperations.addSoundCloudAccountManually(this);
+        if (!accountOperations.isUserLoggedIn()) {
+            accountOperations.triggerLoginFlow(this);
             finish();
         }
 

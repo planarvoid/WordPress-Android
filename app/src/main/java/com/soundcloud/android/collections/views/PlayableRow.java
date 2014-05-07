@@ -215,7 +215,8 @@ public class PlayableRow extends IconLayout implements ListRow {
                         reposter = ((ProfileActivity)getContext()).getUser();
                     }
                 }
-                if (reposter !=  null && reposter.getId() != SoundCloudApplication.getUserId()) {
+                long currentUserId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserId();
+                if (reposter !=  null && reposter.getId() != currentUserId) {
                     this.reposter.setText(reposter.username);
                 }
             }

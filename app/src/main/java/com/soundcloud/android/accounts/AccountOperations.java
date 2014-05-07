@@ -3,36 +3,63 @@ package com.soundcloud.android.accounts;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Token;
+import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
+@Singleton
 public class AccountOperations extends ScheduledOperations {
+
+    private static final int NOT_SET = -1;
+    private static final String TOKEN_TYPE = "access_token";
+    @VisibleForTesting
+    static final long EMAIL_CONFIRMATION_REMIND_PERIOD = TimeUnit.DAYS.toMillis(7);
+
+    private final Context context;
+    private final AccountManager accountManager;
+    private final SoundCloudTokenOperations tokenOperations;
+    private final ScModelManager modelManager;
+    private final UserStorage userStorage;
+    private final EventBus eventBus;
+    private final Lazy<AccountCleanupAction> accountCleanupAction;
+
+    private volatile User loggedInUser;
 
     public enum AccountInfoKeys {
         USERNAME("currentUsername"),
@@ -51,35 +78,71 @@ public class AccountOperations extends ScheduledOperations {
         }
     }
 
-    public static final int NOT_SET = -1;
-
-    private static final String TOKEN_TYPE = "access_token";
-    @VisibleForTesting
-    static final int EMAIL_CONFIRMATION_REMIND_PERIOD = 86400 * 1000 * 7; // 1 week
-
-    private final AccountManager accountManager;
-    private final SoundCloudTokenOperations tokenOperations;
-    private final Context context;
-
-    public AccountOperations(Context context) {
-        this(AccountManager.get(context.getApplicationContext()),
-                context.getApplicationContext(),
-                new SoundCloudTokenOperations(context.getApplicationContext()));
-    }
-
-
     @Inject
-    public AccountOperations(AccountManager accountManager, Context context, SoundCloudTokenOperations tokenOperations) {
-        this(accountManager, context, tokenOperations, ScSchedulers.STORAGE_SCHEDULER);
+    AccountOperations(Context context, AccountManager accountManager, SoundCloudTokenOperations tokenOperations,
+                      ScModelManager modelManager, UserStorage userStorage, EventBus eventBus,
+                      Lazy<AccountCleanupAction> accountCleanupAction) {
+        this(context, accountManager, tokenOperations, modelManager, userStorage, eventBus, accountCleanupAction,
+                ScSchedulers.STORAGE_SCHEDULER);
     }
 
     @VisibleForTesting
-    AccountOperations(AccountManager accountManager, Context context, SoundCloudTokenOperations tokenOperations,
-                      Scheduler scheduler) {
+    AccountOperations(Context context, AccountManager accountManager, SoundCloudTokenOperations tokenOperations,
+                      ScModelManager modelManager, UserStorage userStorage, EventBus eventBus,
+                      Lazy<AccountCleanupAction> accountCleanupAction, Scheduler scheduler) {
         super(scheduler);
-        this.accountManager = accountManager;
         this.context = context;
+        this.accountManager = accountManager;
         this.tokenOperations = tokenOperations;
+        this.modelManager = modelManager;
+        this.userStorage = userStorage;
+        this.eventBus = eventBus;
+        this.accountCleanupAction = accountCleanupAction;
+    }
+
+    /**
+     * Returns the logged in user. You should not rely on the return value unless you have checked the user is
+     * actually logged in.
+     */
+    public User getLoggedInUser() {
+        if (loggedInUser == null) {
+            // this means we haven't received all user metadata yet, fall back temporarily to a minimal representation
+            User user = new User();
+            user.setId(getAccountDataLong(AccountInfoKeys.USER_ID.getKey()));
+            user.username = getAccountDataString(AccountInfoKeys.USERNAME.getKey());
+            user.permalink = getAccountDataString(AccountInfoKeys.USER_PERMALINK.getKey());
+            return user;
+        }
+        return loggedInUser;
+    }
+
+    /**
+     * Returns the ID of the logged in user. If we don't have the full meta data of the user yet, it will read it
+     * from the account.
+     * You should not rely on the return value unless you have checked the user is actually logged in.
+     */
+    public long getLoggedInUserId() {
+        return loggedInUser == null ? getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : loggedInUser.getId();
+    }
+
+    public void loadLoggedInUser() {
+        final long id = getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
+        if (id != AccountOperations.NOT_SET) {
+            fireAndForget(userStorage.getUserAsync(id).doOnNext(new Action1<User>() {
+                @Override
+                public void call(User user) {
+                    updateLoggedInUser(user);
+                }
+            }));
+        }
+    }
+
+    private void updateLoggedInUser(final User user) {
+        loggedInUser = modelManager.cache(user, ScResource.CacheUpdateMode.FULL);
+    }
+
+    public void clearLoggedInUser() {
+        loggedInUser = null;
     }
 
     public String getGoogleAccountToken(String accountName, String scope, Bundle bundle) throws GoogleAuthException, IOException {
@@ -90,11 +153,12 @@ public class AccountOperations extends ScheduledOperations {
         GoogleAuthUtil.invalidateToken(context, token);
     }
 
-    public boolean soundCloudAccountExists() {
+    //TODO: now that this class is a singleton, we should probably cache the current account?
+    public boolean isUserLoggedIn() {
         return getSoundCloudAccount() != null;
     }
 
-    public void addSoundCloudAccountManually(Activity currentActivityContext) {
+    public void triggerLoginFlow(Activity currentActivityContext) {
         accountManager.addAccount(
                 context.getString(R.string.account_type),
                 TOKEN_TYPE, null, null, currentActivityContext, null, null);
@@ -129,6 +193,8 @@ public class AccountOperations extends ScheduledOperations {
             accountManager.setUserData(account, AccountInfoKeys.USERNAME.getKey(), user.getUsername());
             accountManager.setUserData(account, AccountInfoKeys.USER_PERMALINK.getKey(), user.getPermalink());
             accountManager.setUserData(account, AccountInfoKeys.SIGNUP.getKey(), via.getSignupIdentifier());
+            updateLoggedInUser(user);
+            eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(user));
             return account;
         } else {
             return null;
@@ -141,7 +207,7 @@ public class AccountOperations extends ScheduledOperations {
         return accounts != null && accounts.length == 1 ? accounts[0] : null;
     }
 
-    public Observable<Void> removeSoundCloudAccount() {
+    public Observable<Void> logout() {
         Account soundCloudAccount = getSoundCloudAccount();
         checkNotNull(soundCloudAccount, "One does not simply remove something that does not exist");
 
@@ -150,44 +216,42 @@ public class AccountOperations extends ScheduledOperations {
     }
 
     public Observable<Void> purgeUserData() {
-        return Observable.create(new Observable.OnSubscribe<Void>() {
+        return schedule(Observable.create(new Observable.OnSubscribe<Void>() {
             @Override
             public void call(Subscriber<? super Void> subscriber) {
-                new AccountCleanupAction(context).call();
+                accountCleanupAction.get().call();
+                clearLoggedInUser();
+                eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
+                context.sendBroadcast(new Intent(PlaybackService.Actions.RESET_ALL));
                 subscriber.onCompleted();
             }
-        });
+        }));
     }
 
     @Nullable
-    public String getAccountDataString(String key) {
-        Log.d(AccountOperations.class.getSimpleName(), key);
-        Log.d(AccountOperations.class.getSimpleName(), String.format("%s", getSoundCloudAccount() == null ? "null" : "account" +
-                ""));
-        if (soundCloudAccountExists()) {
+    private String getAccountDataString(String key) {
+        if (isUserLoggedIn()) {
             return accountManager.getUserData(getSoundCloudAccount(), key);
         }
 
         return null;
     }
 
-    //TODO Create a class which works as a service to store preference data instead of exposing these lowlevel constructs
     //TODO Should have a consistent anonymous user id Uri forUser(long id). ClientUri.forUser() is related with this issue
-    public long getAccountDataLong(String key) {
+    private long getAccountDataLong(String key) {
         String data = getAccountDataString(key);
         return data == null ? -1 : Long.parseLong(data);
     }
 
     //TODO this seems wrong to me, should we not differentiate between no data existing and a false value existing?
+    //Also, shouldn't be public...
     public boolean getAccountDataBoolean(String key) {
         String data = getAccountDataString(key);
         return data != null && Boolean.parseBoolean(data);
     }
 
     public boolean setAccountData(String key, String value) {
-        if (!soundCloudAccountExists()) {
-            return false;
-        } else {
+        if (isUserLoggedIn()) {
             /*
             TODO: not sure : setUserData off the ui thread??
                 StrictMode policy violation; ~duration=161 ms: android.os.StrictMode$StrictModeDiskWriteViolation: policy=279 violation=1
@@ -201,20 +265,18 @@ public class AccountOperations extends ScheduledOperations {
              */
             accountManager.setUserData(getSoundCloudAccount(), key, value);
             return true;
+        } else {
+            return false;
         }
     }
 
     @Nullable
     public Token getSoundCloudToken() {
-        if (soundCloudAccountExists()) {
+        if (isUserLoggedIn()) {
             return tokenOperations.getSoundCloudToken(getSoundCloudAccount());
         }
 
         return null;
-    }
-
-    public long getLoggedInUserId(){
-        return SoundCloudApplication.getUserId();
     }
 
     public void invalidateSoundCloudToken(Token token) {
@@ -222,7 +284,7 @@ public class AccountOperations extends ScheduledOperations {
     }
 
     public void storeSoundCloudTokenData(Token token) {
-        checkState(soundCloudAccountExists(), "SoundCloud Account needs to exist before storing token info");
+        checkState(isUserLoggedIn(), "SoundCloud Account needs to exist before storing token info");
         tokenOperations.storeSoundCloudTokenData(getSoundCloudAccount(), token);
     }
 

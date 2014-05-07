@@ -49,7 +49,7 @@ public class UserAssociationSyncer extends SyncStrategy {
     private int bulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
 
     public UserAssociationSyncer(Context context) {
-        this(context, new AccountOperations(context));
+        this(context, SoundCloudApplication.fromContext(context).getAccountOperations());
     }
 
     @VisibleForTesting
@@ -85,7 +85,7 @@ public class UserAssociationSyncer extends SyncStrategy {
         } else if (action != null && action.equals(ApiSyncService.ACTION_PUSH)) {
             return pushUserAssociations(Content.match(uri));
         } else {
-            return syncLocalToRemote(Content.match(uri), SoundCloudApplication.getUserId());
+            return syncLocalToRemote(Content.match(uri), accountOperations.getLoggedInUserId());
         }
     }
 

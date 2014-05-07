@@ -4,6 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -31,6 +32,8 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
     EventBus mEventBus;
     @Inject
     ApplicationProperties mApplicationProperties;
+    @Inject
+    AccountOperations accountOperations;
 
     public static CreatePlaylistDialogFragment from(long trackId, String originScreen) {
         Bundle b = new Bundle();
@@ -80,7 +83,7 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
     }
 
     private void createPlaylist(final String title, final boolean isPrivate) {
-        final User currentUser = SoundCloudApplication.instance.getLoggedInUser();
+        final User currentUser = accountOperations.getLoggedInUser();
         final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
         final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
         fireAndForget(mPlaylistOperations.createNewPlaylist(currentUser, title, isPrivate, firstTrackId));

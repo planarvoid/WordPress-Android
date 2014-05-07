@@ -8,7 +8,6 @@ import com.soundcloud.android.utils.ScTextUtils;
 import rx.Observable;
 import rx.Subscriber;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
@@ -27,10 +26,6 @@ public class PlaylistTagStorage extends ScheduledOperations {
     @Inject
     public PlaylistTagStorage(@Named("PlaylistTags") SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
-    }
-
-    public PlaylistTagStorage(Context context) {
-        sharedPreferences = context.getSharedPreferences(StorageModule.PLAYLIST_TAGS, Context.MODE_PRIVATE);
     }
 
     public void addRecentTag(String tag) {

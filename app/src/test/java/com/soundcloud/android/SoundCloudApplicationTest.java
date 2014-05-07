@@ -1,17 +1,10 @@
 package com.soundcloud.android;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.api.Token;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -19,8 +12,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import android.accounts.Account;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPathConstants;
@@ -65,23 +56,5 @@ public class SoundCloudApplicationTest {
         expect(nl.getLength()).toEqual(1);
         Node app = nl.item(0);
         expect(app.getAttributes().getNamedItem("android:hardwareAccelerated").getNodeValue()).toEqual("true");
-    }
-
-    @Test
-    public void shouldPublishUserChangedEventWhenAddingNewAccount() {
-        final User user = new User();
-        final Token token = new Token("123", "456");
-        final SignupVia signupVia = SignupVia.API;
-
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
-
-        SoundCloudApplication application = new SoundCloudApplication(eventBus, accountOperations);
-        Account account = new Account("soundcloud", "com.soundcloud.account");
-        when(accountOperations.addOrReplaceSoundCloudAccount(user, token, signupVia)).thenReturn(account);
-
-        application.addUserAccountAndEnableSync(user, token, signupVia);
-
-        CurrentUserChangedEvent event = eventMonitor.verifyEventOn(EventQueue.CURRENT_USER_CHANGED);
-        expect(event.getKind()).toBe(CurrentUserChangedEvent.USER_UPDATED);
     }
 }

@@ -114,8 +114,8 @@ public final class AccountAssistant {
 
     public static boolean logOut(Context context) throws Exception {
         Log.i(TAG, "Logging out");
-        AccountOperations accountOperations = new AccountOperations(context);
-        if(!accountOperations.soundCloudAccountExists()){
+        AccountOperations accountOperations = SoundCloudApplication.fromContext(context).getAccountOperations();
+        if(!accountOperations.isUserLoggedIn()){
             return false;
         }
 
@@ -137,7 +137,7 @@ public final class AccountAssistant {
                     }
                 });
 
-        accountOperations.removeSoundCloudAccount().toBlockingObservable().firstOrDefault(null);
+        accountOperations.logout().toBlockingObservable().firstOrDefault(null);
 
         lock.lock();
         // wait for the data cleanup action

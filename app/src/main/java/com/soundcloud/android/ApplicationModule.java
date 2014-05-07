@@ -1,8 +1,10 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.api.ApiModule;
+import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.storage.StorageModule;
 import dagger.Module;
 import dagger.Provides;
 
@@ -19,7 +21,7 @@ import android.view.LayoutInflater;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-@Module(library = true, includes = ApiModule.class, injects = SoundCloudApplication.class)
+@Module(library = true, includes = {ApiModule.class, StorageModule.class}, injects = SoundCloudApplication.class)
 public class ApplicationModule {
 
     private final SoundCloudApplication application;
@@ -84,5 +86,10 @@ public class ApplicationModule {
     @Named("MainLooper")
     public Looper providesMainLooper() {
         return Looper.getMainLooper();
+    }
+
+    @Provides
+    public SoundRecorder provideSoundRecorder() {
+        return SoundRecorder.getInstance(application);
     }
 }

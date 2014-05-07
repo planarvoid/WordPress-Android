@@ -81,12 +81,13 @@ public class UserAssociationSyncerTest {
                 resolver, userAssociationStorage, followingOperations, accountOperations);
         when(userAssociation.getUser()).thenReturn(user);
         when(userAssociation.getLocalSyncState()).thenReturn(UserAssociation.LocalState.NONE);
-        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
+        when(accountOperations.getLoggedInUserId()).thenReturn(133201L);
     }
 
     @Test
     public void shouldNotSyncWithNoLoggedInUser() throws Exception {
-        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        when(accountOperations.isUserLoggedIn()).thenReturn(false);
         ApiSyncResult result = sync(Content.ME_FOLLOWERS.uri);
         expect(result.success).toBeFalse();
     }

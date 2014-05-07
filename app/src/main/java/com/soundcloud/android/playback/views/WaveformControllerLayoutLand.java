@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.InputObject;
@@ -32,7 +33,7 @@ public class WaveformControllerLayoutLand extends WaveformControllerLayout {
     public WaveformControllerLayoutLand(Context context, AttributeSet attrs) {
         super(context, attrs);
         setStaticTransformationsEnabled(false);
-        mAccountOperations = new AccountOperations(context);
+        mAccountOperations = SoundCloudApplication.fromContext(context).getAccountOperations();
         mShouldShowComments = mAccountOperations.getAccountDataBoolean(PLAYER_SHOWING_COMMENTS);
 
     }

@@ -2,7 +2,6 @@ package com.soundcloud.android.storage;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
@@ -12,9 +11,9 @@ import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.provider.BaseColumns;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,12 +24,9 @@ import java.util.Set;
 public class CollectionStorage {
     private final ContentResolver resolver;
 
-    public CollectionStorage() {
-        this(SoundCloudApplication.instance);
-    }
-
-    public CollectionStorage(@NotNull Context context) {
-        resolver = context.getContentResolver();;
+    @Inject
+    public CollectionStorage(ContentResolver contentResolver) {
+        resolver = contentResolver;
     }
 
     /**

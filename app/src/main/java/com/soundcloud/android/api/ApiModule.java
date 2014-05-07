@@ -29,4 +29,9 @@ public class ApiModule {
         return new SoundCloudRxHttpClient(ScSchedulers.API_SCHEDULER, jsonTransformer, context, httpProperties);
     }
 
+    @Provides
+    @Singleton
+    public UnauthorisedRequestRegistry provideUnauthorizedRequestRegistry(Context context) {
+        return UnauthorisedRequestRegistry.getInstance(context);
+    }
 }

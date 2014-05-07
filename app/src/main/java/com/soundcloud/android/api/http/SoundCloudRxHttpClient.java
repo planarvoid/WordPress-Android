@@ -206,7 +206,8 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         private final ApplicationProperties applicationProperties;
 
         public WrapperFactory(Context context) {
-            this(context, new HttpProperties(context.getResources()), new AccountOperations(context),
+            this(context, new HttpProperties(context.getResources()),
+                    SoundCloudApplication.fromContext(context).getAccountOperations(),
                     new ApplicationProperties(context.getResources()));
         }
 

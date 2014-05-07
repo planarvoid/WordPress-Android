@@ -681,7 +681,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
                 if (isOnTouchBar(input.y)) {
                     Comment comment = Comment.build(
                             mTrack,
-                            SoundCloudApplication.fromContext(getContext()).getLoggedInUser(),
+                            SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUser(),
                             stampFromPosition(input.x),
                             "",
                             0,

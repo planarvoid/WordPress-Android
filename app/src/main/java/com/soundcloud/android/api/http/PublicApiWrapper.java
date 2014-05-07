@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
@@ -91,7 +92,8 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
     @Deprecated
     public PublicApiWrapper(Context context) {
-        this(context, new HttpProperties(context), new AccountOperations(context), new ApplicationProperties(context.getResources()));
+        this(context, new HttpProperties(context), SoundCloudApplication.fromContext(context).getAccountOperations(),
+                new ApplicationProperties(context.getResources()));
 
     }
 
@@ -99,21 +101,22 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     protected PublicApiWrapper(Context context, HttpProperties properties, AccountOperations accountOperations,
                                ApplicationProperties applicationProperties) {
         this(context, buildObjectMapper(), properties.getClientId(), properties.getClientSecret(),
-                ANDROID_REDIRECT_URI, accountOperations.getSoundCloudToken(), applicationProperties,
+                ANDROID_REDIRECT_URI, accountOperations, applicationProperties,
                 UnauthorisedRequestRegistry.getInstance(context), new DeviceHelper(context));
     }
 
     private PublicApiWrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret, URI redirectUri,
-                             Token token, ApplicationProperties applicationProperties, UnauthorisedRequestRegistry unauthorisedRequestRegistry,
+                             AccountOperations accountOperations, ApplicationProperties applicationProperties,
+                             UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                              DeviceHelper deviceHelper) {
-        super(clientId, clientSecret, redirectUri, token);
+        super(clientId, clientSecret, redirectUri, accountOperations.getSoundCloudToken());
         // context can be null in tests
         if (context == null) return;
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
         this.applicationProperties = applicationProperties;
         this.context = context;
         objectMapper = mapper;
-        setTokenListener(new SoundCloudTokenListener(context));
+        setTokenListener(new SoundCloudTokenListener(accountOperations));
         userAgent = deviceHelper.getUserAgent();
         final IntentFilter filter = new IntentFilter();
         filter.addAction(Actions.CHANGE_PROXY_ACTION);

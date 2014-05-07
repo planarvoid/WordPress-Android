@@ -86,7 +86,7 @@ public class PlaybackOperations {
     }
 
     public String buildHLSUrlForTrack(Track track) {
-        checkState(accountOperations.soundCloudAccountExists(), "SoundCloud User account does not exist");
+        checkState(accountOperations.isUserLoggedIn(), "SoundCloud User account does not exist");
         Token token = accountOperations.getSoundCloudToken();
         return Uri.parse(httpProperties.getPrivateApiHostWithHttpScheme() + APIEndpoints.HLS_STREAM.unencodedPath(track.getUrn()))
                 .buildUpon()

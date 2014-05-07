@@ -1,5 +1,6 @@
 package com.soundcloud.android.onboarding.auth;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.TempEndpoints;
@@ -357,9 +358,9 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
 
         public boolean store(Context context) {
             // also store in account manager
-            AccountOperations accountOperations = new AccountOperations(context);
+            AccountOperations accountOperations = SoundCloudApplication.fromContext(context).getAccountOperations();
 
-            if (accountOperations.soundCloudAccountExists()) {
+            if (accountOperations.isUserLoggedIn()) {
                 Account account = accountOperations.getSoundCloudAccount();
                 AccountManager accountManager = AccountManager.get(context);
                 accountManager.setAuthToken(account, TOKEN_TYPE, accessToken);

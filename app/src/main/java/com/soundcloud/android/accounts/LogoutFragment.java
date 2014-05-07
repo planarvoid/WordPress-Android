@@ -44,7 +44,7 @@ public class LogoutFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new EventSubscriber()));
-        subscription.add(accountOperations.removeSoundCloudAccount().subscribe(new LogoutSubscriber()));
+        subscription.add(accountOperations.logout().subscribe(new LogoutSubscriber()));
     }
 
     @Override
@@ -76,7 +76,7 @@ public class LogoutFragment extends Fragment {
             final Activity activity = getActivity();
             if (currentUserChangedEvent.getKind() == CurrentUserChangedEvent.USER_REMOVED
                     && activity != null && !activity.isFinishing()) {
-                accountOperations.addSoundCloudAccountManually(activity);
+                accountOperations.triggerLoginFlow(activity);
                 activity.finish();
             }
         }

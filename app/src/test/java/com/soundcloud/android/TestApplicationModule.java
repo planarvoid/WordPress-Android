@@ -4,27 +4,24 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.AnalyticsProperties;
-import com.soundcloud.android.api.http.HttpProperties;
+import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.api.http.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.http.json.JsonTransformer;
+import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.playback.service.PlayerWidgetController;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.storage.PlaylistTagStorage;
 import dagger.Module;
 import dagger.Provides;
-import org.mockito.Mockito;
 
 import android.accounts.AccountManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-
-import javax.inject.Singleton;
 
 @Module(injects = {SoundCloudApplication.class, TestApplication.class})
 public class TestApplicationModule {
@@ -76,6 +73,11 @@ public class TestApplicationModule {
     }
 
     @Provides
+    public ContentResolver provideContentResolver() {
+        return application.getContentResolver();
+    }
+
+    @Provides
     public ImageOperations provideImageOperations() {
         return mock(ImageOperations.class);
     }
@@ -93,5 +95,20 @@ public class TestApplicationModule {
     @Provides
     public RxHttpClient provideRxHttpClient() {
         return mock(RxHttpClient.class);
+    }
+
+    @Provides
+    public UnauthorisedRequestRegistry provideUnauthorizedRequestRegistry() {
+        return mock(UnauthorisedRequestRegistry.class);
+    }
+
+    @Provides
+    public SoundRecorder provideSoundRecorder() {
+        return mock(SoundRecorder.class);
+    }
+
+    @Provides
+    public PlaylistTagStorage providePlaylistTagStorage() {
+        return mock(PlaylistTagStorage.class);
     }
 }

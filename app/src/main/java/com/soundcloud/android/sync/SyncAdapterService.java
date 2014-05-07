@@ -63,7 +63,7 @@ public class SyncAdapterService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        accountOperations = new AccountOperations(this);
+        accountOperations = SoundCloudApplication.fromContext(this).getAccountOperations();
         syncAdapter = new AbstractThreadedSyncAdapter(this, false) {
             private Looper looper;
 
@@ -302,7 +302,7 @@ public class SyncAdapterService extends Service {
 
         final Bundle extras = new Bundle();
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(new AccountOperations(app).getSoundCloudAccount(), ScContentProvider.AUTHORITY, extras);
+        ContentResolver.requestSync(app.getAccountOperations().getSoundCloudAccount(), ScContentProvider.AUTHORITY, extras);
     }
 
     private static void clearActivities() {

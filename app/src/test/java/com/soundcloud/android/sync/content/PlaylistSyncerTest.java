@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -50,7 +49,7 @@ public class PlaylistSyncerTest {
 
     @Test
     public void shouldSkipMePlaylistsSyncWithNoAccount() throws Exception {
-        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        when(accountOperations.isUserLoggedIn()).thenReturn(false);
         playlistSyncer.syncContent(Content.ME_PLAYLISTS.uri);
         verifyZeroInteractions(soundAssociationStorage);
         verifyZeroInteractions(publicCloudAPI);
@@ -60,7 +59,7 @@ public class PlaylistSyncerTest {
     public void syncMePlaylistsShouldReturnResultFromSyncHelper() throws Exception {
         final ApiSyncResult result = Mockito.mock(ApiSyncResult.class);
         when(syncHelper.pullRemotePlaylists(publicCloudAPI)).thenReturn(result);
-        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
         expect(playlistSyncer.syncContent(Content.ME_PLAYLISTS.uri)).toBe(result);
     }
 }

@@ -78,7 +78,7 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Connections._ID, getId());
-        cv.put(TableColumns.Connections.USER_ID, SoundCloudApplication.getUserId()); // not sure if we should infer the user id here
+        cv.put(TableColumns.Connections.USER_ID, SoundCloudApplication.instance.getAccountOperations().getLoggedInUserId()); // not sure if we should infer the user id here
         cv.put(TableColumns.Connections.SERVICE, service);
         cv.put(TableColumns.Connections.TYPE, type);
         cv.put(TableColumns.Connections.CREATED_AT, created_at.getTime());

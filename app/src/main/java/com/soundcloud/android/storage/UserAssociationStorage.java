@@ -4,7 +4,6 @@ package com.soundcloud.android.storage;
 import static com.soundcloud.android.storage.ResolverHelper.getWhereInClause;
 import static com.soundcloud.android.storage.ResolverHelper.longListToStringArr;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
@@ -27,6 +26,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,8 +42,9 @@ public class UserAssociationStorage extends ScheduledOperations {
     private final UserAssociationDAO userAssociationDAO;
     private final UserAssociationDAO followingsDAO;
 
+    @Inject
     public UserAssociationStorage(Context context) {
-        this(ScSchedulers.STORAGE_SCHEDULER, SoundCloudApplication.fromContext(context).getContentResolver());
+        this(ScSchedulers.STORAGE_SCHEDULER, context.getContentResolver());
     }
 
     public UserAssociationStorage(Scheduler scheduler, ContentResolver resolver) {

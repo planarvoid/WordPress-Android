@@ -1,26 +1,41 @@
 package com.soundcloud.android.accounts;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
+import dagger.Lazy;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import rx.Observable;
 import rx.Observer;
 import rx.schedulers.Schedulers;
 
@@ -29,8 +44,11 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AccountOperationsTest {
@@ -43,36 +61,49 @@ public class AccountOperationsTest {
     @Mock
     private SoundCloudTokenOperations tokenOperations;
     @Mock
+    private EventBus eventBus;
+    @Mock
+    private ScModelManager modelManager;
+    @Mock
+    private UserStorage userStorage;
+    @Mock
     private Account scAccount;
     @Mock
-    private Observer<Void> observer;
+    private Observer observer;
     @Mock
     private User user;
     @Mock
     private Token token;
+    @Mock
+    private AccountCleanupAction accountCleanupAction;
 
     @Before
     public void setUp() {
         initMocks(this);
-        accountOperations = new AccountOperations(
-                accountManager, Robolectric.application, tokenOperations, Schedulers.immediate());
+        accountOperations = new AccountOperations(Robolectric.application, accountManager, tokenOperations,
+                modelManager, userStorage, eventBus, new Lazy<AccountCleanupAction>() {
+            @Override
+            public AccountCleanupAction get() {
+                return accountCleanupAction;
+            }
+        }, Schedulers.immediate());
     }
 
     @Test
     public void shouldReturnFalseIfAccountDoesNotExist() {
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{});
-        expect(accountOperations.soundCloudAccountExists()).toBeFalse();
+        expect(accountOperations.isUserLoggedIn()).toBeFalse();
     }
 
     @Test
     public void shouldReturnTrueIfAccountDoesExist() {
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
-        expect(accountOperations.soundCloudAccountExists()).toBeTrue();
+        expect(accountOperations.isUserLoggedIn()).toBeTrue();
     }
 
     @Test
     public void shouldCheckForExistenceOfSoundCloudAccount() {
-        accountOperations.soundCloudAccountExists();
+        accountOperations.isUserLoggedIn();
         verify(accountManager).getAccountsByType(SC_ACCOUNT_TYPE);
     }
 
@@ -100,13 +131,13 @@ public class AccountOperationsTest {
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionWhenRemovingAccountIfAccountDoesNotExist() {
         when(accountManager.getAccountsByType(anyString())).thenReturn(null);
-        accountOperations.removeSoundCloudAccount();
+        accountOperations.logout();
     }
 
     @Test
     public void shouldAddAccountUsingAccountManager() {
         Activity activity = mock(Activity.class);
-        accountOperations.addSoundCloudAccountManually(activity);
+        accountOperations.triggerLoginFlow(activity);
         verify(accountManager).addAccount(SC_ACCOUNT_TYPE, "access_token", null, null, activity, null, null);
     }
 
@@ -162,6 +193,18 @@ public class AccountOperationsTest {
     }
 
     @Test
+    public void shouldSetLoggedInUserToNewUserIfAccountAdditionSucceeds() {
+        Account account = new Account("username", SC_ACCOUNT_TYPE);
+        when(user.getUsername()).thenReturn("username");
+        when(modelManager.cache(user, ScResource.CacheUpdateMode.FULL)).thenReturn(user);
+        when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
+
+        accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
+
+        expect(accountOperations.getLoggedInUser()).toBe(user);
+    }
+
+    @Test
     public void shouldSetAuthTokenInformationIfAccountAdditionSucceeds() {
         Account account = new Account("username", SC_ACCOUNT_TYPE);
 
@@ -174,6 +217,19 @@ public class AccountOperationsTest {
     }
 
     @Test
+    public void shouldPublishUserChangedEventIfAccountAdditionSucceeds() {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        Account account = new Account("username", SC_ACCOUNT_TYPE);
+        when(user.getUsername()).thenReturn("username");
+        when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
+
+        accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
+
+        CurrentUserChangedEvent event = eventMonitor.verifyEventOn(EventQueue.CURRENT_USER_CHANGED);
+        expect(event.getKind()).toBe(CurrentUserChangedEvent.USER_UPDATED);
+    }
+
+    @Test
     public void shouldReturnAddedAccountIfAccountAdditionSucceeds() {
         Account account = new Account("username", SC_ACCOUNT_TYPE);
 
@@ -182,35 +238,6 @@ public class AccountOperationsTest {
 
         expect(accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API)).toEqual(account);
 
-    }
-
-    @Test
-    public void shouldReturnNullStringDataIfAccountDoesNotExist() {
-        when(accountManager.getAccountsByType(anyString())).thenReturn(null);
-        String data = accountOperations.getAccountDataString(KEY);
-        expect(data).toBeNull();
-        verify(accountManager, never()).getUserData(any(Account.class), any(String.class));
-    }
-
-    @Test
-    public void shouldReturnStringAccountDataIfAccountExists() {
-        when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
-        when(accountManager.getUserData(scAccount, KEY)).thenReturn("data");
-        String data = accountOperations.getAccountDataString(KEY);
-        expect(data).toBe("data");
-    }
-
-    @Test
-    public void shouldReturnNegativeOneIfLongAccountDataDoesNotExist() {
-        when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(null);
-        expect(accountOperations.getAccountDataLong(KEY)).toBe(-1L);
-    }
-
-    @Test
-    public void shouldReturnExpectedValueIfLongAccountDataDoesExist() {
-        mockSoundCloudAccount();
-        when(accountManager.getUserData(scAccount, KEY)).thenReturn("23");
-        expect(accountOperations.getAccountDataLong(KEY)).toBe(23L);
     }
 
     @Test
@@ -285,7 +312,7 @@ public class AccountOperationsTest {
         when(future.getResult()).thenReturn(Boolean.TRUE);
         when(accountManager.removeAccount(scAccount, null, null)).thenReturn(future);
 
-        accountOperations.removeSoundCloudAccount().subscribe(observer);
+        accountOperations.logout().subscribe(observer);
         verify(observer).onCompleted();
     }
 
@@ -338,10 +365,79 @@ public class AccountOperationsTest {
     }
 
     @Test
-    public void shouldResolveContextToApplicationContextToPreventMemoryLeaks() {
-        Activity activity = mock(Activity.class);
-        new AccountOperations(activity);
-        verify(activity, atLeastOnce()).getApplicationContext();
+    public void shouldReturnDummyUserWithMinimumAccountInfoIfNotYetLoaded() {
+        mockSoundCloudAccount();
+
+        final User loggedInUser = accountOperations.getLoggedInUser();
+
+        expect(loggedInUser.getId()).toEqual(123L);
+        expect(loggedInUser.getUsername()).toEqual("username");
+        expect(loggedInUser.getPermalink()).toEqual("permalink");
+    }
+
+    @Test
+    public void shouldLoadUserFromLocalStorageBasedOnAccountIdAndUpdateLoggedInUser() {
+        mockSoundCloudAccount();
+        when(userStorage.getUserAsync(123L)).thenReturn(Observable.just(user));
+        when(modelManager.cache(user, ScResource.CacheUpdateMode.FULL)).thenReturn(user);
+
+        accountOperations.loadLoggedInUser();
+
+        expect(accountOperations.getLoggedInUser()).toBe(user);
+    }
+
+    @Test
+    public void shouldNotLoadUserFromLocalStorageIfAccountIdIsNotSet() {
+        when(userStorage.getUserAsync(123L)).thenReturn(Observable.just(user));
+        when(modelManager.cache(user, ScResource.CacheUpdateMode.FULL)).thenReturn(user);
+
+        accountOperations.loadLoggedInUser();
+
+        verifyZeroInteractions(userStorage);
+
+        expect(accountOperations.getLoggedInUser()).not.toBe(user);
+    }
+
+    @Test
+    public void purgingUserDataShouldCallAccountCleanupAction() {
+        accountOperations.purgeUserData().subscribe(observer);
+        InOrder inOrder = inOrder(observer, accountCleanupAction);
+        inOrder.verify(accountCleanupAction).call();
+        inOrder.verify(observer).onCompleted();
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void purgingUserDataShouldClearLoggedInUser() {
+        mockSoundCloudAccount();
+        when(userStorage.getUserAsync(123L)).thenReturn(Observable.just(user));
+        when(modelManager.cache(user, ScResource.CacheUpdateMode.FULL)).thenReturn(user);
+        accountOperations.loadLoggedInUser();
+        expect(accountOperations.getLoggedInUser()).toBe(user);
+
+        accountOperations.purgeUserData().subscribe(observer);
+
+        expect(accountOperations.getLoggedInUser()).not.toBe(user);
+    }
+
+
+    @Test
+    public void shouldPublishUserRemovalIfPurgingUserDataSucceeds() {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
+        accountOperations.purgeUserData().subscribe(observer);
+
+        CurrentUserChangedEvent event = eventMonitor.verifyEventOn(EventQueue.CURRENT_USER_CHANGED);
+        assertEquals(event.getKind(), CurrentUserChangedEvent.USER_REMOVED);
+    }
+
+    @Test
+    public void shouldBroadcastResetAllIntentIfAccountRemovalSucceeds() {
+        accountOperations.purgeUserData().subscribe(observer);
+
+        final List<Intent> intents = Robolectric.getShadowApplication().getBroadcastIntents();
+        expect(intents).not.toBeEmpty();
+        expect(intents.get(0).getAction()).toEqual(PlaybackService.Actions.RESET_ALL);
     }
 
     private void mockExpiredEmailConfirmationReminder() {
@@ -358,6 +454,9 @@ public class AccountOperationsTest {
 
     private void mockSoundCloudAccount() {
         when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(new Account[]{scAccount});
+        when(accountManager.getUserData(scAccount, AccountOperations.AccountInfoKeys.USER_ID.getKey())).thenReturn("123");
+        when(accountManager.getUserData(scAccount, AccountOperations.AccountInfoKeys.USERNAME.getKey())).thenReturn("username");
+        when(accountManager.getUserData(scAccount, AccountOperations.AccountInfoKeys.USER_PERMALINK.getKey())).thenReturn("permalink");
     }
 
     private void mockValidToken() {

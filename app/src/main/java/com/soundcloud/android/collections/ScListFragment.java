@@ -176,10 +176,10 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         setRetainInstance(true);
         eventBus = SoundCloudApplication.fromContext(getActivity()).getEventBus();
         imageOperations = SoundCloudApplication.fromContext(getActivity()).getImageOperations();
+        accountOperations = SoundCloudApplication.fromContext(getActivity()).getAccountOperations();
         publicApi = new PublicApi(getActivity());
         keepGoing = true;
         setupListAdapter();
-        accountOperations = new AccountOperations(getActivity());
         pullToRefreshController = new PullToRefreshController();
     }
 
@@ -621,7 +621,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     private void onDataConnectionUpdated(boolean isConnected) {
         final ScBaseAdapter adapter = getListAdapter();
         if (isConnected && adapter != null) {
-            if (adapter.needsItems() && getScActivity() != null && accountOperations.soundCloudAccountExists()) {
+            if (adapter.needsItems() && getScActivity() != null && accountOperations.isUserLoggedIn()) {
                 refresh(false);
             }
         }

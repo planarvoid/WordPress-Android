@@ -350,7 +350,7 @@ public class TestHelper {
     private static int bulkInsertToUserAssociations(List<? extends ScResource> resources, Uri collectionUri,
                                                     Date addedAt, Date removedAt, String token) {
         SoundCloudApplication application = (SoundCloudApplication) Robolectric.application;
-        final long userId = SoundCloudApplication.getUserId();
+        final long userId = application.getAccountOperations().getLoggedInUserId();
 
         BulkInsertMap map = new BulkInsertMap();
         for (int i = 0; i < resources.size(); i++) {
@@ -487,9 +487,9 @@ public class TestHelper {
 
     public static void setUserId(long id) {
         ShadowAccountManager shadowAccountManager = shadowOf(ShadowAccountManager.get(DefaultTestRunner.application));
-        AccountOperations accountOperations = new AccountOperations(DefaultTestRunner.application);
+        AccountOperations accountOperations = DefaultTestRunner.application.getAccountOperations();
 
-        if (!accountOperations.soundCloudAccountExists()) {
+        if (!accountOperations.isUserLoggedIn()) {
             shadowAccountManager.addAccount(new Account("name", "com.soundcloud.android.account"));
         }
 

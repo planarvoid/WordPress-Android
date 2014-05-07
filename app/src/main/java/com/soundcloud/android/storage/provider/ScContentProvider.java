@@ -95,7 +95,7 @@ public class ScContentProvider extends ContentProvider {
                         final String selection,
                         final String[] selectionArgs,
                         final String sortOrder) {
-        final long userId = SoundCloudApplication.getUserIdFromContext(getContext());
+        final long userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserId();
         final SCQueryBuilder qb = new SCQueryBuilder();
         String[] _columns = columns;
         String _selection = selection;
@@ -194,7 +194,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_USERID:
                 MatrixCursor c = new MatrixCursor(new String[] { BaseColumns._ID}, 1);
-                c.addRow(new Object[]{SoundCloudApplication.getUserId()});
+                c.addRow(new Object[]{userId});
                 return c;
 
             case TRACKS:
@@ -386,7 +386,7 @@ public class ScContentProvider extends ContentProvider {
     }
 
     private Uri doInsert(final Uri uri, final ContentValues values) {
-        final long userId = SoundCloudApplication.getUserIdFromContext(getContext());
+        final long userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserId();
         long id;
         Uri result;
         SQLiteDatabase db = databaseManager.getWritableDatabase();
@@ -496,7 +496,7 @@ public class ScContentProvider extends ContentProvider {
         int count;
         final Content content = Content.match(uri);
 
-        final long userIdFromContext = SoundCloudApplication.getUserIdFromContext(getContext());
+        final long userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserId();
         switch (content) {
             case COLLECTIONS:
             case COLLECTION_PAGES:
@@ -530,7 +530,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_SOUNDS: // still used in com.soundcloud.android.dao.SoundAssociationStorage#syncToLocal
                 // add userId
-                String whereAppend = Table.COLLECTION_ITEMS.name + "." + TableColumns.CollectionItems.USER_ID + " = " + userIdFromContext;
+                String whereAppend = Table.COLLECTION_ITEMS.name + "." + TableColumns.CollectionItems.USER_ID + " = " + userId;
                 // append possible types
                 int[] collectionType = new int[]{CollectionStorage.CollectionItemTypes.TRACK, CollectionStorage.CollectionItemTypes.REPOST, CollectionStorage.CollectionItemTypes.PLAYLIST};
                 for (int i = 0; i < collectionType.length; i++) {
@@ -545,7 +545,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_LIKES:
             case ME_PLAYLISTS:
             case ME_REPOSTS:
-                whereAppend = Table.COLLECTION_ITEMS.name + "." + TableColumns.CollectionItems.USER_ID + " = " + userIdFromContext
+                whereAppend = Table.COLLECTION_ITEMS.name + "." + TableColumns.CollectionItems.USER_ID + " = " + userId
                         + " AND " + TableColumns.CollectionItems.COLLECTION_TYPE + " = " + content.collectionType;
                 where = TextUtils.isEmpty(where) ? whereAppend
                         : where + " AND " + whereAppend;
@@ -554,7 +554,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
-                whereAppend = Table.USER_ASSOCIATIONS.name + "." + TableColumns.UserAssociations.OWNER_ID + " = " + userIdFromContext
+                whereAppend = Table.USER_ASSOCIATIONS.name + "." + TableColumns.UserAssociations.OWNER_ID + " = " + userId
                         + " AND " + TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + content.collectionType;
                 where = TextUtils.isEmpty(where) ? whereAppend
                         : where + " AND " + whereAppend;
@@ -562,19 +562,19 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case COLLECTION_ITEMS:
-                whereAppend = Table.COLLECTION_ITEMS.name + "." + TableColumns.CollectionItems.USER_ID + " = " + userIdFromContext;
+                whereAppend = Table.COLLECTION_ITEMS.name + "." + TableColumns.CollectionItems.USER_ID + " = " + userId;
                 where = TextUtils.isEmpty(where) ? whereAppend
                         : where + " AND " + whereAppend;
                 break;
 
             case USER_ASSOCIATIONS:
-                whereAppend = Table.USER_ASSOCIATIONS.name + "." + TableColumns.UserAssociations.OWNER_ID + " = " + userIdFromContext;
+                whereAppend = Table.USER_ASSOCIATIONS.name + "." + TableColumns.UserAssociations.OWNER_ID + " = " + userId;
                 where = TextUtils.isEmpty(where) ? whereAppend
                         : where + " AND " + whereAppend;
                 break;
 
             case ME_PLAYLIST:
-                whereAppend = Table.COLLECTION_ITEMS.name + "." + TableColumns.CollectionItems.USER_ID + " = " + userIdFromContext
+                whereAppend = Table.COLLECTION_ITEMS.name + "." + TableColumns.CollectionItems.USER_ID + " = " + userId
                 + " AND " + TableColumns.CollectionItems.COLLECTION_TYPE + " = " + CollectionStorage.CollectionItemTypes.PLAYLIST + " " ;
                 where += " AND " + TableColumns.CollectionItems.ITEM_ID + " = " + uri.getLastPathSegment();
                 where += " AND " + whereAppend;
@@ -624,7 +624,7 @@ public class ScContentProvider extends ContentProvider {
                 return count;
 
             case PLAYABLE_CLEANUP:
-                long userId = SoundCloudApplication.getUserIdFromContext(getContext());
+                long userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserId();
                 if (userId > 0){
                     final long start = System.currentTimeMillis();
 
@@ -657,7 +657,7 @@ public class ScContentProvider extends ContentProvider {
                 return 0;
 
             case USERS_CLEANUP:
-                userId = SoundCloudApplication.getUserIdFromContext(getContext());
+                userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserId();
                 if (userId > 0) {
                     where = "_id NOT IN (SELECT DISTINCT " + TableColumns.Sounds.USER_ID + " FROM "+ Table.SOUNDS.name + " UNION "
                                     + "SELECT _id FROM "+ Table.USERS.name + " WHERE EXISTS("
@@ -1060,7 +1060,8 @@ public class ScContentProvider extends ContentProvider {
             // only delete tracks from other users - needs proper state checking
             final long trackId = intent.getLongExtra(PlaybackService.BroadcastExtras.ID, 0);
             final long userId = intent.getLongExtra(PlaybackService.BroadcastExtras.USER_ID, 0);
-            if (trackId > 0 && userId != SoundCloudApplication.getUserIdFromContext(context)) {
+            final long currentUserId = SoundCloudApplication.fromContext(context).getAccountOperations().getLoggedInUserId();
+            if (trackId > 0 && userId != currentUserId) {
                 removeTrack(context).execute(trackId);
             }
         }

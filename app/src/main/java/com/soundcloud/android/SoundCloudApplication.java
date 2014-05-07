@@ -1,6 +1,5 @@
 package com.soundcloud.android;
 
-import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
 import static com.soundcloud.android.storage.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.storage.provider.ScContentProvider.enableSyncing;
 
@@ -16,9 +15,7 @@ import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.c2dm.C2DMReceiver;
-import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ContentStats;
@@ -72,8 +69,6 @@ public class SoundCloudApplication extends Application {
     @Deprecated
     @SuppressFBWarnings({ "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
     public static ScModelManager sModelManager;
-
-    private User loggedInUser;
 
     // needs to remain in memory over the life-time of the app
     @SuppressWarnings("unused")
@@ -147,9 +142,8 @@ public class SoundCloudApplication extends Application {
 
         imageOperations.initialise(this, applicationProperties);
 
+        accountOperations.loadLoggedInUser();
         setupCurrentUserAccount();
-
-        initLoggedInUser();
         setupExperiments();
         setupAnalytics();
 
@@ -198,7 +192,7 @@ public class SoundCloudApplication extends Application {
             ContentStats.init(this);
 
             if (applicationProperties.isBetaBuildRunningOnDalvik()){
-                Crashlytics.setUserIdentifier(getLoggedInUser().username);
+                Crashlytics.setUserIdentifier(accountOperations.getLoggedInUser().getUsername());
             }
         }
     }
@@ -215,7 +209,7 @@ public class SoundCloudApplication extends Application {
         final List<AnalyticsProvider> analyticsProviders;
         if (applicationProperties.isRunningOnDalvik()) {
             analyticsProviders = Lists.newArrayList(
-                    new LocalyticsAnalyticsProvider(this, analyticsProperties, getCurrentUserId()),
+                    new LocalyticsAnalyticsProvider(this, analyticsProperties, accountOperations.getLoggedInUserId()),
                     new EventLoggerAnalyticsProvider(),
                     new ComScoreAnalyticsProvider(this));
         } else {
@@ -225,6 +219,7 @@ public class SoundCloudApplication extends Application {
         Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && applicationProperties.isDebugBuild();
     }
 
+    @Deprecated // use @Inject instead!
     public EventBus getEventBus() {
         return eventBus;
     }
@@ -232,6 +227,11 @@ public class SoundCloudApplication extends Application {
     @Deprecated // use @Inject instead!
     public ImageOperations getImageOperations() {
         return imageOperations;
+    }
+
+    @Deprecated // use @Inject instead!
+    public AccountOperations getAccountOperations() {
+        return accountOperations;
     }
 
     @NotNull
@@ -243,41 +243,9 @@ public class SoundCloudApplication extends Application {
         return instance.objectGraph;
     }
 
-    public synchronized User getLoggedInUser() {
-        if (loggedInUser == null) {
-            initLoggedInUser();
-            // user not in db, fall back to local storage
-            if (loggedInUser == null) {
-                User user = new User();
-                user.setId(accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()));
-                user.username = accountOperations.getAccountDataString(AccountInfoKeys.USERNAME.getKey());
-                user.permalink = accountOperations.getAccountDataString(AccountInfoKeys.USER_PERMALINK.getKey());
-                return user;
-            }
-            loggedInUser.via = SignupVia.fromString(accountOperations.getAccountDataString(AccountInfoKeys.SIGNUP.getKey()));
-        }
-        return loggedInUser;
-    }
-
-    private void initLoggedInUser() {
-        final long id = accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
-        if (id != AccountOperations.NOT_SET) {
-            loggedInUser = modelManager.getUser(id);
-        }
-    }
-
-    public void clearLoggedInUser() {
-        loggedInUser = null;
-    }
-
-    //TODO Move this into AccountOperations once we refactor User info out of here
     public boolean addUserAccountAndEnableSync(User user, Token token, SignupVia via) {
         Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
         if (account != null) {
-            loggedInUser = user;
-
-            eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(user));
-
             // move this when we can't guarantee we will only have 1 account active at a time
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
 
@@ -310,14 +278,6 @@ public class SoundCloudApplication extends Application {
         startService(intent);
     }
 
-    private long getCurrentUserId()  {
-        return loggedInUser == null ? accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : loggedInUser.getId();
-    }
-
-    public static long getUserId() {
-        return instance.getCurrentUserId();
-    }
-
     public static void handleSilentException(@Nullable String message, Throwable e) {
         if (ApplicationProperties.shouldReportCrashes()) {
             Log.e(TAG, "Handling silent exception: " + message, e);
@@ -333,11 +293,6 @@ public class SoundCloudApplication extends Application {
         } else {
             throw new RuntimeException("can't obtain app from context");
         }
-    }
-
-    public static long getUserIdFromContext(Context c){
-        SoundCloudApplication app = fromContext(c);
-        return app == null ? AccountOperations.NOT_SET : app.getCurrentUserId();
     }
 
     // keep this until we've sorted out RL2, since some tests rely on the getUserId stuff which in turn requires

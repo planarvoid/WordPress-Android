@@ -1,6 +1,7 @@
 package com.soundcloud.android.preferences;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
@@ -25,7 +26,7 @@ public class NotificationSettingsActivity extends ScSettingsActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        accountOperations = new AccountOperations(this);
+        accountOperations = SoundCloudApplication.fromContext(this).getAccountOperations();
         addPreferencesFromResource(R.xml.notifications_settings);
 
         for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++) {
@@ -72,7 +73,7 @@ public class NotificationSettingsActivity extends ScSettingsActivity {
                 break;
             }
         }
-        if (accountOperations.soundCloudAccountExists()) {
+        if (accountOperations.isUserLoggedIn()) {
             final Account account = accountOperations.getSoundCloudAccount();
             final boolean autoSyncing = ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY);
             if (sync && !autoSyncing) {

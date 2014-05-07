@@ -64,7 +64,6 @@ public class User extends ScResource implements UserHolder {
     @Nullable @JsonIgnore public String _list_avatar_uri;
     @JsonIgnore public boolean user_follower;  // is the user following the logged in user
     @JsonIgnore public boolean user_following; // is the user being followed by the logged in user
-    @Nullable @JsonIgnore public SignupVia via;          // used for tracking
 
     @Nullable private Boolean primary_email_confirmed;
 
@@ -200,7 +199,7 @@ public class User extends ScResource implements UserHolder {
         if (private_tracks_count != NOT_SET) cv.put(TableColumns.Users.PRIVATE_TRACKS_COUNT, private_tracks_count);
         if (primary_email_confirmed != null) cv.put(TableColumns.Users.PRIMARY_EMAIL_CONFIRMED, primary_email_confirmed  ? 1 : 0);
 
-        if (getId() != -1 && getId() == SoundCloudApplication.getUserId()) {
+        if (getId() != -1 && getId() == SoundCloudApplication.instance.getAccountOperations().getLoggedInUserId()) {
             if (description != null) cv.put(TableColumns.Users.DESCRIPTION, description);
         }
         cv.put(TableColumns.Users.LAST_UPDATED, System.currentTimeMillis());

@@ -42,10 +42,13 @@ public class PlayablePresenter {
 
     private Playable mPlayable;
     private ImageOperations mImageOperations;
+    private final long currentUserId;
 
+    @Deprecated // use injection
     public PlayablePresenter(Context context) {
         mContext = context;
         mImageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
+        currentUserId = SoundCloudApplication.fromContext(context).getAccountOperations().getLoggedInUserId();
     }
 
     public PlayablePresenter setPlayableRowView(View view){
@@ -155,7 +158,7 @@ public class PlayablePresenter {
                 mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
             } else if (playable.shared_to_count == 1) {
                 mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange);
-                mPrivateIndicator.setText(playable.user_id == SoundCloudApplication.getUserId() ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
+                mPrivateIndicator.setText(playable.user_id == currentUserId ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
             } else {
                 if (playable.shared_to_count < 8) {
                     mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange);

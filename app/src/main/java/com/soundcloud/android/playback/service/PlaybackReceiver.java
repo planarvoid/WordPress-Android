@@ -47,7 +47,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             playbackService.resetAll();
             playQueueManager.clearAll();
 
-        } else if (accountOperations.soundCloudAccountExists()) {
+        } else if (accountOperations.isUserLoggedIn()) {
 
             if (Actions.NEXT_ACTION.equals(action)) {
                 if (playbackService.next()) {

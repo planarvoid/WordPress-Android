@@ -279,7 +279,8 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     private void addBaseContentValues(ContentValues cv) {
-        cv.put(TableColumns.Recordings.USER_ID, user_id > 0 ? user_id : SoundCloudApplication.getUserId());
+        final long currentUserId = SoundCloudApplication.instance.getAccountOperations().getLoggedInUserId();
+        cv.put(TableColumns.Recordings.USER_ID, user_id > 0 ? user_id : currentUserId);
         cv.put(TableColumns.Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
         cv.put(TableColumns.Recordings.PRIVATE_USER_ID, recipient_user_id);
         cv.put(TableColumns.Recordings.TIMESTAMP, lastModified());

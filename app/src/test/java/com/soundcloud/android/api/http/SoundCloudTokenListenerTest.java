@@ -30,7 +30,7 @@ public class SoundCloudTokenListenerTest {
 
     @Test
     public void shouldReturnNewTokenIfSCAccountExistsAndTokenIsNotTheSameAsTheExpiredOne(){
-        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(accountOperations.getSoundCloudToken()).thenReturn(newToken);
         expect(tokenListener.onTokenInvalid(expiredToken)).toBe(newToken);
         verify(accountOperations).invalidateSoundCloudToken(expiredToken);
@@ -38,7 +38,7 @@ public class SoundCloudTokenListenerTest {
 
     @Test
     public void shouldReturnNullIfSCAccountExistsAndTokenIsTheSameAsTheExpiredOne(){
-        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(accountOperations.getSoundCloudToken()).thenReturn(expiredToken);
         expect(tokenListener.onTokenInvalid(expiredToken)).toBeNull();
         verify(accountOperations).invalidateSoundCloudToken(expiredToken);
@@ -46,7 +46,7 @@ public class SoundCloudTokenListenerTest {
 
     @Test
     public void shouldReturnNullIfSoundCloudDoesAccountNotExist(){
-        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        when(accountOperations.isUserLoggedIn()).thenReturn(false);
         expect(tokenListener.onTokenInvalid(expiredToken)).toBeNull();
         verify(accountOperations).invalidateSoundCloudToken(expiredToken);
     }
@@ -55,7 +55,7 @@ public class SoundCloudTokenListenerTest {
     public void shouldStoreSoundCloudTokenIfAccountExistsAndTokenIsValidAndDefaultScoped(){
         when(newToken.valid()).thenReturn(true);
         when(newToken.defaultScoped()).thenReturn(true);
-        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
         tokenListener.onTokenRefreshed(newToken);
         verify(accountOperations).storeSoundCloudTokenData(newToken);
     }
@@ -64,7 +64,7 @@ public class SoundCloudTokenListenerTest {
     public void shouldNotStoreSoundCloudTokenIfAccountDoesNotExistAndTokenIsValidAndDefaultScoped(){
         when(newToken.valid()).thenReturn(true);
         when(newToken.defaultScoped()).thenReturn(true);
-        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        when(accountOperations.isUserLoggedIn()).thenReturn(false);
         tokenListener.onTokenRefreshed(newToken);
         verify(accountOperations, never()).storeSoundCloudTokenData(newToken);
     }
@@ -73,7 +73,7 @@ public class SoundCloudTokenListenerTest {
     public void shouldNotStoreSoundCloudTokenIfAccountExistsAndTokenIsNotValidButIsDefaultScoped(){
         when(newToken.valid()).thenReturn(false);
         when(newToken.defaultScoped()).thenReturn(true);
-        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
         tokenListener.onTokenRefreshed(newToken);
         verify(accountOperations, never()).storeSoundCloudTokenData(newToken);
     }
@@ -82,7 +82,7 @@ public class SoundCloudTokenListenerTest {
     public void shouldNotStoreSoundCloudTokenIfAccountExistsAndTokenIsValidButIsNotDefaultScoped(){
         when(newToken.valid()).thenReturn(true);
         when(newToken.defaultScoped()).thenReturn(false);
-        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
         tokenListener.onTokenRefreshed(newToken);
         verify(accountOperations, never()).storeSoundCloudTokenData(newToken);
     }

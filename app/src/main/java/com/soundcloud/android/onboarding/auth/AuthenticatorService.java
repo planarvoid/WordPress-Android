@@ -1,10 +1,11 @@
 package com.soundcloud.android.onboarding.auth;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.utils.AndroidUtils;
 
 import android.accounts.AbstractAccountAuthenticator;
@@ -97,7 +98,7 @@ public class AuthenticatorService extends Service {
                 final boolean removalAllowed = result.getBoolean(AccountManager.KEY_BOOLEAN_RESULT);
 
                 if (removalAllowed) {
-                    accountOperations.purgeUserData().subscribeOn(ScSchedulers.STORAGE_SCHEDULER).subscribe();
+                    fireAndForget(accountOperations.purgeUserData());
                 }
             }
 

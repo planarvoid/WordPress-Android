@@ -2,6 +2,7 @@ package com.soundcloud.android.sync;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
@@ -57,6 +58,7 @@ public class ApiSyncer extends SyncStrategy {
 
     private final SoundAssociationStorage soundAssociationStorage;
     private final UserStorage userStorage;
+    private final AccountOperations accountOperations;
     private final EventBus eventBus;
 
     public ApiSyncer(Context context, ContentResolver resolver) {
@@ -64,12 +66,13 @@ public class ApiSyncer extends SyncStrategy {
         activitiesStorage = new ActivitiesStorage();
         soundAssociationStorage = new SoundAssociationStorage();
         userStorage = new UserStorage();
+        accountOperations = SoundCloudApplication.fromContext(context).getAccountOperations();
         eventBus = SoundCloudApplication.fromContext(context).getEventBus();
     }
 
     @NotNull
     public ApiSyncResult syncContent(Uri uri, String action) throws IOException {
-        final long userId = SoundCloudApplication.getUserIdFromContext(context);
+        final long userId = accountOperations.getLoggedInUserId();
         Content c = Content.match(uri);
         ApiSyncResult result = new ApiSyncResult(uri);
 
@@ -81,7 +84,7 @@ public class ApiSyncer extends SyncStrategy {
                     result = syncMe(c);
                     if (result.success) {
                         resolver.notifyChange(Content.ME.uri, null);
-                        User loggedInUser = SoundCloudApplication.fromContext(context).getLoggedInUser();
+                        User loggedInUser = accountOperations.getLoggedInUser();
                         eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(loggedInUser));
                     }
                     PreferenceManager.getDefaultSharedPreferences(context)

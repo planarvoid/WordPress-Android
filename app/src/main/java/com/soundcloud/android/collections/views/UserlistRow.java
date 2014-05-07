@@ -47,10 +47,10 @@ public class UserlistRow extends IconLayout implements ListRow {
 
     public UserlistRow(Context context, Screen originScreen, ImageOperations imageOperations) {
         super(context, imageOperations);
-        eventBus = ((SoundCloudApplication) context.getApplicationContext()).getEventBus();
+        eventBus = SoundCloudApplication.fromContext(context).getEventBus();
+        accountOperations = SoundCloudApplication.fromContext(context).getAccountOperations();
         this.originScreen = originScreen;
         followingOperations = new FollowingOperations();
-        accountOperations = new AccountOperations(context);
         username = (TextView) findViewById(R.id.username);
         tracks = (TextView) findViewById(R.id.tracks);
         followers = (TextView) findViewById(R.id.followers);
@@ -104,7 +104,7 @@ public class UserlistRow extends IconLayout implements ListRow {
 
     private void setFollowingStatus() {
         final boolean following = followingOperations.isFollowing(user);
-        if (user.getId() == getCurrentUserId()) {
+        if (user.getId() == accountOperations.getLoggedInUserId()) {
             followBtn.setVisibility(INVISIBLE);
         } else {
             followBtn.setVisibility(VISIBLE);

@@ -50,7 +50,7 @@ public class PlaybackReceiverTest {
     public void setup() {
         SoundCloudApplication.sModelManager.clear();
         playbackReceiver = new PlaybackReceiver.Factory().create(playbackService, accountOperations, playQueueManager, eventBus);
-        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(playQueueManager.getScreenTag()).thenReturn("screen_tag");
     }
 
@@ -218,7 +218,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void shouldNotInteractWithThePlayBackServiceIfNoAccountExists(){
-        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        when(accountOperations.isUserLoggedIn()).thenReturn(false);
         Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verifyZeroInteractions(playbackService);
@@ -226,7 +226,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void shouldNotInteractWithThePlayqueueManagerIfNoAccountExists(){
-        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        when(accountOperations.isUserLoggedIn()).thenReturn(false);
         Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verifyZeroInteractions(playQueue);
@@ -301,7 +301,7 @@ public class PlaybackReceiverTest {
     }
 
     private void setupTrackingTest(String action, String source) {
-        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        when(accountOperations.isUserLoggedIn()).thenReturn(false);
         Intent intent = new Intent(action).putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, source);
         playbackReceiver.onReceive(Robolectric.application, intent);
     }

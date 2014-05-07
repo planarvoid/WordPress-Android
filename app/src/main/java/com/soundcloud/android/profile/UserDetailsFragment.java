@@ -90,7 +90,7 @@ public class UserDetailsFragment extends Fragment {
 
         if (!displayedInfo) {
             if (emptyViewStatus == EmptyListView.Status.OK) {
-                if (userId == SoundCloudApplication.getUserId()) {
+                if (userId == SoundCloudApplication.fromContext(getActivity()).getAccountOperations().getLoggedInUserId()) {
                     emptyViewFactory.withMessageText(getString(R.string.info_empty_you_message))
                                      .withSecondaryText(getString(R.string.info_empty_you_secondary))
                                      .withImage(R.drawable.empty_profile);

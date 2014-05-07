@@ -38,13 +38,13 @@ public class LogoutFragmentTest {
     @Before
     public void setup() {
         fragment = new LogoutFragment(eventBus, accountOperations);
-        when(accountOperations.removeSoundCloudAccount()).thenReturn(Observable.<Void>empty());
+        when(accountOperations.logout()).thenReturn(Observable.<Void>empty());
     }
 
     @Test
     public void shouldRemoveCurrentUserAccountInOnCreate() {
         TestObservables.MockObservable accountRemovingObservable = TestObservables.emptyObservable();
-        when(accountOperations.removeSoundCloudAccount()).thenReturn(accountRemovingObservable);
+        when(accountOperations.logout()).thenReturn(accountRemovingObservable);
         fragment.onCreate(null);
         expect(accountRemovingObservable.subscribedTo()).toBeTrue();
     }
@@ -73,13 +73,13 @@ public class LogoutFragmentTest {
         fragment.onCreate(null);
 
         eventMonitor.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
-        verify(accountOperations).addSoundCloudAccountManually(activity);
+        verify(accountOperations).triggerLoginFlow(activity);
         expect(activity.isFinishing()).toBeTrue();
     }
 
     @Test
     public void shouldFinishCurrentActivityWhenAccountRemoveFails() {
-        when(accountOperations.removeSoundCloudAccount()).thenReturn(Observable.<Void>error(new Exception()));
+        when(accountOperations.logout()).thenReturn(Observable.<Void>error(new Exception()));
         final FragmentActivity activity = new FragmentActivity();
         shadowOf(fragment).setActivity(activity);
 

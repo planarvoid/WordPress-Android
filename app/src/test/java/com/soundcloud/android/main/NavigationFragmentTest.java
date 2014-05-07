@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -54,10 +55,12 @@ public class NavigationFragmentTest {
     ListView listView;
     @Mock
     ImageOperations imageOperations;
+    @Mock
+    AccountOperations accountOperations;
 
     @Before
     public void setUp() throws Exception {
-        fragment = new NavigationFragment(imageOperations);
+        fragment = new NavigationFragment(imageOperations, accountOperations);
         Robolectric.shadowOf(fragment).setActivity(activity);
         when(activity.getIntent()).thenReturn(intent);
         when(activity.getApplication()).thenReturn(application);
@@ -69,7 +72,7 @@ public class NavigationFragmentTest {
         View navProfileView = LayoutInflater.from(Robolectric.application).inflate(R.layout.nav_profile_item, null, false);
         when(layoutInflater.inflate(R.layout.nav_profile_item, container, false)).thenReturn(navProfileView);
         User user = TestHelper.getModelFactory().createModel(User.class);
-        when(application.getLoggedInUser()).thenReturn(user);
+        when(accountOperations.getLoggedInUser()).thenReturn(user);
     }
 
     @Test

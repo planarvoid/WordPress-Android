@@ -14,6 +14,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 
+import javax.inject.Inject;
 import java.util.List;
 
 public class ActivitiesStorage extends ScheduledOperations {
@@ -26,10 +27,16 @@ public class ActivitiesStorage extends ScheduledOperations {
     }
 
     public ActivitiesStorage(Context context) {
+        this(context.getContentResolver(), new SyncStateManager(context), new ActivityDAO(context.getContentResolver()));
+    }
+
+    @Inject
+    public ActivitiesStorage(ContentResolver contentResolver, SyncStateManager syncStateManager,
+                             ActivityDAO activitiesDAO) {
         super(ScSchedulers.STORAGE_SCHEDULER);
-        resolver = context.getContentResolver();
-        syncStateManager = new SyncStateManager(context);
-        activitiesDAO = new ActivityDAO(resolver);
+        this.resolver = contentResolver;
+        this.syncStateManager = syncStateManager;
+        this.activitiesDAO = activitiesDAO;
     }
 
     @Deprecated

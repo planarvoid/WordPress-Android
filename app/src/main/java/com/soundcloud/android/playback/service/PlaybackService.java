@@ -266,7 +266,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         delayedStopHandler.removeCallbacksAndMessages(null);
 
         if (intent != null) {
-            boolean hasAccount = accountOperations.soundCloudAccountExists();
+            boolean hasAccount = accountOperations.isUserLoggedIn();
             if (hasAccount && !Actions.PLAY_ACTION.equals(intent.getAction()) && playQueueManager.shouldReloadQueue()){
                 resumeInfo = playQueueManager.loadPlayQueue();
             }

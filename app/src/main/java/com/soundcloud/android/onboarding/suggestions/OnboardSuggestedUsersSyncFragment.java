@@ -6,6 +6,7 @@ import static rx.android.observables.AndroidObservable.fromFragment;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.associations.FollowingOperations;
@@ -95,7 +96,8 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
             super.onError(error);
             // send sync adapter request for followings so retry logic will kick in
             FragmentActivity context = getActivity();
-            new SyncInitiator(context, new AccountOperations(context)).pushFollowingsToApi();
+            AccountOperations accountOperations = SoundCloudApplication.fromContext(getActivity()).getAccountOperations();
+            new SyncInitiator(context, accountOperations).pushFollowingsToApi();
             finish(false);
         }
     }

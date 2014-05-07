@@ -81,7 +81,8 @@ public class PlayerTrackView extends FrameLayout implements
                 SoundCloudApplication.sModelManager);
 
         mPlayablePresenter = new PlayablePresenter(context);
-        mEngagementsController = new EngagementsController(application.getEventBus(), soundAssocOps);
+        mEngagementsController = new EngagementsController(
+                application.getEventBus(), soundAssocOps, application.getAccountOperations());
         mEngagementsController.bindView(this);
         mEngagementsController.setAddToPlaylistListener(this);
 

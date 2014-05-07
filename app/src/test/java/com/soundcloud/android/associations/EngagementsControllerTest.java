@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
@@ -51,13 +52,15 @@ public class EngagementsControllerTest {
     @Mock
     private EventBus eventBus;
     @Mock
+    private AccountOperations accountOperations;
+    @Mock
     private Subscription eventSubscription;
 
     @Before
     public void setup() {
         LayoutInflater inflater = (LayoutInflater) Robolectric.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         rootView = (ViewGroup) inflater.inflate(R.layout.player_action_bar, null);
-        controller = new EngagementsController(eventBus, soundAssocOps);
+        controller = new EngagementsController(eventBus, soundAssocOps, accountOperations);
         controller.bindView(rootView);
         eventMonitor = EventMonitor.on(eventBus).withSubscription(eventSubscription);
         controller.startListeningForChanges();

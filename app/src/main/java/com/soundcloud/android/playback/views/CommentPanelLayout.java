@@ -103,7 +103,7 @@ public class CommentPanelLayout extends RelativeLayout {
                     Intent intent = new Intent(Comment.ACTION_CREATE_COMMENT)
                             .putExtra(Comment.EXTRA, Comment.build(
                                     mComment.track,
-                                    SoundCloudApplication.fromContext(getContext()).getLoggedInUser(),
+                                    SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUser(),
                                     mComment.timestamp,
                                     "",
                                     mComment.getId(),

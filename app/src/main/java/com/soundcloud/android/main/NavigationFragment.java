@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.User;
@@ -39,6 +40,8 @@ public class NavigationFragment extends Fragment {
 
     @Inject
     ImageOperations imageOperations;
+    @Inject
+    AccountOperations accountOperations;
 
     private NavigationCallbacks callbacks;
 
@@ -73,8 +76,9 @@ public class NavigationFragment extends Fragment {
     }
 
     @VisibleForTesting
-    protected NavigationFragment(ImageOperations imageOperations) {
+    protected NavigationFragment(ImageOperations imageOperations, AccountOperations accountOperations) {
         this.imageOperations = imageOperations;
+        this.accountOperations = accountOperations;
     }
 
     @Override
@@ -204,7 +208,7 @@ public class NavigationFragment extends Fragment {
         profileViewHolder.username = (TextView) view.findViewById(R.id.username);
         profileViewHolder.followers = (TextView) view.findViewById(R.id.followers_count);
 
-        updateProfileItem(((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser());
+        updateProfileItem(accountOperations.getLoggedInUser());
 
         return view;
     }

@@ -2,6 +2,7 @@ package com.soundcloud.android.c2dm;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.model.User;
@@ -24,6 +25,7 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,9 +56,14 @@ public class C2DMReceiver extends BroadcastReceiver {
     private PowerManager.WakeLock wakeLock;
     private AccountOperations accountOperations;
 
+    @Inject
+    public C2DMReceiver() {
+        // Android needs a default constructor
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        accountOperations = new AccountOperations(context);
+        accountOperations = SoundCloudApplication.fromContext(context).getAccountOperations();
 
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceive(" + intent + ")");
 
@@ -77,7 +84,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                 }
             } else if (intent.getAction().equals(ACTION_RECEIVE)) {
                 // actual c2dm message
-                onReceiveMessage(context, intent);
+                onReceiveMessage(intent);
             } else if (intent.getAction().equals(Actions.ACCOUNT_ADDED)) {
                 onAccountAdded(context, intent.getLongExtra(User.EXTRA_ID, -1L));
             } else {
@@ -228,10 +235,10 @@ public class C2DMReceiver extends BroadcastReceiver {
         }
     }
 
-    private void onReceiveMessage(Context context, Intent intent) {
+    private void onReceiveMessage(Intent intent) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceiveMessage(" + intent + ")");
 
-        if (accountOperations.soundCloudAccountExists()) {
+        if (accountOperations.isUserLoggedIn()) {
             Account account = accountOperations.getSoundCloudAccount();
             final PushEvent event = PushEvent.fromIntent(intent);
             switch (event) {

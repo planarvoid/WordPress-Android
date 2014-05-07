@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync.content;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
@@ -28,7 +29,7 @@ public class PlaylistSyncer extends SyncStrategy {
 
     public PlaylistSyncer(Context context, ContentResolver resolver) {
         this(context, resolver, new PublicApi(context),  new SyncStateManager(resolver, new LocalCollectionDAO(resolver)),
-                new AccountOperations(context), new PlaylistSyncHelper());
+                SoundCloudApplication.fromContext(context).getAccountOperations(), new PlaylistSyncHelper());
     }
 
     // TODO : Inject when we add injection to the syncer

@@ -69,7 +69,7 @@ public class SkippyAdapterTest {
         skippyAdapter.setListener(listener);
 
         when(playbackOperations.buildHLSUrlForTrack(track)).thenReturn(STREAM_URL);
-        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
     }
 
     @Test
@@ -81,7 +81,7 @@ public class SkippyAdapterTest {
 
     @Test(expected = IllegalStateException.class)
     public void shouldThrowExceptionIfSoundCloudDoesNotExistWhenTryingToPlay(){
-        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        when(accountOperations.isUserLoggedIn()).thenReturn(false);
         skippyAdapter.play(new Track(1L));
 
     }

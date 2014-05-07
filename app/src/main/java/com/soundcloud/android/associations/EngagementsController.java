@@ -2,7 +2,7 @@ package com.soundcloud.android.associations;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
@@ -43,9 +43,10 @@ public class EngagementsController {
     private AddToPlaylistListener addToPlaylistListener;
 
     private Playable playable;
-    private final SoundAssociationOperations soundAssociationOps;
-    private final EventBus eventBus;
     private OriginProvider originProvider;
+    private final SoundAssociationOperations soundAssociationOps;
+    private final AccountOperations accountOperations;
+    private final EventBus eventBus;
 
     private CompositeSubscription subscription = new CompositeSubscription();
 
@@ -54,9 +55,11 @@ public class EngagementsController {
     }
 
     @Inject
-    public EngagementsController(EventBus eventBus, SoundAssociationOperations soundAssociationOps) {
+    public EngagementsController(EventBus eventBus, SoundAssociationOperations soundAssociationOps,
+                                 AccountOperations accountOperations) {
         this.eventBus = eventBus;
         this.soundAssociationOps = soundAssociationOps;
+        this.accountOperations = accountOperations;
     }
 
     public void bindView(View rootView) {
@@ -179,7 +182,7 @@ public class EngagementsController {
             updateRepostButton((int) this.playable.reposts_count, this.playable.user_repost);
         }
 
-        boolean showRepost = this.playable.isPublic() && this.playable.getUserId() != SoundCloudApplication.getUserId();
+        boolean showRepost = this.playable.isPublic() && this.playable.getUserId() != accountOperations.getLoggedInUserId();
         if (toggleRepost != null) {
             toggleRepost.setVisibility(showRepost ? View.VISIBLE : View.GONE);
         }

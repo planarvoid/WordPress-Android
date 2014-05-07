@@ -78,9 +78,10 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
         imageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
         eventBus = SoundCloudApplication.fromContext(this).getEventBus();
+        accountOperations = SoundCloudApplication.fromContext(this).getAccountOperations();
+
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
 
-        accountOperations = new AccountOperations(this);
         connectivityListener = new NetworkConnectivityListener();
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
         unauthoriedRequestReceiver = new UnauthorisedRequestReceiver(getApplicationContext(), getSupportFragmentManager());
@@ -164,7 +165,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         imageOperations.resume();
 
         registerReceiver(unauthoriedRequestReceiver, new IntentFilter(Consts.GeneralIntents.UNAUTHORIZED));
-        if (!accountOperations.soundCloudAccountExists()) {
+        if (!accountOperations.isUserLoggedIn()) {
             pausePlayback();
             finish();
             return;
@@ -330,7 +331,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
     public long getCurrentUserId() {
         if (currentUserId == 0) {
-            currentUserId = SoundCloudApplication.getUserId();
+            currentUserId = accountOperations.getLoggedInUserId();
         }
         return currentUserId;
     }

@@ -37,10 +37,6 @@ public abstract class IconLayout extends FrameLayout {
         this.imageOperations = imageOperations;
     }
 
-    public long getCurrentUserId() {
-        return SoundCloudApplication.getUserId();
-    }
-
     protected abstract View addContent(AttributeSet attributeSet);
 
     protected void loadIcon() {
