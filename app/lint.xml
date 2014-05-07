@@ -121,6 +121,7 @@
 
     <!-- When the lint is updated, we can use the id="all" and path regex to ignore the entire target folder -->
     <issue id="NewApi">
+        <ignore path="target/classes/com/sothree/slidinguppanel/SlidingUpPanelLayout.class"/>
         <ignore path="target/classes/uk/co/senab/actionbarpulltorefresh/library/sdk/CompatV11.class"/>
         <ignore path="target/classes/uk/co/senab/actionbarpulltorefresh/library/sdk/CompatV16.class"/>
         <ignore path="target/classes/uk/co/senab/actionbarpulltorefresh/library/DefaultHeaderTransformer$HideAnimationCallback.class"/>
