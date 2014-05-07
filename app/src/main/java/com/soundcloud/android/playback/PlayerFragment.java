@@ -3,14 +3,13 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.playback.service.Playa.*;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.eventbus.Subscribe;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import rx.Subscriber;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
@@ -31,6 +30,9 @@ public class PlayerFragment extends Fragment {
     @Inject
     EventBus eventBus;
 
+    @Inject
+    PlayQueueManager playQueueManager;
+
     private ToggleButton footerToggle;
     private TextView trackTitle;
 
@@ -41,8 +43,9 @@ public class PlayerFragment extends Fragment {
     }
 
     @VisibleForTesting
-    PlayerFragment(EventBus eventBus) {
+    PlayerFragment(EventBus eventBus, PlayQueueManager playQueueManager) {
         this.eventBus = eventBus;
+        this.playQueueManager = playQueueManager;
     }
 
     @Override
@@ -72,7 +75,7 @@ public class PlayerFragment extends Fragment {
         @Override
         public void onNext(StateTransition stateTransition) {
             footerToggle.setChecked(stateTransition.isPlaying());
-            trackTitle.setText(stateTransition.toString());
+            trackTitle.setText(Urn.forTrack(playQueueManager.getCurrentTrackId()).toString());
         }
     }
 }

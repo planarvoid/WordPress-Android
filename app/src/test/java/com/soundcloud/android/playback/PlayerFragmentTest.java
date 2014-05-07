@@ -7,6 +7,7 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -29,9 +30,12 @@ public class PlayerFragmentTest {
     @Mock
     private EventBus eventBus;
 
+    @Mock
+    PlayQueueManager playQueueManager;
+
     @Before
     public void setUp() throws Exception {
-        fragment = new PlayerFragment(eventBus);
+        fragment = new PlayerFragment(eventBus, playQueueManager);
     }
 
     @Test
