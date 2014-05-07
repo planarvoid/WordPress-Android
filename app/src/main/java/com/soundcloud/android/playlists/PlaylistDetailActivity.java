@@ -25,18 +25,28 @@ public class PlaylistDetailActivity extends ScActivity {
     static final String LOG_TAG = "PlaylistDetails";
 
     public static final String EXTRA_URN = "urn";
+    public static String EXTRA_AUTO_PLAY = "autoplay";
 
     @Inject SlidingPlayerController playerController;
     @Inject AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
 
-    public static void start(Context context, Urn playlistUrn, Screen screen) {
-        context.startActivity(getIntent(playlistUrn, screen));
+    public static void start(Context context, @NotNull Urn playlist, Screen screen) {
+        start(context, playlist, screen, false);
+    }
+
+    public static void start(Context context, Urn playlistUrn, Screen screen, boolean autoPlay) {
+        context.startActivity(getIntent(playlistUrn, screen, autoPlay));
     }
 
     public static Intent getIntent(@NotNull Urn playlistUrn, Screen screen) {
+        return getIntent(playlistUrn, screen, false);
+    }
+
+    public static Intent getIntent(@NotNull Urn playlistUrn, Screen screen, boolean autoPlay) {
         Intent intent = new Intent(Actions.PLAYLIST);
         screen.addToIntent(intent);
+        intent.putExtra(EXTRA_AUTO_PLAY, autoPlay);
         return intent.putExtra(EXTRA_URN, playlistUrn);
     }
 

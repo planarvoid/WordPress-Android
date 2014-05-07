@@ -80,6 +80,14 @@
 
         </activity>
 
+        <activity android:name=".search.PlayFromVoiceSearchActivity" android:noHistory="true"
+                  android:theme="@style/Theme.SoundCloud.NoActionBar" android:windowSoftInputMode="adjustPan">
+            <intent-filter android:priority="1">
+                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
         <!-- activities -->
         <activity android:name=".deeplinks.ResolveActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar" android:windowSoftInputMode="adjustPan">
 
@@ -128,7 +136,7 @@
                 <data android:mimeType="vnd.soundcloud/search_item"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH"/>
+                <action android:name="com.soundcloud.android.action.PERFORM_SEARCH"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter android:priority="10">

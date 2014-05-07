@@ -16,6 +16,7 @@ public final class Actions {
     public static final String STREAM       = "com.soundcloud.android.action.STREAM";
     public static final String ACTIVITY     = "com.soundcloud.android.action.ACTIVITY";
     public static final String SEARCH       = "com.soundcloud.android.action.SEARCH";
+    public static final String PERFORM_SEARCH   = "com.soundcloud.android.action.PERFORM_SEARCH";
     public static final String SHARE        = "com.soundcloud.android.SHARE";
     public static final String EDIT         = "com.soundcloud.android.EDIT";
     public static final String ACCOUNT_PREF = "com.soundcloud.android.action.ACCOUNT_PREF";

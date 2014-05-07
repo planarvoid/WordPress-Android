@@ -2,9 +2,12 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
@@ -68,6 +71,7 @@ public class PlaylistFragmentTest {
     @Mock private ItemAdapter adapter;
     @Mock private PullToRefreshController ptrController;
     @Mock private PlayQueueManager playQueueManager;
+    @Mock private Intent intent;
 
     @Before
     public void setUp() throws Exception {
@@ -96,6 +100,7 @@ public class PlaylistFragmentTest {
         when(playbackOperations.playTracks(any(Observable.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
 
         fragment.onAttach(activity);
+        activity.setIntent(intent);
     }
 
     @Test
@@ -114,6 +119,32 @@ public class PlaylistFragmentTest {
         expect(getToggleButton(layout).getVisibility()).toBe(View.VISIBLE);
     }
 
+    @Test
+    public void shouldNotAutoPlayWithAutoPlaySetOnIntentIfPlaylistHasNoItems() throws Exception {
+        when(intent.getBooleanExtra(eq(PlaylistDetailActivity.EXTRA_AUTO_PLAY), anyBoolean())).thenReturn(true);
+        when(controller.getAdapter()).thenReturn(adapter);
+        createFragmentView();
+        verifyNoMoreInteractions(playbackOperations);
+    }
+
+    @Test
+    public void shouldAutoPlayIfAutoPlaySetOnIntentIfPlaylistIsNotEmpty() throws Exception {
+        when(intent.getBooleanExtra(eq(PlaylistDetailActivity.EXTRA_AUTO_PLAY), anyBoolean())).thenReturn(true);
+
+        final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
+        when(adapter.getItem(0)).thenReturn(track.toPropertySet());
+        Observable<Urn> trackLoadDescriptor = Observable.empty();
+        when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(trackLoadDescriptor);
+
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
+        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
+
+        when(controller.hasTracks()).thenReturn(true);
+
+        createFragmentView();
+
+        verify(playbackOperations).playTracks(trackLoadDescriptor, track.getUrn(), 0, playSessionSource);
+    }
 
     @Test
     public void shouldHidePlayToggleButtonOnSecondPlaylistEmissionWithNoTracks() throws Exception {

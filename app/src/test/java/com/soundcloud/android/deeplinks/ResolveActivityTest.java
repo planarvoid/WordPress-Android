@@ -76,6 +76,7 @@ public class ResolveActivityTest {
         Intent expected = new Intent(Actions.PLAYLIST);
         Screen.DEEPLINK.addToIntent(expected);
         expected.putExtra(PlaylistDetailActivity.EXTRA_URN, playlist.getUrn());
+        expected.putExtra(PlaylistDetailActivity.EXTRA_AUTO_PLAY, false);
         expect(shadowOf(activity).getNextStartedActivity()).toEqual(expected);
     }
 
