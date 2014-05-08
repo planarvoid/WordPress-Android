@@ -58,13 +58,15 @@ public class CommentingPlayerPagerAdapter extends PlayerTrackPagerAdapter<Legacy
             this.commentingPosition = commentingPosition;
             LegacyPlayerTrackView commentingView = getPlayerTrackViewByPosition(commentingPosition);
             for (LegacyPlayerTrackView ptv : getPlayerTrackViews()) {
-                if (ptv != commentingView) {
-                    ptv.setCommentMode(false);
-                } else {
+                if (ptv.equals(commentingView)) {
                     ptv.setCommentMode(true, animated);
+                } else {
+                    ptv.setCommentMode(false);
                 }
             }
-        } else throw new IllegalArgumentException("Invalid commenting position " + commentingPosition);
+        } else {
+            throw new IllegalArgumentException("Invalid commenting position " + commentingPosition);
+        }
     }
 
     @Override
