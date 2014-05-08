@@ -38,7 +38,7 @@ public final class AccountAssistant {
     private static final Condition accountDataCleaned = lock.newCondition();
 
     public static Account loginAsDefault(final Instrumentation instrumentation) throws Exception {
-        final Context context = instrumentation.getContext();
+        final Context context = instrumentation.getTargetContext();
         return TestUser.defaultUser.logIn(context) ? getAccount(context) : null;
     }
 
@@ -64,7 +64,7 @@ public final class AccountAssistant {
     }
 
     private static Account login(String username, String password, Instrumentation instrumentation) {
-        Context context = instrumentation.getContext();
+        Context context = instrumentation.getTargetContext();
         ApiWrapper apiWrapper = AccountAssistant.createApiWrapper(context);
         try {
             Token token = getToken(apiWrapper, username, password);
