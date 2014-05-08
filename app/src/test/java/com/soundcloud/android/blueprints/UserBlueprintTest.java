@@ -22,8 +22,8 @@ public class UserBlueprintTest {
         User user3 = modelFactory.createModel(User.class);
 
         expect(user1.getId()).toBeGreaterThan(0L);
-        expect(user2.getId()).toBe(user1.getId() + 1);
-        expect(user3.getId()).toBe(user2.getId() + 1);
+        expect(user2.getId()).toEqual(user1.getId() + 1);
+        expect(user3.getId()).toEqual(user2.getId() + 1);
     }
 
     @Test
