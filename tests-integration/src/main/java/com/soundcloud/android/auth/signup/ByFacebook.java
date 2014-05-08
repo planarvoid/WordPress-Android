@@ -39,6 +39,6 @@ public class ByFacebook extends SignUpTestCase {
         suggestedUsersCategoryScreen = suggestedUsersScreen.goToFacebook();
         assertTrue(suggestedUsersCategoryScreen.hasAllUsersSelected());
 
-        Facebook.unfollowAll(getInstrumentation().getTargetContext(), solo.getCurrentActivity());
+        Facebook.unfollowAll(solo.getCurrentActivity());
     }
 }

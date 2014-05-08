@@ -59,7 +59,7 @@ public class TestUser {
         return PublicApiWrapper.buildObjectMapper().readValue(content, User.class);
     }
 
-    public void unfollowAll(final Context contexty, Activity activity) {
+    public void unfollowAll(Activity activity) {
         final Context context =  activity.getApplicationContext();
         try {
             new UserAssociationSyncer(context).syncContent(Content.ME_FOLLOWINGS.uri, null);
