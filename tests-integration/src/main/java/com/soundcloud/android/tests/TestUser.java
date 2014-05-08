@@ -1,6 +1,7 @@
 package com.soundcloud.android.tests;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.http.HttpProperties;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.User;
@@ -8,7 +9,7 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.content.UserAssociationSyncer;
-import com.soundcloud.android.tasks.FetchUserTask;
+import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
@@ -18,17 +19,15 @@ import android.app.Activity;
 import android.content.Context;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class TestUser {
     private final String username, email, password;
-    private PublicApiWrapper publicApiWrapper;
-    Token authToken;
-    User user;
 
     public TestUser(String username, String email, String password) {
         this.username = username;
         this.email = email;
-        this.password= password;
+        this.password = password;
     }
 
     public String getUsername() {
@@ -43,53 +42,21 @@ public class TestUser {
         return this.password;
     }
 
-    public boolean logIn(Context context){
-        setPublicApiWrapper(PublicApiWrapper.getInstance(context));
-        return SoundCloudApplication.fromContext(context).addUserAccountAndEnableSync(getUser(), getToken(), SignupVia.NONE);
-    }
-
-    private void setPublicApiWrapper(PublicApiWrapper apiWrapper) {
-        publicApiWrapper = apiWrapper;
-    }
-    private PublicApiWrapper getPublicApiWrapper() {
-        return publicApiWrapper;
-    }
-
-    private Token getToken(){
-        if(authToken == null) {
-            try {
-                authToken = getPublicApiWrapper().login(username, password, Token.SCOPE_NON_EXPIRING);
-            } catch (Exception e) {
-                throw new AssertionError("error logging in: "+e.getMessage());
-            }
-        }
-        return authToken;
-    }
-
-    private User getUser() {
-        int count = 0;
-        int maxTries = 3;
-        while(user == null && count < maxTries) {
-            try {
-                getToken();
-                user = new FetchUserTask(getPublicApiWrapper()).execute(Request.to(Endpoints.MY_DETAILS)).get();
-            } catch (Exception e) {
-                if (++count == maxTries) throw new AssertionError("error logging in: "+e.getMessage());
-            }
-            if (user == null) {
-                sleep(5000);
-            }
-            count++;
-        }
-        return user;
-    }
-
-    private static void sleep(int miliseconds) {
+    public boolean logIn(Context context) {
+        TestApiWrapper apiWrapper = new TestApiWrapper(context);
         try {
-            Thread.sleep(miliseconds);
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            Token token = apiWrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
+            User user = getLoggedInUser(apiWrapper);
+            return SoundCloudApplication.fromContext(context).addUserAccountAndEnableSync(user, token, SignupVia.NONE);
+
+        } catch (IOException e) {
+            throw new AssertionError("error logging in: " + e.getMessage());
         }
+    }
+
+    private User getLoggedInUser(ApiWrapper apiWrapper) throws IOException {
+        final InputStream content = apiWrapper.get(Request.to(Endpoints.MY_DETAILS)).getEntity().getContent();
+        return PublicApiWrapper.buildObjectMapper().readValue(content, User.class);
     }
 
     public void unfollowAll(final Context contexty, Activity activity) {
@@ -130,6 +97,17 @@ public class TestUser {
     public static final TestUser testUser       = new TestUser("Slawomir Smiechowy 2",  "test26-82@wp.pl",              "password");
     public static final TestUser emptyUser      = new TestUser("scEmpty",               "scemptyuser@gmail.com",        "s0undcl0ud");
     public static final TestUser followedUser   = new TestUser("android-followed",      "sctestfollowed@gmail.com",     "followed");
+
+    public class TestApiWrapper extends ApiWrapper {
+
+        public TestApiWrapper(Context context) {
+            this(new HttpProperties(context.getResources()));
+        }
+
+        public TestApiWrapper(HttpProperties properties) {
+            super(properties.getClientId(), properties.getClientSecret(), PublicApiWrapper.ANDROID_REDIRECT_URI, null);
+        }
+    }
 
 
 }
