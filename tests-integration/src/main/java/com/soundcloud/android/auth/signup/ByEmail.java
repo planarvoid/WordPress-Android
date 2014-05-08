@@ -32,6 +32,7 @@ public class ByEmail extends SignUpTestCase {
         solo.goBack();
 
         final EmailOptInScreen emailOptIn = suggestedUsersScreen.finish();
+        solo.goBack();
         final HomeScreen home = emailOptIn.clickNo();
 
         assert(home.hasItemByUsername(followedUsername));
