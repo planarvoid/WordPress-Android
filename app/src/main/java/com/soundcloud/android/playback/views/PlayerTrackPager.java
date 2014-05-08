@@ -92,11 +92,11 @@ public class PlayerTrackPager extends SafeViewPager {
             PlayerTrackView trackView;
             if (position == mPlayerTrackPager.getCurrentItem() && positionOffset > 0 && mPartialScreen != position + 1) {
                 mPartialScreen = position + 1;
-                trackView = mPlayerTrackPager.getAdapter().getPlayerTrackViewByPosition(mPartialScreen);
+                trackView = (PlayerTrackView) mPlayerTrackPager.getAdapter().getPlayerTrackViewByPosition(mPartialScreen);
                 if (trackView != null) trackView.setOnScreen(true);
             } else if (position == mPlayerTrackPager.getCurrentItem() - 1 && mPartialScreen != position) {
                 mPartialScreen = position;
-                trackView = mPlayerTrackPager.getAdapter().getPlayerTrackViewByPosition(mPartialScreen);
+                trackView = (PlayerTrackView) mPlayerTrackPager.getAdapter().getPlayerTrackViewByPosition(mPartialScreen);
                 if (trackView != null) trackView.setOnScreen(true);
             }
         }

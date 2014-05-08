@@ -27,7 +27,7 @@ import android.widget.ViewFlipper;
 
 import java.lang.ref.SoftReference;
 
-public class ArtworkTrackView extends PlayerTrackView {
+public class ArtworkTrackView extends LegacyPlayerTrackView {
 
     private ImageOperations mImageOperations;
     private ImageView mArtwork;

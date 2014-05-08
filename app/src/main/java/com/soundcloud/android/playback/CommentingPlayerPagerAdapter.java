@@ -1,27 +1,45 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
-import com.soundcloud.android.playback.views.PlayerTrackView;
+import com.soundcloud.android.playback.views.LegacyPlayerTrackView;
 import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.view.EmptyListView;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.view.View;
 
 import javax.inject.Inject;
 
 /**
  * Extends the basic player pager adapter to include storing the commenting position. Since views will be recycled,
  * this commenting state needs to be persisted outside of that layer
- *
+ * <p/>
  * NOTE: I don't expect this will be used in the new player. If we need similar functionality, this should be looked at harder
  */
-public class CommentingPlayerPagerAdapter extends PlayerTrackPagerAdapter{
+public class CommentingPlayerPagerAdapter extends PlayerTrackPagerAdapter<LegacyPlayerTrackView> {
 
     private static final int NOT_SET = -1;
     private int commentingPosition = NOT_SET;
 
     @Inject
-    public CommentingPlayerPagerAdapter(TrackOperations trackOperations, PlaybackStateProvider stateProvider,
-                                        ViewFactory playerViewFactory) {
-        super(trackOperations, stateProvider, playerViewFactory);
+    public CommentingPlayerPagerAdapter(TrackOperations trackOperations, PlaybackStateProvider stateProvider) {
+        super(trackOperations, stateProvider);
+    }
+
+    @Override
+    protected LegacyPlayerTrackView createPlayerTrackView(Context context) {
+        return (LegacyPlayerTrackView) View.inflate(context, R.layout.player_track_view, null);
+    }
+
+    @Override
+    protected EmptyListView createEmptyListView(Context context) {
+        EmptyListView emptyListView = new EmptyListView(context, R.layout.empty_player_track);
+        emptyListView.setBackgroundColor(Color.WHITE);
+        emptyListView.setMessageText(R.string.player_no_recommended_tracks);
+        return emptyListView;
     }
 
     public int getCommentingPosition() {
@@ -30,16 +48,16 @@ public class CommentingPlayerPagerAdapter extends PlayerTrackPagerAdapter{
 
     public void clearCommentingPosition(boolean animated) {
         commentingPosition = NOT_SET;
-        for (PlayerTrackView playerTrackView : getPlayerTrackViews()) {
+        for (LegacyPlayerTrackView playerTrackView : getPlayerTrackViews()) {
             playerTrackView.setCommentMode(false, animated);
         }
     }
 
     public void setCommentingPosition(int commentingPosition, boolean animated) {
-        if (commentingPosition >= 0 && commentingPosition < playQueue.size()){
+        if (commentingPosition >= 0 && commentingPosition < playQueue.size()) {
             this.commentingPosition = commentingPosition;
-            PlayerTrackView commentingView = getPlayerTrackViewByPosition(commentingPosition);
-            for (PlayerTrackView ptv : getPlayerTrackViews()) {
+            LegacyPlayerTrackView commentingView = getPlayerTrackViewByPosition(commentingPosition);
+            for (LegacyPlayerTrackView ptv : getPlayerTrackViews()) {
                 if (ptv != commentingView) {
                     ptv.setCommentMode(false);
                 } else {
@@ -50,8 +68,8 @@ public class CommentingPlayerPagerAdapter extends PlayerTrackPagerAdapter{
     }
 
     @Override
-    protected void setTrackOnPlayerTrackView(Track track, PlayerTrackView playerQueueView, Integer queuePosition) {
-        super.setTrackOnPlayerTrackView(track, playerQueueView, queuePosition);
-        playerQueueView.setCommentMode(commentingPosition == queuePosition, false);
+    protected void setTrackOnPlayerTrackView(Track track, LegacyPlayerTrackView playerTrackView, Integer queuePosition) {
+        super.setTrackOnPlayerTrackView(track, playerTrackView, queuePosition);
+        playerTrackView.setCommentMode(commentingPosition == queuePosition, false);
     }
 }

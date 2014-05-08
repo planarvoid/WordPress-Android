@@ -23,7 +23,7 @@ public class PlayerTrackPagerPageChangeListenerTest {
     @Mock
     PlayerTrackPagerAdapter playerTrackPagerAdapter;
     @Mock
-    PlayerTrackView playerTrackView;
+    LegacyPlayerTrackView playerTrackView;
     @Mock
     PlayerTrackPager.OnTrackPageListener trackPageListener;
 

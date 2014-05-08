@@ -23,10 +23,10 @@ import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.AddCommentDialog;
+import com.soundcloud.android.playback.views.LegacyPlayerTrackView;
 import com.soundcloud.android.playback.views.PlayablePresenter;
 import com.soundcloud.android.playback.views.PlayerTrackDetailsLayout;
 import com.soundcloud.android.playback.views.PlayerTrackPager;
-import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.playback.views.TransportBarView;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.profile.ProfileActivity;
@@ -59,7 +59,7 @@ import javax.annotation.CheckForNull;
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
-public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTrackPageListener, PlayerTrackView.PlayerTrackViewListener, EngagementsController.AddToPlaylistListener {
+public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTrackPageListener, LegacyPlayerTrackView.PlayerTrackViewListener, EngagementsController.AddToPlaylistListener {
 
     public static final int REFRESH_DELAY = 1000;
 
@@ -184,7 +184,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     @Override
     public void onPageDrag() {
-        for (PlayerTrackView ptv : trackPagerAdapter.getPlayerTrackViews()) {
+        for (LegacyPlayerTrackView ptv : trackPagerAdapter.getPlayerTrackViews()) {
             ptv.onBeingScrolled();
         }
         mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
@@ -192,7 +192,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     @Override
     public void onPageChanged() {
-        for (PlayerTrackView ptv : trackPagerAdapter.getPlayerTrackViews()) {
+        for (LegacyPlayerTrackView ptv : trackPagerAdapter.getPlayerTrackViews()) {
             ptv.onScrollComplete();
         }
 
@@ -554,7 +554,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private long refreshNow() {
         long progress = playbackStateProvider.getPlayProgress();
         if (playbackService != null){
-            final PlayerTrackView ptv = getTrackView(playQueue.getPosition());
+            final LegacyPlayerTrackView ptv = getTrackView(playQueue.getPosition());
             if (ptv != null) {
                 ptv.setProgress(progress, playbackStateProvider.getLoadingPercent());
             }
@@ -652,7 +652,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 addNewComment(intent.<Comment>getParcelableExtra(Comment.EXTRA));
             } else if (action.equals(Playable.COMMENT_ADDED)) {
                 Comment comment = intent.getParcelableExtra(Comment.EXTRA);
-                final PlayerTrackView ptv = getTrackViewById(comment.track_id);
+                final LegacyPlayerTrackView ptv = getTrackViewById(comment.track_id);
                 if (ptv != null){
                     ptv.onNewComment(comment);
                 }
@@ -660,13 +660,13 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             } else {
                 if (action.equals(Broadcasts.PLAYSTATE_CHANGED)) {
                     setPlaybackState();
-                    final PlayerTrackView trackView = getTrackView(queuePos);
+                    final LegacyPlayerTrackView trackView = getTrackView(queuePos);
                     if (trackView != null) {
                         trackView.handleStatusIntent(intent);
                     }
                 } else {
                     // unhandled here, pass along to trackviews who may be interested
-                    for (PlayerTrackView ptv : trackPagerAdapter.getPlayerTrackViews()) {
+                    for (LegacyPlayerTrackView ptv : trackPagerAdapter.getPlayerTrackViews()) {
                         ptv.handleIdBasedIntent(intent);
                     }
                 }
@@ -690,7 +690,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             }
         }
 
-        for (PlayerTrackView ptv : trackPagerAdapter.getPlayerTrackViews()) {
+        for (LegacyPlayerTrackView ptv : trackPagerAdapter.getPlayerTrackViews()) {
             if (ptv.getPlayPosition() != playQueue.getPosition()) {
                 ptv.getWaveformController().reset(false);
             }
@@ -714,7 +714,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     }
 
     private void setBufferingState() {
-        final PlayerTrackView playerTrackView = getTrackViewById(playbackStateProvider.getCurrentTrackId());
+        final LegacyPlayerTrackView playerTrackView = getTrackViewById(playbackStateProvider.getCurrentTrackId());
         if (playerTrackView != null) {
             // set buffering state of current track
             playerTrackView.setBufferingState(playbackStateProvider.isBuffering());
@@ -735,7 +735,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         return trackPager.getCurrentItem();
     }
 
-    private PlayerTrackView getCurrentDisplayedTrackView() {
+    private LegacyPlayerTrackView getCurrentDisplayedTrackView() {
         return trackPagerAdapter.getPlayerTrackViewByPosition(getCurrentDisplayedTrackPosition());
     }
 
@@ -749,12 +749,12 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     }
 
     private @Nullable
-    PlayerTrackView getTrackView(int playPos){
+    LegacyPlayerTrackView getTrackView(int playPos){
         return trackPagerAdapter.getPlayerTrackViewByPosition(playPos);
     }
 
     private @Nullable
-    PlayerTrackView getTrackViewById(long id) {
+    LegacyPlayerTrackView getTrackViewById(long id) {
         return trackPagerAdapter.getPlayerTrackViewById(id);
     }
 }

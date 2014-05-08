@@ -1,8 +1,6 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.playback.PlayerTrackPagerAdapter.ViewFactory;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
@@ -13,6 +11,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
+import com.soundcloud.android.playback.views.LegacyPlayerTrackView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.track.TrackOperations;
@@ -27,6 +26,7 @@ import rx.android.concurrency.AndroidSchedulers;
 
 import android.app.Activity;
 import android.content.Context;
+import android.view.View;
 import android.view.ViewGroup;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -35,8 +35,6 @@ public class PlayerTrackPagerAdapterTest {
     private PlayerTrackPagerAdapter adapter;
 
     @Mock
-    private ViewFactory viewFactory;
-    @Mock
     private TrackOperations trackOperations;
     @Mock
     private PlaybackStateProvider stateProvider;
@@ -44,22 +42,30 @@ public class PlayerTrackPagerAdapterTest {
     private PlayQueueView playQueue;
     @Mock
     private EmptyListView emptyListView;
-    @Mock
-    private PlayerTrackView playerTrackView;
+    @Mock(extraInterfaces = PlayerTrackView.class)
+    private View playerTrackView;
     @Mock
     private ViewGroup container;
 
     @Before
     public void setUp() throws Exception {
         // TODO remove the override when we move to Robolectric 2
-        adapter = new PlayerTrackPagerAdapter(trackOperations, stateProvider, viewFactory);
+        adapter = new PlayerTrackPagerAdapter(trackOperations, stateProvider) {
+            @Override
+            protected View createPlayerTrackView(Context context) {
+                return playerTrackView;
+            }
+
+            @Override
+            protected EmptyListView createEmptyListView(Context context) {
+                return emptyListView;
+            }
+        };
 
         when(playQueue.isLoading()).thenReturn(false);
         when(playQueue.lastLoadWasEmpty()).thenReturn(false);
         when(playQueue.lastLoadFailed()).thenReturn(false);
         when(trackOperations.loadSyncedTrack(anyLong(), same(AndroidSchedulers.mainThread()))).thenReturn(Observable.just(new Track()));
-        when(viewFactory.createEmptyListView(any(Context.class))).thenReturn(emptyListView);
-        when(viewFactory.createPlayerTrackView(any(Context.class))).thenReturn(playerTrackView);
         when(container.getContext()).thenReturn(mock(Activity.class));
     }
 
@@ -119,15 +125,15 @@ public class PlayerTrackPagerAdapterTest {
     @Test
     public void convertsPlayerTrackViewWithValidPlayQueuePosition() {
         adapter.setPlayQueue(new PlayQueueView(1L));
-        final PlayerTrackView convertView = mock(PlayerTrackView.class);
+        final LegacyPlayerTrackView convertView = mock(LegacyPlayerTrackView.class);
         expect(adapter.getView(0, convertView, mock(ViewGroup.class))).toBe(convertView);
     }
 
 
     @Test
     public void returnsPlayerTrackViewsByPosition() {
-        final PlayerTrackView trackView1 = mock(PlayerTrackView.class);
-        final PlayerTrackView trackView2 = mock(PlayerTrackView.class);
+        final LegacyPlayerTrackView trackView1 = mock(LegacyPlayerTrackView.class);
+        final LegacyPlayerTrackView trackView2 = mock(LegacyPlayerTrackView.class);
 
         addPlayerTrackViews(trackView1, trackView2);
 
@@ -137,8 +143,8 @@ public class PlayerTrackPagerAdapterTest {
 
     @Test
     public void returnsPlayerTrackViewsById() {
-        final PlayerTrackView trackView1 = mock(PlayerTrackView.class);
-        final PlayerTrackView trackView2 = mock(PlayerTrackView.class);
+        final LegacyPlayerTrackView trackView1 = mock(LegacyPlayerTrackView.class);
+        final LegacyPlayerTrackView trackView2 = mock(LegacyPlayerTrackView.class);
 
         when(trackView1.getTrackId()).thenReturn(1L);
         when(trackView2.getTrackId()).thenReturn(2L);
@@ -151,8 +157,8 @@ public class PlayerTrackPagerAdapterTest {
 
     @Test
     public void onConnectedIsCalledOnAllPlayerTrackViews() {
-        final PlayerTrackView trackView1 = mock(PlayerTrackView.class);
-        final PlayerTrackView trackView2 = mock(PlayerTrackView.class);
+        final LegacyPlayerTrackView trackView1 = mock(LegacyPlayerTrackView.class);
+        final LegacyPlayerTrackView trackView2 = mock(LegacyPlayerTrackView.class);
 
         addPlayerTrackViews(trackView1, trackView2);
         adapter.onConnected();
@@ -163,20 +169,20 @@ public class PlayerTrackPagerAdapterTest {
 
     @Test
     public void onStopIsCalledOnAllPlayerTrackViews() {
-        final PlayerTrackView trackView1 = mock(PlayerTrackView.class);
-        final PlayerTrackView trackView2 = mock(PlayerTrackView.class);
+        final LegacyPlayerTrackView trackView1 = mock(LegacyPlayerTrackView.class);
+        final LegacyPlayerTrackView trackView2 = mock(LegacyPlayerTrackView.class);
 
         addPlayerTrackViews(trackView1, trackView2);
         adapter.onStop();
 
-        verify(trackView1).onStop(true);
-        verify(trackView2).onStop(true);
+        verify(trackView1).onStop();
+        verify(trackView2).onStop();
     }
 
     @Test
     public void onDestroyIsCalledOnAllPlayerTrackViews() {
-        final PlayerTrackView trackView1 = mock(PlayerTrackView.class);
-        final PlayerTrackView trackView2 = mock(PlayerTrackView.class);
+        final LegacyPlayerTrackView trackView1 = mock(LegacyPlayerTrackView.class);
+        final LegacyPlayerTrackView trackView2 = mock(LegacyPlayerTrackView.class);
 
         addPlayerTrackViews(trackView1, trackView2);
         adapter.onDestroy();
@@ -198,7 +204,7 @@ public class PlayerTrackPagerAdapterTest {
         adapter.setPlayQueue(new PlayQueueView(1L));
         when(trackOperations.loadSyncedTrack(1, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
         adapter.getView(0, null, mock(ViewGroup.class));
-        verify(playerTrackView).setTrackState(track, 0, stateProvider);
+        verify((PlayerTrackView) playerTrackView).setTrackState(track, 0, stateProvider);
     }
 
     @Test
@@ -246,11 +252,11 @@ public class PlayerTrackPagerAdapterTest {
         expect(adapter.getCount()).toBe(1);
     }
 
-    private void addPlayerTrackViews(PlayerTrackView trackView1, PlayerTrackView trackView2) {
+    private void addPlayerTrackViews(LegacyPlayerTrackView trackView1, LegacyPlayerTrackView trackView2) {
         addPlayerTrackViews(new PlayQueueView(Lists.newArrayList(1L, 2L), 0), trackView1, trackView2);
     }
 
-    private void addPlayerTrackViews(PlayQueueView playQueue, PlayerTrackView trackView1, PlayerTrackView trackView2) {
+    private void addPlayerTrackViews(PlayQueueView playQueue, LegacyPlayerTrackView trackView1, LegacyPlayerTrackView trackView2) {
         adapter.setPlayQueue(playQueue);
         adapter.getView(0, trackView1, container);
         adapter.getView(1, trackView2, container);
