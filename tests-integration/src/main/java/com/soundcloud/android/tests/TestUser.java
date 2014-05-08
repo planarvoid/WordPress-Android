@@ -1,8 +1,6 @@
 package com.soundcloud.android.tests;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.http.HttpProperties;
-import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
@@ -10,8 +8,6 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.content.UserAssociationSyncer;
 import com.soundcloud.api.ApiWrapper;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import rx.schedulers.Schedulers;
 
@@ -19,10 +15,12 @@ import android.app.Activity;
 import android.content.Context;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 public class TestUser {
     private final String username, email, password;
+
+    private Token token;
+    private User user;
 
     public TestUser(String username, String email, String password) {
         this.username = username;
@@ -43,10 +41,10 @@ public class TestUser {
     }
 
     public boolean logIn(Context context) {
-        ApiWrapper apiWrapper = createApiWrapper(context);
+        ApiWrapper apiWrapper = AccountAssistant.createApiWrapper(context);
         try {
-            Token token = apiWrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
-            User user = getLoggedInUser(apiWrapper);
+            Token token = getToken(apiWrapper);
+            User user = getUser(apiWrapper);
             return SoundCloudApplication.fromContext(context).addUserAccountAndEnableSync(user, token, SignupVia.NONE);
 
         } catch (IOException e) {
@@ -54,14 +52,18 @@ public class TestUser {
         }
     }
 
-    private ApiWrapper createApiWrapper(Context context) {
-        final HttpProperties properties = new HttpProperties(context.getResources());
-        return new ApiWrapper(properties.getClientId(), properties.getClientSecret(), PublicApiWrapper.ANDROID_REDIRECT_URI, null);
+    protected User getUser(ApiWrapper apiWrapper) throws IOException {
+        if (user == null){
+            user = AccountAssistant.getLoggedInUser(apiWrapper);
+        }
+        return user;
     }
 
-    private User getLoggedInUser(ApiWrapper apiWrapper) throws IOException {
-        final InputStream content = apiWrapper.get(Request.to(Endpoints.MY_DETAILS)).getEntity().getContent();
-        return PublicApiWrapper.buildObjectMapper().readValue(content, User.class);
+    protected Token getToken(ApiWrapper apiWrapper) throws IOException {
+        if (token == null){
+            token = AccountAssistant.getToken(apiWrapper, username, password);
+        }
+        return token;
     }
 
     public void unfollowAll(Activity activity) {

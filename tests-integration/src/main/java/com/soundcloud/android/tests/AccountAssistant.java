@@ -1,17 +1,15 @@
 package com.soundcloud.android.tests;
 
-import static junit.framework.Assert.assertNotNull;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.http.HttpProperties;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tasks.FetchUserTask;
+import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
@@ -24,14 +22,14 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public final class AccountAssistant {
-    public static final String USERNAME = "android-testing";
-    public static final String PASSWORD = "android-testing";
 
     private AccountAssistant() {}
     private static final String TAG = AccountAssistant.class.getSimpleName();
@@ -40,8 +38,10 @@ public final class AccountAssistant {
     private static final Condition accountDataCleaned = lock.newCondition();
 
     public static Account loginAsDefault(final Instrumentation instrumentation) throws Exception {
-        return loginAs(instrumentation, USERNAME, PASSWORD);
+        final Context context = instrumentation.getContext();
+        return TestUser.defaultUser.logIn(context) ? getAccount(context) : null;
     }
+
 
     public static Account loginAs(final Instrumentation instrumentation,
                                   final String username,
@@ -59,53 +59,25 @@ public final class AccountAssistant {
         return login(username, password, instrumentation);
     }
 
+    protected static Token getToken(ApiWrapper apiWrapper, String username, String password) throws IOException {
+        return apiWrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
+    }
+
     private static Account login(String username, String password, Instrumentation instrumentation) {
-        Log.i(TAG, "Logging in");
-
-        Context context = instrumentation.getTargetContext();
-        PublicApiWrapper publicApiWrapper = PublicApiWrapper.getInstance(context);
-        Token token;
-        User user;
+        Context context = instrumentation.getContext();
+        ApiWrapper apiWrapper = AccountAssistant.createApiWrapper(context);
         try {
-            token = publicApiWrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
-            user = getUser(publicApiWrapper);
-        } catch (Exception e) {
-            Log.w(AccountAssistant.class.getSimpleName(), e);
-            throw new AssertionError("error logging in: "+e.getMessage());
-        }
-        assertNotNull("could not get test user", user);
+            Token token = getToken(apiWrapper, username, password);
+            User user = getLoggedInUser(apiWrapper);
+            if (SoundCloudApplication.fromContext(context).addUserAccountAndEnableSync(user, token, SignupVia.NONE)){
+                return getAccount(context);
+            }
 
-        if(SoundCloudApplication.instance.addUserAccountAndEnableSync(user, token, SignupVia.NONE)){
-            return getAccount(context);
-        };
+        } catch (IOException e) {
+            throw new AssertionError("error logging in: " + e.getMessage());
+        }
 
         return null;
-    }
-
-    private static User getUser(PublicApiWrapper publicApiWrapper) {
-        User user = null;
-        int count = 0;
-        int maxTries = 3;
-        while(user == null && count < maxTries) {
-            try {
-                user = new FetchUserTask(publicApiWrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
-            } catch (Exception e) {
-                if (++count == maxTries) throw new AssertionError("error logging in: "+e.getMessage());
-            }
-            if (user == null) {
-                sleep(5000);
-            }
-            count++;
-        }
-        return user;
-    }
-
-    private static void sleep(int miliseconds) {
-        try {
-            Thread.sleep(miliseconds);
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
     }
 
     public static boolean logOut(Instrumentation instrumentation) throws Exception {
@@ -114,8 +86,8 @@ public final class AccountAssistant {
 
     public static boolean logOut(Context context) throws Exception {
         Log.i(TAG, "Logging out");
-        AccountOperations accountOperations = SoundCloudApplication.fromContext(context).getAccountOperations();
-        if(!accountOperations.isUserLoggedIn()){
+        Account account = getAccount(context);
+        if(account == null){
             return false;
         }
 
@@ -137,7 +109,7 @@ public final class AccountAssistant {
                     }
                 });
 
-        accountOperations.logout().toBlockingObservable().firstOrDefault(null);
+        AccountManager.get(context).removeAccount(account, null, null);
 
         lock.lock();
         // wait for the data cleanup action
@@ -185,4 +157,13 @@ public final class AccountAssistant {
         });
     }
 
+    static User getLoggedInUser(ApiWrapper apiWrapper) throws IOException {
+        final InputStream content = apiWrapper.get(Request.to(Endpoints.MY_DETAILS)).getEntity().getContent();
+        return PublicApiWrapper.buildObjectMapper().readValue(content, User.class);
+    }
+
+    static ApiWrapper createApiWrapper(Context context) {
+        final HttpProperties properties = new HttpProperties(context.getResources());
+        return new ApiWrapper(properties.getClientId(), properties.getClientSecret(), PublicApiWrapper.ANDROID_REDIRECT_URI, null);
+    }
 }
