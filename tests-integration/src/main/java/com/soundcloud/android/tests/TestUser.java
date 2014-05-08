@@ -43,7 +43,7 @@ public class TestUser {
     }
 
     public boolean logIn(Context context) {
-        TestApiWrapper apiWrapper = new TestApiWrapper(context);
+        ApiWrapper apiWrapper = createApiWrapper(context);
         try {
             Token token = apiWrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
             User user = getLoggedInUser(apiWrapper);
@@ -52,6 +52,11 @@ public class TestUser {
         } catch (IOException e) {
             throw new AssertionError("error logging in: " + e.getMessage());
         }
+    }
+
+    private ApiWrapper createApiWrapper(Context context) {
+        final HttpProperties properties = new HttpProperties(context.getResources());
+        return new ApiWrapper(properties.getClientId(), properties.getClientSecret(), PublicApiWrapper.ANDROID_REDIRECT_URI, null);
     }
 
     private User getLoggedInUser(ApiWrapper apiWrapper) throws IOException {
@@ -97,17 +102,6 @@ public class TestUser {
     public static final TestUser testUser       = new TestUser("Slawomir Smiechowy 2",  "test26-82@wp.pl",              "password");
     public static final TestUser emptyUser      = new TestUser("scEmpty",               "scemptyuser@gmail.com",        "s0undcl0ud");
     public static final TestUser followedUser   = new TestUser("android-followed",      "sctestfollowed@gmail.com",     "followed");
-
-    public class TestApiWrapper extends ApiWrapper {
-
-        public TestApiWrapper(Context context) {
-            this(new HttpProperties(context.getResources()));
-        }
-
-        public TestApiWrapper(HttpProperties properties) {
-            super(properties.getClientId(), properties.getClientSecret(), PublicApiWrapper.ANDROID_REDIRECT_URI, null);
-        }
-    }
 
 
 }
