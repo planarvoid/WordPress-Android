@@ -41,7 +41,7 @@ public class ProfileTest extends ActivityTestCase<MainActivity> {
         profileScreen.clickFollowToggle();
         assertEquals("Following message changes when FOLLOW button is toggled", false, initialMessage.equals(profileScreen.followingMessage()));
 
-        followedUser.unfollowAll(getInstrumentation().getTargetContext(), solo.getCurrentActivity());
+        followedUser.unfollowAll(solo.getCurrentActivity());
     }
 
     private void navigateToFollower() {
