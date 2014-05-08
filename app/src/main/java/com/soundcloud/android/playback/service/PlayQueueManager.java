@@ -37,6 +37,8 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     private Subscription playQueueSubscription = Subscriptions.empty();
     private Observable<RelatedTracksCollection> relatedTracksObservable;
 
+    private PlaybackProgressInfo playbackProgressInfo;
+
     private boolean gotRelatedTracks;
     private PlaybackOperations.AppendState appendState = PlaybackOperations.AppendState.IDLE;
 
@@ -60,6 +62,10 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
         return playQueue.getPosition();
     }
 
+    public PlaybackProgressInfo getPlayProgressInfo() {
+        return playbackProgressInfo;
+    }
+
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         stopLoadingOperations();
 
@@ -73,6 +79,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     public void saveCurrentPosition(long currentTrackProgress) {
         if (!playQueue.isEmpty()) {
             playQueueOperations.saveQueue(playQueue, playSessionSource, currentTrackProgress);
+            playbackProgressInfo = new PlaybackProgressInfo(playQueue.getCurrentTrackId(), currentTrackProgress);
         }
     }
 

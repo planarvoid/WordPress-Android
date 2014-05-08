@@ -176,27 +176,11 @@ public class PlaybackReceiverTest {
     }
 
     @Test
-    public void shouldCallSaveProgressAndStopOnStopActionIfPlaying(){
-        when(playbackService.isSupposedToBePlaying()).thenReturn(true);
-        Intent intent = new Intent(PlaybackService.Actions.STOP_ACTION);
-        playbackReceiver.onReceive(Robolectric.application, intent);
-        verify(playbackService).saveProgressAndStop();
-    }
-
-    @Test
-    public void shouldCallStopOnStopActionIfNotPlaying(){
+    public void shouldCallStopOnStopAction(){
         when(playbackService.isSupposedToBePlaying()).thenReturn(false);
         Intent intent = new Intent(PlaybackService.Actions.STOP_ACTION);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).stop();
-    }
-
-    @Test
-    public void shouldNotCallSaveProgressAndStopOnStopActionIfNotPlaying(){
-        when(playbackService.isSupposedToBePlaying()).thenReturn(false);
-        Intent intent = new Intent(PlaybackService.Actions.STOP_ACTION);
-        playbackReceiver.onReceive(Robolectric.application, intent);
-        verify(playbackService, never()).saveProgressAndStop();
     }
 
     @Test
@@ -213,7 +197,7 @@ public class PlaybackReceiverTest {
         when(playbackService.isWaitingForPlaylist()).thenReturn(true);
         Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
         playbackReceiver.onReceive(Robolectric.application, intent);
-        verify(playbackService, never()).saveProgressAndStop();
+        verify(playbackService, never()).stop();
     }
 
     @Test

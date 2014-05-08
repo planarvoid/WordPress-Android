@@ -27,7 +27,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 
 import android.content.Context;
@@ -131,6 +133,24 @@ public class PlayQueueManagerTest {
     public void shouldNotUpdateCurrentPositionIfPlayqueueIsNull() throws Exception {
         playQueueManager.saveCurrentPosition(22L);
         verifyZeroInteractions(sharedPreferences);
+    }
+
+    @Test
+    public void saveProgressSavesPlayQueueInfoUsingPlayQueueOperations() throws Exception {
+        when(playQueue.isEmpty()).thenReturn(false);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        playQueueManager.saveCurrentPosition(123L);
+
+        InOrder inOrder = Mockito.inOrder(playQueueOperations);
+        inOrder.verify(playQueueOperations).saveQueue(playQueue, playSessionSource, 0L);
+        inOrder.verify(playQueueOperations).saveQueue(playQueue, playSessionSource, 123L);
+    }
+
+    @Test
+    public void getPlayProgressInfoReturnsLastSavedProgressInfo() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(123L), 0, playSessionSource), playSessionSource);
+        playQueueManager.saveCurrentPosition(456L);
+        expect(playQueueManager.getPlayProgressInfo()).toEqual(new PlaybackProgressInfo(123L, 456L));
     }
 
     @Test

@@ -76,12 +76,8 @@ class PlaybackReceiver extends BroadcastReceiver {
                 playbackService.pause();
 
             } else if (Actions.STOP_ACTION.equals(action)) {
-                if (playbackService.isSupposedToBePlaying()) {
-                    playbackService.saveProgressAndStop();
-                } else {
-                    // make sure we go to a stopped stat. No-op if there already
-                    playbackService.stop();
-                }
+                // make sure we go to a stopped stat. No-op if there already
+                playbackService.stop();
             }
         } else {
             Log.e(PlaybackService.TAG, "Aborting playback service action, no soundcloud account");

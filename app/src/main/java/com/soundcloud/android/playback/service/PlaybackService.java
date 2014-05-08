@@ -105,9 +105,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private @Nullable Track currentTrack;
     private @Nullable TrackSourceInfo currentTrackSourceInfo;
 
-    @Nullable
-    private PlaybackProgressInfo resumeInfo;      // info to resume a previous play session
-
     private int serviceStartId = -1;
     private boolean serviceInUse;
 
@@ -268,7 +265,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         if (intent != null) {
             boolean hasAccount = accountOperations.isUserLoggedIn();
             if (hasAccount && !Actions.PLAY_ACTION.equals(intent.getAction()) && playQueueManager.shouldReloadQueue()){
-                resumeInfo = playQueueManager.loadPlayQueue();
+                playQueueManager.loadPlayQueue();
             }
             playbackReceiver.onReceive(this, intent);
         }
@@ -312,12 +309,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         currentTrack = null;
         appWidgetProvider.performUpdate(this, new Intent(Broadcasts.RESET_ALL));
         remoteAudioManager.abandonMusicFocus(false); // kills lockscreen
-    }
-
-    public void saveProgressAndStop() {
-        resumeInfo = new PlaybackProgressInfo(getProgress(), instance == null || instance.getPlayQueueInternal().isEmpty() ?
-                -1L : instance.getPlayQueueInternal().getCurrentTrackId());
-        stop();
     }
 
     boolean isWaitingForPlaylist() {
@@ -389,7 +380,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             }
         }
 
-        if (what.equals(Broadcasts.META_CHANGED) || stateTransition.playbackHasStopped()) {
+        if (stateTransition.playbackHasStopped()) {
             saveQueue();
         }
     }
@@ -524,12 +515,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         currentTrack = track;
         Log.d(TAG, "startTrack("+track.title+")");
 
+        final PlaybackProgressInfo resumeInfo = playQueueManager.getPlayProgressInfo();
         if (resumeInfo != null && resumeInfo.getTrackId() == track.getId()){
             streamPlayer.play(currentTrack, resumeInfo.getTime());
         } else {
             streamPlayer.play(currentTrack);
+            saveQueue();
         }
-        resumeInfo = null;
     }
 
 
