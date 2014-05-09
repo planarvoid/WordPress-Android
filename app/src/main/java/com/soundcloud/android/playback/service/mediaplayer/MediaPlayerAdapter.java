@@ -178,16 +178,15 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                 Log.d(TAG, "stream disconnected, retrying (try=" + connectionRetries + ")");
                 setInternalState(PlaybackState.ERROR_RETRYING);
                 play(track, resumePosition);
-                return true;
+            } else {
+                Log.d(TAG, "stream disconnected, giving up");
+                setInternalState(PlaybackState.ERROR);
+                mp.release();
+                connectionRetries = 0;
+                mMediaPlayer = null;
             }
-
-            Log.d(TAG, "stream disconnected, giving up");
-            setInternalState(PlaybackState.ERROR);
-            mp.release();
-            connectionRetries = 0;
-            mMediaPlayer = null;
         }
-        return false;
+        return true;
     }
 
     @Override

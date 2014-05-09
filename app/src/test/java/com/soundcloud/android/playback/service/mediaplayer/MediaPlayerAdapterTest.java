@@ -382,6 +382,25 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
+    public void onErrorShouldReturnTrueWhenRetrying() throws IOException {
+        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(Observable.just(STREAM_URI));
+        mediaPlayerAdapter.play(track);
+        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        expect(mediaPlayerAdapter.onError(mediaPlayer, 0, 0)).toBeTrue();
+    }
+
+    @Test
+    public void onErrorShouldReturnTrueWhenRetriesExhausted() throws IOException {
+        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(Observable.just(STREAM_URI));
+        mediaPlayerAdapter.play(track);
+        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        for (int i = 0; i < MediaPlayerAdapter.MAX_CONNECT_RETRIES; i++) {
+            mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
+        }
+        expect(mediaPlayerAdapter.onError(mediaPlayer, 0, 0)).toBeTrue();
+    }
+
+    @Test
     public void shouldReturnMediaPlayerProgressAfterOnSeekCompleteCalled() throws Exception {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
