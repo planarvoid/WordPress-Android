@@ -1,6 +1,7 @@
 package com.soundcloud.android.auth.signup;
 
 import com.soundcloud.android.auth.SignUpTestCase;
+import com.soundcloud.android.screens.EmailConfirmScreen;
 import com.soundcloud.android.screens.EmailOptInScreen;
 import com.soundcloud.android.screens.HomeScreen;
 
@@ -31,9 +32,9 @@ public class ByEmail extends SignUpTestCase {
         String followedUsername = suggestedUsersCategoryScreen.followRandomUser();
         solo.goBack();
 
-        final EmailOptInScreen emailOptIn = suggestedUsersScreen.finish();
-        solo.goBack();
-        final HomeScreen home = emailOptIn.clickNo();
+        EmailConfirmScreen confirmScreen = suggestedUsersScreen.finish();
+        EmailOptInScreen optIn = confirmScreen.clickConfirmLater();
+        HomeScreen home = optIn.clickNo();
 
         assert(home.hasItemByUsername(followedUsername));
     }
