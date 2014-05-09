@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -16,12 +15,14 @@ import com.soundcloud.android.peripherals.PeripheralsOperations;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.track.TrackOperations;
 import com.soundcloud.android.utils.images.ImageUtils;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
@@ -77,6 +78,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
 
     @Inject
+    ApplicationProperties applicationProperties;
+    @Inject
     EventBus eventBus;
     @Inject
     PlayQueueManager playQueueManager;
@@ -124,6 +127,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     };
 
     private Notification status;
+    private boolean suppressNotifications;
+
     private PlaybackReceiver playbackReceiver;
     private final Handler fadeHandler = new FadeHandler(this);
     private final Handler delayedStopHandler = new DelayedStopHandler(this);
@@ -156,12 +161,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     @VisibleForTesting
-    PlaybackService(PlayQueueManager playQueueManager, EventBus eventBus, TrackOperations trackOperations,
-                           PeripheralsOperations peripheralsOperations, PlaybackEventSource playbackEventSource,
-                           AccountOperations accountOperations, ImageOperations imageOperations,
-                           PlayerAppWidgetProvider playerAppWidgetProvider, StreamPlaya streamPlaya,
-                           PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider) {
-
+    PlaybackService(ApplicationProperties applicationProperties, PlayQueueManager playQueueManager,
+                    EventBus eventBus, TrackOperations trackOperations,
+                    PeripheralsOperations peripheralsOperations, PlaybackEventSource playbackEventSource,
+                    AccountOperations accountOperations, ImageOperations imageOperations,
+                    PlayerAppWidgetProvider playerAppWidgetProvider, StreamPlaya streamPlaya,
+                    PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider) {
+        this.applicationProperties = applicationProperties;
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
@@ -369,7 +375,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         sendBroadcast(intent);
         appWidgetProvider.performUpdate(this, intent); // Share this notification directly with our widgets
 
-        if (Consts.SdkSwitches.useRichNotifications) {
+        if (applicationProperties.shouldUseRichNotifications()) {
             if (what.equals(Broadcasts.PLAYSTATE_CHANGED)) {
                 remoteAudioManager.setPlaybackState(isPlaying);
                 setPlayingNotification(currentTrack);
@@ -445,6 +451,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     /* package */ void openCurrent(Track track) {
         if (track != null) {
+            suppressNotifications = false;
+            waitingForPlaylist = false;
+
             if (track.equals(currentTrack) && track.isStreamable()) {
                 if (!streamPlayer.isPlayerPlaying()) {
                     startTrack(track);
@@ -458,12 +467,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                             changedContext ? PlaybackSessionEvent.STOP_REASON_NEW_QUEUE : PlaybackSessionEvent.STOP_REASON_SKIP);
                 }
 
-                waitingForPlaylist = false;
+
                 currentTrack = track;
                 currentTrackSourceInfo = newTrackSourceInfo;
 
                 notifyChange(Broadcasts.META_CHANGED);
-                streamableTrackSubscription = trackOperations.loadStreamableTrack(currentTrack.getId(), AndroidSchedulers.mainThread())
+                final Observable<Track> trackObservable = trackOperations.loadStreamableTrack(currentTrack.getId(), AndroidSchedulers.mainThread());
+                streamableTrackSubscription = trackObservable
                         .observeOn(AndroidSchedulers.mainThread()).subscribe(new StreamableTrackInformationSubscriber());
             }
         } else {
@@ -528,9 +538,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     /* package */ void play() {
         if (!streamPlayer.isPlaying() && currentTrack != null && remoteAudioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
-            if (streamPlayer.playbackHasPaused()){
-                streamPlayer.resume();
-            } else {
+            if (!streamPlayer.playbackHasPaused() || !streamPlayer.resume()){
                 openCurrent();
             }
         }
@@ -556,6 +564,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     /* package */ void stop() {
         saveQueue();
         streamPlayer.stop();
+        suppressNotifications = true;
         gotoIdleState(true);
     }
 
@@ -567,7 +576,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         fadeHandler.removeMessages(FadeHandler.FADE_OUT);
         fadeHandler.removeMessages(FadeHandler.FADE_IN);
 
-        if (Consts.SdkSwitches.useRichNotifications && currentTrack != null && !stopService){
+        if (applicationProperties.shouldUseRichNotifications() && currentTrack != null && !stopService){
             stopForeground(false);
             setPlayingNotification(currentTrack);
         } else {
@@ -603,8 +612,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private void setPlayingNotification(final Track track) {
 
         final boolean supposedToBePlaying = streamPlayer.isPlaying();
-        if (track == null ||
-                (Consts.SdkSwitches.useRichNotifications && status != null && status.contentView != null &&
+        if (suppressNotifications || track == null ||
+                (applicationProperties.shouldUseRichNotifications() && status != null && status.contentView != null &&
                     ((NotificationPlaybackRemoteViews) status.contentView).isAlreadyNotifying(track, supposedToBePlaying))){
             return;
         }
@@ -617,7 +626,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             .addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
 
-        if (!Consts.SdkSwitches.useRichNotifications) {
+        if (!applicationProperties.shouldUseRichNotifications()) {
             notification.setLatestEventInfo(this, track.getUserName(), track.title, pi);
         } else {
             final NotificationPlaybackRemoteViews playbackRemoteViews = new NotificationPlaybackRemoteViews(getPackageName());

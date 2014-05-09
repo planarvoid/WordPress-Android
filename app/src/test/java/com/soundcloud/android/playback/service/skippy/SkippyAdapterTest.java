@@ -123,6 +123,11 @@ public class SkippyAdapterTest {
     }
 
     @Test
+    public void returnAlwaysReturnsTrue(){ // just on Skippy, not on MediaPlayer
+        expect(skippyAdapter.resume()).toBeTrue();
+    }
+
+    @Test
     public void resumeCallsResumeOnSkippyIfInPausedState(){
         skippyAdapter.resume();
         verify(skippy).resume();

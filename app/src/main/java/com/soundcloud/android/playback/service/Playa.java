@@ -12,7 +12,7 @@ public interface Playa {
 
     public void play(Track track);
     public void play(Track track, long fromPos);
-    public void resume();
+    public boolean resume();
     public void pause();
     public long seek(long ms, boolean performSeek);
     public long getProgress();

@@ -76,8 +76,10 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     @Override
-    public void resume() {
+    public boolean resume() {
         skippy.resume();
+        // skippy is always resumeable, where as mediaplayer is not
+        return true;
     }
 
     @Override

@@ -99,8 +99,8 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     }
 
     @Override
-    public void resume() {
-        currentPlaya.resume();
+    public boolean resume() {
+        return currentPlaya.resume();
     }
 
     @Override

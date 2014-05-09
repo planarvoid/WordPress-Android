@@ -332,9 +332,12 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     @Override
-    public void resume() {
+    public boolean resume() {
         if (mMediaPlayer != null && mInternalState.isStartable()) {
             play();
+            return true;
+        } else {
+            return false;
         }
     }
 

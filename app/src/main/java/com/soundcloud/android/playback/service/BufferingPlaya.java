@@ -21,8 +21,8 @@ public class BufferingPlaya implements Playa {
     }
 
     @Override
-    public void resume() {
-
+    public boolean resume() {
+        return true;
     }
 
     @Override

@@ -245,14 +245,33 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
+    public void resumeShouldReturnFalseWithNoMediaPlayer() {
+        expect(mediaPlayerAdapter.resume()).toBeFalse();
+    }
+
+    @Test
     public void resumeShouldDoNothingWithNoMediaPlayer() {
         mediaPlayerAdapter.resume();
         verifyNoMoreInteractions(mediaPlayer);
     }
 
     @Test
-    public void pauseShouldDoNothingWithNoMediaPlayer() {
+    public void resumeShouldReturnFalseIfInPreparingState() {
+        mediaPlayerAdapter.play(track);
+        expect(mediaPlayerAdapter.resume()).toBeFalse();
+    }
+
+    @Test
+    public void resumeShouldDoNothingIfInPreparingState() {
+        mediaPlayerAdapter.play(track);
+        reset(mediaPlayer);
         mediaPlayerAdapter.resume();
+        verifyNoMoreInteractions(mediaPlayer);
+    }
+
+    @Test
+    public void pauseShouldDoNothingWithNoMediaPlayer() {
+        mediaPlayerAdapter.pause();
         verifyNoMoreInteractions(mediaPlayer);
     }
 

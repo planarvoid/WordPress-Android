@@ -78,6 +78,10 @@ public class ApplicationProperties {
         return isBetaBuild() && IS_RUNNING_ON_DALVIK;
     }
 
+    public boolean shouldUseRichNotifications() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("buildType", BUILD_TYPE).add("isDalvik", IS_RUNNING_ON_DALVIK).

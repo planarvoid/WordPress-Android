@@ -14,11 +14,13 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.peripherals.PeripheralsOperations;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.track.TrackOperations;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
+import com.xtremelabs.robolectric.shadows.ShadowService;
 import dagger.Lazy;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +29,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Scheduler;
 
+import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.media.AudioManager;
 
@@ -38,6 +41,8 @@ public class PlaybackServiceTest {
     
     PlaybackService playbackService;
 
+    @Mock
+    private ApplicationProperties applicationProperties;
     @Mock
     private EventBus eventBus;
     @Mock
@@ -71,7 +76,7 @@ public class PlaybackServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        playbackService = new PlaybackService(playQueueManager, eventBus, trackOperations, peripheralsOperations,
+        playbackService = new PlaybackService(applicationProperties, playQueueManager, eventBus, trackOperations, peripheralsOperations,
                 playbackEventSource, accountOperations, imageOperations, appWidgetProvider, streamPlayer,
                 playbackReceiverFactory, audioManagerProvider);
 
@@ -199,6 +204,58 @@ public class PlaybackServiceTest {
 
         playbackService.onPlaystateChanged(stateTransition);
         eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
+    }
+
+    @Test
+    public void stopSavesCurrentQueueAndPosition() throws Exception {
+        when(streamPlayer.getProgress()).thenReturn(123L);
+        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
+        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
+        playbackService.openCurrent(new Track());
+        playbackService.stop();
+        verify(playQueueManager).saveCurrentPosition(123L);
+    }
+
+    @Test
+    public void stopCallsStopOnStreamPlaya() throws Exception {
+        playbackService.stop();
+        verify(streamPlayer).stop();
+    }
+
+    @Test
+    public void callingStopSuppressesIdleNotifications() throws Exception {
+        when(applicationProperties.shouldUseRichNotifications()).thenReturn(true);
+        playbackService.onCreate();
+
+        when(streamPlayer.getLastStateTransition()).thenReturn(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE));
+        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
+        playbackService.openCurrent(new Track());
+
+        playbackService.stop();
+        playbackService.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE));
+
+        ShadowService service = Robolectric.shadowOf(playbackService);
+        expect(service.getLastForegroundNotification()).toBeNull();
+
+    }
+
+    @Test
+    public void nonPauseStateCreatesNotificationAfterStoppingAndOpeningNewTrack() throws Exception {
+        when(applicationProperties.shouldUseRichNotifications()).thenReturn(true);
+        playbackService.onCreate();
+
+        when(streamPlayer.getLastStateTransition()).thenReturn(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE));
+        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
+        playbackService.openCurrent(new Track());
+
+        playbackService.stop();
+        playbackService.openCurrent(new Track());
+        playbackService.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE));
+
+        ShadowService service = Robolectric.shadowOf(playbackService);
+        final Notification lastForegroundNotification = service.getLastForegroundNotification();
+        expect(lastForegroundNotification).not.toBeNull();
+
     }
 
     private ArrayList<BroadcastReceiver> getReceiversForAction(String action) {
