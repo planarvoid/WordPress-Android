@@ -13,10 +13,6 @@ public class PlayerScreen extends Screen {
         super(solo);
     }
 
-    public void swipeDownToClose() {
-        solo.swipeDown();
-    }
-
     public boolean isExpanded() {
         waiter.waitForExpandedPlayer();
         return getSlidingPanel().isExpanded();

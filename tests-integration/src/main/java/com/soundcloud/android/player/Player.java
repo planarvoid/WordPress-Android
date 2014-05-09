@@ -30,9 +30,6 @@ public class Player extends ActivityTestCase<MainActivity> {
     public void testPlayerExpandsAndCollapsesFromUserInteractions() {
         playerScreen.tapFooter();
         assertEquals("Player should be expanded", true, playerScreen.isExpanded());
-
-        playerScreen.swipeDownToClose();
-        assertEquals("Player should be collapsed", true, playerScreen.isCollapsed());
     }
 
     public void testPlayerCollapsesWhenBackButtonIsPressed() {
