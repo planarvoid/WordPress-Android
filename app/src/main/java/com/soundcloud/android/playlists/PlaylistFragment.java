@@ -201,7 +201,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
     private void refreshNowPlayingState() {
         controller.getAdapter().notifyDataSetChanged();
-        playToggle.setChecked(playQueueManager.isCurrentPlaylist(getPlaylistUrn().numericId));
+        playToggle.setChecked(playQueueManager.isCurrentPlaylist(getPlaylistUrn().numericId) && playbackStateProvider.isSupposedToBePlaying());
     }
 
     @Override

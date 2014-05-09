@@ -144,6 +144,7 @@ public class PlaylistFragmentTest {
     @Test
     public void shouldSetToggleToPlayStateWhenPlayingCurrentPlaylistOnResume() throws Exception {
         when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(true);
+        when(playbackStateProvider.isSupposedToBePlaying()).thenReturn(true);
 
         View layout = createFragmentView();
         fragment.onResume();
@@ -327,6 +328,7 @@ public class PlaylistFragmentTest {
     @Test
     public void shouldSetPlayingStateWhenPlaybackStateChanges() throws Exception {
         when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(true);
+        when(playbackStateProvider.isSupposedToBePlaying()).thenReturn(true);
         View layout = createFragmentView();
         fragment.onStart();
 
