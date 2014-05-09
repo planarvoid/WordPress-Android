@@ -27,7 +27,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         playerScreen = new PlayerScreen(solo);
     }
 
-    public void testPlayerExpandsAndCollapsesFromUserInteractions() {
+    public void testPlayerExpandsOnFooterTap() {
         playerScreen.tapFooter();
         assertEquals("Player should be expanded", true, playerScreen.isExpanded());
     }
@@ -38,9 +38,10 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertEquals("Player should be collapsed", true, playerScreen.isCollapsed());
     }
 
-    @Suppress
     public void testPlayStateCanBeToggledFromPlayerFooter() {
-        // TODO
+        assertEquals("Footer should show paused state", false, playerScreen.isFooterInPlayingState());
+        playerScreen.toggleFooterPlay();
+        assertEquals("Footer should show playing state", true, playerScreen.isFooterInPlayingState());
     }
 
     @Suppress

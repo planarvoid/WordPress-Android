@@ -4,14 +4,15 @@
                 android:id="@+id/player_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/dark_bg">
+                android:background="@color/dark_bg"
+                android:clickable="true"> <!-- Prevent touch events from passing through Fragment -->
 
     <View
-        android:id="@+id/player_strip"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/player_strip"
-        android:background="@color/sc_orange"
-        android:layout_alignParentTop="true" />
+            android:id="@+id/player_strip"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/player_strip"
+            android:background="@color/sc_orange"
+            android:layout_alignParentTop="true" />
 
     <RelativeLayout
             android:id="@+id/footer_control"
@@ -19,9 +20,15 @@
             android:layout_height="@dimen/player_footer_control"
             android:layout_below="@id/player_strip">
 
-            <ToggleButton
-                    android:id="@+id/footer_toggle"
-                    style="@style/FooterToggle" />
+        <ToggleButton
+                android:id="@+id/footer_toggle"
+                style="@style/FooterToggle" />
+
+        <LinearLayout
+                android:id="@+id/footer_drag_view"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/player_footer_control"
+                android:layout_toRightOf="@id/footer_toggle">
 
             <TextView
                     android:id="@+id/footer_title"
@@ -30,6 +37,7 @@
                     android:layout_margin="10dp"
                     android:textColor="@color/white"
                     android:layout_toRightOf="@id/footer_toggle" />
+        </LinearLayout>
     </RelativeLayout>
 
 </RelativeLayout>

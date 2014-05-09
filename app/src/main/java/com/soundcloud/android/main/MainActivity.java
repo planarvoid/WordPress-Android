@@ -102,6 +102,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             setContentView(R.layout.main_activity);
             SlidingUpPanelLayout playerPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
             playerPanel.setPanelSlideListener(new PlayerPanelListener());
+            playerPanel.setDragView(findViewById(R.id.footer_drag_view));
         } else {
             setContentView(R.layout.main_activity_legacy);
         }
