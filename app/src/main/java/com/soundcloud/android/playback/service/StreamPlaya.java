@@ -21,7 +21,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     @VisibleForTesting
     static final String PLAYS_SINCE_SKIPPY = "StreamPlaya.playsSinceSkippy";
     @VisibleForTesting
-    static final int MAX_PLAYS_OFF_SKIPPY = 3; // TODO increase to 10 before launch
+    static final int MAX_PLAYS_OFF_SKIPPY = 2; // TODO increase to 10 before launch
 
     @VisibleForTesting
     static boolean skippyFailedToInitialize;
@@ -194,6 +194,10 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
         configureNextPlayaToUse(getNextPlaya());
     }
     private void configureNextPlayaToUse(Playa nextPlaya){
+
+        if (currentPlaya != null && currentPlaya != nextPlaya){
+            currentPlaya.stop();
+        }
 
         currentPlaya = nextPlaya;
         currentPlaya.setListener(this);

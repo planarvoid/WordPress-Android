@@ -119,6 +119,25 @@ public class StreamPlayaTest {
     }
 
     @Test
+    public void mediaPlayerIsStoppedPlayUrlIsCalledAndSkippyIsConfigured() throws Exception {
+        instantiateStreamPlaya();
+        streamPlayerWrapper.play(track);
+        when(sharedPreferences.getBoolean(DevSettings.DEV_ENABLE_SKIPPY, false)).thenReturn(true);
+        streamPlayerWrapper.play(track);
+        verify(mediaPlayerAdapter).stop();
+    }
+
+    @Test
+    public void skippyIsStoppedPlayUrlIsCalledAndMediaPlayerIsConfigured() throws Exception {
+        instantiateStreamPlaya();
+        when(sharedPreferences.getBoolean(DevSettings.DEV_ENABLE_SKIPPY, false)).thenReturn(true);
+        streamPlayerWrapper.play(track);
+        when(sharedPreferences.getBoolean(DevSettings.DEV_ENABLE_SKIPPY, false)).thenReturn(false);
+        streamPlayerWrapper.play(track);
+        verify(skippyAdapter).stop();
+    }
+
+    @Test
     public void mediaPlayerIsStoppedWhenStartingBufferingMode() throws Exception {
         instantiateStreamPlaya();
         streamPlayerWrapper.play(track);
