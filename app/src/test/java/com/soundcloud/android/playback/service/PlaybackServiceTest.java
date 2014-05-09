@@ -17,6 +17,7 @@ import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.track.TrackOperations;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
@@ -26,8 +27,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 import rx.Scheduler;
+import rx.Subscription;
 
 import android.app.Notification;
 import android.content.BroadcastReceiver;
@@ -214,6 +217,33 @@ public class PlaybackServiceTest {
         playbackService.openCurrent(new Track());
         playbackService.stop();
         verify(playQueueManager).saveCurrentPosition(123L);
+    }
+
+    @Test
+    public void openCurrentLoadsStreamableTrackFromTrackOperations() throws Exception {
+        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
+        final TestObservables.MockObservable<Track> trackMockObservable = TestObservables.emptyObservable();
+        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(trackMockObservable);
+        playbackService.openCurrent(new Track());
+        expect(trackMockObservable.subscribedTo()).toBeTrue();
+    }
+
+    @Test
+    public void openCurrentUnsubscribesPreviousLoadsStreamableTrackObservable() throws Exception {
+        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
+
+        final Subscription subscription = Mockito.mock(Subscription.class);
+        final Observable<Track> observable = TestObservables.fromSubscription(subscription);
+
+        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(observable);
+
+        playbackService.openCurrent(new Track());
+
+        // we need to setup a different observable or we will get an undesired unsubscribe from the extra subscription
+        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(TestObservables.<Track>emptyObservable());
+        playbackService.openCurrent(new Track());
+
+        verify(subscription).unsubscribe();
     }
 
     @Test

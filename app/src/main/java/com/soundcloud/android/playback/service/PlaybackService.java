@@ -473,6 +473,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
                 notifyChange(Broadcasts.META_CHANGED);
                 final Observable<Track> trackObservable = trackOperations.loadStreamableTrack(currentTrack.getId(), AndroidSchedulers.mainThread());
+
+                streamableTrackSubscription.unsubscribe();
                 streamableTrackSubscription = trackObservable
                         .observeOn(AndroidSchedulers.mainThread()).subscribe(new StreamableTrackInformationSubscriber());
             }
