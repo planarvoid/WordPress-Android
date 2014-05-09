@@ -1,3 +1,11 @@
+$ 89
+  % v 2.8.4
+  _ 2014-5-9
+  ! Skippy release
+    * Skippy player integrated with application
+    * Play recommended tracks after suggestions and deeplinks
+    * Various other fixes
+
 $ 87
   % v 2.8.2
   _ 2014-4-16
