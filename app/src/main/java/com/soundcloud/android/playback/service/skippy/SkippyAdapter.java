@@ -71,8 +71,16 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             throw new IllegalStateException("Cannot play a track if no soundcloud account exists");
         }
 
-        currentStreamUrl = playbackOperations.buildHLSUrlForTrack(track);
-        skippy.play(currentStreamUrl, fromPos);
+        final String trackUrl = playbackOperations.buildHLSUrlForTrack(track);
+        if (trackUrl.equals(currentStreamUrl)){
+            // we are already playing it. seek and resume
+            skippy.seek(fromPos);
+            skippy.resume();
+        } else {
+            currentStreamUrl = trackUrl;
+            skippy.play(currentStreamUrl, fromPos);
+        }
+
     }
 
     @Override

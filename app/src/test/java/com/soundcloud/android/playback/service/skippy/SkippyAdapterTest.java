@@ -28,7 +28,9 @@ import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import android.os.Message;
 
@@ -84,6 +86,15 @@ public class SkippyAdapterTest {
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
         skippyAdapter.play(new Track(1L));
 
+    }
+
+    @Test
+    public void playUrlWithTheCurrentUrlAndPositionCallsSeekAndResumeOnSkippy(){
+        skippyAdapter.play(track);
+        skippyAdapter.play(track, 123L);
+        InOrder inOrder = Mockito.inOrder(skippy);
+        inOrder.verify(skippy).seek(123L);
+        inOrder.verify(skippy).resume();
     }
 
     @Test
