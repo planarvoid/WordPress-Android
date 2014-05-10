@@ -49,7 +49,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private SerialSubscription flushSubscription = new SerialSubscription();
 
     // will be called by the Rx scheduler after a given delay, as long as events come in
-    private final Action1<Scheduler.Inner> mFlushAction = new Action1<Scheduler.Inner>() {
+    private final Action1<Scheduler.Inner> flushAction = new Action1<Scheduler.Inner>() {
         @Override
         public void call(Scheduler.Inner inner) {
             Log.d(AnalyticsEngine.this, "Flushing event data");
@@ -117,7 +117,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private void scheduleFlush() {
         if (flushSubscription.get() == Subscriptions.empty()) {
             Log.d(this, "Scheduling flush in " + FLUSH_DELAY_SECONDS + " secs");
-            flushSubscription.set(scheduler.schedule(mFlushAction, FLUSH_DELAY_SECONDS, TimeUnit.SECONDS));
+            flushSubscription.set(scheduler.schedule(flushAction, FLUSH_DELAY_SECONDS, TimeUnit.SECONDS));
         } else {
             Log.d(this, "Ignoring flush event; already scheduled");
         }
