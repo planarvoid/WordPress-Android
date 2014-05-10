@@ -72,7 +72,7 @@ public class SoundCloudApplication extends Application {
 
     // needs to remain in memory over the life-time of the app
     @SuppressWarnings("unused")
-    private AnalyticsEngine mAnalyticsEngine;
+    private AnalyticsEngine analyticsEngine;
 
     @Inject
     EventBus eventBus;
@@ -215,7 +215,7 @@ public class SoundCloudApplication extends Application {
         } else {
             analyticsProviders = Collections.emptyList();
         }
-        mAnalyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, analyticsProperties, analyticsProviders);
+        analyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, analyticsProperties, analyticsProviders);
         Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && applicationProperties.isDebugBuild();
     }
 
