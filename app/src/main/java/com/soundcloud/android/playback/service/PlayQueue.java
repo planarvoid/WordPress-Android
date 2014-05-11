@@ -15,9 +15,9 @@ import java.util.List;
 
 class PlayQueue {
 
-    private List<PlayQueueItem> mPlayQueueItems;
-    private int mPosition;
-    private boolean mCurrentTrackIsUserTriggered;
+    private List<PlayQueueItem> playQueueItems;
+    private int position;
+    private boolean currentTrackIsUserTriggered;
 
     public static PlayQueue empty(){
         return new PlayQueue(Collections.<PlayQueueItem>emptyList(), -1);
@@ -28,30 +28,30 @@ class PlayQueue {
     }
 
     public PlayQueue(List<PlayQueueItem> playQueueItems, int startPosition) {
-        mPlayQueueItems = playQueueItems;
-        mPosition = startPosition;
+        this.playQueueItems = playQueueItems;
+        position = startPosition;
     }
 
     public PlayQueueView getViewWithAppendState(PlaybackOperations.AppendState appendState) {
-        return new PlayQueueView(getTrackIds(), mPosition, appendState);
+        return new PlayQueueView(getTrackIds(), position, appendState);
     }
 
     public Collection<PlayQueueItem> getItems() {
-        return mPlayQueueItems;
+        return playQueueItems;
     }
 
     public void setCurrentTrackToUserTriggered() {
-        mCurrentTrackIsUserTriggered = true;
+        currentTrackIsUserTriggered = true;
     }
 
     public void addTrack(long id, String source, String sourceVersion) {
-        mPlayQueueItems.add(new PlayQueueItem(id, source, sourceVersion));
+        playQueueItems.add(new PlayQueueItem(id, source, sourceVersion));
     }
 
     public boolean moveToPrevious() {
-        if (mPosition > 0) {
-            mPosition--;
-            mCurrentTrackIsUserTriggered = true;
+        if (position > 0) {
+            position--;
+            currentTrackIsUserTriggered = true;
             return true;
         }
         return false;
@@ -59,22 +59,22 @@ class PlayQueue {
 
     public boolean moveToNext(boolean userTriggered) {
         if (hasNextTrack()) {
-            mPosition++;
-            mCurrentTrackIsUserTriggered = userTriggered;
+            position++;
+            currentTrackIsUserTriggered = userTriggered;
             return true;
         }
         return false;
     }
 
     public boolean hasNextTrack(){
-        return mPosition < mPlayQueueItems.size() - 1;
+        return position < playQueueItems.size() - 1;
     }
 
     @Nullable
     TrackSourceInfo getCurrentTrackSourceInfo(PlaySessionSource playSessionSource) {
         if (isEmpty()) return null;
 
-        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(playSessionSource.getOriginScreen(), mCurrentTrackIsUserTriggered);
+        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(playSessionSource.getOriginScreen(), currentTrackIsUserTriggered);
         trackSourceInfo.setSource(getCurrentTrackSource(), getCurrentTrackSourceVersion());
         if (playSessionSource.getPlaylistId() != Playlist.NOT_SET) {
             trackSourceInfo.setOriginPlaylist(playSessionSource.getPlaylistId(), getPosition(), playSessionSource.getPlaylistOwnerId());
@@ -83,20 +83,20 @@ class PlayQueue {
     }
 
     public long getCurrentTrackId() {
-        return mPosition < 0 || mPosition >= mPlayQueueItems.size() ? Track.NOT_SET : mPlayQueueItems.get(mPosition).getTrackId();
+        return position < 0 || position >= playQueueItems.size() ? Track.NOT_SET : playQueueItems.get(position).getTrackId();
     }
 
     public boolean isEmpty() {
-        return mPlayQueueItems.isEmpty();
+        return playQueueItems.isEmpty();
     }
 
     public int getPosition() {
-        return mPosition;
+        return position;
     }
 
     public boolean setPosition(int position) {
-        if (position < mPlayQueueItems.size()) {
-            mPosition = position;
+        if (position < playQueueItems.size()) {
+            this.position = position;
             return true;
         } else {
             return false;
@@ -113,14 +113,14 @@ class PlayQueue {
     }
 
     String getCurrentTrackSource() {
-        return mPlayQueueItems.get(mPosition).getSource();
+        return playQueueItems.get(position).getSource();
     }
     String getCurrentTrackSourceVersion() {
-        return mPlayQueueItems.get(mPosition).getSourceVersion();
+        return playQueueItems.get(position).getSourceVersion();
     }
 
     private List<Long> getTrackIds(){
-        List<Long> trackIds = Lists.transform(mPlayQueueItems, new Function<PlayQueueItem, Long>() {
+        List<Long> trackIds = Lists.transform(playQueueItems, new Function<PlayQueueItem, Long>() {
             @Override
             public Long apply(PlayQueueItem input) {
                 return input.getTrackId();
@@ -136,16 +136,16 @@ class PlayQueue {
 
         PlayQueue playQueue = (PlayQueue) o;
 
-        return Objects.equal(mCurrentTrackIsUserTriggered, playQueue.mCurrentTrackIsUserTriggered) &&
-                Objects.equal(mPosition, playQueue.mPosition) &&
-                Objects.equal(mPlayQueueItems, playQueue.mPlayQueueItems);
+        return Objects.equal(currentTrackIsUserTriggered, playQueue.currentTrackIsUserTriggered) &&
+                Objects.equal(position, playQueue.position) &&
+                Objects.equal(playQueueItems, playQueue.playQueueItems);
     }
 
     @Override
     public int hashCode() {
-        int result = (mCurrentTrackIsUserTriggered ? 1 : 0);
-        result = 31 * result + mPlayQueueItems.hashCode();
-        result = 31 * result + mPosition;
+        int result = (currentTrackIsUserTriggered ? 1 : 0);
+        result = 31 * result + playQueueItems.hashCode();
+        result = 31 * result + position;
         return result;
     }
 }
