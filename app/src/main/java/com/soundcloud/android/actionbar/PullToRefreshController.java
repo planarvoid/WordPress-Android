@@ -1,50 +1,47 @@
 package com.soundcloud.android.actionbar;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.view.EmptyListDelegate;
-import com.soundcloud.android.view.EmptyListView;
-import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
-import fr.castorflex.android.smoothprogressbar.SmoothProgressDrawable;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
-import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
-import android.content.Context;
 import android.support.v4.app.FragmentActivity;
-import android.view.animation.AccelerateInterpolator;
 
 import javax.inject.Inject;
 
 public class PullToRefreshController {
 
+    private final EventBus eventBus;
+    private final PullToRefreshAttacher ptrAttacher;
+
     private PullToRefreshLayout pullToRefreshLayout;
 
+    private Subscription playerExpandedSubscription = Subscriptions.empty();
+
     @Inject
-    public PullToRefreshController() {}
+    public PullToRefreshController(EventBus eventBus, PullToRefreshAttacher ptrAttacher) {
+        this.eventBus = eventBus;
+        this.ptrAttacher = ptrAttacher;
+    }
+
+    @Deprecated
+    public PullToRefreshController(EventBus eventBus) {
+        this(eventBus, new PullToRefreshAttacher());
+    }
 
     public void attach(FragmentActivity activity, PullToRefreshLayout pullToRefreshLayout, OnRefreshListener listener) {
         this.pullToRefreshLayout = pullToRefreshLayout;
-        ActionBarPullToRefresh.from(activity)
-                .allChildrenArePullable()
-                .useViewDelegate(EmptyListView.class, new EmptyListDelegate())
-                .listener(listener)
-                .setup(pullToRefreshLayout);
-        styleProgressBar(activity);
+        ptrAttacher.attach(activity, pullToRefreshLayout, listener);
+        playerExpandedSubscription = eventBus.subscribe(EventQueue.UI, new PlayerExpandedSubscriber());
     }
 
-    private void styleProgressBar(FragmentActivity activity) {
-        SmoothProgressBar spb = (SmoothProgressBar) pullToRefreshLayout.getHeaderView().findViewById(R.id.ptr_progress);
-        spb.setIndeterminateDrawable(buildCustomProgressDrawable(activity));
-    }
-
-    private SmoothProgressDrawable buildCustomProgressDrawable(Context context) {
-       return new SmoothProgressDrawable.Builder(context)
-                .interpolator(new AccelerateInterpolator())
-                .separatorLength(context.getResources().getDimensionPixelSize(R.dimen.ptr_thickness))
-                .strokeWidth(context.getResources().getDimensionPixelSize(R.dimen.ptr_thickness))
-                .speed(.8f)
-                .color(context.getResources().getColor(R.color.sc_orange))
-                .build();
+    public void detach() {
+        playerExpandedSubscription.unsubscribe();
+        pullToRefreshLayout = null;
     }
 
     public boolean isAttached() {
@@ -61,6 +58,15 @@ public class PullToRefreshController {
 
     public void stopRefreshing() {
         pullToRefreshLayout.setRefreshComplete();
+    }
+
+    private final class PlayerExpandedSubscriber extends DefaultSubscriber<UIEvent> {
+        @Override
+        public void onNext(UIEvent event) {
+            if (event.getKind() == UIEvent.PLAYER_EXPANDED) {
+                stopRefreshing();
+            }
+        }
     }
 
 }

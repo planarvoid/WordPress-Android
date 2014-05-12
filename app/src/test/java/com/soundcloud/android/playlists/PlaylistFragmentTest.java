@@ -326,6 +326,12 @@ public class PlaylistFragmentTest {
     }
 
     @Test
+    public void detatchesPullToRefreshControllerOnDestroyView() {
+        fragment.onDestroyView();
+        verify(ptrController).detach();
+    }
+
+    @Test
     public void shouldSetPlayingStateWhenPlaybackStateChanges() throws Exception {
         when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(true);
         when(playbackStateProvider.isSupposedToBePlaying()).thenReturn(true);

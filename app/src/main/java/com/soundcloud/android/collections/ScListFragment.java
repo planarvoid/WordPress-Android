@@ -180,7 +180,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         publicApi = new PublicApi(getActivity());
         keepGoing = true;
         setupListAdapter();
-        pullToRefreshController = new PullToRefreshController();
+        pullToRefreshController = new PullToRefreshController(eventBus);
     }
 
     @Override
@@ -285,6 +285,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        pullToRefreshController.detach();
 
         if (content == Content.ME_SOUNDS && adapter != null) {
             ((MyTracksAdapter) adapter).onDestroy();

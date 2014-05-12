@@ -10,7 +10,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -87,14 +90,31 @@ public class NavigationDrawerFragmentTest {
     }
 
     @Test
-    public void shouldLockDrawerOnSetLockedToTrue() throws Exception {
-        fragment.setLocked(true);
+    public void shouldLockDrawerOnPlayerExpandedEvent() {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        fragment.onViewCreated(view, null);
+
+        eventMonitor.publish(EventQueue.UI, UIEvent.fromPlayerExpanded());
+
         verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
 
     @Test
-    public void shouldUnlockDrawerToClosedOnSetLockedToFalse() throws Exception {
-        fragment.setLocked(false);
+    public void shouldUnlockDrawerOnPlayerCollapsedEvent() {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        fragment.onViewCreated(view, null);
+
+        eventMonitor.publish(EventQueue.UI, UIEvent.fromPlayerCollapsed());
+
         verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
     }
+
+    @Test
+    public void shouldUnsubscribeFromUIEventsInOnDestroyView() {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        fragment.onViewCreated(view, null);
+        fragment.onDestroyView();
+        eventMonitor.verifyUnsubscribed();
+    }
+
 }

@@ -6,8 +6,12 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import org.jetbrains.annotations.Nullable;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import android.annotation.SuppressLint;
 import android.content.res.Configuration;
@@ -31,11 +35,12 @@ public class NavigationDrawerFragment extends NavigationFragment {
 
     private DrawerLayout drawerLayout;
 
+    private Subscription subscription = Subscriptions.empty();
+
     @Inject
     EventBus eventBus;
 
-    public NavigationDrawerFragment() {
-    }
+    public NavigationDrawerFragment() {}
 
     @VisibleForTesting
     protected NavigationDrawerFragment(ImageOperations imageOperations, AccountOperations accountOperations, EventBus eventBus) {
@@ -47,6 +52,18 @@ public class NavigationDrawerFragment extends NavigationFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         drawerLayout = setupDrawerLayout();
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        subscription = eventBus.subscribe(EventQueue.UI, new PlayerExpansionSubscriber());
+    }
+
+    @Override
+    public void onDestroyView() {
+        subscription.unsubscribe();
+        super.onDestroyView();
     }
 
     @Override
@@ -89,10 +106,6 @@ public class NavigationDrawerFragment extends NavigationFragment {
         if (isDrawerOpen()) {
             drawerLayout.closeDrawer(getView());
         }
-    }
-
-    public void setLocked(boolean locked) {
-        drawerLayout.setDrawerLockMode(locked ? DrawerLayout.LOCK_MODE_LOCKED_CLOSED : DrawerLayout.LOCK_MODE_UNLOCKED);
     }
 
     @Override
@@ -164,4 +177,18 @@ public class NavigationDrawerFragment extends NavigationFragment {
         });
         drawerLayout.setDrawerListener(drawerToggle);
     }
+
+    private final class PlayerExpansionSubscriber extends DefaultSubscriber<UIEvent> {
+        @Override
+        public void onNext(UIEvent event) {
+            switch (event.getKind()) {
+                case UIEvent.PLAYER_EXPANDED:
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                    break;
+                case UIEvent.PLAYER_COLLAPSED:
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            }
+        }
+    }
+
 }

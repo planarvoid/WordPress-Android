@@ -222,4 +222,16 @@ public class UIEventTest {
         expect(uiEventAttributes.get("page")).toEqual("player_shortcut");
     }
 
+    @Test
+    public void shouldCreateEventFromPlayerExpanded() {
+        UIEvent uiEvent = UIEvent.fromPlayerExpanded();
+        expect(uiEvent.getKind()).toEqual(11);
+    }
+
+    @Test
+    public void shouldCreateEventFromPlayerCollapsed() {
+        UIEvent uiEvent = UIEvent.fromPlayerCollapsed();
+        expect(uiEvent.getKind()).toEqual(12);
+    }
+
 }

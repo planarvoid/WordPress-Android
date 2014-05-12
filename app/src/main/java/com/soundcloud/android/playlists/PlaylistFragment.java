@@ -224,6 +224,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
     @Override
     public void onDestroyView() {
+        pullToRefreshController.detach();
         subscription.unsubscribe();
         controller = null;
         super.onDestroyView();

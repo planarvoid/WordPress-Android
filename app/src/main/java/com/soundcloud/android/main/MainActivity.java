@@ -1,6 +1,5 @@
 package com.soundcloud.android.main;
 
-import static com.sothree.slidinguppanel.SlidingUpPanelLayout.*;
 import static com.soundcloud.android.main.NavigationFragment.NavigationCallbacks;
 import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 import static rx.android.observables.AndroidObservable.bindActivity;
@@ -19,6 +18,7 @@ import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
+import com.soundcloud.android.playback.PlayerPanelListener;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
@@ -34,7 +34,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
-import android.view.View;
 
 import javax.inject.Inject;
 
@@ -90,6 +89,11 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             }
         }
 
+        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
+            // This needs to happen after we initialise the EventBus and ActionBarController
+            setupSlidingPlayer();
+        }
+
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
         subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber()));
@@ -100,12 +104,15 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
             supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
             setContentView(R.layout.main_activity);
-            SlidingUpPanelLayout playerPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-            playerPanel.setPanelSlideListener(new PlayerPanelListener());
-            playerPanel.setDragView(findViewById(R.id.footer_drag_view));
         } else {
             setContentView(R.layout.main_activity_legacy);
         }
+    }
+
+    private void setupSlidingPlayer() {
+        SlidingUpPanelLayout playerPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        playerPanel.setPanelSlideListener(new PlayerPanelListener(eventBus, actionBarController));
+        playerPanel.setDragView(findViewById(R.id.footer_drag_view));
     }
 
     @Override
@@ -339,7 +346,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         }
     }
 
-
     private void updateUser(User user) {
                 navigationFragment.updateProfileItem(user);
         if (!user.isPrimaryEmailConfirmed()) {
@@ -348,28 +354,4 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         }
     }
 
-    private class PlayerPanelListener extends SimplePanelSlideListener {
-
-        @Override
-        public void onPanelSlide(View panel, float slideOffset) {
-            actionBarController.setVisible(slideOffset > 0.5f);
-        }
-
-        @Override
-        public void onPanelCollapsed(View panel) {
-            setDrawerLocked(false);
-        }
-
-        @Override
-        public void onPanelExpanded(View panel) {
-            setDrawerLocked(true);
-        }
-
-        private void setDrawerLocked(boolean locked) {
-            if (navigationFragment instanceof NavigationDrawerFragment) {
-                ((NavigationDrawerFragment) navigationFragment).setLocked(locked);
-            }
-        }
-
-    }
 }

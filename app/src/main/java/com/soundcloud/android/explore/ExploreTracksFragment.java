@@ -3,6 +3,7 @@ package com.soundcloud.android.explore;
 import static rx.android.OperatorPaged.Page;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
@@ -76,6 +77,16 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     public ExploreTracksFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @VisibleForTesting
+    ExploreTracksFragment(ExploreTracksAdapter adapter, PlaybackOperations playbackOperations, ImageOperations imageOperations,
+                          ExploreTracksOperations exploreTracksOperations, PullToRefreshController pullToRefreshController) {
+        this.adapter = adapter;
+        this.playbackOperations = playbackOperations;
+        this.imageOperations = imageOperations;
+        this.exploreTracksOperations = exploreTracksOperations;
+        this.pullToRefreshController = pullToRefreshController;
     }
 
     @Override
@@ -155,6 +166,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     @Override
     public void onDestroyView() {
+        pullToRefreshController.detach();
         ((GridView) getView().findViewById(GRID_VIEW_ID)).setAdapter(null);
         super.onDestroyView();
     }
@@ -164,7 +176,6 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         subscription.unsubscribe();
         super.onDestroy();
     }
-
 
     @Override
     public void setEmptyViewStatus(int status) {
