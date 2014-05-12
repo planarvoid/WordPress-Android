@@ -383,7 +383,7 @@
         <dependency>
             <groupId>com.soundcloud.android</groupId>
             <artifactId>skippy</artifactId>
-            <version>448M</version>
+            <version>453</version>
             <type>apklib</type>
         </dependency>
 
