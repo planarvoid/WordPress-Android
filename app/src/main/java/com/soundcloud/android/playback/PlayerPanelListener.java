@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import static com.sothree.slidinguppanel.SlidingUpPanelLayout.*;
+import static com.sothree.slidinguppanel.SlidingUpPanelLayout.SimplePanelSlideListener;
 
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.EventBus;

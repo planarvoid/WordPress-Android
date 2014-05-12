@@ -18,7 +18,9 @@ import javax.inject.Inject;
 class PullToRefreshAttacher {
 
     @Inject
-    public PullToRefreshAttacher() {}
+    public PullToRefreshAttacher() {
+        // For Dagger.
+    }
 
     public void attach(FragmentActivity activity, PullToRefreshLayout pullToRefreshLayout, OnRefreshListener listener) {
         ActionBarPullToRefresh.from(activity)

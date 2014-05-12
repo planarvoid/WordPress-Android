@@ -40,7 +40,9 @@ public class NavigationDrawerFragment extends NavigationFragment {
     @Inject
     EventBus eventBus;
 
-    public NavigationDrawerFragment() {}
+    public NavigationDrawerFragment() {
+        // Android needs a default ctor.
+    }
 
     @VisibleForTesting
     protected NavigationDrawerFragment(ImageOperations imageOperations, AccountOperations accountOperations, EventBus eventBus) {
@@ -181,12 +183,11 @@ public class NavigationDrawerFragment extends NavigationFragment {
     private final class PlayerExpansionSubscriber extends DefaultSubscriber<UIEvent> {
         @Override
         public void onNext(UIEvent event) {
-            switch (event.getKind()) {
-                case UIEvent.PLAYER_EXPANDED:
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                    break;
-                case UIEvent.PLAYER_COLLAPSED:
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            final int eventKind = event.getKind();
+            if (eventKind == UIEvent.PLAYER_EXPANDED) {
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            } else if (eventKind == UIEvent.PLAYER_COLLAPSED) {
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             }
         }
     }
