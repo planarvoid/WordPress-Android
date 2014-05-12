@@ -1,39 +1,27 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.utils.Log;
 
-import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
 
 @SuppressWarnings("PMD.UncommentedEmptyMethod")
 public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
+    private final EventLogger eventLogger;
+    private final EventLoggerParamsBuilder eventLoggerParamsBuilder;
 
-    @Inject
-    EventLogger eventLogger;
-    @Inject
-    EventLoggerParamsBuilder eventLoggerParamsBuilder;
-
-    @Inject
-    public EventLoggerAnalyticsProvider() {
-        SoundCloudApplication.getObjectGraph().inject(this);
-    }
-
-    @VisibleForTesting
-    protected EventLoggerAnalyticsProvider(EventLogger eventLogger, EventLoggerParamsBuilder eventLoggerParamsBuilder) {
+    public EventLoggerAnalyticsProvider(EventLogger eventLogger, EventLoggerParamsBuilder eventLoggerParamsBuilder) {
         this.eventLogger = eventLogger;
         this.eventLoggerParamsBuilder = eventLoggerParamsBuilder;
     }

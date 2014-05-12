@@ -1,8 +1,9 @@
 package com.soundcloud.android.search;
 
+import com.soundcloud.android.ApplicationModule;
 import dagger.Module;
 
-@Module(complete = false,
+@Module(addsTo = ApplicationModule.class,
         injects = {
                 TabbedSearchFragment.class,
                 SearchResultsFragment.class,

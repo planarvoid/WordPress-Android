@@ -21,7 +21,7 @@ import android.view.LayoutInflater;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-@Module(library = true, includes = {ApiModule.class, StorageModule.class}, injects = SoundCloudApplication.class)
+@Module(library = true, includes = {ApiModule.class, StorageModule.class})
 public class ApplicationModule {
 
     private final SoundCloudApplication application;

@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.managers.FroyoRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager;
@@ -12,7 +12,9 @@ import dagger.Provides;
 import android.content.Context;
 import android.os.Build;
 
-@Module(complete = false, injects = {PlaybackService.class, PlayerActivity.class, PlayerFragment.class, SoundRecorder.class})
+@Module(addsTo = ApplicationModule.class, injects = {
+        PlaybackService.class, PlayerActivity.class, PlayerFragment.class
+})
 public class PlaybackModule {
 
     @SuppressWarnings("unchecked")

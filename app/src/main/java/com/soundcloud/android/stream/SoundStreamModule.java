@@ -1,7 +1,8 @@
 package com.soundcloud.android.stream;
 
+import com.soundcloud.android.ApplicationModule;
 import dagger.Module;
 
-@Module(complete = false, injects = { SoundStreamFragment.class })
+@Module(addsTo = ApplicationModule.class, injects = {SoundStreamFragment.class})
 public class SoundStreamModule {
 }

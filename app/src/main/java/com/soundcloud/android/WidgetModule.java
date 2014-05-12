@@ -14,7 +14,7 @@ import javax.inject.Singleton;
 
 // Don't remove the injects on the widget controller, since it requires it to reach out for the singleton
 // instance provided by this module!
-@Module(addsTo = ApplicationModule.class, injects = PlayerWidgetController.class)
+@Module(complete = false, addsTo = ApplicationModule.class, injects = SoundCloudApplication.class)
 public class WidgetModule {
 
     @Provides

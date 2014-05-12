@@ -4,6 +4,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.AnalyticsProperties;
+import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.json.JsonTransformer;
@@ -22,6 +23,9 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+
+import java.util.Collections;
+import java.util.List;
 
 @Module(injects = {SoundCloudApplication.class, TestApplication.class})
 public class TestApplicationModule {
@@ -70,6 +74,11 @@ public class TestApplicationModule {
         when(mockResources.getBoolean(R.bool.analytics_enabled)).thenReturn(false);
         when(mockResources.getString(R.string.localytics_app_key)).thenReturn("123");
         return new AnalyticsProperties(mockResources);
+    }
+
+    @Provides
+    public List<AnalyticsProvider> provideAnalyticsProviders() {
+        return Collections.emptyList();
     }
 
     @Provides

@@ -5,19 +5,14 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.enableSy
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
-import com.localytics.android.Constants;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsEngine;
-import com.soundcloud.android.analytics.AnalyticsProperties;
-import com.soundcloud.android.analytics.AnalyticsProvider;
-import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
-import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
-import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
+import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.LegacyModule;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
@@ -26,13 +21,11 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.service.PlayerWidgetController;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.rx.LoggingDebugHook;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ExceptionUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
@@ -41,7 +34,6 @@ import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import rx.plugins.RxJavaPlugins;
 
 import android.accounts.Account;
 import android.annotation.TargetApi;
@@ -55,8 +47,6 @@ import android.os.Build;
 import android.os.StrictMode;
 
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.List;
 
 public class SoundCloudApplication extends Application {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
@@ -69,10 +59,6 @@ public class SoundCloudApplication extends Application {
     @Deprecated
     @SuppressFBWarnings({ "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
     public static ScModelManager sModelManager;
-
-    // needs to remain in memory over the life-time of the app
-    @SuppressWarnings("unused")
-    private AnalyticsEngine analyticsEngine;
 
     @Inject
     EventBus eventBus;
@@ -87,22 +73,25 @@ public class SoundCloudApplication extends Application {
     @Inject
     ApplicationProperties applicationProperties;
     @Inject
-    AnalyticsProperties analyticsProperties;
-    @Inject
     SharedPreferences sharedPreferences;
     @Inject
     PlayerWidgetController widgetController;
+
+    // we need this object to exist througout the life time of the app,
+    // even if it appears to be unused
     @Inject
-    DeviceHelper deviceHelper;
+    @SuppressWarnings("unused")
+    AnalyticsEngine analyticsEngine;
 
     protected ObjectGraph objectGraph;
 
     public SoundCloudApplication() {
         objectGraph = ObjectGraph.create(
                 new ApplicationModule(this),
+                new AnalyticsModule(),
                 new WidgetModule(),
-                new SoundCloudModule()
-        );
+                new LegacyModule(),
+                new FeaturesModule());
     }
 
     @VisibleForTesting
@@ -129,7 +118,6 @@ public class SoundCloudApplication extends Application {
 
         if (applicationProperties.isDevBuildRunningOnDalvik() && !ActivityManager.isUserAMonkey()) {
             setupStrictMode();
-            RxJavaPlugins.getInstance().registerObservableExecutionHook(new LoggingDebugHook());
         }
 
         if (ApplicationProperties.shouldReportCrashes() &&
@@ -145,7 +133,6 @@ public class SoundCloudApplication extends Application {
         accountOperations.loadLoggedInUser();
         setupCurrentUserAccount();
         setupExperiments();
-        setupAnalytics();
 
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
 
@@ -199,24 +186,6 @@ public class SoundCloudApplication extends Application {
 
     private void setupExperiments() {
         experimentOperations.loadAssignment();
-    }
-
-    private void setupAnalytics() {
-        Log.d(TAG, analyticsProperties.toString());
-
-        // Unfortunately, both Localytics and ComScore are unmockable in tests and were crashing the tests during
-        // initialiation of AnalyticsEngine, so we do not register them unless we're running on a real device
-        final List<AnalyticsProvider> analyticsProviders;
-        if (applicationProperties.isRunningOnDalvik()) {
-            analyticsProviders = Lists.newArrayList(
-                    new LocalyticsAnalyticsProvider(this, analyticsProperties, accountOperations.getLoggedInUserId()),
-                    new EventLoggerAnalyticsProvider(),
-                    new ComScoreAnalyticsProvider(this));
-        } else {
-            analyticsProviders = Collections.emptyList();
-        }
-        analyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, analyticsProperties, analyticsProviders);
-        Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && applicationProperties.isDebugBuild();
     }
 
     @Deprecated // use @Inject instead!

@@ -26,6 +26,8 @@ import rx.subscriptions.Subscriptions;
 
 import android.content.SharedPreferences;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +37,7 @@ import java.util.concurrent.TimeUnit;
  * analytics to any number of registered {@link AnalyticsProvider}s, and enables/disabled itself based on both
  * availability of analytics in the current build as well as user toggled application settings.
  */
+@Singleton
 public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     @VisibleForTesting
@@ -61,6 +64,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     };
 
+    @Inject
     public AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
                            List<AnalyticsProvider> analyticsProviders) {
         this(eventBus, sharedPreferences, analyticsProperties, AndroidSchedulers.mainThread(), analyticsProviders);

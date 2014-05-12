@@ -1,7 +1,8 @@
 package com.soundcloud.android.associations;
 
+import com.soundcloud.android.ApplicationModule;
 import dagger.Module;
 
-@Module(complete = false, injects = {LikesListFragment.class})
+@Module(addsTo = ApplicationModule.class, injects = {LikesListFragment.class})
 public class LikesModule {
 }

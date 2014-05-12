@@ -1,8 +1,9 @@
 package com.soundcloud.android.explore;
 
+import com.soundcloud.android.ApplicationModule;
 import dagger.Module;
 
-@Module(complete = false,
+@Module(addsTo = ApplicationModule.class,
         injects = {
         ExploreFragment.class,
         ExploreTracksFragment.class,

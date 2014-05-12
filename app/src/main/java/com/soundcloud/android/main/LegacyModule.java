@@ -1,12 +1,13 @@
 package com.soundcloud.android.main;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.associations.SoundAssociationAdapter;
 import com.soundcloud.android.associations.TrackInteractionActivity;
 import com.soundcloud.android.collections.DefaultPlayableAdapter;
 import dagger.Module;
 
-@Module(complete = false,
+@Module(addsTo = ApplicationModule.class,
         injects = {
                 ActivitiesAdapter.class,
                 SoundAssociationAdapter.class,

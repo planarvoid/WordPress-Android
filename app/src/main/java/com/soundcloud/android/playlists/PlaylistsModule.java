@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import dagger.Module;
@@ -7,7 +8,7 @@ import dagger.Provides;
 
 import android.content.res.Resources;
 
-@Module(complete = false,
+@Module(addsTo = ApplicationModule.class,
         injects = {
                 PlaylistDetailActivity.class,
                 PlaylistFragment.class,

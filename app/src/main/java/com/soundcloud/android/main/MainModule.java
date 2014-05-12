@@ -1,8 +1,9 @@
 package com.soundcloud.android.main;
 
+import com.soundcloud.android.ApplicationModule;
 import dagger.Module;
 
-@Module(complete = false,
+@Module(addsTo = ApplicationModule.class,
         injects = {
                 MainActivity.class,
                 NavigationFragment.class,
