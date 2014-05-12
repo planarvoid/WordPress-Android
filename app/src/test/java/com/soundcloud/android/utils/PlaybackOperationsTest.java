@@ -23,6 +23,8 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TrackStorage;
@@ -69,18 +71,21 @@ public class PlaybackOperationsTest {
     @Mock
     private AccountOperations accountOperations;
     @Mock
+    private FeatureFlags featureFlags;
+    @Mock
     private Token token;
 
 
     @Before
     public void setUp() throws Exception {
         playbackOperations = new PlaybackOperations(modelManager, trackStorage, playQueueManager, accountOperations,
-                httpProperties);
+                httpProperties, featureFlags);
         track = TestHelper.getModelFactory().createModel(Track.class);
     }
 
     @Test
     public void playTrackShouldOpenPlayerActivityWithInitialTrackId() {
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(false);
         playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -89,6 +94,15 @@ public class PlaybackOperationsTest {
         expect(startedActivity).not.toBeNull();
         expect(startedActivity.getAction()).toBe(Actions.PLAYER);
         expect(startedActivity.getLongExtra(Track.EXTRA_ID, -1)).toBe(track.getId());
+    }
+
+    @Test
+    public void playTrackShouldNotOpenPlayerActivityIfVisualPlayerEnabled() {
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
+        playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        expect(application.getNextStartedActivity()).toBeNull();
     }
 
     @Test
@@ -143,6 +157,7 @@ public class PlaybackOperationsTest {
         Playlist playlist = new Playlist(3L);
         final Observable<List<Long>> trackIdList = Observable.<List<Long>>just(Lists.newArrayList(track.getId()));
         when(trackStorage.getTrackIdsForUriAsync(any(Uri.class))).thenReturn(trackIdList);
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(false);
 
         playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist, 0, track, Screen.YOUR_LIKES);
 
@@ -152,6 +167,17 @@ public class PlaybackOperationsTest {
         expect(startedActivity).not.toBeNull();
         expect(startedActivity.getAction()).toBe(Actions.PLAYER);
         expect(startedActivity.getLongExtra(Track.EXTRA_ID, -1)).toBe(track.getId());
+    }
+
+    @Test
+    public void playFromPlaylistShouldNotOpenPlayerActivityWithVisualPlayerTurnedOn() {
+        final Observable<List<Long>> trackIdList = Observable.<List<Long>>just(Lists.newArrayList(track.getId()));
+        when(trackStorage.getTrackIdsForUriAsync(any(Uri.class))).thenReturn(trackIdList);
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
+        playbackOperations.playPlaylistFromPosition(Robolectric.application, new Playlist(3L), 0, track, Screen.YOUR_LIKES);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        expect(application.getNextStartedActivity()).toBeNull();
     }
 
     @Test
@@ -256,6 +282,8 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playFromAdapterShouldOpenPlayerActivityWithInitialTrackFromPosition() throws Exception {
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(false);
+
         ArrayList<Track> playables = Lists.newArrayList(new Track(1L), new Track(2L));
         playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, Screen.SIDE_MENU_STREAM); // clicked 2nd track
 
@@ -265,6 +293,17 @@ public class PlaybackOperationsTest {
         expect(startedActivity).not.toBeNull();
         expect(startedActivity.getAction()).toBe(Actions.PLAYER);
         expect(startedActivity.getLongExtra(Track.EXTRA_ID, -1)).toBe(2L);
+    }
+
+    @Test
+    public void playFromAdapterShouldNotOpenPlayerActivityIfVisualPlayerActive() throws Exception {
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
+
+        ArrayList<Track> playables = Lists.newArrayList(new Track(1L), new Track(2L));
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, Screen.SIDE_MENU_STREAM); // clicked 2nd track
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        expect(application.getNextStartedActivity()).toBeNull();
     }
 
     @Test

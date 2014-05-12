@@ -25,6 +25,8 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -58,15 +60,17 @@ public class PlaybackOperations {
     private final PlayQueueManager playQueueManager;
     private final AccountOperations accountOperations;
     private final HttpProperties httpProperties;
+    private final FeatureFlags featureFlags;
 
     @Inject
     public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage, PlayQueueManager playQueueManager,
-                              AccountOperations accountOperations, HttpProperties httpProperties) {
+                              AccountOperations accountOperations, HttpProperties httpProperties, FeatureFlags featureFlags) {
         this.modelManager = modelManager;
         this.trackStorage = trackStorage;
         this.playQueueManager = playQueueManager;
         this.accountOperations = accountOperations;
         this.httpProperties = httpProperties;
+        this.featureFlags = featureFlags;
     }
 
     /**
@@ -179,7 +183,7 @@ public class PlaybackOperations {
 
     private void playFromUri(final Context context, Uri uri, final int startPosition, final Track initialTrack,
                              final PlaySessionSource playSessionSource) {
-        cacheAndGoToPlayer(context, initialTrack);
+        showPlayer(context, initialTrack);
 
         if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
             trackStorage.getTrackIdsForUriAsync(uri).subscribe(new DefaultSubscriber<List<Long>>() {
@@ -200,7 +204,7 @@ public class PlaybackOperations {
 
     private void playFromIdList(Context context, List<Long> idList, int startPosition, Track initialTrack,
                                 PlaySessionSource playSessionSource, boolean loadRelated) {
-        cacheAndGoToPlayer(context, initialTrack);
+        showPlayer(context, initialTrack);
 
         if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
             final int adjustedPosition = getDeduplicatedIdList(idList, startPosition);
@@ -209,9 +213,13 @@ public class PlaybackOperations {
         }
     }
 
-    private void cacheAndGoToPlayer(Context context, Track initialTrack) {
+    private void showPlayer(Context context, Track initialTrack) {
         modelManager.cache(initialTrack);
-        gotoPlayer(context, initialTrack.getId());
+        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
+            // TODO : show player panel
+        } else {
+            gotoPlayer(context, initialTrack.getId());
+        }
     }
 
     private void gotoPlayer(Context context, long initialTrackId) {
