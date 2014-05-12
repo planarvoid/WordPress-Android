@@ -29,9 +29,10 @@ public class PlayerFragment extends Fragment {
 
     @Inject
     EventBus eventBus;
-
     @Inject
     PlayQueueManager playQueueManager;
+    @Inject
+    PlaybackOperations playbackOperations;
 
     private ToggleButton footerToggle;
     private TextView trackTitle;
@@ -43,9 +44,10 @@ public class PlayerFragment extends Fragment {
     }
 
     @VisibleForTesting
-    PlayerFragment(EventBus eventBus, PlayQueueManager playQueueManager) {
+    PlayerFragment(EventBus eventBus, PlayQueueManager playQueueManager, PlaybackOperations playbackOperations) {
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
+        this.playbackOperations = playbackOperations;
     }
 
     @Override
@@ -57,6 +59,12 @@ public class PlayerFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         footerToggle = (ToggleButton) view.findViewById(R.id.footer_toggle);
         trackTitle = (TextView) view.findViewById(R.id.footer_title);
+        footerToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playbackOperations.togglePlayback(getActivity());
+            }
+        });
     }
 
     @Override

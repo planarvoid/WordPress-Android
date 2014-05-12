@@ -3,6 +3,8 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.service.Playa.*;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventBus;
@@ -16,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.app.Activity;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,13 +32,14 @@ public class PlayerFragmentTest {
 
     @Mock
     private EventBus eventBus;
-
     @Mock
-    PlayQueueManager playQueueManager;
+    private PlayQueueManager playQueueManager;
+    @Mock
+    private PlaybackOperations playbackOperations;
 
     @Before
     public void setUp() throws Exception {
-        fragment = new PlayerFragment(eventBus, playQueueManager);
+        fragment = new PlayerFragment(eventBus, playQueueManager, playbackOperations);
     }
 
     @Test
@@ -67,6 +71,14 @@ public class PlayerFragmentTest {
     }
 
     @Test
+    public void shouldTogglePlaybackWhenToggleIsClicked() {
+        View layout = createFragmentView();
+        layout.findViewById(R.id.footer_toggle).performClick();
+
+        verify(playbackOperations).togglePlayback(any(Activity.class));
+    }
+
+    @Test
     public void shouldUnsubscribeFromEventBusInOnPause() {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         fragment.onCreate(null);
@@ -87,4 +99,5 @@ public class PlayerFragmentTest {
         fragment.onViewCreated(fragmentLayout, null);
         return fragmentLayout;
     }
+
 }
