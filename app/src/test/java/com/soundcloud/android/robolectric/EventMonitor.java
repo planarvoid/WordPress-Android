@@ -6,11 +6,13 @@ import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventBus;
 import org.mockito.ArgumentCaptor;
+import org.mockito.verification.VerificationMode;
 import rx.Observer;
 import rx.Subscription;
 import rx.util.functions.Action1;
@@ -37,8 +39,13 @@ public class EventMonitor {
     }
 
     public EventMonitor verifySubscribedTo(EventBus.QueueDescriptor queue) {
+        verifySubscribedTo(queue, times(1));
+        return this;
+    }
+
+    public EventMonitor verifySubscribedTo(EventBus.QueueDescriptor queue, VerificationMode verificationMode) {
         ArgumentCaptor<Observer> eventObserver = ArgumentCaptor.forClass(Observer.class);
-        verify(eventBus).subscribe(refEq(queue), eventObserver.capture());
+        verify(eventBus, verificationMode).subscribe(refEq(queue), eventObserver.capture());
         this.captor = eventObserver;
         return this;
     }

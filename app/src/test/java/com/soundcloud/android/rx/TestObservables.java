@@ -36,6 +36,10 @@ public class TestObservables {
         return new MockObservable<T>(new OnSubscribeCapture(Observable.error(error)));
     }
 
+    public static <T> MockObservable<T> errorObservable() {
+        return errorObservable(new Exception());
+    }
+
     public static class MockObservable<T> extends Observable<T> {
 
         private final OnSubscribeCapture capture;
@@ -46,7 +50,7 @@ public class TestObservables {
         }
 
         public boolean subscribedTo() {
-            return capture.subscribers != null;
+            return !capture.subscribers.isEmpty();
         }
 
         public List<Subscriber<? super T>> subscribers() {

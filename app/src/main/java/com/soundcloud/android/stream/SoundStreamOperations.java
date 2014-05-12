@@ -7,6 +7,7 @@ import static rx.android.OperatorPaged.pagedWith;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.PropertySet;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -29,22 +30,33 @@ class SoundStreamOperations {
 
     private final SoundStreamStorage soundStreamStorage;
     private final SyncInitiator syncInitiator;
+    private final AccountOperations accountOperations;
 
     @Inject
-    SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator) {
+    SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
+                          AccountOperations accountOperations) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
+        this.accountOperations = accountOperations;
     }
 
-    public Observable<Page<List<PropertySet>>> getStreamItems() {
-        final Urn currentUserUrn = Urn.forUser(123); // TODO
-        return loadPagedStreamItems(currentUserUrn, INITIAL_TIMESTAMP);
+    public Observable<Page<List<PropertySet>>> updatedStreamItems() {
+        return syncInitiator.syncSoundStream().mergeMap(handleSyncResult(
+                accountOperations.getLoggedInUserUrn(), INITIAL_TIMESTAMP));
     }
 
-    private Observable<Page<List<PropertySet>>> loadPagedStreamItems(final Urn userUrn, final long timestamp) {
+    /**
+     * Will deliver any stream items already existing in local storage, but also fall back to a
+     * backfill sync in case it didn't find enough.
+     */
+    public Observable<Page<List<PropertySet>>> existingStreamItems() {
+        return pagedStreamItems(accountOperations.getLoggedInUserUrn(), INITIAL_TIMESTAMP);
+    }
+
+    private Observable<Page<List<PropertySet>>> pagedStreamItems(final Urn userUrn, final long timestamp) {
         Log.d(TAG, "Loading page with user=" + userUrn + "; timestamp=" + timestamp);
         return soundStreamStorage
-                .loadStreamItemsAsync(userUrn, timestamp, PAGE_SIZE).toList()
+                .streamItemsBefore(timestamp, userUrn, PAGE_SIZE).toList()
                 .mergeMap(handleLocalResult(userUrn, timestamp));
     }
 
@@ -89,7 +101,7 @@ class SoundStreamOperations {
                 // to implement paging, we move the timestamp down reverse chronologically
                 final long nextTimestamp = getLast(result).get(StreamItemProperty.CREATED_AT).getTime();
                 Log.d(TAG, "Building next page observable for timestamp " + nextTimestamp);
-                return loadPagedStreamItems(userUrn, nextTimestamp);
+                return pagedStreamItems(userUrn, nextTimestamp);
             }
         };
     }
@@ -101,7 +113,7 @@ class SoundStreamOperations {
             public Observable<Page<List<PropertySet>>> call(Boolean streamUpdated) {
                 Log.d(TAG, "Sync finished; new items added = " + streamUpdated);
                 if (streamUpdated) {
-                    return loadPagedStreamItems(userUrn, currentTimestamp);
+                    return pagedStreamItems(userUrn, currentTimestamp);
                 } else {
                     return OperatorPaged.emptyPageObservable();
                 }

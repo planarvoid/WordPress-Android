@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import static rx.android.OperatorPaged.Page;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.PropertySet;
@@ -36,12 +37,16 @@ public class SoundStreamOperationsTest {
     private static final long TIMESTAMP = 1000L;
 
     private SoundStreamOperations operations;
+    private Urn userUrn = Urn.forUser(123L);
 
     @Mock
     private SoundStreamStorage soundStreamStorage;
 
     @Mock
     private SyncInitiator syncInitiator;
+
+    @Mock
+    private AccountOperations accountOperations;
 
     @Mock
     private Observer<Page> observer;
@@ -51,40 +56,39 @@ public class SoundStreamOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new SoundStreamOperations(soundStreamStorage, syncInitiator);
+        operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, accountOperations);
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
     }
 
     @Test
     public void whenItLoadsPageOneItUsesAFixedInitialTimestamp() {
-        Urn userUrn = Urn.forUser(123);
         when(soundStreamStorage
-                .loadStreamItemsAsync(userUrn, INITIAL_TIMESTAMP, PAGE_SIZE))
-                .thenReturn(Observable.from(createItems(PAGE_SIZE)));
+                .streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE))
+                .thenReturn(Observable.from(createItems(PAGE_SIZE, 123L)));
 
-        operations.getStreamItems().subscribe(observer);
+        operations.existingStreamItems().subscribe(observer);
 
-        verify(soundStreamStorage).loadStreamItemsAsync(userUrn, INITIAL_TIMESTAMP, PAGE_SIZE);
+        verify(soundStreamStorage).streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE);
     }
 
     @Test
     public void whenItLoadsAnEmptyPageOfItemsOnPageOneThenItRequestsAFullSyncAndReloads() {
-        Urn userUrn = Urn.forUser(123);
         // 1st page comes back blank first, then as full page of items after sync
         when(soundStreamStorage
-                .loadStreamItemsAsync(userUrn, INITIAL_TIMESTAMP, PAGE_SIZE))
+                .streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty(), Observable.from(createItems(PAGE_SIZE, 123L)));
         // stop call chain for test
-        when(soundStreamStorage.loadStreamItemsAsync(userUrn, 123L, PAGE_SIZE))
+        when(soundStreamStorage.streamItemsBefore(123L, userUrn, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>never());
         // returning true means new items have been added to local storage
         when(syncInitiator.syncSoundStream()).thenReturn(Observable.just(true));
 
-        operations.getStreamItems().subscribe(observer);
+        operations.existingStreamItems().subscribe(observer);
 
         InOrder inOrder = inOrder(observer, soundStreamStorage, syncInitiator);
-        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(userUrn, INITIAL_TIMESTAMP, PAGE_SIZE);
+        inOrder.verify(soundStreamStorage).streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE);
         inOrder.verify(syncInitiator).syncSoundStream();
-        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(userUrn, INITIAL_TIMESTAMP, PAGE_SIZE);
+        inOrder.verify(soundStreamStorage).streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE);
         inOrder.verify(observer).onNext(any(Page.class));
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
@@ -92,21 +96,20 @@ public class SoundStreamOperationsTest {
 
     @Test
     public void whenItLoadsAFullPageOfItemsThenItLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() throws Exception {
-        Urn userUrn = Urn.forUser(123);
         // 1st page is full page of items
         when(soundStreamStorage
-                .loadStreamItemsAsync(userUrn, INITIAL_TIMESTAMP, PAGE_SIZE))
+                .streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE))
                 .thenReturn(Observable.from(createItems(PAGE_SIZE, 123L)));
         // stop call chain for test
-        when(soundStreamStorage.loadStreamItemsAsync(userUrn, 123L, PAGE_SIZE))
+        when(soundStreamStorage.streamItemsBefore(123L, userUrn, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>never());
 
-        operations.getStreamItems().subscribe(observer);
+        operations.existingStreamItems().subscribe(observer);
         advanceToNextPage();
 
         InOrder inOrder = inOrder(observer, soundStreamStorage, syncInitiator);
-        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(userUrn, INITIAL_TIMESTAMP, PAGE_SIZE);
-        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(userUrn, 123L, PAGE_SIZE);
+        inOrder.verify(soundStreamStorage).streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE);
+        inOrder.verify(soundStreamStorage).streamItemsBefore(123L, userUrn, PAGE_SIZE);
         inOrder.verify(observer).onNext(any(Page.class));
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
@@ -114,28 +117,27 @@ public class SoundStreamOperationsTest {
 
     @Test
     public void whenItLoadsAnEmptyPageOfItemsBeyondPageOneThenItRunsABackfillSyncAndReloads() {
-        Urn userUrn = Urn.forUser(123);
         // 1st page is full page of items
         when(soundStreamStorage
-                .loadStreamItemsAsync(userUrn, INITIAL_TIMESTAMP, PAGE_SIZE))
+                .streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE))
                 .thenReturn(Observable.from(createItems(PAGE_SIZE, 123L)));
         // 2nd page is blank on first attempt, then filled with items from backfill
         when(soundStreamStorage
-                .loadStreamItemsAsync(userUrn, 123L, PAGE_SIZE))
+                .streamItemsBefore(123L, userUrn, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty(), Observable.from(createItems(PAGE_SIZE, 456L)));
         // stop call chain for test
-        when(soundStreamStorage.loadStreamItemsAsync(userUrn, 456L, PAGE_SIZE))
+        when(soundStreamStorage.streamItemsBefore(456L, userUrn, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>never());
         // returning true means new items have been added to local storage
         when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(true));
 
-        operations.getStreamItems().subscribe(observer);
+        operations.existingStreamItems().subscribe(observer);
         advanceToNextPage();
 
         InOrder inOrder = inOrder(observer, syncInitiator, soundStreamStorage);
-        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(userUrn, 123L, PAGE_SIZE);
+        inOrder.verify(soundStreamStorage).streamItemsBefore(123L, userUrn, PAGE_SIZE);
         inOrder.verify(syncInitiator).backfillSoundStream();
-        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(userUrn, 123L, PAGE_SIZE);
+        inOrder.verify(soundStreamStorage).streamItemsBefore(123L, userUrn, PAGE_SIZE);
         inOrder.verify(observer).onNext(any(Page.class));
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
@@ -143,24 +145,57 @@ public class SoundStreamOperationsTest {
 
     @Test
     public void shouldStopPaginationIfBackfillSyncReportsNoNewItemsSynced() {
-        Urn userUrn = Urn.forUser(123);
         // 1st page is full page of items
         when(soundStreamStorage
-                .loadStreamItemsAsync(userUrn, INITIAL_TIMESTAMP, PAGE_SIZE))
+                .streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE))
                 .thenReturn(Observable.from(createItems(PAGE_SIZE, 123L)));
         // 2nd page is blank, will trigger backfill
         when(soundStreamStorage
-                .loadStreamItemsAsync(userUrn, 123L, PAGE_SIZE))
+                .streamItemsBefore(123L, userUrn, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty());
         // returning false means no new items have been added to local storage
         when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(false));
 
-        operations.getStreamItems().subscribe(observer);
+        operations.existingStreamItems().subscribe(observer);
         advanceToNextPage();
 
         InOrder inOrder = inOrder(soundStreamStorage, syncInitiator, observer);
-        inOrder.verify(soundStreamStorage).loadStreamItemsAsync(userUrn, INITIAL_TIMESTAMP, PAGE_SIZE);
+        inOrder.verify(soundStreamStorage).streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE);
         inOrder.verify(syncInitiator).backfillSoundStream();
+        inOrder.verify(observer).onNext(OperatorPaged.emptyPage());
+        inOrder.verify(observer).onCompleted();
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void shouldRequestSoundStreamSyncAndReloadFromLocalStorageWhenNewItemsAvailable() {
+        when(syncInitiator.syncSoundStream()).thenReturn(Observable.just(true));
+        when(soundStreamStorage
+                .streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE))
+                .thenReturn(Observable.from(createItems(PAGE_SIZE, 123L)));
+        when(soundStreamStorage
+                .streamItemsBefore(123L, userUrn, PAGE_SIZE))
+                .thenReturn(Observable.<PropertySet>never());
+
+        operations.updatedStreamItems().subscribe(observer);
+
+        InOrder inOrder = inOrder(soundStreamStorage, syncInitiator, observer);
+        inOrder.verify(syncInitiator).syncSoundStream();
+        inOrder.verify(soundStreamStorage).streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE);
+        inOrder.verify(soundStreamStorage).streamItemsBefore(123L, userUrn, PAGE_SIZE); // next page observable
+        inOrder.verify(observer).onNext(any(Page.class));
+        inOrder.verify(observer).onCompleted();
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void shouldRequestSoundStreamSyncAndCompleteWhenNoNewItemsAvailable() {
+        when(syncInitiator.syncSoundStream()).thenReturn(Observable.just(false));
+
+        operations.updatedStreamItems().subscribe(observer);
+
+        InOrder inOrder = inOrder(soundStreamStorage, syncInitiator, observer);
+        inOrder.verify(syncInitiator).syncSoundStream();
         inOrder.verify(observer).onNext(OperatorPaged.emptyPage());
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
@@ -170,10 +205,6 @@ public class SoundStreamOperationsTest {
         verify(observer, atLeastOnce()).onNext(pageCaptor.capture());
         verify(observer, atLeastOnce()).onCompleted();
         pageCaptor.getValue().getNextPage().subscribe(observer);
-    }
-
-    private List<PropertySet> createItems(int length) {
-        return createItems(length, TIMESTAMP);
     }
 
     private List<PropertySet> createItems(int length, long timestampOfLastItem) {

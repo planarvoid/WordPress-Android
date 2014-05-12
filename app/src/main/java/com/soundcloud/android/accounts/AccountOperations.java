@@ -15,6 +15,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -121,8 +122,13 @@ public class AccountOperations extends ScheduledOperations {
      * from the account.
      * You should not rely on the return value unless you have checked the user is actually logged in.
      */
+    @Deprecated // use URNs for anything above the storage layer
     public long getLoggedInUserId() {
         return loggedInUser == null ? getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : loggedInUser.getId();
+    }
+
+    public Urn getLoggedInUserUrn() {
+        return Urn.forUser(getLoggedInUserId());
     }
 
     public void loadLoggedInUser() {

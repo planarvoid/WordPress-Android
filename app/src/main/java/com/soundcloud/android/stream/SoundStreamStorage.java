@@ -28,8 +28,6 @@ import javax.inject.Named;
 
 class SoundStreamStorage extends ScheduledOperations {
 
-    private static final String TAG = "SoundStreamStorage";
-
     private final SQLiteDatabase database;
 
     @Inject
@@ -43,8 +41,7 @@ class SoundStreamStorage extends ScheduledOperations {
         this.database = database;
     }
 
-    public Observable<PropertySet> loadStreamItemsAsync(
-            final Urn userUrn, final long timestamp, final int limit) {
+    public Observable<PropertySet> streamItemsBefore(final long timestamp, final Urn userUrn, final int limit) {
         return schedule(Observable.create(new Observable.OnSubscribe<PropertySet>() {
             @Override
             public void call(Subscriber<? super PropertySet> subscriber) {
@@ -59,8 +56,8 @@ class SoundStreamStorage extends ScheduledOperations {
                         soundAssociationQuery(LIKE, userUrn.numericId, SoundView.USER_LIKE),
                         soundAssociationQuery(REPOST, userUrn.numericId, SoundView.USER_REPOST)
                 );
-                query.whereLt(ActivityView.CREATED_AT, timestamp);
                 query.whereEq(ActivityView.CONTENT_ID, Content.ME_SOUND_STREAM.id);
+                query.whereLt(ActivityView.CREATED_AT, timestamp);
                 query.limit(limit);
 
                 query.runOn(database).emit(subscriber, new StreamItemMapper());
@@ -68,7 +65,7 @@ class SoundStreamStorage extends ScheduledOperations {
         }));
     }
 
-    private static Query soundAssociationQuery(int collectionType, long userId, String colName) {
+    private Query soundAssociationQuery(int collectionType, long userId, String colName) {
         Query association = Query.from(Table.COLLECTION_ITEMS.name, Table.SOUNDS.name);
         association.whereEq(ActivityView.SOUND_ID, CollectionItems.ITEM_ID);
         association.whereEq(ActivityView.SOUND_TYPE, CollectionItems.RESOURCE_TYPE);
@@ -101,6 +98,5 @@ class SoundStreamStorage extends ScheduledOperations {
         private boolean readRepostedFlag(ManagedCursor cursor) {
             return cursor.getString(ActivityView.TYPE).endsWith("-repost");
         }
-    };
-
+    }
 }

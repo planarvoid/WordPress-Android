@@ -4,11 +4,9 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
 import static com.soundcloud.android.robolectric.TestHelper.assertResolverNotified;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.activities.Activities;
 import com.soundcloud.android.model.activities.Activity;
@@ -28,6 +26,7 @@ import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -46,6 +45,9 @@ public class ApiSyncerTest {
     ActivitiesStorage activitiesStorage;
     PlaylistStorage playlistStorage;
     long startTime;
+
+    @Mock
+    private EventBus eventBus;
 
     @Before
     public void before() {
@@ -96,6 +98,7 @@ public class ApiSyncerTest {
         expect(incoming.getUniquePlayables().size()).toEqual(TOTAL_STREAM_SIZE);
         assertResolverNotified(Content.ME_SOUND_STREAM.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
+
     @Test
     public void shouldSyncStreamWithTrackWithoutStats() throws Exception {
         // special case: track in stream doesn't contain some of the stats (per track basis):
@@ -343,7 +346,8 @@ public class ApiSyncerTest {
 
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {
         addPendingHttpResponse(getClass(), fixtures);
-        ApiSyncer syncer = new ApiSyncer(Robolectric.application, Robolectric.application.getContentResolver());
+        ApiSyncer syncer = new ApiSyncer(
+                Robolectric.application, Robolectric.application.getContentResolver(), eventBus);
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }
 }

@@ -17,6 +17,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -393,6 +394,13 @@ public class AccountOperationsTest {
         verifyZeroInteractions(userStorage);
 
         expect(accountOperations.getLoggedInUser()).not.toBe(user);
+    }
+
+    @Test
+    public void shouldGetLoggedInUserUrn() {
+        mockSoundCloudAccount();
+
+        expect(accountOperations.getLoggedInUserUrn()).toEqual(Urn.forUser(123L));
     }
 
     @Test

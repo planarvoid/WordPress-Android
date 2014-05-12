@@ -3,72 +3,111 @@ package com.soundcloud.android.stream;
 import static rx.android.OperatorPaged.Page;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.collections.EndlessPagingAdapter;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.PropertySet;
-import com.soundcloud.android.utils.Log;
 import rx.observables.ConnectableObservable;
+import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 
-public class SoundStreamFragment extends ListFragment {
+@SuppressLint("ValidFragment")
+public class SoundStreamFragment extends Fragment implements OnRefreshListener {
 
     @Inject
     SoundStreamOperations soundStreamOperations;
-
-    private final StreamItemAdapter adapter;
+    @Inject
+    StreamItemAdapter adapter;
+    @Inject
+    PullToRefreshController pullToRefreshController;
+    @Inject
+    EventBus eventBus;
 
     public SoundStreamFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        adapter = new StreamItemAdapter();
+    }
+
+    @VisibleForTesting
+    SoundStreamFragment(SoundStreamOperations soundStreamOperations, StreamItemAdapter adapter,
+                        PullToRefreshController pullToRefreshController, EventBus eventBus) {
+        this.soundStreamOperations = soundStreamOperations;
+        this.adapter = adapter;
+        this.pullToRefreshController = pullToRefreshController;
+        this.eventBus = eventBus;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.sound_stream_fragment, container, false);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setListAdapter(adapter);
 
-        getListView().setOnScrollListener(adapter);
+        ListView listView = ((ListView) view.findViewById(android.R.id.list));
+        listView.setAdapter(adapter);
+        listView.setOnScrollListener(adapter);
+
+        PullToRefreshLayout ptrLayout = (PullToRefreshLayout) view.findViewById(R.id.ptr_layout);
+        pullToRefreshController.attach(getActivity(), ptrLayout, this);
 
         final ConnectableObservable<Page<List<PropertySet>>> observable =
-                soundStreamOperations.getStreamItems().observeOn(mainThread()).publish();
+                soundStreamOperations.existingStreamItems().observeOn(mainThread()).publish();
         observable.subscribe(adapter);
-        observable.subscribe(new DefaultSubscriber<Page<List<PropertySet>>>() {
-            @Override
-            public void onCompleted() {
-                Log.d("SoundStream", "fragment onCompleted");
-                super.onCompleted();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Log.d("SoundStream", "fragment onError " + e);
-                super.onError(e);
-            }
-
-            @Override
-            public void onNext(Page<List<PropertySet>> args) {
-                Log.d("SoundStream", "fragment onNext: num items = " + args.getPagedCollection().size());
-                super.onNext(args);
-            }
-        });
         observable.connect();
     }
 
-    private static final class StreamItemAdapter extends EndlessPagingAdapter<PropertySet> {
+    @Override
+    public void onRefreshStarted(View view) {
+        soundStreamOperations.updatedStreamItems().subscribe(new StreamItemSubscriber());
+    }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
+
+    private final class StreamItemSubscriber extends DefaultSubscriber<Page<List<PropertySet>>> {
+        @Override
+        public void onCompleted() {
+            pullToRefreshController.stopRefreshing();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            pullToRefreshController.stopRefreshing();
+            super.onError(e);
+        }
+    }
+
+    // PLEASE IGNORE THIS GUY FOR NOW.
+    // I just need something quick and dirty for testing right now.
+    // I will fully revisit how we do adapters and row binding in a later step.
+    static class StreamItemAdapter extends EndlessPagingAdapter<PropertySet> {
+
+        @Inject
         protected StreamItemAdapter() {
-            super(10);
+            super(Consts.LIST_PAGE_SIZE);
         }
 
         @Override

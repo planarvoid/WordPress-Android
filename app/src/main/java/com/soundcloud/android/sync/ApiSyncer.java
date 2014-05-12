@@ -62,12 +62,16 @@ public class ApiSyncer extends SyncStrategy {
     private final EventBus eventBus;
 
     public ApiSyncer(Context context, ContentResolver resolver) {
+        this(context, resolver, SoundCloudApplication.fromContext(context).getEventBus());
+    }
+
+    public ApiSyncer(Context context, ContentResolver resolver, EventBus eventBus) {
         super(context, resolver);
         activitiesStorage = new ActivitiesStorage();
         soundAssociationStorage = new SoundAssociationStorage();
         userStorage = new UserStorage();
+        this.eventBus = eventBus;
         accountOperations = SoundCloudApplication.fromContext(context).getAccountOperations();
-        eventBus = SoundCloudApplication.fromContext(context).getEventBus();
     }
 
     @NotNull
