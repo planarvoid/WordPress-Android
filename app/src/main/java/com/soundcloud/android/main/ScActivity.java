@@ -88,7 +88,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         // Volume mode should always be music in this app
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        userEventSubscription = eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, mUserEventObserver);
+        userEventSubscription = eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, userEventObserver);
         if (getSupportActionBar() != null) {
             actionBarController = createActionBarController();
         }
@@ -337,15 +337,15 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     }
 
     private static final class ConnectivityHandler extends Handler {
-        private WeakReference<ScActivity> mContextRef;
+        private WeakReference<ScActivity> contextRef;
 
         private ConnectivityHandler(ScActivity context) {
-            this.mContextRef = new WeakReference<ScActivity>(context);
+            this.contextRef = new WeakReference<ScActivity>(context);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            final ScActivity context = mContextRef.get();
+            final ScActivity context = contextRef.get();
             switch (msg.what) {
                 case CONNECTIVITY_MSG:
                     if (context != null && msg.obj instanceof NetworkInfo) {
@@ -371,7 +371,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         return this;
     }
 
-    private final DefaultSubscriber<CurrentUserChangedEvent> mUserEventObserver = new DefaultSubscriber<CurrentUserChangedEvent>() {
+    private final DefaultSubscriber<CurrentUserChangedEvent> userEventObserver = new DefaultSubscriber<CurrentUserChangedEvent>() {
         @Override
         public void onNext(CurrentUserChangedEvent args) {
             if (args.getKind() == CurrentUserChangedEvent.USER_REMOVED) {
