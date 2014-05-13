@@ -47,13 +47,6 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private String currentStreamUrl;
 
-    private final DefaultSubscriber<TrackUrn> playcountLogSubscriber = new DefaultSubscriber<TrackUrn>() {
-        @Override
-        public void onNext(TrackUrn trackUrn) {
-            Log.d(TAG,"Play count logged successfully for track " + trackUrn);
-        }
-    };
-
     @Inject
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, PlaybackOperations playbackOperations,
                   StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper) {
@@ -81,18 +74,27 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         }
 
         final String trackUrl = playbackOperations.buildHLSUrlForTrack(track);
-        if (trackUrl.equals(currentStreamUrl)){
+        if (trackUrl.equals(currentStreamUrl)) {
             // we are already playing it. seek and resume
             skippy.seek(fromPos);
             skippy.resume();
         } else {
 
-            playbackOperations.logPlay(track.getUrn()).subscribe(playcountLogSubscriber);
+            logPlayCount(track);
 
             currentStreamUrl = trackUrl;
             skippy.play(currentStreamUrl, fromPos);
         }
 
+    }
+
+    protected void logPlayCount(Track track) {
+        playbackOperations.logPlay(track.getUrn()).subscribe(new DefaultSubscriber<TrackUrn>() {
+            @Override
+            public void onNext(TrackUrn trackUrn) {
+                Log.d(TAG, "Play count logged successfully for track " + trackUrn);
+            }
+        });
     }
 
     @Override
