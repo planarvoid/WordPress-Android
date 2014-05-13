@@ -25,7 +25,6 @@ import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
-import net.hockeyapp.android.UpdateManager;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Intent;
@@ -148,10 +147,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         if (!justAuthenticated && accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)) {
             subscription.add(bindActivity(this, userOperations.refreshCurrentUser()).subscribe(new UserSubscriber()));
         }
-
-        if (appProperties.isBetaBuildRunningOnDalvik()) {
-            UpdateManager.register(this, getString(R.string.hockey_app_id));
-        }
     }
 
     @Override
@@ -220,7 +215,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     @Override
     protected void onDestroy() {
-        UpdateManager.unregister();
         subscription.unsubscribe();
         super.onDestroy();
     }

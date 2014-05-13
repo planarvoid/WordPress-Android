@@ -50,10 +50,6 @@ public class ApplicationProperties {
         return BuildType.DEBUG.equals(BUILD_TYPE);
     }
 
-    public boolean isBetaBuild() {
-        return BuildType.BETA.equals(BUILD_TYPE);
-    }
-
     public String getBuildType() {
         return BUILD_TYPE.name();
     }
@@ -72,10 +68,6 @@ public class ApplicationProperties {
 
     public boolean isDevBuildRunningOnDalvik(){
         return isDebugBuild() && IS_RUNNING_ON_DALVIK;
-    }
-
-    public boolean isBetaBuildRunningOnDalvik(){
-        return isBetaBuild() && IS_RUNNING_ON_DALVIK;
     }
 
     public boolean shouldUseRichNotifications() {

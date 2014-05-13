@@ -177,10 +177,6 @@ public class SoundCloudApplication extends Application {
             });
 
             ContentStats.init(this);
-
-            if (applicationProperties.isBetaBuildRunningOnDalvik()){
-                Crashlytics.setUserIdentifier(accountOperations.getLoggedInUser().getUsername());
-            }
         }
     }
 

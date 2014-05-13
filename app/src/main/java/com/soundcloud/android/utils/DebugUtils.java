@@ -6,7 +6,6 @@ import com.google.common.base.Charsets;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.playback.streaming.StreamItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -129,11 +128,9 @@ public class DebugUtils {
     }
 
     private static boolean shouldReportPlaybackErrors(Context context) {
-        ApplicationProperties applicationProperties = new ApplicationProperties(context.getResources());
-        return applicationProperties.isBetaBuildRunningOnDalvik() ||
-                PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-                    Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false
-                );
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+                Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false
+        );
     }
 
     private static class PlaybackError extends Exception {

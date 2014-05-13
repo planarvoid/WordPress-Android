@@ -39,7 +39,6 @@ import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
-import net.hockeyapp.android.UpdateManager;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.AlertDialog;
@@ -207,10 +206,6 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             }
         });
 
-        if (applicationProperties.isBetaBuildRunningOnDalvik()) {
-            UpdateManager.register(this, getString(R.string.hockey_app_id));
-        }
-
         setState(StartState.TOUR);
         if (bundle == null) {
             trackTourScreen();
@@ -238,7 +233,6 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        UpdateManager.unregister();
 
         for (TourLayout layout : tourPages) {
             layout.recycle();

@@ -1,14 +1,15 @@
 package com.soundcloud.android.properties;
 
-import android.content.res.Resources;
+import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.when;
+
 import com.soundcloud.android.R.string;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Mockito.when;
+import android.content.res.Resources;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ApplicationPropertiesTest {
@@ -43,17 +44,6 @@ public class ApplicationPropertiesTest {
         when(resources.getString(string.build_type)).thenReturn("debug");
         ApplicationProperties applicationProperties = new ApplicationProperties(resources);
         expect(applicationProperties.isDebugBuild()).toBeTrue();
-        expect(applicationProperties.isBetaBuild()).toBeFalse();
-        expect(applicationProperties.isReleaseBuild()).toBeFalse();
-
-    }
-
-    @Test
-    public void shouldSpecifyThatBuildIsBeta(){
-        when(resources.getString(string.build_type)).thenReturn("beta");
-        ApplicationProperties applicationProperties = new ApplicationProperties(resources);
-        expect(applicationProperties.isDebugBuild()).toBeFalse();
-        expect(applicationProperties.isBetaBuild()).toBeTrue();
         expect(applicationProperties.isReleaseBuild()).toBeFalse();
 
     }
@@ -63,7 +53,6 @@ public class ApplicationPropertiesTest {
         when(resources.getString(string.build_type)).thenReturn("RELEASE");
         ApplicationProperties applicationProperties = new ApplicationProperties(resources);
         expect(applicationProperties.isDebugBuild()).toBeFalse();
-        expect(applicationProperties.isBetaBuild()).toBeFalse();
         expect(applicationProperties.isReleaseBuild()).toBeTrue();
     }
 
