@@ -11,6 +11,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.elements.PlayerElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.view.SlidingTabLayout;
@@ -79,7 +80,7 @@ public class ExploreScreen extends Screen {
     }
 
     public String getTrackTitle(int index) {
-        View view = ((GridView)viewPager.getCurrentPage(GridView.class)).getChildAt(index);
+        View view = ((GridView) viewPager.getCurrentPage(GridView.class)).getChildAt(index);
 
         TextView textView = (TextView) view.findViewById(R.id.title);
         return textView.getText().toString();
@@ -91,9 +92,14 @@ public class ExploreScreen extends Screen {
     }
 
     public LegacyPlayerScreen playPopularTrack(int trackNumber) {
-        View view = ((GridView)viewPager.getCurrentPage(GridView.class)).getChildAt(trackNumber);
+        View view = ((GridView) viewPager.getCurrentPage(GridView.class)).getChildAt(trackNumber);
         solo.clickOnView(view);
         return new LegacyPlayerScreen(solo);
+    }
+
+    public void playFirstTrack() {
+        View view = ((GridView) viewPager.getCurrentPage(GridView.class)).getChildAt(0);
+        solo.clickOnView(view);
     }
 
     private void validateThatClickedTrackMatchesExpectedTrackToPlay(List<TextView> textViewsForClickedItem, TrackSummary trackSummaryForPlayedTrack) {
@@ -123,11 +129,11 @@ public class ExploreScreen extends Screen {
     }
 
     private ViewPager getViewPager() {
-        return (ViewPager)solo.getView(R.id.pager);
+        return (ViewPager) solo.getView(R.id.pager);
     }
 
     private SlidingTabLayout getViewPagerIndicator() {
-        return (SlidingTabLayout)solo.getView(R.id.sliding_tabs);
+        return (SlidingTabLayout) solo.getView(R.id.sliding_tabs);
     }
 
     public int getNumberOfItemsInGenresTab() {
@@ -148,7 +154,7 @@ public class ExploreScreen extends Screen {
 
     private ListView genresPage() {
         if (currentTabTitle().equals(GENRES_TAB_TEXT)) {
-            return (ListView)viewPager.getCurrentPage(ListView.class);
+            return (ListView) viewPager.getCurrentPage(ListView.class);
         }
         //TODO: Don't return nulls
         return null;
@@ -156,7 +162,7 @@ public class ExploreScreen extends Screen {
 
     private GridView musicPage() {
         if (currentTabTitle().equals(TRENDING_MUSIC_TAB_TEXT)) {
-            return (GridView)viewPager.getCurrentPage(GridView.class);
+            return (GridView) viewPager.getCurrentPage(GridView.class);
         }
         //TODO: Don't return nulls
         return null;
@@ -164,7 +170,7 @@ public class ExploreScreen extends Screen {
 
     private GridView audioPage() {
         if (currentTabTitle().equals(TRENDING_AUDIO_TAB_TEXT)) {
-            return (GridView)viewPager.getCurrentPage(GridView.class);
+            return (GridView) viewPager.getCurrentPage(GridView.class);
         }
         //TODO: Don't return nulls
         return null;

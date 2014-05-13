@@ -251,11 +251,26 @@ public class PlaybackOperationsTest {
 
     @Test
     public void shouldTogglePlayback() {
-        when(playQueueManager.getCurrentTrackId()).thenReturn(1L);
         playbackOperations.togglePlayback(Robolectric.application);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService().getAction()).toBe(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION);
+    }
+
+    @Test
+    public void shouldPerformPreviousAction() {
+        playbackOperations.previous(Robolectric.application);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        expect(application.getNextStartedService().getAction()).toBe(PlaybackService.Actions.PREVIOUS_ACTION);
+    }
+
+    @Test
+    public void shouldPerformNextAction() {
+        playbackOperations.next(Robolectric.application);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        expect(application.getNextStartedService().getAction()).toBe(PlaybackService.Actions.NEXT_ACTION);
     }
 
     @Test

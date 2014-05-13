@@ -26,7 +26,7 @@ import android.widget.ToggleButton;
 import javax.inject.Inject;
 
 @SuppressLint("ValidFragment")
-public class PlayerFragment extends Fragment {
+public class PlayerFragment extends Fragment implements View.OnClickListener {
 
     @Inject
     EventBus eventBus;
@@ -60,12 +60,9 @@ public class PlayerFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         footerToggle = (ToggleButton) view.findViewById(R.id.footer_toggle);
         trackTitle = (TextView) view.findViewById(R.id.footer_title);
-        footerToggle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playbackOperations.togglePlayback(getActivity());
-            }
-        });
+        footerToggle.setOnClickListener(this);
+        view.findViewById(R.id.player_next).setOnClickListener(this);
+        view.findViewById(R.id.player_previous).setOnClickListener(this);
     }
 
     @Override
@@ -78,6 +75,21 @@ public class PlayerFragment extends Fragment {
     public void onPause() {
         super.onPause();
         subscription.unsubscribe();
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.footer_toggle:
+                playbackOperations.togglePlayback(getActivity());
+                break;
+            case R.id.player_next:
+                playbackOperations.next(getActivity());
+                break;
+            case R.id.player_previous:
+                playbackOperations.previous(getActivity());
+                break;
+        }
     }
 
     private final class PlaybackStateSubscriber extends DefaultSubscriber<StateTransition> {

@@ -4,6 +4,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.tests.Han;
 
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 public class PlayerElement extends Element {
@@ -30,6 +31,18 @@ public class PlayerElement extends Element {
     public void tapFooter() {
         solo.clickOnView(R.id.footer_control);
         waiter.waitForExpandedPlayer();
+    }
+
+    public void tapNext() {
+        solo.clickOnView(R.id.player_next);
+    }
+
+    public void tapPrevious() {
+        solo.clickOnView(R.id.player_previous);
+    }
+
+    public String getFooterTitle() {
+        return ((TextView) solo.getView(R.id.footer_title)).getText().toString();
     }
 
     public void toggleFooterPlay() {

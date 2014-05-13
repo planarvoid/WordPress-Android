@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.app.Activity;
+import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -76,7 +76,23 @@ public class PlayerFragmentTest {
         View layout = createFragmentView();
         layout.findViewById(R.id.footer_toggle).performClick();
 
-        verify(playbackOperations).togglePlayback(any(Activity.class));
+        verify(playbackOperations).togglePlayback(any(Context.class));
+    }
+
+    @Test
+    public void shouldGoToPreviousTrackWhenPreviousIsClicked() {
+        View layout = createFragmentView();
+        layout.findViewById(R.id.player_previous).performClick();
+
+        verify(playbackOperations).previous(any(Context.class));
+    }
+
+    @Test
+    public void shouldGoToNextTrackWhenNextIsClicked() {
+        View layout = createFragmentView();
+        layout.findViewById(R.id.player_next).performClick();
+
+        verify(playbackOperations).next(any(Context.class));
     }
 
     @Test

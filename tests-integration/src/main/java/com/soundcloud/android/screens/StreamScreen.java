@@ -12,9 +12,8 @@ public class StreamScreen extends Screen {
         waiter.waitForFragmentByTag("stream_fragment");
     }
 
-    public PlayerElement clickFirstTrack() {
+    public void clickFirstTrack() {
         solo.clickInList(0);
-        return new PlayerElement(solo);
     }
 
     @Override
