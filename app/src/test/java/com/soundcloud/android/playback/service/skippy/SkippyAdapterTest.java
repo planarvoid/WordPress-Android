@@ -18,11 +18,14 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.junit.Before;
@@ -31,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import rx.Observable;
 
 import android.os.Message;
 
@@ -70,15 +74,25 @@ public class SkippyAdapterTest {
                 stateChangeHandler, eventBus, connectionHelper);
         skippyAdapter.setListener(listener);
 
+        final TrackUrn trackUrn = Urn.forTrack(1L);
+        when(track.getUrn()).thenReturn(trackUrn);
+        when(playbackOperations.logPlay(trackUrn)).thenReturn(Observable.just(trackUrn));
         when(playbackOperations.buildHLSUrlForTrack(track)).thenReturn(STREAM_URL);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
     }
 
     @Test
     public void playCallsPlayUrlOnSkippy(){
-
         skippyAdapter.play(track);
         verify(skippy).play(STREAM_URL, 0);
+    }
+
+    @Test
+    public void playLogsPlayThroughPlaybackOperations(){
+        TestObservables.MockObservable<TrackUrn> mockObservable = TestObservables.emptyObservable();
+        when(playbackOperations.logPlay(track.getUrn())).thenReturn(mockObservable);
+        skippyAdapter.play(track);
+        expect(mockObservable.subscribedTo()).toBeTrue();
     }
 
     @Test(expected = IllegalStateException.class)

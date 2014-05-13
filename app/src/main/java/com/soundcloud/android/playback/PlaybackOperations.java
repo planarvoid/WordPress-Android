@@ -13,7 +13,11 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.APIEndpoints;
+import com.soundcloud.android.api.http.APIRequest;
+import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.api.http.HttpProperties;
+import com.soundcloud.android.api.http.RxHttpClient;
+import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -22,6 +26,7 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -35,6 +40,8 @@ import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
+import rx.functions.Func1;
 
 import android.content.Context;
 import android.content.Intent;
@@ -58,6 +65,8 @@ public class PlaybackOperations {
         }
     };
 
+    private static final String PARAM_CLIENT_ID = "client_id";
+
     private final ScModelManager modelManager;
     private final TrackStorage trackStorage;
     private final PlayQueueManager playQueueManager;
@@ -65,10 +74,11 @@ public class PlaybackOperations {
     private final HttpProperties httpProperties;
     private final FeatureFlags featureFlags;
     private final EventBus eventBus;
+    private final RxHttpClient rxHttpClient;
 
     @Inject
     public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage, PlayQueueManager playQueueManager,
-                              AccountOperations accountOperations, HttpProperties httpProperties,
+                              AccountOperations accountOperations, HttpProperties httpProperties,RxHttpClient rxHttpClient,
                               FeatureFlags featureFlags, EventBus eventBus) {
         this.modelManager = modelManager;
         this.trackStorage = trackStorage;
@@ -77,6 +87,7 @@ public class PlaybackOperations {
         this.httpProperties = httpProperties;
         this.featureFlags = featureFlags;
         this.eventBus = eventBus;
+        this.rxHttpClient = rxHttpClient;
     }
 
     /**
@@ -319,6 +330,23 @@ public class PlaybackOperations {
         final Intent upIntent = PlaylistDetailActivity.getIntent(Urn.forPlaylist(playlistId), screen);
         upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return upIntent;
+    }
+
+    public Observable<TrackUrn> logPlay(final TrackUrn urn){
+        final APIRequest apiRequest = buildRequestForLoggingPlay(urn);
+        return rxHttpClient.fetchResponse(apiRequest).map(new Func1<APIResponse, TrackUrn>() {
+            @Override
+            public TrackUrn call(APIResponse apiResponse) {
+                return urn;
+            }
+        });
+    }
+
+    private APIRequest buildRequestForLoggingPlay(final TrackUrn trackUrn) {
+        final String endpoint = String.format(APIEndpoints.LOG_PLAY.path(), trackUrn.toEncodedString());
+        SoundCloudAPIRequest.RequestBuilder builder = SoundCloudAPIRequest.RequestBuilder.post(endpoint);
+        builder.addQueryParameters(PARAM_CLIENT_ID, httpProperties.getClientId());
+        return builder.forPrivateAPI(1).build();
     }
 
 }

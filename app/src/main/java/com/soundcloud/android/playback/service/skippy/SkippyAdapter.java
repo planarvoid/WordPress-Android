@@ -15,9 +15,11 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -44,6 +46,13 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final NetworkConnectionHelper connectionHelper;
 
     private String currentStreamUrl;
+
+    private final DefaultSubscriber<TrackUrn> playcountLogSubscriber = new DefaultSubscriber<TrackUrn>() {
+        @Override
+        public void onNext(TrackUrn trackUrn) {
+            Log.d(TAG,"Play count logged successfully for track " + trackUrn);
+        }
+    };
 
     @Inject
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, PlaybackOperations playbackOperations,
@@ -77,6 +86,9 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             skippy.seek(fromPos);
             skippy.resume();
         } else {
+
+            playbackOperations.logPlay(track.getUrn()).subscribe(playcountLogSubscriber);
+
             currentStreamUrl = trackUrl;
             skippy.play(currentStreamUrl, fromPos);
         }

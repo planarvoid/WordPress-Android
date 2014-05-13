@@ -1,8 +1,10 @@
 package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
 import static com.soundcloud.android.playback.service.PlaybackService.PlayExtras;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,7 +15,9 @@ import com.google.common.primitives.Longs;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.api.http.HttpProperties;
+import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -80,12 +84,14 @@ public class PlaybackOperationsTest {
     private Token token;
     @Mock
     private EventBus eventBus;
+    @Mock
+    private RxHttpClient rxHttpClient;
 
 
     @Before
     public void setUp() throws Exception {
         playbackOperations = new PlaybackOperations(modelManager, trackStorage, playQueueManager, accountOperations,
-                httpProperties, featureFlags, eventBus);
+                httpProperties, rxHttpClient, featureFlags, eventBus);
         track = TestHelper.getModelFactory().createModel(Track.class);
     }
 
@@ -295,7 +301,7 @@ public class PlaybackOperationsTest {
         playbackOperations.playFromAdapter(Robolectric.application, playables, 4, null, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 2,  new PlaySessionSource(ORIGIN_SCREEN.get()), 2L, 3L, 1L);
+        checkStartIntent(application.getNextStartedService(), 2, new PlaySessionSource(ORIGIN_SCREEN.get()), 2L, 3L, 1L);
 
     }
 
@@ -499,4 +505,18 @@ public class PlaybackOperationsTest {
                 .toEqual("https://somehost/path/tracks/soundcloud:sounds:123/streams/hls?oauth_token=access");
     }
 
+    @Test
+    public void logPlaycountCallsOnNextWithTrackUrnOnExpectedResponse() throws Exception {
+        final Track track = new Track(1L);
+        APIResponse response = mock(APIResponse.class);
+
+        when(rxHttpClient.fetchResponse(argThat(isMobileApiRequestTo("POST", "/tracks/soundcloud%3Asounds%3A1/plays")
+                .withQueryParam("client_id", "12345")))).thenReturn(Observable.just(response));
+        when(httpProperties.getClientId()).thenReturn("12345");
+        when(response.getStatusCode()).thenReturn(302);
+
+        playbackOperations.logPlay(track.getUrn()).subscribe(observer);
+        verify(observer).onNext(track.getUrn());
+
+    }
 }
