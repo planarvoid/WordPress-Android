@@ -92,15 +92,6 @@
                 android:key="version"/>
     </PreferenceCategory>
 
-    <PreferenceCategory android:key="extras" android:title="@string/pref_extras">
-        <CheckBoxPreference
-                android:key="enableSkippy"
-                android:title="@string/pref_skippy"
-                android:summary="@string/pref_skippy_desc"
-                android:defaultValue="false"
-                />
-    </PreferenceCategory>
-
     <PreferenceCategory android:key="dev-settings"
                         android:title="@string/pref_dev_settings">
 
@@ -141,5 +132,12 @@
             android:title="@string/pref_dev_http_proxy"
             android:summary="@string/pref_dev_http_proxy_summary"
             android:key="dev.http.proxy"/>
+
+        <CheckBoxPreference
+                android:key="dev.forceSkippy"
+                android:title="@string/pref_dev_skippy"
+                android:summary="@string/pref_dev_skippy_desc"
+                android:defaultValue="false" />
+
     </PreferenceCategory>
 </PreferenceScreen>

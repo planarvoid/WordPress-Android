@@ -50,12 +50,10 @@ public class SettingsActivity extends ScSettingsActivity {
     public static final String STREAM_CACHE_SIZE = "streamCacheSize";
     public static final String CLEAR_STREAM_CACHE = "clearStreamCache";
     public static final String WIRELESS = "wireless";
-    public static final String EXTRAS = "extras";
     public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
     public static final String NOTIFICATION_SETTINGS = "notificationSettings";
     public static final String LEGAL = "legal";
     public static final String VERSION = "version";
-    public static final String ENABLE_SKIPPY = "enableSkippy";
     public static final int CLICKS_TO_DEBUG_MODE = 5;
 
     public static final String CRASH_REPORTING_ENABLED = "acra.enable";
@@ -236,9 +234,6 @@ public class SettingsActivity extends ScSettingsActivity {
             developerPreferences.setup(this);
         } else {
             getPreferenceScreen().removePreference(findPreference(DeveloperPreferences.PREF_KEY));
-            if (applicationProperties.isReleaseBuild()){
-                getPreferenceScreen().removePreference(findPreference(EXTRAS));
-            }
         }
     }
 

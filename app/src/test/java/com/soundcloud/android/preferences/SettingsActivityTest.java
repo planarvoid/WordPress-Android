@@ -51,25 +51,6 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void shouldRemoveExtrasPreferenceIfBuildIsRelease() {
-        when(applicationProperties.isDebugBuild()).thenReturn(false);
-        when(applicationProperties.isReleaseBuild()).thenReturn(true);
-        settingsActivity.onCreate(null);
-        PreferenceScreen preferenceScreen = settingsActivity.getPreferenceScreen();
-        expect(preferenceScreen.findPreference(SettingsActivity.EXTRAS)).toBeNull();
-    }
-
-
-    @Test
-    public void shouldNotRemoveExtrasPreferenceIfBuildIsNotRelease() {
-        when(applicationProperties.isDebugBuild()).thenReturn(false);
-        when(applicationProperties.isReleaseBuild()).thenReturn(false);
-        settingsActivity.onCreate(null);
-        PreferenceScreen preferenceScreen = settingsActivity.getPreferenceScreen();
-        expect(preferenceScreen.findPreference(SettingsActivity.EXTRAS)).not.toBeNull();
-    }
-
-    @Test
     public void shouldSetupDeveloperPreferencesIfDebugBuild(){
         when(applicationProperties.isDebugBuild()).thenReturn(true);
         settingsActivity.onCreate(null);

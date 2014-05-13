@@ -24,4 +24,8 @@
     <string name="pref_dev_clear_recordings_summary">Deletes all local recordings</string>
 
     <string name="dev_clear_recordings">Clear all recordings?</string>
+
+    <!-- Skippy -->
+    <string name="pref_dev_skippy">Force Skippy Player</string>
+    <string name="pref_dev_skippy_desc">Play all tracks through experimental Skippy Player. Will take effect when playing back the next track.</string>
 </resources>
