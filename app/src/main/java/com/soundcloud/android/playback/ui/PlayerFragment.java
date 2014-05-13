@@ -1,4 +1,4 @@
-package com.soundcloud.android.playback;
+package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.service.Playa.*;
 
@@ -8,6 +8,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Subscription;

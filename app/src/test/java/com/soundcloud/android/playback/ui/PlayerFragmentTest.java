@@ -1,4 +1,4 @@
-package com.soundcloud.android.playback;
+package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.service.Playa.*;
@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;

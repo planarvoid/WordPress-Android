@@ -4,7 +4,6 @@ import static com.soundcloud.android.main.NavigationFragment.NavigationCallbacks
 import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 import static rx.android.observables.AndroidObservable.bindActivity;
 
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.UserOperations;
@@ -18,7 +17,7 @@ import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
-import com.soundcloud.android.playback.PlayerPanelListener;
+import com.soundcloud.android.playback.ui.PlayerController;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
@@ -62,6 +61,8 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     StreamFragmentFactory streamFragmentFactory;
     @Inject
     FeatureFlags featureFlags;
+    @Inject
+    PlayerController playerController;
 
     private final CompositeSubscription subscription = new CompositeSubscription();
 
@@ -86,10 +87,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             setupEmailOptIn();
         }
 
-        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
-            // This needs to happen after we initialise the EventBus and ActionBarController
-            setupSlidingPlayer();
-        }
+        playerController.attach(this, actionBarController);
 
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
@@ -114,21 +112,10 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         }
     }
 
-    private void setupSlidingPlayer() {
-        SlidingUpPanelLayout playerPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-        playerPanel.setPanelSlideListener(new PlayerPanelListener(eventBus, actionBarController));
-        playerPanel.setDragView(findViewById(R.id.footer_drag_view));
-    }
-
     @Override
     public void onBackPressed() {
-        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
-            SlidingUpPanelLayout playerPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-            if (playerPanel.isExpanded()) {
-                playerPanel.collapsePane();
-            } else {
-                super.onBackPressed();
-            }
+        if (playerController.isExpanded()) {
+            playerController.collapse();
         } else {
             super.onBackPressed();
         }
