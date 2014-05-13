@@ -84,9 +84,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             if (accountOperations.isUserLoggedIn()) {
                 handleLoggedInUser(applicationProperties);
             }
-            if (getIntent().hasExtra(EXTRA_ONBOARDING_USERS_RESULT)) {
-                EmailOptInDialogFragment.show(this);
-            }
+            setupEmailOptIn();
         }
 
         if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
@@ -97,6 +95,14 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
         subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber()));
+    }
+
+    private void setupEmailOptIn() {
+        if (featureFlags.isEnabled(Feature.EMAIL_OPT_IN)) {
+            if (getIntent().hasExtra(EXTRA_ONBOARDING_USERS_RESULT)) {
+                EmailOptInDialogFragment.show(this);
+            }
+        }
     }
 
     @Override
