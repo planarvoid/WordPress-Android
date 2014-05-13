@@ -29,6 +29,8 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.playlists.PlaylistChangedReceiver;
 import com.soundcloud.android.profile.MyTracksAdapter;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -98,6 +100,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     private @Nullable LocalCollection localCollection;
     private ChangeObserver changeObserver;
     private boolean ignorePlaybackStatus, keepGoing, pendingSync;
+    private boolean legacyPlayer;
     private CollectionTask appendTask;
     protected String nextHref;
 
@@ -154,6 +157,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        legacyPlayer = new FeatureFlags(activity.getResources()).isDisabled(Feature.VISUAL_PLAYER);
 
         if (contentUri == null) {
             // only should happen once
@@ -794,7 +798,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         @Override
         public void onReceive(Context context, Intent intent) {
             final ScBaseAdapter adapter = getListAdapter();
-            if (ignorePlaybackStatus) return;
+            if (ignorePlaybackStatus && legacyPlayer) return;
 
             final String action = intent.getAction();
             if (Broadcasts.META_CHANGED.equals(action)
