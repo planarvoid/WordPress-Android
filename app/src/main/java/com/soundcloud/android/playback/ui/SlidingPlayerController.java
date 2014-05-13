@@ -10,12 +10,14 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.view.View;
 
 import javax.inject.Inject;
 
 public class SlidingPlayerController implements PlayerController, PanelSlideListener {
 
+    private static final String EXTRA_ACTIONBAR_VISIBLE = "actionbar_visible";
     private static final float EXPAND_THRESHOLD = 0.5f;
 
     private final EventBus eventBus;
@@ -42,6 +44,18 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
 
     public void collapse() {
         slidingPanel.collapsePane();
+    }
+
+    @Override
+    public void storeState(Bundle bundle) {
+        bundle.putBoolean(EXTRA_ACTIONBAR_VISIBLE, actionBarController.isVisible());
+    }
+
+    @Override
+    public void restoreState(Bundle bundle) {
+        if (bundle != null) {
+            actionBarController.setVisible(bundle.getBoolean(EXTRA_ACTIONBAR_VISIBLE, true));
+        }
     }
 
     @Override

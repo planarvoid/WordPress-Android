@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -21,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.view.View;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -52,6 +54,33 @@ public class SlidingPlayerControllerTest {
     public void shouldConfigureSlidingPanelOnAttach() {
         verify(slidingPanel).setPanelSlideListener(controller);
         verify(slidingPanel).setDragView(any(View.class));
+    }
+
+    @Test
+    public void shouldNotInteractWithActionBarIfBundleIsNullOnRestoreState() {
+        controller.restoreState(null);
+
+        verifyZeroInteractions(actionBarController);
+    }
+
+    @Test
+    public void shouldHideActionBarIfHiddenStateStored() {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("actionbar_visible", false);
+
+        controller.restoreState(bundle);
+
+        verify(actionBarController).setVisible(false);
+    }
+
+    @Test
+    public void shouldStoreActionBarVisibilityInBundle() {
+        when(actionBarController.isVisible()).thenReturn(true);
+        Bundle bundle = new Bundle();
+
+        controller.storeState(bundle);
+
+        expect(bundle.getBoolean("actionbar_visible")).toBeTrue();
     }
 
     @Test

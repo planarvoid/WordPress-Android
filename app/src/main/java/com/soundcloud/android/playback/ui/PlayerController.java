@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.actionbar.ActionBarController;
 
 import android.app.Activity;
+import android.os.Bundle;
 
 public interface PlayerController {
 
@@ -11,5 +12,9 @@ public interface PlayerController {
     boolean isExpanded();
 
     void collapse();
+
+    void storeState(Bundle bundle);
+
+    void restoreState(Bundle bundle);
 
 }

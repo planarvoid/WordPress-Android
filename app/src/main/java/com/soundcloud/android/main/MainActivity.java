@@ -40,7 +40,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     public static final String EXTRA_ONBOARDING_USERS_RESULT = "onboarding_users_result";
 
     private static final String EXTRA_ACTIONBAR_TITLE = "actionbar_title";
-    private static final String EXTRA_ACTIONBAR_VISIBLE = "actionbar_visible";
     private static final String PLAYLISTS_FRAGMENT_TAG = "playlists_fragment";
     private static final String LIKES_FRAGMENT_TAG = "likes_fragment";
     private static final String EXPLORE_FRAGMENT_TAG = "explore_fragment";
@@ -78,7 +77,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
         if (savedInstanceState != null) {
             lastTitle = savedInstanceState.getCharSequence(EXTRA_ACTIONBAR_TITLE);
-            actionBarController.setVisible(savedInstanceState.getBoolean(EXTRA_ACTIONBAR_VISIBLE, true));
         } else {
             lastTitle = getTitle();
             if (accountOperations.isUserLoggedIn()) {
@@ -88,6 +86,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         }
 
         playerController.attach(this, actionBarController);
+        playerController.restoreState(savedInstanceState);
 
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
@@ -210,7 +209,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putCharSequence(EXTRA_ACTIONBAR_TITLE, lastTitle);
-        savedInstanceState.putBoolean(EXTRA_ACTIONBAR_VISIBLE, actionBarController.isVisible());
+        playerController.storeState(savedInstanceState);
         navigationFragment.storeState(savedInstanceState);
     }
 
