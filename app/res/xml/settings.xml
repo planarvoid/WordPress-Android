@@ -81,34 +81,28 @@
 
 
 
-        <PreferenceScreen
+        <Preference
                 android:key="legal"
                 android:title="@string/legal"
                 android:summary="@string/legal_summary">
-
-            <intent android:action="android.intent.action.VIEW"
-                    android:targetPackage="com.soundcloud.android"
-                    android:targetClass="com.soundcloud.android.preferences.LegalActivity"/>
-        </PreferenceScreen>
+        </Preference>
 
         <Preference
                 android:title="@string/version"
                 android:key="version"/>
     </PreferenceCategory>
 
-    <PreferenceCategory android:key="extras" android:title="@string/pref_dev_extras">
-        <!-- content will be added dynamically -->
-    </PreferenceCategory>
-
-    <PreferenceCategory android:key="dev-settings"
-                        android:title="@string/pref_dev_settings">
-
+    <PreferenceCategory android:key="extras" android:title="@string/pref_extras">
         <CheckBoxPreference
-                android:key="dev.enableSkippy"
+                android:key="enableSkippy"
                 android:title="@string/pref_skippy"
                 android:summary="@string/pref_skippy_desc"
                 android:defaultValue="false"
                 />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:key="dev-settings"
+                        android:title="@string/pref_dev_settings">
 
         <ListPreference
             android:title="@string/pref_dev_record_type"

@@ -23,6 +23,8 @@ public class NotificationSettingsActivity extends ScSettingsActivity {
     final List<CheckBoxPreference> syncPreferences = new ArrayList<CheckBoxPreference>();
     private AccountOperations accountOperations;
 
+    public NotificationSettingsActivity() {}
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

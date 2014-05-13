@@ -92,7 +92,7 @@ module Build
         Rake::Task['build'].invoke
       end
 
-      desc "builds the project, you can build different versions by setting environment variable (ENV=beta rake build)"
+      desc "builds the project, you can build different versions by setting environment variable (BUILD_ENV=beta rake build)"
       task :build do
         build
       end

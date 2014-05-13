@@ -8,11 +8,14 @@ import android.os.Bundle;
 
 public class AccountSettingsActivity extends ScSettingsActivity {
 
-     @Override
-     public void onCreate(Bundle savedInstanceState) {
-         super.onCreate(savedInstanceState);
-         addPreferencesFromResource(R.xml.account_settings);
-     }
+    public AccountSettingsActivity() {
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        addPreferencesFromResource(R.xml.account_settings);
+    }
 
     @Override
     protected void onResume() {

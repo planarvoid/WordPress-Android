@@ -21,13 +21,13 @@ import android.preference.PreferenceActivity;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public final class DevSettings {
+public class DeveloperPreferences {
     public static final String PREF_KEY = "dev-settings";
 
-    public static final String DEV_ENABLE_SKIPPY        = "dev.enableSkippy";
     public static final String DEV_CLEAR_NOTIFICATIONS  = "dev.clearNotifications";
     public static final String DEV_REWIND_NOTIFICATIONS = "dev.rewindNotifications";
     public static final String DEV_SYNC_NOW             = "dev.syncNow";
@@ -37,15 +37,20 @@ public final class DevSettings {
     public static final String DEV_RECORDING_TYPE       = "dev.defaultRecordingType";
     public static final String DEV_RECORDING_TYPE_RAW   = "raw";
 
-    private DevSettings() {
+
+    private final SoundCloudApplication application;
+
+    @Inject
+    public DeveloperPreferences(SoundCloudApplication application){
+        this.application = application;
     }
 
-    public static void setup(final PreferenceActivity activity, final SoundCloudApplication app) {
+    public  void setup(final PreferenceActivity activity) {
         activity.findPreference(DEV_CLEAR_NOTIFICATIONS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        SyncAdapterService.requestNewSync(app, SyncAdapterService.CLEAR_ALL);
+                        SyncAdapterService.requestNewSync(application, SyncAdapterService.CLEAR_ALL);
                         return true;
                     }
                 });
@@ -54,7 +59,7 @@ public final class DevSettings {
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        SyncAdapterService.requestNewSync(app, SyncAdapterService.REWIND_LAST_DAY);
+                        SyncAdapterService.requestNewSync(application, SyncAdapterService.REWIND_LAST_DAY);
                         return true;
                     }
                 });
@@ -64,7 +69,7 @@ public final class DevSettings {
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        SyncAdapterService.requestNewSync(app, -1);
+                        SyncAdapterService.requestNewSync(application, -1);
                         return true;
                     }
                 });

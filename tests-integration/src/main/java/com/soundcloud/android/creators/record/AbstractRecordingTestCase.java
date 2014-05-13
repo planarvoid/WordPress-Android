@@ -15,7 +15,7 @@ import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.creators.upload.UploadService;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.preferences.DevSettings;
+import com.soundcloud.android.preferences.DeveloperPreferences;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Runner;
@@ -288,9 +288,9 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
                 .getDefaultSharedPreferences(getInstrumentation().getTargetContext());
 
         if (type == null) {
-            prefs.edit().remove(DevSettings.DEV_RECORDING_TYPE).commit();
+            prefs.edit().remove(DeveloperPreferences.DEV_RECORDING_TYPE).commit();
         } else {
-            prefs.edit().putString(DevSettings.DEV_RECORDING_TYPE, type).commit();
+            prefs.edit().putString(DeveloperPreferences.DEV_RECORDING_TYPE, type).commit();
         }
     }
 

@@ -3,12 +3,13 @@ package com.soundcloud.android.preferences;
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -30,9 +31,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
-import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 
+import javax.inject.Inject;
 import java.io.File;
 
 public class SettingsActivity extends ScSettingsActivity {
@@ -52,7 +53,9 @@ public class SettingsActivity extends ScSettingsActivity {
     public static final String EXTRAS = "extras";
     public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
     public static final String NOTIFICATION_SETTINGS = "notificationSettings";
+    public static final String LEGAL = "legal";
     public static final String VERSION = "version";
+    public static final String ENABLE_SKIPPY = "enableSkippy";
     public static final int CLICKS_TO_DEBUG_MODE = 5;
 
     public static final String CRASH_REPORTING_ENABLED = "acra.enable";
@@ -60,15 +63,24 @@ public class SettingsActivity extends ScSettingsActivity {
     private int clicksToDebug = CLICKS_TO_DEBUG_MODE;
 
     private ProgressDialog deleteDialog;
-    private ApplicationProperties applicationProperties;
+    @Inject
+    ApplicationProperties applicationProperties;
+    @Inject
+    DeveloperPreferences developerPreferences;
+
+    public SettingsActivity() {}
+
+    @VisibleForTesting
+    SettingsActivity(ApplicationProperties applicationProperties, EventBus eventBus, DeveloperPreferences developerPreferences) {
+        super(eventBus);
+        this.applicationProperties = applicationProperties;
+        this.developerPreferences = developerPreferences;
+    }
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         addPreferencesFromResource(R.xml.settings);
-        applicationProperties = new ApplicationProperties(getResources());
-        PreferenceGroup extras = (PreferenceGroup) findPreference(EXTRAS);
-        getPreferenceScreen().removePreference(extras);
 
         findPreference(ACCOUNT_SYNC_SETTINGS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
@@ -85,6 +97,16 @@ public class SettingsActivity extends ScSettingsActivity {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
                         Intent intent = new Intent(SettingsActivity.this, NotificationSettingsActivity.class);
+                        startActivity(intent);
+                        return true;
+                    }
+                });
+
+        findPreference(LEGAL).setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        Intent intent = new Intent(SettingsActivity.this, LegalActivity.class);
                         startActivity(intent);
                         return true;
                     }
@@ -210,11 +232,13 @@ public class SettingsActivity extends ScSettingsActivity {
             versionPref.setSummary(getString(R.string.unavailable));
         }
 
-
         if (applicationProperties.isDebugBuild()) {
-            DevSettings.setup(this, getApp());
+            developerPreferences.setup(this);
         } else {
-            getPreferenceScreen().removePreference(findPreference(DevSettings.PREF_KEY));
+            getPreferenceScreen().removePreference(findPreference(DeveloperPreferences.PREF_KEY));
+            if (applicationProperties.isReleaseBuild()){
+                getPreferenceScreen().removePreference(findPreference(EXTRAS));
+            }
         }
     }
 
@@ -237,10 +261,6 @@ public class SettingsActivity extends ScSettingsActivity {
     private void updateClearCacheTitles() {
         setClearCacheTitle(CLEAR_CACHE, R.string.pref_clear_cache, IOUtils.getCacheDir(this));
         setClearCacheTitle(CLEAR_STREAM_CACHE, R.string.pref_clear_stream_cache, Consts.EXTERNAL_STREAM_DIRECTORY);
-    }
-
-    private SoundCloudApplication getApp() {
-        return (SoundCloudApplication) getApplication();
     }
 
     @Override
