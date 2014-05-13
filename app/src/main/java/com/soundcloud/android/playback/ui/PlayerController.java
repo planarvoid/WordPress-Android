@@ -13,6 +13,10 @@ public interface PlayerController {
 
     void collapse();
 
+    void startListening();
+
+    void stopListening();
+
     void storeState(Bundle bundle);
 
     void restoreState(Bundle bundle);

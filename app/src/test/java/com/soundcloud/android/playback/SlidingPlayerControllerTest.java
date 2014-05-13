@@ -57,6 +57,37 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
+    public void shouldSubscribeToPlayerUIEvents() {
+        controller.startListening();
+
+        eventMonitor.verifySubscribedTo(EventQueue.PLAYER_UI);
+    }
+
+    @Test
+    public void shouldUnsubscribeFromPlayerUIEvents() {
+        controller.startListening();
+        controller.stopListening();
+
+        eventMonitor.verifyUnsubscribed();
+    }
+
+    @Test
+    public void shouldExpandPlayerWhenPlayTriggeredEventIsReceived() {
+        controller.startListening();
+        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forPlayTriggered());
+
+        verify(slidingPanel).expandPane();
+    }
+
+    @Test
+    public void shouldOnlyRespondToPlayTriggeredPlayerUIEvent() {
+        controller.startListening();
+        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+
+        verify(slidingPanel, times(0)).expandPane();
+    }
+
+    @Test
     public void shouldNotInteractWithActionBarIfBundleIsNullOnRestoreState() {
         controller.restoreState(null);
 

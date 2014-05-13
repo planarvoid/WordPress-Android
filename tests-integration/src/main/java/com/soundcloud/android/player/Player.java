@@ -44,7 +44,6 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertEquals("Footer should show playing state", true, playerElement.isFooterInPlayingState());
     }
 
-    @Suppress
     public void testPlayerIsExpandedAfterClickingTrack() {
         playTrack();
         assertEquals("Player should be expanded", true, playerElement.isExpanded());

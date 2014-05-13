@@ -8,6 +8,9 @@ import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -24,6 +27,8 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
     private ActionBarController actionBarController;
     private SlidingUpPanelLayout slidingPanel;
 
+    private Subscription subscription = Subscriptions.empty();
+
     private boolean isExpanding;
 
     @Inject
@@ -36,6 +41,16 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
         slidingPanel = (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingPanel.setPanelSlideListener(this);
         slidingPanel.setDragView(activity.findViewById(R.id.footer_drag_view));
+    }
+
+    @Override
+    public void startListening() {
+        subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber());
+    }
+
+    @Override
+    public void stopListening() {
+        subscription.unsubscribe();
     }
 
     public boolean isExpanded() {
@@ -80,5 +95,14 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
 
     @Override
     public void onPanelAnchored(View panel) {}
+
+    private class PlayerUISubscriber extends DefaultSubscriber<PlayerUIEvent> {
+        @Override
+        public void onNext(PlayerUIEvent event) {
+            if (event.getKind() == PlayerUIEvent.PLAY_TRIGGERED) {
+                slidingPanel.expandPane();
+            }
+        }
+    }
 
 }

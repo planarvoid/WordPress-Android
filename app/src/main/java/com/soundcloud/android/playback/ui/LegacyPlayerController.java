@@ -13,6 +13,16 @@ public class LegacyPlayerController implements PlayerController {
     }
 
     @Override
+    public void startListening() {
+        // Do nothing
+    }
+
+    @Override
+    public void stopListening() {
+        // Do nothing
+    }
+
+    @Override
     public boolean isExpanded() {
         return false;
     }
