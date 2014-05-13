@@ -71,15 +71,9 @@
                 android:title="@string/pref_app_details">
 
         <Preference
-                android:title="@string/pref_change_log"
-                android:summary="@string/pref_change_log_desc"
-                android:key="changeLog"/>
-        <Preference
                 android:title="@string/pref_help"
                 android:summary="@string/pref_help_desc"
                 android:key="help"/>
-
-
 
         <Preference
                 android:key="legal"

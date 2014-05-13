@@ -92,7 +92,6 @@ public enum Screen {
 
     // settings
     SETTINGS_MAIN("settings:main"),
-    SETTINGS_CHANGE_LOG("settings:change_log"),
     SETTINGS_NOTIFICATIONS("settings:notification_settings"),
     SETTINGS_ACCOUNT("settings:account_sync_settings"),
 

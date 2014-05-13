@@ -14,7 +14,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 
@@ -42,7 +41,6 @@ public class SettingsActivity extends ScSettingsActivity {
     private static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
 
     //IMPORTANT make sure these match the values in settings.xml
-    public static final String CHANGE_LOG = "changeLog";
     public static final String LOGOUT = "logout";
     public static final String HELP = "help";
     public static final String ANALYTICS_ENABLED = "analytics_enabled";
@@ -106,16 +104,6 @@ public class SettingsActivity extends ScSettingsActivity {
                     public boolean onPreferenceClick(Preference preference) {
                         Intent intent = new Intent(SettingsActivity.this, LegalActivity.class);
                         startActivity(intent);
-                        return true;
-                    }
-                });
-
-        final ChangeLog cl = new ChangeLog(this);
-        findPreference(CHANGE_LOG).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    public boolean onPreferenceClick(Preference preference) {
-                        eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SETTINGS_CHANGE_LOG.get());
-                        cl.getDialog().show();
                         return true;
                     }
                 });

@@ -43,7 +43,6 @@
   <string name="btn_skip">Saltar</string>
   <string name="cache_clearing">Borrando caché</string>
   <string name="cache_clearing_message">Borrando archivos temporales...</string>
-  <string name="changelog_full_title">Registro de cambios</string>
   <string name="cloud_recorder_event_message">Grabando durante %s</string>
   <string name="cloud_recorder_event_title">Grabación en curso</string>
   <string name="cloud_recorder_playback_event_title">Reproducción en curso</string>
@@ -231,8 +230,6 @@
   <string name="player_stream_error">Se produjo un error en la conexión Stream</string>
   <string name="pref_app_details">Detalles de la aplicación</string>
   <string name="pref_basic_settings">Configuración básica</string>
-  <string name="pref_change_log">Cambiar la sesión</string>
-  <string name="pref_change_log_desc">Ver los últimos cambios para este lanzamiento</string>
   <string name="pref_clear_cache">Borrar la memoria</string>
   <string name="pref_clear_cache_desc">Borrar la memoria de la aplicación para liberarla</string>
   <string name="pref_clear_stream_cache">Borrar la memoria Stream</string>
