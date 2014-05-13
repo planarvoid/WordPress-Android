@@ -11,7 +11,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -94,7 +94,7 @@ public class NavigationDrawerFragmentTest {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         fragment.onViewCreated(view, null);
 
-        eventMonitor.publish(EventQueue.UI, UIEvent.fromPlayerExpanded());
+        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
         verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
@@ -104,7 +104,7 @@ public class NavigationDrawerFragmentTest {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         fragment.onViewCreated(view, null);
 
-        eventMonitor.publish(EventQueue.UI, UIEvent.fromPlayerCollapsed());
+        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
     }

@@ -2,7 +2,7 @@ package com.soundcloud.android.actionbar;
 
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
@@ -36,7 +36,7 @@ public class PullToRefreshController {
     public void attach(FragmentActivity activity, PullToRefreshLayout pullToRefreshLayout, OnRefreshListener listener) {
         this.pullToRefreshLayout = pullToRefreshLayout;
         ptrAttacher.attach(activity, pullToRefreshLayout, listener);
-        playerExpandedSubscription = eventBus.subscribe(EventQueue.UI, new PlayerExpandedSubscriber());
+        playerExpandedSubscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerExpandedSubscriber());
     }
 
     public void detach() {
@@ -60,10 +60,10 @@ public class PullToRefreshController {
         pullToRefreshLayout.setRefreshComplete();
     }
 
-    private final class PlayerExpandedSubscriber extends DefaultSubscriber<UIEvent> {
+    private final class PlayerExpandedSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
-        public void onNext(UIEvent event) {
-            if (event.getKind() == UIEvent.PLAYER_EXPANDED) {
+        public void onNext(PlayerUIEvent event) {
+            if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
                 stopRefreshing();
             }
         }

@@ -6,7 +6,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import org.jetbrains.annotations.Nullable;
@@ -59,7 +59,7 @@ public class NavigationDrawerFragment extends NavigationFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        subscription = eventBus.subscribe(EventQueue.UI, new PlayerExpansionSubscriber());
+        subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerExpansionSubscriber());
     }
 
     @Override
@@ -180,13 +180,13 @@ public class NavigationDrawerFragment extends NavigationFragment {
         drawerLayout.setDrawerListener(drawerToggle);
     }
 
-    private final class PlayerExpansionSubscriber extends DefaultSubscriber<UIEvent> {
+    private final class PlayerExpansionSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
-        public void onNext(UIEvent event) {
+        public void onNext(PlayerUIEvent event) {
             final int eventKind = event.getKind();
-            if (eventKind == UIEvent.PLAYER_EXPANDED) {
+            if (eventKind == PlayerUIEvent.PLAYER_EXPANDED) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            } else if (eventKind == UIEvent.PLAYER_COLLAPSED) {
+            } else if (eventKind == PlayerUIEvent.PLAYER_COLLAPSED) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             }
         }

@@ -18,4 +18,5 @@ public final class EventQueue {
     public static final QueueDescriptor<PlaybackSessionEvent> PLAYBACK_SESSION = create(PlaybackSessionEvent.class);
     public static final QueueDescriptor<PlaybackPerformanceEvent> PLAYBACK_PERFORMANCE = create(PlaybackPerformanceEvent.class);
     public static final QueueDescriptor<PlaybackErrorEvent> PLAYBACK_ERROR = create(PlaybackErrorEvent.class);
+    public static final QueueDescriptor<PlayerUIEvent> PLAYER_UI = create(PlayerUIEvent.class);
 }

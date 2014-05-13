@@ -14,6 +14,9 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.HttpProperties;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
@@ -61,16 +64,19 @@ public class PlaybackOperations {
     private final AccountOperations accountOperations;
     private final HttpProperties httpProperties;
     private final FeatureFlags featureFlags;
+    private final EventBus eventBus;
 
     @Inject
     public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage, PlayQueueManager playQueueManager,
-                              AccountOperations accountOperations, HttpProperties httpProperties, FeatureFlags featureFlags) {
+                              AccountOperations accountOperations, HttpProperties httpProperties,
+                              FeatureFlags featureFlags, EventBus eventBus) {
         this.modelManager = modelManager;
         this.trackStorage = trackStorage;
         this.playQueueManager = playQueueManager;
         this.accountOperations = accountOperations;
         this.httpProperties = httpProperties;
         this.featureFlags = featureFlags;
+        this.eventBus = eventBus;
     }
 
     /**
@@ -216,7 +222,7 @@ public class PlaybackOperations {
     private void showPlayer(Context context, Track initialTrack) {
         modelManager.cache(initialTrack);
         if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
-            // TODO : show player panel
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forPlayTriggered());
         } else {
             gotoPlayer(context, initialTrack.getId());
         }

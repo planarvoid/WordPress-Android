@@ -14,6 +14,9 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.http.HttpProperties;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
@@ -25,6 +28,7 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TrackStorage;
@@ -74,17 +78,19 @@ public class PlaybackOperationsTest {
     private FeatureFlags featureFlags;
     @Mock
     private Token token;
+    @Mock
+    private EventBus eventBus;
 
 
     @Before
     public void setUp() throws Exception {
         playbackOperations = new PlaybackOperations(modelManager, trackStorage, playQueueManager, accountOperations,
-                httpProperties, featureFlags);
+                httpProperties, featureFlags, eventBus);
         track = TestHelper.getModelFactory().createModel(Track.class);
     }
 
     @Test
-    public void playTrackShouldOpenPlayerActivityWithInitialTrackId() {
+    public void playTrackShouldOpenPlayerActivityWithInitialTrackIdIfVisualPlayerDisabled() {
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(false);
         playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
 
@@ -97,12 +103,22 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playTrackShouldNotOpenPlayerActivityIfVisualPlayerEnabled() {
+    public void playTrackShouldNotOpenPlayerActivity() {
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
         playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedActivity()).toBeNull();
+    }
+
+    @Test
+    public void playTrackFiresPlayTriggeredEvent() {
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
+        playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
+
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        PlayerUIEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        expect(event.getKind()).toEqual(PlayerUIEvent.PLAY_TRIGGERED);
     }
 
     @Test
@@ -153,7 +169,7 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playFromPlaylistShouldOpenPlayerActivityWithInitialTrackId() {
+    public void playPlaylistFromPositionOpensPlayerActivityWithInitialTrackIdIfVisualPlayerDisabled() {
         Playlist playlist = new Playlist(3L);
         final Observable<List<Long>> trackIdList = Observable.<List<Long>>just(Lists.newArrayList(track.getId()));
         when(trackStorage.getTrackIdsForUriAsync(any(Uri.class))).thenReturn(trackIdList);
@@ -170,7 +186,7 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playFromPlaylistShouldNotOpenPlayerActivityWithVisualPlayerTurnedOn() {
+    public void playPlaylistFromPositionDoesNotOpenPlayerActivity() {
         final Observable<List<Long>> trackIdList = Observable.<List<Long>>just(Lists.newArrayList(track.getId()));
         when(trackStorage.getTrackIdsForUriAsync(any(Uri.class))).thenReturn(trackIdList);
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
@@ -178,6 +194,18 @@ public class PlaybackOperationsTest {
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedActivity()).toBeNull();
+    }
+
+    @Test
+    public void playPlaylistFromPositionFiresPlayTriggeredEvent() {
+        final Observable<List<Long>> trackIdList = Observable.<List<Long>>just(Lists.newArrayList(track.getId()));
+        when(trackStorage.getTrackIdsForUriAsync(any(Uri.class))).thenReturn(trackIdList);
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
+        playbackOperations.playPlaylistFromPosition(Robolectric.application, new Playlist(3L), 0, track, Screen.YOUR_LIKES);
+
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        PlayerUIEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        expect(event.getKind()).toEqual(PlayerUIEvent.PLAY_TRIGGERED);
     }
 
     @Test
@@ -281,7 +309,7 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playFromAdapterShouldOpenPlayerActivityWithInitialTrackFromPosition() throws Exception {
+    public void playFromAdapterShouldOpenPlayerActivityWithInitialTrackFromPositionIfVisualPlayerDisabled() throws Exception {
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(false);
 
         ArrayList<Track> playables = Lists.newArrayList(new Track(1L), new Track(2L));
@@ -296,7 +324,7 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playFromAdapterShouldNotOpenPlayerActivityIfVisualPlayerActive() throws Exception {
+    public void playFromAdapterShouldNotOpenPlayerActivity() throws Exception {
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
 
         ArrayList<Track> playables = Lists.newArrayList(new Track(1L), new Track(2L));
@@ -304,6 +332,18 @@ public class PlaybackOperationsTest {
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedActivity()).toBeNull();
+    }
+
+    @Test
+    public void playFromAdapterFiresPlayTriggeredEvent() throws Exception {
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
+
+        ArrayList<Track> playables = Lists.newArrayList(new Track(1L), new Track(2L));
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, Screen.SIDE_MENU_STREAM); // clicked 2nd track
+
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        PlayerUIEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        expect(event.getKind()).toEqual(PlayerUIEvent.PLAY_TRIGGERED);
     }
 
     @Test

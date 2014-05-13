@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -52,8 +52,8 @@ public class PlayerPanelListenerTest {
         listener.onPanelSlide(layout, 0.3f);
 
         verify(actionBarController, times(1)).setVisible(false);
-        UIEvent event = eventMonitor.verifyEventOn(EventQueue.UI);
-        expect(event.getKind()).toEqual(UIEvent.PLAYER_EXPANDED);
+        PlayerUIEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDED);
     }
 
 }

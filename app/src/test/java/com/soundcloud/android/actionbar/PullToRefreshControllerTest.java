@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -54,12 +54,12 @@ public class PullToRefreshControllerTest {
     }
 
     @Test
-    public void shouldSubscribeToUIEventQueueOnAttach() {
+    public void shouldSubscribeToPlayerUIEventQueueOnAttach() {
         EventMonitor monitor = EventMonitor.on(eventBus);
 
         controller.attach(activity, layout, listener);
 
-        monitor.verifySubscribedTo(EventQueue.UI);
+        monitor.verifySubscribedTo(EventQueue.PLAYER_UI);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class PullToRefreshControllerTest {
         EventMonitor monitor = EventMonitor.on(eventBus);
         controller.attach(activity, layout, listener);
 
-        monitor.publish(EventQueue.UI, UIEvent.fromPlayerExpanded());
+        monitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
         verify(layout).setRefreshComplete();
     }

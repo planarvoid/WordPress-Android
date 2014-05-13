@@ -5,7 +5,7 @@ import static com.sothree.slidinguppanel.SlidingUpPanelLayout.SimplePanelSlideLi
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 
 import android.view.View;
 
@@ -27,11 +27,12 @@ public class PlayerPanelListener extends SimplePanelSlideListener {
     public void onPanelSlide(View panel, float slideOffset) {
         if (slideOffset < EXPAND_THRESHOLD && !isExpanding) {
             actionBarController.setVisible(false);
-            eventBus.publish(EventQueue.UI, UIEvent.fromPlayerExpanded());
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
             isExpanding = true;
+
         } else if (slideOffset > EXPAND_THRESHOLD && isExpanding) {
             actionBarController.setVisible(true);
-            eventBus.publish(EventQueue.UI, UIEvent.fromPlayerCollapsed());
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
             isExpanding = false;
         }
     }

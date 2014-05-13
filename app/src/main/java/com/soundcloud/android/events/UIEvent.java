@@ -20,8 +20,6 @@ public final class UIEvent {
     public static final int SHARE = 8;
     public static final int SHUFFLE_LIKES = 9;
     public static final int NAVIGATION = 10;
-    public static final int PLAYER_EXPANDED = 11;
-    public static final int PLAYER_COLLAPSED = 12;
 
     private final int kind;
     private final Map<String, String> attributes;
@@ -96,14 +94,6 @@ public final class UIEvent {
 
     public static UIEvent fromPlayerShortcut() {
         return new UIEvent(NAVIGATION).putAttribute("page", "player_shortcut");
-    }
-
-    public static UIEvent fromPlayerExpanded() {
-        return new UIEvent(PLAYER_EXPANDED);
-    }
-
-    public static UIEvent fromPlayerCollapsed() {
-        return new UIEvent(PLAYER_COLLAPSED);
     }
 
     private static String getPlayableType(Playable playable) {
