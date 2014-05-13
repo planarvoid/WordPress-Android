@@ -115,9 +115,9 @@
             <id>beta</id>
             <properties>
                 <build.type>beta</build.type>
-                <build.debuggable>true</build.debuggable>
+                <build.debuggable>false</build.debuggable>
                 <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
-                <keystore.alias>beta-key</keystore.alias>
+                <keystore.alias>jons keystore</keystore.alias>
                 <build.proguard.skip>false</build.proguard.skip>
             </properties>
         </profile>
