@@ -1,6 +1,7 @@
 package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.R;
 
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
@@ -11,18 +12,23 @@ import android.view.WindowManager;
 
 import java.util.ArrayList;
 
-public class ViewPagerElement {
+public class ViewPagerElement extends Element {
     private final static int MAX_VIEWS = 3;
-    private Han solo;
     private ViewPager viewPager;
 
     public ViewPagerElement(Han solo) {
-        this.solo = solo;
+        super(solo);
         solo.getSolo().waitForView(ViewPager.class);
         viewPager = solo.getView(ViewPager.class, 0);
     }
+
     public ViewPagerElement(Han solo, View parentView) {
-        this.solo = solo;
+        super(solo);
+    }
+
+    @Override
+    protected int getRootViewId() {
+        return R.id.pager;
     }
 
     public  <T extends View> ArrayList<T> getPages(Class<T> viewClass) {

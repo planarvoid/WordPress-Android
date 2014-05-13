@@ -8,22 +8,23 @@ import com.soundcloud.android.screens.PlaylistResultsScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.Waiter;
 
 import android.view.KeyEvent;
 import android.widget.AutoCompleteTextView;
 
 import java.util.List;
 
-public class ActionBarElement {
-    protected Han solo;
-    protected Waiter waiter;
+public class ActionBarElement extends Element {
 
     private static final int SEARCH_SELECTOR = R.id.action_search;
 
     public ActionBarElement(Han solo) {
-        this.solo = solo;
-        this.waiter = new Waiter(solo);
+        super(solo);
+    }
+
+    @Override
+    protected int getRootViewId() {
+        return SEARCH_SELECTOR;
     }
 
     public void clickHomeButton() {

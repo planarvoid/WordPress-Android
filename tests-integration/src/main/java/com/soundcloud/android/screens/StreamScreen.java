@@ -1,6 +1,7 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.elements.PlayerElement;
 import com.soundcloud.android.tests.Han;
 
 public class StreamScreen extends Screen {
@@ -11,9 +12,9 @@ public class StreamScreen extends Screen {
         waiter.waitForFragmentByTag("stream_fragment");
     }
 
-    public PlayerScreen clickFirstTrack() {
+    public PlayerElement clickFirstTrack() {
         solo.clickInList(0);
-        return new PlayerScreen(solo);
+        return new PlayerElement(solo);
     }
 
     @Override

@@ -1,18 +1,20 @@
-package com.soundcloud.android.screens;
+package com.soundcloud.android.screens.elements;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.R;
+import com.soundcloud.android.tests.Han;
 
 import android.widget.ToggleButton;
 
-public class PlayerScreen extends Screen {
+public class PlayerElement extends Element {
 
-    private static final Class ACTIVITY = MainActivity.class;
-
-    public PlayerScreen(Han solo) {
+    public PlayerElement(Han solo) {
         super(solo);
+    }
+
+    @Override
+    protected int getRootViewId() {
+        return R.id.player_layout;
     }
 
     public boolean isExpanded() {
@@ -37,11 +39,6 @@ public class PlayerScreen extends Screen {
     public boolean isFooterInPlayingState() {
         ToggleButton toggle = (ToggleButton) solo.getView(R.id.footer_toggle);
         return toggle.isChecked();
-    }
-
-    @Override
-    protected Class getActivity() {
-        return ACTIVITY;
     }
 
     private SlidingUpPanelLayout getSlidingPanel() {
