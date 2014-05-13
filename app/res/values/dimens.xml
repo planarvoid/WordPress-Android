@@ -157,5 +157,7 @@
     <dimen name="player_footer">68dp</dimen>
     <dimen name="player_strip">4dp</dimen>
     <dimen name="player_footer_control">64dp</dimen>
+    <dimen name="player_skip">52dp</dimen>
+    <dimen name="player_skip_margin">24dp</dimen>
 
 </resources>

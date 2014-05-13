@@ -36,6 +36,8 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     PlaybackOperations playbackOperations;
 
     private ToggleButton footerToggle;
+    private ToggleButton playerToggle;
+
     private TextView trackTitle;
 
     private Subscription subscription = Subscriptions.empty();
@@ -59,8 +61,10 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         footerToggle = (ToggleButton) view.findViewById(R.id.footer_toggle);
+        playerToggle = (ToggleButton) view.findViewById(R.id.player_toggle);
         trackTitle = (TextView) view.findViewById(R.id.footer_title);
         footerToggle.setOnClickListener(this);
+        playerToggle.setOnClickListener(this);
         view.findViewById(R.id.player_next).setOnClickListener(this);
         view.findViewById(R.id.player_previous).setOnClickListener(this);
     }
@@ -81,6 +85,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.footer_toggle:
+            case R.id.player_toggle:
                 playbackOperations.togglePlayback(getActivity());
                 break;
             case R.id.player_next:
@@ -96,6 +101,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         @Override
         public void onNext(StateTransition stateTransition) {
             footerToggle.setChecked(stateTransition.isPlaying());
+            playerToggle.setChecked(stateTransition.isPlaying());
             trackTitle.setText(Urn.forTrack(playQueueManager.getCurrentTrackId()).toString());
         }
     }
