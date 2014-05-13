@@ -8,7 +8,9 @@ import android.os.Bundle;
 public class LegacyPlayerController implements PlayerController {
 
     @Override
-    public void attach(Activity activity, ActionBarController actionBarController) {}
+    public void attach(Activity activity, ActionBarController actionBarController) {
+        // Do nothing
+    }
 
     @Override
     public boolean isExpanded() {
@@ -16,12 +18,18 @@ public class LegacyPlayerController implements PlayerController {
     }
 
     @Override
-    public void collapse() {}
+    public void collapse() {
+        // Do nothing
+    }
 
     @Override
-    public void storeState(Bundle bundle) {}
+    public void storeState(Bundle bundle) {
+        // Do nothing
+    }
 
     @Override
-    public void restoreState(Bundle bundle) {}
+    public void restoreState(Bundle bundle) {
+        // Do nothing
+    }
 
 }

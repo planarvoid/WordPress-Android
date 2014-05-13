@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.playback.service.Playa.*;
+import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;

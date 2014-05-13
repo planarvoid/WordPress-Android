@@ -75,14 +75,14 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         navigationFragment = findNavigationFragment();
         navigationFragment.initState(savedInstanceState);
 
-        if (savedInstanceState != null) {
-            lastTitle = savedInstanceState.getCharSequence(EXTRA_ACTIONBAR_TITLE);
-        } else {
+        if (savedInstanceState == null) {
             lastTitle = getTitle();
             if (accountOperations.isUserLoggedIn()) {
                 handleLoggedInUser(applicationProperties);
             }
             setupEmailOptIn();
+        } else {
+            lastTitle = savedInstanceState.getCharSequence(EXTRA_ACTIONBAR_TITLE);
         }
 
         playerController.attach(this, actionBarController);
