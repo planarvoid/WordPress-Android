@@ -23,6 +23,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
@@ -55,6 +56,8 @@ public class SkippyAdapterTest {
     @Mock
     private AccountOperations accountOperations;
     @Mock
+    private ApplicationProperties applicationProperties;
+    @Mock
     private EventBus eventBus;
     @Mock
     private SkippyAdapter.StateChangeHandler stateChangeHandler;
@@ -71,7 +74,7 @@ public class SkippyAdapterTest {
     public void setUp() throws Exception {
         when(skippyFactory.create(any(Skippy.PlayListener.class))).thenReturn(skippy);
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, playbackOperations,
-                stateChangeHandler, eventBus, connectionHelper);
+                stateChangeHandler, eventBus, connectionHelper, applicationProperties);
         skippyAdapter.setListener(listener);
 
         final TrackUrn trackUrn = Urn.forTrack(1L);
@@ -169,6 +172,19 @@ public class SkippyAdapterTest {
         skippyAdapter.play(track);
         skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK, "WrongStreamUrl");
         verify(stateChangeHandler, never()).sendMessage(any(Message.class));
+    }
+
+    @Test
+    public void skippyAddsDebugToStateChangeEventWhenIsDebugBuildIsTrue() throws Exception {
+        skippyAdapter.play(track);
+
+        when(applicationProperties.isDebugBuild()).thenReturn(true);
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE);
+        expected.setDebugExtra("Skippy");
+        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+
+        skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK, STREAM_URL);
+        verify(stateChangeHandler).sendMessage(message);
     }
 
     @Test

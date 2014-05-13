@@ -102,7 +102,8 @@ public interface Playa {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             StateTransition that = (StateTransition) o;
-            return Objects.equal(newState, that.newState) && Objects.equal(reason, that.reason);
+            return Objects.equal(newState, that.newState) && Objects.equal(reason, that.reason)
+                    && Objects.equal(debugExtra, that.debugExtra);
         }
 
         @Override

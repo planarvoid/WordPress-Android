@@ -19,6 +19,7 @@ import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.Log;
@@ -37,6 +38,7 @@ import javax.inject.Named;
 public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private static final String TAG = "SkippyAdapter";
+    public static final String DEBUG_EXTRA = "Skippy";
 
     private final EventBus eventBus;
     private final Skippy skippy;
@@ -44,18 +46,21 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final StateChangeHandler stateHandler;
     private final PlaybackOperations playbackOperations;
     private final NetworkConnectionHelper connectionHelper;
+    private final ApplicationProperties applicationProperties;
 
     private String currentStreamUrl;
 
     @Inject
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, PlaybackOperations playbackOperations,
-                  StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper) {
+                  StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper,
+                  ApplicationProperties applicationProperties) {
         skippy = skippyFactory.create(this);
         this.accountOperations = accountOperations;
         this.playbackOperations = playbackOperations;
         stateHandler = stateChangeHandler;
         this.eventBus = eventBus;
         this.connectionHelper = connectionHelper;
+        this.applicationProperties = applicationProperties;
     }
 
     public boolean init(Context context) {
@@ -160,7 +165,11 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             final PlayaState translatedState = getTranslatedState(state, reason);
             final Reason translatedReason = getTranslatedReason(reason, errorcode);
             final StateTransition transition = new StateTransition(translatedState, translatedReason);
-            transition.setDebugExtra("Skippy");
+
+            if (applicationProperties.isDebugBuild()){
+                transition.setDebugExtra(DEBUG_EXTRA);
+            }
+
             Message msg = stateHandler.obtainMessage(0, transition);
             stateHandler.sendMessage(msg);
         }
