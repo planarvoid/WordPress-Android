@@ -17,6 +17,11 @@ public class EmailConfirmScreen extends Screen {
         return new EmailOptInScreen(solo);
     }
 
+    public HomeScreen goBack() {
+        solo.goBack();
+        return new HomeScreen(solo);
+    }
+
     @Override
     protected Class getActivity() {
         return ACTIVITY;

@@ -1,6 +1,8 @@
 package com.soundcloud.android.auth.signup;
 
 import com.soundcloud.android.auth.SignUpTestCase;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.screens.EmailConfirmScreen;
 import com.soundcloud.android.screens.EmailOptInScreen;
 import com.soundcloud.android.screens.HomeScreen;
@@ -33,9 +35,19 @@ public class ByEmail extends SignUpTestCase {
         solo.goBack();
 
         EmailConfirmScreen confirmScreen = suggestedUsersScreen.finish();
-        EmailOptInScreen optIn = confirmScreen.clickConfirmLater();
-        HomeScreen home = optIn.clickNo();
+        HomeScreen home = dismissDistractions(confirmScreen);
 
         assert(home.hasItemByUsername(followedUsername));
     }
+
+    private HomeScreen dismissDistractions(EmailConfirmScreen confirmScreen) {
+        FeatureFlags flags = new FeatureFlags(getActivity().getResources());
+        if (flags.isEnabled(Feature.EMAIL_OPT_IN)) {
+            EmailOptInScreen optIn = confirmScreen.clickConfirmLater();
+            return optIn.clickNo();
+        } else {
+            return confirmScreen.goBack();
+        }
+    }
+
 }
