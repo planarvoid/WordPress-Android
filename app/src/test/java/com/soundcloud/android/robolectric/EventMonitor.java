@@ -66,6 +66,12 @@ public class EventMonitor {
         return eventObserver.getValue();
     }
 
+    public <EventType> EventType verifyLastEventOn(EventBus.QueueDescriptor<EventType> queue) {
+        ArgumentCaptor<EventType> eventObserver = ArgumentCaptor.forClass(queue.eventType);
+        verify(eventBus, atLeastOnce()).publish(refEq(queue), eventObserver.capture());
+        return eventObserver.getValue();
+    }
+
     public <EventType> EventMonitor verifyNoEventsOn(EventBus.QueueDescriptor<EventType> queue) {
         verify(eventBus, never()).publish(refEq(queue), any(queue.eventType));
         return this;
