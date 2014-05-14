@@ -5,10 +5,12 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.associations.SoundAssociationOperations;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -64,6 +66,26 @@ public class PlayerWidgetControllerTest {
         controller.subscribe();
 
         eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, event);
+        verifyZeroInteractions(widgetProvider);
+    }
+
+    @Test
+    public void callsResetActionWhenCurrentUserChangedEventReceivedForUserRemoved() {
+        CurrentUserChangedEvent event = CurrentUserChangedEvent.forLogout();
+
+        controller.subscribe();
+
+        eventMonitor.publish(EventQueue.CURRENT_USER_CHANGED, event);
+        verify(widgetProvider).reset(context);
+    }
+
+    @Test
+    public void doesNotInteractWithProviderWhenCurrentUserChangedEventReceivedForUserUpdated() {
+        CurrentUserChangedEvent event = CurrentUserChangedEvent.forUserUpdated(new User(1));
+
+        controller.subscribe();
+
+        eventMonitor.publish(EventQueue.CURRENT_USER_CHANGED, event);
         verifyZeroInteractions(widgetProvider);
     }
 }

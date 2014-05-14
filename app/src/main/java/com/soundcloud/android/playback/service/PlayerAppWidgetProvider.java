@@ -70,10 +70,13 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
                 final WidgetPlaybackRemoteViews.Args args = new WidgetPlaybackRemoteViews.Args(context, intent);
                 pushUpdate(context, new WidgetPlaybackRemoteViews(args), new int[0]);
 
-            } else if (action.equals(Broadcasts.RESET_ALL)) {
-                pushUpdate(context, new WidgetPlaybackRemoteViews(context), new int[0]);
             }
         }
+    }
+
+    public void reset(Context context) {
+        Log.d(TAG, "resetting widget");
+        pushUpdate(context, new WidgetPlaybackRemoteViews(context), new int[0]);
     }
 
     public void performUpdate(Context context, Playable playable, boolean isPlaying) {

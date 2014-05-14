@@ -5,6 +5,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.associations.SoundAssociationOperations;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
@@ -50,6 +51,7 @@ public class PlayerWidgetController {
 
     public void subscribe() {
         eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new PlayableChangedSubscriber());
+        eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
     }
 
     private void handleWidgetLikeAction(Intent intent) {
@@ -73,6 +75,18 @@ public class PlayerWidgetController {
 
             if (playable.getId() == playbackStateProvider.getCurrentTrackId()) {
                 widgetProvider.performUpdate(context, playable, playbackStateProvider.isSupposedToBePlaying());
+            }
+        }
+    }
+
+    /**
+     * When the user logs out, reset all widget instances
+     */
+    private final class CurrentUserChangedSubscriber extends DefaultSubscriber<CurrentUserChangedEvent> {
+        @Override
+        public void onNext(CurrentUserChangedEvent event) {
+            if (event.getKind() == CurrentUserChangedEvent.USER_REMOVED){
+                widgetProvider.reset(context);
             }
         }
     }

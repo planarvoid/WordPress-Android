@@ -315,7 +315,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public void resetAll() {
         stop();
         currentTrack = null;
-        appWidgetProvider.performUpdate(this, new Intent(Broadcasts.RESET_ALL));
         remoteAudioManager.abandonMusicFocus(false); // kills lockscreen
     }
 
