@@ -3,6 +3,7 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.service.PlayerWidgetController;
 import com.soundcloud.android.playback.service.managers.FroyoRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
@@ -14,7 +15,7 @@ import android.content.Context;
 import android.os.Build;
 
 @Module(addsTo = ApplicationModule.class, injects = {
-        PlaybackService.class, PlayerActivity.class, PlayerFragment.class
+        PlaybackService.class, PlayerActivity.class, PlayerFragment.class, PlayerWidgetController.class
 })
 public class PlaybackModule {
 
