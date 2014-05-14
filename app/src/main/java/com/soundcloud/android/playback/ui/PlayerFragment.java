@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -40,7 +41,8 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
     private TextView trackTitle;
 
-    private Subscription subscription = Subscriptions.empty();
+    private Subscription playStateSubscription = Subscriptions.empty();
+    private Subscription playQueueSubscription = Subscriptions.empty();
 
     public PlayerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -72,13 +74,15 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        subscription = eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
+        playStateSubscription = eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
+        playQueueSubscription = eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        subscription.unsubscribe();
+        playStateSubscription.unsubscribe();
+        playQueueSubscription.unsubscribe();
     }
 
     @Override
@@ -102,7 +106,14 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         public void onNext(StateTransition stateTransition) {
             footerToggle.setChecked(stateTransition.isPlaying());
             playerToggle.setChecked(stateTransition.isPlaying());
+        }
+    }
+
+    private final class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
+        @Override
+        public void onNext(PlayQueueEvent event) {
             trackTitle.setText(Urn.forTrack(playQueueManager.getCurrentTrackId()).toString());
         }
     }
+
 }
