@@ -121,6 +121,8 @@ public class SlidingPlayerControllerTest {
         controller.onPanelSlide(layout, 0.7f);
 
         verify(actionBarController, times(1)).setVisible(true);
+        PlayerUIEvent event = eventMonitor.verifyLastEventOn(EventQueue.PLAYER_UI);
+        expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
     }
 
     @Test
