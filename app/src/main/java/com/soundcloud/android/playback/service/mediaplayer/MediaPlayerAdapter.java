@@ -153,7 +153,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     private void publishTimeToPlayEvent(long timeToPlay, String streamUrl) {
         final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
-                PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(), streamUrl);
+                PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(), Uri.parse(streamUrl).getHost());
         eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
     }
 

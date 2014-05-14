@@ -84,6 +84,7 @@ public class MediaPlayerAdapterTest {
         when(listener.requestAudioFocus()).thenReturn(true);
         when(mediaPlayer.getDuration()).thenReturn(DURATION);
         when(track.getStreamUrlWithAppendedId()).thenReturn(STREAM_URL);
+        when(track.getStreamUrl()).thenReturn(STREAM_URL);
         mediaPlayerAdapter = new MediaPlayerAdapter(context, mediaPlayerManager, streamProxy, playerHandler, eventBus, networkConnectionHelper);
         mediaPlayerAdapter.setListener(listener);
     }
@@ -153,7 +154,7 @@ public class MediaPlayerAdapterTest {
         final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
         expect(event.getMetricValue()).toBeGreaterThan(0L);
-        expect(event.getCdnHost()).toEqual(track.getStreamUrl());
+        expect(event.getCdnHost()).toEqual(Uri.parse(track.getStreamUrl()).getHost());
         expect(event.getPlayerType()).toEqual(PlayerType.MEDIA_PLAYER);
         expect(event.getProtocol()).toEqual(PlaybackProtocol.HTTPS);
         expect(event.getConnectionType()).toEqual(PlaybackPerformanceEvent.ConnectionType.TWO_G);
