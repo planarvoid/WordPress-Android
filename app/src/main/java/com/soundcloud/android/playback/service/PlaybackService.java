@@ -604,11 +604,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     private boolean next(boolean userTriggered) {
-        if (getPlayQueueInternal().moveToNext(userTriggered)) {
-            return true;
-        } else {
-            return false;
-        }
+        return getPlayQueueInternal().moveToNext(userTriggered);
     }
 
     private void setPlayingNotification(final Track track) {
