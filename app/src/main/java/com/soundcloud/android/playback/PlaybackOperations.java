@@ -180,12 +180,12 @@ public class PlaybackOperations {
         context.startService(new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
     }
 
-    public void previous(final Context context) {
-        context.startService(new Intent(PlaybackService.Actions.PREVIOUS_ACTION));
+    public void previousTrack() {
+        playQueueManager.previousTrack();
     }
 
-    public void next(final Context context) {
-        context.startService(new Intent(PlaybackService.Actions.NEXT_ACTION));
+    public void nextTrack() {
+        playQueueManager.nextTrack();
     }
 
     public void playFromIdListShuffled(final Context context, List<Long> ids, Screen screen) {

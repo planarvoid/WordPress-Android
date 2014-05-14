@@ -89,10 +89,10 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
                 playbackOperations.togglePlayback(getActivity());
                 break;
             case R.id.player_next:
-                playbackOperations.next(getActivity());
+                playbackOperations.nextTrack();
                 break;
             case R.id.player_previous:
-                playbackOperations.previous(getActivity());
+                playbackOperations.previousTrack();
                 break;
         }
     }

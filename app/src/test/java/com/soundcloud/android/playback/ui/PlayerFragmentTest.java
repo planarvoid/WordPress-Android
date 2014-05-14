@@ -84,7 +84,7 @@ public class PlayerFragmentTest {
         View layout = createFragmentView();
         layout.findViewById(R.id.player_previous).performClick();
 
-        verify(playbackOperations).previous(any(Context.class));
+        verify(playbackOperations).previousTrack();
     }
 
     @Test
@@ -92,7 +92,7 @@ public class PlayerFragmentTest {
         View layout = createFragmentView();
         layout.findViewById(R.id.player_next).performClick();
 
-        verify(playbackOperations).next(any(Context.class));
+        verify(playbackOperations).nextTrack();
     }
 
     @Test

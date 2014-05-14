@@ -10,12 +10,16 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
@@ -58,6 +62,10 @@ public class PlayQueueManagerTest {
     private SharedPreferences.Editor sharedPreferencesEditor;
     @Mock
     private PlayQueueOperations playQueueOperations;
+    @Mock
+    private EventBus eventBus;
+
+    private EventMonitor eventMonitor;
 
     private PlaySessionSource playSessionSource;
 
@@ -74,6 +82,8 @@ public class PlayQueueManagerTest {
         playSessionSource  = new PlaySessionSource(ORIGIN_PAGE);
         playSessionSource.setPlaylist(playlist);
         playSessionSource.setExploreVersion("1.0");
+
+        eventMonitor = EventMonitor.on(eventBus);
     }
 
     @Test(expected = NullPointerException.class)
@@ -111,6 +121,14 @@ public class PlayQueueManagerTest {
     public void shouldBroadcastPlayQueueChangedWhenSettingNewPlayqueue() throws Exception {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expectBroadcastPlayqueueChanged();
+    }
+
+    @Test
+    public void shouldPublishPlayQueueChangedEventOnSetNewPlayQueue() {
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+
+        PlayQueueEvent playQueueEvent = eventMonitor.verifyEventOn(EventQueue.PLAY_QUEUE);
+        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.QUEUE_CHANGE);
     }
 
     @Test
@@ -154,8 +172,75 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void shouldPublishTrackChangeEventOnPreviousTrack() {
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        when(playQueue.hasPreviousTrack()).thenReturn(true);
+
+        playQueueManager.previousTrack();
+
+        PlayQueueEvent playQueueEvent = eventMonitor.verifyLastEventOn(EventQueue.PLAY_QUEUE);
+        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.TRACK_CHANGE);
+    }
+
+    @Test
+    public void shouldMoveToPreviousTrack() {
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        when(playQueue.hasPreviousTrack()).thenReturn(true);
+
+        playQueueManager.previousTrack();
+
+        verify(playQueue).moveToPrevious();
+    }
+
+    @Test
+    public void shouldNotPublishTrackChangeWhenCallingPreviousOnFirstTrack() {
+        when(playQueue.moveToPrevious()).thenReturn(false);
+
+        playQueueManager.previousTrack();
+
+        eventMonitor.verifyNoEventsOn(EventQueue.PLAY_QUEUE);
+    }
+
+    @Test
+    public void shouldPublishTrackChangeEventOnNextTrack() {
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        when(playQueue.hasNextTrack()).thenReturn(true);
+        playQueueManager.nextTrack();
+
+        PlayQueueEvent playQueueEvent = eventMonitor.verifyLastEventOn(EventQueue.PLAY_QUEUE);
+        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.TRACK_CHANGE);
+    }
+
+    @Test
+    public void shouldMoveToNextTrack() {
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        when(playQueue.hasNextTrack()).thenReturn(true);
+
+        playQueueManager.nextTrack();
+
+        verify(playQueue).moveToNext(true);
+    }
+
+    @Test
+    public void shouldNotPublishTrackChangeWhenCallingNextOnLastTrack() {
+        when(playQueue.moveToNext(true)).thenReturn(false);
+
+        playQueueManager.nextTrack();
+
+        eventMonitor.verifyNoEventsOn(EventQueue.PLAY_QUEUE);
+    }
+
+    @Test
     public void shouldNotReloadPlayqueueFromStorageWhenPlaybackOperationsHasReturnsNoObservable(){
         expect(playQueueManager.loadPlayQueue()).toBeNull();
+    }
+
+    @Test
+    public void shouldPublishPlayQueueChangedEventOnLoadPlayQueueIfNoPlayQueueStore() {
+        playQueueManager.loadPlayQueue();
+
+        PlayQueueEvent playQueueEvent = eventMonitor.verifyEventOn(EventQueue.PLAY_QUEUE);
+        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.QUEUE_CHANGE);
     }
 
     @Test
@@ -359,5 +444,11 @@ public class PlayQueueManagerTest {
         PlayQueueOperations providePlayQueueOperations(){
             return playQueueOperations;
         }
+
+        @Provides
+        EventBus provideEventBus() {
+            return eventBus;
+        }
+
     }
 }

@@ -3,6 +3,9 @@ package com.soundcloud.android.playback.service;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.soundcloud.android.analytics.OriginProvider;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
@@ -29,6 +32,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
 
     private final ScModelManager modelManager;
     private final PlayQueueOperations playQueueOperations;
+    private final EventBus eventBus;
 
     private PlayQueue playQueue = PlayQueue.empty();
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
@@ -43,9 +47,13 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     private PlaybackOperations.AppendState appendState = PlaybackOperations.AppendState.IDLE;
 
     @Inject
-    public PlayQueueManager(Context context, PlayQueueOperations playQueueOperations, ScModelManager modelManager) {
+    public PlayQueueManager(Context context,
+                            PlayQueueOperations playQueueOperations,
+                            EventBus eventBus,
+                            ScModelManager modelManager) {
         this.context = context;
         this.playQueueOperations = playQueueOperations;
+        this.eventBus = eventBus;
         this.modelManager = modelManager;
     }
 
@@ -64,6 +72,20 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
 
     public PlaybackProgressInfo getPlayProgressInfo() {
         return playbackProgressInfo;
+    }
+
+    public void previousTrack() {
+        if (playQueue.hasPreviousTrack()) {
+            playQueue.moveToPrevious();
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        }
+    }
+
+    public void nextTrack() {
+        if (playQueue.hasNextTrack()) {
+            playQueue.moveToNext(true);
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        }
     }
 
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
@@ -193,6 +215,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
         Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(appendState));
         context.sendBroadcast(intent);
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
     }
 
     private void stopLoadingOperations() {
