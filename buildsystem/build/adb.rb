@@ -17,11 +17,9 @@ module Build
     end
 
     def install
+      Build.run_command uninstall_command
       Build.run_command install_command
-    end
-
-    def install_command
-      "adb install #{Build.apk_path}"
+      Build.run_command start_application
     end
 
     def set_log_level(level)
@@ -42,6 +40,18 @@ module Build
     end
 
     private
+    def uninstall_command
+      'adb uninstall com.soundcloud.android'
+    end
+
+    def start_application
+      'adb shell am start -n com.soundcloud.android/com.soundcloud.android.main.MainActivity'
+    end
+
+    def install_command
+      "adb install #{Build.apk_path}"
+    end
+
     def adb
       flag = @device_or_emulator == :device ? '-d' : '-e'
       adb_path = "#{android_home}/platform-tools/adb"
