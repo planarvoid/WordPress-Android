@@ -99,6 +99,20 @@ public class PlayQueueTest {
     }
 
     @Test
+    public void shouldReturnHasPreviousIfNotInFirstPosition() {
+        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 1);
+
+        expect(playQueue.hasPreviousTrack()).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnNoPreviousIfInFirstPosition() {
+        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 0);
+
+        expect(playQueue.hasPreviousTrack()).toBeFalse();
+    }
+
+    @Test
     public void hasNextTrackIsTrueIfNotAtEnd() {
         expect(createPlayQueue(Lists.newArrayList(1L, 2L), 0).hasNextTrack()).toBeTrue();
     }

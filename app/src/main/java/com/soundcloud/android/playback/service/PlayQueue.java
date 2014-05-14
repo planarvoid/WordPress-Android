@@ -49,7 +49,7 @@ class PlayQueue {
     }
 
     public boolean moveToPrevious() {
-        if (position > 0) {
+        if (hasPreviousTrack()) {
             position--;
             currentTrackIsUserTriggered = true;
             return true;
@@ -64,6 +64,10 @@ class PlayQueue {
             return true;
         }
         return false;
+    }
+
+    public boolean hasPreviousTrack() {
+        return position > 0;
     }
 
     public boolean hasNextTrack(){
