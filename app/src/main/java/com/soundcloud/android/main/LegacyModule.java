@@ -5,6 +5,7 @@ import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.associations.SoundAssociationAdapter;
 import com.soundcloud.android.associations.TrackInteractionActivity;
 import com.soundcloud.android.collections.DefaultPlayableAdapter;
+import com.soundcloud.android.profile.MyTracksAdapter;
 import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
@@ -12,7 +13,8 @@ import dagger.Module;
                 ActivitiesAdapter.class,
                 SoundAssociationAdapter.class,
                 DefaultPlayableAdapter.class,
-                TrackInteractionActivity.class
+                TrackInteractionActivity.class,
+                MyTracksAdapter.class
         })
 
 /**
