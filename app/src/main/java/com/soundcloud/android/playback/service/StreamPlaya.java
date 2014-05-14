@@ -19,9 +19,10 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
     public static final String TAG = "StreamPlaya";
     @VisibleForTesting
-    static final String PLAYS_SINCE_SKIPPY = "StreamPlaya.playsSinceSkippy";
+    static final String PLAYS_ON_CURRENT_PLAYER = "StreamPlaya.playsOnCurrentPlaya";
     @VisibleForTesting
-    static final int MAX_PLAYS_OFF_SKIPPY = 2; // TODO increase to 10 before launch
+    static final int MAX_CONSECUTIVE_SKIPPY_PLAYS = 2; // TODO increase to 10 before launch
+    static final int MAX_CONSECUTIVE_MP_PLAYS = 2;
 
     @VisibleForTesting
     static boolean skippyFailedToInitialize;
@@ -31,7 +32,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     private final BufferingPlaya bufferingPlayaDelegate;
     private final SharedPreferences playbackPreferences;
 
-    private Playa currentPlaya;
+    private Playa currentPlaya, lastPlaya;
     private PlayaListener playaListener;
 
     // store start info so we can fallback and retry after Skippy failures
@@ -177,7 +178,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     }
 
     public void startBufferingMode(){
-        final Playa lastPlaya = currentPlaya;
+        lastPlaya = currentPlaya;
         currentPlaya = bufferingPlayaDelegate;
 
         lastStateTransition = new StateTransition(PlayaState.BUFFERING, Reason.NONE);
@@ -193,22 +194,23 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     private void configureNextPlayaToUseViaPreferences(){
         configureNextPlayaToUse(getNextPlaya());
     }
-    private void configureNextPlayaToUse(Playa nextPlaya){
 
+    private void configureNextPlayaToUse(Playa nextPlaya){
         if (currentPlaya != null && currentPlaya != nextPlaya){
             currentPlaya.stop();
         }
 
         currentPlaya = nextPlaya;
         currentPlaya.setListener(this);
+        updateConsecutivePlays(currentPlaya != lastPlaya);
+    }
 
-        if (isUsingSkippyPlaya()){
-            playbackPreferences.edit().putInt(PLAYS_SINCE_SKIPPY, 0).apply();
-            Log.i(TAG, "Configuring Playa to SkippyPlaya");
+    private void updateConsecutivePlays(boolean changedPlayers) {
+        if (changedPlayers){
+            playbackPreferences.edit().putInt(PLAYS_ON_CURRENT_PLAYER, 1).apply();
         } else {
-            int plays = playbackPreferences.getInt(PLAYS_SINCE_SKIPPY, 0);
-            playbackPreferences.edit().putInt(PLAYS_SINCE_SKIPPY, plays + 1).apply();
-            Log.i(TAG, "Configuring Playa to MediaPlaya");
+            int plays = playbackPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0);
+            playbackPreferences.edit().putInt(PLAYS_ON_CURRENT_PLAYER, plays + 1).apply();
         }
     }
 
@@ -219,10 +221,19 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
         if (isInForceSkippyMode()) {
             return skippyPlayaDelegate;
-        } else if (playbackPreferences.getInt(PLAYS_SINCE_SKIPPY, 0) >= MAX_PLAYS_OFF_SKIPPY) {
-            return skippyPlayaDelegate;
+        } else if (lastPlaya == skippyPlayaDelegate){
+
+            if (playbackPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0) >= MAX_CONSECUTIVE_MP_PLAYS) {
+                return mediaPlayaDelegate;
+            } else {
+                return skippyPlayaDelegate;
+            }
         } else {
-            return mediaPlayaDelegate;
+            if (playbackPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0) >= MAX_CONSECUTIVE_SKIPPY_PLAYS) {
+                return skippyPlayaDelegate;
+            } else {
+                return mediaPlayaDelegate;
+            }
         }
 
     }
