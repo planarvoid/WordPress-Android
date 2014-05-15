@@ -10,9 +10,9 @@ import javax.inject.Inject;
 
 public class PlayerPresenter implements View.OnClickListener{
 
-    private ViewPager trackPager;
-    private ToggleButton footerToggle;
-    private ToggleButton playerToggle;
+    private final ViewPager trackPager;
+    private final ToggleButton footerToggle;
+    private final ToggleButton playerToggle;
     private final Listener listener;
     private final TrackPagerAdapter adapter;
 
@@ -53,6 +53,9 @@ public class PlayerPresenter implements View.OnClickListener{
                 break;
             case R.id.player_previous:
                 listener.onPrevious();
+                break;
+            default:
+                throw new IllegalArgumentException("Unexpected view ID");
         }
     }
 

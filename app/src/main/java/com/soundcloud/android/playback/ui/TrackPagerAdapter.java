@@ -33,13 +33,15 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup container) {
-        if (convertView == null) {
-            convertView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_track_page, null);
-        }
+        final View contentView = convertView == null
+                ? LayoutInflater.from(container.getContext()).inflate(R.layout.player_track_page, container, false)
+                : convertView;
+        ((TextView) contentView.findViewById(R.id.track_page_title)).setText(getUrn(position));
+        return contentView;
+    }
 
-        ((TextView) convertView.findViewById(R.id.track_page_title)).setText(Urn.forTrack(playQueueManager.getIdAtPosition(position)).toString());
-
-        return convertView;
+    private String getUrn(int position) {
+        return Urn.forTrack(playQueueManager.getIdAtPosition(position)).toString();
     }
 
     @Override
