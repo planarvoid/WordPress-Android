@@ -8,7 +8,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -21,13 +20,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 
 @SuppressLint("ValidFragment")
-public class PlayerFragment extends Fragment implements View.OnClickListener {
+public class PlayerFragment extends Fragment implements PlayerPresenter.Listener {
 
     @Inject
     EventBus eventBus;
@@ -35,11 +32,12 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     PlayQueueManager playQueueManager;
     @Inject
     PlaybackOperations playbackOperations;
+    @Inject
+    TrackPagerAdapter trackPagerAdapter;
+    @Inject
+    PlayerPresenter.Factory playerPresenterFactory;
 
-    private ToggleButton footerToggle;
-    private ToggleButton playerToggle;
-
-    private TextView trackTitle;
+    private PlayerPresenter presenter;
 
     private Subscription playStateSubscription = Subscriptions.empty();
     private Subscription playQueueSubscription = Subscriptions.empty();
@@ -49,10 +47,12 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     }
 
     @VisibleForTesting
-    PlayerFragment(EventBus eventBus, PlayQueueManager playQueueManager, PlaybackOperations playbackOperations) {
+    PlayerFragment(EventBus eventBus, PlayQueueManager playQueueManager, PlaybackOperations playbackOperations,
+                   PlayerPresenter.Factory playerPresenterFactory) {
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.playbackOperations = playbackOperations;
+        this.playerPresenterFactory = playerPresenterFactory;
     }
 
     @Override
@@ -62,62 +62,63 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        footerToggle = (ToggleButton) view.findViewById(R.id.footer_toggle);
-        playerToggle = (ToggleButton) view.findViewById(R.id.player_toggle);
-        trackTitle = (TextView) view.findViewById(R.id.footer_title);
-        footerToggle.setOnClickListener(this);
-        playerToggle.setOnClickListener(this);
-        view.findViewById(R.id.player_next).setOnClickListener(this);
-        view.findViewById(R.id.player_previous).setOnClickListener(this);
+        presenter = playerPresenterFactory.create(view, this);
+        presenter.setQueuePosition(playQueueManager.getCurrentPosition());
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        loadCurrentTrackDetails();
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         playStateSubscription = eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
         playQueueSubscription = eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroy() {
         playStateSubscription.unsubscribe();
         playQueueSubscription.unsubscribe();
-    }
-
-    private void loadCurrentTrackDetails() {
-        trackTitle.setText(Urn.forTrack(playQueueManager.getCurrentTrackId()).toString());
+        super.onDestroy();
     }
 
     @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.footer_toggle:
-            case R.id.player_toggle:
-                playbackOperations.togglePlayback(getActivity());
-                break;
-            case R.id.player_next:
-                playbackOperations.nextTrack();
-                break;
-            case R.id.player_previous:
-                playbackOperations.previousTrack();
-                break;
-        }
+    public void onTogglePlay() {
+        playbackOperations.togglePlayback(getActivity());
     }
+
+    @Override
+    public void onNext() {
+        playbackOperations.nextTrack();
+    }
+
+    @Override
+    public void onPrevious() {
+        playbackOperations.previousTrack();
+    }
+
+    @Override
+    public void onTrackChanged(int position) {
+        playbackOperations.setPlayQueuePosition(position);
+    }
+
 
     private final class PlaybackStateSubscriber extends DefaultSubscriber<StateTransition> {
         @Override
         public void onNext(StateTransition stateTransition) {
-            footerToggle.setChecked(stateTransition.isPlaying());
-            playerToggle.setChecked(stateTransition.isPlaying());
+            if (presenter != null){
+                presenter.onPlayStateChanged(stateTransition.isPlaying());
+            }
         }
     }
 
     private final class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
         @Override
         public void onNext(PlayQueueEvent event) {
-            trackTitle.setText(Urn.forTrack(playQueueManager.getCurrentTrackId()).toString());
+            if (presenter != null){
+                if (event.getKind() == PlayQueueEvent.QUEUE_CHANGE) {
+                    presenter.onPlayQueueChanged();
+                }
+                presenter.setQueuePosition(playQueueManager.getCurrentPosition());
+            }
         }
     }
 

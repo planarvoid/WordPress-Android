@@ -7,6 +7,11 @@
                 android:background="@color/dark_bg"
                 android:clickable="true"> <!-- Prevent touch events from passing through Fragment -->
 
+    <com.soundcloud.android.view.SafeViewPager
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/player_track_pager" />
+
     <View
             android:id="@+id/player_strip"
             android:layout_width="match_parent"
@@ -24,19 +29,11 @@
                 android:id="@+id/footer_toggle"
                 style="@style/FooterToggle" />
 
-        <LinearLayout
+        <View
                 android:id="@+id/footer_drag_view"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/player_footer_control"
-                android:layout_toRightOf="@id/footer_toggle">
-
-            <TextView
-                    android:id="@+id/footer_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:textColor="@color/white" />
-        </LinearLayout>
+                android:layout_toRightOf="@id/footer_toggle" />
     </RelativeLayout>
 
     <ToggleButton

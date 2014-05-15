@@ -1,14 +1,16 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.playback.service.Playa.*;
-import static com.xtremelabs.robolectric.Robolectric.shadowOf;
+import static com.soundcloud.android.playback.service.Playa.StateTransition;
+import static com.soundcloud.android.playback.service.Playa.PlayaState;
+import static com.soundcloud.android.playback.service.Playa.Reason;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.EventMonitor;
@@ -17,19 +19,16 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import rx.Observer;
+import rx.Subscription;
 
-import android.content.Context;
 import android.support.v4.app.FragmentActivity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ToggleButton;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayerFragmentTest {
-
-    private PlayerFragment fragment;
 
     @Mock
     private EventBus eventBus;
@@ -37,85 +36,106 @@ public class PlayerFragmentTest {
     private PlayQueueManager playQueueManager;
     @Mock
     private PlaybackOperations playbackOperations;
+    @Mock
+    private PlayerPresenter.Factory presenterFactory;
+    @Mock
+    private PlayerPresenter presenter;
+    @Mock
+    private View view;
+    @Mock
+    private FragmentActivity activity;
+    @Mock
+    private Subscription playQueueSubscription;
+    @Mock
+    private Subscription playStateSubscription;
+
+    private PlayerFragment fragment;
+    private PlayerPresenter.Listener listener;
 
     @Before
     public void setUp() throws Exception {
-        fragment = new PlayerFragment(eventBus, playQueueManager, playbackOperations);
+        fragment = new PlayerFragment(eventBus, playQueueManager, playbackOperations, presenterFactory);
+        when(presenterFactory.create(same(view), any(PlayerPresenter.Listener.class))).thenReturn(presenter);
+        Robolectric.shadowOf(fragment).setActivity(activity);
+
+        when(eventBus.subscribe(same(EventQueue.PLAYBACK_STATE_CHANGED), any(Observer.class))).thenReturn(playStateSubscription);
+        when(eventBus.subscribe(same(EventQueue.PLAY_QUEUE), any(Observer.class))).thenReturn(playQueueSubscription);
+
+        fragment.onCreate(null);
+        fragment.onViewCreated(view, null);
+        ArgumentCaptor<PlayerPresenter.Listener> captor = ArgumentCaptor.forClass(PlayerPresenter.Listener.class);
+        verify(presenterFactory).create(same(view), captor.capture());
+        listener = captor.getValue();
     }
 
     @Test
-    public void shouldTogglePlayButtonStateToEnableOnPlayingStateEvent() throws Exception {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
-        createFragment();
-        View layout = createFragmentView();
-        fragment.onResume();
-
-        StateTransition state = new StateTransition(PlayaState.PLAYING, Reason.NONE);
-        eventMonitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
-
-        ToggleButton footerToggle = (ToggleButton) layout.findViewById(R.id.footer_toggle);
-        expect(footerToggle.isChecked()).toBeTrue();
+    public void onViewCreateCallsSetQueuePositionWithCurrentPositionFromPlayqueueManager() {
+        when(playQueueManager.getCurrentPosition()).thenReturn(3);
+        fragment.onViewCreated(view, null);
+        verify(presenter).setQueuePosition(3);
     }
 
     @Test
-    public void shouldTogglePlayButtonStateToDisabledOnIdleStateEvent() throws Exception {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
-        createFragment();
-        View layout = createFragmentView();
-        fragment.onResume();
-
-        StateTransition state = new StateTransition(PlayaState.IDLE, Reason.NONE);
-        eventMonitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
-
-        ToggleButton footerToggle = (ToggleButton) layout.findViewById(R.id.footer_toggle);
-        expect(footerToggle.isChecked()).toBeFalse();
+    public void callingOnTogglePlayOnPresenterListenerCallsTogglePlaybackOnPlaybackOperations() {
+        listener.onTogglePlay();
+        verify(playbackOperations).togglePlayback(activity);
     }
 
     @Test
-    public void shouldTogglePlaybackWhenToggleIsClicked() {
-        View layout = createFragmentView();
-        layout.findViewById(R.id.footer_toggle).performClick();
-
-        verify(playbackOperations).togglePlayback(any(Context.class));
-    }
-
-    @Test
-    public void shouldGoToPreviousTrackWhenPreviousIsClicked() {
-        View layout = createFragmentView();
-        layout.findViewById(R.id.player_previous).performClick();
-
-        verify(playbackOperations).previousTrack();
-    }
-
-    @Test
-    public void shouldGoToNextTrackWhenNextIsClicked() {
-        View layout = createFragmentView();
-        layout.findViewById(R.id.player_next).performClick();
-
+    public void callingOnNextOnPresenterListenerCallsNextTrackOnPlaybackOperations() {
+        listener.onNext();
         verify(playbackOperations).nextTrack();
     }
 
     @Test
-    public void shouldUnsubscribeFromEventBusInOnPause() {
+    public void callingOnPreviousOnPresenterListenerCallsPreviousTrackOnPlaybackOperations() {
+        listener.onPrevious();
+        verify(playbackOperations).previousTrack();
+    }
+
+    @Test
+    public void callingOnTrackChangedOnPresenterListenerCallsSetPlayQueuePositionOnPlaybackOperationsWithArgument() {
+        listener.onTrackChanged(3);
+        verify(playbackOperations).setPlayQueuePosition(3);
+    }
+
+    @Test
+    public void OnPlayingStateEventCallsOnPlaystateChangedOnFragmentWithIsPlaying() {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
-        fragment.onCreate(null);
-        createFragmentView();
-        fragment.onResume();
-        fragment.onPause();
-        eventMonitor.verifyUnsubscribed();
+        StateTransition state = new StateTransition(PlayaState.PLAYING, Reason.NONE);
+        eventMonitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
+        verify(presenter).onPlayStateChanged(true);
     }
 
-    private void createFragment() {
-        final FragmentActivity activity = new FragmentActivity();
-        shadowOf(fragment).setActivity(activity);
-        fragment.onCreate(null);
+    @Test
+    public void OnPlayQueueEventForTrackChangeCallsSetQueuePositionOnPresenterWithCurrentPlayQueueManagerPosition() {
+        when(playQueueManager.getCurrentPosition()).thenReturn(3);
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        verify(presenter).setQueuePosition(3);
     }
 
-    private View createFragmentView() {
-        View fragmentLayout = fragment.onCreateView(LayoutInflater.from(Robolectric.application), new FrameLayout(Robolectric.application), null);
-        Robolectric.shadowOf(fragment).setView(fragmentLayout);
-        fragment.onViewCreated(fragmentLayout, null);
-        return fragmentLayout;
+    @Test
+    public void OnPlayQueueEventForQueueChangeCallsSetQueuePositionOnPresenterWithCurrentPlayQueueManagerPosition() {
+        when(playQueueManager.getCurrentPosition()).thenReturn(3);
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
+        verify(presenter).setQueuePosition(3);
+    }
+
+    @Test
+    public void OnPlayQueueEventForQueueChangeCallsOnPlayQueueChangedOnPresenter() {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
+        verify(presenter).onPlayQueueChanged();
+    }
+
+    @Test
+    public void shouldUnsubscribeFromEventBusInOnDestroy() {
+        fragment.onDestroy();
+        verify(playQueueSubscription).unsubscribe();
+        verify(playStateSubscription).unsubscribe();
     }
 
 }

@@ -267,6 +267,13 @@ public class PlaybackOperationsTest {
     }
 
     @Test
+    public void shouldUpdatePlayPositionToGivenIndex() {
+        playbackOperations.setPlayQueuePosition(5);
+
+        verify(playQueueManager).setPosition(5);
+    }
+
+    @Test
     public void shouldPerformPreviousAction() {
         playbackOperations.previousTrack();
 

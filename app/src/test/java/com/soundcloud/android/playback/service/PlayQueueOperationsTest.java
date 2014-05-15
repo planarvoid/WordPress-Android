@@ -153,9 +153,9 @@ public class PlayQueueOperationsTest {
     @Test
     public void saveShouldStoreAllPlayQueueItems() throws Exception {
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
-        final Collection<PlayQueueItem> collection = Mockito.mock(Collection.class);
-        when(playQueue.getItems()).thenReturn(collection);
-        when(playQueueStorage.storeCollectionAsync(collection)).thenReturn(observable);
+        final List<PlayQueueItem> list = Mockito.mock(List.class);
+        when(playQueue.getItems()).thenReturn(list);
+        when(playQueueStorage.storeCollectionAsync(list)).thenReturn(observable);
 
         playQueueOperations.saveQueue(playQueue, playSessionSource, 200L);
 
@@ -203,7 +203,6 @@ public class PlayQueueOperationsTest {
         expect(iterator.next()).toEqual(suggestion2);
         verify(relatedObserver).onCompleted();
         verify(relatedObserver, never()).onError(any(Throwable.class));
-
     }
 
     @Test

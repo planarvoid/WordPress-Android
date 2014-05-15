@@ -36,7 +36,7 @@ class PlayQueue {
         return new PlayQueueView(getTrackIds(), position, appendState);
     }
 
-    public Collection<PlayQueueItem> getItems() {
+    public List<PlayQueueItem> getItems() {
         return playQueueItems;
     }
 

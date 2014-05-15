@@ -112,6 +112,20 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void getCurrentPlayQueueCountReturnsSizeOfCurrentQueue() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 0, playSessionSource), playSessionSource);
+
+        expect(playQueueManager.getCurrentPlayQueueSize()).toBe(3);
+    }
+
+    @Test
+    public void getIdAtPositionReturnsIdFromPlayQueueItem() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 0, playSessionSource), playSessionSource);
+
+        expect(playQueueManager.getIdAtPosition(2)).toBe(3L);
+    }
+
+    @Test
     public void shouldSetNewPlayQueueCurrentTrackToManuallyTriggered() throws Exception {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         verify(playQueue).setCurrentTrackToUserTriggered();
@@ -169,6 +183,16 @@ public class PlayQueueManagerTest {
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(123L), 0, playSessionSource), playSessionSource);
         playQueueManager.saveCurrentPosition(456L);
         expect(playQueueManager.getPlayProgressInfo()).toEqual(new PlaybackProgressInfo(123L, 456L));
+    }
+
+    @Test
+    public void shouldPublishTrackChangeEventOnSetPosition() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 0, playSessionSource), playSessionSource);
+
+        playQueueManager.setPosition(2);
+
+        PlayQueueEvent playQueueEvent = eventMonitor.verifyLastEventOn(EventQueue.PLAY_QUEUE);
+        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.TRACK_CHANGE);
     }
 
     @Test

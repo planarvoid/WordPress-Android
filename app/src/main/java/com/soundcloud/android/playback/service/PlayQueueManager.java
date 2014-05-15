@@ -70,8 +70,23 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
         return playQueue.getPosition();
     }
 
+    public int getCurrentPlayQueueSize() {
+        return playQueue.getItems().size();
+    }
+
+    public long getIdAtPosition(int position) {
+        return playQueue.getItems().get(position).getTrackId();
+    }
+
     public PlaybackProgressInfo getPlayProgressInfo() {
         return playbackProgressInfo;
+    }
+
+    public void setPosition(int position) {
+        if (position < playQueue.getItems().size()) {
+            playQueue.setPosition(position);
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        }
     }
 
     public void previousTrack() {

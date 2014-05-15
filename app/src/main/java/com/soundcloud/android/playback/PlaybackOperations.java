@@ -184,6 +184,10 @@ public class PlaybackOperations {
         context.startService(new Intent(PlaybackService.Actions.PLAY_CURRENT));
     }
 
+    public void setPlayQueuePosition(int position) {
+        playQueueManager.setPosition(position);
+    }
+
     public void previousTrack() {
         playQueueManager.previousTrack();
     }
