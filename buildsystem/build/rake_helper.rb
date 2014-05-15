@@ -1,5 +1,6 @@
 ## encoding: utf-8
 require 'rake'
+require 'android/publisher'
 
 module Build
   class RakeHelper
@@ -16,6 +17,10 @@ module Build
       analysis_tasks
       namespace :hockey do
         hockey_tasks
+      end
+
+      namespace :upload do
+        upload_tasks
       end
 
       namespace :adb do
@@ -250,6 +255,21 @@ module Build
       desc "runs monkey tests"
       task :monkey do
         Adb.new.monkey_test
+      end
+    end
+
+    def upload_tasks
+      desc "uploads to hockey"
+      task :hockey do
+        if Build::Configuration.hockey.enabled?
+          hockey.upload(Build.artifact_path)
+        end
+      end
+
+      desc "uploads to Google Play Store"
+      task :store do
+        publisher = Android::Publisher.new("com.soundcloud.android", Build.apk_path)
+        publisher.deploy_to_beta
       end
     end
 

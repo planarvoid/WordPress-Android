@@ -51,6 +51,9 @@ reg_ids.yaml
 tests-*.sqlite
 coverage-error.log
 
+# PlayStore credentials
+client_secrets.json
+
 app/res/values/app_properties*.xml
 
 # RVM, in case you use RVM + Replicant

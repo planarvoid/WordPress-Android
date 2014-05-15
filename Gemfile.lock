@@ -1,16 +1,35 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    android-publisher (0.0.1)
+      oauth2
+      trollop
+    faraday (0.9.0)
+      multipart-post (>= 1.2, < 3)
+    jwt (0.1.11)
+      multi_json (>= 1.5)
     mime-types (2.1)
+    multi_json (1.9.3)
+    multi_xml (0.5.5)
+    multipart-post (2.0.0)
+    oauth2 (0.9.3)
+      faraday (>= 0.8, < 0.10)
+      jwt (~> 0.1.8)
+      multi_json (~> 1.3)
+      multi_xml (~> 0.5)
+      rack (~> 1.2)
+    rack (1.5.2)
     rake (10.1.1)
     rest-client (1.6.7)
       mime-types (>= 1.16)
+    trollop (2.0)
     version (1.0.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  android-publisher
   rake (= 10.1.1)
   rest-client (= 1.6.7)
   version (= 1.0.0)
