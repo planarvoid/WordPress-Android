@@ -22,8 +22,10 @@ public class ViewPagerElement extends Element {
         viewPager = solo.getView(ViewPager.class, 0);
     }
 
-    public ViewPagerElement(Han solo, View parentView) {
+    public ViewPagerElement(Han solo, int viewPagerId) {
         super(solo);
+        solo.getSolo().waitForView(viewPagerId);
+        viewPager = (ViewPager) solo.getView(viewPagerId);
     }
 
     @Override

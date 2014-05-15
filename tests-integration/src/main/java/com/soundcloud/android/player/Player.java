@@ -8,8 +8,6 @@ import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TestUser;
 
-import android.test.suitebuilder.annotation.Suppress;
-
 public class Player extends ActivityTestCase<MainActivity> {
 
     private PlayerElement playerElement;
@@ -52,13 +50,13 @@ public class Player extends ActivityTestCase<MainActivity> {
 
     public void testSkippingWithNextAndPreviousChangesTrack() {
         playFirstTrack();
-        String originalTrack = playerElement.getFooterTitle();
+        String originalTrack = playerElement.getTrackTitle();
 
         playerElement.tapNext();
-        assertEquals("Track should be different", false, originalTrack.equals(playerElement.getFooterTitle()));
+        assertEquals("Track should be different", false, originalTrack.equals(playerElement.getTrackTitle()));
 
         playerElement.tapPrevious();
-        assertEquals("Track should be the same", true, originalTrack.equals(playerElement.getFooterTitle()));
+        assertEquals("Track should be the same", true, originalTrack.equals(playerElement.getTrackTitle()));
     }
 
     public void testPlayerRemainsPausedWhenSkipping() {
@@ -72,18 +70,18 @@ public class Player extends ActivityTestCase<MainActivity> {
 
     public void testPreviousButtonDoesNothingOnFirstTrack() {
         playFirstTrack();
-        String originalTrack = playerElement.getFooterTitle();
+        String originalTrack = playerElement.getTrackTitle();
 
         playerElement.tapPrevious();
-        assertEquals("Track should be the same", true, originalTrack.equals(playerElement.getFooterTitle()));
+        assertEquals("Track should be the same", true, originalTrack.equals(playerElement.getTrackTitle()));
     }
 
     public void testNextButtonDoesNothingOnLastTrack() {
         playSingleTrack();
-        String originalTrack = playerElement.getFooterTitle();
+        String originalTrack = playerElement.getTrackTitle();
 
         playerElement.tapNext();
-        assertEquals("Track should be the same", true, originalTrack.equals(playerElement.getFooterTitle()));
+        assertEquals("Track should be the same", true, originalTrack.equals(playerElement.getTrackTitle()));
     }
 
     private void playFirstTrack() {

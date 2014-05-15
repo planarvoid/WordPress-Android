@@ -4,6 +4,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.tests.Han;
 
+import android.view.View;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -41,8 +42,14 @@ public class PlayerElement extends Element {
         solo.clickOnView(R.id.player_previous);
     }
 
-    public String getFooterTitle() {
-        return ((TextView) solo.getView(R.id.footer_title)).getText().toString();
+    public String getTrackTitle() {
+        View trackTitle = getCurrentTrackPage().findViewById(R.id.track_page_title);
+        return ((TextView) trackTitle).getText().toString();
+    }
+
+    private View getCurrentTrackPage() {
+        ViewPagerElement viewPager = new ViewPagerElement(solo, R.id.player_track_pager);
+        return viewPager.getCurrentPage(View.class);
     }
 
     public void toggleFooterPlay() {
