@@ -1,7 +1,6 @@
 require_relative 'build/adb'
 require_relative 'build/configuration'
 require_relative 'build/git'
-require_relative 'build/hockey'
 require_relative 'build/mvn'
 require_relative 'build/rake_helper'
 require_relative 'build/relase_strategy'

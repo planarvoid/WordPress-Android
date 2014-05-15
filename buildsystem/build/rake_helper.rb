@@ -15,9 +15,6 @@ module Build
       device_tasks
       codestyle_task
       analysis_tasks
-      namespace :hockey do
-        hockey_tasks
-      end
 
       namespace :upload do
         upload_tasks
@@ -109,10 +106,6 @@ module Build
     end
 
     def build
-      if Build::Configuration.hockey.enabled? && Build.ci?
-        Build.version_code=(hockey.last_published_version + 1)
-      end
-
       mvn_task(:build).execute
 
       git.checkout('app/AndroidManifest.xml')
@@ -191,34 +184,6 @@ module Build
       puts message
     end
 
-    def hockey
-      Hockey.new
-    end
-
-    def hockey_tasks
-      desc "uploads to hockey"
-      task :upload => Build.artifact_path do
-        hockey_upload
-      end
-
-      desc "lists last 10 hockeyapp versions"
-      task :list do
-        hockey_list
-      end
-    end
-
-    def hockey_upload
-      if Build::Configuration.hockey.enabled?
-        hockey.upload(Build.artifact_path)
-      end
-    end
-
-    def hockey_list
-      if Build::Configuration.hockey.enabled?
-        hockey.list
-      end
-    end
-
     def analysis_tasks
       desc "runs pmd analysis"
       task :pmd do
@@ -259,13 +224,6 @@ module Build
     end
 
     def upload_tasks
-      desc "uploads to hockey"
-      task :hockey do
-        if Build::Configuration.hockey.enabled?
-          hockey.upload(Build.artifact_path)
-        end
-      end
-
       desc "uploads to Google Play Store"
       task :store do
         publisher = Android::Publisher.new("com.soundcloud.android", Build.apk_path)
