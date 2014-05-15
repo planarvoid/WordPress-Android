@@ -99,6 +99,7 @@ public class PlayerFragmentTest {
     public void shouldUnsubscribeFromEventBusInOnPause() {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         fragment.onCreate(null);
+        createFragmentView();
         fragment.onResume();
         fragment.onPause();
         eventMonitor.verifyUnsubscribed();
