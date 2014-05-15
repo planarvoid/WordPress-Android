@@ -143,12 +143,13 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
 
                 final boolean isActivityCursor = Content.match(uri).isActivitiesItem();
                 final String idColumn = isActivityCursor ? TableColumns.ActivityView.SOUND_ID : TableColumns.SoundView._ID;
+                final String typeColumn = isActivityCursor ? TableColumns.ActivityView.SOUND_TYPE : TableColumns.SoundView._TYPE;
 
                 // if playlist, adjust load uri to request the tracks instead of meta_data
                 final Uri adjustedUri = (Content.match(uri) == Content.PLAYLIST) ?
                         Content.PLAYLIST_TRACKS.forQuery(uri.getLastPathSegment()) : uri;
 
-                Cursor cursor = resolver.query(adjustedUri, new String[]{idColumn}, TableColumns.SoundView._TYPE + " = ?",
+                Cursor cursor = resolver.query(adjustedUri, new String[]{idColumn}, typeColumn + " = ?",
                         new String[]{String.valueOf(Playable.DB_TYPE_TRACK)}, null);
                 if (!observer.isUnsubscribed()) {
                     if (cursor == null) {
