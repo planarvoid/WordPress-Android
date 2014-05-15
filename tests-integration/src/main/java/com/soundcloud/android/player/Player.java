@@ -61,7 +61,6 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertEquals("Track should be the same", true, originalTrack.equals(playerElement.getFooterTitle()));
     }
 
-    @Suppress
     public void testPlayerRemainsPausedWhenSkipping() {
         playFirstTrack();
 
@@ -91,6 +90,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         StreamScreen streamScreen = new StreamScreen(solo);
         waiter.waitForContentAndRetryIfLoadingFailed();
         streamScreen.clickFirstTrack();
+        waiter.waitForExpandedPlayer();
     }
 
     private void playSingleTrack() {

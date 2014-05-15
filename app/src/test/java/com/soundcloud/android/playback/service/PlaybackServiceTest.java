@@ -179,7 +179,7 @@ public class PlaybackServiceTest {
         when(stateTransition.trackEnded()).thenReturn(true);
 
         playbackService.onPlaystateChanged(stateTransition);
-        verify(playQueue).moveToNext(false);
+        verify(playQueueManager).autoNextTrack();
     }
 
     @Test
@@ -202,7 +202,7 @@ public class PlaybackServiceTest {
 
         when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.IDLE);
         when(stateTransition.trackEnded()).thenReturn(true);
-        when(playQueue.moveToNext(anyBoolean())).thenReturn(true);
+        when(playQueueManager.autoNextTrack()).thenReturn(true);
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
 
         playbackService.onPlaystateChanged(stateTransition);
@@ -287,6 +287,14 @@ public class PlaybackServiceTest {
         expect(lastForegroundNotification).not.toBeNull();
 
     }
+
+    @Test
+    public void nextReturnsNextTrackFromPlayQueueManager() {
+        when(playQueueManager.nextTrack()).thenReturn(true);
+        expect(playbackService.next()).toBeTrue();
+    }
+
+
 
     private ArrayList<BroadcastReceiver> getReceiversForAction(String action) {
         ArrayList<BroadcastReceiver> broadcastReceivers = new ArrayList<BroadcastReceiver>();

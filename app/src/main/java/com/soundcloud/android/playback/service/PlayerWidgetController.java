@@ -25,7 +25,7 @@ import javax.inject.Singleton;
 /**
  * A controller class which handles communication between our widget and the application layer.
  * We introduced this as an afterthought and only ported likes to be handled by this guy.
- *
+ * <p/>
  * Eventually this should process playback events as well.
  */
 @Singleton
@@ -36,8 +36,6 @@ public class PlayerWidgetController {
     private final PlayerAppWidgetProvider widgetProvider;
     private final SoundAssociationOperations soundAssocicationOps;
     private final EventBus eventBus;
-
-    private Subscription eventSubscription = Subscriptions.empty();
 
     @Inject
     public PlayerWidgetController(Context context, PlaybackStateProvider playbackStateProvider,
@@ -51,12 +49,7 @@ public class PlayerWidgetController {
     }
 
     public void subscribe() {
-        eventSubscription = eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new PlayableChangedSubscriber());
-    }
-
-    @VisibleForTesting
-    void unsubscribe() {
-        eventSubscription.unsubscribe();
+        eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new PlayableChangedSubscriber());
     }
 
     private void handleWidgetLikeAction(Intent intent) {

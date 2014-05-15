@@ -53,6 +53,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public interface Actions {
         String PLAY_ACTION              = "com.soundcloud.android.playback.start";
         String TOGGLEPLAYBACK_ACTION    = "com.soundcloud.android.playback.toggleplayback";
+        String PLAY_CURRENT             = "com.soundcloud.android.playback.playcurrent";
         String PAUSE_ACTION             = "com.soundcloud.android.playback.pause";
         String NEXT_ACTION              = "com.soundcloud.android.playback.next";
         String PREVIOUS_ACTION          = "com.soundcloud.android.playback.previous";
@@ -60,7 +61,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         String STOP_ACTION              = "com.soundcloud.android.playback.stop"; // from the notification
         String RELOAD_QUEUE             = "com.soundcloud.android.reloadqueue";
         String RETRY_RELATED_TRACKS     = "com.soundcloud.android.retryRelatedTracks";
-        String WIDGET_LIKE_CHANGED     = "com.soundcloud.android.widgetLike";
+        String WIDGET_LIKE_CHANGED      = "com.soundcloud.android.widgetLike";
     }
 
     // broadcast notifications
@@ -193,6 +194,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         IntentFilter playbackFilter = new IntentFilter();
         playbackFilter.addAction(Actions.PLAY_ACTION);
         playbackFilter.addAction(Actions.TOGGLEPLAYBACK_ACTION);
+        playbackFilter.addAction(Actions.PLAY_CURRENT);
         playbackFilter.addAction(Actions.PAUSE_ACTION);
         playbackFilter.addAction(Actions.NEXT_ACTION);
         playbackFilter.addAction(Actions.PREVIOUS_ACTION);
@@ -333,7 +335,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public void onPlaystateChanged(Playa.StateTransition stateTransition) {
         publishPlaybackEventFromState(stateTransition);
 
-        if (stateTransition.trackEnded() && autoNext()){
+        if (stateTransition.trackEnded() && playQueueManager.autoNextTrack()){
             // advanced successfully
             openCurrent();
         } else {
@@ -540,7 +542,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     /* package */ void play() {
         if (!streamPlayer.isPlaying() && currentTrack != null && remoteAudioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
-            if (!streamPlayer.playbackHasPaused() || !streamPlayer.resume()){
+            if (currentTrack.getId() != playQueueManager.getCurrentTrackId() || !streamPlayer.playbackHasPaused() || !streamPlayer.resume()){
                 openCurrent();
             }
         }
@@ -596,15 +598,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     /* package */ boolean next() {
-        return next(true);
-    }
-
-    private boolean autoNext() {
-        return next(false);
-    }
-
-    private boolean next(boolean userTriggered) {
-        return getPlayQueueInternal().moveToNext(userTriggered);
+        return playQueueManager.nextTrack();
     }
 
     private void setPlayingNotification(final Track track) {
@@ -799,7 +793,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             }
 
 
-           switch (msg.what) {
+            switch (msg.what) {
                 case FADE_IN:
                     removeMessages(FADE_OUT);
                     if (!service.streamPlayer.isPlaying()) {

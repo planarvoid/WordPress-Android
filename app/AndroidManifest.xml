@@ -376,6 +376,7 @@
             <intent-filter>
                 <action android:name="com.soundcloud.android.playback.start"/>
                 <action android:name="com.soundcloud.android.playback.toggleplayback"/>
+                <action android:name="com.soundcloud.android.playback.playcurrent"/>
                 <action android:name="com.soundcloud.android.playback.pause"/>
                 <action android:name="com.soundcloud.android.playback.next"/>
                 <action android:name="com.soundcloud.android.playback.previous"/>

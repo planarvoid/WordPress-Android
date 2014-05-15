@@ -91,6 +91,12 @@ public class PlaybackReceiverTest {
     }
 
     @Test
+    public void playCurrentActionShouldCallOpenCurrentOnService() {
+        playbackReceiver.onReceive(Robolectric.application, new Intent(PlaybackService.Actions.PLAY_CURRENT));
+        verify(playbackService).openCurrent();
+    }
+
+    @Test
     public void pauseActionShouldCallNextOnService() {
         playbackReceiver.onReceive(Robolectric.application, new Intent(PlaybackService.Actions.PAUSE_ACTION));
         verify(playbackService).pause();

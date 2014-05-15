@@ -180,6 +180,10 @@ public class PlaybackOperations {
         context.startService(new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
     }
 
+    public void playCurrent(final Context context) {
+        context.startService(new Intent(PlaybackService.Actions.PLAY_CURRENT));
+    }
+
     public void previousTrack() {
         playQueueManager.previousTrack();
     }

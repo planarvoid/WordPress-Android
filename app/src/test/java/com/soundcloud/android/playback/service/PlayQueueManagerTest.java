@@ -212,13 +212,51 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldMoveToNextTrack() {
+    public void shouldMoveToNextTrackWithManualSetToTrue() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         when(playQueue.hasNextTrack()).thenReturn(true);
 
         playQueueManager.nextTrack();
 
         verify(playQueue).moveToNext(true);
+    }
+
+    @Test
+    public void nextTrackReturnsFalseIfNoNextTrack() {
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        when(playQueue.hasNextTrack()).thenReturn(false);
+        expect(playQueueManager.nextTrack()).toBeFalse();
+    }
+
+    @Test
+    public void nextTrackReturnsTrueIfHasNextTrack() {
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        when(playQueue.hasNextTrack()).thenReturn(true);
+        expect(playQueueManager.nextTrack()).toBeTrue();
+    }
+
+    @Test
+    public void shouldMoveToNextTrackWithManualSetToFalse() {
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        when(playQueue.hasNextTrack()).thenReturn(true);
+
+        playQueueManager.autoNextTrack();
+
+        verify(playQueue).moveToNext(false);
+    }
+
+    @Test
+    public void autoNextReturnsFalseIfNoNextTrack() {
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        when(playQueue.hasNextTrack()).thenReturn(false);
+        expect(playQueueManager.autoNextTrack()).toBeFalse();
+    }
+
+    @Test
+    public void autoNextReturnsTrueIfHasNextTrack() {
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        when(playQueue.hasNextTrack()).thenReturn(true);
+        expect(playQueueManager.autoNextTrack()).toBeTrue();
     }
 
     @Test

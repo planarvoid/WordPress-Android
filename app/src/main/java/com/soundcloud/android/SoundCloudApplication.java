@@ -18,6 +18,7 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.service.PlayerWidgetController;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -76,6 +77,8 @@ public class SoundCloudApplication extends Application {
     SharedPreferences sharedPreferences;
     @Inject
     PlayerWidgetController widgetController;
+    @Inject
+    PlaySessionController playSessionController;
 
     // we need this object to exist througout the life time of the app,
     // even if it appears to be unused
@@ -137,6 +140,7 @@ public class SoundCloudApplication extends Application {
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
 
         widgetController.subscribe();
+        playSessionController.subscribe();
     }
 
     private void setupCurrentUserAccount() {

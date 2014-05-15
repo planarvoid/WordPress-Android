@@ -74,6 +74,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
+        loadCurrentTrackDetails();
         playStateSubscription = eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
         playQueueSubscription = eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
     }
@@ -83,6 +84,10 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         super.onPause();
         playStateSubscription.unsubscribe();
         playQueueSubscription.unsubscribe();
+    }
+
+    private void loadCurrentTrackDetails() {
+        trackTitle.setText(Urn.forTrack(playQueueManager.getCurrentTrackId()).toString());
     }
 
     @Override

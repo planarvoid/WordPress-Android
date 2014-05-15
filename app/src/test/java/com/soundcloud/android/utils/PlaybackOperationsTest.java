@@ -257,6 +257,15 @@ public class PlaybackOperationsTest {
         expect(application.getNextStartedService().getAction()).toBe(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION);
     }
 
+
+    @Test
+    public void shouldPlayCurrentQueueTrack() {
+        playbackOperations.playCurrent(Robolectric.application);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        expect(application.getNextStartedService().getAction()).toBe(PlaybackService.Actions.PLAY_CURRENT);
+    }
+
     @Test
     public void shouldPerformPreviousAction() {
         playbackOperations.previousTrack();

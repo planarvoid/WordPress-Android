@@ -61,6 +61,12 @@ public class TestApplicationModule {
         return application;
     }
 
+
+    @Provides
+    public Resources provideResources() {
+        return application.getResources();
+    }
+
     @Provides
     public ApplicationProperties provideAppProperties() {
         Resources mockResources = mock(Resources.class);
