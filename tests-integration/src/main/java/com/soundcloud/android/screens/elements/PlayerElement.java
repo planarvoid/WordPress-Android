@@ -42,6 +42,14 @@ public class PlayerElement extends Element {
         solo.clickOnView(R.id.player_previous);
     }
 
+    public void swipeNext() {
+        solo.swipeLeft(.7f);
+    }
+
+    public void swipePrevious() {
+        solo.swipeRight(.7f);
+    }
+
     public String getTrackTitle() {
         View trackTitle = getCurrentTrackPage().findViewById(R.id.track_page_title);
         return ((TextView) trackTitle).getText().toString();

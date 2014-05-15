@@ -59,6 +59,17 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertEquals("Track should be the same", true, originalTrack.equals(playerElement.getTrackTitle()));
     }
 
+    public void testSwipingNextAndPreviousChangesTrack() {
+        playFirstTrack();
+        String originalTrack = playerElement.getTrackTitle();
+
+        playerElement.swipeNext();
+        assertEquals("Track should be different", false, originalTrack.equals(playerElement.getTrackTitle()));
+
+        playerElement.swipePrevious();
+        assertEquals("Track should be the same", true, originalTrack.equals(playerElement.getTrackTitle()));
+    }
+
     public void testPlayerRemainsPausedWhenSkipping() {
         playFirstTrack();
 

@@ -206,8 +206,16 @@ public class Han  {
         swipeHorizontal(Solo.LEFT);
     }
 
+    public void swipeLeft(float verticalPosition) {
+        swipeHorizontal(Solo.LEFT, verticalPosition);
+    }
+
     public void swipeRight() {
         swipeHorizontal(Solo.RIGHT);
+    }
+
+    public void swipeRight(float verticalPosition){
+        swipeHorizontal(Solo.RIGHT, verticalPosition);
     }
 
     public void swipeDown() {
@@ -227,14 +235,18 @@ public class Han  {
     }
 
     public void swipeHorizontal(int side) {
+        swipeHorizontal(side, .5f);
+    }
+
+    public void swipeHorizontal(int side, float verticalPosition){
         Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
 
         final int screenHeight = display.getHeight();
         final int screenWidth = display.getWidth();
 
         // center of the screen
-        float x = screenWidth / 2.0f;
-        float y = screenHeight / 2.0f;
+        float x = screenWidth * verticalPosition;
+        float y = screenHeight * verticalPosition;
 
         //each ~50 pixels is one step
         final int steps = (int) x / 50;
