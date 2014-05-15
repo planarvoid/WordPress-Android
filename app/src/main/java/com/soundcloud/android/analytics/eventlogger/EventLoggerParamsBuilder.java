@@ -1,8 +1,8 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -68,7 +68,7 @@ public class EventLoggerParamsBuilder {
         builder.appendQueryParameter(Parameters.PROTOCOL.value(), eventData.getProtocol().getValue());
         builder.appendQueryParameter(Parameters.PLAYER_TYPE.value(), eventData.getPlayerType().getValue());
         builder.appendQueryParameter(Parameters.TYPE.value(), getPerformanceEventType(eventData.getMetric()));
-        builder.appendQueryParameter(Parameters.HOST.value(), Uri.parse(eventData.getCdnHost()).getHost());
+        builder.appendQueryParameter(Parameters.HOST.value(), eventData.getCdnHost());
         builder.appendQueryParameter(Parameters.CONNECTION_TYPE.value(), eventData.getConnectionType().getValue());
         return builder.build().getEncodedQuery();
     }
