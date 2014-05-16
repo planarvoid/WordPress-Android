@@ -1,21 +1,9 @@
 require 'yaml'
-require_relative 'configuration/hockey'
 require_relative 'configuration/mvn'
 
 module Build
   module Configuration
     extend self
-
-    def hockey
-      Hockey.new(
-        hockey_setting(:enabled),
-        hockey_setting(:github_url),
-        hockey_setting(:api_token),
-        hockey_setting(:app_id),
-        hockey_setting(:notify),
-        hockey_setting(:download),
-      )
-    end
 
     def mvn
       Mvn.new(
