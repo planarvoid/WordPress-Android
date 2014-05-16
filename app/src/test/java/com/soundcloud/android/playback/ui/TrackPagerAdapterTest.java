@@ -1,32 +1,83 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.track.TrackOperations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observable;
+import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
+
+import android.view.View;
+import android.view.ViewGroup;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackPagerAdapterTest {
 
     @Mock
     private PlayQueueManager playQueueManager;
+    @Mock
+    private TrackOperations trackOperations;
+    @Mock
+    private TrackPagePresenter trackPagePresenter;
+    @Mock
+    private View view;
+    @Mock
+    private ViewGroup container;
+    @Mock
+    private Track track;
 
     private TrackPagerAdapter adapter;
 
     @Before
     public void setUp() throws Exception {
-        adapter = new TrackPagerAdapter(playQueueManager);
+        adapter = new TrackPagerAdapter(playQueueManager, trackOperations, trackPagePresenter);
     }
 
     @Test
     public void getCountReturnsCurrentPlayQueueSize() {
         when(playQueueManager.getCurrentPlayQueueSize()).thenReturn(10);
         expect(adapter.getCount()).toBe(10);
+    }
+
+    @Test
+    public void getViewReturnsConvertViewWhenNotNull() {
+        when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
+        expect(adapter.getView(0, view, container)).toBe(view);
+    }
+
+    @Test
+    public void getViewReturnsCreatedViewWhenConvertViewIsNull() {
+        when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
+        when(trackPagePresenter.createTrackPage(container)).thenReturn(view);
+        expect(adapter.getView(0, null, container)).toBe(view);
+    }
+
+    @Test
+    public void getViewLoadsTrackForGivenPlayQueuePosition() {
+        when(playQueueManager.getIdAtPosition(3)).thenReturn(123L);
+        when(trackOperations.loadTrack(123L, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
+        adapter.getView(3, view, container);
+        verify(trackPagePresenter).populateTrackPage(view, track);
+    }
+
+    @Test
+    public void getViewUsesCachedObservableIfAlreadyInCache() {
+        when(playQueueManager.getIdAtPosition(3)).thenReturn(123L);
+        when(trackOperations.loadTrack(123L, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
+        adapter.getView(3, view, container);
+        adapter.getView(3, view, container);
+        verify(trackOperations).loadTrack(anyLong(), any(Scheduler.class));
     }
 
 }
