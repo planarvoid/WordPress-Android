@@ -20,6 +20,10 @@ module Build
         upload_tasks
       end
 
+      namespace :github do
+        github_tasks
+      end
+
       namespace :adb do
         adb_tasks
       end
@@ -83,6 +87,13 @@ module Build
 
     def mvn_task(name)
       Mvn.task(name)
+    end
+
+    def github_tasks
+      desc 'Creates github issues as a base for regression tests'
+      task :regression_tests do
+        github.create_regression_tests_checklist("Regression tests: #{Build.version}", parse_issues)
+      end
     end
 
     def build_task
@@ -235,8 +246,19 @@ module Build
       raise "Uncommitted changes in working tree" if git.uncommited_changes?
     end
 
+    def parse_issues
+      IO.read('.regression-tests.md').split(/^$\n{2}/).map{|issue|
+        array = issue.lines
+        Github::Issue.new(array.first, array[1..-1])
+      }
+    end
+
     def git
       Git.new
+    end
+
+    def github
+      Github.new('0330604618ffbc5232a62f3e96f9d3b25377b9cb')
     end
 
     def release
