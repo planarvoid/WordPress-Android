@@ -96,7 +96,7 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
     private final class PlaybackStateSubscriber extends DefaultSubscriber<StateTransition> {
         @Override
         public void onNext(StateTransition stateTransition) {
-            if (presenter != null){
+            if (presenter != null) {
                 presenter.onPlayStateChanged(stateTransition.isPlaying());
             }
         }
@@ -105,7 +105,7 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
     private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
         @Override
         public void onNext(PlaybackProgressEvent progress) {
-            if (presenter != null){
+            if (presenter != null) {
                 presenter.onPlayerProgress(progress);
             }
         }
@@ -114,7 +114,7 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
     private final class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
         @Override
         public void onNext(PlayQueueEvent event) {
-            if (presenter != null){
+            if (presenter != null) {
                 if (event.getKind() == PlayQueueEvent.QUEUE_CHANGE) {
                     presenter.onPlayQueueChanged();
                 }

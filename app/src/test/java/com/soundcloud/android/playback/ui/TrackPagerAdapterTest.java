@@ -78,7 +78,7 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void getViewLoadsTrackWithProgressForGivenPlayQueuePositionIfPositionIsPlaying() {
-        final PlaybackProgressEvent progressEvent = Mockito.mock(PlaybackProgressEvent.class);
+        PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
         when(playSessionController.getCurrentProgress()).thenReturn(progressEvent);
         when(playQueueManager.getIdAtPosition(3)).thenReturn(123L);
         when(trackOperations.loadTrack(123L, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
@@ -97,4 +97,16 @@ public class TrackPagerAdapterTest {
         verify(trackOperations).loadTrack(anyLong(), any(Scheduler.class));
     }
 
+    @Test
+    public void setProgressOnCurrentTrackSetsProgressOnPresenter() {
+        PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
+        when(playQueueManager.getIdAtPosition(3)).thenReturn(123L);
+        when(playQueueManager.getCurrentPosition()).thenReturn(3);
+        when(trackOperations.loadTrack(123L, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
+
+        adapter.getView(3, view, container);
+        adapter.setProgressOnCurrentTrack(progressEvent);
+
+        verify(trackPagePresenter).setProgressOnTrackView(view, progressEvent);
+    }
 }
