@@ -1,6 +1,11 @@
 package com.soundcloud.android.explore;
 
 import static com.soundcloud.android.tests.TestUser.testUser;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThan;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MenuScreen;
@@ -29,42 +34,41 @@ public class Explore extends ActivityTestCase<MainActivity> {
     }
 
     public void testTrendingMusicIsDisplayed() {
-        exploreScreen.touchTrendingMusicTab();
-        assertEquals("Current tab is MUSIC", "MUSIC", exploreScreen.currentTabTitle());
-        assertEquals("Invalid number of trending music items", 20, exploreScreen.getItemsOnTrendingMusicList());
+        assertThat(exploreScreen.currentTabTitle(), is(equalTo("MUSIC")));
+        assertThat(exploreScreen.getItemsOnTrendingMusicList(), is(equalTo(20)));
     }
 
     public void testTrendingMusicPullToRefresh() {
-        exploreScreen.touchTrendingMusicTab();
-        assertEquals("Invalid number of trending music items", 20, exploreScreen.getItemsOnTrendingMusicList());
+        assertThat(exploreScreen.getItemsOnTrendingMusicList(), is(equalTo(20)));
 
         exploreScreen.pullToRefresh();
-        assertEquals("Invalid number of trending music items", 20, exploreScreen.getItemsOnTrendingMusicList());
+        assertThat(exploreScreen.getItemsOnTrendingMusicList(), is(equalTo(20)));
     }
 
     public void testTendingMusicLoadsNextPage(){
         exploreScreen.touchTrendingMusicTab();
         exploreScreen.scrollToBottomOfTracksListAndLoadMoreItems();
-        assertTrue(20 < exploreScreen.getItemsOnTrendingMusicList());
+        assertThat(exploreScreen.getItemsOnTrendingMusicList(), is(greaterThanOrEqualTo(20)));
     }
 
     public void testTrendingAudioIsDisplayedUsingSwiping() {
         exploreScreen.swipeLeft();
 
         waiter.waitForContentAndRetryIfLoadingFailed();
-        assertEquals("Current tab should be AUDIO", "AUDIO", exploreScreen.currentTabTitle());
-        assertEquals("Invalid number of genres found", 20, exploreScreen.getItemsOnTrendingAudioList());
+        assertThat(exploreScreen.currentTabTitle(), is(equalTo("AUDIO")));
+        assertThat(exploreScreen.getItemsOnTrendingAudioList(), is(equalTo(20)));
     }
 
     public void testTrendingAudioIsDisplayedWhenTouchingTab() {
         exploreScreen.touchTrendingAudioTab();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        assertEquals("Invalid number of tracks found", 20, exploreScreen.getItemsOnTrendingAudioList());
+        assertThat(exploreScreen.getItemsOnTrendingAudioList(), is(equalTo(20)));
     }
 
     public void testTrendingAudioPullToRefresh() {
         exploreScreen.touchTrendingAudioTab();
         waiter.waitForContentAndRetryIfLoadingFailed();
+        assertThat(exploreScreen.getItemsOnTrendingAudioList(), is(equalTo(20)));
         assertEquals("Invalid number of trending audio items", 20, exploreScreen.getItemsOnTrendingAudioList());
 
         exploreScreen.pullToRefresh();
@@ -75,13 +79,8 @@ public class Explore extends ActivityTestCase<MainActivity> {
         exploreScreen.touchTrendingAudioTab();
         int exploreTracksCountBefore = exploreScreen.getItemsOnTrendingAudioList();
         exploreScreen.scrollToBottomOfTracksListAndLoadMoreItems();
-        assertTrue( exploreTracksCountBefore < exploreScreen.getItemsOnTrendingAudioList());
+        assertThat(exploreTracksCountBefore, is(lessThan(exploreScreen.getItemsOnTrendingAudioList())));
 
-    }
-
-    public void testMusicIsDisplayedByDefault() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        assertEquals("Music tab is displayed by default", "MUSIC", exploreScreen.currentTabTitle());
     }
 
     private ExploreScreen openExploreFromMenu() {
