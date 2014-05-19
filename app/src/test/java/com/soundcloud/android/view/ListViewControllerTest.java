@@ -45,7 +45,7 @@ public class ListViewControllerTest {
     @Mock
     private View layout;
     @Mock
-    private EmptyListView emptyView;
+    private EmptyView emptyView;
     @Mock
     private ListView listView;
     @Mock

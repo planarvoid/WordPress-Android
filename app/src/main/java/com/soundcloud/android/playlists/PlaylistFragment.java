@@ -25,7 +25,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 import rx.Observable;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
@@ -345,14 +345,14 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-            controller.setEmptyViewStatus(EmptyListView.Status.ERROR);
+            controller.setEmptyViewStatus(EmptyView.Status.ERROR);
             showContent(true);
             pullToRefreshController.stopRefreshing();
         }
 
         @Override
         public void onCompleted() {
-            controller.setEmptyViewStatus(EmptyListView.Status.OK);
+            controller.setEmptyViewStatus(EmptyView.Status.OK);
             pullToRefreshController.stopRefreshing();
         }
     }

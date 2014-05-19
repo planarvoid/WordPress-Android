@@ -9,7 +9,7 @@ import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.rx.observers.DefaultFragmentObserver;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
@@ -47,7 +47,7 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
     private Observer<CategoryGroup> observer;
 
     private ListView listView;
-    private EmptyListView emptyListView;
+    private EmptyView emptyView;
 
     public SuggestedUsersCategoriesFragment() {
         this(new SuggestedUsersOperations(), null,
@@ -86,10 +86,10 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        emptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
-        emptyListView.setMessageText(R.string.problem_connecting_to_SoundCloud);
-        emptyListView.setActionText(getResources().getString(R.string.try_again));
-        emptyListView.setActionListener(new EmptyListView.ActionListener() {
+        emptyView = (EmptyView) view.findViewById(android.R.id.empty);
+        emptyView.setMessageText(R.string.problem_connecting_to_SoundCloud);
+        emptyView.setActionText(getResources().getString(R.string.try_again));
+        emptyView.setActionListener(new EmptyView.ActionListener() {
             @Override
             public void onAction() {
                 refresh();
@@ -120,7 +120,7 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
     public void onDestroyView() {
         super.onDestroyView();
         listView = null;
-        emptyListView = null;
+        emptyView = null;
     }
 
     private Observable<CategoryGroup> createCategoriesObservable() {
@@ -168,19 +168,19 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
         mMode = mode;
         switch (mMode){
             case LOADING:
-                emptyListView.setStatus(EmptyListView.Status.WAITING);
-                emptyListView.setVisibility(View.VISIBLE);
+                emptyView.setStatus(EmptyView.Status.WAITING);
+                emptyView.setVisibility(View.VISIBLE);
                 listView.setVisibility(View.GONE);
                 break;
 
             case CONTENT:
                 listView.setVisibility(View.VISIBLE);
-                emptyListView.setVisibility(View.GONE);
+                emptyView.setVisibility(View.GONE);
                 break;
 
             case ERROR:
-                emptyListView.setStatus(EmptyListView.Status.OK);
-                emptyListView.setVisibility(View.VISIBLE);
+                emptyView.setStatus(EmptyView.Status.OK);
+                emptyView.setVisibility(View.VISIBLE);
                 listView.setVisibility(View.GONE);
                 break;
         }

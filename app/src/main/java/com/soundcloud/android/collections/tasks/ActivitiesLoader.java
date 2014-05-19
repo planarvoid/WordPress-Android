@@ -8,7 +8,7 @@ import com.soundcloud.android.model.activities.Activity;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncer;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.api.CloudAPI;
 import org.apache.http.HttpStatus;
 
@@ -24,7 +24,7 @@ public class ActivitiesLoader implements CollectionLoader<Activity> {
 
         boolean keepGoing = true;
         boolean success = false;
-        int responseCode = EmptyListView.Status.OK;
+        int responseCode = EmptyView.Status.OK;
         Activities newActivities;
 
         if (params.isRefresh) {

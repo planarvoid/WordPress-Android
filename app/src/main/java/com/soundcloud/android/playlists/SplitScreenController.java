@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.collections.ItemAdapter;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 
 import android.content.res.Resources;
 import android.view.View;
@@ -13,7 +13,7 @@ import android.widget.ListView;
 class SplitScreenController implements PlaylistDetailsController {
 
     private final PlaylistTracksAdapter adapter;
-    private EmptyListView emptyView;
+    private EmptyView emptyView;
     private View listViewContainer;
 
     SplitScreenController(ImageOperations imageOperations) {
@@ -32,7 +32,7 @@ class SplitScreenController implements PlaylistDetailsController {
 
     @Override
     public void onViewCreated(View layout, Resources resources) {
-        emptyView = (EmptyListView) layout.findViewById(android.R.id.empty);
+        emptyView = (EmptyView) layout.findViewById(android.R.id.empty);
         emptyView.setMessageText(resources.getString(R.string.empty_playlist_description));
 
         listViewContainer = layout.findViewById(R.id.container);

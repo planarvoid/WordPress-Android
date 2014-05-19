@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +26,7 @@ public class SplitScreenControllerTest {
     @Mock
     private ListView listView;
     @Mock
-    private EmptyListView emptyView;
+    private EmptyView emptyView;
     @Mock
     private View container;
     @Mock

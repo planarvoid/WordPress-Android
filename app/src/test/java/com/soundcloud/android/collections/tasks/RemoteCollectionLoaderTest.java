@@ -18,7 +18,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.api.Request;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -87,7 +87,7 @@ public class RemoteCollectionLoaderTest {
         ReturnData<ScResource> responseData = remoteCollectionLoader.load(publicCloudApi, parameters);
         assertThat(responseData.success, is(false));
         assertThat(responseData.wasRefresh, is(true));
-        assertThat(responseData.responseCode, is(EmptyListView.Status.CONNECTION_ERROR));
+        assertThat(responseData.responseCode, is(EmptyView.Status.CONNECTION_ERROR));
     }
 
     @Test

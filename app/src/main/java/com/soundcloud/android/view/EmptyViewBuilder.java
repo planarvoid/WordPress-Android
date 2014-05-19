@@ -12,7 +12,7 @@ import android.content.Intent;
 import android.net.Uri;
 
 /**
- * A builder class to build or configure {@link EmptyListView}s. Note that it is essential that instances of this class must be
+ * A builder class to build or configure {@link EmptyView}s. Note that it is essential that instances of this class must be
  * retainable across configuration changes, so do NOT hold strong references to views or Context in here!
  */
 public class EmptyViewBuilder {
@@ -21,8 +21,8 @@ public class EmptyViewBuilder {
     private String messageText, actionText, secondaryText;
     private Intent action;
 
-    public EmptyListView build(Context context) {
-        EmptyListView view = new EmptyListView(context);
+    public EmptyView build(Context context) {
+        EmptyView view = new EmptyView(context);
         if (messageText != null) view.setMessageText(messageText);
         if (actionText != null) view.setActionText(actionText);
         if (secondaryText != null) view.setSecondaryText(secondaryText);
@@ -124,10 +124,10 @@ public class EmptyViewBuilder {
         return this;
     }
 
-    public void configureForSearch(EmptyListView emptyListView) {
-        emptyListView.setImage(R.drawable.empty_search);
-        emptyListView.setMessageText(R.string.search_empty);
-        emptyListView.setSecondaryText(R.string.search_empty_subtext);
+    public void configureForSearch(EmptyView emptyView) {
+        emptyView.setImage(R.drawable.empty_search);
+        emptyView.setMessageText(R.string.search_empty);
+        emptyView.setSecondaryText(R.string.search_empty_subtext);
     }
 
     private String getTextForUser(Context context, int userBasedText, @Nullable User user) {

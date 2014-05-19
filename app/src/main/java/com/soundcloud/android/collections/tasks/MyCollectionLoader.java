@@ -13,7 +13,7 @@ import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.api.CloudAPI;
 import org.apache.http.HttpStatus;
 
@@ -42,7 +42,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
         final Context context = SoundCloudApplication.instance;
         final ContentResolver resolver = context.getContentResolver();
         boolean keepGoing = true;
-        int responseCode = EmptyListView.Status.OK;
+        int responseCode = EmptyView.Status.OK;
 
         switch (params.getContent()){
             case ME_FOLLOWERS:

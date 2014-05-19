@@ -20,7 +20,7 @@ public class ErrorView extends RelativeLayout {
         super(context, attrs);
     }
 
-    public void setOnRetryListener(final EmptyListView.RetryListener retryListener) {
+    public void setOnRetryListener(final EmptyView.RetryListener retryListener) {
         final View btnRetry = findViewById(R.id.btn_retry);
         if (retryListener != null){
             btnRetry.setVisibility(View.VISIBLE);

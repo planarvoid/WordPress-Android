@@ -62,7 +62,7 @@ public class ListViewController {
         absListView = null;
     }
 
-    public EmptyListView getEmptyView() {
+    public EmptyView getEmptyView() {
         return emptyViewController.getEmptyView();
     }
 

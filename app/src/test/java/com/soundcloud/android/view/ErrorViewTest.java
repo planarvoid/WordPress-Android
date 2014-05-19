@@ -53,7 +53,7 @@ public class ErrorViewTest {
 
     @Test
     public void shouldShowRetryButtonIfListener() {
-        errorView.setOnRetryListener(new EmptyListView.RetryListener() {
+        errorView.setOnRetryListener(new EmptyView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
             }

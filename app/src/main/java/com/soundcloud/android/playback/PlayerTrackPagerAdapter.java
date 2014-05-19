@@ -9,7 +9,7 @@ import com.soundcloud.android.playback.views.LegacyPlayerTrackView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.track.TrackOperations;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.RecyclingPager.RecyclingPagerAdapter;
 import org.jetbrains.annotations.Nullable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -98,18 +98,18 @@ public abstract class  PlayerTrackPagerAdapter<T extends View & PlayerTrackView>
         long id = getIdByPosition(position);
         if (getItemViewType(position) == VIEW_TYPE_EMPTY){
 
-            final EmptyListView emptyView = convertView != null ? (EmptyListView) convertView :
+            final EmptyView emptyView = convertView != null ? (EmptyView) convertView :
                     createEmptyListView(container.getContext());
 
             switch (playQueue.getAppendState()){
                 case LOADING:
-                    emptyView.setStatus(EmptyListView.Status.WAITING);
+                    emptyView.setStatus(EmptyView.Status.WAITING);
                     break;
                 case ERROR:
-                    emptyView.setStatus(EmptyListView.Status.ERROR);
+                    emptyView.setStatus(EmptyView.Status.ERROR);
                     break;
                 default:
-                    emptyView.setStatus(EmptyListView.Status.OK);
+                    emptyView.setStatus(EmptyView.Status.OK);
                     break;
             }
             return emptyView;
@@ -206,5 +206,5 @@ public abstract class  PlayerTrackPagerAdapter<T extends View & PlayerTrackView>
 
     protected abstract T createPlayerTrackView(Context context);
 
-    protected abstract EmptyListView createEmptyListView(Context context);
+    protected abstract EmptyView createEmptyListView(Context context);
 }

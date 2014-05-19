@@ -26,7 +26,7 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowToast;
 import org.junit.Before;
@@ -204,7 +204,7 @@ public class PlaylistFragmentTest {
     @Test
     public void setsEmptyViewToOkWhenPlaylistIsReturned() throws Exception {
         createFragmentView();
-        verify(controller).setEmptyViewStatus(EmptyListView.Status.OK);
+        verify(controller).setEmptyViewStatus(EmptyView.Status.OK);
     }
 
     @Test
@@ -212,7 +212,7 @@ public class PlaylistFragmentTest {
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
                 Observable.<Playlist>error(new Exception("something bad happened")));
         createFragmentView();
-        verify(controller).setEmptyViewStatus(EmptyListView.Status.ERROR);
+        verify(controller).setEmptyViewStatus(EmptyView.Status.ERROR);
     }
 
     @Test

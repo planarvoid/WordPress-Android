@@ -7,7 +7,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.utils.ViewUtils;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 
 import android.content.Context;
@@ -20,7 +20,7 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<Track> implements EmptyVie
 
     private final ImageOperations imageOperations;
 
-    private int emptyViewStatus = EmptyListView.Status.WAITING;
+    private int emptyViewStatus = EmptyView.Status.WAITING;
 
     InlinePlaylistTracksAdapter(ImageOperations imageOperations) {
         super(INITIAL_SIZE);
@@ -36,7 +36,7 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<Track> implements EmptyVie
     protected View createItemView(int position, ViewGroup parent) {
         Context context = parent.getContext();
         if (getItemViewType(position) == IGNORE_ITEM_VIEW_TYPE) {
-            EmptyListView emptyView = new EmptyViewBuilder()
+            EmptyView emptyView = new EmptyViewBuilder()
                     .withImage(R.drawable.empty_playlists)
                     .withMessageText(context.getString(R.string.empty_playlist_title))
                     .withSecondaryText(context.getString(R.string.empty_playlist_description))
@@ -51,7 +51,7 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<Track> implements EmptyVie
     @Override
     protected void bindItemView(int position, View itemView) {
         if (getItemViewType(position) == IGNORE_ITEM_VIEW_TYPE) {
-            ((EmptyListView) itemView).setStatus(emptyViewStatus);
+            ((EmptyView) itemView).setStatus(emptyViewStatus);
         } else {
             ((PlayableRow) itemView).display(position, items.get(position));
         }

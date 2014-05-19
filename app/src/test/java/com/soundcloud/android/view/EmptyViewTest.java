@@ -2,7 +2,7 @@ package com.soundcloud.android.view;
 
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
@@ -10,17 +10,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-@RunWith(DefaultTestRunner.class)
-public class EmptyListViewTest {
+@RunWith(SoundCloudTestRunner.class)
+public class EmptyViewTest {
 
-    EmptyListView subject;
+    EmptyView subject;
 
     @Mock
     ErrorView errorView;
 
     @Before
     public void setUp() throws Exception {
-        subject = new EmptyListView(Robolectric.application){
+        subject = new EmptyView(Robolectric.application){
             @Override
             protected ErrorView addErrorView() {
                 return errorView;
@@ -42,7 +42,7 @@ public class EmptyListViewTest {
 
     @Test
     public void shouldSetConnectionErrorState() throws Exception {
-        subject.setStatus(EmptyListView.Status.ERROR);
+        subject.setStatus(EmptyView.Status.ERROR);
         verify(errorView).setConnectionErrorState();
     }
 }

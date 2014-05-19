@@ -9,17 +9,14 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.android.OperatorPaged.Page;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.model.Track;
@@ -27,7 +24,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -36,7 +33,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.android.OperatorPaged;
 import rx.observables.ConnectableObservable;
 
 import android.content.Context;
@@ -46,7 +42,6 @@ import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SearchResultsFragmentTest {
@@ -69,7 +64,7 @@ public class SearchResultsFragmentTest {
     public void setUp() throws Exception {
         Robolectric.shadowOf(fragment).setActivity(mock(FragmentActivity.class));
         Robolectric.shadowOf(fragment).setAttached(true);
-        when(listViewController.getEmptyView()).thenReturn(mock(EmptyListView.class));
+        when(listViewController.getEmptyView()).thenReturn(mock(EmptyView.class));
     }
 
     @Test

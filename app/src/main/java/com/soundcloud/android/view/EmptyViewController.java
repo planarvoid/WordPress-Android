@@ -12,8 +12,8 @@ import javax.inject.Inject;
 
 public class EmptyViewController {
 
-    private EmptyListView emptyView;
-    private int emptyViewStatus = EmptyListView.Status.WAITING;
+    private EmptyView emptyView;
+    private int emptyViewStatus = EmptyView.Status.WAITING;
 
     private Subscription subscription = Subscriptions.empty();
 
@@ -23,12 +23,12 @@ public class EmptyViewController {
 
     public <OT extends ConnectableObservable<?>> void onViewCreated(
             final ReactiveComponent<OT> reactiveComponent, OT activeObservable, View view) {
-        emptyView = (EmptyListView) view.findViewById(android.R.id.empty);
+        emptyView = (EmptyView) view.findViewById(android.R.id.empty);
         emptyView.setStatus(emptyViewStatus);
-        emptyView.setOnRetryListener(new EmptyListView.RetryListener() {
+        emptyView.setOnRetryListener(new EmptyView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
-                updateEmptyViewStatus(EmptyListView.Status.WAITING);
+                updateEmptyViewStatus(EmptyView.Status.WAITING);
                 final OT retryObservable = reactiveComponent.buildObservable();
                 retryObservable.subscribe(new EmptyViewSubscriber());
                 reactiveComponent.connectObservable(retryObservable);
@@ -43,7 +43,7 @@ public class EmptyViewController {
         emptyView = null;
     }
 
-    public EmptyListView getEmptyView() {
+    public EmptyView getEmptyView() {
         return emptyView;
     }
 
@@ -55,16 +55,16 @@ public class EmptyViewController {
     private final class EmptyViewSubscriber extends DefaultSubscriber {
         @Override
         public void onCompleted() {
-            updateEmptyViewStatus(EmptyListView.Status.OK);
+            updateEmptyViewStatus(EmptyView.Status.OK);
         }
 
         @Override
         public void onError(Throwable error) {
             if (error instanceof APIRequestException) {
                 boolean commsError = ((APIRequestException) error).reason() == APIRequestException.APIErrorReason.NETWORK_COMM_ERROR;
-                updateEmptyViewStatus(commsError ? EmptyListView.Status.CONNECTION_ERROR : EmptyListView.Status.SERVER_ERROR);
+                updateEmptyViewStatus(commsError ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR);
             } else {
-                updateEmptyViewStatus(EmptyListView.Status.ERROR);
+                updateEmptyViewStatus(EmptyView.Status.ERROR);
             }
         }
     }

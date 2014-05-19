@@ -6,7 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 
 import android.content.Intent;
@@ -24,7 +24,7 @@ public class UserDetailsFragment extends Fragment {
 
     private long userId;
     private EmptyViewBuilder emptyViewFactory;
-    private int emptyViewStatus = EmptyListView.Status.WAITING;
+    private int emptyViewStatus = EmptyView.Status.WAITING;
     private boolean displayedInfo;
 
     public static UserDetailsFragment newInstance(long userId) {
@@ -60,7 +60,7 @@ public class UserDetailsFragment extends Fragment {
     }
 
     public void onSuccess(User user) {
-        emptyViewStatus = EmptyListView.Status.OK;
+        emptyViewStatus = EmptyView.Status.OK;
         ViewGroup fragmentLayout = (ViewGroup) getView();
         if (fragmentLayout != null) {
             updateViews(fragmentLayout, user);
@@ -69,7 +69,7 @@ public class UserDetailsFragment extends Fragment {
     }
 
     public void onError() {
-        emptyViewStatus = EmptyListView.Status.ERROR;
+        emptyViewStatus = EmptyView.Status.ERROR;
         ViewGroup fragmentLayout = (ViewGroup) getView();
         if (fragmentLayout != null) {
             configureEmptyView(fragmentLayout);
@@ -85,11 +85,11 @@ public class UserDetailsFragment extends Fragment {
     }
 
     private void configureEmptyView(ViewGroup fragmentLayout) {
-        EmptyListView emptyView = (EmptyListView) fragmentLayout.findViewById(android.R.id.empty);
+        EmptyView emptyView = (EmptyView) fragmentLayout.findViewById(android.R.id.empty);
         if (emptyView != null) fragmentLayout.removeView(emptyView);
 
         if (!displayedInfo) {
-            if (emptyViewStatus == EmptyListView.Status.OK) {
+            if (emptyViewStatus == EmptyView.Status.OK) {
                 if (userId == SoundCloudApplication.fromContext(getActivity()).getAccountOperations().getLoggedInUserId()) {
                     emptyViewFactory.withMessageText(getString(R.string.info_empty_you_message))
                                      .withSecondaryText(getString(R.string.info_empty_you_secondary))

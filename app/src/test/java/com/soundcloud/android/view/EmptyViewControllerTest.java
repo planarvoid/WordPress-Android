@@ -35,13 +35,13 @@ public class EmptyViewControllerTest {
     @Mock
     private View layout;
     @Mock
-    private EmptyListView emptyView;
+    private EmptyView emptyView;
     @Mock
     private ReactiveComponent reactiveComponent;
     @Mock
     private Subscription subscription;
     @Captor
-    private ArgumentCaptor<EmptyListView.RetryListener> retryListenerCaptor;
+    private ArgumentCaptor<EmptyView.RetryListener> retryListenerCaptor;
 
     @Before
     public void setup() {
@@ -54,13 +54,13 @@ public class EmptyViewControllerTest {
     @Test
     public void shouldResetEmptyViewStateToIdleWhenControllerReceivesCompleteEvent() {
         controller.onViewCreated(reactiveComponent, observable, layout);
-        verify(emptyView).setStatus(EmptyListView.Status.OK);
+        verify(emptyView).setStatus(EmptyView.Status.OK);
     }
 
     @Test
     public void shouldSetupEmptyViewInWaitingStateInFirstCallToOnViewCreated() {
         controller.onViewCreated(reactiveComponent, observable, layout);
-        verify(emptyView).setStatus(EmptyListView.Status.WAITING);
+        verify(emptyView).setStatus(EmptyView.Status.WAITING);
     }
 
     @Test
@@ -68,19 +68,19 @@ public class EmptyViewControllerTest {
         controller.onViewCreated(reactiveComponent, observable, layout);
         controller.onViewCreated(reactiveComponent, observable, layout);
         InOrder inOrder = inOrder(emptyView);
-        inOrder.verify(emptyView).setStatus(EmptyListView.Status.WAITING);
-        inOrder.verify(emptyView, times(2)).setStatus(EmptyListView.Status.OK);
+        inOrder.verify(emptyView).setStatus(EmptyView.Status.WAITING);
+        inOrder.verify(emptyView, times(2)).setStatus(EmptyView.Status.OK);
     }
 
     @Test
     public void retryListenerShouldSetEmptyViewStateToWaitingWhenFired() {
         controller.onViewCreated(reactiveComponent, observable, layout);
 
-        ArgumentCaptor<EmptyListView.RetryListener> listenerCaptor = ArgumentCaptor.forClass(EmptyListView.RetryListener.class);
+        ArgumentCaptor<EmptyView.RetryListener> listenerCaptor = ArgumentCaptor.forClass(EmptyView.RetryListener.class);
         verify(emptyView).setOnRetryListener(listenerCaptor.capture());
         listenerCaptor.getValue().onEmptyViewRetry();
 
-        verify(emptyView, times(2)).setStatus(EmptyListView.Status.WAITING);
+        verify(emptyView, times(2)).setStatus(EmptyView.Status.WAITING);
     }
 
     @Test

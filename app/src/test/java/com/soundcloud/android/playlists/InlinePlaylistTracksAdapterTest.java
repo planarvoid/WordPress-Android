@@ -1,13 +1,13 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.view.EmptyListView.Status;
+import static com.soundcloud.android.view.EmptyView.Status;
 
 import com.soundcloud.android.collections.views.PlayableRow;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,26 +43,26 @@ public class InlinePlaylistTracksAdapterTest {
     @Test
     public void getViewCreatesEmptyListViewWithNoData() throws Exception {
         View view = adapter.getView(0, null, new FrameLayout(Robolectric.application));
-        expect(view).toBeInstanceOf(EmptyListView.class);
+        expect(view).toBeInstanceOf(EmptyView.class);
     }
 
     @Test
     public void getViewReturnsEmptyListViewWithWaitingStateByDefault() throws Exception {
-        EmptyListView view = (EmptyListView) adapter.getView(0, null, new FrameLayout(Robolectric.application));
+        EmptyView view = (EmptyView) adapter.getView(0, null, new FrameLayout(Robolectric.application));
         expect(view.getStatus()).toEqual(Status.WAITING);
     }
 
     @Test
     public void getViewReturnsEmptyListViewWithErrorState() throws Exception {
         adapter.setEmptyViewStatus(Status.ERROR);
-        EmptyListView view = (EmptyListView) adapter.getView(0, null, new FrameLayout(Robolectric.application));
+        EmptyView view = (EmptyView) adapter.getView(0, null, new FrameLayout(Robolectric.application));
         expect(view.getStatus()).toEqual(Status.ERROR);
     }
 
     @Test
     public void getViewReturnsEmptyListViewWithOkStateAndNoItemsOnAdapter() throws Exception {
         adapter.setEmptyViewStatus(Status.OK);
-        EmptyListView view = (EmptyListView) adapter.getView(0, null, new FrameLayout(Robolectric.application));
+        EmptyView view = (EmptyView) adapter.getView(0, null, new FrameLayout(Robolectric.application));
         expect(view.getStatus()).toEqual(Status.OK);
     }
 

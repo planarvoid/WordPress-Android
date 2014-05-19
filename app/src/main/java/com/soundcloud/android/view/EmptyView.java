@@ -22,25 +22,27 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class EmptyListView extends RelativeLayout {
+public class EmptyView extends RelativeLayout {
 
     protected View progressView;
 
-    @Nullable protected ViewGroup emptyLayout;
+    @Nullable
+    protected ViewGroup emptyLayout;
 
     private RelativeLayout emptyViewHolder;
     private TextView textMessage;
     private TextView textLink;
-    @Nullable private ImageView image;
-    @Nullable private ErrorView errorView;
+    @Nullable
+    private ImageView image;
+    @Nullable
+    private ErrorView errorView;
     protected Button buttonAction;
 
     private int messageResource, imageResource;
     private String message, secondaryText, actionText;
 
     private ActionListener buttonActionListener;
-    private ActionListener imageActionListener;
-    protected int mode;
+    protected int status;
     private RetryListener retryListener;
 
     public interface Status extends HttpStatus {
@@ -51,22 +53,22 @@ public class EmptyListView extends RelativeLayout {
         int OK = SC_OK; //generic OK
     }
 
-    public EmptyListView(final Context context) {
+    public EmptyView(final Context context) {
         super(context);
         init(R.layout.empty_list);
     }
 
-    public EmptyListView(final Context context, int layoutId) {
+    public EmptyView(final Context context, int layoutId) {
         super(context);
         init(layoutId);
     }
 
-    public EmptyListView(final Context context, AttributeSet attributeSet) {
+    public EmptyView(final Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         init(R.layout.empty_list);
     }
 
-    public EmptyListView setButtonActions(@Nullable final Intent action) {
+    public EmptyView setButtonActions(@Nullable final Intent action) {
         setActionListener(new ActionListener() {
             @Override
             public void onAction() {
@@ -78,7 +80,7 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
-    private void init(int layoutId){
+    private void init(int layoutId) {
         ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(layoutId, this);
 
@@ -89,16 +91,11 @@ public class EmptyListView extends RelativeLayout {
         progressView = findViewById(R.id.empty_view_progress);
     }
 
-    /**
-     * Configure display based on response code
-     * @param code
-     * @return whether the code was handled here
-     */
-    public boolean setStatus(int code) {
-        if (mode != code) {
-            mode = code;
+    public boolean setStatus(int status) {
+        if (this.status != status) {
+            this.status = status;
 
-            if (code == Status.WAITING) {
+            if (status == Status.WAITING) {
 
                 // don't show empty screen, show progress
                 progressView.setVisibility(View.VISIBLE);
@@ -108,14 +105,14 @@ public class EmptyListView extends RelativeLayout {
 
             } else {
                 AnimUtils.hideView(getContext(), progressView, false);
-                if (PublicApiWrapper.isStatusCodeOk(code)) {
+                if (PublicApiWrapper.isStatusCodeOk(status)) {
                     // at rest, no error
                     showEmptyLayout();
                     return true;
 
                 } else {
                     // error,
-                    showError(code);
+                    showError(status);
                     return true;
                 }
             }
@@ -125,10 +122,10 @@ public class EmptyListView extends RelativeLayout {
     }
 
     public int getStatus() {
-        return mode;
+        return status;
     }
 
-    private void showError(int responseCode){
+    private void showError(int responseCode) {
         if (errorView == null) {
             errorView = addErrorView();
             errorView.setOnRetryListener(retryListener);
@@ -139,7 +136,7 @@ public class EmptyListView extends RelativeLayout {
             AnimUtils.hideView(getContext(), emptyLayout, false);
         }
 
-        if (PublicApiWrapper.isStatusCodeError(responseCode) || responseCode == Status.SERVER_ERROR){
+        if (PublicApiWrapper.isStatusCodeError(responseCode) || responseCode == Status.SERVER_ERROR) {
             errorView.setUnexpectedResponseState();
         } else {
             errorView.setConnectionErrorState();
@@ -156,7 +153,7 @@ public class EmptyListView extends RelativeLayout {
     }
 
     protected void showEmptyLayout() {
-        if (emptyLayout == null){
+        if (emptyLayout == null) {
             emptyLayout = (ViewGroup) View.inflate(getContext(), getEmptyViewLayoutId(), null);
 
             final RelativeLayout.LayoutParams params =
@@ -169,14 +166,6 @@ public class EmptyListView extends RelativeLayout {
             buttonAction = (Button) findViewById(R.id.btn_action);
             image = (ImageView) findViewById(R.id.empty_state_image);
             if (image != null) {
-                image.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (imageActionListener != null) {
-                            imageActionListener.onAction();
-                        }
-                    }
-                });
                 setImage(imageResource);
             }
 
@@ -210,10 +199,10 @@ public class EmptyListView extends RelativeLayout {
         return R.layout.empty_collection_view;
     }
 
-    public EmptyListView setImage(int imageId){
+    public EmptyView setImage(int imageId) {
         imageResource = imageId;
-        if (image != null){
-            if (imageId > 0){
+        if (image != null) {
+            if (imageId > 0) {
                 image.setVisibility(View.VISIBLE);
                 image.setImageResource(imageId);
             } else {
@@ -223,7 +212,7 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
-    public EmptyListView setMessageText(int messageId){
+    public EmptyView setMessageText(int messageId) {
         messageResource = messageId;
         message = null;
         if (textMessage != null) {
@@ -237,7 +226,7 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
-    public EmptyListView setMessageText(String s) {
+    public EmptyView setMessageText(String s) {
         message = s;
         messageResource = -1;
         if (textMessage != null) {
@@ -251,11 +240,11 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
-    public EmptyListView setSecondaryText(int secondaryTextId) {
+    public EmptyView setSecondaryText(int secondaryTextId) {
         return setSecondaryText(getResources().getString(secondaryTextId));
     }
 
-    public EmptyListView setSecondaryText(String secondaryText) {
+    public EmptyView setSecondaryText(String secondaryText) {
         this.secondaryText = secondaryText;
         if (textLink != null) {
             if (secondaryText != null) {
@@ -268,7 +257,7 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
-    public EmptyListView setActionText(@Nullable String actionText){
+    public EmptyView setActionText(@Nullable String actionText) {
         this.actionText = actionText;
         if (buttonAction != null) {
             if (actionText != null) {
@@ -281,29 +270,12 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
-    public EmptyListView setActionListener(ActionListener listener){
+    public EmptyView setActionListener(ActionListener listener) {
         buttonActionListener = listener;
         return this;
     }
 
-    public EmptyListView setImageActions(@Nullable final Intent action) {
-        setImageActionListener(new ActionListener() {
-            @Override
-            public void onAction() {
-                if (action != null) {
-                    getContext().startActivity(action);
-                }
-            }
-        });
-        return this;
-    }
-
-    public EmptyListView setImageActionListener(ActionListener listener){
-        imageActionListener = listener;
-        return this;
-    }
-
-    public EmptyListView setOnRetryListener(RetryListener listener) {
+    public EmptyView setOnRetryListener(RetryListener listener) {
         retryListener = listener;
         if (errorView != null) {
             errorView.setOnRetryListener(listener);

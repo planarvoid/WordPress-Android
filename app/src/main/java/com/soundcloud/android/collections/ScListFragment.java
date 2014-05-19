@@ -38,7 +38,7 @@ import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
@@ -77,7 +77,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                                                             LocalCollection.OnChangeListener,
                                                             CollectionTask.Callback,
                                                             AbsListView.OnScrollListener,
-                                                            EmptyListView.RetryListener {
+                                                            EmptyView.RetryListener {
     private static final int CONNECTIVITY_MSG = 0;
     public static final String TAG = ScListFragment.class.getSimpleName();
     private static final String EXTRA_CONTENT_URI = "contentUri";
@@ -89,7 +89,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     private ScBaseAdapter<?> adapter;
     private final DetachableResultReceiver detachableReceiver = new DetachableResultReceiver(new Handler());
 
-    private @Nullable EmptyListView emptyListView;
+    private @Nullable
+    EmptyView emptyView;
     private EmptyViewBuilder emptyViewBuilder;
 
     private Content content;
@@ -195,12 +196,12 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         listView = configureList((ScListView) pullToRefreshLayout.findViewById(android.R.id.list));
         listView.setOnScrollListener(imageOperations.createScrollPauseListener(false, true, this));
 
-        emptyListView = createEmptyView();
-        emptyListView.setStatus(statusCode);
-        emptyListView.setOnRetryListener(this);
-        listView.setEmptyView(emptyListView);
+        emptyView = createEmptyView();
+        emptyView.setStatus(statusCode);
+        emptyView.setOnRetryListener(this);
+        listView.setEmptyView(emptyView);
 
-        pullToRefreshLayout.addView(emptyListView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+        pullToRefreshLayout.addView(emptyView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
         pullToRefreshController.attach(getActivity(), pullToRefreshLayout, this);
@@ -222,7 +223,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         refresh(true);
     }
 
-    protected EmptyListView createEmptyView() {
+    protected EmptyView createEmptyView() {
         return emptyViewBuilder.build(getActivity());
     }
 
@@ -296,7 +297,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         }
         // null out view references to avoid leaking the current Context in case we detach/re-attach
         listView = null;
-        emptyListView = null;
+        emptyView = null;
     }
 
     @Override
@@ -591,15 +592,15 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     }
 
     protected void configureEmptyView() {
-        configureEmptyView(EmptyListView.Status.OK);
+        configureEmptyView(EmptyView.Status.OK);
     }
 
     protected void configureEmptyView(int statusCode) {
         final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
         log("Configure empty view [waiting:" + wait + "]");
-        this.statusCode = wait ? EmptyListView.Status.WAITING : statusCode;
-        if (emptyListView != null) {
-            emptyListView.setStatus(this.statusCode);
+        this.statusCode = wait ? EmptyView.Status.WAITING : statusCode;
+        if (emptyView != null) {
+            emptyView.setStatus(this.statusCode);
         }
     }
 

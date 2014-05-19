@@ -5,7 +5,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.LegacyPlayerTrackView;
 import com.soundcloud.android.track.TrackOperations;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -35,11 +35,11 @@ public class CommentingPlayerPagerAdapter extends PlayerTrackPagerAdapter<Legacy
     }
 
     @Override
-    protected EmptyListView createEmptyListView(Context context) {
-        EmptyListView emptyListView = new EmptyListView(context, R.layout.empty_player_track);
-        emptyListView.setBackgroundColor(Color.WHITE);
-        emptyListView.setMessageText(R.string.player_no_recommended_tracks);
-        return emptyListView;
+    protected EmptyView createEmptyListView(Context context) {
+        EmptyView emptyView = new EmptyView(context, R.layout.empty_player_track);
+        emptyView.setBackgroundColor(Color.WHITE);
+        emptyView.setMessageText(R.string.player_no_recommended_tracks);
+        return emptyView;
     }
 
     public int getCommentingPosition() {

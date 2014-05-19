@@ -1,8 +1,8 @@
 package com.soundcloud.android.actionbar;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.view.EmptyListDelegate;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyViewDelegate;
+import com.soundcloud.android.view.EmptyView;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressDrawable;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
@@ -25,7 +25,7 @@ class PullToRefreshAttacher {
     public void attach(FragmentActivity activity, PullToRefreshLayout pullToRefreshLayout, OnRefreshListener listener) {
         ActionBarPullToRefresh.from(activity)
                 .allChildrenArePullable()
-                .useViewDelegate(EmptyListView.class, new EmptyListDelegate())
+                .useViewDelegate(EmptyView.class, new EmptyViewDelegate())
                 .listener(listener)
                 .setup(pullToRefreshLayout);
         SmoothProgressBar spb = (SmoothProgressBar) pullToRefreshLayout.getHeaderView().findViewById(R.id.ptr_progress);

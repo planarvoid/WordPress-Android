@@ -15,7 +15,7 @@ import com.soundcloud.android.playback.views.LegacyPlayerTrackView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.track.TrackOperations;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +41,7 @@ public class PlayerTrackPagerAdapterTest {
     @Mock
     private PlayQueueView playQueue;
     @Mock
-    private EmptyListView emptyListView;
+    private EmptyView emptyView;
     @Mock(extraInterfaces = PlayerTrackView.class)
     private View playerTrackView;
     @Mock
@@ -57,8 +57,8 @@ public class PlayerTrackPagerAdapterTest {
             }
 
             @Override
-            protected EmptyListView createEmptyListView(Context context) {
-                return emptyListView;
+            protected EmptyView createEmptyListView(Context context) {
+                return emptyView;
             }
         };
 
@@ -107,7 +107,7 @@ public class PlayerTrackPagerAdapterTest {
 
     @Test
     public void createEmptyViewWithoutValidPlayQueuePosition() {
-        expect(adapter.getView(0, null, mock(ViewGroup.class))).toBe(emptyListView);
+        expect(adapter.getView(0, null, mock(ViewGroup.class))).toBe(emptyView);
     }
 
     @Test
@@ -118,7 +118,7 @@ public class PlayerTrackPagerAdapterTest {
 
     @Test
     public void convertsEmptyViewWithoutValidPlayQueuePosition() {
-        final EmptyListView convertView = mock(EmptyListView.class);
+        final EmptyView convertView = mock(EmptyView.class);
         expect(adapter.getView(0, convertView, mock(ViewGroup.class))).toBe(convertView);
     }
 
@@ -211,21 +211,21 @@ public class PlayerTrackPagerAdapterTest {
     public void setsAppendStateFromQueueOnEmptyViewWhenGettingViewAtInvalidPlayQueuePosition() throws Exception {
         adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackOperations.AppendState.LOADING));
         adapter.getView(1, null, mock(ViewGroup.class));
-        verify(emptyListView).setStatus(EmptyListView.Status.WAITING);
+        verify(emptyView).setStatus(EmptyView.Status.WAITING);
     }
 
     @Test
     public void setsErrorStateFromQueueOnEmptyViewWhenGettingViewAtInvalidPlayQueuePosition() throws Exception {
         adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackOperations.AppendState.ERROR));
         adapter.getView(1, null, mock(ViewGroup.class));
-        verify(emptyListView).setStatus(EmptyListView.Status.ERROR);
+        verify(emptyView).setStatus(EmptyView.Status.ERROR);
     }
 
     @Test
     public void setsOkStateFromQueueOnEmptyViewWhenGettingViewAtInvalidPlayQueuePosition() throws Exception {
         adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackOperations.AppendState.EMPTY));
         adapter.getView(1, null, mock(ViewGroup.class));
-        verify(emptyListView).setStatus(EmptyListView.Status.OK);
+        verify(emptyView).setStatus(EmptyView.Status.OK);
     }
 
     @Test
