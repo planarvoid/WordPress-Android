@@ -6,6 +6,7 @@ import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
 public final class EventQueue {
     public static final QueueDescriptor<StateTransition> PLAYBACK_STATE_CHANGED = create(StateTransition.class, StateTransition.DEFAULT);
+    public static final QueueDescriptor<PlaybackProgressEvent> PLAYBACK_PROGRESS = create(PlaybackProgressEvent.class);
     public static final QueueDescriptor<PlayableChangedEvent> PLAYABLE_CHANGED = create(PlayableChangedEvent.class);
     public static final QueueDescriptor<UIEvent> UI = create(UIEvent.class);
     public static final QueueDescriptor<ActivityLifeCycleEvent> ACTIVITY_LIFE_CYCLE = create(ActivityLifeCycleEvent.class);

@@ -15,6 +15,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
 import com.soundcloud.android.preferences.DeveloperPreferences;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.After;
 import org.junit.Before;
@@ -40,9 +41,11 @@ public class StreamPlayaTest {
     @Mock
     private SkippyAdapter skippyAdapter;
     @Mock
-    private BufferingPlaya mBufferingPlaya;
+    private BufferingPlaya bufferingPlaya;
     @Mock
     private Playa.PlayaListener playaListener;
+    @Mock
+    private FeatureFlags featureFlags;
     @Mock
     private Track track;
 
@@ -59,7 +62,7 @@ public class StreamPlayaTest {
     }
 
     private void instantiateStreamPlaya() {
-        streamPlayerWrapper = new StreamPlaya(context, sharedPreferences, mediaPlayerAdapter, skippyAdapter, mBufferingPlaya);
+        streamPlayerWrapper = new StreamPlaya(context, sharedPreferences, mediaPlayerAdapter, skippyAdapter, bufferingPlaya, featureFlags);
         streamPlayerWrapper.setListener(playaListener);
     }
 

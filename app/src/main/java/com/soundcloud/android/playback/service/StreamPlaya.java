@@ -6,6 +6,8 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
 import com.soundcloud.android.preferences.DeveloperPreferences;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -31,6 +33,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     private final SkippyAdapter skippyPlayaDelegate;
     private final BufferingPlaya bufferingPlayaDelegate;
     private final SharedPreferences playbackPreferences;
+    private final FeatureFlags featureFlags;
 
     private Playa currentPlaya, lastPlaya;
     private PlayaListener playaListener;
@@ -41,12 +44,13 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
     @Inject
     public StreamPlaya(Context context, SharedPreferences sharedPreferences, MediaPlayerAdapter mediaPlayerAdapter,
-                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya){
+                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, FeatureFlags featureFlags){
         playbackPreferences = sharedPreferences;
         mediaPlayaDelegate = mediaPlayerAdapter;
         skippyPlayaDelegate = skippyAdapter;
         bufferingPlayaDelegate = bufferingPlaya;
         currentPlaya = bufferingPlayaDelegate;
+        this.featureFlags = featureFlags;
 
         if (!skippyFailedToInitialize) {
             skippyFailedToInitialize = !skippyPlayaDelegate.init(context);
@@ -172,6 +176,11 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     }
 
     @Override
+    public void onProgressEvent(long progress, long duration) {
+        playaListener.onProgressEvent(progress, duration);
+    }
+
+    @Override
     public boolean requestAudioFocus() {
         Preconditions.checkNotNull(playaListener, "Stream Player Listener is unexpectedly null when requesting audio focus");
         return playaListener.requestAudioFocus();
@@ -243,7 +252,8 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     }
 
     private boolean isInForceSkippyMode() {
-        return playbackPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false);
+        return featureFlags.isEnabled(Feature.VISUAL_PLAYER) ||
+                playbackPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false);
     }
 
     private static class TrackPlaybackInfo {

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.EventMonitor;
@@ -20,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observer;
 import rx.Subscription;
@@ -48,18 +50,21 @@ public class PlayerFragmentTest {
     private Subscription playQueueSubscription;
     @Mock
     private Subscription playStateSubscription;
+    @Mock
+    private Subscription playProgressSubscription;
 
+    @InjectMocks
     private PlayerFragment fragment;
     private PlayerPresenter.Listener listener;
 
     @Before
     public void setUp() throws Exception {
-        fragment = new PlayerFragment(eventBus, playQueueManager, playbackOperations, presenterFactory);
         when(presenterFactory.create(same(view), any(PlayerPresenter.Listener.class))).thenReturn(presenter);
         Robolectric.shadowOf(fragment).setActivity(activity);
 
         when(eventBus.subscribe(same(EventQueue.PLAYBACK_STATE_CHANGED), any(Observer.class))).thenReturn(playStateSubscription);
         when(eventBus.subscribe(same(EventQueue.PLAY_QUEUE), any(Observer.class))).thenReturn(playQueueSubscription);
+        when(eventBus.subscribe(same(EventQueue.PLAYBACK_PROGRESS), any(Observer.class))).thenReturn(playProgressSubscription);
 
         fragment.onCreate(null);
         fragment.onViewCreated(view, null);
@@ -132,10 +137,20 @@ public class PlayerFragmentTest {
     }
 
     @Test
-    public void shouldUnsubscribeFromEventBusInOnDestroy() {
+    public void OnPlaybackProgressEventSetsPlayerProgressOnPresenter() {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
+
+        eventMonitor.publish(EventQueue.PLAYBACK_PROGRESS, progressEvent);
+        verify(presenter).onPlayerProgress(progressEvent);
+    }
+
+    @Test
+    public void shouldUnsubscribeFromEventQueuesOnDestroy() {
         fragment.onDestroy();
         verify(playQueueSubscription).unsubscribe();
         verify(playStateSubscription).unsubscribe();
+        verify(playProgressSubscription).unsubscribe();
     }
 
 }

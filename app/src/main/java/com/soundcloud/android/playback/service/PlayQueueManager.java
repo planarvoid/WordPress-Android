@@ -96,6 +96,10 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
         }
     }
 
+    public boolean isPlayingTrack(Track track) {
+        return track.getId() == getCurrentTrackId();
+    }
+
     boolean autoNextTrack(){
         return nextTrackInternal(false);
     }

@@ -8,6 +8,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -23,7 +24,6 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-@SuppressLint("ValidFragment")
 public class PlayerFragment extends Fragment implements PlayerPresenter.Listener {
 
     @Inject
@@ -40,19 +40,11 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
     private PlayerPresenter presenter;
 
     private Subscription playStateSubscription = Subscriptions.empty();
+    private Subscription playProgressSubscription = Subscriptions.empty();
     private Subscription playQueueSubscription = Subscriptions.empty();
 
     public PlayerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
-    }
-
-    @VisibleForTesting
-    PlayerFragment(EventBus eventBus, PlayQueueManager playQueueManager, PlaybackOperations playbackOperations,
-                   PlayerPresenter.Factory playerPresenterFactory) {
-        this.eventBus = eventBus;
-        this.playQueueManager = playQueueManager;
-        this.playbackOperations = playbackOperations;
-        this.playerPresenterFactory = playerPresenterFactory;
     }
 
     @Override
@@ -70,12 +62,14 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         playStateSubscription = eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
+        playProgressSubscription = eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber());
         playQueueSubscription = eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
     }
 
     @Override
     public void onDestroy() {
         playStateSubscription.unsubscribe();
+        playProgressSubscription.unsubscribe();
         playQueueSubscription.unsubscribe();
         super.onDestroy();
     }
@@ -110,6 +104,15 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
         }
     }
 
+    private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
+        @Override
+        public void onNext(PlaybackProgressEvent progress) {
+            if (presenter != null){
+                presenter.onPlayerProgress(progress);
+            }
+        }
+    }
+
     private final class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
         @Override
         public void onNext(PlayQueueEvent event) {
@@ -121,5 +124,4 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
             }
         }
     }
-
 }

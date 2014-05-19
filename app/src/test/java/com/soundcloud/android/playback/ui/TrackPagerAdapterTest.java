@@ -6,7 +6,9 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.track.TrackOperations;
@@ -14,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
@@ -26,6 +29,8 @@ public class TrackPagerAdapterTest {
 
     @Mock
     private PlayQueueManager playQueueManager;
+    @Mock
+    private PlaySessionController playSessionController;
     @Mock
     private TrackOperations trackOperations;
     @Mock
@@ -41,7 +46,7 @@ public class TrackPagerAdapterTest {
 
     @Before
     public void setUp() throws Exception {
-        adapter = new TrackPagerAdapter(playQueueManager, trackOperations, trackPagePresenter);
+        adapter = new TrackPagerAdapter(playQueueManager, playSessionController, trackOperations, trackPagePresenter);
     }
 
     @Test
@@ -69,6 +74,18 @@ public class TrackPagerAdapterTest {
         when(trackOperations.loadTrack(123L, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
         adapter.getView(3, view, container);
         verify(trackPagePresenter).populateTrackPage(view, track);
+    }
+
+    @Test
+    public void getViewLoadsTrackWithProgressForGivenPlayQueuePositionIfPositionIsPlaying() {
+        final PlaybackProgressEvent progressEvent = Mockito.mock(PlaybackProgressEvent.class);
+        when(playSessionController.getCurrentProgress()).thenReturn(progressEvent);
+        when(playQueueManager.getIdAtPosition(3)).thenReturn(123L);
+        when(trackOperations.loadTrack(123L, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
+        when(playSessionController.isPlayingTrack(track)).thenReturn(true);
+
+        adapter.getView(3, view, container);
+        verify(trackPagePresenter).populateTrackPage(view, track, progressEvent);
     }
 
     @Test

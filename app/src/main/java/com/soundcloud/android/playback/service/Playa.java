@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.service;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
 
 import android.content.Intent;
 
@@ -32,6 +33,7 @@ public interface Playa {
         private static final String DEBUG_EXTRA = "DEBUG_EXTRA";
 
         private String debugExtra;
+        private TrackUrn trackUrn;
 
         public static final StateTransition DEFAULT = new StateTransition(PlayaState.IDLE, Reason.NONE);
 
@@ -42,6 +44,16 @@ public interface Playa {
 
         public void setDebugExtra(String debugExtra){
             this.debugExtra = debugExtra;
+        }
+
+        @Deprecated
+        public TrackUrn getTrackUrn() {
+            return trackUrn;
+        }
+
+        @Deprecated
+        public void setTrackUrn(TrackUrn trackUrn) {
+            this.trackUrn = trackUrn;
         }
 
         public PlayaState getNewState() {
@@ -198,6 +210,7 @@ public interface Playa {
 
     public interface PlayaListener {
         void onPlaystateChanged(StateTransition stateTransition);
+        void onProgressEvent(long progress, long duration);
         // we might be able to get rid of this, if we just request focus before setting data source, however this is a change in behavior
         boolean requestAudioFocus();
     }

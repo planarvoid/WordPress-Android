@@ -8,6 +8,7 @@ import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason;
 import static com.soundcloud.android.skippy.Skippy.State;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -166,6 +167,21 @@ public class SkippyAdapterTest {
         skippyAdapter.getProgress();
         verify(skippy).getPosition();
     }
+
+    @Test
+    public void doesNotPropogateProgressChangesForIncorrectUri(){
+        skippyAdapter.play(track);
+        skippyAdapter.onProgressChange(123L, 456L, "WrongStreamUrl");
+        verify(listener, never()).onProgressEvent(anyLong(), anyLong());
+    }
+
+    @Test
+    public void propogatesProgressChangesForPlayingUri(){
+        skippyAdapter.play(track);
+        skippyAdapter.onProgressChange(123L, 456L, STREAM_URL);
+        verify(listener).onProgressEvent(123L, 456L);
+    }
+
 
     @Test
     public void doesNotPropogateStateChangesForIncorrectUrl(){

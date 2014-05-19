@@ -6,6 +6,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ImageOperations;
@@ -16,6 +17,8 @@ import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.track.TrackOperations;
@@ -102,6 +105,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     PlaybackReceiver.Factory playbackReceiverFactory;
     @Inject
     Lazy<IRemoteAudioManager> remoteAudioManagerProvider;
+    @Inject
+    FeatureFlags featureFlags;
 
     // XXX : would be great to not have these boolean states
     private boolean waitingForPlaylist;
@@ -167,7 +172,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     PeripheralsOperations peripheralsOperations, PlaybackEventSource playbackEventSource,
                     AccountOperations accountOperations, ImageOperations imageOperations,
                     PlayerAppWidgetProvider playerAppWidgetProvider, StreamPlaya streamPlaya,
-                    PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider) {
+                    PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider,
+                    FeatureFlags featureFlags) {
         this.applicationProperties = applicationProperties;
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
@@ -180,6 +186,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         streamPlayer = streamPlaya;
         this.playbackReceiverFactory = playbackReceiverFactory;
         this.remoteAudioManagerProvider = remoteAudioManagerProvider;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -342,9 +349,20 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 gotoIdleState(false);
             }
 
+            if (currentTrack != null){
+                stateTransition.setTrackUrn(currentTrack.getUrn());
+            }
+
             notifyChange(Broadcasts.PLAYSTATE_CHANGED, stateTransition);
 
             eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
+        }
+    }
+
+    @Override
+    public void onProgressEvent(long position, long duration) {
+        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)){
+            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressEvent(position, duration));
         }
     }
 

@@ -2,7 +2,9 @@ package com.soundcloud.android.playback.ui;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.track.TrackOperations;
@@ -23,16 +25,19 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     private static final int TRACK_CACHE_SIZE = 10;
 
     private final PlayQueueManager playQueueManager;
+    private final PlaySessionController playSessionController;
     private final TrackOperations trackOperations;
     private final TrackPagePresenter trackPagePresenter;
     private final LruCache<Long, Observable<Track>> trackObservableCache = new LruCache<Long, Observable<Track>>(TRACK_CACHE_SIZE);
     private final BiMap<View, Integer> trackViewsByPosition = HashBiMap.create(EXPECTED_TRACKVIEW_COUNT);
 
     @Inject
-    TrackPagerAdapter(PlayQueueManager playQueueManager, TrackOperations trackOperations, TrackPagePresenter trackPagePresenter) {
+    TrackPagerAdapter(PlayQueueManager playQueueManager, PlaySessionController playSessionController,
+                      TrackOperations trackOperations, TrackPagePresenter trackPagePresenter) {
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.trackPagePresenter = trackPagePresenter;
+        this.playSessionController = playSessionController;
     }
 
     @Override
@@ -54,6 +59,13 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         trackViewsByPosition.forcePut(contentView, position); // forcePut to remove existing entry
         loadPlayerItem(playQueueManager.getIdAtPosition(position));
         return contentView;
+    }
+
+    public void setProgressOnCurrentTrack(PlaybackProgressEvent progress){
+        View currentTrackView = trackViewsByPosition.inverse().get(playQueueManager.getCurrentPosition());
+        if (currentTrackView != null){
+            trackPagePresenter.setProgressOnTrackView(currentTrackView, progress);
+        }
     }
 
     private void loadPlayerItem(long id) {
@@ -83,7 +95,11 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
                 final Integer position = trackViewsByPosition.get(trackView);
                 final long idOfQueueView = playQueueManager.getIdAtPosition(position);
                 if (trackId == idOfQueueView) {
-                    trackPagePresenter.populateTrackPage(trackView, track);
+                    if (playSessionController.isPlayingTrack(track)){
+                        trackPagePresenter.populateTrackPage(trackView, track, playSessionController.getCurrentProgress());
+                    } else {
+                        trackPagePresenter.populateTrackPage(trackView, track);
+                    }
                 }
             }
         }

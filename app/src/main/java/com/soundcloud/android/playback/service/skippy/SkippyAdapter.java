@@ -49,6 +49,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final ApplicationProperties applicationProperties;
 
     private String currentStreamUrl;
+    private PlayaListener playaListener;
 
     @Inject
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, PlaybackOperations playbackOperations,
@@ -144,6 +145,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void setListener(PlayaListener playaListener) {
+        this.playaListener = playaListener;
         stateHandler.setPlayaListener(playaListener);
     }
 
@@ -232,7 +234,9 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void onProgressChange(long position, long duration, String uri) {
-        Log.d(TAG, "Progress changed : " + position + " : " + duration);
+        if (playaListener != null && uri.equals(currentStreamUrl)){
+            playaListener.onProgressEvent(position, duration);
+        }
     }
 
     @Override

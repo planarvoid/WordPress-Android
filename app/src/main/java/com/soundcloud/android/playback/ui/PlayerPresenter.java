@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -70,6 +71,10 @@ public class PlayerPresenter implements View.OnClickListener{
     void onPlayStateChanged(boolean isPlaying){
         footerToggle.setChecked(isPlaying);
         playerToggle.setChecked(isPlaying);
+    }
+
+    public void onPlayerProgress(PlaybackProgressEvent progress) {
+        adapter.setProgressOnCurrentTrack(progress);
     }
 
     private class TrackPageChangeListener implements ViewPager.OnPageChangeListener {

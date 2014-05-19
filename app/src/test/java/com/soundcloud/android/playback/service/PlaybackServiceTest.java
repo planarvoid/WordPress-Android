@@ -10,11 +10,14 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.peripherals.PeripheralsOperations;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
@@ -41,7 +44,7 @@ import java.util.Iterator;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaybackServiceTest {
-    
+
     PlaybackService playbackService;
 
     @Mock
@@ -76,12 +79,14 @@ public class PlaybackServiceTest {
     private PlayQueue playQueue;
     @Mock
     private Playa.StateTransition stateTransition;
+    @Mock
+    private FeatureFlags featureFlags;
 
     @Before
     public void setUp() throws Exception {
         playbackService = new PlaybackService(applicationProperties, playQueueManager, eventBus, trackOperations, peripheralsOperations,
                 playbackEventSource, accountOperations, imageOperations, appWidgetProvider, streamPlayer,
-                playbackReceiverFactory, audioManagerProvider);
+                playbackReceiverFactory, audioManagerProvider, featureFlags);
 
         when(playbackReceiverFactory.create(playbackService, accountOperations, playQueueManager, eventBus)).thenReturn(playbackReceiver);
         when(audioManagerProvider.get()).thenReturn(remoteAudioManager);
@@ -210,6 +215,27 @@ public class PlaybackServiceTest {
     }
 
     @Test
+    public void onProgressDoesNotPublisheProgressEvent() throws Exception {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
+        playbackService.onProgressEvent(123L, 456L);
+
+        eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_PROGRESS);
+    }
+
+    @Test
+    public void onProgressPublishesAProgressEventIfVisualPlayerEnabled() throws Exception {
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+
+        playbackService.onProgressEvent(123L, 456L);
+
+        PlaybackProgressEvent broadcasted = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PROGRESS);
+        expect(broadcasted.getProgress()).toEqual(123L);
+        expect(broadcasted.getDuration()).toEqual(456L);
+    }
+
+    @Test
     public void stopSavesCurrentQueueAndPosition() throws Exception {
         when(streamPlayer.getProgress()).thenReturn(123L);
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
@@ -295,11 +321,10 @@ public class PlaybackServiceTest {
     }
 
 
-
     private ArrayList<BroadcastReceiver> getReceiversForAction(String action) {
         ArrayList<BroadcastReceiver> broadcastReceivers = new ArrayList<BroadcastReceiver>();
         for (ShadowApplication.Wrapper registeredReceiver : Robolectric.getShadowApplication().getRegisteredReceivers()) {
-            if (registeredReceiver.context == playbackService){
+            if (registeredReceiver.context == playbackService) {
                 Iterator<String> actions = registeredReceiver.intentFilter.actionsIterator();
                 while (actions.hasNext()) {
                     if (actions.next().equals(action)) {
