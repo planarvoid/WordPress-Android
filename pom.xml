@@ -112,6 +112,16 @@
             </properties>
         </profile>
         <profile>
+            <id>alpha</id>
+            <properties>
+                <build.type>alpha</build.type>
+                <build.debuggable>false</build.debuggable>
+                <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
+                <keystore.alias>jons keystore</keystore.alias>
+                <build.proguard.skip>false</build.proguard.skip>
+            </properties>
+        </profile>
+        <profile>
             <id>beta</id>
             <properties>
                 <build.type>beta</build.type>

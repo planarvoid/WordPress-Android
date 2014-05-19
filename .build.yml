@@ -73,3 +73,17 @@ beta:
     enabled: true
     app_id: 31bb3a437ee0cd325e994283fb8e7da3
     api_token: ef31e73570804365acba701c47568c9d
+alpha:
+  mvn:
+    <<: *defaults_mvn
+    tasks:
+      build:
+        <<: *defaults_build
+        tests: false
+        profiles:
+          - alpha
+          - sign
+          - soundcloud
+          - update-android-manifest
+  hockey:
+    enabled: false
