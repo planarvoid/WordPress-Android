@@ -12,6 +12,7 @@ import com.soundcloud.android.model.SuggestedTracksCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
 import rx.Subscription;
@@ -103,7 +104,7 @@ public class ExploreTracksFragment extends Fragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        listViewController.onViewCreated(this, observable, view, adapter);
+        listViewController.onViewCreated(this, observable, view, adapter, new AbsListViewParallaxer(adapter));
 
         setupPullToRefresh(view);
     }

@@ -2,6 +2,7 @@ package com.soundcloud.android.view;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.image.ImageOperations;
+import org.jetbrains.annotations.Nullable;
 import rx.observables.ConnectableObservable;
 
 import android.annotation.TargetApi;
@@ -12,7 +13,6 @@ import android.widget.GridView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 public class ListViewController {
@@ -29,17 +29,15 @@ public class ListViewController {
     }
 
     public <OT extends ConnectableObservable<?>> void onViewCreated(
-            final ReactiveListComponent<OT> listComponent, OT observable, View view, ListAdapter adapter) {
+            final ReactiveListComponent<OT> listComponent, OT observable, View view, ListAdapter adapter,
+            @Nullable AbsListView.OnScrollListener scrollListener) {
         emptyViewController.onViewCreated(listComponent, observable, view);
 
         absListView = (AbsListView) view.findViewById(android.R.id.list);
         absListView.setOnItemClickListener(listComponent);
         absListView.setEmptyView(emptyViewController.getEmptyView());
         compatSetAdapter(adapter);
-        // for endless paging, the listener is the adapter
-        if (adapter instanceof AbsListView.OnScrollListener) {
-            // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
-            AbsListView.OnScrollListener scrollListener = (AbsListView.OnScrollListener) adapter;
+        if (scrollListener != null) {
             absListView.setOnScrollListener(imageOperations.createScrollPauseListener(false, true, scrollListener));
         } else {
             absListView.setOnScrollListener(imageOperations.createScrollPauseListener(false, true));

@@ -14,6 +14,7 @@ import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.PlaylistSummaryCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
@@ -93,7 +94,7 @@ public class PlaylistResultsFragment extends Fragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        listViewController.onViewCreated(this, observable, view, adapter);
+        listViewController.onViewCreated(this, observable, view, adapter, new AbsListViewParallaxer(adapter));
         new EmptyViewBuilder().configureForSearch(listViewController.getEmptyView());
     }
 

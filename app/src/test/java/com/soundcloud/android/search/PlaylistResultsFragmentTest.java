@@ -5,6 +5,7 @@ import static com.soundcloud.android.rx.TestObservables.MockObservable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,6 +28,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.ListViewController;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -105,7 +107,7 @@ public class PlaylistResultsFragmentTest {
         fragment.onCreate(null);
         createFragmentView();
         verify(listViewController).onViewCreated(refEq(fragment), any(ConnectableObservable.class),
-                refEq(fragment.getView()), refEq(adapter));
+                refEq(fragment.getView()), refEq(adapter), isA(AbsListViewParallaxer.class));
     }
 
     @Test

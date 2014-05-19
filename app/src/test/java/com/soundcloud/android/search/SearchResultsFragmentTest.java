@@ -125,7 +125,7 @@ public class SearchResultsFragmentTest {
         createFragmentView();
 
         verify(listViewController).onViewCreated(refEq(fragment), any(ConnectableObservable.class),
-                refEq(fragment.getView()), refEq(adapter));
+                refEq(fragment.getView()), refEq(adapter), refEq(adapter));
     }
 
     @Test

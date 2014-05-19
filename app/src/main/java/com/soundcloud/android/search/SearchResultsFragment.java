@@ -131,7 +131,7 @@ public class SearchResultsFragment extends Fragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        listViewController.onViewCreated(this, observable, view, adapter);
+        listViewController.onViewCreated(this, observable, view, adapter, adapter);
         new EmptyViewBuilder().configureForSearch(listViewController.getEmptyView());
     }
 

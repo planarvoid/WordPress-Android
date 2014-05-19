@@ -94,7 +94,7 @@ public class ExploreGenresFragment extends Fragment implements ReactiveListCompo
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        listViewController.onViewCreated(this, observable, view, adapter);
+        listViewController.onViewCreated(this, observable, view, adapter, null);
     }
 
     @Override
