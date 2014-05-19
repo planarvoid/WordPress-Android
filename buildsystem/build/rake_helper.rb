@@ -236,12 +236,14 @@ module Build
       desc "uploads to Google Play Store"
       task :store do
         case Configuration.build_env
-          when 'debug'
+          when 'alpha'
             android_store_publisher.deploy_to_alpha
           when 'beta'
             android_store_publisher.deploy_to_beta
           when 'release'
             android_store_publisher.deploy_to_production
+          else
+            raise 'Unsupported build type'
         end
 
         new_version_code = Build.version_code.to_i + 1
