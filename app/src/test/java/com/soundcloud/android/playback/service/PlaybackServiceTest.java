@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -166,7 +165,7 @@ public class PlaybackServiceTest {
     }
 
     @Test
-    public void onPlaystateChangedPublishesStateTransitionWhenTrackEndedIsFalse() throws Exception {
+    public void onPlaystateChangedPublishesStateTransition() throws Exception {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
         when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.BUFFERING);
@@ -176,42 +175,6 @@ public class PlaybackServiceTest {
 
         Playa.StateTransition broadcasted = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
         expect(broadcasted).toBe(stateTransition);
-    }
-
-    @Test
-    public void onPlaystateChangedTriesToPlayQueueWithoutManualFlagWhenTrackEnded() throws Exception {
-        when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.IDLE);
-        when(stateTransition.trackEnded()).thenReturn(true);
-
-        playbackService.onPlaystateChanged(stateTransition);
-        verify(playQueueManager).autoNextTrack();
-    }
-
-    @Test
-    public void onPlaystateChangedPublishesStateWhenTrackEndedIsTrueAndPlayQueueFailsToAdvance() throws Exception {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
-
-        when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.IDLE);
-        when(stateTransition.trackEnded()).thenReturn(true);
-        when(playQueue.moveToNext(anyBoolean())).thenReturn(false);
-
-        playbackService.onPlaystateChanged(stateTransition);
-
-        Playa.StateTransition broadcasted = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
-        expect(broadcasted).toBe(stateTransition);
-    }
-
-    @Test
-    public void onPlaystateChangedDoesNotPublishStateWhenTrackEndedIsTrueAndPlayQueueAdvances() throws Exception {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
-
-        when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.IDLE);
-        when(stateTransition.trackEnded()).thenReturn(true);
-        when(playQueueManager.autoNextTrack()).thenReturn(true);
-        when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
-
-        playbackService.onPlaystateChanged(stateTransition);
-        eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
     }
 
     @Test

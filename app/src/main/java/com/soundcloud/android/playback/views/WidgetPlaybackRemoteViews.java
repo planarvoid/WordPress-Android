@@ -123,7 +123,7 @@ public class WidgetPlaybackRemoteViews extends PlaybackRemoteViews {
             title = intent.getStringExtra(PlaybackService.BroadcastExtras.TITLE);
             username = intent.getStringExtra(PlaybackService.BroadcastExtras.USERNAME);
             isLiked = intent.getBooleanExtra(PlaybackService.BroadcastExtras.IS_LIKE, false);
-            isPlaying = Playa.StateTransition.fromIntent(intent).getNewState().isPlaying();
+            isPlaying = Playa.StateTransition.fromIntent(intent).playSessionIsActive();
         }
     }
 }

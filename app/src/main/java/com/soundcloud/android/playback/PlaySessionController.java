@@ -9,6 +9,8 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 
 import android.content.Context;
@@ -19,9 +21,11 @@ import javax.inject.Singleton;
 @Singleton
 public class PlaySessionController {
 
+    private static final StateTransition PLAY_QUEUE_COMPLETE_EVENT = new StateTransition(PlayaState.IDLE, Playa.Reason.PLAY_QUEUE_COMPLETE);
     private final Context context;
     private final EventBus eventBus;
     private final PlaybackOperations playbackOperations;
+    private final PlayQueueManager playQueueManager;
 
     private PlayaState currentState = PlayaState.IDLE;
     private TrackUrn currentPlayingUrn;
@@ -29,10 +33,12 @@ public class PlaySessionController {
     private PlaybackProgressEvent currentProgress;
 
     @Inject
-    public PlaySessionController(Context context, EventBus eventBus, PlaybackOperations playbackOperations) {
+    public PlaySessionController(Context context, EventBus eventBus, PlaybackOperations playbackOperations, PlayQueueManager playQueueManager) {
         this.context = context;
         this.eventBus = eventBus;
         this.playbackOperations = playbackOperations;
+        this.playQueueManager = playQueueManager;
+
     }
 
     public void subscribe() {
@@ -51,9 +57,17 @@ public class PlaySessionController {
 
     private class PlayStateSubscriber extends DefaultSubscriber<StateTransition> {
         @Override
-        public void onNext(StateTransition state) {
-            currentState = state.getNewState();
-            currentPlayingUrn = state.getTrackUrn();
+        public void onNext(StateTransition stateTransition) {
+            currentState = stateTransition.getNewState();
+            currentPlayingUrn = stateTransition.getTrackUrn();
+
+            if (stateTransition.trackEnded()){
+                if (playQueueManager.autoNextTrack()){
+                    playbackOperations.playCurrent(context);
+                } else {
+                    eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, PLAY_QUEUE_COMPLETE_EVENT);
+                }
+            }
         }
     }
 

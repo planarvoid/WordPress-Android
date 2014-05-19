@@ -248,7 +248,7 @@ public class NowPlayingProgressBar extends ProgressBar {
                 setCurrentTrack();
 
             } else if (action.equals(Broadcasts.PLAYSTATE_CHANGED)) {
-                if (Playa.StateTransition.fromIntent(intent).getNewState().isPlaying()) {
+                if (Playa.StateTransition.fromIntent(intent).playSessionIsActive()) {
                     startRefreshing();
                 } else {
                     stopRefreshing();

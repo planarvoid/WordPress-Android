@@ -64,8 +64,12 @@ public interface Playa {
             return reason;
         }
 
-        public boolean isPlaying(){
+        boolean isPlaying(){
             return newState.isPlaying();
+        }
+
+        public boolean playSessionIsActive(){
+            return newState.isPlaying() || (newState == PlayaState.IDLE && reason == Reason.TRACK_COMPLETE);
         }
 
         public boolean isPlayerPlaying(){
@@ -85,7 +89,7 @@ public interface Playa {
         }
 
         public boolean trackEnded() {
-            return newState == Playa.PlayaState.IDLE && reason == Reason.COMPLETE;
+            return newState == Playa.PlayaState.IDLE && reason == Reason.TRACK_COMPLETE;
         }
 
         public boolean isPaused() {
@@ -181,13 +185,13 @@ public interface Playa {
     }
 
     public enum Reason {
-        NONE, COMPLETE, ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN;
+        NONE, TRACK_COMPLETE, PLAY_QUEUE_COMPLETE, ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN;
 
         public static final EnumSet<Reason> ERRORS =
                 EnumSet.of(ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN);
 
         public static final EnumSet<Reason> PLAYBACK_STOPPED =
-                EnumSet.of(COMPLETE, ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN);
+                EnumSet.of(TRACK_COMPLETE, ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN);
 
         @VisibleForTesting
         static final String PLAYER_REASON_EXTRA = "PLAYER_REASON_EXTRA";

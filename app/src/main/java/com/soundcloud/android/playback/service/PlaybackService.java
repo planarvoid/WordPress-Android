@@ -341,22 +341,17 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public void onPlaystateChanged(Playa.StateTransition stateTransition) {
         publishPlaybackEventFromState(stateTransition);
 
-        if (stateTransition.trackEnded() && playQueueManager.autoNextTrack()){
-            // advanced successfully
-            openCurrent();
-        } else {
-            if (stateTransition.getNewState() == Playa.PlayaState.IDLE){
-                gotoIdleState(false);
-            }
-
-            if (currentTrack != null){
-                stateTransition.setTrackUrn(currentTrack.getUrn());
-            }
-
-            notifyChange(Broadcasts.PLAYSTATE_CHANGED, stateTransition);
-
-            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
+        if (stateTransition.getNewState() == Playa.PlayaState.IDLE) {
+            gotoIdleState(false);
         }
+
+        if (currentTrack != null) {
+            stateTransition.setTrackUrn(currentTrack.getUrn());
+        }
+
+        notifyChange(Broadcasts.PLAYSTATE_CHANGED, stateTransition);
+
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
     }
 
     @Override
@@ -378,7 +373,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     void notifyChange(String what, Playa.StateTransition stateTransition) {
 
         Log.d(TAG, "notifyChange(" + what + ", " + stateTransition.getNewState() + ")");
-        final boolean isPlaying = stateTransition.isPlaying();
+        final boolean isPlaying = stateTransition.playSessionIsActive();
         Intent intent = new Intent(what)
             .putExtra(BroadcastExtras.ID, getTrackId())
             .putExtra(BroadcastExtras.TITLE, getTrackName())
@@ -525,7 +520,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, PlaybackSessionEvent.STOP_REASON_BUFFERING);
                 break;
             case IDLE:
-                if (stateTransition.getReason() == Playa.Reason.COMPLETE){
+                if (stateTransition.getReason() == Playa.Reason.TRACK_COMPLETE){
                     final int stopReason = getPlayQueueInternal().hasNextTrack()
                             ? PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED
                             : PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE;

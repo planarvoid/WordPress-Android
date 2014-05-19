@@ -448,7 +448,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             case ERROR:
                 return Reason.ERROR_FAILED;
             case COMPLETED:
-                return Reason.COMPLETE;
+                return Reason.TRACK_COMPLETE;
             default:
                 return Reason.NONE;
         }

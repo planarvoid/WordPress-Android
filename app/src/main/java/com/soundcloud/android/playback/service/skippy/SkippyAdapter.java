@@ -207,7 +207,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
                     throw new IllegalArgumentException("Unexpected skippy error code : " + lastError);
             }
         } else if (reason == COMPLETE) {
-            return Reason.COMPLETE;
+            return Reason.TRACK_COMPLETE;
         } else {
             return Reason.NONE;
         }

@@ -92,7 +92,7 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
         @Override
         public void onNext(StateTransition stateTransition) {
             if (presenter != null) {
-                presenter.onPlayStateChanged(stateTransition.isPlaying());
+                presenter.onPlayStateChanged(stateTransition.playSessionIsActive());
             }
         }
     }

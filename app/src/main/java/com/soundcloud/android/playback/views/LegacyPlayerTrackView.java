@@ -277,9 +277,8 @@ public class LegacyPlayerTrackView extends FrameLayout implements PlayerTrackVie
         if (Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
 
             final Playa.StateTransition stateTransition = Playa.StateTransition.fromIntent(intent);
-            final Playa.PlayaState playaState = stateTransition.getNewState();
 
-            if (playaState.isPlaying()) {
+            if (stateTransition.playSessionIsActive()) {
                 hideUnplayable();
                 track.last_playback_error = -1;
             } else {
@@ -292,7 +291,7 @@ public class LegacyPlayerTrackView extends FrameLayout implements PlayerTrackVie
                     onUnplayable(intent);
                 }
             }
-            setBufferingState(playaState.isBuffering());
+            setBufferingState(stateTransition.isBuffering());
 
             final String debugExtra = stateTransition.getDebugExtra();
             if (ScTextUtils.isNotBlank(debugExtra)){
