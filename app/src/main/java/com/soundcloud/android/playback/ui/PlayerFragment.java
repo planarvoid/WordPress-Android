@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventBus;
@@ -15,7 +14,6 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;

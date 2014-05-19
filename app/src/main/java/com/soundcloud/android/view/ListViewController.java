@@ -37,10 +37,10 @@ public class ListViewController {
         absListView.setOnItemClickListener(listComponent);
         absListView.setEmptyView(emptyViewController.getEmptyView());
         compatSetAdapter(adapter);
-        if (scrollListener != null) {
-            absListView.setOnScrollListener(imageOperations.createScrollPauseListener(false, true, scrollListener));
-        } else {
+        if (scrollListener == null) {
             absListView.setOnScrollListener(imageOperations.createScrollPauseListener(false, true));
+        } else {
+            absListView.setOnScrollListener(imageOperations.createScrollPauseListener(false, true, scrollListener));
         }
     }
 
