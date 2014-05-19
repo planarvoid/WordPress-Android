@@ -159,5 +159,9 @@
     <dimen name="player_footer_control">64dp</dimen>
     <dimen name="player_skip">52dp</dimen>
     <dimen name="player_skip_margin">24dp</dimen>
+    <dimen name="player_gradient_height">180dp</dimen>
+
+    <dimen name="player_footer_left_margin">72dp</dimen>
+    <dimen name="player_footer_margin">14dp</dimen>
 
 </resources>

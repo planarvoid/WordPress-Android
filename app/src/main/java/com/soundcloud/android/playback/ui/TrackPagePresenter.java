@@ -42,6 +42,7 @@ public class TrackPagePresenter {
     }
 
     private void populateTrackPage(View trackView, Track track, float currentProgressProportion) {
+        ((TextView) trackView.findViewById(R.id.track_page_user)).setText(track.getUserName());
         ((TextView) trackView.findViewById(R.id.track_page_title)).setText(track.getTitle());
 
         final PlayerArtworkImageView artworkView = (PlayerArtworkImageView) trackView.findViewById(R.id.artwork);

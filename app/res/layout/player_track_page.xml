@@ -10,13 +10,31 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            style="@style/PlayerArtwork"/>
+            style="@style/PlayerArtwork" />
 
-    <TextView android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:id="@+id/track_page_title"
-              android:textColor="@color/white"
-              android:layout_marginLeft="@dimen/player_footer_control"
-              android:padding="12dp" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/player_gradient_height"
+        android:background="@drawable/player_gradient_top" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/player_gradient_height"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/player_gradient_bottom" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/track_page_user"
+            style="@style/FooterUser"
+            android:layout_marginLeft="@dimen/player_footer_left_margin"
+            android:layout_marginTop="@dimen/player_footer_margin"
+            android:layout_marginRight="@dimen/player_footer_margin" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/track_page_title"
+            style="@style/FooterTitle"
+            android:layout_below="@id/track_page_user"
+            android:layout_marginLeft="@dimen/player_footer_left_margin"
+            android:layout_marginRight="@dimen/player_footer_margin" />
 
 </RelativeLayout>
