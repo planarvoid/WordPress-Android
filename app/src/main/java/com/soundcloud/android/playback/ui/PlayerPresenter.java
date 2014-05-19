@@ -39,7 +39,6 @@ public class PlayerPresenter implements View.OnClickListener{
 
         view.findViewById(R.id.player_next).setOnClickListener(this);
         view.findViewById(R.id.player_previous).setOnClickListener(this);
-
     }
 
     @Override

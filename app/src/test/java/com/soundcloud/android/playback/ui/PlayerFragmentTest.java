@@ -105,7 +105,7 @@ public class PlayerFragmentTest {
     }
 
     @Test
-    public void OnPlayingStateEventCallsOnPlaystateChangedOnFragmentWithIsPlaying() {
+    public void onPlayingStateEventCallsOnPlaystateChangedOnFragmentWithIsPlaying() {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         StateTransition state = new StateTransition(PlayaState.PLAYING, Reason.NONE);
         eventMonitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
@@ -113,7 +113,7 @@ public class PlayerFragmentTest {
     }
 
     @Test
-    public void OnPlayQueueEventForTrackChangeCallsSetQueuePositionOnPresenterWithCurrentPlayQueueManagerPosition() {
+    public void onPlayQueueEventForTrackChangeCallsSetQueuePositionOnPresenterWithCurrentPlayQueueManagerPosition() {
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
@@ -122,7 +122,7 @@ public class PlayerFragmentTest {
     }
 
     @Test
-    public void OnPlayQueueEventForQueueChangeCallsSetQueuePositionOnPresenterWithCurrentPlayQueueManagerPosition() {
+    public void onPlayQueueEventForQueueChangeCallsSetQueuePositionOnPresenterWithCurrentPlayQueueManagerPosition() {
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
@@ -130,14 +130,14 @@ public class PlayerFragmentTest {
     }
 
     @Test
-    public void OnPlayQueueEventForQueueChangeCallsOnPlayQueueChangedOnPresenter() {
+    public void onPlayQueueEventForQueueChangeCallsOnPlayQueueChangedOnPresenter() {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
         verify(presenter).onPlayQueueChanged();
     }
 
     @Test
-    public void OnPlaybackProgressEventSetsPlayerProgressOnPresenter() {
+    public void onPlaybackProgressEventSetsPlayerProgressOnPresenter() {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
 

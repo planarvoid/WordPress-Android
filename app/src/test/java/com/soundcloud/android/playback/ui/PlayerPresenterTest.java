@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -136,6 +137,13 @@ public class PlayerPresenterTest {
         playerPresenter.onPlayStateChanged(false);
         verify(footerToggle).setChecked(false);
         verify(playerToggle).setChecked(false);
+    }
+
+    @Test
+    public void onPlayerProgressSetsCurrentProgressOnTrackAdapter() {
+        PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
+        playerPresenter.onPlayerProgress(progressEvent);
+        verify(trackPagerAdapter).setProgressOnCurrentTrack(progressEvent);
     }
 
     @Test
