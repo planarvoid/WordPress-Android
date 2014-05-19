@@ -1,12 +1,10 @@
 package com.soundcloud.android.search;
 
-import static android.view.View.GONE;
 import static android.view.View.OnClickListener;
 import static android.view.View.VISIBLE;
 import static com.google.common.base.Preconditions.checkArgument;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventBus;
@@ -14,16 +12,17 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.PlaylistTagsCollection;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.rx.observers.EmptyViewAware;
-import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
 import com.soundcloud.android.utils.ViewUtils;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyViewController;
 import com.soundcloud.android.view.FlowLayout;
 import com.soundcloud.android.view.ListenableScrollView;
+import com.soundcloud.android.view.ReactiveComponent;
 import rx.Observable;
+import rx.Subscription;
+import rx.observables.ConnectableObservable;
 import rx.subscriptions.CompositeSubscription;
+import rx.subscriptions.Subscriptions;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -36,8 +35,8 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-@SuppressLint("ValidFragment")
-public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, ListenableScrollView.OnScrollListener {
+public class PlaylistTagsFragment extends Fragment implements ListenableScrollView.OnScrollListener,
+        ReactiveComponent<ConnectableObservable<PlaylistTagsCollection>> {
 
     public static final String TAG = "playlist_tags";
 
@@ -47,12 +46,13 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
     @Inject
     EventBus eventBus;
 
-    private CompositeSubscription subscription;
-    private Observable<PlaylistTagsCollection> allTagsObservable;
-    private Observable<PlaylistTagsCollection> recentTagsObservable;
+    @Inject
+    EmptyViewController emptyViewController;
 
-    private EmptyListView emptyView;
-    private int emptyViewStatus = EmptyListView.Status.WAITING;
+    private Subscription connectionSubscription = Subscriptions.empty();
+    private CompositeSubscription viewSubscriptions;
+    private ConnectableObservable<PlaylistTagsCollection> allTagsObservable;
+    private Observable<PlaylistTagsCollection> recentTagsObservable;
 
     private final OnClickListener recentTagClickListener = new OnClickListener() {
         @Override
@@ -80,12 +80,6 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
         setRetainInstance(true);
     }
 
-    @VisibleForTesting
-    PlaylistTagsFragment(SearchOperations searchOperations, EventBus eventBus) {
-        this.searchOperations = searchOperations;
-        this.eventBus = eventBus;
-    }
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -95,8 +89,26 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        allTagsObservable = searchOperations.getPlaylistTags().observeOn(mainThread()).cache();
         recentTagsObservable = searchOperations.getRecentPlaylistTags().observeOn(mainThread());
+        connectObservable(buildAllTagsObservable());
+    }
+
+    @Override
+    public ConnectableObservable<PlaylistTagsCollection> buildObservable() {
+        ConnectableObservable<PlaylistTagsCollection> observable = buildAllTagsObservable();
+        viewSubscriptions.add(observable.subscribe(new TagsSubscriber()));
+        return observable;
+    }
+
+    private ConnectableObservable<PlaylistTagsCollection> buildAllTagsObservable() {
+        return searchOperations.getPlaylistTags().observeOn(mainThread()).replay();
+    }
+
+    @Override
+    public Subscription connectObservable(ConnectableObservable<PlaylistTagsCollection> observable) {
+        allTagsObservable = observable;
+        connectionSubscription = allTagsObservable.connect();
+        return connectionSubscription;
     }
 
     @Override
@@ -107,30 +119,26 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        emptyView = (EmptyListView) view.findViewById(android.R.id.empty);
-        emptyView.setVisibility(VISIBLE);
-        emptyView.setStatus(emptyViewStatus);
+        emptyViewController.onViewCreated(this, allTagsObservable, view);
 
         ListenableScrollView scrollView = (ListenableScrollView) view.findViewById(R.id.playlist_tags_scroll_container);
         scrollView.setOnScrollListener(this);
 
-        subscription = new CompositeSubscription();
-        subscription.add(allTagsObservable.subscribe(new TagsSubscriber()));
-        subscription.add(recentTagsObservable.subscribe(new RecentsSubscriber()));
+        viewSubscriptions = new CompositeSubscription();
+        viewSubscriptions.add(allTagsObservable.subscribe(new TagsSubscriber()));
+        viewSubscriptions.add(recentTagsObservable.subscribe(new RecentsSubscriber()));
     }
 
     @Override
     public void onDestroyView() {
+        viewSubscriptions.unsubscribe();
         super.onDestroyView();
-        subscription.unsubscribe();
     }
 
     @Override
-    public void setEmptyViewStatus(int status) {
-        emptyViewStatus = status;
-        if (emptyView != null) {
-            emptyView.setStatus(status);
-        }
+    public void onDestroy() {
+        connectionSubscription.unsubscribe();
+        super.onDestroy();
     }
 
     @Override
@@ -170,21 +178,13 @@ public class PlaylistTagsFragment extends Fragment implements EmptyViewAware, Li
         listener.onTagSelected((String) v.getTag());
     }
 
-    private final class TagsSubscriber extends ListFragmentSubscriber<PlaylistTagsCollection> {
-        public TagsSubscriber() {
-            super(PlaylistTagsFragment.this);
-        }
+    private final class TagsSubscriber extends DefaultSubscriber<PlaylistTagsCollection> {
 
         @Override
         public void onNext(PlaylistTagsCollection tags) {
             displayPopularTags(tags);
         }
 
-        @Override
-        public void onCompleted() {
-            super.onCompleted();
-            emptyView.setVisibility(GONE);
-        }
     }
 
     private final class RecentsSubscriber extends DefaultSubscriber<PlaylistTagsCollection> {

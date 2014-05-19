@@ -1,21 +1,23 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.rx.TestObservables.MockObservable;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.android.OperatorPaged.Page;
 
+import com.google.android.gms.internal.co;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.PlaylistSummaryCollection;
@@ -24,17 +26,22 @@ import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.RxTestHelper;
-import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.ListViewController;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.android.OperatorPaged;
+import rx.Subscription;
+import rx.observables.ConnectableObservable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -43,36 +50,44 @@ import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.Button;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistResultsFragmentTest {
 
-    private PlaylistResultsFragment fragment;
     private Context context = Robolectric.application;
     private AbsListView content;
+    private MockObservable<Page<PlaylistSummaryCollection>> observable;
+
+    @InjectMocks
+    private PlaylistResultsFragment fragment;
 
     @Mock
     private SearchOperations searchOperations;
     @Mock
-    private ImageOperations imageOperations;
+    private ListViewController listViewController;
     @Mock
     private PlaylistResultsAdapter adapter;
     @Mock
     private ScModelManager modelManager;
     @Mock
     private EventBus eventBus;
+    @Mock
+    private EmptyListView emptyView;
+    @Mock
+    private Subscription subscription;
+    @Captor
+    private ArgumentCaptor<Page<PlaylistSummaryCollection>> pageCaptor;
 
     @Before
     public void setUp() throws Exception {
-        when(searchOperations.getPlaylistResults(anyString())).
-                thenReturn(Observable.<Page<PlaylistSummaryCollection>>empty());
-
+        observable = TestObservables.emptyObservable(subscription);
+        when(searchOperations.getPlaylistResults(anyString())).thenReturn(observable);
+        when(listViewController.getEmptyView()).thenReturn(emptyView);
         createFragment();
     }
 
     @Test
-    public void shouldPerformPlaylistTagSearchInOnCreate() throws Exception {
+    public void shouldPerformPlaylistTagSearchWithTagFromBundleInOnCreate() throws Exception {
         PlaylistSummaryCollection collection = new PlaylistSummaryCollection();
         PlaylistSummary playlist = new PlaylistSummary();
         collection.setCollection(Lists.newArrayList(playlist));
@@ -81,66 +96,29 @@ public class PlaylistResultsFragmentTest {
 
         fragment.onCreate(null);
 
-        ArgumentCaptor<Page> page = ArgumentCaptor.forClass(Page.class);
-        verify(adapter).onNext(page.capture());
-        expect(page.getValue().getPagedCollection()).toBe(collection);
+        verify(adapter).onNext(pageCaptor.capture());
+        expect(pageCaptor.getValue().getPagedCollection()).toBe(collection);
     }
 
     @Test
-    public void shouldShowErrorStateScreenOnGetResultsError() throws Exception {
-        when(searchOperations.getPlaylistResults(anyString())).
-                thenReturn(Observable.<Page<PlaylistSummaryCollection>>error(new Exception()));
-
+    public void shouldAttachListViewControllerInOnViewCreated() {
         fragment.onCreate(null);
         createFragmentView();
-
-        EmptyListView emptyView = (EmptyListView) content.getEmptyView();
-        expect(emptyView.getStatus()).toEqual(EmptyListView.Status.ERROR);
+        verify(listViewController).onViewCreated(refEq(fragment), any(ConnectableObservable.class),
+                refEq(fragment.getView()), refEq(adapter));
     }
 
     @Test
-    public void shouldShowWaitingStateWhileLoading() throws Exception {
-        // Do not emit items, to simulate an ongoing data fetch
-        when(searchOperations.getPlaylistResults(anyString())).
-                thenReturn(Observable.<Page<PlaylistSummaryCollection>>never());
-
-        fragment.onCreate(null);
-        createFragmentView();
-
-        EmptyListView emptyView = (EmptyListView) content.getEmptyView();
-        expect(emptyView.getStatus()).toEqual(EmptyListView.Status.WAITING);
+    public void shouldDetachListViewControllerOnDestroyView() {
+        fragment.onDestroyView();
+        verify(listViewController).onDestroyView();
     }
 
     @Test
-    public void shouldRecreateObservableWhenClickingRetryAfterFailureSoThatWeDontEmitCachedResults() throws Exception {
-        when(searchOperations.getPlaylistResults(anyString())).
-                thenReturn(Observable.<OperatorPaged.Page<PlaylistSummaryCollection>>error(new Exception()));
-
+    public void shouldUnsubscribeConnectionSubscriptionInOnDestroy() {
         fragment.onCreate(null);
-        createFragmentView();
-
-        Button retryButton = (Button) fragment.getView().findViewById(R.id.btn_retry);
-        expect(retryButton).not.toBeNull();
-        retryButton.performClick();
-
-        verify(searchOperations, times(2)).getPlaylistResults(anyString());
-    }
-
-    @Test
-    public void shouldShowWaitingStateWhenRetryingAFailedSequence() throws Exception {
-        when(searchOperations.getPlaylistResults(anyString())).
-                thenReturn(Observable.<OperatorPaged.Page<PlaylistSummaryCollection>>error(new Exception()),
-                        Observable.<Page<PlaylistSummaryCollection>>never());
-
-        fragment.onCreate(null);
-        createFragmentView();
-
-        Button retryButton = (Button) fragment.getView().findViewById(R.id.btn_retry);
-        expect(retryButton).not.toBeNull();
-        retryButton.performClick();
-
-        EmptyListView emptyView = (EmptyListView) content.getEmptyView();
-        expect(emptyView.getStatus()).toEqual(EmptyListView.Status.WAITING);
+        fragment.onDestroy();
+        verify(subscription).unsubscribe();
     }
 
     @Test
@@ -185,7 +163,6 @@ public class PlaylistResultsFragmentTest {
     }
 
     private void createFragment() {
-        fragment = new PlaylistResultsFragment(searchOperations, imageOperations, adapter, modelManager, eventBus);
         Bundle arguments = new Bundle();
         arguments.putString(PlaylistResultsFragment.KEY_PLAYLIST_TAG, "selected tag");
         fragment.setArguments(arguments);

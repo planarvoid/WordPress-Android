@@ -5,9 +5,9 @@ import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
-        ExploreFragment.class,
-        ExploreTracksFragment.class,
-        ExploreGenresFragment.class
-})
+                ExploreFragment.class,
+                ExploreTracksFragment.class,
+                ExploreGenresFragment.class
+        })
 public class ExploreModule {
 }

@@ -14,6 +14,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 
@@ -24,9 +25,11 @@ import android.widget.FrameLayout;
 @RunWith(SoundCloudTestRunner.class)
 public class SoundStreamFragmentTest {
 
-    private SoundStreamFragment fragment;
     private FragmentActivity activity = new FragmentActivity();
     private MockObservable streamItems = TestObservables.emptyObservable();
+
+    @InjectMocks
+    private SoundStreamFragment fragment;
 
     @Mock
     private SoundStreamOperations soundStreamOperations;
@@ -39,7 +42,6 @@ public class SoundStreamFragmentTest {
 
     @Before
     public void setup() {
-        fragment = new SoundStreamFragment(soundStreamOperations, adapter, pullToRefreshController, eventBus);
         when(soundStreamOperations.existingStreamItems()).thenReturn(streamItems);
     }
 

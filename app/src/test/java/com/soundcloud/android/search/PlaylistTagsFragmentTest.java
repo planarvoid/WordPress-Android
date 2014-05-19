@@ -19,10 +19,12 @@ import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyViewController;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observable;
 
@@ -44,9 +46,11 @@ public class PlaylistTagsFragmentTest {
     private SearchActionBarController actionBarController;
     @Mock
     private EventBus eventBus;
+    @Mock
+    private EmptyViewController emptyViewController;
 
+    @InjectMocks
     private PlaylistTagsFragment fragment;
-    private FragmentActivity activity;
 
     @Before
     public void setUp() throws Exception {
@@ -62,7 +66,6 @@ public class PlaylistTagsFragmentTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void onAttachShouldThrowIllegalArgumentIfParentActivityIsNotTagClickListener() {
-        fragment = new PlaylistTagsFragment(searchOperations, eventBus);
         fragment.onAttach(new FragmentActivity());
     }
 
@@ -71,27 +74,6 @@ public class PlaylistTagsFragmentTest {
         createFragment();
         ViewGroup tagFlowLayout = (ViewGroup) fragment.getView().findViewById(R.id.all_tags);
         assertThat(tagFlowLayout.getChildCount(), equalTo(3));
-    }
-
-    @Test
-    public void shouldShowProgressSpinnerWhileFetchingTags() {
-        when(searchOperations.getPlaylistTags()).thenReturn(Observable.<PlaylistTagsCollection>never());
-        createFragment();
-
-        EmptyListView emptyView = (EmptyListView) fragment.getView().findViewById(android.R.id.empty);
-        expect(emptyView).not.toBeNull();
-        expect(emptyView.getVisibility()).toBe(View.VISIBLE);
-        expect(emptyView.getStatus()).toEqual(EmptyListView.Status.WAITING);
-    }
-
-    @Test
-    public void shouldHideEmptyViewWhenDoneLoadingTags() {
-        createFragment();
-
-        EmptyListView emptyView = (EmptyListView) fragment.getView().findViewById(android.R.id.empty);
-        expect(emptyView).not.toBeNull();
-        expect(emptyView.getVisibility()).toBe(View.GONE);
-        expect(emptyView.getStatus()).toEqual(EmptyListView.Status.OK);
     }
 
     @Test
@@ -105,16 +87,6 @@ public class PlaylistTagsFragmentTest {
         fragment.onViewCreated(fragment.getView(), null);
 
         expect(observable.subscribers()).toNumber(1);
-    }
-
-    @Test
-    public void shouldShowErrorScreenOnLoadingTagsError() throws Exception {
-        when(searchOperations.getPlaylistTags()).thenReturn(Observable.<PlaylistTagsCollection>error(new Exception()));
-
-        createFragment();
-        EmptyListView emptyView = (EmptyListView) fragment.getView().findViewById(android.R.id.empty);
-        expect(emptyView).not.toBeNull();
-        expect(emptyView.getStatus()).toEqual(EmptyListView.Status.ERROR);
     }
 
     @Test
@@ -207,8 +179,7 @@ public class PlaylistTagsFragmentTest {
     }
 
     private void createFragment() {
-        activity = new CombinedSearchActivity(actionBarController);
-        fragment = new PlaylistTagsFragment(searchOperations, eventBus);
+        FragmentActivity activity = new CombinedSearchActivity(actionBarController);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
         fragment.onCreate(null);

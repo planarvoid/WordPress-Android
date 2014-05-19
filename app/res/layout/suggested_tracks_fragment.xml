@@ -9,7 +9,7 @@
             android:layout_height="match_parent">
 
         <GridView
-                android:id="@+id/suggested_tracks_grid"
+                android:id="@android:id/list"
                 style="@style/GridView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />

@@ -3,6 +3,8 @@ package com.soundcloud.android.rx;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
+import rx.observables.ConnectableObservable;
+import rx.subscriptions.Subscriptions;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -28,8 +30,32 @@ public class TestObservables {
         });
     }
 
+    public static <T> MockObservable<T> just(T result) {
+        return new MockObservable<T>(new OnSubscribeCapture(Observable.just(result)));
+    }
+
     public static <T> MockObservable<T> emptyObservable() {
         return new MockObservable<T>(new OnSubscribeCapture(Observable.empty()));
+    }
+
+    public static <T> MockObservable<T> emptyObservable(Subscription subscription) {
+        return new MockObservable<T>(new OnSubscribeCapture(fromSubscription(subscription)));
+    }
+
+    public static <T> MockConnectableObservable<T> connectableObservable(T result) {
+        return new MockConnectableObservable<T>(new OnSubscribeCapture(Observable.just(result)));
+    }
+
+    public static <T> MockConnectableObservable<T> endlessConnectableObservable() {
+        return endlessConnectableObservable(Subscriptions.empty());
+    }
+
+    public static <T> MockConnectableObservable<T> endlessConnectableObservable(Subscription subscription) {
+        return new MockConnectableObservable<T>(new OnSubscribeCapture(endlessObservablefromSubscription(subscription)));
+    }
+
+    public static <T> MockConnectableObservable<T> emptyConnectableObservable(Subscription subscription) {
+        return new MockConnectableObservable<T>(new OnSubscribeCapture(fromSubscription(subscription)));
     }
 
     public static <T> MockObservable<T> errorObservable(Throwable error) {
@@ -55,6 +81,38 @@ public class TestObservables {
 
         public List<Subscriber<? super T>> subscribers() {
             return capture.subscribers;
+        }
+    }
+
+    public static class MockConnectableObservable<T> extends ConnectableObservable<T> {
+
+        private final OnSubscribeCapture capture;
+        private boolean connected;
+
+        protected MockConnectableObservable(OnSubscribeCapture capture) {
+            super(capture);
+            this.capture = capture;
+        }
+
+        public boolean subscribedTo() {
+            return !capture.subscribers.isEmpty();
+        }
+
+        public boolean connected() {
+            return this.connected;
+        }
+
+        public List<Subscriber<? super T>> subscribers() {
+            return capture.subscribers;
+        }
+
+        @Override
+        public Subscription connect() {
+            connected = true;
+            for (Subscriber s : subscribers()) {
+                capture.source.subscribe(s);
+            }
+            return Subscriptions.empty();
         }
     }
 

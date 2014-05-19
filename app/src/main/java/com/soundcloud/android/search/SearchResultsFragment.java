@@ -3,7 +3,6 @@ package com.soundcloud.android.search;
 import static rx.android.OperatorPaged.Page;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
@@ -11,7 +10,6 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SearchResultsCollection;
@@ -20,10 +18,9 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.rx.observers.EmptyViewAware;
-import com.soundcloud.android.rx.observers.ListFragmentSubscriber;
-import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.EmptyViewBuilder;
+import com.soundcloud.android.view.ListViewController;
+import com.soundcloud.android.view.ReactiveListComponent;
 import rx.Observable;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
@@ -33,7 +30,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +39,8 @@ import android.widget.AdapterView;
 import javax.inject.Inject;
 
 @SuppressLint("ValidFragment")
-public class SearchResultsFragment extends ListFragment implements EmptyViewAware, AdapterView.OnItemClickListener {
+public class SearchResultsFragment extends Fragment
+        implements ReactiveListComponent<ConnectableObservable<Page<SearchResultsCollection>>> {
 
     public static final String TAG = "search_results";
 
@@ -59,20 +57,16 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     @Inject
     PlaybackOperations playbackOperations;
     @Inject
-    ImageOperations imageOperations;
+    ListViewController listViewController;
     @Inject
     EventBus eventBus;
     @Inject
     SearchResultsAdapter adapter;
 
     private int searchType;
-    private ConnectableObservable<Page<SearchResultsCollection>> searchObservable;
-    private Subscription searchSubscription = Subscriptions.empty();
+    private ConnectableObservable<Page<SearchResultsCollection>> observable;
+    private Subscription connectionSubscription = Subscriptions.empty();
     private Subscription playEventSubscription = Subscriptions.empty();
-    private Subscription listViewSubscription = Subscriptions.empty();
-
-    private EmptyListView emptyListView;
-    private int emptyViewStatus = EmptyListView.Status.WAITING;
 
     public static SearchResultsFragment newInstance(int type, String query) {
         SearchResultsFragment fragment = new SearchResultsFragment();
@@ -88,25 +82,44 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
-    @VisibleForTesting
-    SearchResultsFragment(SearchOperations searchOperations, PlaybackOperations playbackOperations,
-                          ImageOperations imageOperations, EventBus eventBus, SearchResultsAdapter adapter) {
-        this.searchOperations = searchOperations;
-        this.playbackOperations = playbackOperations;
-        this.imageOperations = imageOperations;
-        this.eventBus = eventBus;
-        this.adapter = adapter;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         searchType = getArguments().getInt(KEY_TYPE);
-        setListAdapter(adapter);
 
-        searchObservable = prepareSearchResultsObservable();
-        searchSubscription = loadSearchResults();
+        connectObservable(buildObservable());
+    }
+
+    @Override
+    public ConnectableObservable<Page<SearchResultsCollection>> buildObservable() {
+        final String query = getArguments().getString(KEY_QUERY);
+        Observable<Page<SearchResultsCollection>> observable;
+        switch (searchType) {
+            case TYPE_ALL:
+                observable = searchOperations.getAllSearchResults(query);
+                break;
+            case TYPE_TRACKS:
+                observable = searchOperations.getTrackSearchResults(query);
+                break;
+            case TYPE_PLAYLISTS:
+                observable = searchOperations.getPlaylistSearchResults(query);
+                break;
+            case TYPE_USERS:
+                observable = searchOperations.getUserSearchResults(query);
+                break;
+            default:
+                throw new IllegalArgumentException("Query type not valid");
+        }
+        return observable.observeOn(mainThread()).replay();
+    }
+
+    @Override
+    public Subscription connectObservable(ConnectableObservable<Page<SearchResultsCollection>> observable) {
+        this.observable = observable;
+        observable.subscribe(adapter);
+        connectionSubscription = observable.connect();
+        return connectionSubscription;
     }
 
     @Override
@@ -118,38 +131,19 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        emptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
-        new EmptyViewBuilder().configureForSearch(emptyListView);
-
-        emptyListView.setStatus(emptyViewStatus);
-        emptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
-            @Override
-            public void onEmptyViewRetry() {
-                searchObservable = prepareSearchResultsObservable();
-                searchSubscription = loadSearchResults();
-                listViewSubscription = searchObservable.subscribe(
-                        new ListFragmentSubscriber<Page<SearchResultsCollection>>(SearchResultsFragment.this));
-            }
-        });
-
-        getListView().setEmptyView(emptyListView);
-        getListView().setOnItemClickListener(this);
-
-        // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
-        getListView().setOnScrollListener(imageOperations.createScrollPauseListener(false, true, adapter));
-
-        listViewSubscription = searchObservable.subscribe(new ListFragmentSubscriber<Page<SearchResultsCollection>>(this));
+        listViewController.onViewCreated(this, observable, view, adapter);
+        new EmptyViewBuilder().configureForSearch(listViewController.getEmptyView());
     }
 
     @Override
     public void onDestroyView() {
-        listViewSubscription.unsubscribe();
+        listViewController.onDestroyView();
         super.onDestroyView();
     }
 
     @Override
     public void onDestroy() {
-        searchSubscription.unsubscribe();
+        connectionSubscription.unsubscribe();
         super.onDestroy();
     }
 
@@ -164,14 +158,6 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
     public void onPause() {
         playEventSubscription.unsubscribe();
         super.onPause();
-    }
-
-    @Override
-    public void setEmptyViewStatus(int status) {
-        emptyViewStatus = status;
-        if (emptyListView != null) {
-            emptyListView.setStatus(status);
-        }
     }
 
     @Override
@@ -203,36 +189,6 @@ public class SearchResultsFragment extends ListFragment implements EmptyViewAwar
             default:
                 throw new IllegalArgumentException("Query type not valid");
         }
-    }
-
-    private ConnectableObservable<Page<SearchResultsCollection>> prepareSearchResultsObservable() {
-        final String query = getArguments().getString(KEY_QUERY);
-        Observable<Page<SearchResultsCollection>> observable;
-        switch (searchType) {
-            case TYPE_ALL:
-                observable = searchOperations.getAllSearchResults(query);
-                break;
-            case TYPE_TRACKS:
-                observable = searchOperations.getTrackSearchResults(query);
-                break;
-            case TYPE_PLAYLISTS:
-                observable = searchOperations.getPlaylistSearchResults(query);
-                break;
-            case TYPE_USERS:
-                observable = searchOperations.getUserSearchResults(query);
-                break;
-            default:
-                throw new IllegalArgumentException("Query type not valid");
-        }
-        ConnectableObservable<Page<SearchResultsCollection>> connectableObservable
-                = observable.observeOn(mainThread()).replay();
-        connectableObservable.subscribe(adapter);
-        return connectableObservable;
-    }
-
-    private Subscription loadSearchResults() {
-        setEmptyViewStatus(EmptyListView.Status.WAITING);
-        return searchObservable.connect();
     }
 
     private final class PlayEventSubscriber extends DefaultSubscriber<PlayControlEvent> {

@@ -1,8 +1,6 @@
 package com.soundcloud.android.explore;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,23 +9,23 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.view.ListViewController;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import rx.Observable;
+import rx.Subscription;
 
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 
@@ -37,8 +35,10 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreGenresFragmentTest {
 
-    private ExploreGenresFragment fragment;
+    private TestObservables.MockObservable observable;
 
+    @InjectMocks
+    private ExploreGenresFragment fragment;
     @Mock
     private ExploreGenresAdapter adapter;
     @Mock
@@ -48,14 +48,38 @@ public class ExploreGenresFragmentTest {
     @Mock
     private ListView listView;
     @Mock
-    private ImageOperations imageOperations;
+    private ListViewController listViewController;
     @Mock
     private EventBus eventBus;
+    @Mock
+    private Subscription subscription;
 
     @Before
     public void setUp() throws Exception {
-        fragment = new ExploreGenresFragment(operations, adapter, imageOperations, eventBus);
         Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
+        observable = TestObservables.emptyObservable(subscription);
+        when(operations.getCategories()).thenReturn(observable);
+    }
+
+    @Test
+    public void shouldLoadFirstPageOfTrackSuggestionsWithGenreFromBundleInOnCreate() {
+        fragment.onCreate(null);
+        expect(observable.subscribedTo()).toBeTrue();
+        verify(operations).getCategories();
+        verify(adapter).onCompleted();
+    }
+
+    @Test
+    public void shouldDetachListViewControllerOnDestroyView() {
+        fragment.onDestroyView();
+        verify(listViewController).onDestroyView();
+    }
+
+    @Test
+    public void shouldUnsubscribeConnectionSubscriptionInOnDestroy() {
+        fragment.onCreate(null);
+        fragment.onDestroy();
+        verify(subscription).unsubscribe();
     }
 
     @Test
@@ -63,7 +87,7 @@ public class ExploreGenresFragmentTest {
         ExploreGenre electronicCategory = new ExploreGenre("electronic");
         ExploreGenre comedyCategory = new ExploreGenre("comedy");
         ExploreGenresSections categories = createSectionsFrom(electronicCategory, comedyCategory);
-        addCategoriesToFragment(categories);
+        mockCategoriesObservable(categories);
 
         createFragment();
         createFragmentView();
@@ -73,60 +97,11 @@ public class ExploreGenresFragmentTest {
     }
 
     @Test
-    public void shouldRecreateObservableWhenClickingRetryAfterFailureSoThatWeDontEmitCachedResults() {
-        when(operations.getCategories()).thenReturn(Observable.<ExploreGenresSections>error(new Exception()));
-
-        createFragment();
-        createFragmentView();
-
-        Button retryButton = (Button) fragment.getView().findViewById(R.id.btn_retry);
-        expect(retryButton).not.toBeNull();
-        retryButton.performClick();
-
-        // this verifies that clicking the retry button does not re-run the initial observable, but a new one.
-        // If that wasn't the case, we'd simply replay a failed result.
-        verify(operations, times(2)).getCategories();
-    }
-
-    @Test
-    public void shouldShowProgressSpinnerWhenReloadingResultViaRetryButton() {
-        when(operations.getCategories()).thenReturn(Observable.<ExploreGenresSections>error(new Exception()),
-                Observable.<ExploreGenresSections>never());
-
-        createFragment();
-        final View layout = createFragmentView();
-
-        Button retryButton = (Button) fragment.getView().findViewById(R.id.btn_retry);
-        expect(retryButton).not.toBeNull();
-        retryButton.performClick();
-
-        EmptyListView emptyView = (EmptyListView) layout.findViewById(android.R.id.empty);
-        expect(emptyView.getStatus()).toEqual(EmptyListView.Status.WAITING);
-    }
-
-    @Test
-    public void shouldNotReloadGenresWhenRecreatingViewsAndGenresAlreadyLoaded() {
-        ExploreGenre electronicCategory = new ExploreGenre("electronic");
-        ExploreGenre comedyCategory = new ExploreGenre("comedy");
-        ExploreGenresSections categories = createSectionsFrom(electronicCategory, comedyCategory);
-        addCategoriesToFragment(categories);
-
-        // initial life cycle calls
-        createFragment();
-        createFragmentView();
-
-        // recreate views, e.g. after getting re-attached to the view pager
-        createFragmentView();
-
-        verify(adapter, times(2)).onNext(any(Section.class));
-    }
-
-    @Test
     public void shouldPublishScreenEnterEventWhenOpeningSpecificGenre(){
         ExploreGenre electronicCategory = new ExploreGenre("electronic");
         ExploreGenre comedyCategory = new ExploreGenre("comedy");
         ExploreGenresSections categories = createSectionsFrom(electronicCategory, comedyCategory);
-        addCategoriesToFragment(categories);
+        mockCategoriesObservable(categories);
 
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
@@ -138,9 +113,8 @@ public class ExploreGenresFragmentTest {
         expect(screenTag).toEqual("screentag");
     }
 
-    private void addCategoriesToFragment(ExploreGenresSections categories) {
-        final Observable<ExploreGenresSections> observable = Observable.just(
-                categories);
+    private void mockCategoriesObservable(ExploreGenresSections categories) {
+        observable = TestObservables.just(categories);
         when(operations.getCategories()).thenReturn(observable);
         when(listView.getHeaderViewsCount()).thenReturn(0);
         when(adapter.getSection(0)).thenReturn(buildMusicSection(categories.getMusic()));

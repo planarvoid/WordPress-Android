@@ -3,7 +3,6 @@ package com.soundcloud.android.stream;
 import static rx.android.OperatorPaged.Page;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -17,7 +16,6 @@ import rx.observables.ConnectableObservable;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -30,7 +28,6 @@ import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 
-@SuppressLint("ValidFragment")
 public class SoundStreamFragment extends Fragment implements OnRefreshListener {
 
     @Inject
@@ -44,15 +41,6 @@ public class SoundStreamFragment extends Fragment implements OnRefreshListener {
 
     public SoundStreamFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
-    }
-
-    @VisibleForTesting
-    SoundStreamFragment(SoundStreamOperations soundStreamOperations, StreamItemAdapter adapter,
-                        PullToRefreshController pullToRefreshController, EventBus eventBus) {
-        this.soundStreamOperations = soundStreamOperations;
-        this.adapter = adapter;
-        this.pullToRefreshController = pullToRefreshController;
-        this.eventBus = eventBus;
     }
 
     @Override

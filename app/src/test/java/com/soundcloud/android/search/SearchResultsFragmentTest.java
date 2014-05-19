@@ -7,6 +7,7 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
+import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,13 +28,16 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.ListViewController;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.android.OperatorPaged;
+import rx.observables.ConnectableObservable;
 
 import android.content.Context;
 import android.net.Uri;
@@ -47,24 +51,25 @@ import android.widget.Button;
 @RunWith(SoundCloudTestRunner.class)
 public class SearchResultsFragmentTest {
 
+    @InjectMocks
     private SearchResultsFragment fragment;
 
     @Mock
-    SearchOperations searchOperations;
+    private SearchOperations searchOperations;
     @Mock
-    PlaybackOperations playbackOperations;
+    private PlaybackOperations playbackOperations;
     @Mock
-    ImageOperations imageOperations;
+    private ListViewController listViewController;
     @Mock
-    EventBus eventBus;
+    private EventBus eventBus;
     @Mock
-    SearchResultsAdapter adapter;
+    private SearchResultsAdapter adapter;
 
     @Before
     public void setUp() throws Exception {
-        fragment = new SearchResultsFragment(searchOperations, playbackOperations, imageOperations, eventBus, adapter);
         Robolectric.shadowOf(fragment).setActivity(mock(FragmentActivity.class));
         Robolectric.shadowOf(fragment).setAttached(true);
+        when(listViewController.getEmptyView()).thenReturn(mock(EmptyListView.class));
     }
 
     @Test
@@ -112,6 +117,24 @@ public class SearchResultsFragmentTest {
     }
 
     @Test
+    public void shouldAttachListViewControllerInOnViewCreated() {
+        final Observable<Page<SearchResultsCollection>> observable = Observable.empty();
+        when(searchOperations.getAllSearchResults(anyString())).thenReturn(observable);
+
+        createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_ALL));
+        createFragmentView();
+
+        verify(listViewController).onViewCreated(refEq(fragment), any(ConnectableObservable.class),
+                refEq(fragment.getView()), refEq(adapter));
+    }
+
+    @Test
+    public void shouldDetachListViewControllerOnDestroyView() {
+        fragment.onDestroyView();
+        verify(listViewController).onDestroyView();
+    }
+
+    @Test
     public void shouldStartPlaybackWhenClickingPlayableRow() throws Exception {
         when(searchOperations.getAllSearchResults(anyString()))
                 .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
@@ -156,46 +179,6 @@ public class SearchResultsFragmentTest {
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         verify(playbackOperations).playFromAdapter(any(Context.class), anyList(), eq(0), isNull(Uri.class), eq(Screen.SEARCH_PLAYLISTS));
-    }
-
-    @Test
-    public void shouldRecreateObservableWhenClickingRetryAfterFailureSoThatWeDontEmitCachedResults() throws Exception {
-        when(searchOperations.getAllSearchResults(anyString())).
-                thenReturn(Observable.<Page<SearchResultsCollection>>error(new Exception()));
-
-        createWithArguments(new Bundle());
-        createFragmentView();
-
-        Button retryButton = (Button) fragment.getView().findViewById(R.id.btn_retry);
-        expect(retryButton).not.toBeNull();
-        retryButton.performClick();
-
-        verify(searchOperations, times(2)).getAllSearchResults(anyString());
-    }
-
-    @Test
-    public void shouldShowErrorStateScreenOnGetResultsError() throws Exception {
-        when(searchOperations.getAllSearchResults(anyString())).
-                thenReturn(Observable.<Page<SearchResultsCollection>>error(new Exception()));
-
-        createWithArguments(new Bundle());
-        createFragmentView();
-
-        EmptyListView emptyView = (EmptyListView) fragment.getListView().getEmptyView();
-        expect(emptyView.getStatus()).toEqual(EmptyListView.Status.ERROR);
-    }
-
-    @Test
-    public void shouldShowWaitingStateWhileLoading() throws Exception {
-        // Do not emit items, to simulate an ongoing data fetch
-        when(searchOperations.getAllSearchResults(anyString())).
-                thenReturn(Observable.<Page<SearchResultsCollection>>never());
-
-        createWithArguments(new Bundle());
-        createFragmentView();
-
-        EmptyListView emptyView = (EmptyListView) fragment.getListView().getEmptyView();
-        expect(emptyView.getStatus()).toEqual(EmptyListView.Status.WAITING);
     }
 
     @Test
