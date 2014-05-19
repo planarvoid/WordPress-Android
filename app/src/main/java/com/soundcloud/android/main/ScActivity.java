@@ -166,7 +166,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
         registerReceiver(unauthoriedRequestReceiver, new IntentFilter(Consts.GeneralIntents.UNAUTHORIZED));
         if (!accountOperations.isUserLoggedIn()) {
-            pausePlayback();
+            sendBroadcast(new Intent(PlaybackService.Actions.RESET_ALL));
             finish();
             return;
         }
@@ -195,10 +195,6 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         // just focus on the search tab, don't show default android search dialog
         startActivity(new Intent(Actions.SEARCH).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         return false;
-    }
-
-    public void pausePlayback() {
-        startService(new Intent(PlaybackService.Actions.PAUSE_ACTION));
     }
 
     public SoundCloudApplication getApp() {

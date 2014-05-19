@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-class PlayQueue {
+public class PlayQueue {
 
     private List<PlayQueueItem> playQueueItems;
     private int position;

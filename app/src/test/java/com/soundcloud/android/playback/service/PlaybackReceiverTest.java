@@ -1,14 +1,12 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.primitives.Longs;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
@@ -25,8 +23,6 @@ import org.mockito.Mock;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.media.AudioManager;
-
-import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class PlaybackReceiverTest {
@@ -110,58 +106,6 @@ public class PlaybackReceiverTest {
 
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).notifyChange(PlaybackService.Broadcasts.PLAYSTATE_CHANGED);
-    }
-
-    @Test
-    public void shouldCreateAndSetPlayQueueOnPlayQueueManager() {
-        final long[] idListArray = new long[]{1L, 2L, 3L};
-        final List<Long> idList = Longs.asList(idListArray);
-
-        Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
-        intent.putExtra(PlaybackService.PlayExtras.TRACK_ID_LIST, idListArray);
-        intent.putExtra(PlaybackService.PlayExtras.PLAY_SESSION_SOURCE, playSessionSource);
-        intent.putExtra(PlaybackService.PlayExtras.START_POSITION, 2);
-
-        playbackReceiver.onReceive(Robolectric.application, intent);
-        verify(playQueueManager).setNewPlayQueue(eq(PlayQueue.fromIdList(idList, 2, playSessionSource)), eq(playSessionSource));
-    }
-
-    @Test
-    public void sendingNewPlayQueueShouldOpenCurrentTrackInPlaybackService() {
-        Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
-        intent.putExtra(PlaybackService.PlayExtras.TRACK_ID_LIST, new long[]{1L, 2L, 3L});
-        intent.putExtra(PlaybackService.PlayExtras.PLAY_SESSION_SOURCE, playSessionSource);
-        intent.putExtra(PlaybackService.PlayExtras.START_POSITION, 2);
-
-        playbackReceiver.onReceive(Robolectric.application, intent);
-
-        verify(playbackService).openCurrent();
-    }
-
-    @Test
-    public void sendingNewPlayQueueShouldFetchRelatedTracksIfLoadRecommendedExtraIsTrue() {
-        Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
-        intent.putExtra(PlaybackService.PlayExtras.TRACK_ID_LIST, new long[]{1L});
-        intent.putExtra(PlaybackService.PlayExtras.PLAY_SESSION_SOURCE, playSessionSource);
-        intent.putExtra(PlaybackService.PlayExtras.START_POSITION, 0);
-        intent.putExtra(PlaybackService.PlayExtras.LOAD_RECOMMENDED, true);
-
-        playbackReceiver.onReceive(Robolectric.application, intent);
-
-        verify(playQueueManager).fetchRelatedTracks(1L);
-    }
-
-    @Test
-    public void sendingNewPlayQueueShouldNotFetchRelatedTracksIfLoadRecommendedExtraIsFalse() {
-        Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
-        intent.putExtra(PlaybackService.PlayExtras.TRACK_ID_LIST, new long[]{1L});
-        intent.putExtra(PlaybackService.PlayExtras.PLAY_SESSION_SOURCE, playSessionSource);
-        intent.putExtra(PlaybackService.PlayExtras.START_POSITION, 0);
-        intent.putExtra(PlaybackService.PlayExtras.LOAD_RECOMMENDED, false);
-
-        playbackReceiver.onReceive(Robolectric.application, intent);
-
-        verify(playQueueManager, never()).fetchRelatedTracks(anyLong());
     }
 
     @Test

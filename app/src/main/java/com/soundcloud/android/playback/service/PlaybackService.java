@@ -54,9 +54,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     // public service actions
     public interface Actions {
-        String PLAY_ACTION              = "com.soundcloud.android.playback.start";
         String TOGGLEPLAYBACK_ACTION    = "com.soundcloud.android.playback.toggleplayback";
         String PLAY_CURRENT             = "com.soundcloud.android.playback.playcurrent";
+        String PLAY_ACTION              = "com.soundcloud.android.playback.playcurrent";
         String PAUSE_ACTION             = "com.soundcloud.android.playback.pause";
         String NEXT_ACTION              = "com.soundcloud.android.playback.next";
         String PREVIOUS_ACTION          = "com.soundcloud.android.playback.previous";
@@ -145,10 +145,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public interface PlayExtras{
         String TRACK = Track.EXTRA;
         String TRACK_ID = Track.EXTRA_ID;
-        String TRACK_ID_LIST = "track_id_list";
-        String START_POSITION = "start_position";
-        String PLAY_SESSION_SOURCE = "play_session_source";
-        String LOAD_RECOMMENDED = "load_recommended";
     }
 
     public interface BroadcastExtras{
@@ -199,7 +195,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         remoteAudioManager = remoteAudioManagerProvider.get();
 
         IntentFilter playbackFilter = new IntentFilter();
-        playbackFilter.addAction(Actions.PLAY_ACTION);
         playbackFilter.addAction(Actions.TOGGLEPLAYBACK_ACTION);
         playbackFilter.addAction(Actions.PLAY_CURRENT);
         playbackFilter.addAction(Actions.PAUSE_ACTION);
@@ -279,7 +274,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         if (intent != null) {
             boolean hasAccount = accountOperations.isUserLoggedIn();
-            if (hasAccount && !Actions.PLAY_ACTION.equals(intent.getAction()) && playQueueManager.shouldReloadQueue()){
+            if (hasAccount && playQueueManager.shouldReloadQueue()){
                 playQueueManager.loadPlayQueue();
             }
             playbackReceiver.onReceive(this, intent);

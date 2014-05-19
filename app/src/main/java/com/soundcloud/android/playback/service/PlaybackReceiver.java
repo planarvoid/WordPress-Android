@@ -2,9 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.playback.service.PlaybackService.Actions;
 import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
-import static com.soundcloud.android.playback.service.PlaybackService.PlayExtras;
 
-import com.google.common.primitives.Longs;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
@@ -17,7 +15,6 @@ import android.content.Intent;
 import android.media.AudioManager;
 
 import javax.inject.Inject;
-import java.util.List;
 
 class PlaybackReceiver extends BroadcastReceiver {
 
@@ -61,13 +58,13 @@ class PlaybackReceiver extends BroadcastReceiver {
                 playbackService.openCurrent();
             } else if (Actions.TOGGLEPLAYBACK_ACTION.equals(action)) {
                 playbackService.togglePlayback();
+            } else if (Actions.PLAY_ACTION.equals(action)) {
+                playbackService.play();
             } else if (Actions.PAUSE_ACTION.equals(action)) {
                 playbackService.pause();
             } else if (Broadcasts.UPDATE_WIDGET_ACTION.equals(action)) {
                 // a widget was just added. Fake a playstate changed so it gets updated
                 playbackService.notifyChange(Broadcasts.PLAYSTATE_CHANGED);
-            } else if (Actions.PLAY_ACTION.equals(action)) {
-                handlePlayAction(intent);
             } else if (Actions.RETRY_RELATED_TRACKS.equals(action)) {
                 playQueueManager.retryRelatedTracksFetch();
             } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
@@ -83,26 +80,6 @@ class PlaybackReceiver extends BroadcastReceiver {
             }
         } else {
             Log.e(PlaybackService.TAG, "Aborting playback service action, no soundcloud account");
-        }
-    }
-
-    private void handlePlayAction(Intent intent) {
-        if (intent.hasExtra(PlayExtras.TRACK_ID_LIST)) {
-
-            final List<Long> trackIds = Longs.asList(intent.getLongArrayExtra(PlayExtras.TRACK_ID_LIST));
-            final int startPosition = intent.getIntExtra(PlayExtras.START_POSITION, 0);
-            final PlaySessionSource playSessionSource = intent.getParcelableExtra(PlayExtras.PLAY_SESSION_SOURCE);
-            PlayQueue playQueue = PlayQueue.fromIdList(trackIds, startPosition, playSessionSource);
-
-            playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-            playbackService.openCurrent();
-
-            if (intent.getBooleanExtra(PlayExtras.LOAD_RECOMMENDED, false) && !playQueue.isEmpty()) {
-                playQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
-            }
-
-        } else {
-            Log.w(PlaybackService.TAG, "Received play intent without a play queue");
         }
     }
 

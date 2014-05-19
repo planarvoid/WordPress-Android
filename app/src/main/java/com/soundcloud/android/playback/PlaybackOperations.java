@@ -29,6 +29,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -138,8 +139,7 @@ public class PlaybackOperations {
                 return track.getId();
             }
         });
-
-        context.startService(getPlayIntent(trackIds, 0, playSessionSource));
+        startPlaySession(context, trackIds, 0, playSessionSource);
     }
 
     @Deprecated
@@ -173,7 +173,7 @@ public class PlaybackOperations {
     }
 
     public void startPlaybackWithRecommendations(final Context context, long id, Screen screen) {
-        context.startService(getPlayIntent(Lists.newArrayList(id), 0, new PlaySessionSource(screen), true));
+        startPlaySession(context, Lists.newArrayList(id), 0, new PlaySessionSource(screen), true);
     }
 
     public void togglePlayback(final Context context) {
@@ -199,7 +199,7 @@ public class PlaybackOperations {
     public void playFromIdListShuffled(final Context context, List<Long> ids, Screen screen) {
         List<Long> shuffled = Lists.newArrayList(ids);
         Collections.shuffle(shuffled);
-        context.startService(getPlayIntent(shuffled, 0, new PlaySessionSource(screen)));
+        startPlaySession(context, shuffled, 0, new PlaySessionSource(screen));
         gotoPlayer(context, shuffled.get(0));
     }
 
@@ -222,9 +222,11 @@ public class PlaybackOperations {
             trackStorage.getTrackIdsForUriAsync(uri).subscribe(new DefaultSubscriber<List<Long>>() {
                 @Override
                 public void onNext(List<Long> idList) {
+
                     final int updatedPosition = correctStartPositionAndDeduplicateList(idList, startPosition, initialTrack);
-                    final Intent playIntent = getPlayIntent(idList, updatedPosition, playSessionSource);
-                    context.startService(playIntent);
+                    PlayQueue playQueue = PlayQueue.fromIdList(idList, updatedPosition, playSessionSource);
+                    playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+                    playCurrent(context);
                 }
             });
         }
@@ -241,8 +243,7 @@ public class PlaybackOperations {
 
         if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
             final int adjustedPosition = getDeduplicatedIdList(idList, startPosition);
-            final Intent playIntent = getPlayIntent(idList, adjustedPosition, playSessionSource, loadRelated);
-            context.startService(playIntent);
+            startPlaySession(context, idList, adjustedPosition, playSessionSource, loadRelated);
         }
     }
 
@@ -268,20 +269,21 @@ public class PlaybackOperations {
                 !playQueueManager.isCurrentPlaylist(playSessionSource.getPlaylistId());
     }
 
-    private Intent getPlayIntent(final List<Long> trackList, int startPosition,
+    private void startPlaySession(Context context, final List<Long> trackList, int startPosition,
                                 PlaySessionSource playSessionSource) {
-        return getPlayIntent(trackList, startPosition, playSessionSource, false);
+        startPlaySession(context, trackList, startPosition, playSessionSource, false);
     }
 
-    private Intent getPlayIntent(final List<Long> trackList, int startPosition,
-                                         PlaySessionSource playSessionSource, boolean loadRecommended) {
+    private void startPlaySession(Context context, final List<Long> trackList, int startPosition,
+                                    PlaySessionSource playSessionSource, boolean loadRecommended) {
 
-        final Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
-        intent.putExtra(PlaybackService.PlayExtras.TRACK_ID_LIST, Longs.toArray(trackList));
-        intent.putExtra(PlaybackService.PlayExtras.START_POSITION, startPosition);
-        intent.putExtra(PlaybackService.PlayExtras.PLAY_SESSION_SOURCE, playSessionSource);
-        intent.putExtra(PlaybackService.PlayExtras.LOAD_RECOMMENDED, loadRecommended);
-        return intent;
+        PlayQueue playQueue = PlayQueue.fromIdList(trackList, startPosition, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        playCurrent(context);
+
+        if (loadRecommended){
+            playQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
+        }
     }
 
     private int correctStartPositionAndDeduplicateList(List<Long> idList, int startPosition, final Track initialTrack) {

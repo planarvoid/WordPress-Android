@@ -99,12 +99,6 @@ public class PlaybackServiceTest {
     }
 
     @Test
-    public void onCreateRegistersPlaybackReceiverToListenForPlayAction() throws Exception {
-        playbackService.onCreate();
-        expect(getReceiversForAction(PlaybackService.Actions.PLAY_ACTION)).toContain(playbackReceiver);
-    }
-
-    @Test
     public void onCreateRegistersPlaybackReceiverToListenForToggleplaybackAction() throws Exception {
         playbackService.onCreate();
         expect(getReceiversForAction(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION)).toContain(playbackReceiver);
