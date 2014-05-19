@@ -51,7 +51,7 @@ public class PlayerArtworkImageView extends AspectRatioImageView {
                 final float offset = (-excessWidth / 2 + excessWidth * progress);
                 dx = (vwidth - dwidth * scale) * 0.5f - offset;
                 // optimisation. Do not redraw unnecessarily
-                if (dx != lastDx) {
+                if (Math.abs(dx - lastDx) > .0001) {
                     lastDx = dx;
                     invalidate();
                 }
