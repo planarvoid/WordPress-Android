@@ -42,7 +42,7 @@ public class PlaySessionController {
     }
 
     public boolean isPlayingTrack(Track track){
-        return currentPlayingUrn != null && track.getUrn().equals(currentPlayingUrn);
+        return currentPlayingUrn != null && currentPlayingUrn.equals(track.getUrn());
     }
 
     public PlaybackProgressEvent getCurrentProgress() {
