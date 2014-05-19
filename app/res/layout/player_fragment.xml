@@ -53,6 +53,6 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/player_skip_margin"
-            style="@style/PlayerNext" />
+            style="@style/PlayerPrevious" />
 
 </RelativeLayout>

@@ -1527,6 +1527,10 @@
         <item name="android:background">@drawable/btn_player_next</item>
     </style>
 
+    <style name="PlayerPrevious" parent="PlayerNext">
+        <item name="android:background">@drawable/btn_player_previous</item>
+    </style>
+
     <style name="PlayerArtwork">
         <item name="showGradient">true</item>
         <item name="gradientStart">.7</item>
