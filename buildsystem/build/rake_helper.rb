@@ -173,7 +173,6 @@ module Build
           desc "bumps #{name} version \t# Does not push the change to remote repo #"
           task(name) do
             check_git
-            Build.version_code.to_i + 1
             bump_version(name)
           end
         end
@@ -187,7 +186,6 @@ module Build
       Build.version.bump!(part)
 
       Mvn.update_version.execute
-      Mvn.update_manifest.set_version_code(Build.version_code.to_i + 1).execute
 
       message = "Version: #{current} bumped to: #{Build.version}"
 
@@ -237,8 +235,25 @@ module Build
     def upload_tasks
       desc "uploads to Google Play Store"
       task :store do
-        publisher = Android::Publisher.new("com.soundcloud.android", Build.apk_path)
-        publisher.deploy_to_beta
+        case Configuration.build_env
+          when 'debug'
+            android_store_publisher.deploy_to_alpha
+          when 'beta'
+            android_store_publisher.deploy_to_beta
+          when 'release'
+            android_store_publisher.deploy_to_production
+        end
+
+        new_version_code = Build.version_code.to_i + 1
+
+        Mvn.update_manifest.set_version_code(new_version_code).execute
+
+        message = "VersionCode bumped to: #{new_version_code}"
+        git.commit_a(message)
+
+        puts message
+
+        git.push
       end
     end
 
@@ -259,6 +274,10 @@ module Build
 
     def github
       Github.new('0330604618ffbc5232a62f3e96f9d3b25377b9cb')
+    end
+
+    def android_store_publisher
+      Android::Publisher.new("com.soundcloud.android", Build.apk_path)
     end
 
     def release
