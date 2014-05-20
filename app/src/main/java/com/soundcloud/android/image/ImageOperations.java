@@ -11,7 +11,6 @@ import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.IOUtils;
@@ -22,7 +21,6 @@ import rx.Observable;
 import rx.Subscriber;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -52,6 +50,15 @@ public class ImageOperations {
 
     private final Set<String> notFoundUris = Sets.newHashSet();
     private final Cache<String, Drawable> placeholderCache;
+    private final ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory;
+
+    @Inject
+    public ImageOperations(ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator,
+                           ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory) {
+        this(ImageLoader.getInstance(), imageEndpointBuilder, placeholderGenerator,
+                CacheBuilder.newBuilder().weakValues().maximumSize(50).<String, Drawable>build(), viewlessLoadingAdapterFactory);
+
+    }
 
     private final SimpleImageLoadingListener notFoundListener = new SimpleImageLoadingListener() {
 
@@ -80,19 +87,14 @@ public class ImageOperations {
         }
     };
 
-    @Inject
-    public ImageOperations(ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator) {
-        this(ImageLoader.getInstance(), imageEndpointBuilder, placeholderGenerator,
-                CacheBuilder.newBuilder().weakValues().maximumSize(50).<String, Drawable>build());
-
-    }
-
     @VisibleForTesting
-    ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator, Cache<String, Drawable> placeholderCache) {
+    ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator, Cache<String, Drawable> placeholderCache,
+                    ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory) {
         this.imageLoader = imageLoader;
         this.imageEndpointBuilder = imageEndpointBuilder;
         this.placeholderGenerator = placeholderGenerator;
         this.placeholderCache = placeholderCache;
+        this.viewlessLoadingAdapterFactory = viewlessLoadingAdapterFactory;
     }
 
     public void initialise(Context context, ApplicationProperties properties) {
@@ -177,28 +179,11 @@ public class ImageOperations {
         imageLoader.loadImage(adjustUrl(imageUrl), ImageOptionsFactory.prefetch(), null);
     }
 
-    public Observable<Bitmap> loadLockscreenImage(final Resources resources, final TrackUrn trackUrn) {
+    public Observable<Bitmap> copiedImage(final Urn resourceUrn, final ImageSize imageSize) {
         return Observable.create(new Observable.OnSubscribe<Bitmap>() {
             @Override
-            public void call(final Subscriber<? super Bitmap> subscriber) {
-                load(trackUrn, ImageSize.getFullImageSize(resources), new ImageUtils.ViewlessLoadingListener() {
-                    @Override
-                    public void onLoadingFailed(String s, View view, String failedReason) {
-                        subscriber.onError(new Exception("Failed to load lockscreen image " + failedReason));
-                    }
-
-                    @Override
-                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                        if (!subscriber.isUnsubscribed()) {
-                            try {
-                                subscriber.onNext(loadedImage.copy(Bitmap.Config.ARGB_8888, false));
-                            } catch (OutOfMemoryError error) {
-                                subscriber.onError(new Exception("Failed to load lockscreen image " + error));
-                            }
-                            subscriber.onCompleted();
-                        }
-                    }
-                });
+            public void call(Subscriber<? super Bitmap> subscriber) {
+                load(resourceUrn, imageSize, viewlessLoadingAdapterFactory.create(subscriber, true));
             }
         });
     }

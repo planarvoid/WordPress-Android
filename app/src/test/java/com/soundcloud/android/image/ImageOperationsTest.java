@@ -31,6 +31,9 @@ import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import rx.Observable;
+import rx.Subscriber;
+import rx.observers.TestSubscriber;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -75,6 +78,10 @@ public class ImageOperationsTest {
     FailReason failReason;
     @Mock
     Cache cache;
+    @Mock
+    ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory;
+    @Mock
+    ViewlessLoadingAdapter viewlessLoadingAdapter;
 
     @Captor
     ArgumentCaptor<ImageListenerUILAdapter> imageListenerUILAdapterCaptor;
@@ -95,7 +102,7 @@ public class ImageOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        imageOperations = new ImageOperations(imageLoader, imageEndpointBuilder, placeholderGenerator, cache);
+        imageOperations = new ImageOperations(imageLoader, imageEndpointBuilder, placeholderGenerator, cache, viewlessLoadingAdapterFactory);
         when(imageLoader.getDiscCache()).thenReturn(diskCache);
         when(imageEndpointBuilder.imageUrl(URN, ImageSize.LARGE)).thenReturn(RESOLVER_URL_LARGE);
         when(placeholderGenerator.generate(any(String.class))).thenReturn(drawable);
@@ -323,6 +330,35 @@ public class ImageOperationsTest {
         expect(displayOptionsCaptor.getValue().getImageOnLoading(Robolectric.application.getResources())).toBe(drawable);
         expect(displayOptionsCaptor.getValue().getImageOnFail(Robolectric.application.getResources())).toBe(drawable);
         expect(displayOptionsCaptor.getValue().getImageForEmptyUri(Robolectric.application.getResources())).toBe(drawable);
+    }
+
+    @Test
+    public void copiedImagePassesBitmapFromLoadCompleteToLoadingAdapter() throws Exception {
+        final Bitmap bitmap = Mockito.mock(Bitmap.class);
+        ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
+
+        Observable<Bitmap> observable = imageOperations.copiedImage(URN, ImageSize.LARGE);
+        TestSubscriber<Bitmap> subscriber = new TestSubscriber<Bitmap>();
+        when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), eq(true))).thenReturn(viewlessLoadingAdapter);
+        observable.subscribe(subscriber);
+
+        verify(imageLoader).loadImage(eq(RESOLVER_URL_LARGE), captor.capture());
+        captor.getValue().onLoadingComplete("asdf", imageView, bitmap);
+        verify(viewlessLoadingAdapter).onLoadingComplete("asdf", imageView, bitmap);
+    }
+
+    @Test
+    public void copiedImagePassesLoadFailedToLoadingAdapter() throws Exception {
+        ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
+
+        Observable<Bitmap> observable = imageOperations.copiedImage(URN, ImageSize.LARGE);
+        TestSubscriber<Bitmap> subscriber = new TestSubscriber<Bitmap>();
+        when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), eq(true))).thenReturn(viewlessLoadingAdapter);
+        observable.subscribe(subscriber);
+
+        verify(imageLoader).loadImage(eq(RESOLVER_URL_LARGE), captor.capture());
+        captor.getValue().onLoadingFailed("asdf", imageView, new FailReason(FailReason.FailType.DECODING_ERROR, new Exception("Decoding error")));
+        verify(viewlessLoadingAdapter).onLoadingFailed("asdf", imageView, "Decoding error");
     }
 
     private void verifyCapturedListener() {
