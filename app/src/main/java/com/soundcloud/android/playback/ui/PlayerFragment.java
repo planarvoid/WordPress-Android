@@ -11,8 +11,7 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -37,9 +36,7 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
 
     private PlayerPresenter presenter;
 
-    private Subscription playStateSubscription = Subscriptions.empty();
-    private Subscription playProgressSubscription = Subscriptions.empty();
-    private Subscription playQueueSubscription = Subscriptions.empty();
+    private final CompositeSubscription eventSubscription = new CompositeSubscription();
 
     public PlayerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -59,16 +56,14 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        playStateSubscription = eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
-        playProgressSubscription = eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber());
-        playQueueSubscription = eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
+        eventSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber()));
+        eventSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber()));
+        eventSubscription.add(eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
     }
 
     @Override
     public void onDestroy() {
-        playStateSubscription.unsubscribe();
-        playProgressSubscription.unsubscribe();
-        playQueueSubscription.unsubscribe();
+        eventSubscription.unsubscribe();
         super.onDestroy();
     }
 
