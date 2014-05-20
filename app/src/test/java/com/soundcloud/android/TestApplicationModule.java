@@ -13,6 +13,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.playback.service.PlayerWidgetController;
+import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.storage.PlaylistTagStorage;
 import dagger.Module;
@@ -125,5 +126,10 @@ public class TestApplicationModule {
     @Provides
     public PlaylistTagStorage providePlaylistTagStorage() {
         return mock(PlaylistTagStorage.class);
+    }
+
+    @Provides
+    public IRemoteAudioManager provideIRemoteAudioManager() {
+        return mock(IRemoteAudioManager.class);
     }
 }

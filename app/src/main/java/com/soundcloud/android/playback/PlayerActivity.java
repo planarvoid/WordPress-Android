@@ -241,7 +241,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     public long setSeekMarker(int queuePosition, float seekPercent) {
         if (playbackService != null) {
             if (playQueueManager.getCurrentPosition() != queuePosition) {
-                playbackService.playTrackAtPosition(queuePosition);
+                playbackOperations.setPlayQueuePosition(queuePosition);
             } else {
                 if (playbackStateProvider.isSeekable()) {
                     // returns where would we be if we had seeked
@@ -313,9 +313,9 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         }
     }
 
-    protected void onPlaybackServiceBound(@NotNull PlaybackService service) {
+    protected void onPlaybackServiceBound() {
         if (pendingPlayPosition != -1) {
-            service.playTrackAtPosition(pendingPlayPosition);
+            playbackOperations.setPlayQueuePosition(pendingPlayPosition);
             pendingPlayPosition = -1;
         }
         setPlaybackState();
@@ -443,7 +443,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         public void onServiceConnected(ComponentName classname, IBinder obj) {
             if (obj instanceof LocalBinder) {
                 playbackService = (PlaybackService) ((LocalBinder)obj).getService();
-                onPlaybackServiceBound(playbackService);
+                onPlaybackServiceBound();
             }
         }
         @Override
@@ -469,7 +469,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 if (!playbackStateProvider.isSupposedToBePlaying()
                         && getCurrentDisplayedTrackPosition() != playQueue.getPosition()) {
                     // play whatever track is currently on the screen
-                    playbackService.playTrackAtPosition(getCurrentDisplayedTrackPosition());
+                    playbackOperations.setPlayQueuePosition(getCurrentDisplayedTrackPosition());
                 } else {
                     playbackService.togglePlayback();
                 }
@@ -501,7 +501,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                         transportBarTrackChange = true;
                         trackPager.prev();
                     } else {
-                        playbackService.playTrackAtPosition(playPosition - 1);
+                        playbackOperations.setPlayQueuePosition(playPosition - 1);
                         refreshTrackPager();
                     }
 
@@ -532,7 +532,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                         transportBarTrackChange = true;
                         trackPager.next();
                     } else {
-                        playbackService.playTrackAtPosition(playPosition + 1);
+                        playbackOperations.setPlayQueuePosition(playPosition + 1);
                         refreshTrackPager();
                     }
                 }
@@ -586,7 +586,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                     break;
                 case SEND_CURRENT_QUEUE_POSITION:
                     if (player.playbackService != null) {
-                        player.playbackService.playTrackAtPosition(player.getCurrentDisplayedTrackPosition());
+                        player.playbackOperations.setPlayQueuePosition(player.getCurrentDisplayedTrackPosition());
                     }
                     break;
                 default:

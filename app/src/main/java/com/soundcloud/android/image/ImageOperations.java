@@ -11,14 +11,18 @@ import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
+import rx.Subscriber;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -171,6 +175,32 @@ public class ImageOperations {
     @Deprecated // use the variants that take URNs instead
     public void prefetch(String imageUrl) {
         imageLoader.loadImage(adjustUrl(imageUrl), ImageOptionsFactory.prefetch(), null);
+    }
+
+    public Observable<Bitmap> loadLockscreenImage(final Resources resources, final TrackUrn trackUrn) {
+        return Observable.create(new Observable.OnSubscribe<Bitmap>() {
+            @Override
+            public void call(final Subscriber<? super Bitmap> subscriber) {
+                load(trackUrn, ImageSize.getFullImageSize(resources), new ImageUtils.ViewlessLoadingListener() {
+                    @Override
+                    public void onLoadingFailed(String s, View view, String failedReason) {
+                        subscriber.onError(new Exception("Failed to load lockscreen image " + failedReason));
+                    }
+
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        if (!subscriber.isUnsubscribed()) {
+                            try {
+                                subscriber.onNext(loadedImage.copy(Bitmap.Config.ARGB_8888, false));
+                            } catch (OutOfMemoryError error) {
+                                subscriber.onError(new Exception("Failed to load lockscreen image " + error));
+                            }
+                            subscriber.onCompleted();
+                        }
+                    }
+                });
+            }
+        });
     }
 
     public void resume() {

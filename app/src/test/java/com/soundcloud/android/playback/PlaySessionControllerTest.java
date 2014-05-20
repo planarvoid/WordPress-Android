@@ -11,20 +11,34 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.track.TrackOperations;
+import dagger.Lazy;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaySessionControllerTest {
 
+    private static final long TRACK_ID = 123L;
+    private static final TrackUrn TRACK_URN = TrackUrn.forTrack(TRACK_ID);
     @Mock
     private EventBus eventBus;
     @Mock
@@ -33,15 +47,36 @@ public class PlaySessionControllerTest {
     private PlayQueueManager playQueueManager;
     @Mock
     private Context context;
+    @Mock
+    private Resources resources;
+    @Mock
+    private TrackOperations trackOperations;
+    @Mock
+    private Lazy<IRemoteAudioManager> audioManagerProvider;
+    @Mock
+    private IRemoteAudioManager audioManager;
+    @Mock
+    private ImageOperations imageOperations;
+    @Mock
+    private Track track;
+    @Mock
+    private Bitmap bitmap;
 
     private  PlaySessionController controller;
     private EventMonitor monitor;
 
+
     @Before
     public void setUp() throws Exception {
-        controller = new PlaySessionController(context, eventBus, playbackOperations, playQueueManager);
+        when(audioManagerProvider.get()).thenReturn(audioManager);
+        controller = new PlaySessionController(context, eventBus, playbackOperations, playQueueManager, trackOperations, audioManagerProvider, imageOperations);
+        when(context.getResources()).thenReturn(resources);
         monitor = EventMonitor.on(eventBus);
         controller.subscribe();
+
+        when(track.getUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentTrackId()).thenReturn(TRACK_ID);
+        when(trackOperations.loadTrack(TRACK_ID, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
     }
 
     @Test
@@ -60,11 +95,50 @@ public class PlaySessionControllerTest {
     }
 
     @Test
-    public void shouldPlayCurrentTrackWhenTheQueueChangeIfThePlayerIsAlreadyPlaying() {
-        monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE));
+    public void playQueueChangedHandlerCallsPlayCurrentOnPlaybackOperationsIfThePlayerIsInPlaySession() {
+        final Playa.StateTransition lastTransition = Mockito.mock(Playa.StateTransition.class);
+        when(lastTransition.playSessionIsActive()).thenReturn(true);
+        monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
         monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
 
         verify(playbackOperations).playCurrent(context);
+    }
+
+    @Test
+    public void playQueueChangedHandlerDoesNotCallPlayCurrentIfPlaySessionIsNotActive() {
+        final Playa.StateTransition lastTransition = Mockito.mock(Playa.StateTransition.class);
+        when(lastTransition.playSessionIsActive()).thenReturn(false);
+        monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
+        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+
+        verify(playbackOperations, never()).playCurrent(any(Context.class));
+    }
+
+    @Test
+    public void playQueueChangedHandlerDoesNotSetTrackOnAudioManagerIfTrackChangeNotSupported() {
+        when(audioManager.isTrackChangeSupported()).thenReturn(false);
+        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        verify(audioManager, never()).onTrackChanged(any(Track.class), any(Bitmap.class));
+    }
+
+    @Test
+    public void playQueueChangedHandlerSetsLockScreenStateWithBitmapForCurrentTrack() {
+        when(audioManager.isTrackChangeSupported()).thenReturn(true);
+        when(imageOperations.loadLockscreenImage(resources, TRACK_URN)).thenReturn(Observable.just(bitmap));
+
+        InOrder inOrder = Mockito.inOrder(audioManager);
+        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        inOrder.verify(audioManager).onTrackChanged(track, null);
+        inOrder.verify(audioManager).onTrackChanged(track, bitmap);
+    }
+
+    @Test
+    public void playQueueChangedHandlerSetsLockScreenStateWithNullBitmapForCurrentTrackOnImageLoadError() {
+        when(audioManager.isTrackChangeSupported()).thenReturn(true);
+        when(imageOperations.loadLockscreenImage(resources, TRACK_URN)).thenReturn(Observable.<Bitmap>error(new Exception("Could not load image")));
+
+        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        verify(audioManager).onTrackChanged(track, null);
     }
 
     @Test

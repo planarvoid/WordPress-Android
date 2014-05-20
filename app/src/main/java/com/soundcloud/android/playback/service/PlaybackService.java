@@ -10,7 +10,6 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.peripherals.PeripheralsOperations;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
@@ -120,7 +119,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private static final int IDLE_DELAY = 180*1000;  // interval after which we stop the service when idle
 
     // audio focus related
-    private IRemoteAudioManager remoteAudioManager;
+    private IAudioManager audioManager;
     private FocusLossState focusLossState = FocusLossState.NONE;
     private enum FocusLossState {
         NONE, TRANSIENT, LOST
@@ -192,7 +191,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         streamPlayer.setListener(this);
 
         playbackReceiver = playbackReceiverFactory.create(this, accountOperations, playQueueManager, eventBus);
-        remoteAudioManager = remoteAudioManagerProvider.get();
+        audioManager = remoteAudioManagerProvider.get();
 
         IntentFilter playbackFilter = new IntentFilter();
         playbackFilter.addAction(Actions.TOGGLEPLAYBACK_ACTION);
@@ -222,7 +221,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         // make sure there aren't any other messages coming
         delayedStopHandler.removeCallbacksAndMessages(null);
         fadeHandler.removeCallbacksAndMessages(null);
-        remoteAudioManager.abandonMusicFocus(false);
+        audioManager.abandonMusicFocus(false);
         unregisterReceiver(playbackReceiver);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
         instance = null;
@@ -317,7 +316,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public void resetAll() {
         stop();
         currentTrack = null;
-        remoteAudioManager.abandonMusicFocus(false); // kills lockscreen
+        audioManager.abandonMusicFocus(false); // kills lockscreen
     }
 
     boolean isWaitingForPlaylist() {
@@ -358,7 +357,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public boolean requestAudioFocus() {
-        return remoteAudioManager.requestMusicFocus(PlaybackService.this, IAudioManager.FOCUS_GAIN);
+        return audioManager.requestMusicFocus(PlaybackService.this, IAudioManager.FOCUS_GAIN);
     }
 
     void notifyChange(String what) {
@@ -386,11 +385,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         if (applicationProperties.shouldUseRichNotifications()) {
             if (what.equals(Broadcasts.PLAYSTATE_CHANGED)) {
-                remoteAudioManager.setPlaybackState(isPlaying);
                 setPlayingNotification(currentTrack);
                 peripheralsOperations.notifyPlayStateChanged(this, getCurrentTrack(), isPlaying);
             } else if (what.equals(Broadcasts.META_CHANGED)) {
-                onTrackChanged(currentTrack);
                 peripheralsOperations.notifyMetaChanged(this, getCurrentTrack(), isPlaying);
             }
         }
@@ -402,35 +399,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private void saveQueue(){
         playQueueManager.saveCurrentPosition(currentTrack == null ? 0 : getProgress());
-    }
-
-    private void onTrackChanged(final Track track) {
-        if (remoteAudioManager.isTrackChangeSupported()) {
-            // set initial data without bitmap so it doesn't have to wait
-            remoteAudioManager.onTrackChanged(track, null);
-
-            // Loads the current track artwork into the lock screen controls
-            // this is quite ugly; should move into ImageOperations really!
-            final ImageUtils.ViewlessLoadingListener lockScreenImageListener = new ImageUtils.ViewlessLoadingListener() {
-                @Override
-                public void onLoadingFailed(String s, View view, String failedReason) {
-                }
-
-                @Override
-                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    if (track == currentTrack) {
-                        // use a copy of the bitmap because it is going to get recycled afterwards
-                        try {
-                            remoteAudioManager.onTrackChanged(track, loadedImage.copy(Bitmap.Config.ARGB_8888, false));
-                        } catch (OutOfMemoryError e) {
-                            remoteAudioManager.onTrackChanged(track, null);
-                        }
-                    }
-
-                }
-            };
-            imageOperations.load(track.getUrn(), ImageSize.getFullImageSize(getResources()), lockScreenImageListener);
-        }
     }
 
     // TODO : Handle tracks that are not in local storage (quicksearch)
@@ -548,7 +516,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
 
     /* package */ void play() {
-        if (!streamPlayer.isPlaying() && currentTrack != null && remoteAudioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
+        if (!streamPlayer.isPlaying() && currentTrack != null && audioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
             if (currentTrack.getId() != playQueueManager.getCurrentTrackId() || !streamPlayer.playbackHasPaused() || !streamPlayer.resume()){
                 openCurrent();
             }
@@ -659,16 +627,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         }
         startForeground(PLAYBACKSERVICE_STATUS_ID, notification);
         status = notification;
-    }
-
-    public void playTrackAtPosition(int pos) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "playTrackAtPosition("+pos+")");
-
-        final PlayQueue playQueue = getPlayQueueInternal();
-        if (playQueue.getPosition() != pos && playQueue.setPosition(pos)) {
-            playQueue.setCurrentTrackToUserTriggered();
-            openCurrent();
-        }
     }
 
     /* package */ int getDuration() {
