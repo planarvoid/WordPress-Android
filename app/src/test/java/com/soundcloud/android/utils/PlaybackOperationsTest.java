@@ -87,11 +87,10 @@ public class PlaybackOperationsTest {
     @Mock
     private RxHttpClient rxHttpClient;
 
-
     @Before
     public void setUp() throws Exception {
-        playbackOperations = new PlaybackOperations(modelManager, trackStorage, playQueueManager, accountOperations,
-                httpProperties, rxHttpClient, featureFlags, eventBus);
+        playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage, playQueueManager,
+                accountOperations, httpProperties, rxHttpClient, featureFlags, eventBus);
         track = TestHelper.getModelFactory().createModel(Track.class);
     }
 
@@ -272,7 +271,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void shouldTogglePlayback() {
-        playbackOperations.togglePlayback(Robolectric.application);
+        playbackOperations.togglePlayback();
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService().getAction()).toBe(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION);
@@ -281,7 +280,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void shouldPlayCurrentQueueTrack() {
-        playbackOperations.playCurrent(Robolectric.application);
+        playbackOperations.playCurrent();
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService().getAction()).toBe(PlaybackService.Actions.PLAY_CURRENT);
@@ -313,7 +312,7 @@ public class PlaybackOperationsTest {
         List<Track> tracks = TestHelper.createTracks(3);
         Playlist playlist = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        playbackOperations.playPlaylist(Robolectric.application, playlist, ORIGIN_SCREEN);
+        playbackOperations.playPlaylist(playlist, ORIGIN_SCREEN);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
         playSessionSource.setPlaylist(playlist);
@@ -325,7 +324,7 @@ public class PlaybackOperationsTest {
         List<Track> tracks = TestHelper.createTracks(3);
         Playlist playlist = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        playbackOperations.playPlaylist(Robolectric.application, playlist, ORIGIN_SCREEN);
+        playbackOperations.playPlaylist(playlist, ORIGIN_SCREEN);
         checkLastStartedServiceForPlayCurrentAction();
     }
 
@@ -464,46 +463,46 @@ public class PlaybackOperationsTest {
     @Test
     public void startPlaybackWithRecommendationsCachesTrack() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        playbackOperations.startPlaybackWithRecommendations(Robolectric.application, track, ORIGIN_SCREEN);
+        playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN);
         verify(modelManager).cache(track);
     }
 
     @Test
     public void startPlaybackWithRecommendationsSetsConfiguredPlayQueueOnPlayQueueManager() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        playbackOperations.startPlaybackWithRecommendations(Robolectric.application, track, ORIGIN_SCREEN);
+        playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN);
         checkSetNewPlayQueueArgs(0, new PlaySessionSource(ORIGIN_SCREEN.get()), track.getId());
     }
 
     @Test
     public void startPlaybackWithRecommendationsOpensCurrentThroughPlaybackService() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        playbackOperations.startPlaybackWithRecommendations(Robolectric.application, track, ORIGIN_SCREEN);
+        playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN);
         checkLastStartedServiceForPlayCurrentAction();
     }
 
     @Test
     public void startPlaybackWithRecommendationsByTrackCallsFetchRecommendationsOnPlayQueueManager() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        playbackOperations.startPlaybackWithRecommendations(Robolectric.application, track, ORIGIN_SCREEN);
+        playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN);
         verify(playQueueManager).fetchRelatedTracks(track.getId());
     }
 
     @Test
     public void startPlaybackWithRecommendationsByIdSetsPlayQueueOnPlayQueueManager() throws Exception {
-        playbackOperations.startPlaybackWithRecommendations(Robolectric.application, 123L, ORIGIN_SCREEN);
+        playbackOperations.startPlaybackWithRecommendations(123L, ORIGIN_SCREEN);
         checkSetNewPlayQueueArgs(0, new PlaySessionSource(ORIGIN_SCREEN.get()), 123L);
     }
 
     @Test
     public void startPlaybackWithRecommendationsByIdOpensCurrentThroughPlaybackService() throws Exception {
-        playbackOperations.startPlaybackWithRecommendations(Robolectric.application, 123L, ORIGIN_SCREEN);
+        playbackOperations.startPlaybackWithRecommendations(123L, ORIGIN_SCREEN);
         checkLastStartedServiceForPlayCurrentAction();
     }
 
     @Test
     public void startPlaybackWithRecommendationsByIdCallsFetchRelatedOnPlayQueueManager() throws Exception {
-        playbackOperations.startPlaybackWithRecommendations(Robolectric.application, 123L, ORIGIN_SCREEN);
+        playbackOperations.startPlaybackWithRecommendations(123L, ORIGIN_SCREEN);
         verify(playQueueManager).fetchRelatedTracks(123L);
     }
 

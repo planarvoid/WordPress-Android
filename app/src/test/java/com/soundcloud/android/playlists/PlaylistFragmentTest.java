@@ -37,7 +37,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -127,7 +126,7 @@ public class PlaylistFragmentTest {
         View toggleButton = layout.findViewById(R.id.toggle_play_pause);
         toggleButton.performClick();
 
-        verify(playbackOperations).playPlaylist(any(Context.class), eq(playlist), eq(Screen.SIDE_MENU_STREAM));
+        verify(playbackOperations).playPlaylist(eq(playlist), eq(Screen.SIDE_MENU_STREAM));
     }
 
     @Test
@@ -138,7 +137,7 @@ public class PlaylistFragmentTest {
         View toggleButton = layout.findViewById(R.id.toggle_play_pause);
         toggleButton.performClick();
 
-        verify(playbackOperations).togglePlayback(any(Context.class));
+        verify(playbackOperations).togglePlayback();
     }
 
     @Test

@@ -103,9 +103,9 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         public void onClick(View v) {
             final Playlist playlist = (Playlist) playablePresenter.getPlayable();
             if (playQueueManager.isCurrentPlaylist(playlist.getId())) {
-                playbackOperations.togglePlayback(getActivity());
+                playbackOperations.togglePlayback();
             } else {
-                playbackOperations.playPlaylist(getActivity(), playlist, Screen.fromBundle(getArguments()));
+                playbackOperations.playPlaylist(playlist, Screen.fromBundle(getArguments()));
             }
         }
     };

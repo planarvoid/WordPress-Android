@@ -69,7 +69,7 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
 
     @Override
     public void onTogglePlay() {
-        playbackOperations.togglePlayback(getActivity());
+        playbackOperations.togglePlayback();
     }
 
     @Override

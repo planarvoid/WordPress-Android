@@ -21,6 +21,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 
 import javax.inject.Inject;
@@ -30,7 +31,7 @@ import javax.inject.Singleton;
 public class PlaySessionController {
 
     private static final StateTransition PLAY_QUEUE_COMPLETE_EVENT = new StateTransition(PlayaState.IDLE, Playa.Reason.PLAY_QUEUE_COMPLETE);
-    private final Context context;
+    private final Resources resources;
     private final EventBus eventBus;
     private final PlaybackOperations playbackOperations;
     private final TrackOperations trackOperations;
@@ -48,10 +49,10 @@ public class PlaySessionController {
     private PlaybackProgressEvent currentProgress;
 
     @Inject
-    public PlaySessionController(Context context, EventBus eventBus, PlaybackOperations playbackOperations,
+    public PlaySessionController(Resources resources, EventBus eventBus, PlaybackOperations playbackOperations,
                                  PlayQueueManager playQueueManager, TrackOperations trackOperations, Lazy<IRemoteAudioManager> audioManager,
                                  ImageOperations imageOperations) {
-        this.context = context;
+        this.resources = resources;
         this.eventBus = eventBus;
         this.playbackOperations = playbackOperations;
         this.playQueueManager = playQueueManager;
@@ -85,7 +86,7 @@ public class PlaySessionController {
 
             if (stateTransition.trackEnded()){
                 if (playQueueManager.autoNextTrack()){
-                    playbackOperations.playCurrent(context);
+                    playbackOperations.playCurrent();
                 } else {
                     eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, PLAY_QUEUE_COMPLETE_EVENT);
                 }
@@ -101,7 +102,7 @@ public class PlaySessionController {
                     .subscribe(new CurrentTrackSubscriber());
 
             if (lastStateTransition.playSessionIsActive()) {
-                playbackOperations.playCurrent(context);
+                playbackOperations.playCurrent();
             }
         }
     }
@@ -124,7 +125,7 @@ public class PlaySessionController {
     private void updateRemoteAudioManager() {
         if (audioManager.isTrackChangeSupported()) {
             audioManager.onTrackChanged(currentPlayQueueTrack, null); // set initial data without bitmap so it doesn't have to wait
-            currentTrackSubscription = imageOperations.loadLockscreenImage(context.getResources(), currentPlayQueueTrack.getUrn())
+            currentTrackSubscription = imageOperations.loadLockscreenImage(resources, currentPlayQueueTrack.getUrn())
                     .subscribe(new DefaultSubscriber<Bitmap>() {
                         @Override
                         public void onNext(Bitmap bitmap) {

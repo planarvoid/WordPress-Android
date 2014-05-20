@@ -83,7 +83,7 @@ public class PlayerFragmentTest {
     @Test
     public void callingOnTogglePlayOnPresenterListenerCallsTogglePlaybackOnPlaybackOperations() {
         listener.onTogglePlay();
-        verify(playbackOperations).togglePlayback(activity);
+        verify(playbackOperations).togglePlayback();
     }
 
     @Test

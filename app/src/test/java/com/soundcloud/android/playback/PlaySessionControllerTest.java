@@ -46,8 +46,6 @@ public class PlaySessionControllerTest {
     @Mock
     private PlayQueueManager playQueueManager;
     @Mock
-    private Context context;
-    @Mock
     private Resources resources;
     @Mock
     private TrackOperations trackOperations;
@@ -69,8 +67,7 @@ public class PlaySessionControllerTest {
     @Before
     public void setUp() throws Exception {
         when(audioManagerProvider.get()).thenReturn(audioManager);
-        controller = new PlaySessionController(context, eventBus, playbackOperations, playQueueManager, trackOperations, audioManagerProvider, imageOperations);
-        when(context.getResources()).thenReturn(resources);
+        controller = new PlaySessionController(resources, eventBus, playbackOperations, playQueueManager, trackOperations, audioManagerProvider, imageOperations);
         monitor = EventMonitor.on(eventBus);
         controller.subscribe();
 
@@ -101,7 +98,7 @@ public class PlaySessionControllerTest {
         monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
         monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
 
-        verify(playbackOperations).playCurrent(context);
+        verify(playbackOperations).playCurrent();
     }
 
     @Test
@@ -111,7 +108,7 @@ public class PlaySessionControllerTest {
         monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
         monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
 
-        verify(playbackOperations, never()).playCurrent(any(Context.class));
+        verify(playbackOperations, never()).playCurrent();
     }
 
     @Test
@@ -145,7 +142,7 @@ public class PlaySessionControllerTest {
     public void shouldNotRespondToQueueChangesWhenPlayerIsNotPlaying() {
         monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
 
-        verify(playbackOperations, never()).playCurrent(any(Context.class));
+        verify(playbackOperations, never()).playCurrent();
     }
 
     @Test
@@ -167,7 +164,7 @@ public class PlaySessionControllerTest {
     public void onStateTransitionPlaysCurrentTrackAfterAdvancingPlayQueueAfterCompletedTrack() throws Exception {
         when(playQueueManager.autoNextTrack()).thenReturn(true);
         monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE));
-        verify(playbackOperations).playCurrent(context);
+        verify(playbackOperations).playCurrent();
     }
 
     @Test
