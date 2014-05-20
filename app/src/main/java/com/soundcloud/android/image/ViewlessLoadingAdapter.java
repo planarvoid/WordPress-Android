@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.io.IOException;
 
 public class ViewlessLoadingAdapter extends ImageUtils.ViewlessLoadingListener {
 
@@ -20,17 +21,14 @@ public class ViewlessLoadingAdapter extends ImageUtils.ViewlessLoadingListener {
 
     @Override
     public void onLoadingFailed(String s, View view, String failedReason) {
-        subscriber.onError(new Exception("Failed to load bitmap " + failedReason));
+        subscriber.onError(new IOException("Failed to load bitmap " + failedReason));
     }
 
     @Override
     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
         if (!subscriber.isUnsubscribed()) {
             try {
-                if (copyBeforeDelivery){
-                    loadedImage = loadedImage.copy(Bitmap.Config.ARGB_8888, false);
-                }
-                subscriber.onNext(loadedImage);
+                subscriber.onNext(copyBeforeDelivery ? loadedImage.copy(Bitmap.Config.ARGB_8888, false) : loadedImage);
 
             } catch (OutOfMemoryError error) {
                 onLoadingFailed(imageUri, view, error.toString());
@@ -43,6 +41,7 @@ public class ViewlessLoadingAdapter extends ImageUtils.ViewlessLoadingListener {
 
         @Inject
         public Factory() {
+            // no-op
         }
 
         public ViewlessLoadingAdapter create(Subscriber subscriber, boolean copyBeforeDelivery){
