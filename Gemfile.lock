@@ -30,6 +30,7 @@ PLATFORMS
 
 DEPENDENCIES
   android-publisher
+  oauth2 (= 0.9.3)
   rake (= 10.1.1)
   rest-client (= 1.6.7)
   version (= 1.0.0)
