@@ -47,4 +47,19 @@
                 android:layout_marginRight="@dimen/player_footer_margin" />
     </RelativeLayout>
 
+    <Button
+        android:id="@+id/player_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:background="@drawable/btn_player_close"
+        android:visibility="gone" />
+
+    <ToggleButton
+        android:id="@+id/track_page_like"
+        style="@style/PlayerLike"
+        android:layout_margin="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true" />
+
 </RelativeLayout>

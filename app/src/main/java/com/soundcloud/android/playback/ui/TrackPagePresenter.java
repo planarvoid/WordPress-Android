@@ -10,6 +10,7 @@ import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -94,9 +95,11 @@ class TrackPagePresenter implements View.OnClickListener {
         TrackPageHolder holder = new TrackPageHolder();
         holder.title = (TextView) trackView.findViewById(R.id.track_page_title);
         holder.user = (TextView) trackView.findViewById(R.id.track_page_user);
-        holder.footer = trackView.findViewById(R.id.footer_controls);
         holder.playToggle = (ToggleButton) trackView.findViewById(R.id.footer_toggle);
+        holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
         holder.artwork = (PlayerArtworkImageView) trackView.findViewById(R.id.track_page_artwork);
+        holder.footer = trackView.findViewById(R.id.footer_controls);
+        holder.close = (Button) trackView.findViewById(R.id.player_close);
         trackView.setTag(holder);
     }
 
@@ -104,8 +107,10 @@ class TrackPagePresenter implements View.OnClickListener {
         TextView title;
         TextView user;
         ToggleButton playToggle;
-        View footer;
+        ToggleButton likeToggle;
         PlayerArtworkImageView artwork;
+        View footer;
+        Button close;
     }
 
 }

@@ -1550,4 +1550,12 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <style name="PlayerLike">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:background">@drawable/btn_player_like</item>
+        <item name="android:textOn">@null</item>
+        <item name="android:textOff">@null</item>
+    </style>
+
 </resources>
