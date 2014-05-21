@@ -17,8 +17,8 @@
         android:id="@+id/player_track_pager"
         android:layout_below="@id/player_strip" />
 
-    <ToggleButton
-            android:id="@+id/player_toggle"
+    <Button
+            android:id="@+id/player_play"
             android:layout_centerInParent="true"
             style="@style/PlayerToggle" />
 

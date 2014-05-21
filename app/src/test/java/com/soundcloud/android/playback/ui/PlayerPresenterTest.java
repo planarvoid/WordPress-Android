@@ -15,7 +15,7 @@ import org.mockito.Mock;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
-import android.widget.ToggleButton;
+import android.widget.Button;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayerPresenterTest {
@@ -32,16 +32,16 @@ public class PlayerPresenterTest {
     @Mock
     private View view;
     @Mock
-    private ToggleButton playerToggle;
+    private Button playButton;
     @Mock
-    private View nextButton;
+    private Button nextButton;
     @Mock
-    private View previousButton;
+    private Button previousButton;
 
     @Before
     public void setUp() throws Exception {
         ArgumentCaptor<ViewPager.OnPageChangeListener> captor = ArgumentCaptor.forClass(ViewPager.OnPageChangeListener.class);
-        when(view.findViewById(R.id.player_toggle)).thenReturn(playerToggle);
+        when(view.findViewById(R.id.player_play)).thenReturn(playButton);
         when(view.findViewById(R.id.player_track_pager)).thenReturn(trackPager);
         when(view.findViewById(R.id.player_next)).thenReturn(nextButton);
         when(view.findViewById(R.id.player_previous)).thenReturn(previousButton);
@@ -56,8 +56,8 @@ public class PlayerPresenterTest {
     }
 
     @Test
-    public void constructorSetsPresenterAsListenerOnPlayerToggle() {
-        verify(playerToggle).setOnClickListener(playerPresenter);
+    public void constructorSetsPresenterAsListenerOnPlayButton() {
+        verify(playButton).setOnClickListener(playerPresenter);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class PlayerPresenterTest {
 
     @Test
     public void onClickWithPlayerToggleViewCallsOnTogglePlayOnListener() {
-        when(view.getId()).thenReturn(R.id.player_toggle);
+        when(view.getId()).thenReturn(R.id.player_play);
         playerPresenter.onClick(view);
         verify(listener).onTogglePlay();
     }
@@ -110,15 +110,19 @@ public class PlayerPresenterTest {
     }
 
     @Test
-    public void onPlayStateChangedWithPlayingStateSetsToggleToChecked() {
+    public void hidePlayControlsWhenMovingToPlayingState() {
         playerPresenter.onPlayStateChanged(true);
-        verify(playerToggle).setChecked(true);
+        verify(playButton).setVisibility(View.GONE);
+        verify(nextButton).setVisibility(View.GONE);
+        verify(previousButton).setVisibility(View.GONE);
     }
 
     @Test
-    public void onPlayStateChangedWithNotPlayingStateSetsToggleToNotChecked() {
+    public void showPlayControlsWhenMovingToPausedState() {
         playerPresenter.onPlayStateChanged(false);
-        verify(playerToggle).setChecked(false);
+        verify(playButton).setVisibility(View.VISIBLE);
+        verify(nextButton).setVisibility(View.VISIBLE);
+        verify(previousButton).setVisibility(View.VISIBLE);
     }
 
     @Test

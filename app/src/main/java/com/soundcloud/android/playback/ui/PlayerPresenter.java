@@ -5,16 +5,19 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
-import android.widget.ToggleButton;
+import android.widget.Button;
 
 import javax.inject.Inject;
 
 class PlayerPresenter implements View.OnClickListener {
 
     private final ViewPager trackPager;
-    private final ToggleButton playerToggle;
-    private final Listener listener;
+    private final Button play;
+    private final Button next;
+    private final Button previous;
+
     private final TrackPagerAdapter adapter;
+    private final Listener listener;
 
     interface Listener {
         void onTogglePlay();
@@ -31,17 +34,19 @@ class PlayerPresenter implements View.OnClickListener {
         trackPager.setOnPageChangeListener(new TrackPageChangeListener());
         trackPager.setAdapter(adapter);
 
-        playerToggle = (ToggleButton) view.findViewById(R.id.player_toggle);
-        playerToggle.setOnClickListener(this);
-
-        view.findViewById(R.id.player_next).setOnClickListener(this);
-        view.findViewById(R.id.player_previous).setOnClickListener(this);
+        play = (Button) view.findViewById(R.id.player_play);
+        next = (Button) view.findViewById(R.id.player_next);
+        previous = (Button) view.findViewById(R.id.player_previous);
+        play.setOnClickListener(this);
+        next.setOnClickListener(this);
+        previous.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.player_toggle:
+            case R.id.player_play:
+                setPlayControlsVisible(false);
                 listener.onTogglePlay();
                 break;
             case R.id.player_next:
@@ -64,8 +69,14 @@ class PlayerPresenter implements View.OnClickListener {
     }
 
     void onPlayStateChanged(boolean isPlaying){
-        playerToggle.setChecked(isPlaying);
         adapter.setPlayState(isPlaying);
+        setPlayControlsVisible(!isPlaying);
+    }
+
+    private void setPlayControlsVisible(boolean visble) {
+        play.setVisibility(visble ? View.VISIBLE : View.GONE);
+        next.setVisibility(visble ? View.VISIBLE : View.GONE);
+        previous.setVisibility(visble ? View.VISIBLE : View.GONE);
     }
 
     public void onPlayerProgress(PlaybackProgressEvent progress) {

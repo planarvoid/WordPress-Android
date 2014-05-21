@@ -42,6 +42,7 @@ class TrackPagePresenter implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.footer_toggle:
+            case R.id.track_page_artwork:
                 listener.onTogglePlay();
                 break;
             case R.id.footer_controls:
@@ -78,6 +79,7 @@ class TrackPagePresenter implements View.OnClickListener {
         holder.title.setText(track.getTitle());
         imageOperations.displayInVisualPlayer(track.getUrn(), ImageSize.getFullImageSize(resources), holder.artwork);
         holder.artwork.setProgressProportion(currentProgressProportion);
+        holder.artwork.setOnClickListener(this);
 
         holder.footer.setOnClickListener(this);
         holder.footerPlayToggle.setOnClickListener(this);
