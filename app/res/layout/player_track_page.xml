@@ -33,19 +33,34 @@
                 android:layout_marginRight="8dp" />
 
         <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/track_page_user"
+                android:id="@+id/footer_user"
                 style="@style/FooterUser"
                 android:layout_toRightOf="@id/footer_toggle"
                 android:layout_marginTop="@dimen/player_footer_margin"
                 android:layout_marginRight="@dimen/player_footer_margin" />
 
         <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/track_page_title"
+                android:id="@+id/footer_title"
                 style="@style/FooterTitle"
-                android:layout_below="@id/track_page_user"
+                android:layout_below="@id/footer_user"
                 android:layout_toRightOf="@id/footer_toggle"
                 android:layout_marginRight="@dimen/player_footer_margin" />
     </RelativeLayout>
+
+    <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/track_page_user"
+            style="@style/PlayerUser"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="70dp"/>
+
+    <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/track_page_title"
+            style="@style/PlayerTitle"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_below="@id/track_page_user" />
 
     <Button
         android:id="@+id/player_close"

@@ -30,6 +30,7 @@
     <color name="player_control_alpha_background">#aaf3f3f3</color>
     <color name="player_track_details_background">@color/white</color>
     <color name="player_gradient_start">#48000000</color>
+    <color name="player_user_text">#c5c5c5</color>
 
     <!-- Creators -->
     <color name="record_upload_border">#525252</color>

@@ -61,7 +61,7 @@ class TrackPagePresenter implements View.OnClickListener {
     }
 
     public void setPlayState(View trackView, boolean isPlaying) {
-        getViewHolder(trackView).playToggle.setChecked(isPlaying);
+        getViewHolder(trackView).footerPlayToggle.setChecked(isPlaying);
     }
 
     public void populateTrackPage(View trackView, Track track) {
@@ -80,8 +80,10 @@ class TrackPagePresenter implements View.OnClickListener {
         holder.artwork.setProgressProportion(currentProgressProportion);
 
         holder.footer.setOnClickListener(this);
-        holder.playToggle.setOnClickListener(this);
-        holder.playToggle.setChecked(false); // Reset to paused state
+        holder.footerPlayToggle.setOnClickListener(this);
+        holder.footerPlayToggle.setChecked(false); // Reset to paused state
+        holder.footerUser.setText(track.getUserName());
+        holder.footerTitle.setText(track.getTitle());
     }
 
     private TrackPageHolder getViewHolder(View trackView) {
@@ -95,22 +97,28 @@ class TrackPagePresenter implements View.OnClickListener {
         TrackPageHolder holder = new TrackPageHolder();
         holder.title = (TextView) trackView.findViewById(R.id.track_page_title);
         holder.user = (TextView) trackView.findViewById(R.id.track_page_user);
-        holder.playToggle = (ToggleButton) trackView.findViewById(R.id.footer_toggle);
         holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
         holder.artwork = (PlayerArtworkImageView) trackView.findViewById(R.id.track_page_artwork);
-        holder.footer = trackView.findViewById(R.id.footer_controls);
         holder.close = (Button) trackView.findViewById(R.id.player_close);
+
+        holder.footer = trackView.findViewById(R.id.footer_controls);
+        holder.footerPlayToggle = (ToggleButton) trackView.findViewById(R.id.footer_toggle);
+        holder.footerTitle = (TextView) trackView.findViewById(R.id.footer_title);
+        holder.footerUser = (TextView) trackView.findViewById(R.id.footer_user);
         trackView.setTag(holder);
     }
 
     static class TrackPageHolder {
         TextView title;
         TextView user;
-        ToggleButton playToggle;
         ToggleButton likeToggle;
         PlayerArtworkImageView artwork;
-        View footer;
         Button close;
+
+        View footer;
+        ToggleButton footerPlayToggle;
+        TextView footerTitle;
+        TextView footerUser;
     }
 
 }

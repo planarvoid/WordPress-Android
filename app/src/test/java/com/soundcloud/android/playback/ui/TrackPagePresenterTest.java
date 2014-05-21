@@ -47,7 +47,7 @@ public class TrackPagePresenterTest {
     public void playingStateSetsToggleChecked() {
         presenter.setPlayState(trackView, true);
 
-        ToggleButton toggle = ((TrackPageHolder) trackView.getTag()).playToggle;
+        ToggleButton toggle = ((TrackPageHolder) trackView.getTag()).footerPlayToggle;
         expect(toggle.isChecked()).toBeTrue();
     }
 
@@ -55,7 +55,7 @@ public class TrackPagePresenterTest {
     public void pausedStateSetsToggleUnchecked() {
         presenter.setPlayState(trackView, false);
 
-        ToggleButton toggle = ((TrackPageHolder) trackView.getTag()).playToggle;
+        ToggleButton toggle = ((TrackPageHolder) trackView.getTag()).footerPlayToggle;
         expect(toggle.isChecked()).toBeFalse();
     }
 
