@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.utils.ViewUtils;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -31,6 +32,8 @@ class PlayerPresenter implements View.OnClickListener {
         this.listener = listener;
 
         trackPager = (ViewPager) view.findViewById(R.id.player_track_pager);
+        trackPager.setPageMargin(view.getContext().getResources().getDimensionPixelSize(R.dimen.player_pager_spacing));
+        trackPager.setPageMarginDrawable(R.color.black);
         trackPager.setOnPageChangeListener(new TrackPageChangeListener());
         trackPager.setAdapter(adapter);
 

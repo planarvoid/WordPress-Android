@@ -161,5 +161,6 @@
     <dimen name="player_skip_margin">24dp</dimen>
     <dimen name="player_gradient_height">180dp</dimen>
     <dimen name="player_footer_margin">10dp</dimen>
+    <dimen name="player_pager_spacing">2dp</dimen>
 
 </resources>
