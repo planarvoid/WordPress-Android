@@ -29,7 +29,6 @@ import com.soundcloud.android.view.EmptyView;
 import rx.Observable;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
-import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 import android.annotation.SuppressLint;
@@ -178,8 +177,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         configureInfoViews(layout);
         listView.setAdapter(controller.getAdapter());
 
-        PullToRefreshLayout mPullToRefreshLayout = (PullToRefreshLayout) layout.findViewById(R.id.ptr_layout);
-        pullToRefreshController.attach(getActivity(), mPullToRefreshLayout, this);
+        pullToRefreshController.onViewCreated(this, this);
 
         showContent(listShown);
 
@@ -224,7 +222,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
     @Override
     public void onDestroyView() {
-        pullToRefreshController.detach();
+        pullToRefreshController.onDestroyView();
         subscription.unsubscribe();
         controller = null;
         super.onDestroyView();

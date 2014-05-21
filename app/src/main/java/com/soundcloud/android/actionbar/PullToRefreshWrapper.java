@@ -15,14 +15,22 @@ import android.view.animation.AccelerateInterpolator;
 
 import javax.inject.Inject;
 
-class PullToRefreshAttacher {
+/**
+ * Wrapper around the retarded completely non-testable ActionBar-PullToRefresh APIs.
+ * As we cannot write tests for this guy, keep its methods as simple as possible so that they're
+ * "obviously correct".
+ */
+class PullToRefreshWrapper {
+
+    private PullToRefreshLayout pullToRefreshLayout;
 
     @Inject
-    public PullToRefreshAttacher() {
+    public PullToRefreshWrapper() {
         // For Dagger.
     }
 
     public void attach(FragmentActivity activity, PullToRefreshLayout pullToRefreshLayout, OnRefreshListener listener) {
+        this.pullToRefreshLayout = pullToRefreshLayout;
         ActionBarPullToRefresh.from(activity)
                 .allChildrenArePullable()
                 .useViewDelegate(EmptyView.class, new EmptyViewDelegate())
@@ -42,4 +50,19 @@ class PullToRefreshAttacher {
                 .build();
     }
 
+    void detach() {
+        this.pullToRefreshLayout = null;
+    }
+
+    boolean isAttached() {
+        return pullToRefreshLayout != null;
+    }
+
+    boolean isRefreshing() {
+        return pullToRefreshLayout.isRefreshing();
+    }
+
+    void setRefreshing(boolean refreshing) {
+        pullToRefreshLayout.setRefreshing(refreshing);
+    }
 }

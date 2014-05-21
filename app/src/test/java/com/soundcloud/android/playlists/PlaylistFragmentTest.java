@@ -327,7 +327,7 @@ public class PlaylistFragmentTest {
     @Test
     public void detatchesPullToRefreshControllerOnDestroyView() {
         fragment.onDestroyView();
-        verify(ptrController).detach();
+        verify(ptrController).onDestroyView();
     }
 
     @Test

@@ -10,37 +10,70 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.collections.EndlessPagingAdapter;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.PropertySet;
+import com.soundcloud.android.view.ListViewController;
+import com.soundcloud.android.view.RefreshableListComponent;
+import rx.Subscription;
 import rx.observables.ConnectableObservable;
-import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
-import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
+import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.AdapterView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 
-public class SoundStreamFragment extends Fragment implements OnRefreshListener {
+public class SoundStreamFragment extends Fragment
+        implements RefreshableListComponent<ConnectableObservable<Page<List<PropertySet>>>> {
 
     @Inject
     SoundStreamOperations soundStreamOperations;
     @Inject
     StreamItemAdapter adapter;
     @Inject
+    ListViewController listViewController;
+    @Inject
     PullToRefreshController pullToRefreshController;
     @Inject
     EventBus eventBus;
 
+    private ConnectableObservable<Page<List<PropertySet>>> observable;
+    private Subscription connectionSubscription = Subscriptions.empty();
+
     public SoundStreamFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @Override
+    public ConnectableObservable<Page<List<PropertySet>>> buildObservable() {
+        final ConnectableObservable<Page<List<PropertySet>>> observable =
+                soundStreamOperations.existingStreamItems().observeOn(mainThread()).replay();
+        observable.subscribe(adapter);
+        return observable;
+    }
+
+    @Override
+    public Subscription connectObservable(ConnectableObservable<Page<List<PropertySet>>> observable) {
+        this.observable = observable;
+        this.connectionSubscription = observable.connect();
+        return connectionSubscription;
+    }
+
+    @Override
+    public ConnectableObservable<Page<List<PropertySet>>> refreshObservable() {
+        return soundStreamOperations.updatedStreamItems().observeOn(mainThread()).replay();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        connectObservable(buildObservable());
     }
 
     @Override
@@ -52,40 +85,26 @@ public class SoundStreamFragment extends Fragment implements OnRefreshListener {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ListView listView = ((ListView) view.findViewById(android.R.id.list));
-        listView.setAdapter(adapter);
-        listView.setOnScrollListener(adapter);
-
-        PullToRefreshLayout ptrLayout = (PullToRefreshLayout) view.findViewById(R.id.ptr_layout);
-        pullToRefreshController.attach(getActivity(), ptrLayout, this);
-
-        final ConnectableObservable<Page<List<PropertySet>>> observable =
-                soundStreamOperations.existingStreamItems().observeOn(mainThread()).publish();
-        observable.subscribe(adapter);
-        observable.connect();
-    }
-
-    @Override
-    public void onRefreshStarted(View view) {
-        soundStreamOperations.updatedStreamItems().subscribe(new StreamItemSubscriber());
+        listViewController.onViewCreated(this, observable, view, adapter, adapter);
+        pullToRefreshController.onViewCreated(this, observable, adapter);
     }
 
     @Override
     public void onDestroyView() {
+        listViewController.onDestroyView();
+        pullToRefreshController.onDestroyView();
         super.onDestroyView();
     }
 
-    private final class StreamItemSubscriber extends DefaultSubscriber<Page<List<PropertySet>>> {
-        @Override
-        public void onCompleted() {
-            pullToRefreshController.stopRefreshing();
-        }
+    @Override
+    public void onDestroy() {
+        connectionSubscription.unsubscribe();
+        super.onDestroy();
+    }
 
-        @Override
-        public void onError(Throwable e) {
-            pullToRefreshController.stopRefreshing();
-            super.onError(e);
-        }
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
     }
 
     // PLEASE IGNORE THIS GUY FOR NOW.

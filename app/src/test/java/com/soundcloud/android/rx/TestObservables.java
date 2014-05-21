@@ -58,6 +58,10 @@ public class TestObservables {
         return new MockConnectableObservable<T>(new OnSubscribeCapture(fromSubscription(subscription)));
     }
 
+    public static <T> MockConnectableObservable<T> errorConnectableObservable() {
+        return new MockConnectableObservable<T>(new OnSubscribeCapture(errorObservable()));
+    }
+
     public static <T> MockObservable<T> errorObservable(Throwable error) {
         return new MockObservable<T>(new OnSubscribeCapture(Observable.error(error)));
     }

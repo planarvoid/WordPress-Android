@@ -30,7 +30,7 @@ public class EmptyViewController {
             public void onEmptyViewRetry() {
                 updateEmptyViewStatus(EmptyView.Status.WAITING);
                 final OT retryObservable = reactiveComponent.buildObservable();
-                retryObservable.subscribe(new EmptyViewSubscriber());
+                subscription = retryObservable.subscribe(new EmptyViewSubscriber());
                 reactiveComponent.connectObservable(retryObservable);
             }
         });
