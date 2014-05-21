@@ -50,8 +50,7 @@ class ExploreGenresAdapter extends ItemAdapter<ExploreGenre> implements Observer
     }
 
     public Section<ExploreGenre> getSection(int position) {
-        final RowDescriptor descriptor = listPositionsToSections.get(position);
-        return descriptor.section;
+        return listPositionsToSections.get(position).section;
     }
 
     @Override
@@ -109,7 +108,7 @@ class ExploreGenresAdapter extends ItemAdapter<ExploreGenre> implements Observer
     }
 
     @VisibleForTesting
-    protected final class RowDescriptor {
+    protected static final class RowDescriptor {
 
         private Section<ExploreGenre> section;
         private boolean isSectionHeader;
