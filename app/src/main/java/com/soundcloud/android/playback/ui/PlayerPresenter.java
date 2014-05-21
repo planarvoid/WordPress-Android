@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.utils.ViewUtils;
 
+import android.content.res.Resources;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.Button;
@@ -27,12 +28,12 @@ class PlayerPresenter implements View.OnClickListener {
         void onTrackChanged(int position);
     }
 
-    PlayerPresenter(View view, TrackPagerAdapter adapter, Listener listener) {
+    PlayerPresenter(Resources resources, TrackPagerAdapter adapter, View view, Listener listener) {
         this.adapter = adapter;
         this.listener = listener;
 
         trackPager = (ViewPager) view.findViewById(R.id.player_track_pager);
-        trackPager.setPageMargin(view.getContext().getResources().getDimensionPixelSize(R.dimen.player_pager_spacing));
+        trackPager.setPageMargin(resources.getDimensionPixelSize(R.dimen.player_pager_spacing));
         trackPager.setPageMarginDrawable(R.color.black);
         trackPager.setOnPageChangeListener(new TrackPageChangeListener());
         trackPager.setAdapter(adapter);
@@ -106,15 +107,17 @@ class PlayerPresenter implements View.OnClickListener {
 
     public static class Factory {
 
+        private final Resources resources;
         private final TrackPagerAdapter trackPagerAdapter;
 
         @Inject
-        public Factory(TrackPagerAdapter trackPagerAdapter) {
+        public Factory(Resources resources, TrackPagerAdapter trackPagerAdapter) {
+            this.resources = resources;
             this.trackPagerAdapter = trackPagerAdapter;
         }
 
         public PlayerPresenter create(View view, Listener listener){
-            return new PlayerPresenter(view, trackPagerAdapter, listener);
+            return new PlayerPresenter(resources, trackPagerAdapter, view, listener);
         }
     }
 

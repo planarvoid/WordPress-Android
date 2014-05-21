@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import android.content.res.Resources;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.Button;
@@ -32,6 +33,8 @@ public class PlayerPresenterTest {
     @Mock
     private View view;
     @Mock
+    private Resources resources;
+    @Mock
     private Button playButton;
     @Mock
     private Button nextButton;
@@ -45,7 +48,7 @@ public class PlayerPresenterTest {
         when(view.findViewById(R.id.player_track_pager)).thenReturn(trackPager);
         when(view.findViewById(R.id.player_next)).thenReturn(nextButton);
         when(view.findViewById(R.id.player_previous)).thenReturn(previousButton);
-        playerPresenter = new PlayerPresenter(view, trackPagerAdapter, listener);
+        playerPresenter = new PlayerPresenter(resources, trackPagerAdapter, view, listener);
         verify(trackPager).setOnPageChangeListener(captor.capture());
         pagerListener = captor.getValue();
     }
@@ -141,7 +144,7 @@ public class PlayerPresenterTest {
     @Test
     public void presenterFactoryCreatesPresenterWithTrackPagerFromConstructor() {
         reset(trackPager);
-        new PlayerPresenter.Factory(trackPagerAdapter).create(view, listener);
+        new PlayerPresenter.Factory(resources, trackPagerAdapter).create(view, listener);
         verify(trackPager).setAdapter(trackPagerAdapter);
     }
 
