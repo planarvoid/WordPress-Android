@@ -1,6 +1,10 @@
 package com.soundcloud.android.playlist;
 
 import static com.soundcloud.android.tests.TestUser.playlistUser;
+import static com.soundcloud.android.tests.hamcrest.IsVisible.Visible;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
@@ -34,22 +38,22 @@ public class PlaylistDetails extends ActivityTestCase<LauncherActivity> {
         playlistDetailsScreen = new PlaylistDetailsScreen(solo);
     }
 
-    public void ignorePlaylistDetailsScreenShouldBeVisibleOnPlaylistClick() {
-        assertEquals("Playlist details screen should be visible", true, playlistDetailsScreen.isVisible());
+    public void testPlaylistDetailsScreenShouldBeVisibleOnPlaylistClick() {
+        assertThat(playlistDetailsScreen, is(Visible()));
     }
 
-    public void ignoreHeaderPlayClickShouldNotOpenPlayer() {
+    public void testHeaderPlayClickShouldNotOpenPlayer() {
         LegacyPlayerScreen playerScreen = playlistDetailsScreen.clickHeaderPlay();
-        assertEquals("Player screen should not be visible", false, playerScreen.isVisible());
+        assertThat(playerScreen, is(not(Visible())));
 
         playlistDetailsScreen.clickHeaderPause();
-        assertEquals("Playlist details screen should be visible", true, playlistDetailsScreen.isVisible());
+        assertThat(playlistDetailsScreen, is(Visible()));
     }
 
-    public void ignoreToggleStateIsNotCheckedAfterPausingPlayer() {
+    public void testToggleStateIsNotCheckedAfterPausingPlayer() {
         playlistDetailsScreen.clickHeaderPlay();
         playlistDetailsScreen.clickHeaderPause();
 
-        assertEquals("Play toggle button should not be checked", false, playlistDetailsScreen.isPlayToggleChecked());
+        assertThat(playlistDetailsScreen.isPlayToggleChecked(), is(false));
     }
 }
