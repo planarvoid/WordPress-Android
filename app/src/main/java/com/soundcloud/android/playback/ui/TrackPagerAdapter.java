@@ -2,9 +2,13 @@ package com.soundcloud.android.playback.ui;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.track.TrackOperations;
@@ -18,8 +22,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
+import java.util.Map;
 
-public class TrackPagerAdapter extends RecyclingPagerAdapter {
+public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPagePresenter.Listener {
 
     private static final int EXPECTED_TRACKVIEW_COUNT = 4;
     private static final int TRACK_CACHE_SIZE = 10;
@@ -28,16 +33,23 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     private final PlaySessionController playSessionController;
     private final TrackOperations trackOperations;
     private final TrackPagePresenter trackPagePresenter;
+    private final PlaybackOperations playbackOperations;
+    private final EventBus eventBus;
+
     private final LruCache<Long, Observable<Track>> trackObservableCache = new LruCache<Long, Observable<Track>>(TRACK_CACHE_SIZE);
     private final BiMap<View, Integer> trackViewsByPosition = HashBiMap.create(EXPECTED_TRACKVIEW_COUNT);
 
     @Inject
     TrackPagerAdapter(PlayQueueManager playQueueManager, PlaySessionController playSessionController,
-                      TrackOperations trackOperations, TrackPagePresenter trackPagePresenter) {
+                      TrackOperations trackOperations, TrackPagePresenter trackPagePresenter,
+                      PlaybackOperations playbackOperations, EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.trackPagePresenter = trackPagePresenter;
         this.playSessionController = playSessionController;
+        this.playbackOperations = playbackOperations;
+        this.eventBus = eventBus;
+        trackPagePresenter.setListener(this);
     }
 
     @Override
@@ -64,7 +76,13 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     public void setProgressOnCurrentTrack(PlaybackProgressEvent progress){
         View currentTrackView = trackViewsByPosition.inverse().get(playQueueManager.getCurrentPosition());
         if (currentTrackView != null) {
-            trackPagePresenter.setProgressOnTrackView(currentTrackView, progress);
+            trackPagePresenter.setProgress(currentTrackView, progress);
+        }
+    }
+
+    public void setPlayState(boolean isPlaying) {
+        for (Map.Entry<View, Integer> entry : trackViewsByPosition.entrySet()) {
+            trackPagePresenter.setPlayState(entry.getKey(), isPlaying && playQueueManager.isCurrentPosition(entry.getValue()));
         }
     }
 
@@ -114,4 +132,15 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     public int getCount() {
         return playQueueManager.getCurrentPlayQueueSize();
     }
+
+    @Override
+    public void onTogglePlay() {
+        playbackOperations.togglePlayback();
+    }
+
+    @Override
+    public void onFooterTap() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+    }
+
 }

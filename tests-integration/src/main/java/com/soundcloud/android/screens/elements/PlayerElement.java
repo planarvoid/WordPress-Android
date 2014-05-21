@@ -30,7 +30,7 @@ public class PlayerElement extends Element {
     }
 
     public void tapFooter() {
-        solo.clickOnView(R.id.footer_control);
+        solo.clickOnView(R.id.footer_controls);
         waiter.waitForExpandedPlayer();
     }
 

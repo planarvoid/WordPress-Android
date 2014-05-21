@@ -23,7 +23,7 @@ public class PlayerUIEventTest {
 
     @Test
     public void shouldCreateEventForPlayTriggered() {
-        PlayerUIEvent event = PlayerUIEvent.forPlayTriggered();
+        PlayerUIEvent event = PlayerUIEvent.forExpandPlayer();
         expect(event.getKind()).toEqual(2);
     }
 

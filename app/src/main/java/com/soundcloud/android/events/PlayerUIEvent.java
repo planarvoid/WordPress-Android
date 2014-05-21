@@ -4,7 +4,7 @@ public class PlayerUIEvent {
 
     public static final int PLAYER_EXPANDED = 0;
     public static final int PLAYER_COLLAPSED = 1;
-    public static final int PLAY_TRIGGERED = 2;
+    public static final int EXPAND_PLAYER = 2;
 
     private final int kind;
 
@@ -17,11 +17,10 @@ public class PlayerUIEvent {
     }
 
     /**
-     * Fires whenever the user clicks on a track cell, which should cause any on screen instances of the player to expand
-     * Note: We can't decide on a better name for this. Feel free :)
+     * Fired as a signal to expand any on-screen instance of the player.
      */
-    public static PlayerUIEvent forPlayTriggered() {
-        return new PlayerUIEvent(PLAY_TRIGGERED);
+    public static PlayerUIEvent forExpandPlayer() {
+        return new PlayerUIEvent(EXPAND_PLAYER);
     }
 
     public PlayerUIEvent(int kind) {

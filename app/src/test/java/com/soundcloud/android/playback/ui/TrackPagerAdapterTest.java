@@ -6,17 +6,21 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.track.TrackOperations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rx.Observable;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
@@ -36,6 +40,10 @@ public class TrackPagerAdapterTest {
     @Mock
     private TrackPagePresenter trackPagePresenter;
     @Mock
+    private PlaybackOperations playbackOperations;
+    @Mock
+    private EventBus eventBus;
+    @Mock
     private View view;
     @Mock
     private ViewGroup container;
@@ -46,7 +54,12 @@ public class TrackPagerAdapterTest {
 
     @Before
     public void setUp() throws Exception {
-        adapter = new TrackPagerAdapter(playQueueManager, playSessionController, trackOperations, trackPagePresenter);
+        adapter = new TrackPagerAdapter(playQueueManager, playSessionController, trackOperations, trackPagePresenter, playbackOperations, eventBus);
+    }
+
+    @Test
+    public void setsTrackPagePresenterListenerInConstructor() {
+        verify(trackPagePresenter).setListener(adapter);
     }
 
     @Test
@@ -78,10 +91,9 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void getViewLoadsTrackWithProgressForGivenPlayQueuePositionIfPositionIsPlaying() {
+        setupGetCurrentViewPreconditions();
         PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
         when(playSessionController.getCurrentProgress()).thenReturn(progressEvent);
-        when(playQueueManager.getIdAtPosition(3)).thenReturn(123L);
-        when(trackOperations.loadTrack(123L, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
         when(playSessionController.isPlayingTrack(track)).thenReturn(true);
 
         adapter.getView(3, view, container);
@@ -90,23 +102,62 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void getViewUsesCachedObservableIfAlreadyInCache() {
-        when(playQueueManager.getIdAtPosition(3)).thenReturn(123L);
-        when(trackOperations.loadTrack(123L, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
-        adapter.getView(3, view, container);
+        setupGetCurrentViewPreconditions();
         adapter.getView(3, view, container);
         verify(trackOperations).loadTrack(anyLong(), any(Scheduler.class));
     }
 
     @Test
     public void setProgressOnCurrentTrackSetsProgressOnPresenter() {
+        setupGetCurrentViewPreconditions();
         PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
-        when(playQueueManager.getIdAtPosition(3)).thenReturn(123L);
-        when(playQueueManager.getCurrentPosition()).thenReturn(3);
-        when(trackOperations.loadTrack(123L, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
 
         adapter.getView(3, view, container);
         adapter.setProgressOnCurrentTrack(progressEvent);
 
-        verify(trackPagePresenter).setProgressOnTrackView(view, progressEvent);
+        verify(trackPagePresenter).setProgress(view, progressEvent);
     }
+
+    @Test
+    public void setPlayStateSetsPlayingStateForCurrentTrack() {
+        setupGetCurrentViewPreconditions();
+        when(playQueueManager.isCurrentPosition(3)).thenReturn(true);
+
+        adapter.getView(3, view, container);
+        adapter.setPlayState(true);
+
+        verify(trackPagePresenter).setPlayState(view, true);
+    }
+
+    @Test
+    public void setPlayStateSetsNotPlayingStateForOtherTrack() {
+        setupGetCurrentViewPreconditions();
+        when(playQueueManager.isCurrentPosition(3)).thenReturn(false);
+
+        adapter.getView(3, view, container);
+        adapter.setPlayState(true);
+
+        verify(trackPagePresenter).setPlayState(view, false);
+    }
+
+    @Test
+    public void onTogglePlayTogglesPlaybackViaPlaybackOperations() {
+        adapter.onTogglePlay();
+        verify(playbackOperations).togglePlayback();
+    }
+
+    @Test
+    public void onFooterTapPostsEventToExpandPlayer() {
+        EventMonitor monitor = EventMonitor.on(eventBus);
+        adapter.onFooterTap();
+        PlayerUIEvent playerUIEvent = monitor.verifyEventOn(EventQueue.PLAYER_UI);
+        expect(playerUIEvent.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
+    }
+
+    private void setupGetCurrentViewPreconditions() {
+        when(playQueueManager.getIdAtPosition(3)).thenReturn(123L);
+        when(playQueueManager.getCurrentPosition()).thenReturn(3);
+        when(trackOperations.loadTrack(123L, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
+    }
+
 }

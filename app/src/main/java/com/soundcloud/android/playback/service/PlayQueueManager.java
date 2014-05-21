@@ -70,6 +70,10 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
         return playQueue.getPosition();
     }
 
+    public boolean isCurrentPosition(int position) {
+        return position == getCurrentPosition();
+    }
+
     public int getCurrentPlayQueueSize() {
         return playQueue.getItems().size();
     }
@@ -94,10 +98,6 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
             playQueue.moveToPrevious();
             eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
         }
-    }
-
-    public boolean isPlayingTrack(Track track) {
-        return track.getId() == getCurrentTrackId();
     }
 
     public boolean autoNextTrack(){

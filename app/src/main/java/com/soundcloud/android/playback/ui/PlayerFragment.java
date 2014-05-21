@@ -30,8 +30,6 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
     @Inject
     PlaybackOperations playbackOperations;
     @Inject
-    TrackPagerAdapter trackPagerAdapter;
-    @Inject
     PlayerPresenter.Factory playerPresenterFactory;
 
     private PlayerPresenter presenter;

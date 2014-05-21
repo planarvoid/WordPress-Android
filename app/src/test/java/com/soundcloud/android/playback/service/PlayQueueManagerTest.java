@@ -92,20 +92,20 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldSetNewPlayQueueAsCurrentPlayQueue() throws Exception {
+    public void shouldSetNewPlayQueueAsCurrentPlayQueue() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expect(playQueueManager.getCurrentPlayQueue()).toEqual(playQueue);
     }
 
     @Test
-    public void getPlayQueuePositionReturnsCurrentPositionFromPlayQueue() throws Exception {
+    public void getPlayQueuePositionReturnsCurrentPositionFromPlayQueue() {
         when(playQueue.getPosition()).thenReturn(5);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expect(playQueueManager.getCurrentPosition()).toEqual(5);
     }
 
     @Test
-    public void getCurrentTrackIdReturnsCurrentTrackIdFromPlayQueue() throws Exception {
+    public void getCurrentTrackIdReturnsCurrentTrackIdFromPlayQueue() {
         when(playQueue.getCurrentTrackId()).thenReturn(5L);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expect(playQueueManager.getCurrentTrackId()).toEqual(5L);
@@ -126,13 +126,13 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldSetNewPlayQueueCurrentTrackToManuallyTriggered() throws Exception {
+    public void shouldSetNewPlayQueueCurrentTrackToManuallyTriggered() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         verify(playQueue).setCurrentTrackToUserTriggered();
     }
 
     @Test
-    public void shouldBroadcastPlayQueueChangedWhenSettingNewPlayqueue() throws Exception {
+    public void shouldBroadcastPlayQueueChangedWhenSettingNewPlayqueue() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expectBroadcastPlayqueueChanged();
     }
@@ -162,13 +162,13 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldNotUpdateCurrentPositionIfPlayqueueIsNull() throws Exception {
+    public void shouldNotUpdateCurrentPositionIfPlayqueueIsNull() {
         playQueueManager.saveCurrentPosition(22L);
         verifyZeroInteractions(sharedPreferences);
     }
 
     @Test
-    public void saveProgressSavesPlayQueueInfoUsingPlayQueueOperations() throws Exception {
+    public void saveProgressSavesPlayQueueInfoUsingPlayQueueOperations() {
         when(playQueue.isEmpty()).thenReturn(false);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         playQueueManager.saveCurrentPosition(123L);
@@ -410,20 +410,20 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void clearAllShouldClearPreferences() throws Exception {
+    public void clearAllShouldClearPreferences() {
         playQueueManager.clearAll();
         verify(playQueueOperations).clear();
     }
 
     @Test
-    public void clearAllShouldClearStorage() throws Exception {
+    public void clearAllShouldClearStorage() {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
         playQueueManager.clearAll();
         verify(playQueueOperations).clear();
     }
 
     @Test
-    public void clearAllShouldSetPlayQueueToEmpty() throws Exception {
+    public void clearAllShouldSetPlayQueueToEmpty() {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L), 0, playSessionSource), playSessionSource);
         expect(playQueueManager.getCurrentPlayQueue()).not.toEqual(PlayQueue.empty());
@@ -432,7 +432,7 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void clearAllClearsPlaylistId() throws Exception {
+    public void clearAllClearsPlaylistId() {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L), 0, playSessionSource), playSessionSource);
         expect(playQueueManager.getPlaylistId()).not.toEqual((long) Playlist.NOT_SET);
@@ -459,7 +459,7 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldRetryWithSameObservable() throws Exception {
+    public void shouldRetryWithSameObservable() {
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
         when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(observable);
 

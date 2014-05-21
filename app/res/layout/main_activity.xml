@@ -12,7 +12,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="bottom"
-            sothree:panelHeight="@dimen/player_footer">
+            sothree:panelHeight="@dimen/player_footer"
+            sothree:dragView="@+id/player_layout">
 
         <FrameLayout
             android:id="@+id/container"

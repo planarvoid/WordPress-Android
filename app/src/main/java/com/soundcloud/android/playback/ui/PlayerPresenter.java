@@ -9,10 +9,9 @@ import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 
-public class PlayerPresenter implements View.OnClickListener{
+class PlayerPresenter implements View.OnClickListener {
 
     private final ViewPager trackPager;
-    private final ToggleButton footerToggle;
     private final ToggleButton playerToggle;
     private final Listener listener;
     private final TrackPagerAdapter adapter;
@@ -32,9 +31,7 @@ public class PlayerPresenter implements View.OnClickListener{
         trackPager.setOnPageChangeListener(new TrackPageChangeListener());
         trackPager.setAdapter(adapter);
 
-        footerToggle = (ToggleButton) view.findViewById(R.id.footer_toggle);
         playerToggle = (ToggleButton) view.findViewById(R.id.player_toggle);
-        footerToggle.setOnClickListener(this);
         playerToggle.setOnClickListener(this);
 
         view.findViewById(R.id.player_next).setOnClickListener(this);
@@ -44,7 +41,6 @@ public class PlayerPresenter implements View.OnClickListener{
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.footer_toggle:
             case R.id.player_toggle:
                 listener.onTogglePlay();
                 break;
@@ -68,8 +64,8 @@ public class PlayerPresenter implements View.OnClickListener{
     }
 
     void onPlayStateChanged(boolean isPlaying){
-        footerToggle.setChecked(isPlaying);
         playerToggle.setChecked(isPlaying);
+        adapter.setPlayState(isPlaying);
     }
 
     public void onPlayerProgress(PlaybackProgressEvent progress) {

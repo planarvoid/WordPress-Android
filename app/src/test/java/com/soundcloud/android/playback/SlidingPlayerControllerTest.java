@@ -53,7 +53,7 @@ public class SlidingPlayerControllerTest {
     @Test
     public void shouldConfigureSlidingPanelOnAttach() {
         verify(slidingPanel).setPanelSlideListener(controller);
-        verify(slidingPanel).setDragView(any(View.class));
+        verify(slidingPanel).setEnableDragViewTouchEvents(true);
     }
 
     @Test
@@ -74,7 +74,7 @@ public class SlidingPlayerControllerTest {
     @Test
     public void shouldExpandPlayerWhenPlayTriggeredEventIsReceived() {
         controller.startListening();
-        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forPlayTriggered());
+        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
 
         verify(slidingPanel).expandPane();
     }

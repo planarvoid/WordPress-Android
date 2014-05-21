@@ -40,7 +40,7 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
         this.actionBarController = actionBarController;
         slidingPanel = (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingPanel.setPanelSlideListener(this);
-        slidingPanel.setDragView(activity.findViewById(R.id.footer_drag_view));
+        slidingPanel.setEnableDragViewTouchEvents(true);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
     private class PlayerUISubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
         public void onNext(PlayerUIEvent event) {
-            if (event.getKind() == PlayerUIEvent.PLAY_TRIGGERED) {
+            if (event.getKind() == PlayerUIEvent.EXPAND_PLAYER) {
                 slidingPanel.expandPane();
             }
         }

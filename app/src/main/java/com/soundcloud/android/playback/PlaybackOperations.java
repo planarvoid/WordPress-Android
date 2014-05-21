@@ -251,7 +251,7 @@ public class PlaybackOperations {
     private void showPlayer(Context activityContext, Track initialTrack) {
         modelManager.cache(initialTrack);
         if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forPlayTriggered());
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
         } else {
             gotoPlayer(activityContext, initialTrack.getId());
         }

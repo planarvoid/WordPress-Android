@@ -123,7 +123,7 @@ public class PlaybackOperationsTest {
 
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         PlayerUIEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.PLAY_TRIGGERED);
+        expect(event.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
     }
 
     @Test
@@ -220,7 +220,7 @@ public class PlaybackOperationsTest {
 
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         PlayerUIEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.PLAY_TRIGGERED);
+        expect(event.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
     }
 
     @Test
@@ -403,7 +403,7 @@ public class PlaybackOperationsTest {
 
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         PlayerUIEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.PLAY_TRIGGERED);
+        expect(event.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
     }
 
     @Test

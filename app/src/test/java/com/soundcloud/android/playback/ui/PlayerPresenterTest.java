@@ -32,8 +32,6 @@ public class PlayerPresenterTest {
     @Mock
     private View view;
     @Mock
-    private ToggleButton footerToggle;
-    @Mock
     private ToggleButton playerToggle;
     @Mock
     private View nextButton;
@@ -43,7 +41,6 @@ public class PlayerPresenterTest {
     @Before
     public void setUp() throws Exception {
         ArgumentCaptor<ViewPager.OnPageChangeListener> captor = ArgumentCaptor.forClass(ViewPager.OnPageChangeListener.class);
-        when(view.findViewById(R.id.footer_toggle)).thenReturn(footerToggle);
         when(view.findViewById(R.id.player_toggle)).thenReturn(playerToggle);
         when(view.findViewById(R.id.player_track_pager)).thenReturn(trackPager);
         when(view.findViewById(R.id.player_next)).thenReturn(nextButton);
@@ -53,15 +50,9 @@ public class PlayerPresenterTest {
         pagerListener = captor.getValue();
     }
 
-
     @Test
     public void constructorSetsTrackPagerAdapterOnTrackPager() {
         verify(trackPager).setAdapter(trackPagerAdapter);
-    }
-
-    @Test
-    public void constructorSetsPresenterAdListenerOnFooterToggle() {
-        verify(footerToggle).setOnClickListener(playerPresenter);
     }
 
     @Test
@@ -77,13 +68,6 @@ public class PlayerPresenterTest {
     @Test
     public void constructorSetsPresenterAsListenerOnPreviousButton() {
         verify(previousButton).setOnClickListener(playerPresenter);
-    }
-
-    @Test
-    public void onClickWithFooterToggleViewCallsOnTogglePlayOnListener() {
-        when(view.getId()).thenReturn(R.id.footer_toggle);
-        playerPresenter.onClick(view);
-        verify(listener).onTogglePlay();
     }
 
     @Test
@@ -126,17 +110,21 @@ public class PlayerPresenterTest {
     }
 
     @Test
-    public void onPlayStateChangedWithPlayingStateSetsTogglesToChecked() {
+    public void onPlayStateChangedWithPlayingStateSetsToggleToChecked() {
         playerPresenter.onPlayStateChanged(true);
-        verify(footerToggle).setChecked(true);
         verify(playerToggle).setChecked(true);
     }
 
     @Test
-    public void onPlayStateChangedWithNotPlayingStateSetsTogglesToNotChecked() {
+    public void onPlayStateChangedWithNotPlayingStateSetsToggleToNotChecked() {
         playerPresenter.onPlayStateChanged(false);
-        verify(footerToggle).setChecked(false);
         verify(playerToggle).setChecked(false);
+    }
+
+    @Test
+    public void onPlayStateChangedNotifiesTrackPageAdapter() {
+        playerPresenter.onPlayStateChanged(true);
+        verify(trackPagerAdapter).setPlayState(true);
     }
 
     @Test
@@ -152,4 +140,5 @@ public class PlayerPresenterTest {
         new PlayerPresenter.Factory(trackPagerAdapter).create(view, listener);
         verify(trackPager).setAdapter(trackPagerAdapter);
     }
+
 }
