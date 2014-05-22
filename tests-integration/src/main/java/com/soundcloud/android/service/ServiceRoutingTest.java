@@ -22,8 +22,6 @@ public class ServiceRoutingTest extends InstrumentationTestCase {
         for (String action : new String[]{
                 PlaybackService.Actions.TOGGLEPLAYBACK_ACTION,
                 PlaybackService.Actions.PAUSE_ACTION,
-                PlaybackService.Actions.NEXT_ACTION,
-                PlaybackService.Actions.PREVIOUS_ACTION,
                 PlaybackService.Actions.RESET_ALL,
                 PlaybackService.Actions.STOP_ACTION,
         }) {

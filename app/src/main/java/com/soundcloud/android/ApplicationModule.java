@@ -12,6 +12,7 @@ import dagger.Module;
 import dagger.Provides;
 
 import android.accounts.AccountManager;
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -95,6 +96,12 @@ public class ApplicationModule {
     @Provides
     public SoundRecorder provideSoundRecorder() {
         return SoundRecorder.getInstance(application);
+    }
+
+
+    @Provides
+    public AppWidgetManager provideAppWidgetManager(Context context) {
+        return AppWidgetManager.getInstance(context);
     }
 
     @SuppressWarnings("unchecked")

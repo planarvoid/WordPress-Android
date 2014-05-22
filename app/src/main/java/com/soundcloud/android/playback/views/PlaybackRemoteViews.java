@@ -11,16 +11,16 @@ import android.widget.RemoteViews;
 
 public abstract class PlaybackRemoteViews extends RemoteViews {
 
-    private int mPlayBtnId;
-    private int mPauseBtnId;
+    private int playBtnId;
+    private int pauseBtnId;
 
-    protected Track mTrack;
-    protected boolean mIsPlaying;
+    protected Track track;
+    protected boolean isPlaying;
 
     public PlaybackRemoteViews(String packageName, int layoutId, int playBtnId, int pauseBtnId) {
         super(packageName, layoutId);
-        mPlayBtnId = playBtnId;
-        mPauseBtnId = pauseBtnId;
+        this.playBtnId = playBtnId;
+        this.pauseBtnId = pauseBtnId;
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -44,7 +44,7 @@ public abstract class PlaybackRemoteViews extends RemoteViews {
     }
 
     public void setPlaybackStatus(boolean playing) {
-        setImageViewResource(R.id.pause, playing ? mPauseBtnId : mPlayBtnId);
+        setImageViewResource(R.id.toggle_playback, playing ? pauseBtnId : playBtnId);
     }
 
     public void setIcon(Bitmap icon){

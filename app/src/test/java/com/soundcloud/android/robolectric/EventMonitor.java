@@ -111,5 +111,4 @@ public class EventMonitor {
             ((Observer) observer).onNext(event);
         }
     }
-
 }

@@ -45,16 +45,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             playQueueManager.clearAll();
 
         } else if (accountOperations.isUserLoggedIn()) {
-
-            if (Actions.NEXT_ACTION.equals(action)) {
-                if (playbackService.next()) {
-                    playbackService.openCurrent();
-                }
-            } else if (Actions.PREVIOUS_ACTION.equals(action)) {
-                if (playbackService.prev()) {
-                    playbackService.openCurrent();
-                }
-            } else if (Actions.PLAY_CURRENT.equals(action)) {
+            if (Actions.PLAY_CURRENT.equals(action)) {
                 playbackService.openCurrent();
             } else if (Actions.TOGGLEPLAYBACK_ACTION.equals(action)) {
                 playbackService.togglePlayback();
@@ -86,17 +77,10 @@ class PlaybackReceiver extends BroadcastReceiver {
     private void trackPlayControlEvent(Intent intent) {
         String source = intent.getStringExtra(PlayControlEvent.EXTRA_EVENT_SOURCE);
 
-        if (Actions.TOGGLEPLAYBACK_ACTION.equals(intent.getAction())) {
-            eventBus.publish(EventQueue.PLAY_CONTROL,
-                    PlayControlEvent.toggle(source, playbackService.isSupposedToBePlaying()));
-        } else if (Actions.PLAY_ACTION.equals(intent.getAction())) {
+        if (Actions.PLAY_ACTION.equals(intent.getAction())) {
             eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.play(source));
         } else if (Actions.PAUSE_ACTION.equals(intent.getAction())) {
             eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.pause(source));
-        } else if (Actions.NEXT_ACTION.equals(intent.getAction())) {
-            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.skip(source));
-        } else if (Actions.PREVIOUS_ACTION.equals(intent.getAction())) {
-            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.previous(source));
         }
     }
 

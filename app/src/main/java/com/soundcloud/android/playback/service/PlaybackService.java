@@ -56,8 +56,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         String PLAY_CURRENT             = "com.soundcloud.android.playback.playcurrent";
         String PLAY_ACTION              = "com.soundcloud.android.playback.playcurrent";
         String PAUSE_ACTION             = "com.soundcloud.android.playback.pause";
-        String NEXT_ACTION              = "com.soundcloud.android.playback.next";
-        String PREVIOUS_ACTION          = "com.soundcloud.android.playback.previous";
         String RESET_ALL                = "com.soundcloud.android.playback.reset"; // used on logout
         String STOP_ACTION              = "com.soundcloud.android.playback.stop"; // from the notification
         String RELOAD_QUEUE             = "com.soundcloud.android.reloadqueue";
@@ -93,8 +91,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     AccountOperations accountOperations;
     @Inject
     ImageOperations imageOperations;
-    @Inject
-    PlayerAppWidgetProvider appWidgetProvider;
     @Inject
     StreamPlaya streamPlayer;
     @Inject
@@ -162,7 +158,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     EventBus eventBus, TrackOperations trackOperations,
                     PeripheralsOperations peripheralsOperations,
                     AccountOperations accountOperations, ImageOperations imageOperations,
-                    PlayerAppWidgetProvider playerAppWidgetProvider, StreamPlaya streamPlaya,
+                    StreamPlaya streamPlaya,
                     PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider,
                     FeatureFlags featureFlags) {
         this.applicationProperties = applicationProperties;
@@ -172,8 +168,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         this.peripheralsOperations = peripheralsOperations;
         this.accountOperations = accountOperations;
         this.imageOperations = imageOperations;
-        appWidgetProvider = playerAppWidgetProvider;
-        streamPlayer = streamPlaya;
+        this.streamPlayer = streamPlaya;
         this.playbackReceiverFactory = playbackReceiverFactory;
         this.remoteAudioManagerProvider = remoteAudioManagerProvider;
         this.featureFlags = featureFlags;
@@ -192,8 +187,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         playbackFilter.addAction(Actions.TOGGLEPLAYBACK_ACTION);
         playbackFilter.addAction(Actions.PLAY_CURRENT);
         playbackFilter.addAction(Actions.PAUSE_ACTION);
-        playbackFilter.addAction(Actions.NEXT_ACTION);
-        playbackFilter.addAction(Actions.PREVIOUS_ACTION);
         playbackFilter.addAction(Actions.RESET_ALL);
         playbackFilter.addAction(Actions.STOP_ACTION);
         playbackFilter.addAction(Broadcasts.PLAYQUEUE_CHANGED);
@@ -374,7 +367,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         stateTransition.addToIntent(intent);
 
         sendBroadcast(intent);
-        appWidgetProvider.performUpdate(this, intent); // Share this notification directly with our widgets
 
         if (applicationProperties.shouldUseRichNotifications()) {
             if (what.equals(Broadcasts.PLAYSTATE_CHANGED)) {
@@ -519,18 +511,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             stopForeground(true);
             status = null;
         }
-    }
-
-    /* package */ boolean prev() {
-        if (getPlayQueueInternal().moveToPrevious()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /* package */ boolean next() {
-        return playQueueManager.nextTrack();
     }
 
     private void setPlayingNotification(final Track track) {

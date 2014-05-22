@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.service;
 import static com.soundcloud.android.playback.service.PlaybackService.Actions;
 
 import com.soundcloud.android.events.PlayControlEvent;
+import com.soundcloud.android.playback.external.PlaybackAction;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -19,19 +20,19 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                 switch (event.getKeyCode()) {
                     case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
                     case KeyEvent.KEYCODE_HEADSETHOOK:
-                        sendPlaybackAction(context, Actions.TOGGLEPLAYBACK_ACTION);
+                        sendPlaybackAction(context, PlaybackAction.TOGGLE_PLAYBACK);
                         break;
                     case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                        sendPlaybackAction(context, Actions.PAUSE_ACTION);
+                        sendLegacyPlaybackAction(context, Actions.PAUSE_ACTION);
                         break;
                     case KeyEvent.KEYCODE_MEDIA_PLAY:
-                        sendPlaybackAction(context, Actions.PLAY_ACTION);
+                        sendLegacyPlaybackAction(context, Actions.PLAY_ACTION);
                         break;
                     case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                        sendPlaybackAction(context, Actions.PREVIOUS_ACTION);
+                        sendPlaybackAction(context, PlaybackAction.PREVIOUS);
                         break;
                     case KeyEvent.KEYCODE_MEDIA_NEXT:
-                        sendPlaybackAction(context, Actions.NEXT_ACTION);
+                        sendPlaybackAction(context, PlaybackAction.NEXT);
                         break;
                     case KeyEvent.KEYCODE_MEDIA_REWIND:
                         break; // No-op
@@ -40,7 +41,16 @@ public class RemoteControlReceiver extends BroadcastReceiver {
         }
     }
 
+    @Deprecated
+    private void sendLegacyPlaybackAction(Context context, String action) {
+        context.startService(createIntentForAction(action));
+    }
+
     private void sendPlaybackAction(Context context, String action) {
-        context.startService(new Intent(action).putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_REMOTE));
+        context.sendBroadcast(createIntentForAction(action));
+    }
+
+    private Intent createIntentForAction(String action) {
+        return new Intent(action).putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_REMOTE);
     }
 }

@@ -45,13 +45,13 @@
                 android:layout_height="wrap_content"/>
     </LinearLayout>
     <ImageButton
+            android:id="@+id/toggle_playback"
             android:layout_weight="1.5"
             android:layout_gravity="center_vertical"
             android:layout_width="0dp"
             android:background="@null"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_notification_pause_states"
-            android:id="@+id/pause"/>
+            android:src="@drawable/ic_notification_pause_states"/>
     <ImageButton
             android:layout_weight="1.5"
             android:layout_gravity="center_vertical"

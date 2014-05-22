@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.views;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.external.PlaybackAction;
 import com.soundcloud.android.playback.service.PlaybackService;
 
 import android.app.PendingIntent;
@@ -31,8 +32,8 @@ public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
 
     @Deprecated
     public void setNotification(Track track, boolean isPlaying) {
-        mTrack = track;
-        mIsPlaying = isPlaying;
+        this.track = track;
+        this.isPlaying = isPlaying;
         setCurrentTrackTitle(track.title);
         setCurrentUsername(track.user == null ? "" : track.user.username);
     }
@@ -45,23 +46,20 @@ public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
     }
 
     private void linkPlayerControls(Context context) {
-        final Intent previous = new Intent(PlaybackService.Actions.PREVIOUS_ACTION)
-                .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_NOTIFICATION);
-        setOnClickPendingIntent(R.id.prev, PendingIntent.getService(context,
-                PENDING_INTENT_REQUEST_CODE, previous, 0));
-
-        final Intent pause = new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION)
-                .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_NOTIFICATION);
-        setOnClickPendingIntent(R.id.pause, PendingIntent.getService(context,
-                PENDING_INTENT_REQUEST_CODE, pause, 0));
-
-        final Intent next = new Intent(PlaybackService.Actions.NEXT_ACTION)
-                .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_NOTIFICATION);
-        setOnClickPendingIntent(R.id.next, PendingIntent.getService(context,
-                PENDING_INTENT_REQUEST_CODE, next, 0));
+        setOnClickPendingIntent(R.id.toggle_playback, createPendingIntent(context, PlaybackAction.TOGGLE_PLAYBACK));
+        setOnClickPendingIntent(R.id.next, createPendingIntent(context, PlaybackAction.NEXT));
     }
 
-    public boolean isAlreadyNotifying(Track track, boolean isPlaying){
-        return track == mTrack && isPlaying == mIsPlaying;
+    private PendingIntent createPendingIntent(Context context, String playbackAction) {
+        return PendingIntent.getBroadcast(context, PENDING_INTENT_REQUEST_CODE, createIntent(playbackAction), 0);
+    }
+
+    private Intent createIntent(String playbackAction) {
+        return new Intent(playbackAction)
+                .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_WIDGET);
+    }
+
+    public boolean isAlreadyNotifying(Track track, boolean isPlaying) {
+        return track == this.track && isPlaying == this.isPlaying;
     }
 }

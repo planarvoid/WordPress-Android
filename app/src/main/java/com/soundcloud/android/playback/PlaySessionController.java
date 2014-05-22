@@ -76,6 +76,10 @@ public class PlaySessionController {
         return currentProgress;
     }
 
+    public boolean isPlaying() {
+        return lastStateTransition.playSessionIsActive();
+    }
+
     private class PlayStateSubscriber extends DefaultSubscriber<StateTransition> {
         @Override
         public void onNext(StateTransition stateTransition) {

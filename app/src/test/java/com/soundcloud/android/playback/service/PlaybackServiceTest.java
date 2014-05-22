@@ -61,8 +61,6 @@ public class PlaybackServiceTest {
     @Mock
     private ImageOperations imageOperations;
     @Mock
-    private PlayerAppWidgetProvider appWidgetProvider;
-    @Mock
     private StreamPlaya streamPlayer;
     @Mock
     private PlaybackReceiver.Factory playbackReceiverFactory;
@@ -82,9 +80,8 @@ public class PlaybackServiceTest {
     @Before
     public void setUp() throws Exception {
         playbackService = new PlaybackService(applicationProperties, playQueueManager, eventBus, trackOperations, peripheralsOperations,
-                accountOperations, imageOperations, appWidgetProvider, streamPlayer,
+                accountOperations, imageOperations, streamPlayer,
                 playbackReceiverFactory, audioManagerProvider, featureFlags);
-
         when(playbackReceiverFactory.create(playbackService, accountOperations, playQueueManager, eventBus)).thenReturn(playbackReceiver);
         when(audioManagerProvider.get()).thenReturn(remoteAudioManager);
         when(playQueueManager.getCurrentPlayQueue()).thenReturn(playQueue);
@@ -106,18 +103,6 @@ public class PlaybackServiceTest {
     public void onCreateRegistersPlaybackReceiverToListenForPauseAction() throws Exception {
         playbackService.onCreate();
         expect(getReceiversForAction(PlaybackService.Actions.PAUSE_ACTION)).toContain(playbackReceiver);
-    }
-
-    @Test
-    public void onCreateRegistersPlaybackReceiverToListenForNextAction() throws Exception {
-        playbackService.onCreate();
-        expect(getReceiversForAction(PlaybackService.Actions.NEXT_ACTION)).toContain(playbackReceiver);
-    }
-
-    @Test
-    public void onCreateRegistersPlaybackReceiverToListenForPreviousAction() throws Exception {
-        playbackService.onCreate();
-        expect(getReceiversForAction(PlaybackService.Actions.PREVIOUS_ACTION)).toContain(playbackReceiver);
     }
 
     @Test
@@ -268,13 +253,6 @@ public class PlaybackServiceTest {
         expect(lastForegroundNotification).not.toBeNull();
 
     }
-
-    @Test
-    public void nextReturnsNextTrackFromPlayQueueManager() {
-        when(playQueueManager.nextTrack()).thenReturn(true);
-        expect(playbackService.next()).toBeTrue();
-    }
-
 
     private ArrayList<BroadcastReceiver> getReceiversForAction(String action) {
         ArrayList<BroadcastReceiver> broadcastReceivers = new ArrayList<BroadcastReceiver>();

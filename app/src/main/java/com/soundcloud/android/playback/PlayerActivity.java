@@ -512,7 +512,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                     playbackService.restartTrack();
                 }
             } else {
-                startService(new Intent(PlaybackService.Actions.PREVIOUS_ACTION));
+                playbackOperations.previousTrack();
             }
         }
     };
@@ -537,7 +537,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                     }
                 }
             } else {
-                startService(new Intent(PlaybackService.Actions.NEXT_ACTION));
+                playbackOperations.nextTrack();
             }
 
         }
