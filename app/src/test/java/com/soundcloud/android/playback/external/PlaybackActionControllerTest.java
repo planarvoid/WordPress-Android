@@ -81,7 +81,7 @@ public class PlaybackActionControllerTest {
     public void shouldTogglePlaybackWhenTogglePlaybackActionIsHandled() throws Exception {
         controller.handleAction(context, PlaybackAction.TOGGLE_PLAYBACK, "source");
 
-        verify(playbackOperations).togglePlayback(context);
+        verify(playbackOperations).togglePlayback();
     }
 
 

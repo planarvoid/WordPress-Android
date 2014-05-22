@@ -32,7 +32,7 @@ public class PlaybackActionController {
             playbackOperations.nextTrack();
         } else if (PlaybackAction.TOGGLE_PLAYBACK.equals(action)) {
             eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.toggle(source, playSessionController.isPlaying()));
-            playbackOperations.togglePlayback(context);
+            playbackOperations.togglePlayback();
         }
     }
 
