@@ -8,10 +8,12 @@ import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.Log;
 
 import android.content.Context;
+import android.support.v4.view.ViewPager;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
+import android.widget.Adapter;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -95,7 +97,17 @@ public class Waiter {
         return retryButton != null;
     }
 
-    public boolean waitForItemCountToIncrease(final ListAdapter adapter, final int currentSize) {
+    public boolean waitForContent(final ViewPager viewPager) {
+        return solo.waitForCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return viewPager.getAdapter().getCount() > 0;
+            }
+        }, this.TIMEOUT);
+    }
+
+
+    public boolean waitForItemCountToIncrease(final Adapter adapter, final int currentSize) {
         return solo.waitForCondition(new Condition() {
             @Override
             public boolean isSatisfied() {

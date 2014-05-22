@@ -77,7 +77,7 @@ public class TrackPagerAdapterTest {
     @Test
     public void getViewReturnsCreatedViewWhenConvertViewIsNull() {
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
-        when(trackPagePresenter.createTrackPage(container)).thenReturn(view);
+        when(trackPagePresenter.createTrackPage(container, false)).thenReturn(view);
         expect(adapter.getView(0, null, container)).toBe(view);
     }
 
@@ -152,6 +152,14 @@ public class TrackPagerAdapterTest {
         adapter.onFooterTap();
         PlayerUIEvent playerUIEvent = monitor.verifyEventOn(EventQueue.PLAYER_UI);
         expect(playerUIEvent.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
+    }
+
+    @Test
+    public void onPlayerClosePostsEventToClosePlayer() {
+        EventMonitor monitor = EventMonitor.on(eventBus);
+        adapter.onPlayerClose();
+        PlayerUIEvent playerUIEvent = monitor.verifyEventOn(EventQueue.PLAYER_UI);
+        expect(playerUIEvent.getKind()).toEqual(PlayerUIEvent.COLLAPSE_PLAYER);
     }
 
     private void setupGetCurrentViewPreconditions() {

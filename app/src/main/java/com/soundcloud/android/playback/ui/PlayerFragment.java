@@ -8,6 +8,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -57,6 +58,7 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
         eventSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber()));
         eventSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber()));
         eventSubscription.add(eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
+        eventSubscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber()));
     }
 
     @Override
@@ -115,4 +117,17 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
             }
         }
     }
+    private final class PlayerUISubscriber extends DefaultSubscriber<PlayerUIEvent> {
+        @Override
+        public void onNext(PlayerUIEvent event) {
+            if (presenter != null) {
+                if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
+                    presenter.setFullScreenPlayer(true);
+                } else if (event.getKind() == PlayerUIEvent.PLAYER_COLLAPSED) {
+                    presenter.setFullScreenPlayer(false);
+                }
+            }
+        }
+    }
+
 }

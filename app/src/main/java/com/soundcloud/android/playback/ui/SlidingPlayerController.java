@@ -20,7 +20,7 @@ import javax.inject.Inject;
 
 public class SlidingPlayerController implements PlayerController, PanelSlideListener {
 
-    private static final String EXTRA_ACTIONBAR_VISIBLE = "actionbar_visible";
+    private static final String EXTRA_PLAYER_EXPANDED = "player_expanded";
     private static final float EXPAND_THRESHOLD = 0.5f;
 
     private final EventBus eventBus;
@@ -63,13 +63,17 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
 
     @Override
     public void storeState(Bundle bundle) {
-        bundle.putBoolean(EXTRA_ACTIONBAR_VISIBLE, actionBarController.isVisible());
+        bundle.putBoolean(EXTRA_PLAYER_EXPANDED, slidingPanel.isExpanded());
     }
 
     @Override
     public void restoreState(Bundle bundle) {
         if (bundle != null) {
-            actionBarController.setVisible(bundle.getBoolean(EXTRA_ACTIONBAR_VISIBLE, true));
+            boolean isExpanded = bundle.getBoolean(EXTRA_PLAYER_EXPANDED, false);
+            actionBarController.setVisible(!isExpanded);
+            eventBus.publish(EventQueue.PLAYER_UI, isExpanded
+                    ? PlayerUIEvent.fromPlayerExpanded()
+                    : PlayerUIEvent.fromPlayerCollapsed());
         }
     }
 
@@ -101,6 +105,8 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
         public void onNext(PlayerUIEvent event) {
             if (event.getKind() == PlayerUIEvent.EXPAND_PLAYER) {
                 slidingPanel.expandPane();
+            } else if (event.getKind() == PlayerUIEvent.COLLAPSE_PLAYER) {
+                slidingPanel.collapsePane();
             }
         }
     }

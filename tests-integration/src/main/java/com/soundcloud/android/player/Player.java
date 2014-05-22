@@ -1,5 +1,10 @@
 package com.soundcloud.android.player;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsNot.not;
+
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.screens.elements.PlayerElement;
@@ -26,80 +31,105 @@ public class Player extends ActivityTestCase<MainActivity> {
         playerElement = new PlayerElement(solo);
     }
 
-    public void testPlayerExpandsOnFooterTap() {
-        playerElement.tapFooter();
-        assertEquals("Player should be expanded", true, playerElement.isExpanded());
-    }
-
-    public void testPlayerCollapsesWhenBackButtonIsPressed() {
-        playerElement.tapFooter();
-        solo.goBack();
-        assertEquals("Player should be collapsed", true, playerElement.isCollapsed());
-    }
-
-    public void testPlayStateCanBeToggledFromPlayerFooter() {
-        assertEquals("Footer should show paused state", false, playerElement.isFooterInPlayingState());
-        playerElement.toggleFooterPlay();
-        assertEquals("Footer should show playing state", true, playerElement.isFooterInPlayingState());
-    }
-
-    public void testPlayerIsExpandedAfterClickingTrack() {
+    public void testPlayerCollapsesWhenBackButtonIsPressed() throws Exception {
         playFirstTrack();
-        assertEquals("Player should be expanded", true, playerElement.isExpanded());
+        playerElement.pressBackToCollapse();
+        assertThat(playerElement.isCollapsed(), is(true));
     }
 
-    public void testSkippingWithNextAndPreviousChangesTrack() {
+    public void testPlayerCollapsesWhenCloseButtonIsPressed() throws Exception {
+        playFirstTrack();
+        playerElement.pressCloseButton();
+        assertThat(playerElement.isCollapsed(), is(true));
+    }
+
+    public void testPlayerCollapsesWhenSwipingDown() throws Exception {
+        playFirstTrack();
+        solo.swipeDown();
+        assertThat(playerElement.isCollapsed(), is(true));
+    }
+
+    public void testPlayerExpandsOnFooterTap() throws Exception {
+        playFirstTrack();
+        playerElement.pressBackToCollapse();
+        playerElement.tapFooter();
+        assertThat(playerElement.isExpanded(), is(true));
+    }
+
+    public void testPlayStateCanBeToggledFromPlayerFooter() throws Exception {
+        playFirstTrack();
+        playerElement.pressBackToCollapse();
+        assertThat(playerElement.isFooterInPlayingState(), is(true));
+        playerElement.toggleFooterPlay();
+        assertThat(playerElement.isFooterInPlayingState(), is(false));
+    }
+
+    public void testPlayStateCanBeToggledFromFullPlayer() throws Exception {
+        playFirstTrack();
+        assertThat(playerElement.isPlayControlsVisible(), is(false));
+        playerElement.togglePlay();
+        assertThat(playerElement.isPlayControlsVisible(), is(true));
+    }
+
+    public void testPlayerIsExpandedAfterClickingTrack() throws Exception {
+        playFirstTrack();
+        assertThat(playerElement.isExpanded(), is(true));
+    }
+
+    public void testSkippingWithNextAndPreviousChangesTrack() throws Exception {
         playFirstTrack();
         String originalTrack = playerElement.getTrackTitle();
+        playerElement.togglePlay();
 
         playerElement.tapNext();
-        assertEquals("Track should be different", false, originalTrack.equals(playerElement.getTrackTitle()));
-
+        assertThat(originalTrack, is(not(equalTo(playerElement.getTrackTitle()))));
         playerElement.tapPrevious();
-        assertEquals("Track should be the same", true, originalTrack.equals(playerElement.getTrackTitle()));
+        assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
     }
 
-    public void testSwipingNextAndPreviousChangesTrack() {
+    public void testSwipingNextAndPreviousChangesTrack() throws Exception {
         playFirstTrack();
         String originalTrack = playerElement.getTrackTitle();
 
         playerElement.swipeNext();
-        assertEquals("Track should be different", false, originalTrack.equals(playerElement.getTrackTitle()));
-
+        assertThat(originalTrack, is(not(equalTo(playerElement.getTrackTitle()))));
         playerElement.swipePrevious();
-        assertEquals("Track should be the same", true, originalTrack.equals(playerElement.getTrackTitle()));
-    }
+        assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));    }
 
-    public void testPlayerRemainsPausedWhenSkipping() {
+    public void testPlayerRemainsPausedWhenSkipping() throws Exception {
         playFirstTrack();
 
-        playerElement.toggleFooterPlay();
+        playerElement.togglePlay();
         playerElement.tapNext();
 
-        assertEquals("Footer should show paused state", false, playerElement.isFooterInPlayingState());
+        assertThat(playerElement.isPlayControlsVisible(), is(true));
     }
 
-    public void testPreviousButtonDoesNothingOnFirstTrack() {
+    public void testPreviousButtonDoesNothingOnFirstTrack() throws Exception {
         playFirstTrack();
         String originalTrack = playerElement.getTrackTitle();
+        playerElement.togglePlay();
 
         playerElement.tapPrevious();
-        assertEquals("Track should be the same", true, originalTrack.equals(playerElement.getTrackTitle()));
+        assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
     }
 
     public void testNextButtonDoesNothingOnLastTrack() {
         playSingleTrack();
         String originalTrack = playerElement.getTrackTitle();
+        playerElement.togglePlay();
 
         playerElement.tapNext();
-        assertEquals("Track should be the same", true, originalTrack.equals(playerElement.getTrackTitle()));
+        assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
     }
 
-    private void playFirstTrack() {
+    private void playFirstTrack() throws InterruptedException {
         StreamScreen streamScreen = new StreamScreen(solo);
         waiter.waitForContentAndRetryIfLoadingFailed();
+        solo.sleep(2000); // TODO: Tempory solution to work around bug where play queue is never set (Bug #1690)
         streamScreen.clickFirstTrack();
         waiter.waitForExpandedPlayer();
+        playerElement.waitForContent();
     }
 
     private void playSingleTrack() {
@@ -108,6 +138,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         waiter.waitForContentAndRetryIfLoadingFailed();
         exploreScreen.playFirstTrack();
         waiter.waitForExpandedPlayer();
+        playerElement.waitForContent();
     }
 
     private ExploreScreen openExploreFromMenu() {

@@ -51,20 +51,20 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void shouldConfigureSlidingPanelOnAttach() {
+    public void configuresSlidingPanelOnAttach() {
         verify(slidingPanel).setPanelSlideListener(controller);
         verify(slidingPanel).setEnableDragViewTouchEvents(true);
     }
 
     @Test
-    public void shouldSubscribeToPlayerUIEvents() {
+    public void subscribesToPlayerUIEvents() {
         controller.startListening();
 
         eventMonitor.verifySubscribedTo(EventQueue.PLAYER_UI);
     }
 
     @Test
-    public void shouldUnsubscribeFromPlayerUIEvents() {
+    public void unsubscribesFromPlayerUIEvents() {
         controller.startListening();
         controller.stopListening();
 
@@ -72,7 +72,7 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void shouldExpandPlayerWhenPlayTriggeredEventIsReceived() {
+    public void expandsPlayerWhenPlayTriggeredEventIsReceived() {
         controller.startListening();
         eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
 
@@ -80,7 +80,15 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void shouldOnlyRespondToPlayTriggeredPlayerUIEvent() {
+    public void closesPlayerWhenPlayCloseEventIsReceived() {
+        controller.startListening();
+        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
+
+        verify(slidingPanel).collapsePane();
+    }
+
+    @Test
+    public void onlyRespondsToPlayTriggeredPlayerUIEvent() {
         controller.startListening();
         eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
@@ -88,16 +96,16 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void shouldNotInteractWithActionBarIfBundleIsNullOnRestoreState() {
+    public void doesntInteractWithActionBarIfBundleIsNullOnRestoreState() {
         controller.restoreState(null);
 
         verifyZeroInteractions(actionBarController);
     }
 
     @Test
-    public void shouldHideActionBarIfHiddenStateStored() {
+    public void hidesActionBarIfExpandedStateStored() {
         Bundle bundle = new Bundle();
-        bundle.putBoolean("actionbar_visible", false);
+        bundle.putBoolean("player_expanded", true);
 
         controller.restoreState(bundle);
 
@@ -105,17 +113,39 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void shouldStoreActionBarVisibilityInBundle() {
-        when(actionBarController.isVisible()).thenReturn(true);
+    public void storesExpandedStateInBundle() {
+        when(slidingPanel.isExpanded()).thenReturn(true);
         Bundle bundle = new Bundle();
 
         controller.storeState(bundle);
 
-        expect(bundle.getBoolean("actionbar_visible")).toBeTrue();
+        expect(bundle.getBoolean("player_expanded")).toBeTrue();
     }
 
     @Test
-    public void shouldSetCollapsedStateWhenPassingOverThreshold() {
+    public void sendsExpandedEventWhenRestoringExpandedState() {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("player_expanded", false);
+
+        controller.restoreState(bundle);
+
+        PlayerUIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
+    }
+
+    @Test
+    public void sendsCollapsedEventWhenRestoringCollapsedState() {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("player_expanded", true);
+
+        controller.restoreState(bundle);
+
+        PlayerUIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDED);
+    }
+
+    @Test
+    public void setsCollapsedStateWhenPassingOverThreshold() {
         controller.onPanelSlide(layout, 0.4f);
         controller.onPanelSlide(layout, 0.6f);
         controller.onPanelSlide(layout, 0.7f);
@@ -126,7 +156,7 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void shouldSetExpandedStateWhenPassingUnderThreshold() {
+    public void setsExpandedStateWhenPassingUnderThreshold() {
         controller.onPanelSlide(layout, 0.6f);
         controller.onPanelSlide(layout, 0.4f);
         controller.onPanelSlide(layout, 0.3f);

@@ -12,6 +12,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.EventMonitor;
@@ -52,6 +53,8 @@ public class PlayerFragmentTest {
     private Subscription playStateSubscription;
     @Mock
     private Subscription playProgressSubscription;
+    @Mock
+    private Subscription playerUiSubscription;
 
     @InjectMocks
     private PlayerFragment fragment;
@@ -65,6 +68,7 @@ public class PlayerFragmentTest {
         when(eventBus.subscribe(same(EventQueue.PLAYBACK_STATE_CHANGED), any(Observer.class))).thenReturn(playStateSubscription);
         when(eventBus.subscribe(same(EventQueue.PLAY_QUEUE), any(Observer.class))).thenReturn(playQueueSubscription);
         when(eventBus.subscribe(same(EventQueue.PLAYBACK_PROGRESS), any(Observer.class))).thenReturn(playProgressSubscription);
+        when(eventBus.subscribe(same(EventQueue.PLAYER_UI), any(Observer.class))).thenReturn(playerUiSubscription);
 
         fragment.onCreate(null);
         fragment.onViewCreated(view, null);
@@ -146,11 +150,26 @@ public class PlayerFragmentTest {
     }
 
     @Test
+    public void onPlayerExpandedEventSetsFullScreenPlayerOnPresenter() {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+        verify(presenter).setFullScreenPlayer(true);
+    }
+
+    @Test
+    public void onPlayerCollapsedEventSetsFooterPlayerOnPresenter() {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+        verify(presenter).setFullScreenPlayer(false);
+    }
+
+    @Test
     public void shouldUnsubscribeFromEventQueuesOnDestroy() {
         fragment.onDestroy();
         verify(playQueueSubscription).unsubscribe();
         verify(playStateSubscription).unsubscribe();
         verify(playProgressSubscription).unsubscribe();
+        verify(playerUiSubscription).unsubscribe();
     }
 
 }

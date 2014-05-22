@@ -52,7 +52,7 @@
             style="@style/PlayerUser"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_marginTop="70dp"/>
+            android:layout_marginTop="64dp"/>
 
     <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/track_page_title"
@@ -64,9 +64,10 @@
 
     <Button
         android:id="@+id/player_close"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="20dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="20dp"
         android:background="@drawable/btn_player_close"
         android:visibility="gone" />
 

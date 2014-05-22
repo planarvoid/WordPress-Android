@@ -40,23 +40,47 @@ public class TrackPagePresenterTest {
         presenter = new TrackPagePresenter(imageOperations, resources);
         presenter.setListener(listener);
         when(container.getContext()).thenReturn(Robolectric.application);
-        trackView = presenter.createTrackPage(container);
+        trackView = presenter.createTrackPage(container, true);
     }
 
     @Test
     public void playingStateSetsToggleChecked() {
         presenter.setPlayState(trackView, true);
 
-        ToggleButton toggle = ((TrackPageHolder) trackView.getTag()).footerPlayToggle;
-        expect(toggle.isChecked()).toBeTrue();
+        expect(getHolder(trackView).footerPlayToggle.isChecked()).toBeTrue();
     }
 
     @Test
     public void pausedStateSetsToggleUnchecked() {
         presenter.setPlayState(trackView, false);
 
-        ToggleButton toggle = ((TrackPageHolder) trackView.getTag()).footerPlayToggle;
-        expect(toggle.isChecked()).toBeFalse();
+        expect(getHolder(trackView).footerPlayToggle.isChecked()).toBeFalse();
+    }
+
+    @Test
+    public void pageCreatedInFullScreenModeHasFooterControlsHidden() {
+        expect(getHolder(trackView).footer.getVisibility()).toEqual(View.GONE);
+    }
+
+    @Test
+    public void pageCreatedInFooterModeHasVisibleFooterControls() {
+        trackView = presenter.createTrackPage(container, false);
+
+        expect(getHolder(trackView).footer.getVisibility()).toEqual(View.VISIBLE);
+    }
+
+    @Test
+    public void settingFooterModeUpdatesFooterControlVisibility() {
+        TrackPageHolder holder = getHolder(trackView);
+        expect(holder.footer.getVisibility()).toEqual(View.GONE);
+
+        presenter.setFullScreen(trackView, false);
+
+        expect(holder.footer.getVisibility()).toEqual(View.VISIBLE);
+    }
+
+    private TrackPageHolder getHolder(View trackView) {
+        return (TrackPageHolder) trackView.getTag();
     }
 
 }

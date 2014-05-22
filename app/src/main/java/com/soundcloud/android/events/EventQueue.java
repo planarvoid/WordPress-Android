@@ -19,6 +19,6 @@ public final class EventQueue {
     public static final Queue<PlaybackSessionEvent> PLAYBACK_SESSION = create(PlaybackSessionEvent.class);
     public static final Queue<PlaybackPerformanceEvent> PLAYBACK_PERFORMANCE = create(PlaybackPerformanceEvent.class);
     public static final Queue<PlaybackErrorEvent> PLAYBACK_ERROR = create(PlaybackErrorEvent.class);
-    public static final Queue<PlayerUIEvent> PLAYER_UI = create(PlayerUIEvent.class);
+    public static final Queue<PlayerUIEvent> PLAYER_UI = create(PlayerUIEvent.class, PlayerUIEvent.fromPlayerCollapsed());
     public static final Queue<PlayQueueEvent> PLAY_QUEUE = create(PlayQueueEvent.class);
 }

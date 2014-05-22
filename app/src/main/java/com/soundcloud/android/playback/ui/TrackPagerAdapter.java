@@ -36,6 +36,8 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
     private final PlaybackOperations playbackOperations;
     private final EventBus eventBus;
 
+    private boolean newPagesInFullScreenMode;
+
     private final LruCache<Long, Observable<Track>> trackObservableCache = new LruCache<Long, Observable<Track>>(TRACK_CACHE_SIZE);
     private final BiMap<View, Integer> trackViewsByPosition = HashBiMap.create(EXPECTED_TRACKVIEW_COUNT);
 
@@ -65,7 +67,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
     @Override
     public View getView(int position, View convertView, ViewGroup container) {
         final View contentView = convertView == null
-                ? trackPagePresenter.createTrackPage(container)
+                ? trackPagePresenter.createTrackPage(container, newPagesInFullScreenMode)
                 : convertView;
 
         trackViewsByPosition.forcePut(contentView, position); // forcePut to remove existing entry
@@ -83,6 +85,13 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
     public void setPlayState(boolean isPlaying) {
         for (Map.Entry<View, Integer> entry : trackViewsByPosition.entrySet()) {
             trackPagePresenter.setPlayState(entry.getKey(), isPlaying && playQueueManager.isCurrentPosition(entry.getValue()));
+        }
+    }
+
+    public void fullScreenMode(boolean fullScreen) {
+        newPagesInFullScreenMode = fullScreen;
+        for (View view : trackViewsByPosition.keySet()) {
+            trackPagePresenter.setFullScreen(view, fullScreen);
         }
     }
 
@@ -141,6 +150,11 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
     @Override
     public void onFooterTap() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+    }
+
+    @Override
+    public void onPlayerClose() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
     }
 
 }

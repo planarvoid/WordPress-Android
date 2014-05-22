@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.utils.ViewUtils;
 
 import android.content.res.Resources;
 import android.support.v4.view.ViewPager;
@@ -75,6 +74,10 @@ class PlayerPresenter implements View.OnClickListener {
     void onPlayStateChanged(boolean isPlaying){
         adapter.setPlayState(isPlaying);
         setPlayControlsVisible(!isPlaying);
+    }
+
+    public void setFullScreenPlayer(boolean fullScreen) {
+        adapter.fullScreenMode(fullScreen);
     }
 
     private void setPlayControlsVisible(boolean visble) {

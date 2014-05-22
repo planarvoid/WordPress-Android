@@ -26,6 +26,7 @@ class TrackPagePresenter implements View.OnClickListener {
     interface Listener {
         void onTogglePlay();
         void onFooterTap();
+        void onPlayerClose();
     }
 
     @Inject
@@ -48,13 +49,19 @@ class TrackPagePresenter implements View.OnClickListener {
             case R.id.footer_controls:
                 listener.onFooterTap();
                 break;
+            case R.id.player_close:
+                listener.onPlayerClose();
+                break;
             default:
                 throw new IllegalArgumentException("Unexpected view ID");
         }
     }
 
-    public View createTrackPage(ViewGroup container) {
-        return LayoutInflater.from(container.getContext()).inflate(R.layout.player_track_page, container, false);
+    public View createTrackPage(ViewGroup container, boolean fullScreen) {
+        View trackView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_track_page, container, false);
+        setupHolder(trackView);
+        setFullScreen(trackView, fullScreen);
+        return trackView;
     }
 
     public void setProgress(View trackView, PlaybackProgressEvent progress) {
@@ -63,6 +70,14 @@ class TrackPagePresenter implements View.OnClickListener {
 
     public void setPlayState(View trackView, boolean isPlaying) {
         getViewHolder(trackView).footerPlayToggle.setChecked(isPlaying);
+    }
+
+    public void setFullScreen(View trackView, boolean expanded) {
+        TrackPageHolder holder = getViewHolder(trackView);
+        holder.footer.setVisibility(expanded ? View.GONE : View.VISIBLE);
+        holder.user.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        holder.title.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        holder.close.setVisibility(expanded ? View.VISIBLE : View.GONE);
     }
 
     public void populateTrackPage(View trackView, Track track) {
@@ -80,6 +95,7 @@ class TrackPagePresenter implements View.OnClickListener {
         imageOperations.displayInVisualPlayer(track.getUrn(), ImageSize.getFullImageSize(resources), holder.artwork);
         holder.artwork.setProgressProportion(currentProgressProportion);
         holder.artwork.setOnClickListener(this);
+        holder.close.setOnClickListener(this);
 
         holder.footer.setOnClickListener(this);
         holder.footerPlayToggle.setOnClickListener(this);
@@ -89,9 +105,6 @@ class TrackPagePresenter implements View.OnClickListener {
     }
 
     private TrackPageHolder getViewHolder(View trackView) {
-        if (trackView.getTag() == null) {
-            setupHolder(trackView);
-        }
         return (TrackPageHolder) trackView.getTag();
     }
 
