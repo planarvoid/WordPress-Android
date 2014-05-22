@@ -7,7 +7,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
@@ -91,8 +90,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Inject
     PeripheralsOperations peripheralsOperations;
     @Inject
-    PlaybackEventSource playbackEventSource;
-    @Inject
     AccountOperations accountOperations;
     @Inject
     ImageOperations imageOperations;
@@ -111,7 +108,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private boolean waitingForPlaylist;
 
     private @Nullable Track currentTrack;
-    private @Nullable TrackSourceInfo currentTrackSourceInfo;
 
     private int serviceStartId = -1;
     private boolean serviceInUse;
@@ -164,7 +160,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @VisibleForTesting
     PlaybackService(ApplicationProperties applicationProperties, PlayQueueManager playQueueManager,
                     EventBus eventBus, TrackOperations trackOperations,
-                    PeripheralsOperations peripheralsOperations, PlaybackEventSource playbackEventSource,
+                    PeripheralsOperations peripheralsOperations,
                     AccountOperations accountOperations, ImageOperations imageOperations,
                     PlayerAppWidgetProvider playerAppWidgetProvider, StreamPlaya streamPlaya,
                     PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider,
@@ -174,7 +170,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.peripheralsOperations = peripheralsOperations;
-        this.playbackEventSource = playbackEventSource;
         this.accountOperations = accountOperations;
         this.imageOperations = imageOperations;
         appWidgetProvider = playerAppWidgetProvider;
@@ -333,8 +328,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public void onPlaystateChanged(Playa.StateTransition stateTransition) {
-        publishPlaybackEventFromState(stateTransition);
-
         if (stateTransition.getNewState() == Playa.PlayaState.IDLE) {
             gotoIdleState(false);
         }
@@ -436,17 +429,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     startTrack(track);
                 }
             } else { // new track
-                final TrackSourceInfo newTrackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
-
-                if (streamPlayer.isPlayerPlaying()) {
-                    final boolean changedContext = newTrackSourceInfo != null && !newTrackSourceInfo.sharesSameOrigin(currentTrackSourceInfo);
-                    playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, getCurrentUserId(),
-                            changedContext ? PlaybackSessionEvent.STOP_REASON_NEW_QUEUE : PlaybackSessionEvent.STOP_REASON_SKIP);
-                }
-
-
                 currentTrack = track;
-                currentTrackSourceInfo = newTrackSourceInfo;
 
                 notifyChange(Broadcasts.META_CHANGED);
                 final Observable<Track> trackObservable = trackOperations.loadStreamableTrack(currentTrack.getId(), AndroidSchedulers.mainThread());
@@ -472,32 +455,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             startTrack(track);
         }
     };
-
-    private void publishPlaybackEventFromState(Playa.StateTransition stateTransition) {
-        final long currentUserId = getCurrentUserId();
-        switch (stateTransition.getNewState()) {
-            case PLAYING:
-                playbackEventSource.publishPlayEvent(currentTrack, currentTrackSourceInfo, currentUserId);
-                break;
-            case BUFFERING:
-                playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, PlaybackSessionEvent.STOP_REASON_BUFFERING);
-                break;
-            case IDLE:
-                if (stateTransition.getReason() == Playa.Reason.TRACK_COMPLETE){
-                    final int stopReason = getPlayQueueInternal().hasNextTrack()
-                            ? PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED
-                            : PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE;
-                    playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, stopReason);
-                } else if (stateTransition.wasError()){
-                    playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, PlaybackSessionEvent.STOP_REASON_ERROR);
-                } else {
-                    playbackEventSource.publishStopEvent(currentTrack, currentTrackSourceInfo, currentUserId, PlaybackSessionEvent.STOP_REASON_PAUSE);
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Unexpected state when trying to publish play event" + stateTransition.getNewState());
-        }
-    }
 
     private void startTrack(Track track) {
         // set current track again as it may have been fetched from the api. This is not necessary with modelmanager, but will be going forward

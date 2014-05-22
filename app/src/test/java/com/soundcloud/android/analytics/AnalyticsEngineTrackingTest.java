@@ -24,7 +24,7 @@ import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.robolectric.EventMonitor;
@@ -195,7 +195,8 @@ public class AnalyticsEngineTrackingTest {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
-        PlaybackSessionEvent playbackSessionEvent = PlaybackSessionEvent.forPlay(mock(Track.class), 0, Mockito.mock(TrackSourceInfo.class));
+        PlaybackSessionEvent playbackSessionEvent = PlaybackSessionEvent.forPlay(Urn.forTrack(1L), Urn.forUser(1L),
+                Mockito.mock(TrackSourceInfo.class),123L);
 
         eventMonitor.publish(EventQueue.PLAYBACK_SESSION, playbackSessionEvent);
 
@@ -264,7 +265,7 @@ public class AnalyticsEngineTrackingTest {
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleSearchEvent(any(SearchEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlayControlEvent(any(PlayControlEvent.class));
 
-        eventMonitor.publish(EventQueue.PLAYBACK_SESSION, PlaybackSessionEvent.forPlay(mock(Track.class), 0, mock(TrackSourceInfo.class)));
+        eventMonitor.publish(EventQueue.PLAYBACK_SESSION, PlaybackSessionEvent.forPlay(Urn.forTrack(1L), Urn.forUser(1L), mock(TrackSourceInfo.class), 123L));
         eventMonitor.publish(EventQueue.UI, UIEvent.fromToggleFollow(true, "screen", 0));
         eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen");

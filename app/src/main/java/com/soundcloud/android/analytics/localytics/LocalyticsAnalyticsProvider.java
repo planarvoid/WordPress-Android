@@ -10,14 +10,13 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
 
@@ -113,20 +112,14 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
             Map<String, String> eventAttributes = new HashMap<String, String>();
             eventAttributes.put("context", eventData.getTrackSourceInfo().getOriginScreen());
-            eventAttributes.put("track_id", String.valueOf(eventData.getTrack().getId()));
+            eventAttributes.put("track_id", String.valueOf(eventData.getTrackUrn().numericId));
 
-            final int duration = eventData.getTrack().duration;
+            final long duration = eventData.getDuration();
             eventAttributes.put("track_length_ms", String.valueOf(duration));
             eventAttributes.put("track_length_bucket", getTrackLengthBucket(duration));
 
             eventAttributes.put("play_duration_ms", String.valueOf(eventData.getListenTime()));
             eventAttributes.put("percent_listened", getPercentListenedBucket(eventData, duration));
-
-            // be careful of null values allowed in attributes, will propogate a hard to trace exception
-            final String genreOrTag = eventData.getTrack().getGenreOrTag();
-            if (ScTextUtils.isNotBlank(genreOrTag)) {
-                eventAttributes.put("tag", genreOrTag);
-            }
 
             if (eventData.getTrackSourceInfo().isFromPlaylist()) {
                 eventAttributes.put("set_id", String.valueOf(eventData.getTrackSourceInfo().getPlaylistId()));
@@ -236,7 +229,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         Log.d(TAG, toStringHelper.toString());
     }
 
-    private String getPercentListenedBucket(PlaybackSessionEvent eventData, int duration) {
+    private String getPercentListenedBucket(PlaybackSessionEvent eventData, long duration) {
         double percentListened = ((double) eventData.getListenTime()) / duration;
         if (percentListened < .05) {
             return "<5%";
@@ -249,7 +242,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         }
     }
 
-    private String getTrackLengthBucket(int duration) {
+    private String getTrackLengthBucket(long duration) {
         if (duration < 60 * 1000) {
             return "<1min";
         } else if (duration <= 10 * 60 * 1000) {

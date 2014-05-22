@@ -1,11 +1,11 @@
 package com.soundcloud.android.events;
 
-import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
+import rx.subjects.Subject;
 
 import android.util.SparseArray;
 
@@ -15,36 +15,36 @@ import javax.inject.Singleton;
 @Singleton
 public class EventBus {
 
-    public static final class QueueDescriptor<T> {
+    public static final class Queue<T> {
         public final String name;
         public final Class<T> eventType;
         @Nullable
         private T defaultEvent;
 
-        private QueueDescriptor(String name, Class<T> eventType) {
+        private Queue(String name, Class<T> eventType) {
             this.name = name;
             this.eventType = eventType;
         }
 
-        private QueueDescriptor(String name, Class<T> eventType, @Nullable T defaultEvent) {
+        private Queue(String name, Class<T> eventType, @Nullable T defaultEvent) {
             this(name, eventType);
             this.defaultEvent = defaultEvent;
         }
 
-        public static <T> QueueDescriptor<T> create(String name, Class<T> eventType, T defaultEvent) {
-            return new QueueDescriptor<T>(name, eventType, defaultEvent);
+        public static <T> Queue<T> create(String name, Class<T> eventType, T defaultEvent) {
+            return new Queue<T>(name, eventType, defaultEvent);
         }
 
-        public static <T> QueueDescriptor<T> create(String name, Class<T> eventType) {
-            return new QueueDescriptor<T>(name, eventType);
+        public static <T> Queue<T> create(String name, Class<T> eventType) {
+            return new Queue<T>(name, eventType);
         }
 
-        public static <T> QueueDescriptor<T> create(Class<T> eventType, T defaultEvent) {
-            return new QueueDescriptor<T>(eventType.getSimpleName(), eventType, defaultEvent);
+        public static <T> Queue<T> create(Class<T> eventType, T defaultEvent) {
+            return new Queue<T>(eventType.getSimpleName(), eventType, defaultEvent);
         }
 
-        public static <T> QueueDescriptor<T> create(Class<T> eventType) {
-            return new QueueDescriptor<T>(eventType.getSimpleName(), eventType);
+        public static <T> Queue<T> create(Class<T> eventType) {
+            return new Queue<T>(eventType.getSimpleName(), eventType);
         }
 
         int id() {
@@ -58,80 +58,30 @@ public class EventBus {
 
         @Override
         public boolean equals(Object that) {
-            return (that != null && that instanceof QueueDescriptor && ((QueueDescriptor) that).id() == this.id());
+            return (that != null && that instanceof Queue && ((Queue) that).id() == this.id());
         }
     }
 
-    public interface Queue<T> {
-        public abstract Subscription subscribe(Observer<? super T> observer);
-        public abstract void publish(T event);
-        public abstract Observable<T> transform();
-    }
-
-    private static class PublishSubjectQueue<T> implements Queue<T> {
-
-        private final PublishSubject<T> mSubject = PublishSubject.create();
-
-        @Override
-        public Subscription subscribe(Observer<? super T> observer) {
-            return mSubject.observeOn(AndroidSchedulers.mainThread()).subscribe(observer);
-        }
-
-        @Override
-        public void publish(T event) {
-            mSubject.onNext(event);
-        }
-
-        @Override
-        public Observable<T> transform() {
-            return mSubject;
-        }
-    }
-
-    private static class BehaviorSubjectQueue<T> implements Queue<T> {
-
-        private final BehaviorSubject<T> mSubject;
-
-        public BehaviorSubjectQueue(T defaultEvent) {
-            mSubject = BehaviorSubject.create(defaultEvent);
-        }
-
-        @Override
-        public Subscription subscribe(Observer<? super T> observer) {
-            return mSubject.observeOn(AndroidSchedulers.mainThread()).subscribe(observer);
-        }
-
-        @Override
-        public void publish(T event) {
-            mSubject.onNext(event);
-        }
-
-        @Override
-        public Observable<T> transform() {
-            return mSubject;
-        }
-    }
-
-    private SparseArray<Queue<?>> mQueues = new SparseArray<Queue<?>>();
+    private final SparseArray<Subject<?, ?>> queues = new SparseArray<Subject<?, ?>>();
 
     @SuppressWarnings("unchecked")
-    public <T> Queue<T> queue(QueueDescriptor<T> qd) {
+    public <T> Subject<T, T> queue(Queue<T> qd) {
         final int queueId = qd.id();
-        Queue<T> queue = (Queue<T>) mQueues.get(queueId);
+        Subject<T, T> queue = (Subject<T, T>) queues.get(queueId);
         if (queue == null) {
-            queue = qd.defaultEvent != null ? new BehaviorSubjectQueue<T>(qd.defaultEvent)
-                    : new PublishSubjectQueue<T>();
+            queue = qd.defaultEvent != null ? BehaviorSubject.create(qd.defaultEvent)
+                    : PublishSubject.<T>create();
 
-            mQueues.put(queueId, queue);
+            queues.put(queueId, queue);
         }
         return queue;
     }
 
-    public <T> Subscription subscribe(QueueDescriptor<T> qd, Observer<T> observer) {
-        return this.queue(qd).subscribe(observer);
+    public <T> Subscription subscribe(Queue<T> qd, Observer<T> observer) {
+        return this.queue(qd).observeOn(AndroidSchedulers.mainThread()).subscribe(observer);
     }
 
-    public <T> void publish(QueueDescriptor<T> qd, T event) {
-        this.queue(qd).publish(event);
+    public <T> void publish(Queue<T> qd, T event) {
+        this.queue(qd).onNext(event);
     }
 }

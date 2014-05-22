@@ -10,7 +10,7 @@ import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -116,6 +116,6 @@ public class LocalyticsAnalyticsProviderSessionHandlingTest {
 
     private PlaybackSessionEvent buildStopEvent() throws CreateModelException {
         PlaybackSessionEvent startEvent = TestHelper.getModelFactory().createModel(PlaybackSessionEvent.class);
-        return PlaybackSessionEvent.forStop(new Track(), 1L, new TrackSourceInfo("", false), startEvent, 0);
+        return PlaybackSessionEvent.forStop(Urn.forTrack(1L), Urn.forUser(2L), new TrackSourceInfo("", false), startEvent, 0, 0);
     }
 }

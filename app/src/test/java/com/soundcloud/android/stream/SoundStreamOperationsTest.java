@@ -12,6 +12,7 @@ import static rx.android.OperatorPaged.Page;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.model.UserUrn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.PropertySet;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -37,7 +38,7 @@ public class SoundStreamOperationsTest {
     private static final long TIMESTAMP = 1000L;
 
     private SoundStreamOperations operations;
-    private Urn userUrn = Urn.forUser(123L);
+    private UserUrn userUrn = Urn.forUser(123L);
 
     @Mock
     private SoundStreamStorage soundStreamStorage;

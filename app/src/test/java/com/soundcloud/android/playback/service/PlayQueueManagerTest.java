@@ -284,6 +284,13 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void hasNextTrackReturnsHasNextTrackFromCurrentPlayQueue() {
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        when(playQueue.hasNextTrack()).thenReturn(true);
+        expect(playQueueManager.hasNextTrack()).toBeTrue();
+    }
+
+    @Test
     public void shouldNotPublishTrackChangeWhenCallingNextOnLastTrack() {
         when(playQueue.moveToNext(true)).thenReturn(false);
 

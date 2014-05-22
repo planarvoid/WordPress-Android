@@ -9,11 +9,12 @@ import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.model.UserUrn;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +30,8 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
     private static final String LISTEN = "Listen";
     private static final int DURATION = 100000;
+    private static final UserUrn USER_URN = Urn.forUser(123L);
+    private static final TrackUrn TRACK_URN = Urn.forTrack(1L);
     private LocalyticsAnalyticsProvider localyticsProvider;
 
     @Mock
@@ -40,24 +43,20 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
     @Captor
     private ArgumentCaptor<Map<String, String>> stopEventAttributes;
 
-    private Track track;
     private TrackSourceInfo trackSourceInfo;
     private PlaybackSessionEvent startEvent, stopEvent;
 
     @Before
     public void setUp() throws CreateModelException {
         localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, playbackServiceStateWrapper);
-        track = TestHelper.getModelFactory().createModel(Track.class);
         trackSourceInfo = new TrackSourceInfo(Screen.YOUR_LIKES.get(), true);
 
-        track.genre = "clown step";
-        track.duration = DURATION;
 
         long startTime = System.currentTimeMillis();
         long stopTime = startTime + 1000L;
 
-        startEvent = PlaybackSessionEvent.forPlay(track, 123L, trackSourceInfo, startTime);
-        stopEvent = PlaybackSessionEvent.forStop(track, 123L, trackSourceInfo, startEvent, PlaybackSessionEvent.STOP_REASON_PAUSE, stopTime);
+        startEvent = PlaybackSessionEvent.forPlay(TRACK_URN, USER_URN, trackSourceInfo, DURATION, startTime);
+        stopEvent = createStopEventWithStopTimeAndDuration(stopTime, DURATION);
     }
 
     @Test
@@ -79,19 +78,8 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
         expect(stopEventAttributes.getValue().get("context")).toEqual(Screen.YOUR_LIKES.get());
         expect(stopEventAttributes.getValue().get("play_duration_ms")).toEqual("1000");
-        expect(stopEventAttributes.getValue().get("track_length_ms")).toEqual(String.valueOf(track.duration));
-        expect(stopEventAttributes.getValue().get("track_id")).toEqual(String.valueOf(track.getId()));
-        expect(stopEventAttributes.getValue().get("tag")).toEqual(String.valueOf(track.getGenreOrTag()));
-    }
-
-    @Test
-    public void playbackEventDataForStopEventShouldNotContainNullTag() throws CreateModelException {
-        track.genre = null;
-        track.tag_list = null;
-        stopEvent = PlaybackSessionEvent.forStop(track, 123L, trackSourceInfo, startEvent, PlaybackSessionEvent.STOP_REASON_PAUSE);
-        localyticsProvider.handlePlaybackSessionEvent(stopEvent);
-        verify(localyticsSession).tagEvent(eq("Listen"), stopEventAttributes.capture());
-        expect(stopEventAttributes.getValue().containsKey("tag")).toBeFalse();
+        expect(stopEventAttributes.getValue().get("track_length_ms")).toEqual(String.valueOf(DURATION));
+        expect(stopEventAttributes.getValue().get("track_id")).toEqual(String.valueOf(TRACK_URN.numericId));
     }
 
     @Test
@@ -156,7 +144,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
     @Test
     public void playbackEventDataForStopEventShouldTrackLengthOfTrackIntoLessThan1MinuteBucket() {
-        track.duration = 59999;
+        stopEvent = createStopEventWithDuration(59999);
         localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("track_length_bucket")).toEqual("<1min");
@@ -164,7 +152,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
     @Test
     public void playbackEventDataForStopEventShouldTrackLengthOfTrackInto1to10MinutesBucket() {
-        track.duration = 60000;
+        stopEvent = createStopEventWithDuration(60000);
         localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("track_length_bucket")).toEqual("1min to 10min");
@@ -172,7 +160,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
     @Test
     public void playbackEventDataForStopEventShouldTrackLengthOfTrackInto10to30MinutesBucket() {
-        track.duration = 600001;
+        stopEvent = createStopEventWithDuration(600001);
         localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("track_length_bucket")).toEqual("10min to 30min");
@@ -180,7 +168,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
     @Test
     public void playbackEventDataForStopEventShouldTrackLengthOfTrackInto30to60MinutesBucket() {
-        track.duration = 1800001;
+        stopEvent = createStopEventWithDuration(1800001);
         localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("track_length_bucket")).toEqual("30min to 1hr");
@@ -188,10 +176,19 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
     @Test
     public void playbackEventDataForStopEventShouldTrackLengthOfTrackIntoMoreThan1HourBucket() {
-        track.duration = 3600001;
+        stopEvent = createStopEventWithDuration(3600001);
         localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("track_length_bucket")).toEqual(">1hr");
+    }
+
+    private PlaybackSessionEvent createStopEventWithPercentListened(double percent) {
+        return PlaybackSessionEvent.forStop(TRACK_URN, USER_URN, trackSourceInfo, startEvent,
+                DURATION, PlaybackSessionEvent.STOP_REASON_BUFFERING, (long) (startEvent.getTimeStamp() + DURATION * percent));
+    }
+
+    private PlaybackSessionEvent createStopEventWithDuration(long duration) {
+        return createStopEventWithStopTimeAndDuration(System.currentTimeMillis(), duration);
     }
 
     @Test
@@ -243,12 +240,12 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
         expect(stopEventAttributes.getValue().get("stop_reason")).toEqual("playback_error");
     }
 
-    private PlaybackSessionEvent createStopEventWithPercentListened(double percent) {
-        return PlaybackSessionEvent.forStop(track, 123L, trackSourceInfo, startEvent, PlaybackSessionEvent.STOP_REASON_PAUSE,
-                (long) (startEvent.getTimeStamp() + DURATION * percent));
+    private PlaybackSessionEvent createStopEventWithStopTimeAndDuration(long stopTime, long duration) {
+        return PlaybackSessionEvent.forStop(TRACK_URN, USER_URN, trackSourceInfo, startEvent, duration,
+                PlaybackSessionEvent.STOP_REASON_BUFFERING, stopTime);
     }
 
     private PlaybackSessionEvent createStopEventWithWithReason(int reason) {
-        return PlaybackSessionEvent.forStop(track, 123L, trackSourceInfo, startEvent, reason);
+        return PlaybackSessionEvent.forStop(TRACK_URN, USER_URN, trackSourceInfo, startEvent, DURATION, reason);
     }
 }

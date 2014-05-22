@@ -7,10 +7,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -37,7 +37,8 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Test
     public void shouldTrackPlaybackEventAsEventLoggerEvent() throws Exception {
-        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(new Track(1), 123l, new TrackSourceInfo("context", false), 1000L);
+        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(Urn.forTrack(1L), Urn.forUser(123l),
+                new TrackSourceInfo("context", false), 1000L, 12345L);
         when(eventLoggerParamsBuilder.buildFromPlaybackEvent(event)).thenReturn("event-params");
 
         eventLoggerAnalyticsProvider.handlePlaybackSessionEvent(event);
@@ -45,7 +46,7 @@ public class EventLoggerAnalyticsProviderTest {
         ArgumentCaptor<EventLoggerEvent> captor = ArgumentCaptor.forClass(EventLoggerEvent.class);
         verify(eventLogger).trackEvent(captor.capture());
         expect(captor.getValue().getParams()).toEqual("event-params");
-        expect(captor.getValue().getTimeStamp()).toEqual(1000L);
+        expect(captor.getValue().getTimeStamp()).toEqual(12345L);
         expect(captor.getValue().getPath()).toEqual("audio");
     }
 

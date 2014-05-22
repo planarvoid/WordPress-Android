@@ -1,0 +1,190 @@
+package com.soundcloud.android.playback;
+
+import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.when;
+
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.model.UserUrn;
+import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.service.TrackSourceInfo;
+import com.soundcloud.android.robolectric.EventMonitor;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.track.TrackOperations;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+
+@RunWith(SoundCloudTestRunner.class)
+public class PlaybackSessionAnalyticsControllerTest {
+
+    private static final TrackUrn TRACK_URN = Urn.forTrack(1L);
+    private static final UserUrn USER_URN = Urn.forUser(2L);
+
+    private PlaybackSessionAnalyticsController playbackSessionAnalyticsController;
+    private EventMonitor eventMonitor;
+    private Track track;
+
+    @Mock
+    private TrackOperations trackOperations;
+    @Mock
+    private AccountOperations accountOperations;
+    @Mock
+    private PlayQueueManager playQueueManager;
+    @Mock
+    private EventBus eventBus;
+    @Mock
+    private TrackSourceInfo trackSourceInfo;
+
+    @Before
+    public void setUp() throws Exception {
+        playbackSessionAnalyticsController = new PlaybackSessionAnalyticsController(eventBus, trackOperations, accountOperations, playQueueManager);
+        playbackSessionAnalyticsController.subscribe();
+        eventMonitor =  EventMonitor.on(eventBus);
+        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
+
+        track = TestHelper.getModelFactory().createModel(Track.class);
+        track.duration = 1000;
+        when(trackOperations.loadTrack(anyLong(), same(AndroidSchedulers.mainThread()))).thenReturn(Observable.just(track));
+    }
+
+    @Test
+    public void playQueueChangedEventDoesNotPublishEventWithNoActiveSession() throws Exception {
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
+        eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
+    }
+
+    @Test
+    public void trackChangedEventDoesNotPublishEventWithNoActiveSession() throws Exception {
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
+    }
+
+    @Test
+    public void stateChangeEventDoesNotPublishEventWithNoTrackUrn() throws Exception {
+        eventMonitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE));
+        eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
+    }
+
+    @Test
+    public void stateChangeEventWithValidTrackUrnInPlayingStatePublishesPlayEvent() throws Exception {
+        publishPlayingEvent();
+
+        PlaybackSessionEvent playbackSessionEvent = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_SESSION);
+        expect(playbackSessionEvent.getTrackUrn()).toEqual(TRACK_URN);
+        expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
+        expect(playbackSessionEvent.isStopEvent()).toBeFalse();
+        expect(playbackSessionEvent.getUserUrn()).toEqual(USER_URN);
+        expect(playbackSessionEvent.getTimeStamp()).toBeGreaterThan(0L);
+    }
+
+    @Test
+    public void stateChangeEventInNonPlayingStatePublishesStopEventForBuffering() throws Exception {
+        publishPlayingEvent();
+        publishStopEvent(Playa.PlayaState.BUFFERING, Playa.Reason.NONE);
+
+        verifyStopEvent(PlaybackSessionEvent.STOP_REASON_BUFFERING);
+    }
+
+    @Test
+    public void stateChangeEventInNonPlayingStatePublishesStopEventForPause() throws Exception {
+        publishPlayingEvent();
+        publishStopEvent(Playa.PlayaState.IDLE, Playa.Reason.NONE);
+
+        verifyStopEvent(PlaybackSessionEvent.STOP_REASON_PAUSE);
+    }
+
+    @Test
+    public void stateChangeEventInNonPlayingStatePublishesStopEventForTrackFinished() throws Exception {
+        publishPlayingEvent();
+        when(playQueueManager.hasNextTrack()).thenReturn(true);
+        publishStopEvent(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE);
+
+        verifyStopEvent(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+    }
+
+    @Test
+    public void stateChangeEventInNonPlayingStatePublishesStopEventForQueueFinished() throws Exception {
+        publishPlayingEvent();
+        when(playQueueManager.hasNextTrack()).thenReturn(false);
+        publishStopEvent(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE);
+
+        verifyStopEvent(PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE);
+    }
+
+    @Test
+    public void stateChangeEventInNonPlayingStatePublishesStopEventForError() throws Exception {
+        publishPlayingEvent();
+        publishStopEvent(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED);
+
+        verifyStopEvent(PlaybackSessionEvent.STOP_REASON_ERROR);
+    }
+
+    @Test
+    public void playQueueEventForQueueChangePublishesStopEventForNewQueue() throws Exception {
+        publishPlayingEvent();
+
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
+
+        verifyStopEvent(PlaybackSessionEvent.STOP_REASON_NEW_QUEUE);
+    }
+
+    @Test
+    public void playQueueEventForTrackChangePublishesStopEventForSkip() throws Exception {
+        publishPlayingEvent();
+
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+
+        verifyStopEvent(PlaybackSessionEvent.STOP_REASON_SKIP);
+    }
+
+    @Test
+    public void playQueueEventForTrackChangePublishesStopEventForSkipWithPreviousDuration() throws Exception {
+        publishPlayingEvent();
+
+        track.duration = 2000;
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+
+        verifyStopEvent(PlaybackSessionEvent.STOP_REASON_SKIP);
+    }
+
+    protected void publishPlayingEvent() {
+        eventMonitor.monitorQueue(EventQueue.PLAYBACK_SESSION);
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
+
+        final Playa.StateTransition startEvent = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE);
+        startEvent.setTrackUrn(TRACK_URN);
+        eventMonitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, startEvent);
+    }
+
+    protected void publishStopEvent(Playa.PlayaState newState, Playa.Reason reason) {
+        final Playa.StateTransition stopEvent = new Playa.StateTransition(newState, reason);
+        stopEvent.setTrackUrn(TRACK_URN);
+        eventMonitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, stopEvent);
+    }
+
+    protected void verifyStopEvent(int stopReason) {
+        final PlaybackSessionEvent playbackSessionEvent = eventMonitor.verifyLastEventOn(EventQueue.PLAYBACK_SESSION);
+        expect(playbackSessionEvent.getTrackUrn()).toEqual(TRACK_URN);
+        expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
+        expect(playbackSessionEvent.isStopEvent()).toBeTrue();
+        expect(playbackSessionEvent.getUserUrn()).toEqual(USER_URN);
+        expect(playbackSessionEvent.getTimeStamp()).toBeGreaterThan(0L);
+        expect(playbackSessionEvent.getStopReason()).toEqual(stopReason);
+        expect(playbackSessionEvent.getDuration()).toEqual(1000L);
+    }
+}

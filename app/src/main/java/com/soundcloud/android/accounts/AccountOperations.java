@@ -17,6 +17,7 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserUrn;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.rx.ScSchedulers;
@@ -127,7 +128,7 @@ public class AccountOperations extends ScheduledOperations {
         return loggedInUser == null ? getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : loggedInUser.getId();
     }
 
-    public Urn getLoggedInUserUrn() {
+    public UserUrn getLoggedInUserUrn() {
         return Urn.forUser(getLoggedInUserId());
     }
 

@@ -57,8 +57,6 @@ public class PlaybackServiceTest {
     @Mock
     private PeripheralsOperations peripheralsOperations;
     @Mock
-    private PlaybackEventSource playbackEventSource;
-    @Mock
     private AccountOperations accountOperations;
     @Mock
     private ImageOperations imageOperations;
@@ -84,7 +82,7 @@ public class PlaybackServiceTest {
     @Before
     public void setUp() throws Exception {
         playbackService = new PlaybackService(applicationProperties, playQueueManager, eventBus, trackOperations, peripheralsOperations,
-                playbackEventSource, accountOperations, imageOperations, appWidgetProvider, streamPlayer,
+                accountOperations, imageOperations, appWidgetProvider, streamPlayer,
                 playbackReceiverFactory, audioManagerProvider, featureFlags);
 
         when(playbackReceiverFactory.create(playbackService, accountOperations, playQueueManager, eventBus)).thenReturn(playbackReceiver);

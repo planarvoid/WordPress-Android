@@ -10,10 +10,11 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Maps;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -31,7 +32,7 @@ import java.util.Map;
 @RunWith(SoundCloudTestRunner.class)
 public class EventLoggerParamsBuilderTest {
 
-    public static final String USER_AGENT_UNENCODED = "SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)";
+    private static final String USER_AGENT_UNENCODED = "SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)";
     @Mock
     private Track track;
     @Mock
@@ -52,7 +53,7 @@ public class EventLoggerParamsBuilderTest {
 
     @Test
     public void createParamsWithOriginAndTrigger() throws Exception {
-        checkUrl("action=play&ts=321&duration=0&sound=soundcloud:sounds:0&user=soundcloud:users:1&trigger=manual&context=origin");
+        checkUrl("action=play&ts=321&duration=1000&sound=soundcloud%3Asounds%3A123&user=soundcloud%3Ausers%3A1&trigger=manual&context=origin");
     }
 
     @Test
@@ -60,7 +61,7 @@ public class EventLoggerParamsBuilderTest {
         when(trackSourceInfo.hasSource()).thenReturn(true);
         when(trackSourceInfo.getSource()).thenReturn("source1");
         when(trackSourceInfo.getSourceVersion()).thenReturn("version1");
-        checkUrl("duration=0&ts=321&action=play&sound=soundcloud:sounds:0&user=soundcloud:users:1&trigger=manual&context=origin&source=source1&source_version=version1");
+        checkUrl("duration=1000&ts=321&action=play&sound=soundcloud:sounds:123&user=soundcloud:users:1&trigger=manual&context=origin&source=source1&source_version=version1");
     }
 
     @Test
@@ -68,7 +69,7 @@ public class EventLoggerParamsBuilderTest {
         when(trackSourceInfo.isFromPlaylist()).thenReturn(true);
         when(trackSourceInfo.getPlaylistId()).thenReturn(123L);
         when(trackSourceInfo.getPlaylistPosition()).thenReturn(2);
-        checkUrl("ts=321&action=play&duration=0&sound=soundcloud:sounds:0&user=soundcloud:users:1&trigger=manual&context=origin&set_id=123&set_position=2");
+        checkUrl("ts=321&action=play&duration=1000&sound=soundcloud:sounds:123&user=soundcloud:users:1&trigger=manual&context=origin&set_id=123&set_position=2");
     }
 
     @Test
@@ -77,7 +78,7 @@ public class EventLoggerParamsBuilderTest {
         experimentParams.put("exp_android-ui", 4);
         experimentParams.put("exp_android-listen", 5);
         when(experimentOperations.getTrackingParams()).thenReturn(experimentParams);
-        checkUrl("action=play&ts=321&duration=0&sound=soundcloud:sounds:0&user=soundcloud:users:1&trigger=manual&context=origin&exp_android-ui=4&exp_android-listen=5");
+        checkUrl("action=play&ts=321&duration=1000&sound=soundcloud:sounds:123&user=soundcloud:users:1&trigger=manual&context=origin&exp_android-ui=4&exp_android-listen=5");
     }
 
     @Test
@@ -88,7 +89,7 @@ public class EventLoggerParamsBuilderTest {
         when(trackSourceInfo.isFromPlaylist()).thenReturn(true);
         when(trackSourceInfo.getPlaylistId()).thenReturn(123L);
         when(trackSourceInfo.getPlaylistPosition()).thenReturn(2);
-        checkUrl("ts=321&action=play&duration=0&sound=soundcloud:sounds:0&user=soundcloud:users:1&trigger=manual&context=origin&source=source1&source_version=version1&set_id=123&set_position=2");
+        checkUrl("ts=321&action=play&duration=1000&sound=soundcloud:sounds:123&user=soundcloud:users:1&trigger=manual&context=origin&source=source1&source_version=version1&set_id=123&set_position=2");
     }
 
     @Test
@@ -143,7 +144,7 @@ public class EventLoggerParamsBuilderTest {
     }
 
     private void checkUrl(String expected) throws UnsupportedEncodingException {
-        final String actualQueryString = eventLoggerParamsBuilder.buildFromPlaybackEvent(PlaybackSessionEvent.forPlay(track, 1L, trackSourceInfo, 321L));
+        final String actualQueryString = eventLoggerParamsBuilder.buildFromPlaybackEvent(PlaybackSessionEvent.forPlay(Urn.forTrack(123L), Urn.forUser(1L), trackSourceInfo, 1000L, 321L));
         assertThat(actualQueryString, is(queryStringEqualTo(expected)));
     }
 }

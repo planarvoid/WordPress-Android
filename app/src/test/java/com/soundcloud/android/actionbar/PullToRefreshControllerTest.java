@@ -75,7 +75,7 @@ public class PullToRefreshControllerTest {
     public void setUp() throws Exception {
         controller = new PullToRefreshController(eventBus, wrapper);
         Robolectric.shadowOf(fragment).setActivity(activity);
-        when(eventBus.subscribe(any(EventBus.QueueDescriptor.class), any(Subscriber.class))).thenReturn(Subscriptions.empty());
+        when(eventBus.subscribe(any(EventBus.Queue.class), any(Subscriber.class))).thenReturn(Subscriptions.empty());
         when(layout.findViewById(R.id.ptr_layout)).thenReturn(layout);
         observable = TestObservables.emptyConnectableObservable(subscription);
     }

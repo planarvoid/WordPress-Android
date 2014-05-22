@@ -1,7 +1,6 @@
 package com.soundcloud.android.events;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.events.EventBus.QueueDescriptor;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -12,14 +11,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observer;
 import rx.Subscription;
-import rx.util.functions.Func1;
+import rx.functions.Func1;
 
 @RunWith(SoundCloudTestRunner.class)
 public class EventBusTest {
 
-    private static final QueueDescriptor<String> TEST_QUEUE = QueueDescriptor.create("test_queue_1", String.class);
-    private static final QueueDescriptor<String> TEST_BEHAVIOR_QUEUE =
-            QueueDescriptor.create("test_behavior_queue_1", String.class, "default-item");
+    private static final EventBus.Queue<String> TEST_QUEUE = EventBus.Queue.create("test_queue_1", String.class);
+    private static final EventBus.Queue<String> TEST_BEHAVIOR_QUEUE =
+            EventBus.Queue.create("test_behavior_queue_1", String.class, "default-item");
 
     private EventBus eventBus = new EventBus();
 
@@ -30,9 +29,9 @@ public class EventBusTest {
 
     @Test
     public void shouldCreateUniqueQueueDescriptorsBasedOnQueueName() {
-        EventBus.QueueDescriptor qd1 = EventBus.QueueDescriptor.create("one", String.class);
-        EventBus.QueueDescriptor qd2 = EventBus.QueueDescriptor.create("one", String.class);
-        EventBus.QueueDescriptor qd3 = EventBus.QueueDescriptor.create("two", String.class);
+        EventBus.Queue qd1 = EventBus.Queue.create("one", String.class);
+        EventBus.Queue qd2 = EventBus.Queue.create("one", String.class);
+        EventBus.Queue qd3 = EventBus.Queue.create("two", String.class);
 
         expect(qd1).toEqual(qd2);
         expect(qd1.hashCode()).toEqual(qd2.hashCode());
@@ -42,7 +41,7 @@ public class EventBusTest {
 
     @Test
     public void shouldDeriveQueueNameWhenEventTypeIsCustomType() {
-        EventBus.QueueDescriptor qd = EventBus.QueueDescriptor.create(Object.class);
+        EventBus.Queue qd = EventBus.Queue.create(Object.class);
         expect(qd.name).toEqual("Object");
     }
 
@@ -82,7 +81,7 @@ public class EventBusTest {
         Observer<Integer> intObserver = mock(Observer.class);
 
         eventBus.subscribe(TEST_QUEUE, observer1);
-        eventBus.queue(TEST_QUEUE).transform().map(new Func1<String, Integer>() {
+        eventBus.queue(TEST_QUEUE).map(new Func1<String, Integer>() {
             @Override
             public Integer call(String s) {
                 return Integer.parseInt(s);

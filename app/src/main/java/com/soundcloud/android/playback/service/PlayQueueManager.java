@@ -108,6 +108,10 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
         return nextTrackInternal(true);
     }
 
+    public boolean hasNextTrack() {
+        return playQueue.hasNextTrack();
+    }
+
     private boolean nextTrackInternal(boolean manual) {
         if (playQueue.hasNextTrack()) {
             playQueue.moveToNext(manual);

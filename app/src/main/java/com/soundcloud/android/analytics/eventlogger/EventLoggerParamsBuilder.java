@@ -4,7 +4,6 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.experiments.ExperimentOperations;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.utils.DeviceHelper;
 
@@ -31,9 +30,9 @@ public class EventLoggerParamsBuilder {
 
         builder.appendQueryParameter(Parameters.TIMESTAMP.value(), String.valueOf(playbackSessionEvent.getTimeStamp()));
         builder.appendQueryParameter(Parameters.ACTION.value(), playbackSessionEvent.isPlayEvent() ? "play" : "stop");
-        builder.appendQueryParameter(Parameters.DURATION.value(), String.valueOf(playbackSessionEvent.getTrack().duration));
-        builder.appendQueryParameter(Parameters.SOUND.value(), Urn.forTrack(playbackSessionEvent.getTrack().getId()).toString());
-        builder.appendQueryParameter(Parameters.USER.value(), Urn.forUser(playbackSessionEvent.getUserId()).toString());
+        builder.appendQueryParameter(Parameters.DURATION.value(), String.valueOf(playbackSessionEvent.getDuration()));
+        builder.appendQueryParameter(Parameters.SOUND.value(), playbackSessionEvent.getTrackUrn().toString());
+        builder.appendQueryParameter(Parameters.USER.value(), playbackSessionEvent.getUserUrn().toString());
 
         for (Map.Entry<String, Integer> entry : experimentOperations.getTrackingParams().entrySet()) {
             builder.appendQueryParameter(entry.getKey(), String.valueOf(entry.getValue()));
