@@ -47,7 +47,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     private final EventBus eventBus;
     private final NetworkConnectionHelper networkConnectionHelper;
 
-    private PlaybackState mInternalState = PlaybackState.STOPPED;
+    private PlaybackState internalState = PlaybackState.STOPPED;
 
     private Track track;
     private int connectionRetries = 0;
@@ -57,11 +57,11 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     private long resumePos = POS_NOT_SET;
 
     @Nullable
-    private volatile MediaPlayer mMediaPlayer;
-    private double mLoadPercent;
+    private volatile MediaPlayer mediaPlayer;
+    private double loadPercent;
     @Nullable
-    private PlayaListener mPlayaListener;
-    private Subscription mUriSubscription = Subscriptions.empty();
+    private PlayaListener playaListener;
+    private Subscription uriSubscription = Subscriptions.empty();
 
     private long prepareStartTimeMs;
 
@@ -87,11 +87,11 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public void play(Track track, long fromPos) {
-        if (mMediaPlayer == null || releaseUnresettableMediaPlayer()) {
+        if (mediaPlayer == null || releaseUnresettableMediaPlayer()) {
             createMediaPlayer();
         } else {
             // do we need to stop it if it's playing?
-            mMediaPlayer.reset();
+            mediaPlayer.reset();
         }
 
         this.track = track;
@@ -101,8 +101,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
         setInternalState(PlaybackState.PREPARING);
 
-        mUriSubscription.unsubscribe();
-        mUriSubscription = proxy.uriObservable(this.track.getStreamUrlWithAppendedId(), null)
+        uriSubscription.unsubscribe();
+        uriSubscription = proxy.uriObservable(this.track.getStreamUrlWithAppendedId(), null)
                 .subscribe(new MediaPlayerDataSourceObserver(), AndroidSchedulers.mainThread());
     }
 
@@ -115,13 +115,13 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
         @Override
         public void onNext(Uri uri) {
-            if (mMediaPlayer != null) {
+            if (mediaPlayer != null) {
                 try {
-                    mMediaPlayer.setDataSource(uri.toString());
-                    mMediaPlayer.prepareAsync();
+                    mediaPlayer.setDataSource(uri.toString());
+                    mediaPlayer.prepareAsync();
                     prepareStartTimeMs = System.currentTimeMillis();
                 } catch (IOException e){
-                    handleMediaPlayerError(mMediaPlayer, resumePos);
+                    handleMediaPlayerError(mediaPlayer, resumePos);
                 }
             }
         }
@@ -129,10 +129,10 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        if (mp.equals(mMediaPlayer) && mInternalState == PlaybackState.PREPARING) {
+        if (mp.equals(mediaPlayer) && internalState == PlaybackState.PREPARING) {
 
             connectionRetries = 0;
-            if (mPlayaListener != null && mPlayaListener.requestAudioFocus()) {
+            if (playaListener != null && playaListener.requestAudioFocus()) {
                 play();
                 publishTimeToPlayEvent(System.currentTimeMillis() - prepareStartTimeMs, track.getStreamUrl());
 
@@ -147,7 +147,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
         } else {
             // when could this possibly happen??
-            Log.e(TAG, "OnPrepared called unexpectedly in state " + mInternalState);
+            Log.e(TAG, "OnPrepared called unexpectedly in state " + internalState);
         }
     }
 
@@ -158,8 +158,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     private void play() {
-        if (mMediaPlayer != null){
-            mMediaPlayer.start();
+        if (mediaPlayer != null){
+            mediaPlayer.start();
             setInternalState(PlaybackState.PLAYING);
         }
     }
@@ -172,7 +172,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     private boolean handleMediaPlayerError(MediaPlayer mp, long resumePosition) {
         //noinspection ObjectEquality
-        if (mp.equals(mMediaPlayer) && mInternalState != PlaybackState.STOPPED) {
+        if (mp.equals(mediaPlayer) && internalState != PlaybackState.STOPPED) {
 
             if (connectionRetries++ < MAX_CONNECT_RETRIES) {
                 Log.d(TAG, "stream disconnected, retrying (try=" + connectionRetries + ")");
@@ -183,7 +183,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                 setInternalState(PlaybackState.ERROR);
                 mp.release();
                 connectionRetries = 0;
-                mMediaPlayer = null;
+                mediaPlayer = null;
             }
         }
         return true;
@@ -192,13 +192,13 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     @Override
     public void onSeekComplete(MediaPlayer mp) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "onSeekComplete(state=" + mInternalState + ")");
+            Log.d(TAG, "onSeekComplete(state=" + internalState + ")");
         }
         //noinspection ObjectEquality
-        if (mMediaPlayer == mp) {
+        if (mediaPlayer == mp) {
 
             // only clear seek if we are not buffering. If we are buffering, it will be cleared after buffering completes
-            if (mInternalState != PlaybackState.PAUSED_FOR_BUFFERING) {
+            if (internalState != PlaybackState.PAUSED_FOR_BUFFERING) {
                 // keep the last seek time for 3000 ms because getCurrentPosition will be incorrect at first. this way if seeking fails,
                 // we can resume from the proper position
                 playerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
@@ -211,7 +211,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             waitingForSeek = false;
 
             // respect pauses during seeks
-            if (!mInternalState.isSupposedToBePlaying()) {
+            if (!internalState.isSupposedToBePlaying()) {
                 pause();
             } else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
                 // KitKat sucks, and doesn't resume playback after seeking sometimes, with no discernible
@@ -229,7 +229,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     @Override
     public boolean onInfo(MediaPlayer mp, int what, int extra) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "onInfo(" + what + "," + extra + ", state=" + mInternalState + ")");
+            Log.d(TAG, "onInfo(" + what + "," + extra + ", state=" + internalState + ")");
         }
 
         if (MediaPlayer.MEDIA_INFO_BUFFERING_START == what){
@@ -245,7 +245,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                 Log.d(TAG, "Not clearing seek, waiting for seek to finish");
             }
 
-            if (!mInternalState.isSupposedToBePlaying()) {
+            if (!internalState.isSupposedToBePlaying()) {
                 pause();
             } else {
                 // still playing back, set proper state after buffering state
@@ -258,12 +258,12 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
-        if (mMediaPlayer == mp) {
-            if (Log.isLoggable(TAG, Log.DEBUG) && mLoadPercent != percent) {
+        if (mediaPlayer == mp) {
+            if (Log.isLoggable(TAG, Log.DEBUG) && loadPercent != percent) {
                 Log.d(TAG, "onBufferingUpdate(" + percent + ")");
             }
 
-            mLoadPercent = percent;
+            loadPercent = percent;
         }
     }
 
@@ -272,7 +272,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     void setResumeTimeAndInvokeErrorListener(MediaPlayer mediaPlayer, long lastPosition) {
-        if (mediaPlayer == mMediaPlayer){
+        if (mediaPlayer == this.mediaPlayer){
             handleMediaPlayerError(mediaPlayer, lastPosition);
         }
     }
@@ -290,50 +290,50 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     void stop(MediaPlayer mediaPlayer) {
-        if (mediaPlayer == mMediaPlayer){
+        if (mediaPlayer == this.mediaPlayer){
             stop();
         }
     }
 
     private boolean releaseUnresettableMediaPlayer() {
-        if (waitingForSeek || mInternalState.isLoading()) {
-            mediaPlayerManager.stopAndReleaseAsync(mMediaPlayer);
-            mMediaPlayer = null;
+        if (waitingForSeek || internalState.isLoading()) {
+            mediaPlayerManager.stopAndReleaseAsync(mediaPlayer);
+            mediaPlayer = null;
             return true;
         }
         return false;
     }
 
     private void createMediaPlayer() {
-        mMediaPlayer = mediaPlayerManager.create();
-        mMediaPlayer.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
-        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mMediaPlayer.setOnErrorListener(this);
-        mMediaPlayer.setOnPreparedListener(this);
-        mMediaPlayer.setOnSeekCompleteListener(this);
-        mMediaPlayer.setOnInfoListener(this);
-        mMediaPlayer.setOnCompletionListener(new TrackCompletionListener(this));
+        mediaPlayer = mediaPlayerManager.create();
+        mediaPlayer.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mediaPlayer.setOnErrorListener(this);
+        mediaPlayer.setOnPreparedListener(this);
+        mediaPlayer.setOnSeekCompleteListener(this);
+        mediaPlayer.setOnInfoListener(this);
+        mediaPlayer.setOnCompletionListener(new TrackCompletionListener(this));
     }
 
     private void setInternalState(PlaybackState playbackState) {
-        mInternalState = playbackState;
+        internalState = playbackState;
 
-        if (mPlayaListener != null) {
-            mPlayaListener.onPlaystateChanged( new StateTransition(getTranslatedState(), getTranslatedReason()));
+        if (playaListener != null) {
+            playaListener.onPlaystateChanged( new StateTransition(getTranslatedState(), getTranslatedReason()));
         }
     }
 
     boolean isInErrorState(){
-        return mInternalState.isError();
+        return internalState.isError();
     }
 
     boolean isPlayerPlaying() {
-        return mInternalState == PlaybackState.PLAYING;
+        return internalState == PlaybackState.PLAYING;
     }
 
     @Override
     public boolean resume() {
-        if (mMediaPlayer != null && mInternalState.isStartable()) {
+        if (mediaPlayer != null && internalState.isStartable()) {
             play();
             return true;
         } else {
@@ -343,8 +343,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public void pause() {
-        if (mMediaPlayer != null && mInternalState.isPausable()) {
-            mMediaPlayer.pause();
+        if (mediaPlayer != null && internalState.isPausable()) {
+            mediaPlayer.pause();
             setInternalState(PlaybackState.PAUSED);
         } else {
             stop();
@@ -364,7 +364,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public void setListener(PlayaListener playaListener) {
-        mPlayaListener = playaListener;
+        this.playaListener = playaListener;
     }
 
     public long seek(long ms) {
@@ -378,13 +378,13 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                 throw new IllegalArgumentException("Trying to seek before 0");
             }
 
-            final long currentPos = (mMediaPlayer != null && !mInternalState.isError()) ? mMediaPlayer.getCurrentPosition() : 0;
+            final long currentPos = (mediaPlayer != null && !internalState.isError()) ? mediaPlayer.getCurrentPosition() : 0;
             // workaround for devices which can't do content-range requests
-            if ((isNotSeekablePastBuffer() && isPastBuffer(ms)) || mMediaPlayer == null) {
+            if ((isNotSeekablePastBuffer() && isPastBuffer(ms)) || mediaPlayer == null) {
                 Log.d(TAG, "MediaPlayer bug: cannot seek past buffer");
                 return currentPos;
             } else {
-                long duration = mMediaPlayer.getDuration();
+                long duration = mediaPlayer.getDuration();
 
                 final long newPos;
                 // don't go before the playhead if they are trying to seek
@@ -403,7 +403,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                     }
                     seekPos = newPos;
                     waitingForSeek = true;
-                    mMediaPlayer.seekTo((int) newPos);
+                    mediaPlayer.seekTo((int) newPos);
                 }
                 return newPos;
             }
@@ -418,15 +418,15 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             return resumePos;
         } else if (waitingForSeek) {
             return seekPos;
-        } else if (mMediaPlayer != null && !mInternalState.isError() && mInternalState != PlaybackState.PREPARING) {
-            return mMediaPlayer.getCurrentPosition();
+        } else if (mediaPlayer != null && !internalState.isError() && internalState != PlaybackState.PREPARING) {
+            return mediaPlayer.getCurrentPosition();
         } else {
             return 0;
         }
     }
 
     private PlayaState getTranslatedState() {
-        switch (mInternalState) {
+        switch (internalState) {
             case PREPARING:
             case PAUSED_FOR_BUFFERING:
                 return PlayaState.BUFFERING;
@@ -439,12 +439,12 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             case ERROR_RETRYING:
                 return PlayaState.IDLE;
             default:
-                throw new IllegalArgumentException("No translated state for " + mInternalState);
+                throw new IllegalArgumentException("No translated state for " + internalState);
         }
     }
 
     private Reason getTranslatedReason() {
-        switch (mInternalState) {
+        switch (internalState) {
             case ERROR:
                 return Reason.ERROR_FAILED;
             case COMPLETED:
@@ -456,7 +456,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public boolean isSeekable() {
-        return mMediaPlayer != null && mInternalState.isSeekable();
+        return mediaPlayer != null && internalState.isSeekable();
     }
 
     @Override
@@ -466,27 +466,27 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public void setVolume(float volume) {
-        if (mMediaPlayer != null){
-            mMediaPlayer.setVolume(volume, volume);
+        if (mediaPlayer != null){
+            mediaPlayer.setVolume(volume, volume);
         }
     }
 
     @Override
     public void stop() {
 
-        final MediaPlayer mediaPlayer = mMediaPlayer;
+        final MediaPlayer mediaPlayer = this.mediaPlayer;
         if (mediaPlayer != null) {
-            if (mInternalState.isStoppable()) {
+            if (internalState.isStoppable()) {
                 mediaPlayer.stop();
             }
             releaseUnresettableMediaPlayer();
             setInternalState(PlaybackState.STOPPED);
         }
-        mUriSubscription.unsubscribe();
+        uriSubscription.unsubscribe();
     }
 
     private boolean isPastBuffer(long pos) {
-        return mMediaPlayer == null || (pos / (double) mMediaPlayer.getDuration()) * 100 > mLoadPercent;
+        return mediaPlayer == null || (pos / (double) mediaPlayer.getDuration()) * 100 > loadPercent;
     }
 
     @VisibleForTesting
