@@ -32,10 +32,6 @@ module Build
         tests_tasks
       end
 
-      namespace :version do
-        version_tasks
-      end
-
       namespace :release do
         release_tasks
       end
@@ -167,30 +163,6 @@ module Build
       task :show do
         puts Build.version
       end
-      namespace :bump do
-
-        [ :minor, :major, :revision ].each do |name|
-          desc "bumps #{name} version \t# Does not push the change to remote repo #"
-          task(name) do
-            check_git
-            bump_version(name)
-          end
-        end
-
-      end
-    end
-
-    def bump_version(part)
-      current = Build.version.to_s
-
-      Build.version.bump!(part)
-
-      Mvn.update_version.execute
-
-      message = "Version: #{current} bumped to: #{Build.version}"
-
-      git.commit_a(message)
-      puts message
     end
 
     def analysis_tasks
