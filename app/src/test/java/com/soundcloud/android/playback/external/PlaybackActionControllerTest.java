@@ -18,8 +18,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
-import android.content.Context;
-
 @RunWith(SoundCloudTestRunner.class)
 public class PlaybackActionControllerTest {
 
@@ -32,8 +30,6 @@ public class PlaybackActionControllerTest {
     @Mock
     private PlaySessionController playSessionController;
 
-    @Mock
-    Context context;
     @Captor
     ArgumentCaptor<PlayControlEvent> captor;
 
@@ -44,14 +40,14 @@ public class PlaybackActionControllerTest {
 
     @Test
     public void shouldGoToPreviousTrackWhenPreviousPlaybackActionIsHandled() throws Exception {
-        controller.handleAction(context, PlaybackAction.PREVIOUS, "source");
+        controller.handleAction(PlaybackAction.PREVIOUS, "source");
 
         verify(playbackOperations).previousTrack();
     }
 
     @Test
     public void shouldTrackPreviousEventWithSource() {
-        controller.handleAction(context, PlaybackAction.PREVIOUS, "source");
+        controller.handleAction(PlaybackAction.PREVIOUS, "source");
 
         verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
 
@@ -62,14 +58,14 @@ public class PlaybackActionControllerTest {
 
     @Test
     public void shouldGoToNextTrackWhenNextPlaybackActionIsHandled() throws Exception {
-        controller.handleAction(context, PlaybackAction.NEXT, "source");
+        controller.handleAction(PlaybackAction.NEXT, "source");
 
         verify(playbackOperations).nextTrack();
     }
 
     @Test
     public void shouldTrackSkipEventWithSource() {
-        controller.handleAction(context, PlaybackAction.NEXT, "source");
+        controller.handleAction(PlaybackAction.NEXT, "source");
 
         verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
         PlayControlEvent event = captor.getValue();
@@ -79,16 +75,15 @@ public class PlaybackActionControllerTest {
 
     @Test
     public void shouldTogglePlaybackWhenTogglePlaybackActionIsHandled() throws Exception {
-        controller.handleAction(context, PlaybackAction.TOGGLE_PLAYBACK, "source");
+        controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
 
         verify(playbackOperations).togglePlayback();
     }
 
-
     @Test
     public void shouldTrackTogglePlayEventWithSource() {
         when(playSessionController.isPlaying()).thenReturn(false);
-        controller.handleAction(context, PlaybackAction.TOGGLE_PLAYBACK, "source");
+        controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
 
         verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
         PlayControlEvent event = captor.getValue();
@@ -99,7 +94,7 @@ public class PlaybackActionControllerTest {
     @Test
     public void shouldTrackTogglePauseEventWithSource() {
         when(playSessionController.isPlaying()).thenReturn(true);
-        controller.handleAction(context, PlaybackAction.TOGGLE_PLAYBACK, "source");
+        controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
 
         verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
         PlayControlEvent event = captor.getValue();

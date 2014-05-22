@@ -6,8 +6,6 @@ import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackOperations;
 
-import android.content.Context;
-
 import javax.inject.Inject;
 
 public class PlaybackActionController {
@@ -23,7 +21,7 @@ public class PlaybackActionController {
         this.eventBus = eventBus;
     }
 
-    public void handleAction(Context context, String action, String source) {
+    public void handleAction(String action, String source) {
         if (PlaybackAction.PREVIOUS.equals(action)) {
             eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.previous(source));
             playbackOperations.previousTrack();

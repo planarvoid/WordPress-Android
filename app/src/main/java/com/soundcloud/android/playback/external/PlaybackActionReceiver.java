@@ -18,6 +18,6 @@ public class PlaybackActionReceiver extends BroadcastReceiver {
         SoundCloudApplication.getObjectGraph().inject(this);
 
         final String source = intent.getStringExtra(PlayControlEvent.EXTRA_EVENT_SOURCE);
-        controller.handleAction(context, intent.getAction(), source);
+        controller.handleAction(intent.getAction(), source);
     }
 }
