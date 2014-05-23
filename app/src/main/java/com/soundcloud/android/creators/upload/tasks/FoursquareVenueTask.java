@@ -51,7 +51,8 @@ public class FoursquareVenueTask extends AsyncTask<Location, Void, List<Foursqua
                 "ll",            ll,
                 "limit", venueLimit,
                 "client_id",     client_id,
-                "client_secret", client_secret);
+                "client_secret", client_secret,
+                "v", "20110601");
 
         if (loc.hasAccuracy()) r.add("llAcc", loc.getAccuracy());
 

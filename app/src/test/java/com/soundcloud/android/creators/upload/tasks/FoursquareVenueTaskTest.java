@@ -7,6 +7,8 @@ import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
+import org.apache.http.HttpRequest;
+import org.apache.http.client.methods.HttpGet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -65,4 +67,14 @@ public class FoursquareVenueTaskTest {
         Location loc = new Location("mock");
         expect(task.doInBackground(loc).size()).toEqual(0);
     }
+
+    @Test
+    public void shouldSendVersionParameter() throws Exception {
+        Robolectric.addPendingHttpResponse(200, "OK");
+        Location loc = new Location("mock");
+        FoursquareVenueTask task = new FoursquareVenueTask();
+        task.doInBackground(loc);
+        ((HttpGet)Robolectric.getSentHttpRequest(0)).getURI().getQuery().contains("v=20110601");
+    }
+
 }
