@@ -8,7 +8,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.preferences.SettingsActivity;
-import com.soundcloud.android.search.CombinedSearchActivity;
+import com.soundcloud.android.search.SearchActivity;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
@@ -64,7 +64,7 @@ public class ActionBarController {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_search:
-                startActivity(CombinedSearchActivity.class);
+                startActivity(SearchActivity.class);
                 eventBus.publish(EventQueue.UI, UIEvent.fromSearchAction());
                 return true;
             case R.id.action_settings:

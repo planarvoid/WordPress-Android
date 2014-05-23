@@ -9,7 +9,7 @@ import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
-import com.soundcloud.android.search.CombinedSearchActivity;
+import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.view.SlidingTabLayout;
 
@@ -21,7 +21,7 @@ import android.widget.TextView;
 import java.util.List;
 
 public class SearchResultsScreen extends Screen {
-    private static final Class ACTIVITY = CombinedSearchActivity.class;
+    private static final Class ACTIVITY = SearchActivity.class;
     private static final String FRAGMENT = "tabbed_search";
 
     private static final String ALL_TAB_TEXT = "ALL";

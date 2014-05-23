@@ -6,7 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlaylistResultsScreen;
 import com.soundcloud.android.screens.Screen;
-import com.soundcloud.android.search.CombinedSearchActivity;
+import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
 
 import android.widget.TextView;
@@ -15,7 +15,7 @@ import java.util.List;
 
 public class PlaylistTagsScreen extends Screen {
 
-    private static final Class ACTIVITY = CombinedSearchActivity.class;
+    private static final Class ACTIVITY = SearchActivity.class;
 
     public PlaylistTagsScreen(Han solo) {
         super(solo);

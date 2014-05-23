@@ -1,14 +1,14 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
-import com.soundcloud.android.search.CombinedSearchActivity;
+import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
 
 import android.widget.GridView;
 
 public class PlaylistResultsScreen extends Screen {
 
-    private static final Class ACTIVITY = CombinedSearchActivity.class;
+    private static final Class ACTIVITY = SearchActivity.class;
 
     @Override
     protected Class getActivity() {

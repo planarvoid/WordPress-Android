@@ -1,16 +1,16 @@
 package com.soundcloud.android.search.intents;
 
-import com.soundcloud.android.search.CombinedSearchActivity;
+import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Waiter;
 
 import android.content.Intent;
 
-public abstract class SearchIntentsBase extends ActivityTestCase<CombinedSearchActivity> {
+public abstract class SearchIntentsBase extends ActivityTestCase<SearchActivity> {
 
     public SearchIntentsBase() {
-        super(CombinedSearchActivity.class);
+        super(SearchActivity.class);
     }
 
     @Override

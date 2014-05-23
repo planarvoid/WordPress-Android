@@ -12,7 +12,7 @@ import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.preferences.AccountSettingsActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.search.CombinedSearchActivity;
+import com.soundcloud.android.search.SearchActivity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -75,8 +75,8 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
     }
 
     public void ignore_testSearch() throws Exception {
-        assertActivityStarted(CombinedSearchActivity.class, Actions.SEARCH);
-        assertActivityStarted(CombinedSearchActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/search/1234"));
+        assertActivityStarted(SearchActivity.class, Actions.SEARCH);
+        assertActivityStarted(SearchActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/search/1234"));
     }
 
     public void ignore_testResolve() throws Exception {

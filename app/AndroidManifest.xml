@@ -109,7 +109,7 @@
 
         </activity>
 
-        <activity android:label="@string/title_search" android:name=".search.CombinedSearchActivity">
+        <activity android:label="@string/title_search" android:name=".search.SearchActivity">
             <meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>

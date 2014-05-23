@@ -19,7 +19,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 
-public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFragment.TagEventsListener {
+public class SearchActivity extends ScActivity implements PlaylistTagsFragment.TagEventsListener {
 
     private static final String ACTION_PLAY_FROM_SEARCH = "android.media.action.MEDIA_PLAY_FROM_SEARCH";
     private static final String INTENT_URL_HOST = "soundcloud.com";
@@ -50,11 +50,11 @@ public class CombinedSearchActivity extends ScActivity implements PlaylistTagsFr
     };
 
     @SuppressWarnings("unused")
-    public CombinedSearchActivity() {
+    public SearchActivity() {
     }
 
     @VisibleForTesting
-    CombinedSearchActivity(SearchActionBarController searchActionBarController) {
+    SearchActivity(SearchActionBarController searchActionBarController) {
         this.searchActionBarController = searchActionBarController;
     }
 

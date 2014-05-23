@@ -13,7 +13,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.search.CombinedSearchActivity;
+import com.soundcloud.android.search.SearchActivity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +23,7 @@ import org.mockito.Mock;
 public class SearchActionBarControllerTest {
 
     @Mock
-    private CombinedSearchActivity activity;
+    private SearchActivity activity;
     @Mock
     private PublicCloudAPI cloudAPI;
     @Mock
