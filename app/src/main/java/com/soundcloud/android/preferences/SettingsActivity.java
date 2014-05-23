@@ -4,6 +4,7 @@ import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.LogoutActivity;
@@ -307,6 +308,7 @@ public class SettingsActivity extends ScSettingsActivity {
 
     @Override
     public boolean onNavigateUp() {
+        startActivity(new Intent(Actions.STREAM).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         finish();
         return true;
     }

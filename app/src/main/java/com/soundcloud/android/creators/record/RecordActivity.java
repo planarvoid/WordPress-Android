@@ -964,5 +964,12 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         unsavedRecordings = null;
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        startActivity(new Intent(Actions.STREAM).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        finish();
+        return true;
+    }
+
     /* package, for testing */ CreateState getState() { return currentState; }
 }
