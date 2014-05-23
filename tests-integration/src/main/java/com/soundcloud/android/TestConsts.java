@@ -21,6 +21,7 @@ public final class TestConsts {
 
     public static final Uri FACEBOOK_SOUND_URI = Uri.parse("https://soundcloud.com/soundcloud/5-years?utm_source=soundcloud&utm_campaign=share&utm_medium=facebook");
     public static final Uri FACEBOOK_USER_URI = Uri.parse("https://soundcloud.com/steveangello?utm_source=soundcloud&utm_campaign=share&utm_medium=facebook");
+    public static final Uri FACEBOOK_SOUND_DEEP_LINK = Uri.parse("soundcloud://sounds:274334/?target_url=https://soundcloud.com/manchesterorchestra/cope?utm_source=soundcloud&utm_campaign=share&utm_medium=facebook");
 
     public static final Uri STEVE_ANGELLO_URI = Uri.parse("http://soundcloud.com/steveangello");
     public static final Uri STEVE_ANGELLO_SC_URI = Uri.parse("soundcloud:users:118312");

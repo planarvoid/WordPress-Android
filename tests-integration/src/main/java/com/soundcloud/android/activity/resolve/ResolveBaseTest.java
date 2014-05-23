@@ -2,7 +2,7 @@ package com.soundcloud.android.activity.resolve;
 
 import static com.soundcloud.android.tests.TestUser.defaultUser;
 
-import com.soundcloud.android.main.ResolveActivity;
+import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.AccountAssistant;

@@ -2,7 +2,7 @@ package com.soundcloud.android.activity.resolve;
 
 import android.content.Intent;
 import android.net.Uri;
-import com.soundcloud.android.main.ResolveActivity;
+import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 

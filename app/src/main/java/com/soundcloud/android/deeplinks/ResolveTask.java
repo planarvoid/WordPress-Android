@@ -1,4 +1,4 @@
-package com.soundcloud.android.main;
+package com.soundcloud.android.deeplinks;
 
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.model.Urn;
@@ -94,13 +94,14 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, Uri> {
     @Nullable
     protected static Uri resolveSoundCloudURI(Uri uri, Env env) {
         try {
-            Urn curi = Urn.parse(uri.toString());
+            UrnResolver resolver = new UrnResolver();
+            Urn urn = resolver.toUrn(uri);
             return new Uri.Builder()
                     .scheme(env.sslResourceHost.getSchemeName())
                     .authority(env.sslResourceHost.getHostName())
                     // handle api vs uri difference in tracks/sounds
-                    .appendPath(curi.type.equalsIgnoreCase(Urn.SOUNDS_TYPE) ? Urn.TRACKS_TYPE : curi.type)
-                    .appendPath(String.valueOf(curi.numericId)).build();
+                    .appendPath(urn.type.equalsIgnoreCase(Urn.SOUNDS_TYPE) ? Urn.TRACKS_TYPE : urn.type)
+                    .appendPath(String.valueOf(urn.numericId)).build();
         } catch (IllegalArgumentException e) {
             return null;
         }

@@ -6,7 +6,7 @@ import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.creators.upload.UploadMonitorActivity;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.main.ResolveActivity;
+import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.preferences.AccountSettingsActivity;

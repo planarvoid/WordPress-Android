@@ -19,7 +19,6 @@ import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.playback.ui.PlayerController;
 import com.soundcloud.android.profile.MeActivity;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -56,8 +55,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private int lastSelection = NO_SELECTION;
 
     @Inject
-    ApplicationProperties applicationProperties;
-    @Inject
     SoundCloudApplication application;
     @Inject
     UserOperations userOperations;
@@ -84,7 +81,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         if (savedInstanceState == null) {
             lastTitle = getTitle();
             if (accountOperations.isUserLoggedIn()) {
-                handleLoggedInUser(applicationProperties);
+                handleLoggedInUser();
             }
             setupEmailOptIn();
         } else {
@@ -133,7 +130,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             R.id.navigation_fragment_id);
     }
 
-    private void handleLoggedInUser(ApplicationProperties appProperties) {
+    private void handleLoggedInUser() {
         boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
         User currentUser = accountOperations.getLoggedInUser();
         if (!justAuthenticated && accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)) {

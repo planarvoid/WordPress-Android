@@ -1,10 +1,12 @@
-package com.soundcloud.android.main;
+package com.soundcloud.android.deeplinks;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.main.TrackedActivity;
+import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.tasks.FetchModelTask;

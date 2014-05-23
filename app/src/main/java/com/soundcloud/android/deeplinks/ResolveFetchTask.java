@@ -1,4 +1,4 @@
-package com.soundcloud.android.main;
+package com.soundcloud.android.deeplinks;
 
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
@@ -38,12 +38,6 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
                 resolved = extractClickTrackingRedirectUrl(uri);
             }
             uri = resolved;
-        }
-
-        ScResource resource = resolveLocally(uri);
-        if (resource != null) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "resolved uri "+uri+" locally");
-            return resource;
         }
 
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "resolving uri "+uri+" remotely");
@@ -125,31 +119,5 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
             }
         }
         return data;
-    }
-
-    private ScResource resolveLocally(Uri uri) {
-        if (uri != null && Urn.SCHEME.equalsIgnoreCase(uri.getScheme())) {
-            final String specific = uri.getSchemeSpecificPart();
-            final String[] components = specific.split(":", 2);
-            if (components != null && components.length == 2) {
-                final String type = components[0];
-                final String id = components[1].replace("//","");;
-
-                if (type != null && id != null) {
-                    try {
-                        long _id = Long.parseLong(id);
-                        if (Urn.TRACKS_TYPE.equalsIgnoreCase(type) || Urn.SOUNDS_TYPE.equalsIgnoreCase(type)) {
-                            return SoundCloudApplication.sModelManager.getTrack(_id);
-                        } else if (Urn.PLAYLISTS_TYPE.equalsIgnoreCase(type)) {
-                            return SoundCloudApplication.sModelManager.getPlaylist(_id);
-                        } else if (Urn.USERS_TYPE.equalsIgnoreCase(type)) {
-                            return SoundCloudApplication.sModelManager.getUser(_id);
-                        }
-                    } catch (NumberFormatException ignored) {
-                    }
-                }
-            }
-        }
-        return null;
     }
 }
