@@ -11,6 +11,7 @@ import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -29,6 +30,7 @@ public class PlayerWidgetController {
 
     private final Context context;
     private final PlayerWidgetPresenter presenter;
+    private final PlaySessionController playSessionController;
     private final PlayQueueManager playQueueManager;
     private final TrackOperations trackOperations;
     private final SoundAssociationOperations soundAssocicationOps;
@@ -36,10 +38,11 @@ public class PlayerWidgetController {
 
     @Inject
     public PlayerWidgetController(Context context, PlayerWidgetPresenter presenter,
-                                  PlayQueueManager playQueueManager,
+                                  PlaySessionController playSessionController, PlayQueueManager playQueueManager,
                                   TrackOperations trackOperations, SoundAssociationOperations soundAssocicationOps, EventBus eventBus) {
         this.context = context;
         this.presenter = presenter;
+        this.playSessionController = playSessionController;
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.soundAssocicationOps = soundAssocicationOps;
@@ -54,6 +57,15 @@ public class PlayerWidgetController {
     }
 
     public void update() {
+        updatePlayState();
+        updatePlayableInformation();
+    }
+
+    private void updatePlayState() {
+        presenter.performUpdate(context, playSessionController.isPlaying());
+    }
+
+    private void updatePlayableInformation() {
         long currentTrackId = playQueueManager.getCurrentTrackId();
         if (currentTrackId == Playable.NOT_SET) {
             presenter.reset(context);

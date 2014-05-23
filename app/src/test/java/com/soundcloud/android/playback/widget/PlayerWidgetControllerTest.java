@@ -19,6 +19,7 @@ import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -44,6 +45,8 @@ public class PlayerWidgetControllerTest {
     @Mock
     private PlayerWidgetPresenter playerWidgetPresenter;
     @Mock
+    private PlaySessionController playSessionController;
+    @Mock
     private PlayQueueManager playQueueManager;
     @Mock
     private TrackOperations trackOperations;
@@ -58,6 +61,7 @@ public class PlayerWidgetControllerTest {
         when(context.getApplicationContext()).thenReturn(context);
         controller = new PlayerWidgetController(context,
                 playerWidgetPresenter,
+                playSessionController,
                 playQueueManager,
                 trackOperations,
                 soundAssocicationOps, eventBus);
@@ -86,7 +90,7 @@ public class PlayerWidgetControllerTest {
     }
 
     @Test
-    public void shouldPerformUpdateOnPlaybackStateChangedEvent() throws Exception {
+    public void shouldUpdatePresenterOnPlaybackStateChangedEvent() throws Exception {
         controller.subscribe();
 
         eventMonitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.PLAYING, Reason.NONE));
@@ -183,7 +187,7 @@ public class PlayerWidgetControllerTest {
     }
 
     @Test
-    public void shouldPerformUpdateWithCurrentPlayableWhenCurrentTrackIsSetOnUpdate() throws Exception {
+    public void shouldUpdatePresenterWithCurrentPlayableWhenCurrentTrackIsSetOnUpdate() throws Exception {
         when(playQueueManager.getCurrentTrackId()).thenReturn(1L);
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         when(trackOperations.loadTrack(eq(1L), any(Scheduler.class))).thenReturn(Observable.from(track));
@@ -191,6 +195,26 @@ public class PlayerWidgetControllerTest {
         controller.update();
 
         verify(playerWidgetPresenter).performUpdate(context, track);
+    }
+
+    @Test
+    public void shouldUpdatePresenterWithCurrentPlayStateIfIsPlayingOnUpdate() throws Exception {
+        when(playSessionController.isPlaying()).thenReturn(true);
+        when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
+
+        controller.update();
+
+        verify(playerWidgetPresenter).performUpdate(context, true);
+    }
+
+    @Test
+    public void shouldUpdatePresenterWithCurrentPlayStateIfIsNotPlayingOnUpdate() throws Exception {
+        when(playSessionController.isPlaying()).thenReturn(false);
+        when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
+
+        controller.update();
+
+        verify(playerWidgetPresenter).performUpdate(context, false);
     }
 
     @Test
