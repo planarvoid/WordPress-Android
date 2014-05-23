@@ -9,6 +9,7 @@ import static com.soundcloud.android.skippy.Skippy.Reason;
 import static com.soundcloud.android.skippy.Skippy.State;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -112,6 +113,24 @@ public class SkippyAdapterTest {
         InOrder inOrder = Mockito.inOrder(skippy);
         inOrder.verify(skippy).seek(123L);
         inOrder.verify(skippy).resume();
+    }
+
+    @Test
+    public void playUrlWithTheSameUrlAfterErrorCallsPlayUrlOnSkippy(){
+        skippyAdapter.play(track);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FAILED, STREAM_URL);
+        skippyAdapter.play(track);
+
+        verify(skippy, times(2)).play(STREAM_URL, 0);
+    }
+
+    @Test
+    public void playUrlWithTheSameUrlAfterCompleteCallsPlayUrlOnSkippy(){
+        skippyAdapter.play(track);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.COMPLETE, Error.OK, STREAM_URL);
+        skippyAdapter.play(track);
+
+        verify(skippy, times(2)).play(STREAM_URL, 0);
     }
 
     @Test

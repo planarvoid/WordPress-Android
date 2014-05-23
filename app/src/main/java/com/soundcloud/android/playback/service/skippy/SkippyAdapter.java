@@ -48,7 +48,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final NetworkConnectionHelper connectionHelper;
     private final ApplicationProperties applicationProperties;
 
-    private String currentStreamUrl;
+    private volatile String currentStreamUrl;
 
     @Inject
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, PlaybackOperations playbackOperations,
@@ -84,7 +84,6 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             skippy.seek(fromPos);
             skippy.resume();
         } else {
-
             logPlayCount(track);
 
             currentStreamUrl = trackUrl;
@@ -165,6 +164,10 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             final PlayaState translatedState = getTranslatedState(state, reason);
             final Reason translatedReason = getTranslatedReason(reason, errorcode);
             final StateTransition transition = new StateTransition(translatedState, translatedReason);
+
+            if (transition.playbackHasStopped()){
+                currentStreamUrl = null;
+            }
 
             if (applicationProperties.isDebugBuild()){
                 transition.setDebugExtra(DEBUG_EXTRA);
