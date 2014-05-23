@@ -51,7 +51,7 @@ public class LikesListFragment extends ScListFragment {
 
         final ScListView listView = getScListView();
         if (listView != null) {
-            listView.addHeaderView(headerView);
+            listView.addHeaderView(headerView, null, false);
         }
         return view;
     }
@@ -86,14 +86,14 @@ public class LikesListFragment extends ScListFragment {
     }
 
     private void updateShuffleHeader(@NotNull final List<Long> likedTrackIds) {
-        final String likeMessage;
-        if (likedTrackIds.isEmpty()) {
-            likeMessage = getString(R.string.number_of_liked_tracks_you_liked_zero);
+        View shuffleButton = getView().findViewById(R.id.shuffle_btn);
+        if (likedTrackIds.size() <= 1) {
+            shuffleButton.setVisibility(View.GONE);
         } else {
-            likeMessage = getResources().getQuantityString(R.plurals.number_of_liked_tracks_you_liked, likedTrackIds.size(), likedTrackIds.size());
+            shuffleButton.setVisibility(View.VISIBLE);
         }
 
-        ((TextView) headerView.findViewById(R.id.shuffle_txt)).setText(likeMessage);
+        ((TextView) headerView.findViewById(R.id.shuffle_txt)).setText(getHeaderText(likedTrackIds.size()));
         headerView.findViewById(R.id.shuffle_btn).setEnabled(likedTrackIds.size() > 1);
 
         headerView.findViewById(R.id.shuffle_btn).setOnClickListener(new View.OnClickListener() {
@@ -103,6 +103,14 @@ public class LikesListFragment extends ScListFragment {
                 eventBus.publish(EventQueue.UI, UIEvent.fromShuffleMyLikes());
             }
         });
+    }
+
+    private String getHeaderText(int trackCount) {
+        if (trackCount == 0) {
+            return getString(R.string.number_of_liked_tracks_you_liked_zero);
+        } else {
+            return getResources().getQuantityString(R.plurals.number_of_liked_tracks_you_liked, trackCount, trackCount);
+        }
     }
 
     private class LikedIdsSubscriber extends DefaultSubscriber<List<Long>> {
