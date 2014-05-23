@@ -28,15 +28,17 @@ public final class PlaybackSessionEvent {
     private long listenTime;
     private int stopReason;
 
-    public static PlaybackSessionEvent forPlay(@NotNull TrackUrn trackUrn, UserUrn userUrn, TrackSourceInfo trackSourceInfo, long duration, long timestamp) {
+    public static PlaybackSessionEvent forPlay(@NotNull TrackUrn trackUrn, @NotNull UserUrn userUrn, TrackSourceInfo trackSourceInfo,
+                                               long duration, long timestamp) {
         return new PlaybackSessionEvent(EVENT_KIND_PLAY, trackUrn, userUrn, trackSourceInfo, duration, timestamp);
     }
 
-    public static PlaybackSessionEvent forPlay(@NotNull TrackUrn trackUrn, UserUrn userUrn, TrackSourceInfo trackSourceInfo, long duration) {
+    public static PlaybackSessionEvent forPlay(@NotNull TrackUrn trackUrn, @NotNull UserUrn userUrn, TrackSourceInfo trackSourceInfo,
+                                               long duration) {
         return forPlay(trackUrn, userUrn, trackSourceInfo, duration, System.currentTimeMillis());
     }
 
-    public static PlaybackSessionEvent forStop(@NotNull TrackUrn trackUrn, UserUrn userUrn, TrackSourceInfo trackSourceInfo,
+    public static PlaybackSessionEvent forStop(@NotNull TrackUrn trackUrn, @NotNull UserUrn userUrn, TrackSourceInfo trackSourceInfo,
                                                PlaybackSessionEvent lastPlayEvent, long duration, int stopReason, long timestamp) {
         final PlaybackSessionEvent playbackSessionEvent =
                 new PlaybackSessionEvent(EVENT_KIND_STOP, trackUrn, userUrn, trackSourceInfo, duration, timestamp);
@@ -45,12 +47,13 @@ public final class PlaybackSessionEvent {
         return playbackSessionEvent;
     }
 
-    public static PlaybackSessionEvent forStop(@NotNull TrackUrn trackUrn, UserUrn userUrn, TrackSourceInfo trackSourceInfo,
+    public static PlaybackSessionEvent forStop(@NotNull TrackUrn trackUrn, @NotNull UserUrn userUrn, TrackSourceInfo trackSourceInfo,
                                                PlaybackSessionEvent lastPlayEvent, long duration, int stopReason) {
         return forStop(trackUrn, userUrn, trackSourceInfo, lastPlayEvent, duration, stopReason, System.currentTimeMillis());
     }
 
-    private PlaybackSessionEvent(int eventKind, @NotNull TrackUrn trackUrn, UserUrn userUrn, TrackSourceInfo trackSourceInfo, long duration, long timestamp) {
+    private PlaybackSessionEvent(int eventKind, @NotNull TrackUrn trackUrn, @NotNull UserUrn userUrn, TrackSourceInfo trackSourceInfo,
+                                 long duration, long timestamp) {
         this.trackUrn = trackUrn;
         this.kind = eventKind;
         this.userUrn = userUrn;

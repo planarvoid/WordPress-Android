@@ -62,26 +62,27 @@ public class EventLoggerParamsBuilder {
 
     public String buildFromPlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
         final Uri.Builder builder = new Uri.Builder();
-        builder.appendQueryParameter(Parameters.TIMESTAMP.value(), String.valueOf(eventData.getTimeStamp()));
-        builder.appendQueryParameter(Parameters.LATENCY.value(), String.valueOf(eventData.getMetricValue()));
-        builder.appendQueryParameter(Parameters.PROTOCOL.value(), eventData.getProtocol().getValue());
-        builder.appendQueryParameter(Parameters.PLAYER_TYPE.value(), eventData.getPlayerType().getValue());
-        builder.appendQueryParameter(Parameters.TYPE.value(), getPerformanceEventType(eventData.getMetric()));
-        builder.appendQueryParameter(Parameters.HOST.value(), eventData.getCdnHost());
-        builder.appendQueryParameter(Parameters.CONNECTION_TYPE.value(), eventData.getConnectionType().getValue());
-        return builder.build().getEncodedQuery();
+        return builder.appendQueryParameter(Parameters.TIMESTAMP.value(), String.valueOf(eventData.getTimeStamp()))
+                .appendQueryParameter(Parameters.LATENCY.value(), String.valueOf(eventData.getMetricValue()))
+                .appendQueryParameter(Parameters.PROTOCOL.value(), eventData.getProtocol().getValue())
+                .appendQueryParameter(Parameters.PLAYER_TYPE.value(), eventData.getPlayerType().getValue())
+                .appendQueryParameter(Parameters.TYPE.value(), getPerformanceEventType(eventData.getMetric()))
+                .appendQueryParameter(Parameters.HOST.value(), eventData.getCdnHost())
+                .appendQueryParameter(Parameters.USER.value(), eventData.getUserUrn().toString())
+                .appendQueryParameter(Parameters.CONNECTION_TYPE.value(), eventData.getConnectionType().getValue())
+                .build().getEncodedQuery();
     }
 
     public String buildFromPlaybackErrorEvent(PlaybackErrorEvent eventData) {
         final Uri.Builder builder = new Uri.Builder();
-        builder.appendQueryParameter(Parameters.TIMESTAMP.value(), String.valueOf(eventData.getTimestamp()));
-        builder.appendQueryParameter(Parameters.PROTOCOL.value(), eventData.getProtocol().getValue());
-        builder.appendQueryParameter(Parameters.OS.value(), deviceHelper.getUserAgent());
-        builder.appendQueryParameter(Parameters.BITRATE.value(), eventData.getBitrate());
-        builder.appendQueryParameter(Parameters.FORMAT.value(), eventData.getFormat());
-        builder.appendQueryParameter(Parameters.URL.value(), eventData.getCdnHost());
-        builder.appendQueryParameter(Parameters.ERROR_CODE.value(), eventData.getCategory());
-        return builder.build().getEncodedQuery();
+        return builder.appendQueryParameter(Parameters.TIMESTAMP.value(), String.valueOf(eventData.getTimestamp()))
+                .appendQueryParameter(Parameters.PROTOCOL.value(), eventData.getProtocol().getValue())
+                .appendQueryParameter(Parameters.OS.value(), deviceHelper.getUserAgent())
+                .appendQueryParameter(Parameters.BITRATE.value(), eventData.getBitrate())
+                .appendQueryParameter(Parameters.FORMAT.value(), eventData.getFormat())
+                .appendQueryParameter(Parameters.URL.value(), eventData.getCdnHost())
+                .appendQueryParameter(Parameters.ERROR_CODE.value(), eventData.getCategory())
+                .build().getEncodedQuery();
     }
 
     private String formatOriginUrl(String originUrl) {

@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.service.mediaplayer;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -46,6 +47,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     private final PlayerHandler playerHandler;
     private final EventBus eventBus;
     private final NetworkConnectionHelper networkConnectionHelper;
+    private final AccountOperations accountOperations;
 
     private PlaybackState internalState = PlaybackState.STOPPED;
 
@@ -67,7 +69,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Inject
     public MediaPlayerAdapter(Context context, MediaPlayerManager mediaPlayerManager, StreamProxy streamProxy,
-                              PlayerHandler playerHandler, EventBus eventBus, NetworkConnectionHelper networkConnectionHelper) {
+                              PlayerHandler playerHandler, EventBus eventBus, NetworkConnectionHelper networkConnectionHelper,
+                              AccountOperations accountOperations) {
         this.context = context.getApplicationContext();
         this.mediaPlayerManager = mediaPlayerManager;
         proxy = streamProxy;
@@ -75,6 +78,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         this.eventBus = eventBus;
         this.playerHandler.setMediaPlayerAdapter(this);
         this.networkConnectionHelper = networkConnectionHelper;
+        this.accountOperations = accountOperations;
 
         // perhaps start this lazily?
         proxy.start();
@@ -128,8 +132,11 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     @Override
-    public void onPrepared(MediaPlayer mp) {
-        if (mp.equals(mediaPlayer) && internalState == PlaybackState.PREPARING) {
+    public void onPrepared(MediaPlayer mediaPlayer) {
+        if(!accountOperations.isUserLoggedIn()) {
+            return;
+        }
+        if (mediaPlayer.equals(this.mediaPlayer) && internalState == PlaybackState.PREPARING) {
 
             connectionRetries = 0;
             if (playaListener != null && playaListener.requestAudioFocus()) {
@@ -153,7 +160,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     private void publishTimeToPlayEvent(long timeToPlay, String streamUrl) {
         final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
-                PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(), Uri.parse(streamUrl).getHost());
+                PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(),
+                streamUrl, accountOperations.getLoggedInUserUrn());
         eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
     }
 

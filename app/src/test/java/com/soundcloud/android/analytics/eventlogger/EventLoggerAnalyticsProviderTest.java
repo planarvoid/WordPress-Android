@@ -11,9 +11,11 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.model.UserUrn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,9 +31,11 @@ public class EventLoggerAnalyticsProviderTest {
     private EventLogger eventLogger;
     @Mock
     private EventLoggerParamsBuilder eventLoggerParamsBuilder;
+    private UserUrn userUrn;
 
     @Before
     public void setUp() throws Exception {
+        userUrn = TestHelper.getModelFactory().createModel(UserUrn.class);
         eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventLogger, eventLoggerParamsBuilder);
     }
 
@@ -53,7 +57,7 @@ public class EventLoggerAnalyticsProviderTest {
     @Test
     public void shouldTrackPlaybackPerformanceEventAsEventLoggerEvent() throws Exception {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HLS, PlayerType.MEDIA_PLAYER,
-                ConnectionType.FOUR_G, "uri");
+                ConnectionType.FOUR_G, "uri", userUrn);
         when(eventLoggerParamsBuilder.buildFromPlaybackPerformanceEvent(event)).thenReturn("event-params");
 
         eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);

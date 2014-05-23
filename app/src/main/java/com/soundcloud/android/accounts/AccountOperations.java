@@ -1,6 +1,7 @@
 package com.soundcloud.android.accounts;
 
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
@@ -129,7 +130,9 @@ public class AccountOperations extends ScheduledOperations {
     }
 
     public UserUrn getLoggedInUserUrn() {
-        return Urn.forUser(getLoggedInUserId());
+        long loggedInUserId = getLoggedInUserId();
+        checkArgument(loggedInUserId != NOT_SET, "Logged in User Id should not be null");
+        return Urn.forUser(loggedInUserId);
     }
 
     public void loadLoggedInUser() {
@@ -247,7 +250,7 @@ public class AccountOperations extends ScheduledOperations {
     //TODO Should have a consistent anonymous user id Uri forUser(long id). ClientUri.forUser() is related with this issue
     private long getAccountDataLong(String key) {
         String data = getAccountDataString(key);
-        return data == null ? -1 : Long.parseLong(data);
+        return data == null ? NOT_SET : Long.parseLong(data);
     }
 
     //TODO this seems wrong to me, should we not differentiate between no data existing and a false value existing?

@@ -396,6 +396,12 @@ public class AccountOperationsTest {
         expect(accountOperations.getLoggedInUser()).not.toBe(user);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionIfLoggedInUserDoesNotExistWhenGettingUrn() {
+        when(accountManager.getUserData(scAccount, AccountOperations.AccountInfoKeys.USER_ID.getKey())).thenReturn(null);
+        accountOperations.getLoggedInUserUrn();
+    }
+
     @Test
     public void shouldGetLoggedInUserUrn() {
         mockSoundCloudAccount();

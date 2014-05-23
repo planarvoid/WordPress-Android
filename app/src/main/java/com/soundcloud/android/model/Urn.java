@@ -42,7 +42,9 @@ public abstract class Urn implements Parcelable {
     };
 
     @NotNull
+    @Deprecated
     public final String type;
+    @Deprecated
     public final long numericId;
 
     public static boolean isValidUrn(Uri uri) {
