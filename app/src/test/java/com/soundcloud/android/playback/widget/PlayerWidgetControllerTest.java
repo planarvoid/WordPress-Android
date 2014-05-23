@@ -95,29 +95,18 @@ public class PlayerWidgetControllerTest {
 
         eventMonitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.PLAYING, Reason.NONE));
 
-        verify(playerWidgetPresenter).performUpdate(any(Context.class), eq(true));
+        verify(playerWidgetPresenter).updatePlayState(any(Context.class), eq(true));
     }
 
     @Test
-    public void shouldPerformTrackUpdateOnPlayQueueEvent() throws Exception {
-        final Track track = new Track(1L);
-        when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
-        controller.subscribe();
-
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
-
-        verify(playerWidgetPresenter).performUpdate(any(Context.class), any(Playable.class));
-    }
-
-    @Test
-    public void shouldPerformTrackUpdateWithCurrentPlayableInPlayQueue() throws Exception {
+    public void shouldUpdatePresenterPlayableInformationOnPlayQueueEvent() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
         controller.subscribe();
 
         eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
 
-        verify(playerWidgetPresenter).performUpdate(any(Context.class), eq(track));
+        verify(playerWidgetPresenter).updatePlayableInformation(any(Context.class), eq(track));
     }
 
     @Test
@@ -130,11 +119,11 @@ public class PlayerWidgetControllerTest {
         eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
         eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
 
-        verify(playerWidgetPresenter).performUpdate(any(Context.class), eq(track));
+        verify(playerWidgetPresenter).updatePlayableInformation(any(Context.class), eq(track));
     }
 
     @Test
-    public void shouldPerformUpdateOnWidgetWhenChangedTrackIsCurrentlyPlayingTrack() {
+    public void shouldUpdatePresenterPlayStateInformationWhenChangedTrackIsCurrentlyPlayingTrack() {
         final Track currentTrack = new Track(1L);
         when(playQueueManager.getCurrentTrackId()).thenReturn(currentTrack.getId());
         PlayableChangedEvent event = PlayableChangedEvent.create(currentTrack);
@@ -142,11 +131,11 @@ public class PlayerWidgetControllerTest {
         controller.subscribe();
 
         eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, event);
-        verify(playerWidgetPresenter).performUpdate(context, currentTrack);
+        verify(playerWidgetPresenter).updatePlayableInformation(context, currentTrack);
     }
 
     @Test
-    public void shouldNotPerformUpdateOnWidgetWhenChangedTrackIsNotCurrentlyPlayingTrack() {
+    public void shouldNotPerformPresenterUpdateWhenChangedTrackIsNotCurrentlyPlayingTrack() {
         final Track currentTrack = new Track(1L);
         when(playQueueManager.getCurrentTrackId()).thenReturn(2L);
         PlayableChangedEvent event = PlayableChangedEvent.create(currentTrack);
@@ -187,14 +176,14 @@ public class PlayerWidgetControllerTest {
     }
 
     @Test
-    public void shouldUpdatePresenterWithCurrentPlayableWhenCurrentTrackIsSetOnUpdate() throws Exception {
+    public void shouldUpdatePresenterPlayableInformationWhenCurrentTrackIsSetOnUpdate() throws Exception {
         when(playQueueManager.getCurrentTrackId()).thenReturn(1L);
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         when(trackOperations.loadTrack(eq(1L), any(Scheduler.class))).thenReturn(Observable.from(track));
 
         controller.update();
 
-        verify(playerWidgetPresenter).performUpdate(context, track);
+        verify(playerWidgetPresenter).updatePlayableInformation(context, track);
     }
 
     @Test
@@ -204,7 +193,7 @@ public class PlayerWidgetControllerTest {
 
         controller.update();
 
-        verify(playerWidgetPresenter).performUpdate(context, true);
+        verify(playerWidgetPresenter).updatePlayState(context, true);
     }
 
     @Test
@@ -214,7 +203,7 @@ public class PlayerWidgetControllerTest {
 
         controller.update();
 
-        verify(playerWidgetPresenter).performUpdate(context, false);
+        verify(playerWidgetPresenter).updatePlayState(context, false);
     }
 
     @Test

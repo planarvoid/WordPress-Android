@@ -62,7 +62,7 @@ public class PlayerWidgetController {
     }
 
     private void updatePlayState() {
-        presenter.performUpdate(context, playSessionController.isPlaying());
+        presenter.updatePlayState(context, playSessionController.isPlaying());
     }
 
     private void updatePlayableInformation() {
@@ -108,7 +108,7 @@ public class PlayerWidgetController {
             final Playable playable = event.getPlayable();
 
             if (playable.getId() == playQueueManager.getCurrentTrackId()) {
-                presenter.performUpdate(context, playable);
+                presenter.updatePlayableInformation(context, playable);
             }
         }
     }
@@ -128,7 +128,7 @@ public class PlayerWidgetController {
     private class PlaybackStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {
         @Override
         public void onNext(Playa.StateTransition state) {
-            presenter.performUpdate(context, state.playSessionIsActive());
+            presenter.updatePlayState(context, state.playSessionIsActive());
         }
     }
 
@@ -142,7 +142,7 @@ public class PlayerWidgetController {
     private class CurrentTrackSubscriber extends DefaultSubscriber<Track> {
         @Override
         public void onNext(Track track) {
-            presenter.performUpdate(context, track);
+            presenter.updatePlayableInformation(context, track);
         }
 
     }

@@ -22,14 +22,14 @@ class PlayerWidgetPresenter {
         this.appWidgetManager = appWidgetManager;
     }
 
-    /* package */ void performUpdate(Context context, boolean isPlaying) {
+    /* package */ void updatePlayState(Context context, boolean isPlaying) {
         PlayerWidgetRemoteViews remoteViews = new PlayerWidgetRemoteViewsBuilder()
                 .forIsPlaying(isPlaying)
                 .build(context);
         pushUpdate(remoteViews);
     }
 
-    /* package */ void performUpdate(Context context, Playable playable) {
+    /* package */ void updatePlayableInformation(Context context, Playable playable) {
         PlayerWidgetRemoteViews remoteViews = new PlayerWidgetRemoteViewsBuilder()
                 .forPlayable(playable)
                 .build(context);

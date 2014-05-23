@@ -34,7 +34,7 @@ public class PlayerWidgetPresenterTest {
 
     @Test
     public void shouldUpdateWidgetUsingPlayerAppWidgetProviderWhenPlayStateChange() throws Exception {
-        presenter.performUpdate(context, true);
+        presenter.updatePlayState(context, true);
 
         verifyUpdateViaPlayBackWidgetProvider();
     }
@@ -42,7 +42,7 @@ public class PlayerWidgetPresenterTest {
 
     @Test
     public void shouldUpdateWidgetUsingPlayerAppWidgetProviderWhenPlayableChange() throws Exception {
-        presenter.performUpdate(context, mock(Playable.class));
+        presenter.updatePlayableInformation(context, mock(Playable.class));
 
         verifyUpdateViaPlayBackWidgetProvider();
     }
