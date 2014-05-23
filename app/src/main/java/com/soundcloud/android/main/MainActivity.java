@@ -28,6 +28,7 @@ import rx.subscriptions.CompositeSubscription;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
@@ -45,6 +46,10 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private static final String EXPLORE_FRAGMENT_TAG = "explore_fragment";
     private static final String STREAM_FRAGMENT_TAG = "stream_fragment";
     private static final int NO_SELECTION = -1;
+    private static final int DRAWER_SELECT_DELAY_MILLIS = 250;
+
+    private static final String BLANK_TAG = "blank";
+    private static final Fragment BLANK_FRAGMENT = new Fragment();
 
     private NavigationFragment navigationFragment;
     private CharSequence lastTitle;
@@ -64,6 +69,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     PlayerController playerController;
 
     private final CompositeSubscription subscription = new CompositeSubscription();
+    private Handler mDrawerHandler = new Handler();
 
     public MainActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -222,9 +228,31 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     }
 
     @Override
-    public void onNavigationItemSelected(int position, boolean setTitle) {
+    public void onNavigationItemSelected(final int position, final boolean setTitle) {
         if (position == lastSelection) return;
-        switch (NavigationFragment.NavItem.values()[position]) {
+
+        if (NavigationFragment.NavItem.values()[position] != NavigationFragment.NavItem.PROFILE){
+            showBlankFragment();
+        }
+
+        mDrawerHandler.removeCallbacksAndMessages(null);
+        mDrawerHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                displayFragment(position, setTitle);
+            }
+        }, DRAWER_SELECT_DELAY_MILLIS);
+    }
+
+    protected void showBlankFragment() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, BLANK_FRAGMENT, BLANK_TAG)
+                .commit();
+    }
+
+    protected void displayFragment(int position, boolean setTitle) {
+        final NavigationFragment.NavItem navItem = NavigationFragment.NavItem.values()[position];
+        switch (navItem) {
             case PROFILE:
                 displayProfile();
                 // This click is tracked separately since profile item is never selected
@@ -304,6 +332,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     private void attachFragment(Fragment fragment, String tag, int titleResId) {
         getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.activity_open_enter, R.anim.hold)
                 .replace(R.id.container, fragment, tag)
                 .commit();
         lastTitle = getString(titleResId);
