@@ -50,10 +50,6 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
         }
     }
 
-    private SoundCloudApplication getApp() {
-        return (SoundCloudApplication) getApplication();
-    }
-
     @Override
     public void onError(Object context) {
         resolveTask = null;
