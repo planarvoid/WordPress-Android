@@ -4,10 +4,13 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static rx.android.OperatorPaged.Page;
 
@@ -20,6 +23,7 @@ import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.PlaylistSummaryCollection;
+import com.soundcloud.android.model.PlaylistTagsCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SearchResultsCollection;
@@ -228,9 +232,42 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldMakeGETRequestToPlaylistTagsEndpoint() throws Exception {
+        when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(new PlaylistTagsCollection()));
         searchOperations.getPlaylistTags().subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", APIEndpoints.PLAYLIST_DISCOVERY_TAGS.path())));
+    }
+
+    @Test
+    public void storesPopularTagsWhenRequestIsSuccessful() {
+        PlaylistTagsCollection tags = new PlaylistTagsCollection(Lists.newArrayList("tag"));
+        when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(new PlaylistTagsCollection()));
+        when(rxHttpClient.<PlaylistTagsCollection>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(tags));
+
+        searchOperations.getPlaylistTags().subscribe(observer);
+
+        verify(tagStorage).cachePopularTags(tags.getCollection());
+    }
+
+    @Test
+    public void doesNotStorePopularTagsWhenRequestFails() {
+        when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(new PlaylistTagsCollection()));
+        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.error(new Exception()));
+
+        searchOperations.getPlaylistTags().subscribe(observer);
+
+        verify(tagStorage, never()).cachePopularTags(anyList());
+    }
+
+    @Test
+    public void loadsPopularTagsFromCacheIfStored() {
+        PlaylistTagsCollection tags = new PlaylistTagsCollection(Lists.newArrayList("tag"));
+        when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(tags));
+
+        searchOperations.getPlaylistTags().subscribe(observer);
+
+        verify(tagStorage).getPopularTagsAsync();
+        verifyZeroInteractions(rxHttpClient);
     }
 
     @Test

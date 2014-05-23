@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.model.PlaylistTagsCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -124,5 +125,23 @@ public class PlaylistTagStorageTest {
         verify(observer).onNext(tagsCaptor.capture());
 
         expect(tagsCaptor.getValue()).toContainExactly("tag2", "tag1");
+    }
+
+    @Test
+    public void cachesPopularTagsList() {
+        List<String> popularTags = Lists.newArrayList("tag1", "tag2", "tag3");
+        tagStorage.cachePopularTags(popularTags);
+
+        expect(tagStorage.getPopularTags()).toContainExactly("tag1", "tag2", "tag3");
+    }
+
+    @Test
+    public void resetsPopularTagList() {
+        List<String> popularTags = Lists.newArrayList("tag1", "tag2", "tag3");
+
+        tagStorage.cachePopularTags(popularTags);
+        tagStorage.resetPopularTags();
+
+        expect(tagStorage.getPopularTags().size()).toEqual(0);
     }
 }

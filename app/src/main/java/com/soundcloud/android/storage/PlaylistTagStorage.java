@@ -19,7 +19,8 @@ import java.util.List;
 public class PlaylistTagStorage extends ScheduledOperations {
 
     private static final String KEY_RECENT_TAGS = "recent_tags";
-    private static final int MAX_TAGS = 5;
+    private static final String KEY_POPULAR_TAGS = "popular_tags";
+    private static final int MAX_RECENT_TAGS = 5;
 
     private final SharedPreferences sharedPreferences;
 
@@ -33,12 +34,16 @@ public class PlaylistTagStorage extends ScheduledOperations {
         if (recentTags.contains(tag)) {
             return;
         }
-        if (recentTags.size() == MAX_TAGS) {
+        if (recentTags.size() == MAX_RECENT_TAGS) {
             recentTags.removeLast();
         }
         recentTags.addFirst(sanitizeTag(tag));
 
         sharedPreferences.edit().putString(KEY_RECENT_TAGS, serialize(recentTags)).apply();
+    }
+
+    public void cachePopularTags(List<String> tags) {
+        sharedPreferences.edit().putString(KEY_POPULAR_TAGS, serialize(tags)).apply();
     }
 
     public Observable<PlaylistTagsCollection> getRecentTagsAsync() {
@@ -51,17 +56,40 @@ public class PlaylistTagStorage extends ScheduledOperations {
         }));
     }
 
-    public void clear() {
-        sharedPreferences.edit().clear().apply();
+    public Observable<PlaylistTagsCollection> getPopularTagsAsync() {
+        return schedule(Observable.create(new Observable.OnSubscribe<PlaylistTagsCollection>() {
+            @Override
+            public void call(Subscriber<? super PlaylistTagsCollection> observer) {
+                observer.onNext(new PlaylistTagsCollection(getPopularTags()));
+                observer.onCompleted();
+            }
+        }));
     }
 
     @VisibleForTesting
     List<String> getRecentTags() {
-        String storedTags = sharedPreferences.getString(KEY_RECENT_TAGS, "");
+        return getStoredTags(KEY_RECENT_TAGS);
+    }
+
+    @VisibleForTesting
+    List<String> getPopularTags() {
+        return getStoredTags(KEY_POPULAR_TAGS);
+    }
+
+    private List<String> getStoredTags(String key) {
+        String storedTags = sharedPreferences.getString(key, "");
         if (ScTextUtils.isBlank(storedTags)) {
             return new LinkedList<String>();
         }
         return deserialize(storedTags);
+    }
+
+    public void resetPopularTags() {
+        sharedPreferences.edit().putString(KEY_POPULAR_TAGS, "").apply();
+    }
+
+    public void clear() {
+        sharedPreferences.edit().clear().apply();
     }
 
     private String sanitizeTag(String tag) {

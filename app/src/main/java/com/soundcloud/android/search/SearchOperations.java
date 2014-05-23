@@ -151,11 +151,32 @@ public class SearchOperations {
     }
 
     Observable<PlaylistTagsCollection> getPlaylistTags() {
+        return getCachedPlaylistTags().mergeMap(new Func1<PlaylistTagsCollection, Observable<PlaylistTagsCollection>>() {
+            @Override
+            public Observable<PlaylistTagsCollection> call(PlaylistTagsCollection tags) {
+                if (tags.getCollection().isEmpty()) {
+                    return fetchAndCachePopularTags();
+                }
+                return Observable.just(tags);
+            }
+        });
+    }
+
+    private Observable<PlaylistTagsCollection> getCachedPlaylistTags() {
+        return tagStorage.getPopularTagsAsync();
+    }
+
+    private Observable<PlaylistTagsCollection> fetchAndCachePopularTags() {
         APIRequest<PlaylistTagsCollection> request = RequestBuilder.<PlaylistTagsCollection>get(APIEndpoints.PLAYLIST_DISCOVERY_TAGS.path())
                 .forPrivateAPI(1)
                 .forResource(TypeToken.of(PlaylistTagsCollection.class))
                 .build();
-        return rxHttpClient.fetchModels(request);
+        return rxHttpClient.<PlaylistTagsCollection>fetchModels(request).doOnNext(new Action1<PlaylistTagsCollection>() {
+            @Override
+            public void call(PlaylistTagsCollection tags) {
+                tagStorage.cachePopularTags(tags.getCollection());
+            }
+        });
     }
 
     Observable<Page<PlaylistSummaryCollection>> getPlaylistResults(final String query) {
@@ -163,7 +184,6 @@ public class SearchOperations {
                 createPlaylistResultsRequest(APIEndpoints.PLAYLIST_DISCOVERY.path())
                         .addQueryParameters("tag", query)
                         .build();
-
         return getPlaylistResultsPage(query, request).finallyDo(new Action0() {
             @Override
             public void call() {
@@ -202,7 +222,7 @@ public class SearchOperations {
                 }
             }
         };
-    };
+    }
 
     private Func1<PlaylistSummaryCollection, PlaylistSummaryCollection> withSearchTag(final String searchTag) {
         return new Func1<PlaylistSummaryCollection, PlaylistSummaryCollection>() {

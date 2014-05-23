@@ -25,6 +25,7 @@ import com.soundcloud.android.playback.PlaybackSessionAnalyticsController;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
+import com.soundcloud.android.storage.PlaylistTagStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
@@ -83,6 +84,8 @@ public class SoundCloudApplication extends Application {
     PlaySessionController playSessionController;
     @Inject
     PlaybackSessionAnalyticsController playSessionAnalyticsController;
+    @Inject
+    PlaylistTagStorage playlistTagStorage;
 
     // we need this object to exist througout the life time of the app,
     // even if it appears to be unused
@@ -142,6 +145,8 @@ public class SoundCloudApplication extends Application {
         setupExperiments();
 
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
+
+        playlistTagStorage.resetPopularTags();
 
         widgetController.subscribe();
         playSessionController.subscribe();
