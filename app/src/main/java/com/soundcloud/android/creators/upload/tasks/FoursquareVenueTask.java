@@ -25,6 +25,7 @@ import java.util.Locale;
 public class FoursquareVenueTask extends AsyncTask<Location, Void, List<FoursquareVenue>> {
     public static final int VENUE_LIMIT     = 25; // fetch this number of 4sq venues
     public static final int VENUE_LIMIT_MAX = 50; // max supported by 4sq API
+    public static final String FOURSQUARE_API_VERSION = "20110601";
 
     // registered w/ hannes@soundcloud.com
     public static final String client_id     = "KO0RS1BR5VCXT4CR2GRCYA1Z2KSMM3QJVWJ35V2CVBUWFYWP";
@@ -52,7 +53,7 @@ public class FoursquareVenueTask extends AsyncTask<Location, Void, List<Foursqua
                 "limit", venueLimit,
                 "client_id",     client_id,
                 "client_secret", client_secret,
-                "v", "20110601");
+                "v", FOURSQUARE_API_VERSION);
 
         if (loc.hasAccuracy()) r.add("llAcc", loc.getAccuracy());
 
