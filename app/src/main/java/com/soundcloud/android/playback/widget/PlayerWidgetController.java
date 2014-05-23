@@ -33,7 +33,7 @@ public class PlayerWidgetController {
     private final PlaySessionController playSessionController;
     private final PlayQueueManager playQueueManager;
     private final TrackOperations trackOperations;
-    private final SoundAssociationOperations soundAssocicationOps;
+    private final SoundAssociationOperations soundAssociationOps;
     private final EventBus eventBus;
 
     @Inject
@@ -45,7 +45,7 @@ public class PlayerWidgetController {
         this.playSessionController = playSessionController;
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
-        this.soundAssocicationOps = soundAssocicationOps;
+        this.soundAssociationOps = soundAssocicationOps;
         this.eventBus = eventBus;
     }
 
@@ -85,7 +85,7 @@ public class PlayerWidgetController {
         return new Func1<Track, Observable<SoundAssociation>>() {
             @Override
             public Observable<SoundAssociation> call(Track track) {
-                return soundAssocicationOps.toggleLike(!isLiked, track);
+                return soundAssociationOps.toggleLike(!isLiked, track);
             }
         };
     }
