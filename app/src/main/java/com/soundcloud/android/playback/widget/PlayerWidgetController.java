@@ -28,18 +28,18 @@ import javax.inject.Singleton;
 public class PlayerWidgetController {
 
     private final Context context;
-    private final PlayerWidgetPresenter playerWidgetPresenter;
+    private final PlayerWidgetPresenter presenter;
     private final PlayQueueManager playQueueManager;
     private final TrackOperations trackOperations;
     private final SoundAssociationOperations soundAssocicationOps;
     private final EventBus eventBus;
 
     @Inject
-    public PlayerWidgetController(Context context, PlayerWidgetPresenter playerWidgetPresenter,
+    public PlayerWidgetController(Context context, PlayerWidgetPresenter presenter,
                                   PlayQueueManager playQueueManager,
                                   TrackOperations trackOperations, SoundAssociationOperations soundAssocicationOps, EventBus eventBus) {
         this.context = context;
-        this.playerWidgetPresenter = playerWidgetPresenter;
+        this.presenter = presenter;
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.soundAssocicationOps = soundAssocicationOps;
@@ -56,7 +56,7 @@ public class PlayerWidgetController {
     public void update() {
         long currentTrackId = playQueueManager.getCurrentTrackId();
         if (currentTrackId == Playable.NOT_SET) {
-            playerWidgetPresenter.reset(context);
+            presenter.reset(context);
         } else {
             loadTrack(currentTrackId).subscribe(new CurrentTrackSubscriber());
         }
@@ -96,7 +96,7 @@ public class PlayerWidgetController {
             final Playable playable = event.getPlayable();
 
             if (playable.getId() == playQueueManager.getCurrentTrackId()) {
-                playerWidgetPresenter.performUpdate(context, playable);
+                presenter.performUpdate(context, playable);
             }
         }
     }
@@ -108,7 +108,7 @@ public class PlayerWidgetController {
         @Override
         public void onNext(CurrentUserChangedEvent event) {
             if (event.getKind() == CurrentUserChangedEvent.USER_REMOVED) {
-                playerWidgetPresenter.reset(context);
+                presenter.reset(context);
             }
         }
     }
@@ -116,7 +116,7 @@ public class PlayerWidgetController {
     private class PlaybackStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {
         @Override
         public void onNext(Playa.StateTransition state) {
-            playerWidgetPresenter.performUpdate(context, state.playSessionIsActive());
+            presenter.performUpdate(context, state.playSessionIsActive());
         }
     }
 
@@ -130,7 +130,7 @@ public class PlayerWidgetController {
     private class CurrentTrackSubscriber extends DefaultSubscriber<Track> {
         @Override
         public void onNext(Track track) {
-            playerWidgetPresenter.performUpdate(context, track);
+            presenter.performUpdate(context, track);
         }
 
     }
