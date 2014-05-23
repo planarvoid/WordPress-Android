@@ -36,6 +36,7 @@
   <string name="authentication_terms_of_use">Terms of Use</string>
   <string name="authentication_your_email_address">Your email address</string>
   <string name="authentication_your_password">Your password</string>
+  <string name="authentication_clear_image">Hold to clear image</string>
   <string name="btn_follow">Follow</string>
   <string name="btn_following">Following</string>
   <string name="btn_save">Save</string>

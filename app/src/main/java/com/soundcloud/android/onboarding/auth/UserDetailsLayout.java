@@ -107,6 +107,13 @@ public class UserDetailsLayout extends RelativeLayout {
             }
         });
 
+        avatarView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getContext(), R.string.authentication_clear_image, Toast.LENGTH_LONG).show();
+            }
+        });
+
         avatarView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
