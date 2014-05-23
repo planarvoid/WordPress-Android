@@ -34,114 +34,113 @@ public class PlayerAvatarBarView extends View {
     private static final int REFRESH_AVATARS = 0;
     private static final int AVATARS_REFRESHED = 1;
     private static final int AVATAR_WIDTH = 32;
-    private static final int AVATAR_WIDTH_LARGE = 100;
-    public static final Matrix DEFAULT_MATRIX = new Matrix();
+    private static final Matrix DEFAULT_MATRIX = new Matrix();
 
-    private long mDuration;
+    private long duration;
 
-    private @Nullable List<Comment> mCurrentComments;
-    private @Nullable Comment mCurrentComment;
+    private @Nullable List<Comment> currentComments;
+    private @Nullable Comment currentComment;
 
-    private Matrix mBgMatrix;
-    private Matrix mActiveMatrix;
-    private float mDefaultAvatarScale = 1f;
-    private int mAvatarWidth;
+    private Matrix bgMatrix;
+    private Matrix activeMatrix;
+    private float defaultAvatarScale = 1f;
+    private int avatarWidth;
 
-    private Paint mImagePaint;
-    private Paint mLinePaint;
+    private Paint imagePaint;
+    private Paint linePaint;
 
-    private Paint mActiveImagePaint;
+    private Paint activeImagePaint;
     private Paint mActiveLinePaint;
 
-    private Thread mAvatarRefreshThread;
+    private Thread avatarRefreshThread;
 
-    private ImageOperations mImageOperations;
+    private ImageOperations imageOperations;
 
-    private @Nullable Bitmap mCanvasBmp;
-    private Bitmap mNextCanvasBmp;
+    private @Nullable Bitmap canvasBmp;
+    private Bitmap nextCanvasBmp;
 
-    private Bitmap mDefaultAvatar;
+    private Bitmap defaultAvatar;
 
-    private ImageSize mAvatarGraphicsSize;
+    private ImageSize avatarGraphicsSize;
 
-    private Set<ImageView> mAvatarLoadingViews;
+    private Set<ImageView> avatarLoadingViews;
 
-    private boolean mLandscape;
+    private boolean landscape;
 
     public PlayerAvatarBarView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
 
-        mImageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
+        imageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
 
-        mAvatarGraphicsSize = context.getResources().getDisplayMetrics().density > 1 ?
+        avatarGraphicsSize = context.getResources().getDisplayMetrics().density > 1 ?
                 ImageSize.BADGE :
                 ImageSize.SMALL;
 
-        mAvatarLoadingViews = new HashSet<ImageView>(Consts.MAX_COMMENTS_TO_LOAD);
+        avatarLoadingViews = new HashSet<ImageView>(Consts.MAX_COMMENTS_TO_LOAD);
 
-        mImagePaint = new Paint();
-        mImagePaint.setAntiAlias(false);
-        mImagePaint.setFilterBitmap(true);
+        imagePaint = new Paint();
+        imagePaint.setAntiAlias(false);
+        imagePaint.setFilterBitmap(true);
 
-        mActiveImagePaint = new Paint();
-        mActiveImagePaint.setAntiAlias(false);
-        mActiveImagePaint.setFilterBitmap(true);
+        activeImagePaint = new Paint();
+        activeImagePaint.setAntiAlias(false);
+        activeImagePaint.setFilterBitmap(true);
 
-        mLinePaint = new Paint();
-        mLinePaint.setColor(getResources().getColor(R.color.comment_line));
+        linePaint = new Paint();
+        linePaint.setColor(getResources().getColor(R.color.comment_line));
 
         mActiveLinePaint = new Paint();
         mActiveLinePaint.setColor(getResources().getColor(com.soundcloud.android.R.color.active_comment_line));
 
         float mDensity = getContext().getResources().getDisplayMetrics().density;
 
-        mBgMatrix = new Matrix();
-        mActiveMatrix = new Matrix();
-        mAvatarWidth = (int) (AVATAR_WIDTH * mDensity);
+        bgMatrix = new Matrix();
+        activeMatrix = new Matrix();
+        avatarWidth = (int) (AVATAR_WIDTH * mDensity);
     }
 
     public int getAvatarWidth(){
-        return mAvatarWidth;
+        return avatarWidth;
     }
 
     public void stopAvatarLoading(){
-        for (ImageView imageView : mAvatarLoadingViews) {
-            mImageOperations.cancel(imageView);
+        for (ImageView imageView : avatarLoadingViews) {
+            imageOperations.cancel(imageView);
         }
-        mAvatarLoadingViews.clear();
+        avatarLoadingViews.clear();
     }
 
     public void clearTrackData(){
-        mUIHandler.removeMessages(REFRESH_AVATARS);
-        mUIHandler.removeMessages(AVATARS_REFRESHED);
+        uIHandler.removeMessages(REFRESH_AVATARS);
+        uIHandler.removeMessages(AVATARS_REFRESHED);
 
-        if (mAvatarRefreshThread != null){
-            mAvatarRefreshThread.interrupt();
-            mAvatarRefreshThread = null;
+        if (avatarRefreshThread != null){
+            avatarRefreshThread.interrupt();
+            avatarRefreshThread = null;
         }
 
-        if (mCurrentComments != null) {
-            for (Comment c : mCurrentComments) {
+        if (currentComments != null) {
+            for (Comment c : currentComments) {
                 c.avatar = null;
             }
         }
 
-        mCurrentComment = null;
-        mCurrentComments = null;
-        mDuration = -1;
+        currentComment = null;
+        currentComments = null;
+        duration = -1;
 
-        if (mCanvasBmp != null) mCanvasBmp.recycle();
-        if (mNextCanvasBmp != null) mNextCanvasBmp.recycle();
+        if (canvasBmp != null) canvasBmp.recycle();
+        if (nextCanvasBmp != null) nextCanvasBmp.recycle();
 
-        mCanvasBmp = null;
+        canvasBmp = null;
 
         invalidate();
 
     }
 
     public void setTrackData(long duration, List<Comment> newItems){
-        mDuration = duration;
-        mCurrentComments = newItems;
+        this.duration = duration;
+        currentComments = newItems;
         for (Comment c : newItems){
             loadAvatar(c);
         }
@@ -149,7 +148,7 @@ public class PlayerAvatarBarView extends View {
     }
 
     public void setCurrentComment(@Nullable Comment c){
-        mCurrentComment = c;
+        currentComment = c;
         if (c != null) loadAvatar(c);
         invalidate();
     }
@@ -157,23 +156,24 @@ public class PlayerAvatarBarView extends View {
     private void loadAvatar(final Comment c){
         if (c == null || !c.shouldLoadIcon()) return;
 
-         mImageOperations.load(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new ImageListener() {
+         imageOperations.load(avatarGraphicsSize.formatUri(c.user.avatar_url), new ImageListener() {
              @Override
              public void onLoadingStarted(String imageUri, View view) {
-                 mAvatarLoadingViews.add((ImageView) view);
+                 avatarLoadingViews.add((ImageView) view);
              }
 
              @Override
-             public void onLoadingFailed(String imageUri, View view, String failedReason) {}
+             public void onLoadingFailed(String imageUri, View view, String failedReason) {
+             }
 
              @Override
              public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                 mAvatarLoadingViews.remove(view);
+                 avatarLoadingViews.remove(view);
                  c.avatar = loadedImage;
                  if (c.topLevelComment) {
-                     if (!mUIHandler.hasMessages(REFRESH_AVATARS)) {
-                         Message msg = mUIHandler.obtainMessage(REFRESH_AVATARS);
-                         PlayerAvatarBarView.this.mUIHandler.sendMessageDelayed(msg, 100);
+                     if (!uIHandler.hasMessages(REFRESH_AVATARS)) {
+                         Message msg = uIHandler.obtainMessage(REFRESH_AVATARS);
+                         PlayerAvatarBarView.this.uIHandler.sendMessageDelayed(msg, 100);
                      }
                  }
              }
@@ -181,9 +181,9 @@ public class PlayerAvatarBarView extends View {
     }
 
     private void refreshDefaultAvatar() {
-        if (mAvatarWidth > 0 && (mDefaultAvatar == null || mDefaultAvatar.isRecycled())) {
-            mDefaultAvatar = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.avatar_badge);
-            mDefaultAvatarScale = ((float) mAvatarWidth) / mDefaultAvatar.getHeight();
+        if (avatarWidth > 0 && (defaultAvatar == null || defaultAvatar.isRecycled())) {
+            defaultAvatar = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.avatar_badge);
+            defaultAvatarScale = ((float) avatarWidth) / defaultAvatar.getHeight();
         }
     }
 
@@ -193,50 +193,50 @@ public class PlayerAvatarBarView extends View {
 
         if (changed){
 
-            mAvatarWidth = getHeight() ;
+            avatarWidth = getHeight() ;
             refreshDefaultAvatar();
 
-            mUIHandler.removeMessages(REFRESH_AVATARS);
-            Message msg = mUIHandler.obtainMessage(REFRESH_AVATARS);
-            PlayerAvatarBarView.this.mUIHandler.sendMessage(msg);
+            uIHandler.removeMessages(REFRESH_AVATARS);
+            Message msg = uIHandler.obtainMessage(REFRESH_AVATARS);
+            PlayerAvatarBarView.this.uIHandler.sendMessage(msg);
         }
 
     }
 
     public void setIsLandscape(boolean landscape) {
-        mLandscape = landscape;
+        this.landscape = landscape;
     }
 
     class AvatarRefresher implements Runnable {
         @Override
         public void run() {
             // XXX race condition with current comments
-            final List<Comment> comments = mCurrentComments;
+            final List<Comment> comments = currentComments;
             final int width = getWidth();
             final int height = getHeight();
             if (comments != null && width > 0 && height > 0) {
                 try {
-                    mNextCanvasBmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                    nextCanvasBmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
                 } catch (OutOfMemoryError e) {
                     // XXX really catch oom here?
                     Log.e(TAG, "Out of memory during avatar refresher bitmap creation");
                 }
 
-                if (mNextCanvasBmp != null && !mNextCanvasBmp.isRecycled()) {
-                    Canvas canvas = new Canvas(mNextCanvasBmp);
+                if (nextCanvasBmp != null && !nextCanvasBmp.isRecycled()) {
+                    Canvas canvas = new Canvas(nextCanvasBmp);
                     for (Comment comment : comments) {
                         if (Thread.currentThread().isInterrupted()) break;
                         if (comment.timestamp == 0) continue;
-                        drawCommentOnCanvas(comment, canvas, mLinePaint, mImagePaint, mBgMatrix);
+                        drawCommentOnCanvas(comment, canvas, linePaint, imagePaint, bgMatrix);
                     }
 
                     if (Thread.currentThread().isInterrupted()) {
-                        mNextCanvasBmp.recycle();
-                        mNextCanvasBmp = null;
+                        nextCanvasBmp.recycle();
+                        nextCanvasBmp = null;
                     } else {
-                        if (!mUIHandler.hasMessages(AVATARS_REFRESHED)) {
-                            Message msg = mUIHandler.obtainMessage(AVATARS_REFRESHED);
-                            PlayerAvatarBarView.this.mUIHandler.sendMessageDelayed(msg, 200);
+                        if (!uIHandler.hasMessages(AVATARS_REFRESHED)) {
+                            Message msg = uIHandler.obtainMessage(AVATARS_REFRESHED);
+                            PlayerAvatarBarView.this.uIHandler.sendMessageDelayed(msg, 200);
                         }
 
                     }
@@ -245,26 +245,26 @@ public class PlayerAvatarBarView extends View {
         }
     }
 
-    Handler mUIHandler = new Handler(){
+    private final Handler uIHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case REFRESH_AVATARS:
-                    if (mCurrentComments == null || mDuration == -1)
+                    if (currentComments == null || duration == -1)
                         return;
 
-                    if (mAvatarRefreshThread != null)
-                        mAvatarRefreshThread.interrupt();
+                    if (avatarRefreshThread != null)
+                        avatarRefreshThread.interrupt();
 
-                    mAvatarRefreshThread = new Thread(new AvatarRefresher());
-                    mAvatarRefreshThread.start();
+                    avatarRefreshThread = new Thread(new AvatarRefresher());
+                    avatarRefreshThread.start();
                     break;
 
                 case AVATARS_REFRESHED:
-                    if (mCanvasBmp != null)
-                        mCanvasBmp.recycle();
+                    if (canvasBmp != null)
+                        canvasBmp.recycle();
 
-                    mCanvasBmp = mNextCanvasBmp;
+                    canvasBmp = nextCanvasBmp;
                     invalidate();
                     break;
             }
@@ -276,18 +276,18 @@ public class PlayerAvatarBarView extends View {
         final Bitmap avatar = comment.avatar;
 
         if (avatar == null || avatar.isRecycled() || !comment.shouldLoadIcon()) {
-            if (mLandscape) {
+            if (landscape) {
                 refreshDefaultAvatar();
-                matrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
+                matrix.setScale(defaultAvatarScale, defaultAvatarScale);
                 matrix.postTranslate(comment.xPos, 0);
-                canvas.drawBitmap(mDefaultAvatar, matrix, imagePaint);
+                canvas.drawBitmap(defaultAvatar, matrix, imagePaint);
             }
             canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
 
             if (avatar != null && avatar.isRecycled()) loadAvatar(comment);
 
         } else {
-            final float drawScale = ((float) mAvatarWidth) / avatar.getHeight();
+            final float drawScale = ((float) avatarWidth) / avatar.getHeight();
             matrix.setScale(drawScale, drawScale);
             matrix.postTranslate(comment.xPos, 0);
             canvas.drawBitmap(avatar, matrix, imagePaint);
@@ -299,17 +299,17 @@ public class PlayerAvatarBarView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (mCanvasBmp != null && !mCanvasBmp.isRecycled()) {
-            canvas.drawBitmap(mCanvasBmp, DEFAULT_MATRIX, mImagePaint);
-        } else if (mCurrentComments != null) {
-            for (Comment comment : mCurrentComments){
-                canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), mLinePaint);
+        if (canvasBmp != null && !canvasBmp.isRecycled()) {
+            canvas.drawBitmap(canvasBmp, DEFAULT_MATRIX, imagePaint);
+        } else if (currentComments != null) {
+            for (Comment comment : currentComments){
+                canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
             }
         }
 
-        if (mCurrentComment != null){
-            drawCommentOnCanvas(mCurrentComment,canvas,mActiveLinePaint, mActiveImagePaint,mActiveMatrix);
-            canvas.drawLine(mCurrentComment.xPos, 0, mCurrentComment.xPos, getHeight(), mActiveLinePaint);
+        if (currentComment != null){
+            drawCommentOnCanvas(currentComment,canvas,mActiveLinePaint, activeImagePaint, activeMatrix);
+            canvas.drawLine(currentComment.xPos, 0, currentComment.xPos, getHeight(), mActiveLinePaint);
         }
     }
 
