@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,7 +116,7 @@ public class ButtonBar extends LinearLayout {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT);
         lp.weight = 1;
         b.setLayoutParams(lp);
-        b.setText(menuItem.label);
+        b.setText(menuItem.label, TextView.BufferType.NORMAL);
         b.setOnClickListener(menuItem.onClickListener);
 
         return b;

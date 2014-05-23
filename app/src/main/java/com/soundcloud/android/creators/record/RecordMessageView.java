@@ -36,7 +36,7 @@ public class RecordMessageView extends TextView {
     }
 
     public void setMessage(String message){
-        super.setText(message);
+        super.setText(message, BufferType.NORMAL);
         currentSuggestionKey = "";
     }
 
