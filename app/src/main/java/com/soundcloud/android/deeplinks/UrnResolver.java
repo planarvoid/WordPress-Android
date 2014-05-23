@@ -1,9 +1,11 @@
 package com.soundcloud.android.deeplinks;
 
-import android.net.Uri;
 import com.soundcloud.android.model.Urn;
 import org.jetbrains.annotations.NotNull;
 
+import android.net.Uri;
+
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,6 +39,6 @@ class UrnResolver {
     }
 
     private Urn getUrn(Matcher matcher) {
-        return Urn.parse(Urn.SCHEME + ":" + matcher.group(1).toLowerCase() + ":" + matcher.group(2));
+        return Urn.parse(Urn.SCHEME + ":" + matcher.group(1).toLowerCase(Locale.ENGLISH) + ":" + matcher.group(2));
     }
 }
