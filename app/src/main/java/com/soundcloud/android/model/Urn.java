@@ -12,6 +12,7 @@ import android.os.Parcelable;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.regex.Pattern;
 
 /**
  * Models a SoundCloud URN
@@ -24,6 +25,9 @@ public abstract class Urn implements Parcelable {
     public static final String TRACKS_TYPE = "tracks";
     public static final String PLAYLISTS_TYPE = "playlists";
     public static final String USERS_TYPE = "users";
+
+    private static final Pattern URN_PATTERN = Pattern.compile("^soundcloud:(" + SOUNDS_TYPE +
+            "|" + TRACKS_TYPE + "|" + PLAYLISTS_TYPE + "|" + USERS_TYPE + "):\\d+");
 
     public static final Creator<Urn> CREATOR = new Creator<Urn>() {
         @Override
@@ -41,32 +45,34 @@ public abstract class Urn implements Parcelable {
     public final String type;
     public final long numericId;
 
+    public static boolean isValidUrn(Uri uri) {
+        return isValidUrn(uri.toString());
+    }
+
+    public static boolean isValidUrn(String uri) {
+        return URN_PATTERN.matcher(uri).matches();
+    }
+
     @NotNull
     public static Urn parse(String uriString) {
-        Uri uri = Uri.parse(uriString);
-        if (!SCHEME.equalsIgnoreCase(uri.getScheme())) {
-            throw new IllegalArgumentException("Not a valid SoundCloud URN: " + uri);
+        if (!isValidUrn(uriString)) {
+            throw new IllegalArgumentException("Not a valid SoundCloud URN: " + uriString);
         }
+        Uri uri = Uri.parse(uriString);
         final String specific = uri.getSchemeSpecificPart();
         final String[] components = specific.split(":", 2);
-        if (components.length == 2) {
-            final long id = ScTextUtils.safeParseLong(components[1]);
-            if (id == -1){
-                throw new IllegalArgumentException("Invalid id from uri : " + uri);
-            }
+        final long id = ScTextUtils.safeParseLong(components[1]);
+        if (id == -1) {
+            throw new IllegalArgumentException("Invalid id from uri : " + uri);
+        }
 
-            final String type = fixType(components[0]);
-            if (SOUNDS_TYPE.equals(type) || TRACKS_TYPE.equals(type)) {
-                return forTrack(id);
-            } else if (PLAYLISTS_TYPE.equals(type)) {
-                return forPlaylist(id);
-            } else if (USERS_TYPE.equals(type)) {
-                return forUser(id);
-            } else {
-                throw new IllegalArgumentException("Unsupported URN type: " + type);
-            }
+        final String type = fixType(components[0]);
+        if (SOUNDS_TYPE.equals(type) || TRACKS_TYPE.equals(type)) {
+            return forTrack(id);
+        } else if (PLAYLISTS_TYPE.equals(type)) {
+            return forPlaylist(id);
         } else {
-            throw new IllegalArgumentException("Not a valid SoundCloud URN: " + uri);
+            return forUser(id);
         }
     }
 

@@ -2,11 +2,12 @@ package com.soundcloud.android.activity.resolve.facebook;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.TestConsts;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
 
 import android.net.Uri;
 
-public class ResolveTrackDeeplink extends FacebookResolveBaseTest {
+public class ResolveFacebookTrackWebLinkTest extends FacebookResolveBaseTest {
 
     private static final String TRACK_NAME = "Celebrate 5 years of finding each other on SoundCloud";
     private LegacyPlayerScreen playerScreen;

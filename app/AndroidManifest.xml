@@ -78,7 +78,7 @@
         </activity>
 
         <!-- activities -->
-        <activity android:name=".main.ResolveActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar" android:windowSoftInputMode="adjustPan">
+        <activity android:name=".deeplinks.ResolveActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar" android:windowSoftInputMode="adjustPan">
 
             <intent-filter android:priority="1">
                 <action android:name="android.intent.action.VIEW"/>

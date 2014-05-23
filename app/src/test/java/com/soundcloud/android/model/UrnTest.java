@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
+import android.net.Uri;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import org.junit.Test;
@@ -57,19 +58,40 @@ public class UrnTest {
         expect(urn.isSound()).toBeTrue();
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionWhenTryingToParseUrnWithInvalidId() {
-        Urn.parse("soundcloud:sounds:abc");
+    @Test
+    public void isValidUrnShouldReturnTrueForValidSoundUrn() throws Exception {
+        expect(Urn.isValidUrn(Uri.parse("soundcloud:sounds:123"))).toBeTrue();
+        expect(Urn.isValidUrn(Uri.parse("soundcloud:tracks:123"))).toBeTrue();
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionWhenTryingToParseInvalidUrn() {
-        Urn.parse("not a URN");
+    @Test
+    public void isValidUrnShouldReturnTrueForValidUserUrn() throws Exception {
+        expect(Urn.isValidUrn(Uri.parse("soundcloud:users:123"))).toBeTrue();
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionWhenNotASupportedType() {
-        Urn.parse("soundcloud:something:1");
+    @Test
+    public void isValidUrnShouldReturnTrueForValidPlaylistUrn() throws Exception {
+        expect(Urn.isValidUrn(Uri.parse("soundcloud:playlists:123"))).toBeTrue();
+    }
+
+    @Test
+    public void isUrnReturnsFalseForInvalidUrn() {
+        expect(Urn.isValidUrn(Uri.parse("not a URN"))).toBeFalse();
+    }
+
+    @Test
+    public void isUrnReturnsFalseIfSchemeIsNotSoundCloudScheme() {
+        expect(Urn.isValidUrn(Uri.parse("something:users:213"))).toBeFalse();
+    }
+
+    @Test
+    public void isValidUrnReturnsFalseIfIdentifierIsUnsupported() {
+        expect(Urn.isValidUrn(Uri.parse("soundcloud:sounds:abc"))).toBeFalse();
+    }
+
+    @Test
+    public void isValidUrnReturnsFalseIfNamespaceNotSupported() {
+        expect(Urn.isValidUrn(Uri.parse("soundcloud:something:1"))).toBeFalse();
     }
 
     @Test

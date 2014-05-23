@@ -1,8 +1,9 @@
-package com.soundcloud.android.main;
+package com.soundcloud.android.deeplinks;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
+import com.soundcloud.android.deeplinks.ResolveTask;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.api.Env;

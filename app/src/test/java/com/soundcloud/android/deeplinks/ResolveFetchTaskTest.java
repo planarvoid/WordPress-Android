@@ -1,15 +1,16 @@
-package com.soundcloud.android.main;
+package com.soundcloud.android.deeplinks;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.main.ResolveFetchTask;
+import com.soundcloud.android.deeplinks.ResolveFetchTask;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.net.Uri;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class ResolveFetchTaskTest {
 
     @Test
@@ -34,11 +35,6 @@ public class ResolveFetchTaskTest {
         expect(ResolveFetchTask.extractClickTrackingRedirectUrl(
                 Uri.parse("http://soundcloud.com/angelika-ochmann?url=foo")))
                  .toEqual("http://soundcloud.com/angelika-ochmann?url=foo");
-
-        expect(ResolveFetchTask.extractClickTrackingRedirectUrl(
-                Uri.parse("soundcloud:users:123")))
-                 .toEqual("soundcloud:users:123");
-
 
         expect(ResolveFetchTask.extractClickTrackingRedirectUrl(
                 Uri.parse("http://unrelated.com")))
