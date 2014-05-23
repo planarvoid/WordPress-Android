@@ -21,11 +21,11 @@ public class ScModelManager {
     private static final int LOW_MEM_REFERENCE = 16 * 1024 * 1024; // In bytes, used as a reference for calculations
     private static final int DEFAULT_CACHE_CAPACITY = 100;
 
-    private ContentResolver mResolver;
+    private ContentResolver resolver;
 
-    private final ModelCache<Track> mTrackCache;
-    private final ModelCache<User> mUserCache;
-    private final ModelCache<Playlist> mPlaylistCache;
+    private final ModelCache<Track> trackCache;
+    private final ModelCache<User> userCache;
+    private final ModelCache<Playlist> playlistCache;
 
 
     public ScModelManager(Context c) {
@@ -43,11 +43,11 @@ public class ScModelManager {
             playlistCapacity = DEFAULT_CACHE_CAPACITY;
         }
 
-        mTrackCache = new ModelCache<Track>(trackCapacity);
-        mUserCache = new ModelCache<User>(userCapacity);
-        mPlaylistCache = new ModelCache<Playlist>(playlistCapacity);
+        trackCache = new ModelCache<Track>(trackCapacity);
+        userCache = new ModelCache<User>(userCapacity);
+        playlistCache = new ModelCache<Playlist>(playlistCapacity);
 
-        mResolver = c.getContentResolver();
+        resolver = c.getContentResolver();
     }
 
     public Track getCachedTrackFromCursor(Cursor cursor) {
@@ -56,12 +56,12 @@ public class ScModelManager {
 
     public Track getCachedTrackFromCursor(Cursor cursor, String idCol) {
         final long id = cursor.getLong(cursor.getColumnIndex(idCol));
-        Track track = mTrackCache.get(id);
+        Track track = trackCache.get(id);
 
         // assumes track cache has always
         if (track == null) {
             track = new Track(cursor);
-            mTrackCache.put(track);
+            trackCache.put(track);
         }
         return track;
     }
@@ -72,23 +72,23 @@ public class ScModelManager {
 
     public Playlist getCachedPlaylistFromCursor(Cursor cursor, String idCol) {
         final long id = cursor.getLong(cursor.getColumnIndex(idCol));
-        Playlist playlist = mPlaylistCache.get(id);
+        Playlist playlist = playlistCache.get(id);
 
         // assumes track cache has always
         if (playlist == null) {
             playlist = new Playlist(cursor);
-            mPlaylistCache.put(playlist);
+            playlistCache.put(playlist);
         }
         return playlist;
     }
 
     public User getCachedUserFromSoundViewCursor(Cursor cursor) {
         final long user_id = cursor.getLong(cursor.getColumnIndex(TableColumns.SoundView.USER_ID));
-        User user = mUserCache.get(user_id);
+        User user = userCache.get(user_id);
 
         if (user == null) {
             user = User.fromSoundView(cursor);
-            mUserCache.put(user);
+            userCache.put(user);
         }
         return user;
     }
@@ -99,21 +99,21 @@ public class ScModelManager {
 
     public User getCachedUserFromCursor(Cursor cursor, String col) {
         final long user_id = cursor.getLong(cursor.getColumnIndex(col));
-        User user = mUserCache.get(user_id);
+        User user = userCache.get(user_id);
 
         if (user == null) {
             user = new User(cursor);
-            mUserCache.put(user);
+            userCache.put(user);
         }
         return user;
     }
 
     public User getCachedUserFromActivityCursor(Cursor itemsCursor) {
         final long id = itemsCursor.getLong(itemsCursor.getColumnIndex(TableColumns.ActivityView.USER_ID));
-        User user = mUserCache.get(id);
+        User user = userCache.get(id);
         if (user == null) {
             user = User.fromActivityView(itemsCursor);
-            mUserCache.put(user);
+            userCache.put(user);
         }
         return user;
     }
@@ -134,11 +134,11 @@ public class ScModelManager {
     private @Nullable ModelCache getCacheFromUri(Uri uri) {
         switch (Content.match(uri)) {
             case TRACK:
-                return mTrackCache;
+                return trackCache;
             case USER:
-                return mUserCache;
+                return userCache;
             case PLAYLIST:
-                return mPlaylistCache;
+                return playlistCache;
         }
         return null;
     }
@@ -163,7 +163,7 @@ public class ScModelManager {
 
         Content c = Content.match(uri);
         if (resource == null) {
-            Cursor cursor = mResolver.query(uri, null, null, null, null);
+            Cursor cursor = resolver.query(uri, null, null, null, null);
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
                     try {
@@ -186,10 +186,10 @@ public class ScModelManager {
     Track getTrack(long id) {
         if (id < 0) return null;
 
-        Track t = mTrackCache.get(id);
+        Track t = trackCache.get(id);
         if (t == null) {
             t = (Track) getModel(Content.TRACK.forId(id), null);
-            if (t != null) mTrackCache.put(t);
+            if (t != null) trackCache.put(t);
         }
         return t;
     }
@@ -199,10 +199,10 @@ public class ScModelManager {
     User getUser(long id) {
         if (id < 0) return null;
 
-        User u = mUserCache.get(id);
+        User u = userCache.get(id);
         if (u == null) {
             u = (User) getModel(Content.USER.forId(id));
-            if (u != null) mUserCache.put(u);
+            if (u != null) userCache.put(u);
         }
         return u;
     }
@@ -213,21 +213,21 @@ public class ScModelManager {
     Playlist getPlaylist(long id) {
         if (id < 0) return null;
 
-        Playlist p = mPlaylistCache.get(id);
+        Playlist p = playlistCache.get(id);
         if (p == null) {
             p = (Playlist) getModel(Content.PLAYLIST.forId(id));
-            if (p != null) mPlaylistCache.put(p);
+            if (p != null) playlistCache.put(p);
         }
         return p;
     }
 
 
     public Track getCachedTrack(long id) {
-        return mTrackCache.get(id);
+        return trackCache.get(id);
     }
 
     public User getCachedUser(long id) {
-        return mUserCache.get(id);
+        return userCache.get(id);
     }
 
     public ScResource cache(@Nullable ScResource resource) {
@@ -261,15 +261,15 @@ public class ScModelManager {
             track.user = cache(track.user, updateMode);
         }
 
-        if (mTrackCache.containsKey(track.getId())) {
+        if (trackCache.containsKey(track.getId())) {
             if (updateMode.shouldUpdate()) {
-                return mTrackCache.get(track.getId()).updateFrom(track, updateMode);
+                return trackCache.get(track.getId()).updateFrom(track, updateMode);
             } else {
-                return mTrackCache.get(track.getId());
+                return trackCache.get(track.getId());
             }
 
         } else {
-            mTrackCache.put(track);
+            trackCache.put(track);
             return track;
         }
     }
@@ -285,14 +285,14 @@ public class ScModelManager {
             playlist.tracks.set(i, cache(playlist.tracks.get(i), updateMode));
         }
 
-        if (mPlaylistCache.containsKey(playlist.getId())) {
+        if (playlistCache.containsKey(playlist.getId())) {
             if (updateMode.shouldUpdate()) {
-                return mPlaylistCache.get(playlist.getId()).updateFrom(playlist, updateMode);
+                return playlistCache.get(playlist.getId()).updateFrom(playlist, updateMode);
             } else {
-                return mPlaylistCache.get(playlist.getId());
+                return playlistCache.get(playlist.getId());
             }
         } else {
-            mPlaylistCache.put(playlist);
+            playlistCache.put(playlist);
             return playlist;
         }
     }
@@ -304,20 +304,20 @@ public class ScModelManager {
     public User cache(@Nullable User user, ScResource.CacheUpdateMode updateMode) {
         if (user == null) return null;
 
-        if (mUserCache.containsKey(user.getId())) {
+        if (userCache.containsKey(user.getId())) {
             if (updateMode.shouldUpdate()) {
-                return mUserCache.get(user.getId()).updateFrom(user, updateMode);
+                return userCache.get(user.getId()).updateFrom(user, updateMode);
             } else {
-                return mUserCache.get(user.getId());
+                return userCache.get(user.getId());
             }
         } else {
-            mUserCache.put(user);
+            userCache.put(user);
             return user;
         }
     }
 
     public void clear() {
-        mTrackCache.clear();
-        mUserCache.clear();
+        trackCache.clear();
+        userCache.clear();
     }
 }
