@@ -13,8 +13,7 @@ module Build
   extend self
 
   def version
-    @version = Time.new.strftime("%d%m%y")
-    @version ||= pom_version.to_version
+    @version ||= Time.new.strftime("%y.%m.%d")
   end
 
   def version_code=(code)
@@ -35,7 +34,7 @@ module Build
 
   def version_name
     if env == 'release'
-      [version].compact.join("-")
+      [version, build_number].compact.join("-")
     else
       [version, build_number, env].compact.join("-")
     end
