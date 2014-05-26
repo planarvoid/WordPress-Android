@@ -16,6 +16,8 @@ public class JaggedTextView extends CustomFontTextView {
     private Paint backgroundPaint;
     private ColorStateList colorStateList;
 
+    private boolean showBackground = true;
+
     public JaggedTextView(Context context) {
         super(context);
     }
@@ -40,6 +42,17 @@ public class JaggedTextView extends CustomFontTextView {
 
     @Override
     public void setBackgroundDrawable(Drawable drawable) {
+        // Does not support background drawable
+    }
+
+    @Override
+    public void setBackground(Drawable background) {
+        // Does not support background drawable
+    }
+
+    public void showBackground(boolean showBackground) {
+        this.showBackground = showBackground;
+        invalidate();
     }
 
     @Override
@@ -54,6 +67,15 @@ public class JaggedTextView extends CustomFontTextView {
         }
 
         canvas.translate(getPaddingLeft(), getPaddingTop());
+        if (showBackground) {
+            drawBackground(canvas, layout);
+        }
+
+        layout.getPaint().setColor(getCurrentTextColor());
+        layout.draw(canvas);
+    }
+
+    private void drawBackground(Canvas canvas, Layout layout) {
         for (int line = 0; line < layout.getLineCount(); line++) {
             float left   = layout.getLineLeft(line);
             float top    = layout.getLineTop(line);
@@ -76,8 +98,6 @@ public class JaggedTextView extends CustomFontTextView {
             backgroundPaint.setColor(backgroundColor);
             canvas.drawRect(left, top, right, bottom, backgroundPaint);
         }
-
-        layout.getPaint().setColor(getCurrentTextColor());
-        layout.draw(canvas);
     }
+
 }

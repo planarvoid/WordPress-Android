@@ -5,6 +5,7 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.view.JaggedTextView;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -110,8 +111,8 @@ class TrackPagePresenter implements View.OnClickListener {
 
     private void setupHolder(View trackView) {
         TrackPageHolder holder = new TrackPageHolder();
-        holder.title = (TextView) trackView.findViewById(R.id.track_page_title);
-        holder.user = (TextView) trackView.findViewById(R.id.track_page_user);
+        holder.title = (JaggedTextView) trackView.findViewById(R.id.track_page_title);
+        holder.user = (JaggedTextView) trackView.findViewById(R.id.track_page_user);
         holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
         holder.artwork = (PlayerArtworkImageView) trackView.findViewById(R.id.track_page_artwork);
         holder.close = (Button) trackView.findViewById(R.id.player_close);
@@ -124,8 +125,8 @@ class TrackPagePresenter implements View.OnClickListener {
     }
 
     static class TrackPageHolder {
-        TextView title;
-        TextView user;
+        JaggedTextView title;
+        JaggedTextView user;
         ToggleButton likeToggle;
         PlayerArtworkImageView artwork;
         Button close;
