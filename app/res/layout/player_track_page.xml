@@ -73,18 +73,22 @@
             android:layout_marginLeft="20dp" />
     </FrameLayout>
 
-    <RelativeLayout
+    <LinearLayout
             android:id="@+id/player_bottom_close"
             android:layout_width="match_parent"
             android:layout_height="@dimen/player_footer_control"
-            android:layout_alignParentBottom="true">
+            android:layout_alignParentBottom="true"
+            android:gravity="right|center_vertical"
+            android:paddingRight="16dp">
 
         <ToggleButton
             android:id="@+id/track_page_like"
             style="@style/PlayerLike"
-            android:layout_marginRight="20dp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true" />
-    </RelativeLayout>
+            android:layout_marginRight="16dp" />
+
+        <Button
+            android:id="@+id/track_page_more"
+            style="@style/PlayerMore" />
+    </LinearLayout>
 
 </RelativeLayout>

@@ -1566,6 +1566,12 @@
         <item name="android:background">@drawable/btn_player_like</item>
     </style>
 
+    <style name="PlayerMore">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:background">@drawable/btn_player_more</item>
+    </style>
+
     <style name="PlayerClose">
         <item name="android:layout_width">32dp</item>
         <item name="android:layout_height">32dp</item>

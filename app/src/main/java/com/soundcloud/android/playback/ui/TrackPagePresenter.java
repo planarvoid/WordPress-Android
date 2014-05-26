@@ -115,8 +115,9 @@ class TrackPagePresenter implements View.OnClickListener {
         TrackPageHolder holder = new TrackPageHolder();
         holder.title = (JaggedTextView) trackView.findViewById(R.id.track_page_title);
         holder.user = (JaggedTextView) trackView.findViewById(R.id.track_page_user);
-        holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
         holder.artwork = (PlayerArtworkImageView) trackView.findViewById(R.id.track_page_artwork);
+        holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
+        holder.more = trackView.findViewById(R.id.track_page_more);
         holder.close = trackView.findViewById(R.id.player_close);
         holder.bottomClose = trackView.findViewById(R.id.player_bottom_close);
 
@@ -130,8 +131,9 @@ class TrackPagePresenter implements View.OnClickListener {
     static class TrackPageHolder {
         JaggedTextView title;
         JaggedTextView user;
-        ToggleButton likeToggle;
         PlayerArtworkImageView artwork;
+        ToggleButton likeToggle;
+        View more;
         View close;
         View bottomClose;
 
