@@ -66,7 +66,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     PlayerController playerController;
 
     private final CompositeSubscription subscription = new CompositeSubscription();
-    private Handler mDrawerHandler = new Handler();
+    private Handler drawerHandler = new Handler();
 
     public MainActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -232,8 +232,8 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             showBlankFragment();
         }
 
-        mDrawerHandler.removeCallbacksAndMessages(null);
-        mDrawerHandler.postDelayed(new Runnable() {
+        drawerHandler.removeCallbacksAndMessages(null);
+        drawerHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 displayFragment(position, setTitle);
