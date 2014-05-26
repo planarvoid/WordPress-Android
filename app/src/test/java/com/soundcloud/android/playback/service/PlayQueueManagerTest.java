@@ -382,10 +382,19 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void shouldPublishPlayQueueRelatedTracksEventOnRelatedLoadingStateChange() throws CreateModelException {
+        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(Observable.<RelatedTracksCollection>never());
+        playQueueManager.fetchRelatedTracks(123L);
+
+        PlayQueueEvent playQueueEvent = eventMonitor.verifyEventOn(EventQueue.PLAY_QUEUE);
+        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.RELATED_TRACKS_CHANGE);
+    }
+
+    @Test
     public void shouldCacheAndAddRelatedTracksToQueueWhenRelatedTracksReturn() throws CreateModelException {
         final TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(123L), 0, playSessionSource), playSessionSource);
-        playQueueManager.onNext(new RelatedTracksCollection(Lists.<TrackSummary>newArrayList(trackSummary), "123"));
+        playQueueManager.onNext(new RelatedTracksCollection(Lists.newArrayList(trackSummary), "123"));
 
         expect(playQueueManager.getPlayQueueView()).toContainExactly(123L, trackSummary.getId());
 

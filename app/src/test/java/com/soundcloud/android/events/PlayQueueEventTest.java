@@ -21,4 +21,10 @@ public class PlayQueueEventTest {
         expect(event.getKind()).toEqual(1);
     }
 
+    @Test
+    public void shouldCreateEventForRelatedTracksChange() {
+        PlayQueueEvent event = PlayQueueEvent.fromRelatedTracksChange();
+        expect(event.getKind()).toEqual(2);
+    }
+
 }

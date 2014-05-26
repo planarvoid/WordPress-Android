@@ -141,6 +141,13 @@ public class PlayerFragmentTest {
     }
 
     @Test
+    public void onPlayQueueEventForRelatedTracksChangeCallsOnPlayQueueChangedOnPresenter() {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromRelatedTracksChange());
+        verify(presenter).onPlayQueueChanged();
+    }
+
+    @Test
     public void onPlaybackProgressEventSetsPlayerProgressOnPresenter() {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
