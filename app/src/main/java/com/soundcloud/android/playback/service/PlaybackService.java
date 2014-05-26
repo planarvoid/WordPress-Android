@@ -362,10 +362,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         sendBroadcast(intent);
 
-        if (applicationProperties.shouldUseRichNotifications()) {
-            if (what.equals(Broadcasts.PLAYSTATE_CHANGED)) {
-                setPlayingNotification(currentTrack);
-            }
+        if (what.equals(Broadcasts.PLAYSTATE_CHANGED) &&
+                (stateTransition.playSessionIsActive() || applicationProperties.shouldUseRichNotifications())) {
+            setPlayingNotification(currentTrack);
         }
 
         if (stateTransition.playbackHasStopped()) {

@@ -140,6 +140,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void onPlaystateChangedPublishesStateTransition() throws Exception {
+        playbackService.onCreate();
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
         when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.BUFFERING);
@@ -152,7 +153,8 @@ public class PlaybackServiceTest {
     }
 
     @Test
-    public void onProgressDoesNotPublisheProgressEvent() throws Exception {
+    public void onProgressDoesNotPublishProgressEvent() throws Exception {
+        playbackService.onCreate();
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
         playbackService.onProgressEvent(123L, 456L);
@@ -162,6 +164,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void onProgressPublishesAProgressEventIfVisualPlayerEnabled() throws Exception {
+        playbackService.onCreate();
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
@@ -174,6 +177,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void stopSavesCurrentQueueAndPosition() throws Exception {
+        playbackService.onCreate();
         when(streamPlayer.getProgress()).thenReturn(123L);
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
@@ -184,6 +188,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void openCurrentLoadsStreamableTrackFromTrackOperations() throws Exception {
+        playbackService.onCreate();
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         final TestObservables.MockObservable<Track> trackMockObservable = TestObservables.emptyObservable();
         when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(trackMockObservable);
@@ -193,6 +198,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void openCurrentUnsubscribesPreviousLoadsStreamableTrackObservable() throws Exception {
+        playbackService.onCreate();
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
 
         final Subscription subscription = Mockito.mock(Subscription.class);
