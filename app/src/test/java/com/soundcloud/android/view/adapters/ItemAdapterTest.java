@@ -1,38 +1,44 @@
-package com.soundcloud.android.collections;
+package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ItemAdapterTest {
 
-    private ItemAdapter<Track> adapter = new ItemAdapter<Track>(10) {
-        @Override
-        protected TextView createItemView(int position, ViewGroup parent) {
-            return new TextView(parent.getContext());
-        }
+    @Mock
+    private CellPresenter cellPresenter;
 
-        @Override
-        protected void bindItemView(int position, View itemView) {
-            ((TextView) itemView).setText(getItem(position).getTitle());
-        }
-    };
+    private ItemAdapter<Track> adapter;
+
+    @Before
+    public void setup() {
+        adapter = new ItemAdapter<Track>(cellPresenter, 10) {};
+    }
 
     @Test
     public void shouldAddItems() {
@@ -66,27 +72,36 @@ public class ItemAdapterTest {
     }
 
     @Test
-    public void shouldCreateAndBindNewItemView() {
+    public void shouldCreateItemViewWithPresenter() {
+        FrameLayout parent = mock(FrameLayout.class);
+        adapter.addItem(new Track());
+        adapter.getView(0, null, parent);
+        verify(cellPresenter).createItemView(0, parent, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
+    }
+
+    @Test
+    public void shouldBindItemView() {
+        FrameLayout parent = mock(FrameLayout.class);
+        View itemView = mock(View.class);
+        when(cellPresenter.createItemView(0, parent, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE)).thenReturn(itemView);
         Track item = new Track();
-        item.setTitle("New track");
         adapter.addItem(item);
 
-        View itemView = adapter.getView(0, null, new FrameLayout(Robolectric.application));
-        expect(itemView).not.toBeNull();
-        expect(((TextView) itemView).getText()).toEqual("New track");
+        adapter.getView(0, null, parent);
+        verify(cellPresenter).bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(item));
     }
 
     @Test
     public void shouldConvertItemView() {
+        FrameLayout parent = mock(FrameLayout.class);
+        View convertView = mock(View.class);
         Track item = new Track();
-        item.setTitle("New track");
         adapter.addItem(item);
 
-        TextView convertView = new TextView(Robolectric.application);
-        convertView.setText("Old track");
-        View itemView = adapter.getView(0, convertView, new FrameLayout(Robolectric.application));
+        View itemView = adapter.getView(0, convertView, parent);
         expect(itemView).toBe(convertView);
-        expect(((TextView) itemView).getText()).toEqual("New track");
+        verify(cellPresenter, never()).createItemView(anyInt(), any(ViewGroup.class), eq(ItemAdapter.DEFAULT_ITEM_VIEW_TYPE));
+        verify(cellPresenter).bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(item));
     }
 
     @Test

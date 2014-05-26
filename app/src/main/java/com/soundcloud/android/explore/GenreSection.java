@@ -1,14 +1,14 @@
-package com.soundcloud.android.collections;
+package com.soundcloud.android.explore;
 
 import java.util.List;
 
-public class Section<T> {
+class GenreSection<T> {
 
     private final int sectionId;
     private final int titleId;
     private final List<T> items;
 
-    public Section(int sectionId, int titleId, List<T> items) {
+    public GenreSection(int sectionId, int titleId, List<T> items) {
         this.sectionId = sectionId;
         this.titleId = titleId;
         this.items = items;
@@ -32,7 +32,7 @@ public class Section<T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Section section = (Section) o;
+        GenreSection section = (GenreSection) o;
 
         if (sectionId != section.sectionId) return false;
         if (!items.equals(section.items)) return false;

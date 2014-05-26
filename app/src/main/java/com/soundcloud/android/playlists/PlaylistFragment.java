@@ -9,7 +9,7 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.EngagementsController;
-import com.soundcloud.android.collections.ItemAdapter;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Playlist;

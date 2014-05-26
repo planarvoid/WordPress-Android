@@ -3,16 +3,14 @@ package com.soundcloud.android.stream;
 import static rx.android.OperatorPaged.Page;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
-import com.soundcloud.android.collections.EndlessPagingAdapter;
 import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.PropertySet;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
@@ -23,10 +21,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.TextView;
 
 import javax.inject.Inject;
-import java.util.Date;
 import java.util.List;
 
 public class SoundStreamFragment extends Fragment
@@ -35,7 +31,7 @@ public class SoundStreamFragment extends Fragment
     @Inject
     SoundStreamOperations soundStreamOperations;
     @Inject
-    StreamItemAdapter adapter;
+    PagingItemAdapter<PropertySet> adapter;
     @Inject
     ListViewController listViewController;
     @Inject
@@ -107,34 +103,4 @@ public class SoundStreamFragment extends Fragment
 
     }
 
-    // PLEASE IGNORE THIS GUY FOR NOW.
-    // I just need something quick and dirty for testing right now.
-    // I will fully revisit how we do adapters and row binding in a later step.
-    static class StreamItemAdapter extends EndlessPagingAdapter<PropertySet> {
-
-        @Inject
-        protected StreamItemAdapter() {
-            super(Consts.LIST_PAGE_SIZE);
-        }
-
-        @Override
-        protected View createItemView(int position, ViewGroup parent) {
-            return new TextView(parent.getContext());
-        }
-
-        @Override
-        protected void bindItemView(int position, View itemView) {
-            final PropertySet propertySet = getItem(position);
-            final Urn soundUrn = propertySet.get(StreamItemProperty.SOUND_URN);
-            final String soundTitle = propertySet.get(StreamItemProperty.SOUND_TITLE);
-            final String poster = propertySet.get(StreamItemProperty.POSTER);
-            final Date createdAt = propertySet.get(StreamItemProperty.CREATED_AT);
-            final boolean isRepost = propertySet.get(StreamItemProperty.REPOST);
-
-            ((TextView) itemView).setText(
-                    createdAt + "\n" +
-                            soundUrn + "\n" + soundTitle + "\n" + (isRepost ? "reposter: " + poster : "")
-            );
-        }
-    }
 }

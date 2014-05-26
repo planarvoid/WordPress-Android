@@ -1,7 +1,7 @@
-package com.soundcloud.android.search;
+package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.search.PlaylistResultsAdapter.*;
+import static com.soundcloud.android.view.adapters.PlaylistCellPresenter.ItemViewHolder;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
@@ -22,21 +22,21 @@ import java.util.Arrays;
 import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlaylistResultsAdapterTest {
+public class PlaylistCellPresenterTest {
 
-    private PlaylistResultsAdapter adapter;
+    private PlaylistCellPresenter presenter;
 
     @Mock
     private ImageOperations imageOperations;
 
     @Before
     public void setUp() throws Exception {
-        adapter = new PlaylistResultsAdapter(imageOperations);
+        presenter = new PlaylistCellPresenter(imageOperations);
     }
 
     @Test
     public void shouldCreateItemView() {
-        View itemView = adapter.createItemView(0, new FrameLayout(Robolectric.application));
+        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application), ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
         expect(itemView).not.toBeNull();
         expect(itemView.getTag()).not.toBeNull(); // contains the private ViewHolder instance
         expect(itemView.findViewById(R.id.image)).not.toBeNull();
@@ -47,10 +47,9 @@ public class PlaylistResultsAdapterTest {
     @Test
     public void shouldBindItemView() throws CreateModelException {
         PlaylistSummary playlist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
-        adapter.addItem(playlist);
 
-        View itemView = adapter.createItemView(0, new FrameLayout(Robolectric.application));
-        adapter.bindItemView(0, itemView);
+        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application), ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
+        presenter.bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(playlist));
 
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
         expect(viewHolder.title.getText()).toEqual(playlist.getTitle());
@@ -63,10 +62,9 @@ public class PlaylistResultsAdapterTest {
     public void shouldShowJustTheTagIfPlaylistHasSingleTag() throws CreateModelException {
         PlaylistSummary playlist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
         playlist.setTags(Arrays.asList("tag1"));
-        adapter.addItem(playlist);
 
-        View itemView = adapter.createItemView(0, new FrameLayout(Robolectric.application));
-        adapter.bindItemView(0, itemView);
+        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application), ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
+        presenter.bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(playlist));
 
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
         expect(viewHolder.tagList.getText()).toEqual("#tag1");
@@ -76,10 +74,9 @@ public class PlaylistResultsAdapterTest {
     public void shouldShowBlankTagIfPlaylistHasNoTags() throws CreateModelException {
         PlaylistSummary playlist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
         playlist.setTags(Collections.<String>emptyList());
-        adapter.addItem(playlist);
 
-        View itemView = adapter.createItemView(0, new FrameLayout(Robolectric.application));
-        adapter.bindItemView(0, itemView);
+        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application), ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
+        presenter.bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(playlist));
 
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
         expect(viewHolder.tagList.getText()).toEqual("");

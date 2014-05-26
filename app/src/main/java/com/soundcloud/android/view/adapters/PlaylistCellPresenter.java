@@ -1,12 +1,10 @@
-package com.soundcloud.android.search;
+package com.soundcloud.android.view.adapters;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.collections.EndlessPagingAdapter;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.PlaylistSummary;
@@ -19,18 +17,17 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-class PlaylistResultsAdapter extends EndlessPagingAdapter<PlaylistSummary> {
+public class PlaylistCellPresenter implements CellPresenter<PlaylistSummary> {
 
     private final ImageOperations imageOperations;
 
     @Inject
-    public PlaylistResultsAdapter(ImageOperations imageOperations) {
-        super(Consts.CARD_PAGE_SIZE);
+    public PlaylistCellPresenter(ImageOperations imageOperations) {
         this.imageOperations = imageOperations;
     }
 
     @Override
-    protected View createItemView(int position, ViewGroup parent) {
+    public View createItemView(int position, ViewGroup parent, int itemViewType) {
         View itemView = View.inflate(parent.getContext(), R.layout.default_grid_item, null);
         ItemViewHolder viewHolder = new ItemViewHolder();
         viewHolder.imageView = (ImageView) itemView.findViewById(R.id.image);
@@ -44,9 +41,9 @@ class PlaylistResultsAdapter extends EndlessPagingAdapter<PlaylistSummary> {
     }
 
     @Override
-    protected void bindItemView(int position, View itemView) {
+    public void bindItemView(int position, View itemView, int itemViewType, List<PlaylistSummary> playlists) {
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
-        final PlaylistSummary playlist = getItem(position);
+        final PlaylistSummary playlist = playlists.get(position);
 
         viewHolder.username.setText(playlist.getUsername());
         viewHolder.title.setText(playlist.getTitle());

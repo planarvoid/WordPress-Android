@@ -3,7 +3,7 @@ package com.soundcloud.android.actionbar;
 import static rx.android.OperatorPaged.Page;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.collections.EndlessPagingAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -63,7 +63,7 @@ public class PullToRefreshController {
     public <T extends Parcelable,
             OT extends ConnectableObservable<? extends Page<? extends Iterable<T>>>,
             FragmentT extends Fragment & RefreshableListComponent<OT>>
-    void onViewCreated(final FragmentT fragment, OT activeObservable, final EndlessPagingAdapter<T> adapter) {
+    void onViewCreated(final FragmentT fragment, OT activeObservable, final PagingItemAdapter<T> adapter) {
         this.onViewCreated(fragment, new OnRefreshListener() {
             @Override
             public void onRefreshStarted(View view) {
@@ -116,9 +116,9 @@ public class PullToRefreshController {
 
     private final class PageSubscriber<T extends Parcelable> extends DefaultSubscriber<Page<? extends Iterable<T>>> {
 
-        private final EndlessPagingAdapter<T> adapter;
+        private final PagingItemAdapter<T> adapter;
 
-        public PageSubscriber(EndlessPagingAdapter<T> adapter) {
+        public PageSubscriber(PagingItemAdapter<T> adapter) {
             this.adapter = adapter;
         }
 

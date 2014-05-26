@@ -1,8 +1,9 @@
-package com.soundcloud.android.collections;
+package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.rx.TestObservables.MockObservable;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static rx.android.OperatorPaged.Page;
 import static rx.android.OperatorPaged.pagedWith;
 
@@ -22,7 +23,6 @@ import rx.subscriptions.Subscriptions;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
 
@@ -30,19 +30,21 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class EndlessPagingAdapterTest {
+public class PagingItemAdapterTest {
 
+    @Mock
+    private CellPresenter cellPresenter;
     @Mock
     private AbsListView absListView;
     @Mock
     private View rowView;
 
-    private EndlessPagingAdapter adapter;
+    private PagingItemAdapter adapter;
 
 
     @Before
     public void setup() {
-        adapter = buildAdapter();
+        adapter = new PagingItemAdapter(cellPresenter, 10);
     }
 
     @Test
@@ -117,13 +119,14 @@ public class EndlessPagingAdapterTest {
     }
 
     @Test
-    public void shouldCreateItemRow() {
+    public void shouldCreateNormalItemRowUsingPresenter() {
+        final FrameLayout parent = new FrameLayout(Robolectric.application);
         final Observable<Page<List<Parcelable>>> finish = OperatorPaged.emptyObservable();
 
         loadFirstPageThen(finish);
 
-        View itemView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
-        expect(itemView).toBe(rowView);
+        adapter.getView(0, null, parent);
+        verify(cellPresenter).createItemView(0, parent, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
     }
 
     @Test
@@ -228,20 +231,6 @@ public class EndlessPagingAdapterTest {
 
         // loads page 2
         return adapter.loadNextPage();
-    }
-
-    private EndlessPagingAdapter buildAdapter() {
-        return new EndlessPagingAdapter(10) {
-            @Override
-            protected View createItemView(int position, ViewGroup parent) {
-                return rowView;
-            }
-
-            @Override
-            protected void bindItemView(int position, View itemView) {
-
-            }
-        };
     }
 
     private Observable<List<Parcelable>> sourceSequence() {

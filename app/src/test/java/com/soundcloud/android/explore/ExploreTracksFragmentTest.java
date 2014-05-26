@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import static rx.android.OperatorPaged.Page;
 
 import com.soundcloud.android.actionbar.PullToRefreshController;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.SuggestedTracksCollection;
@@ -46,7 +47,7 @@ public class ExploreTracksFragmentTest {
     private FragmentActivity activity = new FragmentActivity();
 
     @Mock
-    private ExploreTracksAdapter adapter;
+    private PagingItemAdapter adapter;
     @Mock
     private PlaybackOperations playbackOperations;
     @Mock

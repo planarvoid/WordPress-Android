@@ -1,24 +1,24 @@
 package com.soundcloud.android.playlists;
 
-import com.soundcloud.android.collections.ItemAdapter;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 
 import android.content.res.Resources;
 import android.view.View;
 import android.widget.ListView;
 
+import javax.inject.Inject;
+
 class DefaultController implements PlaylistDetailsController {
 
     private final InlinePlaylistTracksAdapter adapter;
+    private final InlinePlaylistTrackPresenter presenter;
     private ListView listView;
 
-    DefaultController(ImageOperations imageOperations) {
-        this(new InlinePlaylistTracksAdapter(imageOperations));
-    }
-
-    DefaultController(InlinePlaylistTracksAdapter itemAdapter) {
-        adapter = itemAdapter;
+    @Inject
+    DefaultController(InlinePlaylistTracksAdapter itemAdapter, InlinePlaylistTrackPresenter presenter) {
+        this.adapter = itemAdapter;
+        this.presenter = presenter;
     }
 
     @Override
@@ -43,6 +43,7 @@ class DefaultController implements PlaylistDetailsController {
 
     @Override
     public void setEmptyViewStatus(int status) {
-        adapter.setEmptyViewStatus(status);
+        presenter.setEmptyViewStatus(status);
+        adapter.notifyDataSetChanged();
     }
 }

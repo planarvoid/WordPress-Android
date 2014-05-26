@@ -1,4 +1,4 @@
-package com.soundcloud.android.collections;
+package com.soundcloud.android.view.adapters;
 
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -11,19 +11,23 @@ import java.util.List;
 
 /**
  * A better version of Android's ArrayAdapter. It also works on ArrayLists internally, but does not hold references
- * to Context and so is safe to be used in retained fragments. it also supports view recycling via
- * {@link #createItemView(int, android.view.ViewGroup)} and {@link #bindItemView(int, android.view.View)}.
+ * to Context and so is safe to be used in retained fragments. It forwards cell rendering to the given
+ * {@link com.soundcloud.android.view.adapters.CellPresenter}
  *
  * Keep this class lean and clean: it provides basic adapter functionality around a list of parcelables, that's it.
  */
-public abstract class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter {
+public class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter {
+
+    public static final int DEFAULT_ITEM_VIEW_TYPE = 0;
 
     protected static final String EXTRA_KEY_ITEMS = "adapter.items";
 
     protected ArrayList<ItemT> items;
+    protected CellPresenter<ItemT> cellPresenter;
 
-    protected ItemAdapter(int initalDataSize) {
-        items = new ArrayList<ItemT>(initalDataSize);
+    public ItemAdapter(CellPresenter<ItemT> cellPresenter, int initalDataSize) {
+        this.cellPresenter = cellPresenter;
+        this.items = new ArrayList<ItemT>(initalDataSize);
     }
 
     @Override
@@ -55,11 +59,13 @@ public abstract class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter 
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            convertView = createItemView(position, parent);
+        View itemView = convertView;
+        final int itemViewType = getItemViewType(position);
+        if (itemView == null) {
+            itemView = cellPresenter.createItemView(position, parent, itemViewType);
         }
-        bindItemView(position, convertView);
-        return convertView;
+        cellPresenter.bindItemView(position, itemView, itemViewType, items);
+        return itemView;
     }
 
     /**
@@ -77,8 +83,4 @@ public abstract class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter 
     public void restoreInstanceState(Bundle bundle) {
         items = bundle.getParcelableArrayList(EXTRA_KEY_ITEMS);
     }
-
-    protected abstract View createItemView(int position, ViewGroup parent);
-    protected abstract void bindItemView(int position, View itemView);
-
 }

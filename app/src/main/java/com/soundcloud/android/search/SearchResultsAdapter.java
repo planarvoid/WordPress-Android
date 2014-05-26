@@ -1,49 +1,17 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.collections.EndlessPagingAdapter;
-import com.soundcloud.android.collections.ListRow;
-import com.soundcloud.android.collections.views.PlayableRow;
-import com.soundcloud.android.collections.views.UserlistRow;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
-
-import android.view.View;
-import android.view.ViewGroup;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 
 import javax.inject.Inject;
 
-public class SearchResultsAdapter extends EndlessPagingAdapter<ScResource> {
-
-    public static final int TYPE_PLAYABLE = 0;
-    public static final int TYPE_USER = 1;
-
-    private final ImageOperations imageOperations;
+class SearchResultsAdapter extends PagingItemAdapter<ScResource> {
 
     @Inject
-    public SearchResultsAdapter(ImageOperations imageOperations) {
-        super(Consts.LIST_PAGE_SIZE);
-        this.imageOperations = imageOperations;
-    }
-
-    @Override
-    protected View createItemView(int position, ViewGroup parent) {
-        int type = getItemViewType(position);
-        switch (type) {
-            case TYPE_PLAYABLE:
-                return new PlayableRow(parent.getContext(), imageOperations);
-            case TYPE_USER:
-                return new UserlistRow(parent.getContext(), Screen.SEARCH_EVERYTHING, imageOperations);
-            default:
-                throw new IllegalArgumentException("no view for playlists yet");
-        }
-    }
-
-    @Override
-    protected void bindItemView(int position, View itemView) {
-        ((ListRow) itemView).display(position, getItem(position));
+    public SearchResultsAdapter(SearchResultPresenter presenter) {
+        super(presenter, Consts.LIST_PAGE_SIZE);
     }
 
     @Override
@@ -52,9 +20,8 @@ public class SearchResultsAdapter extends EndlessPagingAdapter<ScResource> {
         if (itemViewType == IGNORE_ITEM_VIEW_TYPE){
             return itemViewType;
         } else {
-            return getItem(position) instanceof User ? TYPE_USER : TYPE_PLAYABLE;
+            return getItem(position) instanceof User ? SearchResultPresenter.TYPE_USER : SearchResultPresenter.TYPE_PLAYABLE;
         }
-
     }
 
     @Override

@@ -14,6 +14,7 @@ import static rx.android.OperatorPaged.Page;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
@@ -65,7 +66,7 @@ public class PlaylistResultsFragmentTest {
     @Mock
     private ListViewController listViewController;
     @Mock
-    private PlaylistResultsAdapter adapter;
+    private PagingItemAdapter<PlaylistSummary> adapter;
     @Mock
     private ScModelManager modelManager;
     @Mock

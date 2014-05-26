@@ -1,60 +1,20 @@
 package com.soundcloud.android.playlists;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.collections.ItemAdapter;
-import com.soundcloud.android.collections.views.PlayableRow;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.rx.observers.EmptyViewAware;
-import com.soundcloud.android.utils.ViewUtils;
-import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.EmptyViewBuilder;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 
-import android.content.Context;
-import android.view.View;
-import android.view.ViewGroup;
+import javax.inject.Inject;
 
-class InlinePlaylistTracksAdapter extends ItemAdapter<Track> implements EmptyViewAware {
+class InlinePlaylistTracksAdapter extends ItemAdapter<Track> {
 
-    private static final int INITIAL_SIZE = 20;
-
-    private final ImageOperations imageOperations;
-
-    private int emptyViewStatus = EmptyView.Status.WAITING;
-
-    InlinePlaylistTracksAdapter(ImageOperations imageOperations) {
-        super(INITIAL_SIZE);
-        this.imageOperations = imageOperations;
+    @Inject
+    InlinePlaylistTracksAdapter(InlinePlaylistTrackPresenter presenter) {
+        super(presenter, PlaylistsModule.INITIAL_ADAPTER_SIZE);
     }
 
     @Override
     public int getItemViewType(int position) {
         return items.isEmpty() ? IGNORE_ITEM_VIEW_TYPE : super.getItemViewType(position);
-    }
-
-    @Override
-    protected View createItemView(int position, ViewGroup parent) {
-        Context context = parent.getContext();
-        if (getItemViewType(position) == IGNORE_ITEM_VIEW_TYPE) {
-            EmptyView emptyView = new EmptyViewBuilder()
-                    .withImage(R.drawable.empty_playlists)
-                    .withMessageText(context.getString(R.string.empty_playlist_title))
-                    .withSecondaryText(context.getString(R.string.empty_playlist_description))
-                    .build(context);
-            emptyView.setPadding(0, ViewUtils.dpToPx(context, 48), 0, ViewUtils.dpToPx(context, 48));
-            return emptyView;
-        } else {
-            return new PlayableRow(context, imageOperations);
-        }
-    }
-
-    @Override
-    protected void bindItemView(int position, View itemView) {
-        if (getItemViewType(position) == IGNORE_ITEM_VIEW_TYPE) {
-            ((EmptyView) itemView).setStatus(emptyViewStatus);
-        } else {
-            ((PlayableRow) itemView).display(position, items.get(position));
-        }
     }
 
     protected boolean hasContentItems() {
@@ -76,8 +36,4 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<Track> implements EmptyVie
         return getItemViewType(position) != IGNORE_ITEM_VIEW_TYPE;
     }
 
-    public void setEmptyViewStatus(int emptyViewStatus){
-        this.emptyViewStatus = emptyViewStatus;
-        notifyDataSetChanged();
-    }
 }

@@ -1,4 +1,4 @@
-package com.soundcloud.android.collections;
+package com.soundcloud.android.view.adapters;
 
 import static rx.android.OperatorPaged.Page;
 
@@ -14,7 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 
-public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAdapter<T> implements AbsListView.OnScrollListener, Observer<Page<? extends Iterable<T>>> {
+public class PagingItemAdapter<T extends Parcelable> extends ItemAdapter<T>
+        implements AbsListView.OnScrollListener, Observer<Page<? extends Iterable<T>>> {
 
     private final int progressItemLayoutResId;
 
@@ -26,12 +27,12 @@ public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAda
         IDLE, LOADING, ERROR;
     }
 
-    public EndlessPagingAdapter(int pageSize) {
-        this(pageSize, R.layout.list_loading_item);
+    public PagingItemAdapter(CellPresenter<T> cellPresenter, int pageSize) {
+        this(cellPresenter, pageSize, R.layout.list_loading_item);
     }
 
-    public EndlessPagingAdapter(int pageSize, int progressItemLayoutResId) {
-        super(pageSize);
+    public PagingItemAdapter(CellPresenter<T> cellPresenter, int pageSize, int progressItemLayoutResId) {
+        super(cellPresenter, pageSize);
         this.progressItemLayoutResId = progressItemLayoutResId;
     }
 

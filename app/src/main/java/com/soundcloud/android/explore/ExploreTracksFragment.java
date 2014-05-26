@@ -7,9 +7,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.SuggestedTracksCollection;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.ListViewController;
@@ -36,7 +38,7 @@ public class ExploreTracksFragment extends Fragment
     private String trackingTag;
 
     @Inject
-    ExploreTracksAdapter adapter;
+    PagingItemAdapter<TrackSummary> adapter;
     @Inject
     PlaybackOperations playbackOperations;
     @Inject

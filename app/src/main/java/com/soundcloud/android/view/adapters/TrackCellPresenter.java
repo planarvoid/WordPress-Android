@@ -1,9 +1,7 @@
-package com.soundcloud.android.explore;
+package com.soundcloud.android.view.adapters;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.collections.EndlessPagingAdapter;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.TrackSummary;
@@ -16,19 +14,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
+import java.util.List;
 
-public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
+public class TrackCellPresenter implements CellPresenter<TrackSummary> {
 
     private final ImageOperations imageOperations;
 
     @Inject
-    public ExploreTracksAdapter(ImageOperations imageOperations) {
-        super(Consts.CARD_PAGE_SIZE, R.layout.grid_loading_item);
+    TrackCellPresenter(ImageOperations imageOperations) {
         this.imageOperations = imageOperations;
     }
 
     @Override
-    protected View createItemView(int position, ViewGroup parent) {
+    public View createItemView(int position, ViewGroup parent, int itemViewType) {
         View itemView = View.inflate(parent.getContext(), R.layout.default_grid_item, null);
         ItemViewHolder viewHolder = new ItemViewHolder();
         viewHolder.imageView = (ImageView) itemView.findViewById(R.id.image);
@@ -43,9 +41,9 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
     }
 
     @Override
-    protected void bindItemView(int position, View itemView) {
+    public void bindItemView(int position, View itemView, int itemViewType, List<TrackSummary> tracks) {
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
-        final TrackSummary track = getItem(position);
+        TrackSummary track = tracks.get(position);
 
         viewHolder.username.setText(track.getUserName());
         viewHolder.title.setText(track.getTitle());

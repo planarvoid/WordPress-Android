@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 import static rx.android.OperatorPaged.Page;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.collections.EndlessPagingAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -64,7 +64,7 @@ public class PullToRefreshControllerTest {
     @Mock
     private Subscription subscription;
     @Mock
-    private EndlessPagingAdapter<Parcelable> adapter;
+    private PagingItemAdapter<Parcelable> adapter;
     @Captor
     private ArgumentCaptor<OnRefreshListener> refreshListenerCaptor;
 

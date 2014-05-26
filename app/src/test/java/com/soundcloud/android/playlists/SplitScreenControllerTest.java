@@ -4,9 +4,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +23,7 @@ public class SplitScreenControllerTest {
     private SplitScreenController controller;
 
     @Mock
-    private ImageOperations imageOperations;
+    private ItemAdapter<Track> adapter;
     @Mock
     private ListView listView;
     @Mock
@@ -37,7 +38,7 @@ public class SplitScreenControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new SplitScreenController(imageOperations);
+        controller = new SplitScreenController(adapter);
         when(layout.findViewById(android.R.id.list)).thenReturn(listView);
         when(layout.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(layout.findViewById(R.id.container)).thenReturn(container);

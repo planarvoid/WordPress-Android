@@ -1,34 +1,32 @@
 package com.soundcloud.android.playlists;
 
-import com.soundcloud.android.collections.ItemAdapter;
 import com.soundcloud.android.collections.views.PlayableRow;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.view.adapters.CellPresenter;
 
 import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
+import java.util.List;
 
-class PlaylistTracksAdapter extends ItemAdapter<Track> {
-
-    private static final int INITIAL_SIZE = 20;
+class PlaylistTrackPresenter implements CellPresenter<Track> {
 
     private final ImageOperations imageOperations;
 
     @Inject
-    PlaylistTracksAdapter(ImageOperations imageOperations) {
-        super(INITIAL_SIZE);
+    PlaylistTrackPresenter(ImageOperations imageOperations) {
         this.imageOperations = imageOperations;
     }
 
     @Override
-    protected View createItemView(int position, ViewGroup parent) {
+    public View createItemView(int position, ViewGroup parent, int itemViewType) {
         return new PlayableRow(parent.getContext(), imageOperations);
     }
 
     @Override
-    protected void bindItemView(int position, View itemView) {
+    public void bindItemView(int position, View itemView, int itemViewType, List<Track> items) {
         ((PlayableRow) itemView).display(position, items.get(position));
     }
 }

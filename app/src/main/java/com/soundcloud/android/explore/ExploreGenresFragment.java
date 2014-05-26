@@ -1,12 +1,11 @@
 package com.soundcloud.android.explore;
 
-import static com.soundcloud.android.explore.ExploreGenresAdapter.AUDIO_SECTION;
-import static com.soundcloud.android.explore.ExploreGenresAdapter.MUSIC_SECTION;
+import static com.soundcloud.android.explore.GenreCellPresenter.AUDIO_SECTION;
+import static com.soundcloud.android.explore.GenreCellPresenter.MUSIC_SECTION;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.ExploreGenre;
@@ -31,7 +30,17 @@ import android.widget.ListView;
 import javax.inject.Inject;
 import java.util.Arrays;
 
-public class ExploreGenresFragment extends Fragment implements ReactiveListComponent<ConnectableObservable<Section<ExploreGenre>>> {
+public class ExploreGenresFragment extends Fragment implements ReactiveListComponent<ConnectableObservable<GenreSection<ExploreGenre>>> {
+
+    private static final Func1<ExploreGenresSections, Observable<GenreSection<ExploreGenre>>> GENRES_TO_SECTIONS =
+            new Func1<ExploreGenresSections, Observable<GenreSection<ExploreGenre>>>() {
+                @Override
+                public Observable<GenreSection<ExploreGenre>> call(ExploreGenresSections categories) {
+                    return Observable.from(Arrays.asList(
+                            new GenreSection<ExploreGenre>(MUSIC_SECTION, R.string.explore_genre_header_music, categories.getMusic()),
+                            new GenreSection<ExploreGenre>(AUDIO_SECTION, R.string.explore_genre_header_audio, categories.getAudio())));
+                }
+            };
 
     @Inject
     EventBus eventBus;
@@ -42,7 +51,7 @@ public class ExploreGenresFragment extends Fragment implements ReactiveListCompo
     @Inject
     ListViewController listViewController;
 
-    private ConnectableObservable<Section<ExploreGenre>> observable;
+    private ConnectableObservable<GenreSection<ExploreGenre>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
 
     public ExploreGenresFragment() {
@@ -56,8 +65,8 @@ public class ExploreGenresFragment extends Fragment implements ReactiveListCompo
     }
 
     @Override
-    public ConnectableObservable<Section<ExploreGenre>> buildObservable() {
-        final ConnectableObservable<Section<ExploreGenre>> observable = exploreOperations.getCategories()
+    public ConnectableObservable<GenreSection<ExploreGenre>> buildObservable() {
+        final ConnectableObservable<GenreSection<ExploreGenre>> observable = exploreOperations.getCategories()
                 .mergeMap(GENRES_TO_SECTIONS)
                 .observeOn(mainThread())
                 .replay();
@@ -66,7 +75,7 @@ public class ExploreGenresFragment extends Fragment implements ReactiveListCompo
     }
 
     @Override
-    public Subscription connectObservable(ConnectableObservable<Section<ExploreGenre>> observable) {
+    public Subscription connectObservable(ConnectableObservable<GenreSection<ExploreGenre>> observable) {
         this.observable = observable;
         connectionSubscription = observable.connect();
         return connectionSubscription;
@@ -108,14 +117,4 @@ public class ExploreGenresFragment extends Fragment implements ReactiveListCompo
         listViewController.onDestroyView();
         super.onDestroyView();
     }
-
-    private static final Func1<ExploreGenresSections, Observable<Section<ExploreGenre>>> GENRES_TO_SECTIONS =
-            new Func1<ExploreGenresSections, Observable<Section<ExploreGenre>>>() {
-                @Override
-                public Observable<Section<ExploreGenre>> call(ExploreGenresSections categories) {
-                    return Observable.from(Arrays.asList(
-                            new Section<ExploreGenre>(MUSIC_SECTION, R.string.explore_genre_header_music, categories.getMusic()),
-                            new Section<ExploreGenre>(AUDIO_SECTION, R.string.explore_genre_header_audio, categories.getAudio())));
-                }
-            };
 }

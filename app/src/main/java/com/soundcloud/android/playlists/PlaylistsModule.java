@@ -2,11 +2,14 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 import dagger.Module;
 import dagger.Provides;
 
 import android.content.res.Resources;
+
+import javax.inject.Provider;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
@@ -18,12 +21,21 @@ import android.content.res.Resources;
 )
 public class PlaylistsModule {
 
+    static final int INITIAL_ADAPTER_SIZE = 20;
+
     @Provides
-    public PlaylistDetailsController providePlaylistTracksAdapter(Resources resources, ImageOperations imageOperations) {
+    public PlaylistDetailsController providePlaylistTracksAdapter(Resources resources,
+                                                                  Provider<SplitScreenController> splitScreenController,
+                                                                  Provider<DefaultController> defaultController) {
         if (resources.getBoolean(R.bool.split_screen_details_pages)) {
-            return new SplitScreenController(imageOperations);
+            return splitScreenController.get();
         } else {
-            return new DefaultController(imageOperations);
+            return defaultController.get();
         }
+    }
+
+    @Provides
+    public ItemAdapter<Track> provideItemAdapter(PlaylistTrackPresenter presenter) {
+        return new ItemAdapter<Track>(presenter, INITIAL_ADAPTER_SIZE);
     }
 }

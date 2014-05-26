@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
-import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.ExploreGenre;
@@ -117,19 +116,17 @@ public class ExploreGenresFragmentTest {
         observable = TestObservables.just(categories);
         when(operations.getCategories()).thenReturn(observable);
         when(listView.getHeaderViewsCount()).thenReturn(0);
-        when(adapter.getSection(0)).thenReturn(buildMusicSection(categories.getMusic()));
-        when(adapter.getSection(1)).thenReturn(buildAudioSection(categories.getAudio()));
         when(adapter.getItem(0)).thenReturn(categories.getMusic().get(0));
         when(adapter.getItem(1)).thenReturn(categories.getAudio().get(0));
     }
 
-    private Section<ExploreGenre> buildMusicSection(List<ExploreGenre> categories) {
-        return new Section<ExploreGenre>(ExploreGenresAdapter.MUSIC_SECTION,
+    private GenreSection<ExploreGenre> buildMusicSection(List<ExploreGenre> categories) {
+        return new GenreSection<ExploreGenre>(GenreCellPresenter.MUSIC_SECTION,
                 R.string.explore_genre_header_music, categories);
     }
 
-    private Section<ExploreGenre> buildAudioSection(List<ExploreGenre> categories) {
-        return new Section<ExploreGenre>(ExploreGenresAdapter.AUDIO_SECTION,
+    private GenreSection<ExploreGenre> buildAudioSection(List<ExploreGenre> categories) {
+        return new GenreSection<ExploreGenre>(GenreCellPresenter.AUDIO_SECTION,
                 R.string.explore_genre_header_audio, categories);
     }
 

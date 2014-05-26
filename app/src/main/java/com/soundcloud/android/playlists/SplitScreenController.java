@@ -1,23 +1,25 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.collections.ItemAdapter;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 
 import android.content.res.Resources;
 import android.view.View;
 import android.widget.ListView;
 
+import javax.inject.Inject;
+
 class SplitScreenController implements PlaylistDetailsController {
 
-    private final PlaylistTracksAdapter adapter;
+    private final ItemAdapter<Track> adapter;
     private EmptyView emptyView;
     private View listViewContainer;
 
-    SplitScreenController(ImageOperations imageOperations) {
-        adapter = new PlaylistTracksAdapter(imageOperations);
+    @Inject
+    SplitScreenController(ItemAdapter<Track> adapter) {
+        this.adapter = adapter;
     }
 
     @Override

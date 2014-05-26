@@ -10,12 +10,12 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
-class ExploreGenreCategoryRow extends LinearLayout {
+class GenreRow extends LinearLayout {
 
     private TextView categoryTitle, sectionHeader;
 
     @SuppressWarnings("unused")
-    public ExploreGenreCategoryRow(Context context, AttributeSet attrs) {
+    public GenreRow(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

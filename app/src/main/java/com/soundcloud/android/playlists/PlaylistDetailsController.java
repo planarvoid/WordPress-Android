@@ -1,6 +1,6 @@
 package com.soundcloud.android.playlists;
 
-import com.soundcloud.android.collections.ItemAdapter;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 

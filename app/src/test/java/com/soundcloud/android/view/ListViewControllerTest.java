@@ -5,7 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.collections.EndlessPagingAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -94,7 +94,7 @@ public class ListViewControllerTest {
 
     @Test
     public void shouldRegisterGivenScrollListenerAsImageScrollPauseListenerWithListView() {
-        EndlessPagingAdapter adapter = mock(EndlessPagingAdapter.class);
+        PagingItemAdapter adapter = mock(PagingItemAdapter.class);
         when(imageOperations.createScrollPauseListener(false, true, scrollListener)).thenReturn(scrollListener);
         controller.onViewCreated(reactiveListComponent, observable, layout, adapter, scrollListener);
         verify(listView).setOnScrollListener(scrollListener);
