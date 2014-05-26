@@ -49,6 +49,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final ApplicationProperties applicationProperties;
 
     private volatile String currentStreamUrl;
+    private PlayaListener playaListener;
 
     @Inject
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, PlaybackOperations playbackOperations,
@@ -76,6 +77,18 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     public void play(Track track, long fromPos) {
         if (!accountOperations.isUserLoggedIn()) {
             throw new IllegalStateException("Cannot play a track if no soundcloud account exists");
+        }
+
+        // TODO : move audiofocus requesting into PlaybackService when we kill MediaPlayer
+        if (playaListener == null){
+            Log.e(TAG,"No Player Listener, unable to request audio focus");
+            return;
+        }
+
+        if (!playaListener.requestAudioFocus()){
+            Log.e(TAG,"Unable to acquire audio focus, aborting playback");
+            playaListener.onPlaystateChanged(new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED));
+            return;
         }
 
         final String trackUrl = playbackOperations.buildHLSUrlForTrack(track);
@@ -143,6 +156,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void setListener(PlayaListener playaListener) {
+        this.playaListener = playaListener;
         stateHandler.setPlayaListener(playaListener);
     }
 
@@ -249,7 +263,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     static class StateChangeHandler extends Handler {
 
         @Nullable
-        private PlayaListener mPlayaListener;
+        private PlayaListener playaListener;
 
         @Inject
         StateChangeHandler(@Named("MainLooper") Looper looper) {
@@ -257,13 +271,13 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         }
 
         public void setPlayaListener(@Nullable PlayaListener playaListener) {
-            mPlayaListener = playaListener;
+            this.playaListener = playaListener;
         }
 
         @Override
         public void handleMessage(Message msg) {
-            if (mPlayaListener != null) {
-                mPlayaListener.onPlaystateChanged((StateTransition) msg.obj);
+            if (playaListener != null) {
+                playaListener.onPlaystateChanged((StateTransition) msg.obj);
             }
         }
     }

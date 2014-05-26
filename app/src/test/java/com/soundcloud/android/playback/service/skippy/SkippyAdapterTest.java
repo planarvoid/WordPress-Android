@@ -11,6 +11,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
@@ -83,6 +84,28 @@ public class SkippyAdapterTest {
         when(playbackOperations.logPlay(trackUrn)).thenReturn(Observable.just(trackUrn));
         when(playbackOperations.buildHLSUrlForTrack(track)).thenReturn(STREAM_URL);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
+        when(listener.requestAudioFocus()).thenReturn(true);
+    }
+
+    @Test
+    public void playDoesNotInteractWithSkippyIfNoListenerPresent(){
+        skippyAdapter.setListener(null);
+        skippyAdapter.play(track);
+        verifyZeroInteractions(skippy);
+    }
+
+    @Test
+    public void playDoesNotInteractWithSkippyIfAudioFocusFailsToBeGranted(){
+        when(listener.requestAudioFocus()).thenReturn(false);
+        skippyAdapter.play(track);
+        verifyZeroInteractions(skippy);
+    }
+
+    @Test
+    public void playBroadcastsErrorStateIfAudioFocusFailsToBeGranted(){
+        when(listener.requestAudioFocus()).thenReturn(false);
+        skippyAdapter.play(track);
+        verify(listener).onPlaystateChanged(new Playa.StateTransition(PlayaState.IDLE , Playa.Reason.ERROR_FAILED));
     }
 
     @Test
