@@ -1,7 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.view.adapters.PlaylistCellPresenter.ItemViewHolder;
+import static com.soundcloud.android.view.adapters.PlaylistGridPresenter.ItemViewHolder;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
@@ -22,16 +22,16 @@ import java.util.Arrays;
 import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlaylistCellPresenterTest {
+public class PlaylistGridPresenterTest {
 
-    private PlaylistCellPresenter presenter;
+    private PlaylistGridPresenter presenter;
 
     @Mock
     private ImageOperations imageOperations;
 
     @Before
     public void setUp() throws Exception {
-        presenter = new PlaylistCellPresenter(imageOperations);
+        presenter = new PlaylistGridPresenter(imageOperations);
     }
 
     @Test

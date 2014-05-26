@@ -16,12 +16,12 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class TrackCellPresenter implements CellPresenter<TrackSummary, View> {
+public class TrackGridPresenter implements CellPresenter<TrackSummary, View> {
 
     private final ImageOperations imageOperations;
 
     @Inject
-    TrackCellPresenter(ImageOperations imageOperations) {
+    TrackGridPresenter(ImageOperations imageOperations) {
         this.imageOperations = imageOperations;
     }
 

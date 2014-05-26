@@ -17,12 +17,12 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistCellPresenter implements CellPresenter<PlaylistSummary, View> {
+public class PlaylistGridPresenter implements CellPresenter<PlaylistSummary, View> {
 
     private final ImageOperations imageOperations;
 
     @Inject
-    public PlaylistCellPresenter(ImageOperations imageOperations) {
+    public PlaylistGridPresenter(ImageOperations imageOperations) {
         this.imageOperations = imageOperations;
     }
 

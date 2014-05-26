@@ -1,7 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.view.adapters.TrackCellPresenter.ItemViewHolder;
+import static com.soundcloud.android.view.adapters.TrackGridPresenter.ItemViewHolder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -25,10 +25,10 @@ import android.widget.TextView;
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
-public class TrackCellPresenterTest {
+public class TrackGridPresenterTest {
 
     @InjectMocks
-    private TrackCellPresenter presenter;
+    private TrackGridPresenter presenter;
 
     @Mock
     private ImageOperations imageOperations;
@@ -65,7 +65,7 @@ public class TrackCellPresenterTest {
 
         View itemView = mock(View.class);
         when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
-        TrackCellPresenter.ItemViewHolder viewHolder = createItemViewHolder();
+        TrackGridPresenter.ItemViewHolder viewHolder = createItemViewHolder();
         when(itemView.getTag()).thenReturn(viewHolder);
 
         presenter.bindItemView(0, itemView, Arrays.asList(track));
