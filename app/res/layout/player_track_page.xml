@@ -61,20 +61,30 @@
             android:layout_marginTop="4dp"
             android:layout_below="@id/track_page_user" />
 
-    <Button
-        android:id="@+id/player_close"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginLeft="20dp"
-        android:background="@drawable/btn_player_close"
-        android:visibility="gone" />
+    <FrameLayout
+            android:id="@+id/player_close"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:visibility="gone">
 
-    <ToggleButton
-        android:id="@+id/track_page_like"
-        style="@style/PlayerLike"
-        android:layout_margin="20dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true" />
+        <View
+            style="@style/PlayerClose"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="20dp" />
+    </FrameLayout>
+
+    <RelativeLayout
+            android:id="@+id/player_bottom_close"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/player_footer_control"
+            android:layout_alignParentBottom="true">
+
+        <ToggleButton
+            android:id="@+id/track_page_like"
+            style="@style/PlayerLike"
+            android:layout_marginRight="20dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
 
 </RelativeLayout>

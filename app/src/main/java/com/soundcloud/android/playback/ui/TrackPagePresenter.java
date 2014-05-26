@@ -51,6 +51,7 @@ class TrackPagePresenter implements View.OnClickListener {
                 listener.onFooterTap();
                 break;
             case R.id.player_close:
+            case R.id.player_bottom_close:
                 listener.onPlayerClose();
                 break;
             default:
@@ -97,6 +98,7 @@ class TrackPagePresenter implements View.OnClickListener {
         holder.artwork.setProgressProportion(currentProgressProportion);
         holder.artwork.setOnClickListener(this);
         holder.close.setOnClickListener(this);
+        holder.bottomClose.setOnClickListener(this);
 
         holder.footer.setOnClickListener(this);
         holder.footerPlayToggle.setOnClickListener(this);
@@ -115,7 +117,8 @@ class TrackPagePresenter implements View.OnClickListener {
         holder.user = (JaggedTextView) trackView.findViewById(R.id.track_page_user);
         holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
         holder.artwork = (PlayerArtworkImageView) trackView.findViewById(R.id.track_page_artwork);
-        holder.close = (Button) trackView.findViewById(R.id.player_close);
+        holder.close = trackView.findViewById(R.id.player_close);
+        holder.bottomClose = trackView.findViewById(R.id.player_bottom_close);
 
         holder.footer = trackView.findViewById(R.id.footer_controls);
         holder.footerPlayToggle = (ToggleButton) trackView.findViewById(R.id.footer_toggle);
@@ -129,7 +132,8 @@ class TrackPagePresenter implements View.OnClickListener {
         JaggedTextView user;
         ToggleButton likeToggle;
         PlayerArtworkImageView artwork;
-        Button close;
+        View close;
+        View bottomClose;
 
         View footer;
         ToggleButton footerPlayToggle;
