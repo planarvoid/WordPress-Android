@@ -1,6 +1,11 @@
 package com.soundcloud.android.peripherals;
 
+import static com.soundcloud.android.playback.service.Playa.StateTransition;
+
+import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
@@ -13,8 +18,17 @@ public class PeripheralsController {
     private static final String AVRCP_PLAYSTATE_CHANGED = "com.android.music.playstatechanged";
     private static final String AVRCP_META_CHANGED = "com.android.music.metachanged";
 
+    private final Context context;
+    private final EventBus eventBus;
+
     @Inject
-    public PeripheralsController() {
+    public PeripheralsController(Context context, EventBus eventBus) {
+        this.context = context;
+        this.eventBus = eventBus;
+    }
+
+    public void subscribe() {
+        eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlayStateChangedSubscriber());
     }
 
     public void notifyMetaChanged(Context context, Track track, boolean isPlaying) {
@@ -38,6 +52,19 @@ public class PeripheralsController {
             }
 
             context.sendBroadcast(intent);
+        }
+    }
+
+    private void notifyPlayStateChanged(boolean isPlaying) {
+        Intent intent = new Intent(AVRCP_PLAYSTATE_CHANGED);
+        intent.putExtra("playing", isPlaying);
+        context.sendBroadcast(intent);
+    }
+
+    private class PlayStateChangedSubscriber extends DefaultSubscriber<StateTransition> {
+        @Override
+        public void onNext(StateTransition state) {
+            notifyPlayStateChanged(state.playSessionIsActive());
         }
     }
 }
