@@ -162,6 +162,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void onPlaystateChangedPublishesStateTransitionWhenTrackEndedIsFalse() throws Exception {
+        playbackService.onCreate();
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
         when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.BUFFERING);
@@ -175,6 +176,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void onPlaystateChangedTriesToPlayQueueWithoutManualFlagWhenTrackEnded() throws Exception {
+        playbackService.onCreate();
         when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.IDLE);
         when(stateTransition.trackEnded()).thenReturn(true);
 
@@ -184,6 +186,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void onPlaystateChangedPublishesStateWhenTrackEndedIsTrueAndPlayQueueFailsToAdvance() throws Exception {
+        playbackService.onCreate();
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
         when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.IDLE);
@@ -198,6 +201,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void onPlaystateChangedDoesNotPublishStateWhenTrackEndedIsTrueAndPlayQueueAdvances() throws Exception {
+        playbackService.onCreate();
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
         when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.IDLE);
@@ -211,6 +215,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void stopSavesCurrentQueueAndPosition() throws Exception {
+        playbackService.onCreate();
         when(streamPlayer.getProgress()).thenReturn(123L);
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
@@ -221,6 +226,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void openCurrentLoadsStreamableTrackFromTrackOperations() throws Exception {
+        playbackService.onCreate();
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         final TestObservables.MockObservable<Track> trackMockObservable = TestObservables.emptyObservable();
         when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(trackMockObservable);
@@ -230,6 +236,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void openCurrentUnsubscribesPreviousLoadsStreamableTrackObservable() throws Exception {
+        playbackService.onCreate();
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
 
         final Subscription subscription = Mockito.mock(Subscription.class);
