@@ -17,16 +17,16 @@ import android.content.Context;
 import android.content.Intent;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PeripheralsOperationsTest {
+public class PeripheralsControllerTest {
 
-    private PeripheralsOperations peripheralsOperations;
+    private PeripheralsController controller;
 
     @Mock
     Context context;
 
     @Before
     public void setUp() throws Exception {
-        peripheralsOperations = new PeripheralsOperations();
+        controller = new PeripheralsController();
     }
 
     @Test
@@ -34,7 +34,7 @@ public class PeripheralsOperationsTest {
         Track track = new Track(1L);
         track.setTitle("track title");
 
-        peripheralsOperations.notifyMetaChanged(context, track, false);
+        controller.notifyMetaChanged(context, track, false);
         verify(context).sendBroadcast(any(Intent.class));
     }
 
@@ -47,7 +47,7 @@ public class PeripheralsOperationsTest {
         track.title = "a title";
         track.duration = 123;
 
-        peripheralsOperations.notifyMetaChanged(context, track, true);
+        controller.notifyMetaChanged(context, track, true);
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).sendBroadcast(captor.capture());
         expect(captor.getValue().getExtras().get("id")).toEqual(1L);

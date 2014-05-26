@@ -10,7 +10,7 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.peripherals.PeripheralsOperations;
+import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
@@ -86,7 +86,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Inject
     TrackOperations trackOperations;
     @Inject
-    PeripheralsOperations peripheralsOperations;
+    PeripheralsController peripheralsController;
     @Inject
     AccountOperations accountOperations;
     @Inject
@@ -156,7 +156,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @VisibleForTesting
     PlaybackService(ApplicationProperties applicationProperties, PlayQueueManager playQueueManager,
                     EventBus eventBus, TrackOperations trackOperations,
-                    PeripheralsOperations peripheralsOperations,
+                    PeripheralsController peripheralsController,
                     AccountOperations accountOperations, ImageOperations imageOperations,
                     StreamPlaya streamPlaya,
                     PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider,
@@ -165,7 +165,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
-        this.peripheralsOperations = peripheralsOperations;
+        this.peripheralsController = peripheralsController;
         this.accountOperations = accountOperations;
         this.imageOperations = imageOperations;
         this.streamPlayer = streamPlaya;
@@ -371,9 +371,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         if (applicationProperties.shouldUseRichNotifications()) {
             if (what.equals(Broadcasts.PLAYSTATE_CHANGED)) {
                 setPlayingNotification(currentTrack);
-                peripheralsOperations.notifyPlayStateChanged(this, getCurrentTrack(), isPlaying);
+                peripheralsController.notifyPlayStateChanged(this, getCurrentTrack(), isPlaying);
             } else if (what.equals(Broadcasts.META_CHANGED)) {
-                peripheralsOperations.notifyMetaChanged(this, getCurrentTrack(), isPlaying);
+                peripheralsController.notifyMetaChanged(this, getCurrentTrack(), isPlaying);
             }
         }
 

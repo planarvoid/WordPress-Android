@@ -8,13 +8,13 @@ import android.content.Intent;
 
 import javax.inject.Inject;
 
-public class PeripheralsOperations {
+public class PeripheralsController {
 
     private static final String AVRCP_PLAYSTATE_CHANGED = "com.android.music.playstatechanged";
     private static final String AVRCP_META_CHANGED = "com.android.music.metachanged";
 
     @Inject
-    public PeripheralsOperations() {
+    public PeripheralsController() {
     }
 
     public void notifyMetaChanged(Context context, Track track, boolean isPlaying) {

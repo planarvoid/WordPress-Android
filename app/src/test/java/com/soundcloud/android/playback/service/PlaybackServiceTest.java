@@ -12,7 +12,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.peripherals.PeripheralsOperations;
+import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
@@ -55,7 +55,7 @@ public class PlaybackServiceTest {
     @Mock
     private TrackOperations trackOperations;
     @Mock
-    private PeripheralsOperations peripheralsOperations;
+    private PeripheralsController peripheralsController;
     @Mock
     private AccountOperations accountOperations;
     @Mock
@@ -79,7 +79,7 @@ public class PlaybackServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        playbackService = new PlaybackService(applicationProperties, playQueueManager, eventBus, trackOperations, peripheralsOperations,
+        playbackService = new PlaybackService(applicationProperties, playQueueManager, eventBus, trackOperations, peripheralsController,
                 accountOperations, imageOperations, streamPlayer,
                 playbackReceiverFactory, audioManagerProvider, featureFlags);
         when(playbackReceiverFactory.create(playbackService, accountOperations, playQueueManager, eventBus)).thenReturn(playbackReceiver);
