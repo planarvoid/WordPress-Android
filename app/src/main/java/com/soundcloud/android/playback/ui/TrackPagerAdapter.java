@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.soundcloud.android.events.EventBus;
@@ -73,6 +74,22 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
         trackViewsByPosition.forcePut(contentView, position); // forcePut to remove existing entry
         loadPlayerItem(playQueueManager.getIdAtPosition(position));
         return contentView;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        trackViewsByPosition.clear();
+        super.notifyDataSetChanged();
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
+    }
+
+    @VisibleForTesting
+    View getTrackViewByPosition(int id) {
+        return trackViewsByPosition.inverse().get(id);
     }
 
     public void setProgressOnCurrentTrack(PlaybackProgressEvent progress){

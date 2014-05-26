@@ -141,6 +141,16 @@ public class TrackPagerAdapterTest {
     }
 
     @Test
+    public void clearsOutTrackViewMapWhenDataSetIsChanged() {
+        setupGetCurrentViewPreconditions();
+
+        adapter.getView(3, view, container);
+        adapter.notifyDataSetChanged();
+
+        expect(adapter.getTrackViewByPosition(3)).toBeNull();
+    }
+
+    @Test
     public void onTogglePlayTogglesPlaybackViaPlaybackOperations() {
         adapter.onTogglePlay();
         verify(playbackOperations).togglePlayback();
