@@ -60,29 +60,6 @@ public class PeripheralsControllerTest {
     }
 
     @Test
-    public void shouldNotifyTrackChange() throws Exception {
-        Track track = new Track(1L);
-        track.setTitle("track title");
-
-        controller.notifyMetaChanged(context, track, false);
-        verify(context).sendBroadcast(any(Intent.class));
-    }
-
-    @Test
-    public void shouldNotifyWithCorrectIntent() throws Exception {
-        Track track = createTrack();
-
-        controller.notifyMetaChanged(context, track, true);
-        verifyBroadcastSentAndCapture();
-        expect(captor.getValue().getExtras().get("id")).toEqual(1L);
-        expect(captor.getValue().getExtras().get("artist")).toEqual("the artist");
-        expect(captor.getValue().getExtras().get("track")).toEqual("a title");
-        expect(captor.getValue().getExtras().get("playing")).toEqual(true);
-        expect(captor.getValue().getExtras().get("duration")).toEqual(123);
-    }
-
-
-    @Test
     public void shouldSubscribeToPlayableChangeEvents() throws Exception {
         eventMonitor.verifySubscribedTo(EventQueue.PLAYBACK_STATE_CHANGED);
     }

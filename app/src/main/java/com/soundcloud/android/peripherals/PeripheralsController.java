@@ -43,30 +43,6 @@ public class PeripheralsController {
         eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueChangedSubscriber());
     }
 
-    public void notifyMetaChanged(Context context, Track track, boolean isPlaying) {
-        notifyChangeViaGoogleMusic(context, track, isPlaying, AVRCP_META_CHANGED);
-    }
-
-    public void notifyPlayStateChanged(Context context, Track track, boolean isPlaying) {
-        notifyChangeViaGoogleMusic(context, track, isPlaying, AVRCP_PLAYSTATE_CHANGED);
-    }
-
-    private void notifyChangeViaGoogleMusic(Context context, Track track, boolean isPlaying, String action) {
-        if (track != null) {
-            Intent intent = new Intent(action);
-            intent.putExtra("id", track.getId());
-            intent.putExtra("track", ScTextUtils.getClippedString(track.getTitle(), 40));
-            intent.putExtra("playing", isPlaying);
-            intent.putExtra("duration", track.duration);
-
-            if (track.getUserName() != null) {
-                intent.putExtra("artist", ScTextUtils.getClippedString(track.getUserName(), 30));
-            }
-
-            context.sendBroadcast(intent);
-        }
-    }
-
     private void notifyPlayStateChanged(boolean isPlaying) {
         Intent intent = new Intent(AVRCP_PLAYSTATE_CHANGED);
         intent.putExtra("playing", isPlaying);

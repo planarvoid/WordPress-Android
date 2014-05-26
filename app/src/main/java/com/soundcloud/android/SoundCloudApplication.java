@@ -18,6 +18,7 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
@@ -80,6 +81,8 @@ public class SoundCloudApplication extends Application {
     SharedPreferences sharedPreferences;
     @Inject
     PlayerWidgetController widgetController;
+    @Inject
+    PeripheralsController peripheralsController;
     @Inject
     PlaySessionController playSessionController;
     @Inject
@@ -149,6 +152,7 @@ public class SoundCloudApplication extends Application {
         playlistTagStorage.resetPopularTags();
 
         widgetController.subscribe();
+        peripheralsController.subscribe();
         playSessionController.subscribe();
         playSessionAnalyticsController.subscribe();
     }
