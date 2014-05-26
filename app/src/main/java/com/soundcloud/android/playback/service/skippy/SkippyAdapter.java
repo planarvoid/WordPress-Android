@@ -79,6 +79,18 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             throw new IllegalStateException("Cannot play a track if no soundcloud account exists");
         }
 
+        // TODO : move audiofocus requesting into PlaybackService when we kill MediaPlayer
+        if (playaListener == null){
+            Log.e(TAG,"No Player Listener, unable to request audio focus");
+            return;
+        }
+
+        if (!playaListener.requestAudioFocus()){
+            Log.e(TAG,"Unable to acquire audio focus, aborting playback");
+            playaListener.onPlaystateChanged(new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED));
+            return;
+        }
+
         final String trackUrl = playbackOperations.buildHLSUrlForTrack(track);
         if (trackUrl.equals(currentStreamUrl)) {
             // we are already playing it. seek and resume
@@ -253,7 +265,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     static class StateChangeHandler extends Handler {
 
         @Nullable
-        private PlayaListener mPlayaListener;
+        private PlayaListener playaListener;
 
         @Inject
         StateChangeHandler(@Named("MainLooper") Looper looper) {
@@ -261,13 +273,13 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         }
 
         public void setPlayaListener(@Nullable PlayaListener playaListener) {
-            mPlayaListener = playaListener;
+            this.playaListener = playaListener;
         }
 
         @Override
         public void handleMessage(Message msg) {
-            if (mPlayaListener != null) {
-                mPlayaListener.onPlaystateChanged((StateTransition) msg.obj);
+            if (playaListener != null) {
+                playaListener.onPlaystateChanged((StateTransition) msg.obj);
             }
         }
     }
