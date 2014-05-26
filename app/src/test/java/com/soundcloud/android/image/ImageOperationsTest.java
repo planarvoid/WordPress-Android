@@ -333,11 +333,11 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void copiedImagePassesBitmapFromLoadCompleteToLoadingAdapter() throws Exception {
+    public void imageObservablePassesBitmapFromLoadCompleteToLoadingAdapter() throws Exception {
         final Bitmap bitmap = Mockito.mock(Bitmap.class);
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
-        Observable<Bitmap> observable = imageOperations.copiedImage(URN, ImageSize.LARGE);
+        Observable<Bitmap> observable = imageOperations.image(URN, ImageSize.LARGE, true);
         TestSubscriber<Bitmap> subscriber = new TestSubscriber<Bitmap>();
         when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), eq(true))).thenReturn(viewlessLoadingAdapter);
         observable.subscribe(subscriber);
@@ -348,10 +348,10 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void copiedImagePassesLoadFailedToLoadingAdapter() throws Exception {
+    public void imageObservablePassesLoadFailedToLoadingAdapter() throws Exception {
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
-        Observable<Bitmap> observable = imageOperations.copiedImage(URN, ImageSize.LARGE);
+        Observable<Bitmap> observable = imageOperations.image(URN, ImageSize.LARGE, true);
         TestSubscriber<Bitmap> subscriber = new TestSubscriber<Bitmap>();
         when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), eq(true))).thenReturn(viewlessLoadingAdapter);
         observable.subscribe(subscriber);

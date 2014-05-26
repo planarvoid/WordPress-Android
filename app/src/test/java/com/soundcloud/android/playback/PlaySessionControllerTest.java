@@ -121,7 +121,7 @@ public class PlaySessionControllerTest {
     @Test
     public void playQueueChangedHandlerSetsLockScreenStateWithBitmapForCurrentTrack() {
         when(audioManager.isTrackChangeSupported()).thenReturn(true);
-        when(imageOperations.copiedImage(TRACK_URN, ImageSize.T500)).thenReturn(Observable.just(bitmap));
+        when(imageOperations.image(TRACK_URN, ImageSize.T500, true)).thenReturn(Observable.just(bitmap));
 
         InOrder inOrder = Mockito.inOrder(audioManager);
         monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
@@ -132,7 +132,7 @@ public class PlaySessionControllerTest {
     @Test
     public void playQueueChangedHandlerSetsLockScreenStateWithNullBitmapForCurrentTrackOnImageLoadError() {
         when(audioManager.isTrackChangeSupported()).thenReturn(true);
-        when(imageOperations.copiedImage(TRACK_URN, ImageSize.T500)).thenReturn(Observable.<Bitmap>error(new Exception("Could not load image")));
+        when(imageOperations.image(TRACK_URN, ImageSize.T500, true)).thenReturn(Observable.<Bitmap>error(new Exception("Could not load image")));
 
         monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
         verify(audioManager).onTrackChanged(track, null);

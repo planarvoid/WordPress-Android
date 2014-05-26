@@ -179,11 +179,11 @@ public class ImageOperations {
         imageLoader.loadImage(adjustUrl(imageUrl), ImageOptionsFactory.prefetch(), null);
     }
 
-    public Observable<Bitmap> copiedImage(final Urn resourceUrn, final ImageSize imageSize) {
+    public Observable<Bitmap> image(final Urn resourceUrn, final ImageSize imageSize, final boolean emitCopy) {
         return Observable.create(new Observable.OnSubscribe<Bitmap>() {
             @Override
             public void call(Subscriber<? super Bitmap> subscriber) {
-                load(resourceUrn, imageSize, viewlessLoadingAdapterFactory.create(subscriber, true));
+                load(resourceUrn, imageSize, viewlessLoadingAdapterFactory.create(subscriber, emitCopy));
             }
         });
     }

@@ -129,7 +129,7 @@ public class PlaySessionController {
     private void updateRemoteAudioManager() {
         if (audioManager.isTrackChangeSupported()) {
             audioManager.onTrackChanged(currentPlayQueueTrack, null); // set initial data without bitmap so it doesn't have to wait
-            currentTrackSubscription = imageOperations.copiedImage(currentPlayQueueTrack.getUrn(), ImageSize.getFullImageSize(resources))
+            currentTrackSubscription = imageOperations.image(currentPlayQueueTrack.getUrn(), ImageSize.getFullImageSize(resources), true)
                     .subscribe(new DefaultSubscriber<Bitmap>() {
                         @Override
                         public void onNext(Bitmap bitmap) {
