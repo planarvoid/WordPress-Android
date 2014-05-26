@@ -12,7 +12,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +61,7 @@ public class SearchResultPresenterTest {
         UserlistRow view = mock(UserlistRow.class);
         ScResource user = new User();
 
-        presenter.bindItemView(0, view, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(user));
+        presenter.bindItemView(0, view, Arrays.asList(user));
         verify(view).display(0, user);
     }
 }

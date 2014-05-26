@@ -16,16 +16,16 @@ import java.util.List;
  *
  * Keep this class lean and clean: it provides basic adapter functionality around a list of parcelables, that's it.
  */
-public class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter {
+public class ItemAdapter<ItemT extends Parcelable, ViewT extends View> extends BaseAdapter {
 
     public static final int DEFAULT_ITEM_VIEW_TYPE = 0;
 
     protected static final String EXTRA_KEY_ITEMS = "adapter.items";
 
     protected ArrayList<ItemT> items;
-    protected CellPresenter<ItemT> cellPresenter;
+    protected CellPresenter<ItemT, ViewT> cellPresenter;
 
-    public ItemAdapter(CellPresenter<ItemT> cellPresenter, int initalDataSize) {
+    public ItemAdapter(CellPresenter<ItemT, ViewT> cellPresenter, int initalDataSize) {
         this.cellPresenter = cellPresenter;
         this.items = new ArrayList<ItemT>(initalDataSize);
     }
@@ -59,12 +59,14 @@ public class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View itemView = convertView;
+        ViewT itemView;
         final int itemViewType = getItemViewType(position);
-        if (itemView == null) {
+        if (convertView == null) {
             itemView = cellPresenter.createItemView(position, parent, itemViewType);
+        } else {
+            itemView = (ViewT) convertView;
         }
-        cellPresenter.bindItemView(position, itemView, itemViewType, items);
+        cellPresenter.bindItemView(position, itemView, items);
         return itemView;
     }
 

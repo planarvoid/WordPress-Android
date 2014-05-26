@@ -9,6 +9,8 @@ import com.soundcloud.android.view.adapters.PlaylistCellPresenter;
 import dagger.Module;
 import dagger.Provides;
 
+import android.view.View;
+
 @Module(addsTo = ApplicationModule.class,
         injects = {
                 TabbedSearchFragment.class,
@@ -19,8 +21,8 @@ import dagger.Provides;
 public class SearchModule {
 
     @Provides
-    public PagingItemAdapter<PlaylistSummary> playlistsResultAdapter(PlaylistCellPresenter presenter) {
-        return new PagingItemAdapter<PlaylistSummary>(presenter, Consts.CARD_PAGE_SIZE, R.layout.grid_loading_item);
+    public PagingItemAdapter<PlaylistSummary, View> playlistsResultAdapter(PlaylistCellPresenter presenter) {
+        return new PagingItemAdapter<PlaylistSummary, View>(presenter, Consts.CARD_PAGE_SIZE, R.layout.grid_loading_item);
     }
 
 }

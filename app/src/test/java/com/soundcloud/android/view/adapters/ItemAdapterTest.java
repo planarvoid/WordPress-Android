@@ -33,11 +33,11 @@ public class ItemAdapterTest {
     @Mock
     private CellPresenter cellPresenter;
 
-    private ItemAdapter<Track> adapter;
+    private ItemAdapter<Track, ?> adapter;
 
     @Before
     public void setup() {
-        adapter = new ItemAdapter<Track>(cellPresenter, 10) {};
+        adapter = new ItemAdapter<Track, View>(cellPresenter, 10) {};
     }
 
     @Test
@@ -88,7 +88,7 @@ public class ItemAdapterTest {
         adapter.addItem(item);
 
         adapter.getView(0, null, parent);
-        verify(cellPresenter).bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(item));
+        verify(cellPresenter).bindItemView(0, itemView, Arrays.asList(item));
     }
 
     @Test
@@ -101,7 +101,7 @@ public class ItemAdapterTest {
         View itemView = adapter.getView(0, convertView, parent);
         expect(itemView).toBe(convertView);
         verify(cellPresenter, never()).createItemView(anyInt(), any(ViewGroup.class), eq(ItemAdapter.DEFAULT_ITEM_VIEW_TYPE));
-        verify(cellPresenter).bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(item));
+        verify(cellPresenter).bindItemView(0, itemView, Arrays.asList(item));
     }
 
     @Test

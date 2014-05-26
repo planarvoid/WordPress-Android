@@ -9,6 +9,8 @@ import com.soundcloud.android.view.adapters.TrackCellPresenter;
 import dagger.Module;
 import dagger.Provides;
 
+import android.view.View;
+
 @Module(addsTo = ApplicationModule.class,
         injects = {
                 ExploreFragment.class,
@@ -18,7 +20,7 @@ import dagger.Provides;
 public class ExploreModule {
 
     @Provides
-    public PagingItemAdapter<TrackSummary> provideTracksAdapter(TrackCellPresenter presenter) {
-        return new PagingItemAdapter<TrackSummary>(presenter, Consts.CARD_PAGE_SIZE, R.layout.grid_loading_item);
+    public PagingItemAdapter<TrackSummary, View> provideTracksAdapter(TrackCellPresenter presenter) {
+        return new PagingItemAdapter<TrackSummary, View>(presenter, Consts.CARD_PAGE_SIZE, R.layout.grid_loading_item);
     }
 }

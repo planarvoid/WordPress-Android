@@ -31,7 +31,7 @@ public class SoundStreamFragment extends Fragment
     @Inject
     SoundStreamOperations soundStreamOperations;
     @Inject
-    PagingItemAdapter<PropertySet> adapter;
+    PagingItemAdapter<PropertySet, View> adapter;
     @Inject
     ListViewController listViewController;
     @Inject

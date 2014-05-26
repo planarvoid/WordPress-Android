@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
+import com.soundcloud.android.collections.views.PlayableRow;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import dagger.Module;
@@ -35,7 +36,7 @@ public class PlaylistsModule {
     }
 
     @Provides
-    public ItemAdapter<Track> provideItemAdapter(PlaylistTrackPresenter presenter) {
-        return new ItemAdapter<Track>(presenter, INITIAL_ADAPTER_SIZE);
+    public ItemAdapter<Track, PlayableRow> provideItemAdapter(PlaylistTrackPresenter presenter) {
+        return new ItemAdapter<Track, PlayableRow>(presenter, INITIAL_ADAPTER_SIZE);
     }
 }

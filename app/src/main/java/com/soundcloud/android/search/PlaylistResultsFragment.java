@@ -43,7 +43,7 @@ public class PlaylistResultsFragment extends Fragment
     @Inject
     ListViewController listViewController;
     @Inject
-    PagingItemAdapter<PlaylistSummary> adapter;
+    PagingItemAdapter<PlaylistSummary, View> adapter;
     @Inject
     ScModelManager modelManager;
     @Inject

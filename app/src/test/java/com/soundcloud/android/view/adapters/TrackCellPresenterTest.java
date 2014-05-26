@@ -52,7 +52,7 @@ public class TrackCellPresenterTest {
         ItemViewHolder viewHolder = createItemViewHolder();
         when(itemView.getTag()).thenReturn(viewHolder);
 
-        presenter.bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(track));
+        presenter.bindItemView(0, itemView, Arrays.asList(track));
 
         expect(viewHolder.title.getText()).toEqual(track.getTitle());
         expect(viewHolder.username.getText()).toEqual(track.getUserName());
@@ -68,7 +68,7 @@ public class TrackCellPresenterTest {
         TrackCellPresenter.ItemViewHolder viewHolder = createItemViewHolder();
         when(itemView.getTag()).thenReturn(viewHolder);
 
-        presenter.bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(track));
+        presenter.bindItemView(0, itemView, Arrays.asList(track));
 
         expect(viewHolder.genre.getVisibility()).toEqual(View.GONE);
     }

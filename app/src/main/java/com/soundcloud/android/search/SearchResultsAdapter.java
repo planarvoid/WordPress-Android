@@ -1,13 +1,14 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.collections.views.IconLayout;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 
 import javax.inject.Inject;
 
-class SearchResultsAdapter extends PagingItemAdapter<ScResource> {
+class SearchResultsAdapter extends PagingItemAdapter<ScResource, IconLayout> {
 
     @Inject
     public SearchResultsAdapter(SearchResultPresenter presenter) {

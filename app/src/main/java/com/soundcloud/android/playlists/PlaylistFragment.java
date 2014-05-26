@@ -323,7 +323,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     }
 
     private void updateTracksAdapter(Playlist playlist) {
-        final ItemAdapter<Track> adapter = controller.getAdapter();
+        final ItemAdapter<Track, ?> adapter = controller.getAdapter();
         adapter.clear();
         for (Track track : playlist.getTracks()) {
             adapter.addItem(track);

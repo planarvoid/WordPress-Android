@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.collections.views.PlayableRow;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
@@ -13,17 +14,17 @@ import javax.inject.Inject;
 
 class SplitScreenController implements PlaylistDetailsController {
 
-    private final ItemAdapter<Track> adapter;
+    private final ItemAdapter<Track, PlayableRow> adapter;
     private EmptyView emptyView;
     private View listViewContainer;
 
     @Inject
-    SplitScreenController(ItemAdapter<Track> adapter) {
+    SplitScreenController(ItemAdapter<Track, PlayableRow> adapter) {
         this.adapter = adapter;
     }
 
     @Override
-    public ItemAdapter<Track> getAdapter() {
+    public ItemAdapter<Track, PlayableRow> getAdapter() {
         return adapter;
     }
 

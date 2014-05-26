@@ -49,7 +49,7 @@ public class PlaylistCellPresenterTest {
         PlaylistSummary playlist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
 
         View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application), ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
-        presenter.bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(playlist));
+        presenter.bindItemView(0, itemView, Arrays.asList(playlist));
 
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
         expect(viewHolder.title.getText()).toEqual(playlist.getTitle());
@@ -64,7 +64,7 @@ public class PlaylistCellPresenterTest {
         playlist.setTags(Arrays.asList("tag1"));
 
         View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application), ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
-        presenter.bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(playlist));
+        presenter.bindItemView(0, itemView, Arrays.asList(playlist));
 
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
         expect(viewHolder.tagList.getText()).toEqual("#tag1");
@@ -76,7 +76,7 @@ public class PlaylistCellPresenterTest {
         playlist.setTags(Collections.<String>emptyList());
 
         View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application), ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
-        presenter.bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(playlist));
+        presenter.bindItemView(0, itemView, Arrays.asList(playlist));
 
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
         expect(viewHolder.tagList.getText()).toEqual("");

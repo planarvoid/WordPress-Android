@@ -55,7 +55,7 @@ public class GenreCellPresenterTest {
 
         presenter.setSectionForPosition(0, section, true);
 
-        presenter.bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(exploreGenre));
+        presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
         verify(itemView).showSectionHeaderWithText(anyString());
     }
 
@@ -65,7 +65,7 @@ public class GenreCellPresenterTest {
 
         presenter.setSectionForPosition(0, section, false);
 
-        presenter.bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(exploreGenre));
+        presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
         verify(itemView).hideSectionHeader();
     }
 
@@ -74,7 +74,7 @@ public class GenreCellPresenterTest {
         presenter.setSectionForPosition(0, section, false);
         ExploreGenre exploreGenre = new ExploreGenre("Genre Title");
 
-        presenter.bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(exploreGenre));
+        presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
 
         verify(itemView).setDisplayName(eq("Genre Title"));
     }
@@ -84,7 +84,7 @@ public class GenreCellPresenterTest {
         presenter.setSectionForPosition(0, section, false);
         ExploreGenre exploreGenre = new ExploreGenre("Religion & Spirituality");
 
-        presenter.bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(exploreGenre));
+        presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
 
         verify(itemView).setTag(endsWith("religion_&_spirituality"));
     }
@@ -95,7 +95,7 @@ public class GenreCellPresenterTest {
         presenter.setSectionForPosition(0, section, false);
         ExploreGenre exploreGenre = new ExploreGenre("Religion & Spirituality");
 
-        presenter.bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(exploreGenre));
+        presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
 
         verify(itemView).setTag(startsWith("explore:music"));
     }
@@ -106,7 +106,7 @@ public class GenreCellPresenterTest {
         presenter.setSectionForPosition(0, section, false);
         ExploreGenre exploreGenre = new ExploreGenre("Religion & Spirituality");
 
-        presenter.bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(exploreGenre));
+        presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
 
         verify(itemView).setTag(startsWith("explore:audio"));
     }
@@ -117,7 +117,7 @@ public class GenreCellPresenterTest {
         presenter.setSectionForPosition(0, section, false);
         ExploreGenre exploreGenre = new ExploreGenre("Religion & Spirituality");
 
-        presenter.bindItemView(0, itemView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE, Arrays.asList(exploreGenre));
+        presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
     }
 
 }

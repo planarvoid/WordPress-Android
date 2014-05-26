@@ -5,13 +5,12 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.view.adapters.CellPresenter;
 
-import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
 import java.util.List;
 
-class PlaylistTrackPresenter implements CellPresenter<Track> {
+class PlaylistTrackPresenter implements CellPresenter<Track, PlayableRow> {
 
     private final ImageOperations imageOperations;
 
@@ -21,12 +20,12 @@ class PlaylistTrackPresenter implements CellPresenter<Track> {
     }
 
     @Override
-    public View createItemView(int position, ViewGroup parent, int itemViewType) {
+    public PlayableRow createItemView(int position, ViewGroup parent, int itemViewType) {
         return new PlayableRow(parent.getContext(), imageOperations);
     }
 
     @Override
-    public void bindItemView(int position, View itemView, int itemViewType, List<Track> items) {
-        ((PlayableRow) itemView).display(position, items.get(position));
+    public void bindItemView(int position, PlayableRow itemView, List<Track> items) {
+        itemView.display(position, items.get(position));
     }
 }

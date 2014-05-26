@@ -18,7 +18,7 @@ import android.widget.Adapter;
 import javax.inject.Inject;
 import java.util.List;
 
-class InlinePlaylistTrackPresenter implements CellPresenter<Track>, EmptyViewAware {
+class InlinePlaylistTrackPresenter implements CellPresenter<Track, View>, EmptyViewAware {
 
     private final ImageOperations imageOperations;
 
@@ -46,10 +46,10 @@ class InlinePlaylistTrackPresenter implements CellPresenter<Track>, EmptyViewAwa
     }
 
     @Override
-    public void bindItemView(int position, View itemView, int itemViewType, List<Track> tracks) {
-        if (itemViewType == Adapter.IGNORE_ITEM_VIEW_TYPE) {
+    public void bindItemView(int position, View itemView, List<Track> tracks) {
+        if (itemView instanceof EmptyView) {
             ((EmptyView) itemView).setStatus(emptyViewStatus);
-        } else {
+        } else if (itemView instanceof PlayableRow) {
             ((PlayableRow) itemView).display(position, tracks.get(position));
         }
     }

@@ -65,7 +65,7 @@ public class PlaylistFragmentTest {
     @Mock
     private EngagementsController engagementsController;
     @Mock
-    private ItemAdapter<Track> adapter;
+    private ItemAdapter adapter;
     @Mock
     private PlaylistDetailsController controller;
     @Mock

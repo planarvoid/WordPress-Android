@@ -3,9 +3,11 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 
+import android.view.View;
+
 import javax.inject.Inject;
 
-class InlinePlaylistTracksAdapter extends ItemAdapter<Track> {
+class InlinePlaylistTracksAdapter extends ItemAdapter<Track, View> {
 
     @Inject
     InlinePlaylistTracksAdapter(InlinePlaylistTrackPresenter presenter) {

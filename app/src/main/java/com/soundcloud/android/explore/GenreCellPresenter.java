@@ -2,18 +2,17 @@ package com.soundcloud.android.explore;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.view.adapters.CellPresenter;
 import com.soundcloud.android.model.ExploreGenre;
+import com.soundcloud.android.view.adapters.CellPresenter;
 
 import android.util.SparseArray;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
 import java.util.List;
 
-class GenreCellPresenter implements CellPresenter<ExploreGenre> {
+class GenreCellPresenter implements CellPresenter<ExploreGenre, GenreRow> {
 
     static final int AUDIO_SECTION = 0;
     static final int MUSIC_SECTION = 1;
@@ -32,17 +31,16 @@ class GenreCellPresenter implements CellPresenter<ExploreGenre> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, int itemViewType, List<ExploreGenre> genres) {
+    public void bindItemView(int position, GenreRow itemView, List<ExploreGenre> genres) {
         RowDescriptor descriptor = listPositionsToSections.get(position);
-        GenreRow categoryRow = (GenreRow) itemView;
 
         if (descriptor.isSectionHeader) {
-            categoryRow.showSectionHeaderWithText(itemView.getResources().getString(descriptor.section.getTitleId()));
+            itemView.showSectionHeaderWithText(itemView.getResources().getString(descriptor.section.getTitleId()));
         } else {
-            categoryRow.hideSectionHeader();
+            itemView.hideSectionHeader();
         }
         String genreTitle = genres.get(position).getTitle();
-        categoryRow.setDisplayName(genreTitle);
+        itemView.setDisplayName(genreTitle);
 
         switch (getSection(position).getSectionId()) {
             case AUDIO_SECTION:

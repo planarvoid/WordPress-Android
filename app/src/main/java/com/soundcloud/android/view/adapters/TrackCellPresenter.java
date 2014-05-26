@@ -16,7 +16,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class TrackCellPresenter implements CellPresenter<TrackSummary> {
+public class TrackCellPresenter implements CellPresenter<TrackSummary, View> {
 
     private final ImageOperations imageOperations;
 
@@ -41,7 +41,7 @@ public class TrackCellPresenter implements CellPresenter<TrackSummary> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, int itemViewType, List<TrackSummary> tracks) {
+    public void bindItemView(int position, View itemView, List<TrackSummary> tracks) {
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
         TrackSummary track = tracks.get(position);
 

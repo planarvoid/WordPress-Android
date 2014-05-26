@@ -7,12 +7,14 @@ import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import dagger.Module;
 import dagger.Provides;
 
+import android.view.View;
+
 @Module(addsTo = ApplicationModule.class, injects = {SoundStreamFragment.class})
 public class SoundStreamModule {
 
     @Provides
-    PagingItemAdapter<PropertySet> provideItemAdapter(StreamItemPresenter presenter) {
-        return new PagingItemAdapter<PropertySet>(presenter, Consts.LIST_PAGE_SIZE);
+    PagingItemAdapter<PropertySet, View> provideItemAdapter(StreamItemPresenter presenter) {
+        return new PagingItemAdapter<PropertySet, View>(presenter, Consts.LIST_PAGE_SIZE);
     }
 
 }

@@ -17,7 +17,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistCellPresenter implements CellPresenter<PlaylistSummary> {
+public class PlaylistCellPresenter implements CellPresenter<PlaylistSummary, View> {
 
     private final ImageOperations imageOperations;
 
@@ -41,7 +41,7 @@ public class PlaylistCellPresenter implements CellPresenter<PlaylistSummary> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, int itemViewType, List<PlaylistSummary> playlists) {
+    public void bindItemView(int position, View itemView, List<PlaylistSummary> playlists) {
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
         final PlaylistSummary playlist = playlists.get(position);
 

@@ -1,14 +1,14 @@
 package com.soundcloud.android.explore;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.model.ExploreGenre;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 import rx.Observer;
 
 import javax.inject.Inject;
 
 
-class ExploreGenresAdapter extends ItemAdapter<ExploreGenre> implements Observer<GenreSection<ExploreGenre>> {
+class ExploreGenresAdapter extends ItemAdapter<ExploreGenre, GenreRow> implements Observer<GenreSection<ExploreGenre>> {
 
     static final int ITEM_VIEW_TYPE_DEFAULT = 0;
     static final int ITEM_VIEW_TYPE_HEADER = 1;

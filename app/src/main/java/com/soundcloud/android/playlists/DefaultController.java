@@ -22,7 +22,7 @@ class DefaultController implements PlaylistDetailsController {
     }
 
     @Override
-    public ItemAdapter<Track> getAdapter() {
+    public ItemAdapter<Track, ? extends View> getAdapter() {
         return adapter;
     }
 

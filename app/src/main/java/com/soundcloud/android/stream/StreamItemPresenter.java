@@ -15,19 +15,19 @@ import java.util.List;
 // PLEASE IGNORE THIS GUY FOR NOW.
 // I just need something quick and dirty for testing right now.
 // I will fully revisit how we do adapters and row binding in a later step.
-class StreamItemPresenter implements CellPresenter<PropertySet> {
+class StreamItemPresenter implements CellPresenter<PropertySet, View> {
 
     @Inject
     StreamItemPresenter() {
     }
 
     @Override
-    public View createItemView(int position, ViewGroup parent, int itemViewType) {
+    public TextView createItemView(int position, ViewGroup parent, int itemViewType) {
         return new TextView(parent.getContext());
     }
 
     @Override
-    public void bindItemView(int position, View itemView, int itemViewType, List<PropertySet> streamItems) {
+    public void bindItemView(int position, View itemView, List<PropertySet> streamItems) {
         final PropertySet propertySet = streamItems.get(position);
         final Urn soundUrn = propertySet.get(StreamItemProperty.SOUND_URN);
         final String soundTitle = propertySet.get(StreamItemProperty.SOUND_TITLE);

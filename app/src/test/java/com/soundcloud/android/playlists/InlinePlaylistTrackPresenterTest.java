@@ -46,14 +46,14 @@ public class InlinePlaylistTrackPresenterTest {
 
     @Test
     public void bindsEmptyViewWithWaitingStateByDefault() throws Exception {
-        presenter.bindItemView(0, emptyView, Adapter.IGNORE_ITEM_VIEW_TYPE, Collections.<Track>emptyList());
+        presenter.bindItemView(0, emptyView, Collections.<Track>emptyList());
         verify(emptyView).setStatus(EmptyView.Status.WAITING);
     }
 
     @Test
     public void bindsEmptyViewWithCustomState() throws Exception {
         presenter.setEmptyViewStatus(EmptyView.Status.ERROR);
-        presenter.bindItemView(0, emptyView, Adapter.IGNORE_ITEM_VIEW_TYPE, Collections.<Track>emptyList());
+        presenter.bindItemView(0, emptyView, Collections.<Track>emptyList());
         verify(emptyView).setStatus(EmptyView.Status.ERROR);
     }
 
