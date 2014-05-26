@@ -375,15 +375,17 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         sendBroadcast(intent);
         appWidgetProvider.performUpdate(this, intent); // Share this notification directly with our widgets
 
-        if (applicationProperties.shouldUseRichNotifications()) {
-            if (what.equals(Broadcasts.PLAYSTATE_CHANGED)) {
-                remoteAudioManager.setPlaybackState(isPlaying);
+        if (what.equals(Broadcasts.PLAYSTATE_CHANGED)) {
+            if (isPlaying || applicationProperties.shouldUseRichNotifications()){
                 setPlayingNotification(currentTrack);
-                peripheralsOperations.notifyPlayStateChanged(this, getCurrentTrack(), isPlaying);
-            } else if (what.equals(Broadcasts.META_CHANGED)) {
-                onTrackChanged(currentTrack);
-                peripheralsOperations.notifyMetaChanged(this, getCurrentTrack(), isPlaying);
             }
+
+            remoteAudioManager.setPlaybackState(isPlaying);
+            peripheralsOperations.notifyPlayStateChanged(this, getCurrentTrack(), isPlaying);
+
+        } else if (what.equals(Broadcasts.META_CHANGED)) {
+            onTrackChanged(currentTrack);
+            peripheralsOperations.notifyMetaChanged(this, getCurrentTrack(), isPlaying);
         }
 
         if (stateTransition.playbackHasStopped()) {
