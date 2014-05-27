@@ -4,6 +4,7 @@
     <!-- Enable this if you want to see analytics data pushed to the dev applications in the respective analytics engines -->
     <bool name="analytics_enabled">true</bool>
     <bool name="verbose_logging">false</bool>
+
     <string name="api_mobile_base_uri_path">/app/mobileapps-dev</string>
     <string name="api_host">api.soundcloud.com</string>
 
