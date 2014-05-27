@@ -142,7 +142,7 @@ public class PlayQueueManagerTest {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
         PlayQueueEvent playQueueEvent = eventMonitor.verifyEventOn(EventQueue.PLAY_QUEUE);
-        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.QUEUE_CHANGE);
+        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.NEW_QUEUE);
     }
 
     @Test
@@ -309,7 +309,7 @@ public class PlayQueueManagerTest {
         playQueueManager.loadPlayQueue();
 
         PlayQueueEvent playQueueEvent = eventMonitor.verifyEventOn(EventQueue.PLAY_QUEUE);
-        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.QUEUE_CHANGE);
+        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.NEW_QUEUE);
     }
 
     @Test
@@ -387,7 +387,7 @@ public class PlayQueueManagerTest {
         playQueueManager.fetchRelatedTracks(123L);
 
         PlayQueueEvent playQueueEvent = eventMonitor.verifyEventOn(EventQueue.PLAY_QUEUE);
-        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.RELATED_TRACKS_CHANGE);
+        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
     }
 
     @Test

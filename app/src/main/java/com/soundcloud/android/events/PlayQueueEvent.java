@@ -2,9 +2,9 @@ package com.soundcloud.android.events;
 
 public class PlayQueueEvent {
 
-    public static final int QUEUE_CHANGE = 0;
+    public static final int NEW_QUEUE = 0;
     public static final int TRACK_CHANGE = 1;
-    public static final int RELATED_TRACKS_CHANGE = 2;
+    public static final int QUEUE_UPDATE = 2;
 
     private final int kind;
 
@@ -16,16 +16,16 @@ public class PlayQueueEvent {
         return kind;
     }
 
-    public static PlayQueueEvent fromQueueChange() {
-        return new PlayQueueEvent(QUEUE_CHANGE);
+    public static PlayQueueEvent fromNewQueue() {
+        return new PlayQueueEvent(NEW_QUEUE);
     }
 
     public static PlayQueueEvent fromTrackChange() {
         return new PlayQueueEvent(TRACK_CHANGE);
     }
 
-    public static PlayQueueEvent fromRelatedTracksChange() {
-        return new PlayQueueEvent(RELATED_TRACKS_CHANGE);
+    public static PlayQueueEvent fromQueueUpdate() {
+        return new PlayQueueEvent(QUEUE_UPDATE);
     }
 
 }

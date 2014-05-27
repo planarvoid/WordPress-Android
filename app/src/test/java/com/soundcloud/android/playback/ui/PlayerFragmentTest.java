@@ -126,24 +126,24 @@ public class PlayerFragmentTest {
     }
 
     @Test
-    public void onPlayQueueEventForQueueChangeCallsSetQueuePositionOnPresenterWithCurrentPlayQueueManagerPosition() {
+    public void onPlayQueueEventForNewQueueCallsSetQueuePositionOnPresenterWithCurrentPlayQueueManagerPosition() {
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
         verify(presenter).setQueuePosition(3);
     }
 
     @Test
-    public void onPlayQueueEventForQueueChangeCallsOnPlayQueueChangedOnPresenter() {
+    public void onPlayQueueEventForNewQueueCallsOnPlayQueueChangedOnPresenter() {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
         verify(presenter).onPlayQueueChanged();
     }
 
     @Test
-    public void onPlayQueueEventForRelatedTracksChangeCallsOnPlayQueueChangedOnPresenter() {
+    public void onPlayQueueEventForQueueUpdateCallsOnPlayQueueChangedOnPresenter() {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromRelatedTracksChange());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
         verify(presenter).onPlayQueueChanged();
     }
 

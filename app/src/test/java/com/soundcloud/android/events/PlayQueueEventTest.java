@@ -10,8 +10,8 @@ import org.junit.runner.RunWith;
 public class PlayQueueEventTest {
 
     @Test
-    public void shouldCreateEventForPlayQueueChange() {
-        PlayQueueEvent event = PlayQueueEvent.fromQueueChange();
+    public void shouldCreateEventForNewQueue() {
+        PlayQueueEvent event = PlayQueueEvent.fromNewQueue();
         expect(event.getKind()).toEqual(0);
     }
 
@@ -22,8 +22,8 @@ public class PlayQueueEventTest {
     }
 
     @Test
-    public void shouldCreateEventForRelatedTracksChange() {
-        PlayQueueEvent event = PlayQueueEvent.fromRelatedTracksChange();
+    public void shouldCreateEventForQueueUpdate() {
+        PlayQueueEvent event = PlayQueueEvent.fromQueueUpdate();
         expect(event.getKind()).toEqual(2);
     }
 

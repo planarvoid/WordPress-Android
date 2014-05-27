@@ -64,7 +64,7 @@ public class PlaybackSessionAnalyticsControllerTest {
 
     @Test
     public void playQueueChangedEventDoesNotPublishEventWithNoActiveSession() throws Exception {
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
         eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
     }
 
@@ -138,7 +138,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     public void playQueueEventForQueueChangePublishesStopEventForNewQueue() throws Exception {
         publishPlayingEvent();
 
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_NEW_QUEUE);
     }
@@ -164,7 +164,7 @@ public class PlaybackSessionAnalyticsControllerTest {
 
     protected void publishPlayingEvent() {
         eventMonitor.monitorQueue(EventQueue.PLAYBACK_SESSION);
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
 
         final Playa.StateTransition startEvent = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE);
         startEvent.setTrackUrn(TRACK_URN);

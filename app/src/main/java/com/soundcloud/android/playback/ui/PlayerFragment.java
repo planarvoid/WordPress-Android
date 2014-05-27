@@ -110,8 +110,8 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
         @Override
         public void onNext(PlayQueueEvent event) {
             if (presenter != null) {
-                if (event.getKind() == PlayQueueEvent.QUEUE_CHANGE
-                        || event.getKind() == PlayQueueEvent.RELATED_TRACKS_CHANGE) {
+                if (event.getKind() == PlayQueueEvent.NEW_QUEUE
+                        || event.getKind() == PlayQueueEvent.QUEUE_UPDATE) {
                     presenter.onPlayQueueChanged();
                 }
                 presenter.setQueuePosition(playQueueManager.getCurrentPosition());

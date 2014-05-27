@@ -100,7 +100,7 @@ public class PeripheralsControllerTest {
         final Track track = createTrack();
         when(trackOperations.loadTrack(eq(currentTrackId), any(Scheduler.class))).thenReturn(Observable.just(track));
 
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
 
         verifyBroadcastSentAndCapture();
         expect(captor.getValue().getAction()).toEqual("com.android.music.metachanged");

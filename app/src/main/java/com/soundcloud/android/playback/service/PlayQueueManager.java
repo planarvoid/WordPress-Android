@@ -244,14 +244,14 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
         final Intent intent = new Intent(PlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(appendState));
         context.sendBroadcast(intent);
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromRelatedTracksChange());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
     }
 
     private void broadcastPlayQueueChanged() {
         Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(appendState));
         context.sendBroadcast(intent);
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
     }
 
     private void stopLoadingOperations() {

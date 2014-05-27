@@ -104,7 +104,7 @@ public class PlayerWidgetControllerTest {
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
         controller.subscribe();
 
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
 
         verify(playerWidgetPresenter).updatePlayableInformation(any(Context.class), eq(track));
     }
@@ -116,8 +116,8 @@ public class PlayerWidgetControllerTest {
                 .thenReturn(Observable.<Track>error(new Exception()), Observable.just(track));
         controller.subscribe();
 
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueChange());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
 
         verify(playerWidgetPresenter).updatePlayableInformation(any(Context.class), eq(track));
     }
