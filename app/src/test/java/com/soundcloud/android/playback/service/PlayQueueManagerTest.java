@@ -186,6 +186,23 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void doesNotChangePlayQueueIfPositionSetToCurrent() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 1, playSessionSource), playSessionSource);
+        playQueueManager.setPosition(1);
+        verifyZeroInteractions(playQueue);
+    }
+
+    @Test
+    public void doesNotSendTrackChangeEventIfPositionSetToCurrent() throws Exception {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 1, playSessionSource), playSessionSource);
+        Mockito.reset(eventBus);
+
+        playQueueManager.setPosition(1);
+
+        eventMonitor.verifyNoEventsOn(EventQueue.PLAY_QUEUE);
+    }
+
+    @Test
     public void shouldPublishTrackChangeEventOnSetPosition() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 0, playSessionSource), playSessionSource);
 

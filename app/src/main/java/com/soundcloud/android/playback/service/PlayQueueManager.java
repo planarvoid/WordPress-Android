@@ -87,7 +87,8 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     }
 
     public void setPosition(int position) {
-        if (position < playQueue.getItems().size()) {
+        if (position != playQueue.getPosition()
+                && position < playQueue.getItems().size()) {
             playQueue.setPosition(position);
             eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
         }
