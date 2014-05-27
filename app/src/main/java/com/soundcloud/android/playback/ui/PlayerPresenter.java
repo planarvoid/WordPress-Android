@@ -82,8 +82,8 @@ class PlayerPresenter implements View.OnClickListener {
 
     private void setPlayControlsVisible(boolean visble) {
         play.setVisibility(visble ? View.VISIBLE : View.GONE);
-        next.setVisibility(visble ? View.VISIBLE : View.GONE);
-        previous.setVisibility(visble ? View.VISIBLE : View.GONE);
+        next.setVisibility(visble ? View.VISIBLE : View.INVISIBLE);
+        previous.setVisibility(visble ? View.VISIBLE : View.INVISIBLE);
     }
 
     public void onPlayerProgress(PlaybackProgressEvent progress) {

@@ -116,8 +116,8 @@ public class PlayerPresenterTest {
     public void hidePlayControlsWhenMovingToPlayingState() {
         playerPresenter.onPlayStateChanged(true);
         verify(playButton).setVisibility(View.GONE);
-        verify(nextButton).setVisibility(View.GONE);
-        verify(previousButton).setVisibility(View.GONE);
+        verify(nextButton).setVisibility(View.INVISIBLE);
+        verify(previousButton).setVisibility(View.INVISIBLE);
     }
 
     @Test
