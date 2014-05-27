@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class LegacyUserRowPresenter implements CellPresenter<ScResource> {
 
-    public static final int TYPE_USER = 1;
+    public static final int TYPE_USER = LegacyUserRowPresenter.class.hashCode();
 
     private final ImageOperations imageOperations;
     private final Screen originScreen;

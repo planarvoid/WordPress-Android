@@ -5,28 +5,35 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.view.adapters.LegacyPlayableRowPresenter;
 import com.soundcloud.android.view.adapters.LegacyUserRowPresenter;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SearchResultsAdapterTest {
 
-    @InjectMocks
     private SearchResultsAdapter adapter;
 
     @Mock
-    private LegacyUserRowPresenter presenter;
+    private LegacyPlayableRowPresenter playablePresenter;
+    @Mock
+    private LegacyUserRowPresenter userPresenter;
+
+    @Before
+    public void setup() {
+        adapter = new SearchResultsAdapter(userPresenter, playablePresenter);
+    }
 
     @Test
     public void shouldDifferentiateItemViewTypes() {
         adapter.addItem(new User());
         adapter.addItem(new Track());
 
-        expect(adapter.getItemViewType(0)).toEqual(1);
-        expect(adapter.getItemViewType(1)).toEqual(0);
+        expect(adapter.getItemViewType(0)).toEqual(LegacyUserRowPresenter.TYPE_USER);
+        expect(adapter.getItemViewType(1)).toEqual(LegacyPlayableRowPresenter.TYPE_PLAYABLE);
     }
 
 }
