@@ -116,6 +116,12 @@ public class SkippyAdapterTest {
     }
 
     @Test
+    public void playRemovesStateChangeMessagesFromHandler(){
+        skippyAdapter.play(track);
+        verify(stateChangeHandler).removeMessages(0);
+    }
+
+    @Test
     public void playLogsPlayThroughPlaybackOperations(){
         TestObservables.MockObservable<TrackUrn> mockObservable = TestObservables.emptyObservable();
         when(playbackOperations.logPlay(track.getUrn())).thenReturn(mockObservable);

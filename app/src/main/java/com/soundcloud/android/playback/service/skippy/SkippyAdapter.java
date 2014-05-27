@@ -91,6 +91,8 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             return;
         }
 
+        stateHandler.removeMessages(0);
+
         final String trackUrl = playbackOperations.buildHLSUrlForTrack(track);
         if (trackUrl.equals(currentStreamUrl)) {
             // we are already playing it. seek and resume
