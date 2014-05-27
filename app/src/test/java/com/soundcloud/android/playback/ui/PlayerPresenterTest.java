@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -103,7 +105,25 @@ public class PlayerPresenterTest {
     @Test
     public void setQueuePositionCallsSetCurrentItemOnTrackPager() {
         playerPresenter.setQueuePosition(2);
-        verify(trackPager).setCurrentItem(2);
+        verify(trackPager).setCurrentItem(eq(2), anyBoolean());
+    }
+
+    @Test
+    public void setQueuePositionAnimatesToAdjacentTracks() throws Exception {
+        when(trackPager.getCurrentItem()).thenReturn(2);
+
+        playerPresenter.setQueuePosition(3);
+
+        verify(trackPager).setCurrentItem(3);
+    }
+
+    @Test
+    public void setQueuePositionDoesNotAnimateToNotAdjacentTracks() throws Exception {
+        when(trackPager.getCurrentItem()).thenReturn(2);
+
+        playerPresenter.setQueuePosition(4);
+
+        verify(trackPager).setCurrentItem(4, false);
     }
 
     @Test

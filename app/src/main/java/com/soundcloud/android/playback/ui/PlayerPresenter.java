@@ -64,7 +64,8 @@ class PlayerPresenter implements View.OnClickListener {
     }
 
     void setQueuePosition(int position) {
-        trackPager.setCurrentItem(position);
+        boolean isAdjacentTrack = Math.abs(trackPager.getCurrentItem() - position) <= 1;
+        trackPager.setCurrentItem(position, isAdjacentTrack);
     }
 
     void onPlayQueueChanged() {
