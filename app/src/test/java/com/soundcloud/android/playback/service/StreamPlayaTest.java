@@ -403,28 +403,15 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void autoRetriesLastPlayOnMediaPlayerIfSkippyErrorsOnStart() throws Exception {
+    public void autoRetriesLastPlayOnMediaPlayerIfSkippyErrors() throws Exception {
         instantiateStreamPlaya();
         when(sharedPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false)).thenReturn(false);
         when(sharedPreferences.getInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, 0)).thenReturn(StreamPlaya.MAX_CONSECUTIVE_SKIPPY_PLAYS);
-        when(skippyAdapter.getProgress()).thenReturn(0L);
+        when(skippyAdapter.getProgress()).thenReturn(123L);
         streamPlayerWrapper.play(track);
 
         streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND));
-        verify(mediaPlayerAdapter).play(track, 0L);
-    }
-
-    @Test
-    public void autoRetriesLastPlayOnMediaPlayerIfSkippyErrorsOnResumeTime() throws Exception {
-        instantiateStreamPlaya();
-        when(sharedPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false)).thenReturn(false);
-        when(sharedPreferences.getInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, 0)).thenReturn(StreamPlaya.MAX_CONSECUTIVE_SKIPPY_PLAYS);
-
-        streamPlayerWrapper.play(track, 500L);
-        when(skippyAdapter.getProgress()).thenReturn(500L);
-
-        streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND));
-        verify(mediaPlayerAdapter).play(track, 500L);
+        verify(mediaPlayerAdapter).play(track, 123L);
     }
 
     @Test
