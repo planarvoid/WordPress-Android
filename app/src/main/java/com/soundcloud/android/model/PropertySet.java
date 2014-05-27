@@ -1,4 +1,4 @@
-package com.soundcloud.android.storage;
+package com.soundcloud.android.model;
 
 import com.google.common.base.Objects;
 
@@ -7,7 +7,7 @@ import android.os.Parcelable;
 import android.util.SparseArray;
 
 /**
- * A PropertySet represents a set of {@link com.soundcloud.android.storage.Property.Binding}s.
+ * A PropertySet represents a set of {@link Property.Binding}s.
  * It can be understood as a fluent way of representing a SoundCloud business object such as
  * a track or user in a type safe fashion, without having to define various model classes
  * representing different combinations of fields.

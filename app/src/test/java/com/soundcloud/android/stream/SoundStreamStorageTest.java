@@ -2,16 +2,19 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PlaylistSummary;
+import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.DatabaseHelper;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.storage.PropertySet;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +28,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.Arrays;
 import java.util.Date;
 
+@DatabaseConfig.UsingDatabaseMap(DefaultTestRunner.FileDatabaseMap.class)
 @RunWith(SoundCloudTestRunner.class)
 public class SoundStreamStorageTest {
 
@@ -52,11 +56,10 @@ public class SoundStreamStorageTest {
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
 
         final PropertySet trackPost = PropertySet.from(
-                StreamItemProperty.SOUND_URN.bind(Urn.forTrack(track.getId())),
-                StreamItemProperty.SOUND_TITLE.bind(track.getTitle()),
-                StreamItemProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
-                StreamItemProperty.POSTER.bind(track.getUser().getUsername()),
-                StreamItemProperty.REPOST.bind(false));
+                PlayableProperty.URN.bind(Urn.forTrack(track.getId())),
+                PlayableProperty.TITLE.bind(track.getTitle()),
+                PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
+                PlayableProperty.CREATOR.bind(track.getUser().getUsername()));
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnCompletedEvents()).toNumber(1);
@@ -73,11 +76,11 @@ public class SoundStreamStorageTest {
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
 
         final PropertySet trackRepost = PropertySet.from(
-                StreamItemProperty.SOUND_URN.bind(Urn.forTrack(track.getId())),
-                StreamItemProperty.SOUND_TITLE.bind(track.getTitle()),
-                StreamItemProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
-                StreamItemProperty.POSTER.bind(reposter.getUsername()),
-                StreamItemProperty.REPOST.bind(true));
+                PlayableProperty.URN.bind(Urn.forTrack(track.getId())),
+                PlayableProperty.TITLE.bind(track.getTitle()),
+                PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
+                PlayableProperty.CREATOR.bind(track.getUser().getUsername()),
+                PlayableProperty.REPOSTER.bind(reposter.getUsername()));
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnCompletedEvents()).toNumber(1);
@@ -93,11 +96,10 @@ public class SoundStreamStorageTest {
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
 
         final PropertySet playlistPost = PropertySet.from(
-                StreamItemProperty.SOUND_URN.bind(Urn.forPlaylist(playlist.getId())),
-                StreamItemProperty.SOUND_TITLE.bind(playlist.getTitle()),
-                StreamItemProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
-                StreamItemProperty.POSTER.bind(playlist.getUser().getUsername()),
-                StreamItemProperty.REPOST.bind(false));
+                PlayableProperty.URN.bind(Urn.forPlaylist(playlist.getId())),
+                PlayableProperty.TITLE.bind(playlist.getTitle()),
+                PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
+                PlayableProperty.CREATOR.bind(playlist.getUser().getUsername()));
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnCompletedEvents()).toNumber(1);
@@ -114,11 +116,11 @@ public class SoundStreamStorageTest {
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
 
         final PropertySet playlistRepost = PropertySet.from(
-                StreamItemProperty.SOUND_URN.bind(Urn.forPlaylist(playlist.getId())),
-                StreamItemProperty.SOUND_TITLE.bind(playlist.getTitle()),
-                StreamItemProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
-                StreamItemProperty.POSTER.bind(reposter.getUsername()),
-                StreamItemProperty.REPOST.bind(true));
+                PlayableProperty.URN.bind(Urn.forPlaylist(playlist.getId())),
+                PlayableProperty.TITLE.bind(playlist.getTitle()),
+                PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
+                PlayableProperty.CREATOR.bind(playlist.getUser().getUsername()),
+                PlayableProperty.REPOSTER.bind(reposter.getUsername()));
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnCompletedEvents()).toNumber(1);
@@ -174,7 +176,7 @@ public class SoundStreamStorageTest {
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 1).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).get(StreamItemProperty.SOUND_URN)).toEqual(firstTrack.getUrn());
+        expect(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).toEqual(firstTrack.getUrn());
     }
 
     @Test
@@ -187,6 +189,6 @@ public class SoundStreamStorageTest {
         storage.streamItemsBefore(TIMESTAMP, Urn.forUser(123), 50).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).get(StreamItemProperty.SOUND_URN)).toEqual(oldestTrack.getUrn());
+        expect(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).toEqual(oldestTrack.getUrn());
     }
 }

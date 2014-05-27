@@ -2,7 +2,7 @@ package com.soundcloud.android.stream;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
-import com.soundcloud.android.storage.PropertySet;
+import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import dagger.Module;
 import dagger.Provides;

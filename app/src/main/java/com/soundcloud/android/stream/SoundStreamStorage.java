@@ -9,11 +9,12 @@ import static com.soundcloud.android.storage.TableColumns.SoundView;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.ManagedCursor;
-import com.soundcloud.android.storage.PropertySet;
 import com.soundcloud.android.storage.Query;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.provider.Content;
@@ -50,6 +51,7 @@ class SoundStreamStorage extends ScheduledOperations {
                         ActivityView.SOUND_ID,
                         ActivityView.SOUND_TYPE,
                         SoundView.TITLE,
+                        SoundView.USERNAME,
                         ActivityView.CREATED_AT,
                         ActivityView.TYPE,
                         ActivityView.USER_USERNAME,
@@ -80,23 +82,26 @@ class SoundStreamStorage extends ScheduledOperations {
         public PropertySet call(ManagedCursor cursor) {
             final PropertySet propertySet = PropertySet.create(cursor.getColumnCount());
 
-            propertySet.add(StreamItemProperty.SOUND_URN, readSoundUrn(cursor));
-            propertySet.add(StreamItemProperty.SOUND_TITLE, cursor.getString(SoundView.TITLE));
-            propertySet.add(StreamItemProperty.CREATED_AT, cursor.getDateFromTimestamp(ActivityView.CREATED_AT));
-            propertySet.add(StreamItemProperty.POSTER, cursor.getString(ActivityView.USER_USERNAME));
-            propertySet.add(StreamItemProperty.REPOST, readRepostedFlag(cursor));
+            propertySet.add(PlayableProperty.URN, readSoundUrn(cursor));
+            propertySet.add(PlayableProperty.TITLE, cursor.getString(SoundView.TITLE));
+            propertySet.add(PlayableProperty.CREATED_AT, cursor.getDateFromTimestamp(ActivityView.CREATED_AT));
+            propertySet.add(PlayableProperty.CREATOR, cursor.getString(SoundView.USERNAME));
+            addOptionalReposter(cursor, propertySet);
 
             return propertySet;
+        }
+
+        private void addOptionalReposter(ManagedCursor cursor, PropertySet propertySet) {
+            final String reposter = cursor.getString(ActivityView.USER_USERNAME);
+            if (reposter != null) {
+                propertySet.add(PlayableProperty.REPOSTER, reposter);
+            }
         }
 
         private Urn readSoundUrn(ManagedCursor cursor) {
             final int soundId = cursor.getInt(ActivityView.SOUND_ID);
             final int soundType = cursor.getInt(ActivityView.SOUND_TYPE);
             return soundType == Playable.DB_TYPE_TRACK ? Urn.forTrack(soundId) : Urn.forPlaylist(soundId);
-        }
-
-        private boolean readRepostedFlag(ManagedCursor cursor) {
-            return cursor.getString(ActivityView.TYPE).endsWith("-repost");
         }
     }
 }

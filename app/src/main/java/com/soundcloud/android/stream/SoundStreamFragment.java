@@ -7,7 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.storage.PropertySet;
+import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;

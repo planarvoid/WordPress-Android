@@ -38,6 +38,7 @@ public class DatabaseHelper {
         cv.put(TableColumns.Sounds._ID, track.getId());
         cv.put(TableColumns.Sounds.TITLE, track.getTitle());
         cv.put(TableColumns.Sounds._TYPE, Playable.DB_TYPE_TRACK);
+        cv.put(TableColumns.Sounds.USER_ID, track.getUser().getId());
 
         final long id = insertInto(Table.SOUNDS, cv);
         track.setId(id);
@@ -56,6 +57,7 @@ public class DatabaseHelper {
         cv.put(TableColumns.Sounds._ID, playlist.getId());
         cv.put(TableColumns.Sounds._TYPE, Playable.DB_TYPE_PLAYLIST);
         cv.put(TableColumns.Sounds.TITLE, playlist.getTitle());
+        cv.put(TableColumns.Sounds.USER_ID, playlist.getUser().getId());
 
         final long id = insertInto(Table.SOUNDS, cv);
         playlist.setId(id);
@@ -92,7 +94,6 @@ public class DatabaseHelper {
         cv.put(TableColumns.Activities.SOUND_ID, track.getId());
         cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
         cv.put(TableColumns.Activities.TYPE, "track");
-        cv.put(TableColumns.Activities.USER_ID, track.getUser().getId());
         cv.put(TableColumns.Activities.CREATED_AT, timestamp);
         return insertInto(Table.ACTIVITIES, cv);
     }
@@ -125,7 +126,6 @@ public class DatabaseHelper {
         cv.put(TableColumns.Activities.SOUND_ID, playlist.getId());
         cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_PLAYLIST);
         cv.put(TableColumns.Activities.TYPE, "playlist");
-        cv.put(TableColumns.Activities.USER_ID, playlist.getUser().getId());
         cv.put(TableColumns.Activities.CREATED_AT, timestamp);
         return insertInto(Table.ACTIVITIES, cv);
     }

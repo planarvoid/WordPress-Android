@@ -1,4 +1,4 @@
-package com.soundcloud.android.storage;
+package com.soundcloud.android.model;
 
 import com.google.common.base.Objects;
 
@@ -10,7 +10,7 @@ import android.os.Parcelable;
  * the SoundCloud business domain. Examples include: a track title, a playlist URN, number of likes, etc.
  * <p/>
  * Properties can be bound to concrete values via bindings, accessible through the {@link #bind} method.
- * These bindings can then be grouped together in {@link com.soundcloud.android.storage.PropertySet}s to represent full
+ * These bindings can then be grouped together in {@link PropertySet}s to represent full
  * entities (such as tracks or users) for further consumption.
  *
  * @param <T>
@@ -91,11 +91,11 @@ public final class Property<T> implements Parcelable {
     }
 
     /**
-     * Binds a given value to a {@link com.soundcloud.android.storage.Property}.
+     * Binds a given value to a {@link Property}.
      * Values MUST be either parcelable or serializable.
      * <p/>
      * Bindings are never created manually, and instead are added to and contained in
-     * {@link com.soundcloud.android.storage.PropertySet}s.
+     * {@link PropertySet}s.
      *
      * @param <T>
      */

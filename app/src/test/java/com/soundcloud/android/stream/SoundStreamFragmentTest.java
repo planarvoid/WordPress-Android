@@ -10,7 +10,7 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.storage.PropertySet;
+import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.xtremelabs.robolectric.Robolectric;

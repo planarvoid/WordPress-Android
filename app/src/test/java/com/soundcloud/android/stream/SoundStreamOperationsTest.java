@@ -11,10 +11,11 @@ import static rx.android.OperatorPaged.Page;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserUrn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.storage.PropertySet;
+import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.sync.SyncInitiator;
 import org.junit.Before;
 import org.junit.Test;
@@ -210,11 +211,11 @@ public class SoundStreamOperationsTest {
 
     private List<PropertySet> createItems(int length, long timestampOfLastItem) {
         final List<PropertySet> headList = Collections.nCopies(length - 1, PropertySet.from(
-                StreamItemProperty.SOUND_URN.bind(Urn.forTrack(1L)),
-                StreamItemProperty.CREATED_AT.bind(new Date(TIMESTAMP))));
+                PlayableProperty.URN.bind(Urn.forTrack(1L)),
+                PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP))));
         final PropertySet lastItem = PropertySet.from(
-                StreamItemProperty.SOUND_URN.bind(Urn.forTrack(1L)),
-                StreamItemProperty.CREATED_AT.bind(new Date(timestampOfLastItem)));
+                PlayableProperty.URN.bind(Urn.forTrack(1L)),
+                PlayableProperty.CREATED_AT.bind(new Date(timestampOfLastItem)));
         final ArrayList<PropertySet> propertySets = Lists.newArrayList(headList);
         propertySets.add(lastItem);
         return propertySets;

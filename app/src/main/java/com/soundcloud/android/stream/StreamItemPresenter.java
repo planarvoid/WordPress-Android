@@ -1,7 +1,6 @@
 package com.soundcloud.android.stream;
 
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.PropertySet;
+import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.view.adapters.CellPresenter;
 
 import android.view.View;
@@ -9,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import javax.inject.Inject;
-import java.util.Date;
 import java.util.List;
 
 // PLEASE IGNORE THIS GUY FOR NOW.
@@ -28,17 +26,6 @@ class StreamItemPresenter implements CellPresenter<PropertySet> {
 
     @Override
     public void bindItemView(int position, View itemView, List<PropertySet> streamItems) {
-        final PropertySet propertySet = streamItems.get(position);
-        final Urn soundUrn = propertySet.get(StreamItemProperty.SOUND_URN);
-        final String soundTitle = propertySet.get(StreamItemProperty.SOUND_TITLE);
-        final String poster = propertySet.get(StreamItemProperty.POSTER);
-        final Date createdAt = propertySet.get(StreamItemProperty.CREATED_AT);
-        final boolean isRepost = propertySet.get(StreamItemProperty.REPOST);
-
-        ((TextView) itemView).setText(
-                createdAt + "\n" +
-                        soundUrn + "\n" + soundTitle + "\n" + (isRepost ? "reposter: " + poster : "")
-        );
     }
 
     @Override

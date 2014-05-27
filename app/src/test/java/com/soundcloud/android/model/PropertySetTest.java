@@ -1,4 +1,4 @@
-package com.soundcloud.android.storage;
+package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.hamcrest.Matchers.containsString;

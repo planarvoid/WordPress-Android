@@ -8,8 +8,9 @@ import static rx.android.OperatorPaged.pagedWith;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.PropertySet;
+import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
@@ -86,10 +87,10 @@ class SoundStreamOperations {
     private void logPropertySet(List<PropertySet> propertySets) {
         Log.d(TAG, "Received " + propertySets.size() + " items");
         if (!propertySets.isEmpty()) {
-            Log.d(TAG, "First item = " + propertySets.get(0).get(StreamItemProperty.SOUND_URN) +
-                    "; timestamp = " + propertySets.get(0).get(StreamItemProperty.CREATED_AT).getTime());
-            Log.d(TAG, "Last item = " + getLast(propertySets).get(StreamItemProperty.SOUND_URN) +
-                    "; timestamp = " + getLast(propertySets).get(StreamItemProperty.CREATED_AT).getTime());
+            Log.d(TAG, "First item = " + propertySets.get(0).get(PlayableProperty.URN) +
+                    "; timestamp = " + propertySets.get(0).get(PlayableProperty.CREATED_AT).getTime());
+            Log.d(TAG, "Last item = " + getLast(propertySets).get(PlayableProperty.URN) +
+                    "; timestamp = " + getLast(propertySets).get(PlayableProperty.CREATED_AT).getTime());
         }
     }
 
@@ -99,7 +100,7 @@ class SoundStreamOperations {
             @Override
             public Observable<Page<List<PropertySet>>> call(final List<PropertySet> result) {
                 // to implement paging, we move the timestamp down reverse chronologically
-                final long nextTimestamp = getLast(result).get(StreamItemProperty.CREATED_AT).getTime();
+                final long nextTimestamp = getLast(result).get(PlayableProperty.CREATED_AT).getTime();
                 Log.d(TAG, "Building next page observable for timestamp " + nextTimestamp);
                 return pagedStreamItems(userUrn, nextTimestamp);
             }
