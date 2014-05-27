@@ -114,7 +114,7 @@ public class PlayerPresenterTest {
 
         playerPresenter.setQueuePosition(3);
 
-        verify(trackPager).setCurrentItem(3);
+        verify(trackPager).setCurrentItem(3, true);
     }
 
     @Test
