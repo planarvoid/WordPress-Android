@@ -4,23 +4,22 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import org.junit.Before;
+import com.soundcloud.android.view.adapters.CellPresenter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 @RunWith(SoundCloudTestRunner.class)
 public class InlinePlaylistTracksAdapterTest {
 
+    @InjectMocks
     private InlinePlaylistTracksAdapter adapter;
 
     @Mock
-    private InlinePlaylistTrackPresenter presenter;
-
-    @Before
-    public void setUp() throws Exception {
-        adapter = new InlinePlaylistTracksAdapter(presenter);
-    }
+    private EmptyPlaylistTracksPresenter emptyRowPresenter;
+    @Mock
+    private CellPresenter<Track> trackRowPresenter;
 
     @Test
     public void reports2DifferentItemTypes() {

@@ -64,7 +64,7 @@ public class PullToRefreshControllerTest {
     @Mock
     private Subscription subscription;
     @Mock
-    private PagingItemAdapter<Parcelable, ?> adapter;
+    private PagingItemAdapter<Parcelable> adapter;
     @Captor
     private ArgumentCaptor<OnRefreshListener> refreshListenerCaptor;
 

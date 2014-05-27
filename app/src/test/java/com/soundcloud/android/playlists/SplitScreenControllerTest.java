@@ -4,7 +4,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.collections.views.PlayableRow;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyView;
@@ -24,7 +23,7 @@ public class SplitScreenControllerTest {
     private SplitScreenController controller;
 
     @Mock
-    private ItemAdapter<Track, PlayableRow> adapter;
+    private ItemAdapter<Track> adapter;
     @Mock
     private ListView listView;
     @Mock

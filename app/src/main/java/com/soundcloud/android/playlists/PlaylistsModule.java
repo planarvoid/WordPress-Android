@@ -2,9 +2,11 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
-import com.soundcloud.android.collections.views.PlayableRow;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.view.adapters.CellPresenter;
 import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.LegacyPlayableRowPresenter;
 import dagger.Module;
 import dagger.Provides;
 
@@ -36,7 +38,12 @@ public class PlaylistsModule {
     }
 
     @Provides
-    public ItemAdapter<Track, PlayableRow> provideItemAdapter(PlaylistTrackPresenter presenter) {
-        return new ItemAdapter<Track, PlayableRow>(presenter, INITIAL_ADAPTER_SIZE);
+    public ItemAdapter<Track> provideSplitScreenItemAdapter(CellPresenter<Track> playableRowPresenter) {
+        return new ItemAdapter<Track>(playableRowPresenter);
+    }
+
+    @Provides
+    public CellPresenter<Track> provideTrackRowPresenter(ImageOperations imageOperations) {
+        return new LegacyPlayableRowPresenter<Track>(imageOperations);
     }
 }

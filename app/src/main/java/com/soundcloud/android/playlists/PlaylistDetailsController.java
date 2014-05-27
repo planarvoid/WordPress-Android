@@ -9,7 +9,7 @@ import android.view.View;
 
 public interface PlaylistDetailsController extends EmptyViewAware {
 
-    ItemAdapter<Track, ? extends View> getAdapter();
+    ItemAdapter<Track> getAdapter();
 
     boolean hasContent();
 

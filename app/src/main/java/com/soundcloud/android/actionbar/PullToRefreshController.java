@@ -63,7 +63,7 @@ public class PullToRefreshController {
     public <T extends Parcelable,
             OT extends ConnectableObservable<? extends Page<? extends Iterable<T>>>,
             FragmentT extends Fragment & RefreshableListComponent<OT>>
-    void onViewCreated(final FragmentT fragment, OT activeObservable, final PagingItemAdapter<T, ? extends View> adapter) {
+    void onViewCreated(final FragmentT fragment, OT activeObservable, final PagingItemAdapter<T> adapter) {
         this.onViewCreated(fragment, new OnRefreshListener() {
             @Override
             public void onRefreshStarted(View view) {
@@ -116,9 +116,9 @@ public class PullToRefreshController {
 
     private final class PageSubscriber<T extends Parcelable> extends DefaultSubscriber<Page<? extends Iterable<T>>> {
 
-        private final PagingItemAdapter<T, ? extends View> adapter;
+        private final PagingItemAdapter<T> adapter;
 
-        public PageSubscriber(PagingItemAdapter<T, ? extends View> adapter) {
+        public PageSubscriber(PagingItemAdapter<T> adapter) {
             this.adapter = adapter;
         }
 

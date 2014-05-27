@@ -21,7 +21,7 @@ public class DefaultControllerTest {
     @Mock
     private InlinePlaylistTracksAdapter adapter;
     @Mock
-    private InlinePlaylistTrackPresenter presenter;
+    private EmptyPlaylistTracksPresenter presenter;
     @Mock
     private ListView listView;
     @Mock

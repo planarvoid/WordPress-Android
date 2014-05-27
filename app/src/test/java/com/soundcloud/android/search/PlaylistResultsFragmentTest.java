@@ -66,7 +66,7 @@ public class PlaylistResultsFragmentTest {
     @Mock
     private ListViewController listViewController;
     @Mock
-    private PagingItemAdapter<PlaylistSummary, ?> adapter;
+    private PagingItemAdapter<PlaylistSummary> adapter;
     @Mock
     private ScModelManager modelManager;
     @Mock

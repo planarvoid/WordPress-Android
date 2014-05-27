@@ -36,7 +36,7 @@ public class PlaylistGridPresenterTest {
 
     @Test
     public void shouldCreateItemView() {
-        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application), ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
+        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application));
         expect(itemView).not.toBeNull();
         expect(itemView.getTag()).not.toBeNull(); // contains the private ViewHolder instance
         expect(itemView.findViewById(R.id.image)).not.toBeNull();
@@ -48,7 +48,7 @@ public class PlaylistGridPresenterTest {
     public void shouldBindItemView() throws CreateModelException {
         PlaylistSummary playlist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
 
-        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application), ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
+        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application));
         presenter.bindItemView(0, itemView, Arrays.asList(playlist));
 
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
@@ -63,7 +63,7 @@ public class PlaylistGridPresenterTest {
         PlaylistSummary playlist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
         playlist.setTags(Arrays.asList("tag1"));
 
-        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application), ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
+        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application));
         presenter.bindItemView(0, itemView, Arrays.asList(playlist));
 
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
@@ -75,7 +75,7 @@ public class PlaylistGridPresenterTest {
         PlaylistSummary playlist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
         playlist.setTags(Collections.<String>emptyList());
 
-        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application), ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
+        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application));
         presenter.bindItemView(0, itemView, Arrays.asList(playlist));
 
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();

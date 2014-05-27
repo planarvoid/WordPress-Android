@@ -5,9 +5,12 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
-public interface CellPresenter<ItemT, ViewT extends View> {
+public interface CellPresenter<ItemT> {
 
-    ViewT createItemView(int position, ViewGroup parent, int itemViewType);
-    void bindItemView(int position, ViewT itemView, List<ItemT> items);
+    int DEFAULT_ITEM_VIEW_TYPE = 0;
+
+    View createItemView(int position, ViewGroup parent);
+    void bindItemView(int position, View itemView, List<ItemT> items);
+    int getItemViewType();
 
 }

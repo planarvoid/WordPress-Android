@@ -7,12 +7,15 @@ import com.soundcloud.android.view.adapters.CellPresenter;
 
 import android.util.SparseArray;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Locale;
 
-class GenreCellPresenter implements CellPresenter<ExploreGenre, GenreRow> {
+class GenreCellPresenter implements CellPresenter<ExploreGenre> {
 
     static final int AUDIO_SECTION = 0;
     static final int MUSIC_SECTION = 1;
@@ -26,22 +29,35 @@ class GenreCellPresenter implements CellPresenter<ExploreGenre, GenreRow> {
     }
 
     @Override
-    public GenreRow createItemView(int position, ViewGroup parent, int itemViewType) {
-        return (GenreRow) layoutInflater.inflate(R.layout.explore_genre_item, parent, false);
+    public View createItemView(int position, ViewGroup parent) {
+        return layoutInflater.inflate(R.layout.explore_genre_item, parent, false);
     }
 
     @Override
-    public void bindItemView(int position, GenreRow itemView, List<ExploreGenre> genres) {
+    public void bindItemView(int position, View itemView, List<ExploreGenre> genres) {
         RowDescriptor descriptor = listPositionsToSections.get(position);
 
-        if (descriptor.isSectionHeader) {
-            itemView.showSectionHeaderWithText(itemView.getResources().getString(descriptor.section.getTitleId()));
-        } else {
-            itemView.hideSectionHeader();
-        }
-        String genreTitle = genres.get(position).getTitle();
-        itemView.setDisplayName(genreTitle);
+        TextView categoryTitle = (TextView) itemView.findViewById(android.R.id.text1);
+        TextView sectionHeader = (TextView) itemView.findViewById(R.id.list_section_header);
 
+        updateSectionHeader(itemView, descriptor, sectionHeader);
+        String genreTitle = genres.get(position).getTitle();
+        categoryTitle.setText(genreTitle);
+
+        setTrackingTag(position, itemView, genreTitle);
+    }
+
+    private void updateSectionHeader(View itemView, RowDescriptor descriptor, TextView sectionHeader) {
+        if (descriptor.isSectionHeader) {
+            final String headerTitle = itemView.getResources().getString(descriptor.section.getTitleId());
+            sectionHeader.setText(headerTitle.toUpperCase(Locale.getDefault()));
+            sectionHeader.setVisibility(View.VISIBLE);
+        } else {
+            sectionHeader.setVisibility(View.GONE);
+        }
+    }
+
+    private void setTrackingTag(int position, View itemView, String genreTitle) {
         switch (getSection(position).getSectionId()) {
             case AUDIO_SECTION:
                 itemView.setTag(Screen.EXPLORE_AUDIO_GENRE.get(genreTitle));
@@ -54,12 +70,13 @@ class GenreCellPresenter implements CellPresenter<ExploreGenre, GenreRow> {
         }
     }
 
-    private GenreSection<ExploreGenre> getSection(int position) {
-        return listPositionsToSections.get(position).section;
+    @Override
+    public int getItemViewType() {
+        return DEFAULT_ITEM_VIEW_TYPE;
     }
 
-    boolean isSectionHeader(int position) {
-        return listPositionsToSections.get(position).isSectionHeader;
+    private GenreSection<ExploreGenre> getSection(int position) {
+        return listPositionsToSections.get(position).section;
     }
 
     void setSectionForPosition(int position, GenreSection<ExploreGenre> section, boolean isSectionHeader) {

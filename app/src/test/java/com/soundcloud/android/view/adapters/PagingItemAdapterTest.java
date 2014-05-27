@@ -44,7 +44,7 @@ public class PagingItemAdapterTest {
 
     @Before
     public void setup() {
-        adapter = new PagingItemAdapter(cellPresenter, 10);
+        adapter = new PagingItemAdapter(R.layout.list_loading_item, cellPresenter);
     }
 
     @Test
@@ -126,7 +126,7 @@ public class PagingItemAdapterTest {
         loadFirstPageThen(finish);
 
         adapter.getView(0, null, parent);
-        verify(cellPresenter).createItemView(0, parent, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
+        verify(cellPresenter).createItemView(0, parent);
     }
 
     @Test

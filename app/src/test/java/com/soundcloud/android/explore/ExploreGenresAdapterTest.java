@@ -1,8 +1,6 @@
 package com.soundcloud.android.explore;
 
-import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -25,21 +23,6 @@ public class ExploreGenresAdapterTest {
     @Before
     public void setUp() throws Exception {
         adapter = new ExploreGenresAdapter(cellPresenter);
-    }
-
-    @Test
-    public void shouldSetSectionViewTypes() {
-        when(cellPresenter.isSectionHeader(0)).thenReturn(true);
-        when(cellPresenter.isSectionHeader(1)).thenReturn(false);
-        when(cellPresenter.isSectionHeader(2)).thenReturn(true);
-        expect(adapter.getItemViewType(0)).toEqual(ExploreGenresAdapter.ITEM_VIEW_TYPE_HEADER);
-        expect(adapter.getItemViewType(1)).toEqual(ExploreGenresAdapter.ITEM_VIEW_TYPE_DEFAULT);
-        expect(adapter.getItemViewType(2)).toEqual(ExploreGenresAdapter.ITEM_VIEW_TYPE_HEADER);
-    }
-
-    @Test
-    public void getViewTypeCountShouldReturn2ToDistinguishBetweenHeadersAndNormalItems() {
-        expect(adapter.getViewTypeCount()).toBe(2);
     }
 
     @Test

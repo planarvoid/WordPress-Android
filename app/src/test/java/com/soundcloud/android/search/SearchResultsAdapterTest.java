@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.view.adapters.LegacyUserRowPresenter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -17,7 +18,7 @@ public class SearchResultsAdapterTest {
     private SearchResultsAdapter adapter;
 
     @Mock
-    private SearchResultPresenter presenter;
+    private LegacyUserRowPresenter presenter;
 
     @Test
     public void shouldDifferentiateItemViewTypes() {

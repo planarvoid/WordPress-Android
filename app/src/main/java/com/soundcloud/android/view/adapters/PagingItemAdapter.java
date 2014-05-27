@@ -14,7 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 
-public class PagingItemAdapter<T extends Parcelable, ViewT extends View> extends ItemAdapter<T, ViewT>
+public class PagingItemAdapter<T extends Parcelable> extends ItemAdapter<T>
         implements AbsListView.OnScrollListener, Observer<Page<? extends Iterable<T>>> {
 
     private final int progressItemLayoutResId;
@@ -27,12 +27,12 @@ public class PagingItemAdapter<T extends Parcelable, ViewT extends View> extends
         IDLE, LOADING, ERROR;
     }
 
-    public PagingItemAdapter(CellPresenter<T, ViewT> cellPresenter, int pageSize) {
-        this(cellPresenter, pageSize, R.layout.list_loading_item);
+    public PagingItemAdapter(CellPresenter<T>... cellPresenters) {
+        this(R.layout.list_loading_item, cellPresenters);
     }
 
-    public PagingItemAdapter(CellPresenter<T, ViewT> cellPresenter, int pageSize, int progressItemLayoutResId) {
-        super(cellPresenter, pageSize);
+    public PagingItemAdapter(int progressItemLayoutResId, CellPresenter<T>... cellPresenters) {
+        super(cellPresenters);
         this.progressItemLayoutResId = progressItemLayoutResId;
     }
 

@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,9 +18,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 @RunWith(SoundCloudTestRunner.class)
 public class GenreCellPresenterTest {
@@ -34,18 +36,25 @@ public class GenreCellPresenterTest {
     @Mock
     private ViewGroup parentView;
     @Mock
-    private GenreRow itemView;
+    private View itemView;
     @Mock
     private GenreSection section;
+    @Mock
+    private TextView genreTitleText;
+    @Mock
+    private TextView sectionHeaderText;
 
     @Before
     public void setup() {
         when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
+        when(itemView.findViewById(android.R.id.text1)).thenReturn(genreTitleText);
+        when(itemView.findViewById(R.id.list_section_header)).thenReturn(sectionHeaderText);
+        when(section.getTitleId()).thenReturn(R.string.explore_category_trending_audio);
     }
 
     @Test
     public void shouldInflateExploreRowWithoutAttachingToParent() {
-        presenter.createItemView(0, parentView, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
+        presenter.createItemView(0, parentView);
         verify(layoutInflater).inflate(R.layout.explore_genre_item, parentView, false);
     }
 
@@ -56,7 +65,8 @@ public class GenreCellPresenterTest {
         presenter.setSectionForPosition(0, section, true);
 
         presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
-        verify(itemView).showSectionHeaderWithText(anyString());
+        verify(sectionHeaderText).setText(anyString().toUpperCase(Locale.getDefault()));
+        verify(sectionHeaderText).setVisibility(View.VISIBLE);
     }
 
     @Test
@@ -66,7 +76,7 @@ public class GenreCellPresenterTest {
         presenter.setSectionForPosition(0, section, false);
 
         presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
-        verify(itemView).hideSectionHeader();
+        verify(sectionHeaderText).setVisibility(View.GONE);
     }
 
     @Test
@@ -76,7 +86,7 @@ public class GenreCellPresenterTest {
 
         presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
 
-        verify(itemView).setDisplayName(eq("Genre Title"));
+        verify(genreTitleText).setText(eq("Genre Title"));
     }
 
     @Test

@@ -17,7 +17,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistGridPresenter implements CellPresenter<PlaylistSummary, View> {
+public class PlaylistGridPresenter implements CellPresenter<PlaylistSummary> {
 
     private final ImageOperations imageOperations;
 
@@ -27,7 +27,7 @@ public class PlaylistGridPresenter implements CellPresenter<PlaylistSummary, Vie
     }
 
     @Override
-    public View createItemView(int position, ViewGroup parent, int itemViewType) {
+    public View createItemView(int position, ViewGroup parent) {
         View itemView = View.inflate(parent.getContext(), R.layout.default_grid_item, null);
         ItemViewHolder viewHolder = new ItemViewHolder();
         viewHolder.imageView = (ImageView) itemView.findViewById(R.id.image);
@@ -54,6 +54,11 @@ public class PlaylistGridPresenter implements CellPresenter<PlaylistSummary, Vie
 
         final ImageSize imageSize = ImageSize.getFullImageSize(itemView.getResources());
         imageOperations.displayInAdapterView(playlist.getUrn(), imageSize, viewHolder.imageView);
+    }
+
+    @Override
+    public int getItemViewType() {
+        return DEFAULT_ITEM_VIEW_TYPE;
     }
 
     private String formatTags(List<String> tags) {

@@ -3,7 +3,6 @@ package com.soundcloud.android.view.adapters;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -33,11 +32,11 @@ public class ItemAdapterTest {
     @Mock
     private CellPresenter cellPresenter;
 
-    private ItemAdapter<Track, ?> adapter;
+    private ItemAdapter<Track> adapter;
 
     @Before
     public void setup() {
-        adapter = new ItemAdapter<Track, View>(cellPresenter, 10) {};
+        adapter = new ItemAdapter<Track>(cellPresenter) {};
     }
 
     @Test
@@ -72,18 +71,54 @@ public class ItemAdapterTest {
     }
 
     @Test
+    public void shouldReturnDefaultCellPresenterItemViewType() {
+        expect(adapter.getItemViewType(0)).toEqual(CellPresenter.DEFAULT_ITEM_VIEW_TYPE);
+    }
+
+    @Test
     public void shouldCreateItemViewWithPresenter() {
         FrameLayout parent = mock(FrameLayout.class);
         adapter.addItem(new Track());
         adapter.getView(0, null, parent);
-        verify(cellPresenter).createItemView(0, parent, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE);
+        verify(cellPresenter).createItemView(0, parent);
+    }
+
+    @Test
+    public void shouldCreateItemViewForTwoDifferentViewTypes() {
+        FrameLayout parent = mock(FrameLayout.class);
+        CellPresenter presenterOne = createPresenter(0);
+        CellPresenter presenterTwo = createPresenter(1);
+        adapter = new ItemAdapter<Track>(presenterOne, presenterTwo) {
+            @Override
+            public int getItemViewType(int position) {
+                return position;
+            }
+        };
+
+        adapter.getView(0, null, parent);
+        verify(presenterOne).createItemView(0, parent);
+
+        adapter.getView(1, null, parent);
+        verify(presenterTwo).createItemView(1, parent);
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void shouldThrowIllegalStateExceptionWhenNoPresenterDefinedForAViewType() {
+        final int UNKNOWN_VIEW_TYPE = 666;
+        adapter = new ItemAdapter<Track>(createPresenter(0)) {
+            @Override
+            public int getItemViewType(int position) {
+                return UNKNOWN_VIEW_TYPE;
+            }
+        };
+        adapter.getView(0, null, mock(FrameLayout.class));
     }
 
     @Test
     public void shouldBindItemView() {
         FrameLayout parent = mock(FrameLayout.class);
         View itemView = mock(View.class);
-        when(cellPresenter.createItemView(0, parent, ItemAdapter.DEFAULT_ITEM_VIEW_TYPE)).thenReturn(itemView);
+        when(cellPresenter.createItemView(0, parent)).thenReturn(itemView);
         Track item = new Track();
         adapter.addItem(item);
 
@@ -100,7 +135,7 @@ public class ItemAdapterTest {
 
         View itemView = adapter.getView(0, convertView, parent);
         expect(itemView).toBe(convertView);
-        verify(cellPresenter, never()).createItemView(anyInt(), any(ViewGroup.class), eq(ItemAdapter.DEFAULT_ITEM_VIEW_TYPE));
+        verify(cellPresenter, never()).createItemView(anyInt(), any(ViewGroup.class));
         verify(cellPresenter).bindItemView(0, itemView, Arrays.asList(item));
     }
 
@@ -132,5 +167,11 @@ public class ItemAdapterTest {
         for (int i = 0; i < adapter.getCount(); i++) {
             expect(adapter.getItem(i)).toEqual(tracks.get(i));
         }
+    }
+
+    private CellPresenter createPresenter(final int itemViewType) {
+        CellPresenter presenter = mock(CellPresenter.class);
+        when(presenter.getItemViewType()).thenReturn(itemViewType);
+        return presenter;
     }
 }

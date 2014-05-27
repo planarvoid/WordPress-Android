@@ -15,14 +15,14 @@ import java.util.List;
 // PLEASE IGNORE THIS GUY FOR NOW.
 // I just need something quick and dirty for testing right now.
 // I will fully revisit how we do adapters and row binding in a later step.
-class StreamItemPresenter implements CellPresenter<PropertySet, View> {
+class StreamItemPresenter implements CellPresenter<PropertySet> {
 
     @Inject
     StreamItemPresenter() {
     }
 
     @Override
-    public TextView createItemView(int position, ViewGroup parent, int itemViewType) {
+    public TextView createItemView(int position, ViewGroup parent) {
         return new TextView(parent.getContext());
     }
 
@@ -39,5 +39,10 @@ class StreamItemPresenter implements CellPresenter<PropertySet, View> {
                 createdAt + "\n" +
                         soundUrn + "\n" + soundTitle + "\n" + (isRepost ? "reposter: " + poster : "")
         );
+    }
+
+    @Override
+    public int getItemViewType() {
+        return DEFAULT_ITEM_VIEW_TYPE;
     }
 }

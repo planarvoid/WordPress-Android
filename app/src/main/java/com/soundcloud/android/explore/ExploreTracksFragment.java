@@ -38,7 +38,7 @@ public class ExploreTracksFragment extends Fragment
     private String trackingTag;
 
     @Inject
-    PagingItemAdapter<TrackSummary, View> adapter;
+    PagingItemAdapter<TrackSummary> adapter;
     @Inject
     PlaybackOperations playbackOperations;
     @Inject

@@ -6,12 +6,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.collections.views.PlayableRow;
 import com.soundcloud.android.collections.views.UserlistRow;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.view.adapters.LegacyUserRowPresenter;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,10 +25,10 @@ import android.view.ViewGroup;
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
-public class SearchResultPresenterTest {
+public class LegacyUserRowPresenterTest {
 
     @InjectMocks
-    private SearchResultPresenter presenter;
+    private LegacyUserRowPresenter presenter;
 
     private Context context;
 
@@ -45,15 +45,7 @@ public class SearchResultPresenterTest {
         ViewGroup parent = mock(ViewGroup.class);
         when(parent.getContext()).thenReturn(context);
 
-        assertThat(presenter.createItemView(0, parent, SearchResultPresenter.TYPE_USER), instanceOf(UserlistRow.class));
-    }
-
-    @Test
-    public void shouldCreatePlayableItemView() throws Exception {
-        ViewGroup parent = mock(ViewGroup.class);
-        when(parent.getContext()).thenReturn(context);
-
-        assertThat(presenter.createItemView(0, parent, SearchResultPresenter.TYPE_PLAYABLE), instanceOf(PlayableRow.class));
+        assertThat(presenter.createItemView(0, parent), instanceOf(UserlistRow.class));
     }
 
     @Test
