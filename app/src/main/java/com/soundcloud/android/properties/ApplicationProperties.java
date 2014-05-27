@@ -6,6 +6,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import com.soundcloud.android.R;
 import com.soundcloud.android.R.string;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -26,6 +27,7 @@ public class ApplicationProperties {
     }
 
     private static BuildType BUILD_TYPE;
+    private static boolean VERBOSE_LOGGING;
     //TODO Need to keep these static as we need to do more refactoring around ACRA reporting. Do not reference directly
     @VisibleForTesting
     protected static final boolean IS_RUNNING_ON_DALVIK = Build.PRODUCT != null;
@@ -40,6 +42,11 @@ public class ApplicationProperties {
         String buildType = resources.getString(string.build_type);
         checkArgument(ScTextUtils.isNotBlank(buildType), "Build type not found in application package resources");
         BUILD_TYPE = BuildType.valueOf(buildType.toUpperCase(Locale.US));
+        VERBOSE_LOGGING = resources.getBoolean(R.bool.verbose_logging);
+    }
+
+    public boolean useVerboseLogging() {
+        return VERBOSE_LOGGING;
     }
 
     public boolean isReleaseBuild() {
