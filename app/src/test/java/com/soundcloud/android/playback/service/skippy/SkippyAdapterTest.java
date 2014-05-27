@@ -85,6 +85,7 @@ public class SkippyAdapterTest {
         when(playbackOperations.buildHLSUrlForTrack(track)).thenReturn(STREAM_URL);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(listener.requestAudioFocus()).thenReturn(true);
+        when(applicationProperties.isReleaseBuild()).thenReturn(true);
     }
 
     @Test
@@ -217,12 +218,12 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void skippyAddsDebugToStateChangeEventWhenIsDebugBuildIsTrue() throws Exception {
+    public void skippyAddsDebugToStateChangeEventWhenNotReleaseBuild() throws Exception {
         skippyAdapter.play(track);
 
-        when(applicationProperties.isDebugBuild()).thenReturn(true);
+        when(applicationProperties.isReleaseBuild()).thenReturn(false);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE);
-        expected.setDebugExtra("Skippy");
+        expected.setDebugExtra("Experimental Player");
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
 
         skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK, STREAM_URL);
