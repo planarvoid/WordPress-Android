@@ -4,6 +4,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
@@ -65,7 +66,6 @@ public class NavigationDrawerFragmentTest {
         when(activity.getApplication()).thenReturn(application);
 
         fragment.onAttach(activity);
-        fragment.onActivityCreated(null);
     }
 
     @Test
@@ -76,6 +76,7 @@ public class NavigationDrawerFragmentTest {
 
     @Test
     public void shouldTryToCloseDrawerIfCloseIsCalledAndOpen() throws Exception {
+        fragment.onActivityCreated(null);
         when(drawerLayout.isDrawerOpen(view)).thenReturn(true);
         fragment.closeDrawer();
         verify(drawerLayout).closeDrawer(view);
@@ -83,6 +84,7 @@ public class NavigationDrawerFragmentTest {
 
     @Test
     public void shouldSetupGlobalContextActionBarWhenDrawerOpened() throws Exception {
+        fragment.onActivityCreated(null);
         when(drawerLayout.isDrawerOpen(view)).thenReturn(true);
         fragment.onCreateOptionsMenu(Mockito.mock(Menu.class), Mockito.mock(MenuInflater.class));
         verify(actionBar).setDisplayShowCustomEnabled(false);
@@ -93,6 +95,7 @@ public class NavigationDrawerFragmentTest {
     public void shouldLockDrawerOnPlayerExpandedEvent() {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         fragment.onViewCreated(view, null);
+        fragment.onActivityCreated(null);
 
         eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
@@ -103,10 +106,22 @@ public class NavigationDrawerFragmentTest {
     public void shouldUnlockDrawerOnPlayerCollapsedEvent() {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         fragment.onViewCreated(view, null);
+        fragment.onActivityCreated(null);
 
         eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+    }
+
+    @Test
+    public void shouldIgnoreDrawerEventsUntilDrawerFullyLayouted() {
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        fragment.onViewCreated(view, null);
+
+        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+
+        verifyZeroInteractions(drawerLayout);
     }
 
     @Test

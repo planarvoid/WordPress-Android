@@ -27,12 +27,14 @@ import android.view.View;
 
 import javax.inject.Inject;
 
+// This guy needs a thorough refactor. We should pull out all the drawer presentation logic into a testable object,
+// since it needs to deal with awkward life cycle stuff where the drawer layout can be null in many cases
 @SuppressLint("ValidFragment")
 public class NavigationDrawerFragment extends NavigationFragment {
 
     @Nullable
     private ActionBarDrawerToggle drawerToggle;
-
+    @Nullable
     private DrawerLayout drawerLayout;
 
     private Subscription subscription = Subscriptions.empty();
@@ -72,7 +74,9 @@ public class NavigationDrawerFragment extends NavigationFragment {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         // Forward the new configuration the drawer toggle component.
-        drawerToggle.onConfigurationChanged(newConfig);
+        if (drawerToggle != null) {
+            drawerToggle.onConfigurationChanged(newConfig);
+        }
     }
 
     @Override
@@ -100,12 +104,11 @@ public class NavigationDrawerFragment extends NavigationFragment {
     }
 
     public boolean isDrawerOpen() {
-        final View view = getView();
-        return drawerLayout != null && view != null && drawerLayout.isDrawerOpen(view);
+        return drawerLayout != null && drawerLayout.isDrawerOpen(getView());
     }
 
     public void closeDrawer() {
-        if (isDrawerOpen()) {
+        if (drawerLayout != null && isDrawerOpen()) {
             drawerLayout.closeDrawer(getView());
         }
     }
@@ -113,9 +116,7 @@ public class NavigationDrawerFragment extends NavigationFragment {
     @Override
     protected void selectItem(int position) {
         super.selectItem(position);
-        if (drawerLayout != null) {
-            drawerLayout.closeDrawer(getView());
-        }
+        closeDrawer();
     }
 
     @Override
@@ -180,14 +181,20 @@ public class NavigationDrawerFragment extends NavigationFragment {
         drawerLayout.setDrawerListener(drawerToggle);
     }
 
+    private void setDrawerLockMode(int lockMode) {
+        if (drawerLayout != null) {
+            drawerLayout.setDrawerLockMode(lockMode);
+        }
+    }
+
     private final class PlayerExpansionSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
         public void onNext(PlayerUIEvent event) {
             final int eventKind = event.getKind();
             if (eventKind == PlayerUIEvent.PLAYER_EXPANDED) {
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             } else if (eventKind == PlayerUIEvent.PLAYER_COLLAPSED) {
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             }
         }
     }
