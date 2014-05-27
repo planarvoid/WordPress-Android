@@ -101,7 +101,7 @@ public class ImageOperations {
         final Context appContext = context.getApplicationContext();
 
         final ImageLoaderConfiguration.Builder builder = new ImageLoaderConfiguration.Builder(appContext);
-        if (properties.isDebugBuild()) {
+        if (properties.useVerboseLogging()) {
             builder.writeDebugLogs();
         }
 

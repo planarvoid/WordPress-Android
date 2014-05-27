@@ -39,7 +39,7 @@ import javax.inject.Named;
 public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private static final String TAG = "SkippyAdapter";
-    public static final String DEBUG_EXTRA = "Skippy";
+    private static final String DEBUG_EXTRA = "Experimental Player";
 
     private final EventBus eventBus;
     private final Skippy skippy;
@@ -51,6 +51,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private volatile String currentStreamUrl;
     private PlayaListener playaListener;
+    private long lastStateChangeProgress;
 
     @Inject
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, PlaybackOperations playbackOperations,
@@ -92,6 +93,9 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             return;
         }
 
+        stateHandler.removeMessages(0);
+        lastStateChangeProgress = 0;
+
         final String trackUrl = playbackOperations.buildHLSUrlForTrack(track);
         if (trackUrl.equals(currentStreamUrl)) {
             // we are already playing it. seek and resume
@@ -103,7 +107,6 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             currentStreamUrl = trackUrl;
             skippy.play(currentStreamUrl, fromPos);
         }
-
     }
 
     protected void logPlayCount(Track track) {
@@ -137,7 +140,11 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public long getProgress() {
-        return skippy.getPosition();
+        if (currentStreamUrl != null){
+            return skippy.getPosition();
+        } else {
+            return lastStateChangeProgress;
+        }
     }
 
     @Override
@@ -172,10 +179,12 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     @Override
-    public void onStateChanged(Skippy.State state, Skippy.Reason reason, Skippy.Error errorcode, String uri) {
+    public void onStateChanged(Skippy.State state, Skippy.Reason reason, Skippy.Error errorcode, long position, long duration, String uri) {
         Log.i(TAG, "State = " + state + " : " + reason + " : " + errorcode);
 
         if (uri.equals(currentStreamUrl)) {
+            lastStateChangeProgress = position;
+
             final PlayaState translatedState = getTranslatedState(state, reason);
             final Reason translatedReason = getTranslatedReason(reason, errorcode);
             final StateTransition transition = new StateTransition(translatedState, translatedReason);
@@ -184,7 +193,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
                 currentStreamUrl = null;
             }
 
-            if (applicationProperties.isDebugBuild()){
+            if (!applicationProperties.isReleaseBuild()){
                 transition.setDebugExtra(DEBUG_EXTRA);
             }
 

@@ -161,12 +161,12 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
     @Override
     public void onPlaystateChanged(StateTransition stateTransition) {
-        if (isUsingSkippyPlaya() && stateTransition.wasError() && !isInForceSkippyMode()
-                && skippyPlayaDelegate.getProgress() == trackPlaybackInfo.getStartPosition()) {
+        if (isUsingSkippyPlaya() && stateTransition.wasError() && !isInForceSkippyMode()) {
             Log.i(TAG, "Falling back to MediaPlayer");
 
+            final long progress = skippyPlayaDelegate.getProgress();
             configureNextPlayaToUse(mediaPlayaDelegate);
-            mediaPlayaDelegate.play(trackPlaybackInfo.getTrack(), trackPlaybackInfo.getStartPosition());
+            mediaPlayaDelegate.play(trackPlaybackInfo.getTrack(), progress);
 
         } else {
             Preconditions.checkNotNull(playaListener, "Stream Player Listener is unexpectedly null when passing state");

@@ -33,7 +33,7 @@ public class AnalyticsModule {
                                                              EventLogger eventLogger,
                                                              EventLoggerParamsBuilder eventLoggerParamsBuilder) {
         Log.d(analyticsProperties.toString());
-        Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && applicationProperties.isDebugBuild();
+        Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && applicationProperties.useVerboseLogging();
         // Unfortunately, both Localytics and ComScore are unmockable in tests and were crashing the tests during
         // initialiation of AnalyticsEngine, so we do not register them unless we're running on a real device
         if (applicationProperties.isRunningOnDalvik()) {
