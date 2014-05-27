@@ -6,6 +6,6 @@
           android:layout_height="wrap_content"
           android:background="#aaffffff"
           android:textColor="@color/sc_orange"
-          android:textSize="18dp"
-          android:padding="5dp"
+          android:textSize="14dp"
+          android:padding="3dp"
           android:visibility="gone"/>

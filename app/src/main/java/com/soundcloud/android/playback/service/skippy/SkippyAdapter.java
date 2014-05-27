@@ -38,7 +38,7 @@ import javax.inject.Named;
 public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private static final String TAG = "SkippyAdapter";
-    public static final String DEBUG_EXTRA = "Skippy";
+    private static final String DEBUG_EXTRA = "Experimental Player";
 
     private final EventBus eventBus;
     private final Skippy skippy;
@@ -183,7 +183,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
                 currentStreamUrl = null;
             }
 
-            if (applicationProperties.isDebugBuild()){
+            if (!applicationProperties.isReleaseBuild()){
                 transition.setDebugExtra(DEBUG_EXTRA);
             }
 
