@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -23,6 +24,7 @@ import org.mockito.Mock;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewTreeObserver;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SlidingPlayerControllerTest {
@@ -46,6 +48,7 @@ public class SlidingPlayerControllerTest {
         eventMonitor = EventMonitor.on(eventBus);
         controller = new SlidingPlayerController(eventBus);
         when(activity.findViewById(R.id.sliding_layout)).thenReturn(slidingPanel);
+        when(slidingPanel.getChildAt(1)).thenReturn(mock(View.class));
         controller.attach(activity, actionBarController);
     }
 
@@ -71,11 +74,24 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void expandsPlayerWhenPlayTriggeredEventIsReceived() {
+    public void expandsPlayerWhenVisiblePlayTriggeredEventIsReceived() {
+        when(slidingPanel.isPaneVisible()).thenReturn(true);
         controller.startListening();
+
         eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
 
         verify(slidingPanel).expandPane();
+    }
+
+    @Test
+    public void showsFooterPlayerWhenHiddenAndPlayTriggeredEventIsReceived() throws Exception {
+        when(slidingPanel.isPaneVisible()).thenReturn(false);
+        controller.startListening();
+        when(slidingPanel.getViewTreeObserver()).thenReturn(mock(ViewTreeObserver.class));
+
+        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+
+        verify(slidingPanel).showPane();
     }
 
     @Test

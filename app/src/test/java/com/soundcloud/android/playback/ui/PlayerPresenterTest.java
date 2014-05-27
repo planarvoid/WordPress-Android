@@ -56,11 +56,6 @@ public class PlayerPresenterTest {
     }
 
     @Test
-    public void constructorSetsTrackPagerAdapterOnTrackPager() {
-        verify(trackPager).setAdapter(trackPagerAdapter);
-    }
-
-    @Test
     public void constructorSetsPresenterAsListenerOnPlayButton() {
         verify(playButton).setOnClickListener(playerPresenter);
     }
@@ -133,6 +128,12 @@ public class PlayerPresenterTest {
     }
 
     @Test
+    public void onPlayQueueChangedSetsTrackPagerAdapterIfNotSet() {
+        playerPresenter.onPlayQueueChanged();
+        verify(trackPager).setAdapter(trackPagerAdapter);
+    }
+
+    @Test
     public void hidePlayControlsWhenMovingToPlayingState() {
         playerPresenter.onPlayStateChanged(true);
         verify(playButton).setVisibility(View.GONE);
@@ -164,7 +165,10 @@ public class PlayerPresenterTest {
     @Test
     public void presenterFactoryCreatesPresenterWithTrackPagerFromConstructor() {
         reset(trackPager);
-        new PlayerPresenter.Factory(resources, trackPagerAdapter).create(view, listener);
+        PlayerPresenter presenter = new PlayerPresenter.Factory(resources, trackPagerAdapter).create(view, listener);
+
+        presenter.onPlayQueueChanged();
+
         verify(trackPager).setAdapter(trackPagerAdapter);
     }
 

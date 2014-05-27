@@ -15,6 +15,7 @@ import rx.subscriptions.Subscriptions;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewTreeObserver;
 
 import javax.inject.Inject;
 
@@ -41,6 +42,7 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
         slidingPanel = (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingPanel.setPanelSlideListener(this);
         slidingPanel.setEnableDragViewTouchEvents(true);
+        slidingPanel.getChildAt(1).setVisibility(View.GONE);
     }
 
     @Override
@@ -106,11 +108,26 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
         @Override
         public void onNext(PlayerUIEvent event) {
             if (event.getKind() == PlayerUIEvent.EXPAND_PLAYER) {
-                slidingPanel.expandPane();
+                if (slidingPanel.isPaneVisible()) {
+                    slidingPanel.expandPane();
+                } else {
+                    expandFromHidden();
+                }
             } else if (event.getKind() == PlayerUIEvent.COLLAPSE_PLAYER) {
                 slidingPanel.collapsePane();
             }
         }
+    }
+
+    private void expandFromHidden() {
+        slidingPanel.showPane();
+        slidingPanel.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                slidingPanel.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                slidingPanel.expandPane();
+            }
+        });
     }
 
 }

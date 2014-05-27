@@ -34,7 +34,6 @@ class PlayerPresenter implements View.OnClickListener {
         trackPager = (ViewPager) view.findViewById(R.id.player_track_pager);
         trackPager.setPageMargin(resources.getDimensionPixelSize(R.dimen.player_pager_spacing));
         trackPager.setPageMarginDrawable(R.color.black);
-        trackPager.setAdapter(adapter);
         trackPager.setOnPageChangeListener(new TrackPageChangeListener());
 
         play = (Button) view.findViewById(R.id.player_play);
@@ -70,6 +69,9 @@ class PlayerPresenter implements View.OnClickListener {
 
     void onPlayQueueChanged() {
         adapter.notifyDataSetChanged();
+        if (trackPager.getAdapter() == null) {
+            trackPager.setAdapter(adapter);
+        }
     }
 
     void onPlayStateChanged(boolean isPlaying){
