@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -128,6 +127,14 @@ public class SlidingPlayerControllerTest {
         bundle.putBoolean("player_expanded", false);
 
         controller.restoreState(bundle);
+
+        PlayerUIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
+    }
+
+    @Test
+    public void sendsCollapsedEventWhenRestoringExpandedStateWithNullBundle() {
+        controller.restoreState(null);
 
         PlayerUIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
         expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);

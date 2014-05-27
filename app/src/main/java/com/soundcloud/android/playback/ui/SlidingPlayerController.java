@@ -68,7 +68,9 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
 
     @Override
     public void restoreState(Bundle bundle) {
-        if (bundle != null) {
+        if (bundle == null) {
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+        } else {
             boolean isExpanded = bundle.getBoolean(EXTRA_PLAYER_EXPANDED, false);
             actionBarController.setVisible(!isExpanded);
             eventBus.publish(EventQueue.PLAYER_UI, isExpanded
