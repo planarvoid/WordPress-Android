@@ -47,9 +47,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private static final int NO_SELECTION = -1;
     private static final int DRAWER_SELECT_DELAY_MILLIS = 250;
 
-    private static final String BLANK_TAG = "blank";
-    private static final Fragment BLANK_FRAGMENT = new Fragment();
-
     private NavigationFragment navigationFragment;
     private CharSequence lastTitle;
     private int lastSelection = NO_SELECTION;
@@ -228,8 +225,11 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     public void onNavigationItemSelected(final int position, final boolean setTitle) {
         if (position == lastSelection) return;
 
-        if (NavigationFragment.NavItem.values()[position] != NavigationFragment.NavItem.PROFILE){
-            showBlankFragment();
+        if (!isProfile(position) && lastSelection != NO_SELECTION) {
+            Fragment current = getSupportFragmentManager().findFragmentById(R.id.container);
+            if (current != null) {
+                getSupportFragmentManager().beginTransaction().remove(current).commit();
+            }
         }
 
         drawerHandler.removeCallbacksAndMessages(null);
@@ -241,10 +241,8 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         }, DRAWER_SELECT_DELAY_MILLIS);
     }
 
-    protected void showBlankFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, BLANK_FRAGMENT, BLANK_TAG)
-                .commit();
+    private boolean isProfile(int position) {
+        return NavigationFragment.NavItem.values()[position] == NavigationFragment.NavItem.PROFILE;
     }
 
     protected void displayFragment(int position, boolean setTitle) {
@@ -330,7 +328,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private void attachFragment(Fragment fragment, String tag, int titleResId) {
         getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.activity_open_enter, R.anim.hold)
-                .replace(R.id.container, fragment, tag)
+                .add(R.id.container, fragment, tag)
                 .commit();
         lastTitle = getString(titleResId);
     }
