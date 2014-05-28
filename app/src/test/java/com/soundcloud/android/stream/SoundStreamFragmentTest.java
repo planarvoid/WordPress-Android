@@ -41,7 +41,7 @@ public class SoundStreamFragmentTest {
     @Mock
     private SoundStreamOperations soundStreamOperations;
     @Mock
-    private PagingItemAdapter adapter;
+    private SoundStreamAdapter adapter;
     @Mock
     private ListViewController listViewController;
     @Mock
