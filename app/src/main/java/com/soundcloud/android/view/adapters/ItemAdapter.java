@@ -70,10 +70,11 @@ public class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final CellPresenter<ItemT> presenter = cellPresenters.get(getItemViewType(position));
-        if (convertView == null) {
-            convertView = presenter.createItemView(position, parent);
+        View itemView = convertView;
+        if (itemView == null) {
+            itemView = presenter.createItemView(position, parent);
         }
-        presenter.bindItemView(position, convertView, items);
+        presenter.bindItemView(position, itemView, items);
         return convertView;
     }
 
