@@ -12,6 +12,7 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PlaylistProperty;
 import com.soundcloud.android.model.PropertySet;
+import com.soundcloud.android.model.TrackProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
@@ -54,6 +55,7 @@ class SoundStreamStorage extends ScheduledOperations {
                         SoundView.TITLE,
                         SoundView.USERNAME,
                         SoundView.DURATION,
+                        SoundView.PLAYBACK_COUNT,
                         SoundView.TRACK_COUNT,
                         ActivityView.CREATED_AT,
                         ActivityView.TYPE,
@@ -90,10 +92,18 @@ class SoundStreamStorage extends ScheduledOperations {
             propertySet.add(PlayableProperty.DURATION, cursor.getInt(SoundView.DURATION));
             propertySet.add(PlayableProperty.CREATOR, cursor.getString(SoundView.USERNAME));
             propertySet.add(PlayableProperty.REPOSTED_AT, cursor.getDateFromTimestamp(ActivityView.CREATED_AT));
+            addOptionalPlayCount(cursor, propertySet);
             addOptionalTrackCount(cursor, propertySet);
             addOptionalReposter(cursor, propertySet);
 
             return propertySet;
+        }
+
+        private void addOptionalPlayCount(ManagedCursor cursor, PropertySet propertySet) {
+            final long playCount = cursor.getLong(SoundView.PLAYBACK_COUNT);
+            if (playCount > -1) {
+                propertySet.add(TrackProperty.PLAY_COUNT, playCount);
+            }
         }
 
         private void addOptionalTrackCount(ManagedCursor cursor, PropertySet propertySet) {

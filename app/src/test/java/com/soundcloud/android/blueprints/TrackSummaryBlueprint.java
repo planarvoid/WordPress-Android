@@ -34,7 +34,7 @@ public class TrackSummaryBlueprint {
     @Default
     String streamUrl = "http://media.soundcloud.com/stream/whVhoRw2gpUh";
 
-    @Default
+    @Default(force = true)
     int duration = 12345;
 
 }

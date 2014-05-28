@@ -4,24 +4,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class TrackStats extends PlayableStats {
 
-    private long mPlaybackCount;
-    private long mCommentsCount;
+    private long playbackCount;
+    private long commentsCount;
 
     public long getPlaybackCount() {
-        return mPlaybackCount;
+        return playbackCount;
     }
 
     @JsonProperty("playback_count")
     public void setPlaybackCount(long playbackCount) {
-        this.mPlaybackCount = playbackCount;
+        this.playbackCount = playbackCount;
     }
 
     public long getCommentsCount() {
-        return mCommentsCount;
+        return commentsCount;
     }
 
     @JsonProperty("comments_count")
     public void setCommentsCount(long commentsCount) {
-        this.mCommentsCount = commentsCount;
+        this.commentsCount = commentsCount;
     }
 }

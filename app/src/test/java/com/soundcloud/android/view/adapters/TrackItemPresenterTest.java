@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySet;
+import com.soundcloud.android.model.TrackProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -41,7 +42,8 @@ public class TrackItemPresenterTest {
                 PlayableProperty.TITLE.bind("title"),
                 PlayableProperty.CREATOR.bind("creator"),
                 PlayableProperty.DURATION.bind(227000),
-                PlayableProperty.URN.bind(Urn.forTrack(0))
+                PlayableProperty.URN.bind(Urn.forTrack(0)),
+                TrackProperty.PLAY_COUNT.bind(870L)
         );
 
         final Context context = Robolectric.application;
@@ -67,6 +69,13 @@ public class TrackItemPresenterTest {
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
         expect(textView(R.id.username).getText()).toEqual("creator");
+    }
+
+    @Test
+    public void shouldBindPlayCountToView() {
+        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+
+        expect(textView(R.id.play_count).getText()).toEqual("870");
     }
 
     @Test

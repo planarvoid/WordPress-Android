@@ -7,12 +7,12 @@ import com.tobedevoured.modelcitizen.annotation.Default;
 @Blueprint(TrackStats.class)
 public class TrackStatsBlueprint {
 
-    @Default
+    @Default(force = true)
     long playbackCount = 789L;
-    @Default
+    @Default(force = true)
     long repostsCount = 12L;
-    @Default
+    @Default(force = true)
     long likesCount = 34L;
-    @Default
+    @Default(force = true)
     long commentsCount = 56L;
 }

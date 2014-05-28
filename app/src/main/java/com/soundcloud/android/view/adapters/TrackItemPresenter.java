@@ -3,6 +3,7 @@ package com.soundcloud.android.view.adapters;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySet;
+import com.soundcloud.android.model.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.view.LayoutInflater;
@@ -34,6 +35,7 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
         getTextView(itemView, R.id.username).setText(propertySet.get(PlayableProperty.CREATOR));
         final String formattedDuration = ScTextUtils.formatTimestamp(propertySet.get(PlayableProperty.DURATION));
         getTextView(itemView, R.id.duration).setText(formattedDuration);
+        getTextView(itemView, R.id.play_count).setText(Long.toString(propertySet.get(TrackProperty.PLAY_COUNT)));
 
         final TextView reposterView = getTextView(itemView, R.id.reposter);
         if (propertySet.contains(PlayableProperty.REPOSTER)) {
