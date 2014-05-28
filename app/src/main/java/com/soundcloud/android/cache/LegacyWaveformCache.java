@@ -2,24 +2,24 @@ package com.soundcloud.android.cache;
 
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
-import com.soundcloud.android.playback.WaveformFetcher;
+import com.soundcloud.android.playback.LegacyWaveformFetcher;
 
 import android.support.v4.util.LruCache;
 
-public final class WaveformCache {
+public final class LegacyWaveformCache {
 
     public static final int MAX_CACHE_SIZE = 20;
-    private static WaveformCache instance;
+    private static LegacyWaveformCache instance;
 
     private android.support.v4.util.LruCache<Long, WaveformData> cache
             = new LruCache<Long, WaveformData>(MAX_CACHE_SIZE);
 
-    private WaveformCache() {
+    private LegacyWaveformCache() {
     }
 
-    public static synchronized WaveformCache get() {
+    public static synchronized LegacyWaveformCache get() {
         if (instance == null) {
-            instance = new WaveformCache();
+            instance = new LegacyWaveformCache();
         }
         return instance;
     }
@@ -30,7 +30,7 @@ public final class WaveformCache {
             callback.onWaveformDataLoaded(track, data, true);
             return data;
         } else {
-            new WaveformFetcher() {
+            new LegacyWaveformFetcher() {
                 @Override
                 protected void onPostExecute(WaveformData waveformData) {
                     if (waveformData != null) {

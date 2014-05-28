@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.cache.WaveformCache;
+import com.soundcloud.android.cache.LegacyWaveformCache;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Comment;
@@ -408,7 +408,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
             return;
         }
 
-        if (WaveformCache.get().getData(track, new WaveformCache.WaveformCallback() {
+        if (LegacyWaveformCache.get().getData(track, new LegacyWaveformCache.WaveformCallback() {
             @Override
             public void onWaveformDataLoaded(Track track, WaveformData data, boolean fromCache) {
                 if (track.equals(mTrack)) {

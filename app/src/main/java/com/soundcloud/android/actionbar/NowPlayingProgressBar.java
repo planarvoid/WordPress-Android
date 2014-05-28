@@ -4,7 +4,7 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import com.soundcloud.android.cache.WaveformCache;
+import com.soundcloud.android.cache.LegacyWaveformCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.playback.service.Playa;
@@ -137,7 +137,7 @@ public class NowPlayingProgressBar extends ProgressBar {
             if (track == null || !track.hasWaveform() || waveformErrorCount > 3) {
                 setDefaultWaveform();
             } else {
-                if (WaveformCache.get().getData(track, new WaveformCache.WaveformCallback() {
+                if (LegacyWaveformCache.get().getData(track, new LegacyWaveformCache.WaveformCallback() {
                     @Override
                     public void onWaveformDataLoaded(Track track, WaveformData data, boolean fromCache) {
                         if (track.equals(NowPlayingProgressBar.this.track)) {

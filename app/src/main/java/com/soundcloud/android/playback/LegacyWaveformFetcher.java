@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class WaveformFetcher extends ParallelAsyncTask<URL, Void, WaveformData> {
-    private static final String TAG = WaveformFetcher.class.getSimpleName();
+public class LegacyWaveformFetcher extends ParallelAsyncTask<URL, Void, WaveformData> {
+    private static final String TAG = LegacyWaveformFetcher.class.getSimpleName();
 
     @Override
     protected WaveformData doInBackground(URL... url) {
