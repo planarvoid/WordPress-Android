@@ -1,16 +1,19 @@
 package com.soundcloud.android.activity.resolve;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+
 import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 
 import android.net.Uri;
-import android.test.suitebuilder.annotation.Suppress;
 
 public class ResolvePlaylistSoundCloudUriTest extends ResolveBaseTest {
 
     public void testShouldOpenPlaylistDetails() throws Exception {
         PlaylistDetailsScreen pd = new PlaylistDetailsScreen(solo);
-        assertEquals("Ecclesia Inspiration", pd.getTitle());
+        assertThat(pd.getTitle(), is(equalTo("Ecclesia Inspiration")));
     }
 
     @Override

@@ -9,6 +9,7 @@ import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
 
+import android.view.View;
 import android.widget.TextView;
 
 import java.util.List;

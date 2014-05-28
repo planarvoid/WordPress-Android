@@ -29,6 +29,7 @@ public abstract class Screen {
 
     public void swipeLeft() {
         solo.swipeLeft();
+        solo.sleep(1000);
     }
 
     public void swipeRight() {

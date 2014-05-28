@@ -43,7 +43,8 @@ public class PlaylistDetails extends ActivityTestCase<LauncherActivity> {
     }
 
     public void testHeaderPlayClickShouldNotOpenPlayer() {
-        LegacyPlayerScreen playerScreen = playlistDetailsScreen.clickHeaderPlay();
+        LegacyPlayerScreen playerScreen = new LegacyPlayerScreen(solo);
+        playlistDetailsScreen.clickHeaderPlay();
         assertThat(playerScreen, is(not(Visible())));
 
         playlistDetailsScreen.clickHeaderPause();

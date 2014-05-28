@@ -1,5 +1,10 @@
 package com.soundcloud.android.activity.resolve;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+
 import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
 
@@ -19,8 +24,8 @@ public class ResolveSoundUriTest extends ResolveBaseTest {
 
         // make sure recommendations load
         playerScreen.swipeLeft();
-        assertNotSame(TRACK_NAME, playerScreen.trackTitle());
-
+        solo.sleep(1000);
+        assertThat(TRACK_NAME, is(not(equalTo(playerScreen.trackTitle()))));
     }
 
     @Override

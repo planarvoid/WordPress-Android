@@ -1,8 +1,12 @@
 package com.soundcloud.android.activity.resolve.facebook;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.TestConsts;
-import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
 
 import android.net.Uri;
@@ -26,6 +30,6 @@ public class ResolveFacebookTrackWebLinkTest extends FacebookResolveBaseTest {
 
         // make sure recommendations load
         playerScreen.swipeLeft();
-        assertNotSame(TRACK_NAME, playerScreen.trackTitle());
+        assertThat(TRACK_NAME, is(not(equalToIgnoringCase(playerScreen.trackTitle()))));
     }
 }

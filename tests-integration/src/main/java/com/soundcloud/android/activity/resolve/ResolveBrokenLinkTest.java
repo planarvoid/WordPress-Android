@@ -1,5 +1,9 @@
 package com.soundcloud.android.activity.resolve;
 
+import static com.soundcloud.android.tests.hamcrest.IsVisible.Visible;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.screens.MainScreen;
 
@@ -13,7 +17,7 @@ public class ResolveBrokenLinkTest extends ResolveBaseTest {
     }
 
     public void ignoretestShouldResolveBrokenLinks() {
-        assertTrue("Stream should be visible", new MainScreen(solo).isVisible());
+        assertThat(new MainScreen(solo), is(Visible()));
     }
     
     public void testShouldResolveBrokenLinks() {
