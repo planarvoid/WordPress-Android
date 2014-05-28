@@ -8,11 +8,11 @@ import com.tobedevoured.modelcitizen.annotation.Default;
 public class TrackStatsBlueprint {
 
     @Default(force = true)
-    long playbackCount = 789L;
+    int playbackCount = 789;
     @Default(force = true)
-    long repostsCount = 12L;
+    int repostsCount = 12;
     @Default(force = true)
-    long likesCount = 34L;
+    int likesCount = 34;
     @Default(force = true)
-    long commentsCount = 56L;
+    int commentsCount = 56;
 }

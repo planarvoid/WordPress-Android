@@ -32,7 +32,7 @@ public class TrackSummaryTest {
         expect(trackSummary.getUserTags()).toContainExactly("Jazz","Film");
         expect(trackSummary.getCreatedAt()).toEqual(PublicApiWrapper.CloudDateFormat.fromString("2013/08/17 07:50:03 +0000"));
         expect(trackSummary.getSharing()).toBe(Sharing.PRIVATE);
-        expect(trackSummary.getStats().getPlaybackCount()).toEqual(4901L);
+        expect(trackSummary.getStats().getPlaybackCount()).toEqual(4901);
         expect(trackSummary.getPermalinkUrl()).toEqual("http://soundcloud.com/asdffdsa");
 
     }

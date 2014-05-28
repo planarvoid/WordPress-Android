@@ -43,7 +43,7 @@ public class TrackItemPresenterTest {
                 PlayableProperty.CREATOR.bind("creator"),
                 PlayableProperty.DURATION.bind(227000),
                 PlayableProperty.URN.bind(Urn.forTrack(0)),
-                TrackProperty.PLAY_COUNT.bind(870L)
+                TrackProperty.PLAY_COUNT.bind(870)
         );
 
         final Context context = Robolectric.application;

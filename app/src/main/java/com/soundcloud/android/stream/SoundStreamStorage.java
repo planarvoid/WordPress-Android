@@ -100,7 +100,7 @@ class SoundStreamStorage extends ScheduledOperations {
         }
 
         private void addOptionalPlayCount(ManagedCursor cursor, PropertySet propertySet) {
-            final long playCount = cursor.getLong(SoundView.PLAYBACK_COUNT);
+            final int playCount = cursor.getInt(SoundView.PLAYBACK_COUNT);
             if (playCount > -1) {
                 propertySet.add(TrackProperty.PLAY_COUNT, playCount);
             }

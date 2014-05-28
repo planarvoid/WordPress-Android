@@ -234,8 +234,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         b.putInt("release_month", release_month);
         b.putString("purchase_title", purchase_title);
         b.putString("embeddable_by", embeddable_by);
-        b.putLong("likes_count", likes_count);
-        b.putLong("reposts_count", reposts_count);
+        b.putInt("likes_count", likes_count);
+        b.putInt("reposts_count", reposts_count);
         b.putString("tag_list", tag_list);
         b.putString("sharing", sharing.value());
         b.putCharSequence("elapsedTime", mElapsedTime);
