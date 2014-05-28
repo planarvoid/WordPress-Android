@@ -57,6 +57,7 @@ class SoundStreamStorage extends ScheduledOperations {
                         SoundView.DURATION,
                         SoundView.PLAYBACK_COUNT,
                         SoundView.TRACK_COUNT,
+                        SoundView.LIKES_COUNT,
                         ActivityView.CREATED_AT,
                         ActivityView.TYPE,
                         ActivityView.USER_USERNAME,
@@ -92,6 +93,7 @@ class SoundStreamStorage extends ScheduledOperations {
             propertySet.add(PlayableProperty.DURATION, cursor.getInt(SoundView.DURATION));
             propertySet.add(PlayableProperty.CREATOR, cursor.getString(SoundView.USERNAME));
             propertySet.add(PlayableProperty.REPOSTED_AT, cursor.getDateFromTimestamp(ActivityView.CREATED_AT));
+            addOptionalLikesCount(cursor, propertySet);
             addOptionalPlayCount(cursor, propertySet);
             addOptionalTrackCount(cursor, propertySet);
             addOptionalReposter(cursor, propertySet);
@@ -100,16 +102,20 @@ class SoundStreamStorage extends ScheduledOperations {
         }
 
         private void addOptionalPlayCount(ManagedCursor cursor, PropertySet propertySet) {
-            final int playCount = cursor.getInt(SoundView.PLAYBACK_COUNT);
-            if (playCount > -1) {
-                propertySet.add(TrackProperty.PLAY_COUNT, playCount);
+            if (getSoundType(cursor) == Playable.DB_TYPE_TRACK) {
+                propertySet.add(TrackProperty.PLAY_COUNT, cursor.getInt(SoundView.PLAYBACK_COUNT));
+            }
+        }
+
+        private void addOptionalLikesCount(ManagedCursor cursor, PropertySet propertySet) {
+            if (getSoundType(cursor) == Playable.DB_TYPE_PLAYLIST) {
+                propertySet.add(PlayableProperty.LIKES_COUNT, cursor.getInt(SoundView.LIKES_COUNT));
             }
         }
 
         private void addOptionalTrackCount(ManagedCursor cursor, PropertySet propertySet) {
-            final int trackCount = cursor.getInt(SoundView.TRACK_COUNT);
-            if (trackCount > -1) {
-                propertySet.add(PlaylistProperty.TRACK_COUNT, trackCount);
+            if (getSoundType(cursor) == Playable.DB_TYPE_PLAYLIST) {
+                propertySet.add(PlaylistProperty.TRACK_COUNT, cursor.getInt(SoundView.TRACK_COUNT));
             }
         }
 
@@ -121,8 +127,11 @@ class SoundStreamStorage extends ScheduledOperations {
 
         private Urn readSoundUrn(ManagedCursor cursor) {
             final int soundId = cursor.getInt(ActivityView.SOUND_ID);
-            final int soundType = cursor.getInt(ActivityView.SOUND_TYPE);
-            return soundType == Playable.DB_TYPE_TRACK ? Urn.forTrack(soundId) : Urn.forPlaylist(soundId);
+            return getSoundType(cursor) == Playable.DB_TYPE_TRACK ? Urn.forTrack(soundId) : Urn.forPlaylist(soundId);
         }
+    }
+
+    private static int getSoundType(ManagedCursor cursor) {
+        return cursor.getInt(ActivityView.SOUND_TYPE);
     }
 }

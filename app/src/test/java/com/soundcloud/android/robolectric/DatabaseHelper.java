@@ -39,6 +39,7 @@ public class DatabaseHelper {
         cv.put(TableColumns.Sounds.TITLE, track.getTitle());
         cv.put(TableColumns.Sounds._TYPE, Playable.DB_TYPE_TRACK);
         cv.put(TableColumns.Sounds.USER_ID, track.getUser().getId());
+        cv.put(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount());
         cv.put(TableColumns.Sounds.DURATION, track.getDuration());
         cv.put(TableColumns.Sounds.PLAYBACK_COUNT, track.getStats().getPlaybackCount());
 
@@ -60,6 +61,7 @@ public class DatabaseHelper {
         cv.put(TableColumns.Sounds._TYPE, Playable.DB_TYPE_PLAYLIST);
         cv.put(TableColumns.Sounds.TITLE, playlist.getTitle());
         cv.put(TableColumns.Sounds.USER_ID, playlist.getUser().getId());
+        cv.put(TableColumns.Sounds.LIKES_COUNT, playlist.getStats().getLikesCount());
         cv.put(TableColumns.Sounds.DURATION, playlist.getDuration());
         cv.put(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount());
 

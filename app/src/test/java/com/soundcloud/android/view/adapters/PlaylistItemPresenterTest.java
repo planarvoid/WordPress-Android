@@ -69,6 +69,13 @@ public class PlaylistItemPresenterTest {
     }
 
     @Test
+    public void shouldBindLikesCountToView() {
+        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+
+        expect(textView(R.id.likes_count).getText()).toEqual("5");
+    }
+
+    @Test
     public void shouldBindReposterIfAny() {
         propertySet.add(PlayableProperty.REPOSTER, "reposter");
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));

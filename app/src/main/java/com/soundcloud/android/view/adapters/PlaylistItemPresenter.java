@@ -38,6 +38,7 @@ public class PlaylistItemPresenter implements CellPresenter<PropertySet> {
         final int trackCount = propertySet.get(PlaylistProperty.TRACK_COUNT);
         final String numberOfTracks = resources.getQuantityString(R.plurals.number_of_sounds, trackCount, trackCount);
         getTextView(itemView, R.id.track_count).setText(numberOfTracks);
+        getTextView(itemView, R.id.likes_count).setText(Integer.toString(propertySet.get(PlayableProperty.LIKES_COUNT)));
 
         final TextView reposterView = getTextView(itemView, R.id.reposter);
         if (propertySet.contains(PlayableProperty.REPOSTER)) {
