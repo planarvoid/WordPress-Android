@@ -114,11 +114,11 @@ public class ApiSyncerTest {
         expect(c).not.toBeNull();
         expect(c.moveToNext()).toBeTrue();
         Track t = new Track(c);
-        expect(t.likes_count   ).toEqual(Long.valueOf(ScModel.NOT_SET));
+        expect(t.likes_count   ).toEqual(ScModel.NOT_SET);
         expect(t.download_count).toEqual(ScModel.NOT_SET);
-        expect(t.reposts_count ).toEqual(Long.valueOf(ScModel.NOT_SET));
-        expect(t.comment_count ).toEqual(Long.valueOf(ScModel.NOT_SET));
-        expect(t.playback_count).toEqual(Long.valueOf(ScModel.NOT_SET));
+        expect(t.reposts_count ).toEqual(ScModel.NOT_SET);
+        expect(t.comment_count ).toEqual(ScModel.NOT_SET);
+        expect(t.playback_count).toEqual(ScModel.NOT_SET);
     }
 
     @Test
