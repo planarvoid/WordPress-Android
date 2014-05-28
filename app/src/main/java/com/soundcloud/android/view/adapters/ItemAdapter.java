@@ -75,7 +75,7 @@ public class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter {
             itemView = presenter.createItemView(position, parent);
         }
         presenter.bindItemView(position, itemView, items);
-        return convertView;
+        return itemView;
     }
 
     /**
