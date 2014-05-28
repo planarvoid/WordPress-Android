@@ -10,7 +10,6 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
@@ -31,7 +30,7 @@ public class SoundStreamFragment extends Fragment
     @Inject
     SoundStreamOperations soundStreamOperations;
     @Inject
-    PagingItemAdapter<PropertySet> adapter;
+    SoundStreamAdapter adapter;
     @Inject
     ListViewController listViewController;
     @Inject

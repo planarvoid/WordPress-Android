@@ -3,6 +3,7 @@ package com.soundcloud.android.stream;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PlaylistProperty;
 import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.model.TrackSummary;
@@ -99,7 +100,8 @@ public class SoundStreamStorageTest {
                 PlayableProperty.TITLE.bind(playlist.getTitle()),
                 PlayableProperty.DURATION.bind(playlist.getDuration()),
                 PlayableProperty.REPOSTED_AT.bind(new Date(TIMESTAMP)),
-                PlayableProperty.CREATOR.bind(playlist.getUser().getUsername()));
+                PlayableProperty.CREATOR.bind(playlist.getUser().getUsername()),
+                PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()));
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnCompletedEvents()).toNumber(1);
@@ -121,7 +123,8 @@ public class SoundStreamStorageTest {
                 PlayableProperty.DURATION.bind(playlist.getDuration()),
                 PlayableProperty.REPOSTED_AT.bind(new Date(TIMESTAMP)),
                 PlayableProperty.CREATOR.bind(playlist.getUser().getUsername()),
-                PlayableProperty.REPOSTER.bind(reposter.getUsername()));
+                PlayableProperty.REPOSTER.bind(reposter.getUsername()),
+                PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()));
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnCompletedEvents()).toNumber(1);

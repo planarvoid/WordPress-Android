@@ -60,6 +60,7 @@ public class DatabaseHelper {
         cv.put(TableColumns.Sounds.TITLE, playlist.getTitle());
         cv.put(TableColumns.Sounds.USER_ID, playlist.getUser().getId());
         cv.put(TableColumns.Sounds.DURATION, playlist.getDuration());
+        cv.put(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount());
 
         final long id = insertInto(Table.SOUNDS, cv);
         playlist.setId(id);
