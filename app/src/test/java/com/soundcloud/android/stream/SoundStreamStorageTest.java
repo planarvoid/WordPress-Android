@@ -9,12 +9,10 @@ import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.DatabaseHelper;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +26,6 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.Arrays;
 import java.util.Date;
 
-@DatabaseConfig.UsingDatabaseMap(DefaultTestRunner.FileDatabaseMap.class)
 @RunWith(SoundCloudTestRunner.class)
 public class SoundStreamStorageTest {
 
@@ -58,7 +55,8 @@ public class SoundStreamStorageTest {
         final PropertySet trackPost = PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forTrack(track.getId())),
                 PlayableProperty.TITLE.bind(track.getTitle()),
-                PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
+                PlayableProperty.DURATION.bind(track.getDuration()),
+                PlayableProperty.REPOSTED_AT.bind(new Date(TIMESTAMP)),
                 PlayableProperty.CREATOR.bind(track.getUser().getUsername()));
 
         expect(observer.getOnNextEvents()).toNumber(1);
@@ -78,7 +76,8 @@ public class SoundStreamStorageTest {
         final PropertySet trackRepost = PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forTrack(track.getId())),
                 PlayableProperty.TITLE.bind(track.getTitle()),
-                PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
+                PlayableProperty.DURATION.bind(track.getDuration()),
+                PlayableProperty.REPOSTED_AT.bind(new Date(TIMESTAMP)),
                 PlayableProperty.CREATOR.bind(track.getUser().getUsername()),
                 PlayableProperty.REPOSTER.bind(reposter.getUsername()));
 
@@ -98,7 +97,8 @@ public class SoundStreamStorageTest {
         final PropertySet playlistPost = PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forPlaylist(playlist.getId())),
                 PlayableProperty.TITLE.bind(playlist.getTitle()),
-                PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
+                PlayableProperty.DURATION.bind(playlist.getDuration()),
+                PlayableProperty.REPOSTED_AT.bind(new Date(TIMESTAMP)),
                 PlayableProperty.CREATOR.bind(playlist.getUser().getUsername()));
 
         expect(observer.getOnNextEvents()).toNumber(1);
@@ -118,7 +118,8 @@ public class SoundStreamStorageTest {
         final PropertySet playlistRepost = PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forPlaylist(playlist.getId())),
                 PlayableProperty.TITLE.bind(playlist.getTitle()),
-                PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
+                PlayableProperty.DURATION.bind(playlist.getDuration()),
+                PlayableProperty.REPOSTED_AT.bind(new Date(TIMESTAMP)),
                 PlayableProperty.CREATOR.bind(playlist.getUser().getUsername()),
                 PlayableProperty.REPOSTER.bind(reposter.getUsername()));
 

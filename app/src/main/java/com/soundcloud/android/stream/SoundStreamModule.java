@@ -4,6 +4,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import dagger.Module;
 import dagger.Provides;
 
@@ -11,7 +12,7 @@ import dagger.Provides;
 public class SoundStreamModule {
 
     @Provides
-    PagingItemAdapter<PropertySet> provideItemAdapter(StreamItemPresenter presenter) {
+    PagingItemAdapter<PropertySet> provideItemAdapter(TrackItemPresenter presenter) {
         return new PagingItemAdapter<PropertySet>(R.layout.list_loading_item, presenter);
     }
 

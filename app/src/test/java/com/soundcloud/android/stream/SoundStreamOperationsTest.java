@@ -212,10 +212,10 @@ public class SoundStreamOperationsTest {
     private List<PropertySet> createItems(int length, long timestampOfLastItem) {
         final List<PropertySet> headList = Collections.nCopies(length - 1, PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forTrack(1L)),
-                PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP))));
+                PlayableProperty.REPOSTED_AT.bind(new Date(TIMESTAMP))));
         final PropertySet lastItem = PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forTrack(1L)),
-                PlayableProperty.CREATED_AT.bind(new Date(timestampOfLastItem)));
+                PlayableProperty.REPOSTED_AT.bind(new Date(timestampOfLastItem)));
         final ArrayList<PropertySet> propertySets = Lists.newArrayList(headList);
         propertySets.add(lastItem);
         return propertySets;

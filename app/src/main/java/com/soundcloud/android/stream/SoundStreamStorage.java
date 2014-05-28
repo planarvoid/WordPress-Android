@@ -52,6 +52,7 @@ class SoundStreamStorage extends ScheduledOperations {
                         ActivityView.SOUND_TYPE,
                         SoundView.TITLE,
                         SoundView.USERNAME,
+                        SoundView.DURATION,
                         ActivityView.CREATED_AT,
                         ActivityView.TYPE,
                         ActivityView.USER_USERNAME,
@@ -84,17 +85,17 @@ class SoundStreamStorage extends ScheduledOperations {
 
             propertySet.add(PlayableProperty.URN, readSoundUrn(cursor));
             propertySet.add(PlayableProperty.TITLE, cursor.getString(SoundView.TITLE));
-            propertySet.add(PlayableProperty.CREATED_AT, cursor.getDateFromTimestamp(ActivityView.CREATED_AT));
+            propertySet.add(PlayableProperty.DURATION, cursor.getInt(SoundView.DURATION));
             propertySet.add(PlayableProperty.CREATOR, cursor.getString(SoundView.USERNAME));
+            propertySet.add(PlayableProperty.REPOSTED_AT, cursor.getDateFromTimestamp(ActivityView.CREATED_AT));
             addOptionalReposter(cursor, propertySet);
 
             return propertySet;
         }
 
         private void addOptionalReposter(ManagedCursor cursor, PropertySet propertySet) {
-            final String reposter = cursor.getString(ActivityView.USER_USERNAME);
-            if (reposter != null) {
-                propertySet.add(PlayableProperty.REPOSTER, reposter);
+            if (cursor.getString(ActivityView.TYPE).endsWith("-repost")) {
+                propertySet.add(PlayableProperty.REPOSTER, cursor.getString(ActivityView.USER_USERNAME));
             }
         }
 
