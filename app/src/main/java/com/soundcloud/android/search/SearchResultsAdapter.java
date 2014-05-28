@@ -12,7 +12,8 @@ class SearchResultsAdapter extends PagingItemAdapter<ScResource> {
     static final int TYPE_PLAYABLE = 1;
 
     SearchResultsAdapter(LegacyUserRowPresenter userRowPresenter, LegacyPlayableRowPresenter<ScResource> playableRowPresenter) {
-        super(userRowPresenter, playableRowPresenter);
+        super(new CellPresenterEntity<ScResource>(TYPE_USER, userRowPresenter),
+                new CellPresenterEntity<ScResource>(TYPE_PLAYABLE, playableRowPresenter));
     }
 
     @Override

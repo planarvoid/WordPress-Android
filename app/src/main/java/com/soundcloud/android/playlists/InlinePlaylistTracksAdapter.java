@@ -9,8 +9,9 @@ import javax.inject.Inject;
 class InlinePlaylistTracksAdapter extends ItemAdapter<Track> {
 
     @Inject
-    InlinePlaylistTracksAdapter(CellPresenter<Track> cellPresenter) {
-        super(cellPresenter);
+    InlinePlaylistTracksAdapter(CellPresenter<Track> trackPresenter, EmptyPlaylistTracksPresenter emptyViewPresenter) {
+        super(new CellPresenterEntity<Track>(DEFAULT_VIEW_TYPE, trackPresenter),
+                new CellPresenterEntity<Track>(IGNORE_ITEM_VIEW_TYPE, emptyViewPresenter));
     }
 
     @Override

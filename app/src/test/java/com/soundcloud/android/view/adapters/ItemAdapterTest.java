@@ -83,7 +83,9 @@ public class ItemAdapterTest {
         FrameLayout parent = mock(FrameLayout.class);
         CellPresenter presenterOne = mock(CellPresenter.class);
         CellPresenter presenterTwo = mock(CellPresenter.class);
-        adapter = new ItemAdapter<Track>(presenterOne, presenterTwo) {
+        adapter = new ItemAdapter<Track>(
+                new ItemAdapter.CellPresenterEntity(0, presenterOne),
+                new ItemAdapter.CellPresenterEntity(1, presenterTwo)) {
             @Override
             public int getItemViewType(int position) {
                 return position;

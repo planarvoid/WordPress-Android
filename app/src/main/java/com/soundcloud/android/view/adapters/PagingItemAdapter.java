@@ -27,12 +27,17 @@ public class PagingItemAdapter<T extends Parcelable> extends ItemAdapter<T>
         IDLE, LOADING, ERROR;
     }
 
-    public PagingItemAdapter(CellPresenter<T>... cellPresenters) {
-        this(R.layout.list_loading_item, cellPresenters);
+    public PagingItemAdapter(int progressItemLayoutResId, CellPresenter<T> cellPresenter) {
+        super(cellPresenter);
+        this.progressItemLayoutResId = progressItemLayoutResId;
     }
 
-    public PagingItemAdapter(int progressItemLayoutResId, CellPresenter<T>... cellPresenters) {
-        super(cellPresenters);
+    public PagingItemAdapter(CellPresenterEntity<T>... cellPresenterEntities) {
+        this(R.layout.list_loading_item, cellPresenterEntities);
+    }
+
+    public PagingItemAdapter(int progressItemLayoutResId, CellPresenterEntity<T>... cellPresenterEntities) {
+        super(cellPresenterEntities);
         this.progressItemLayoutResId = progressItemLayoutResId;
     }
 
