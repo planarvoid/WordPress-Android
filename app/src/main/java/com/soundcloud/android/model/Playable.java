@@ -69,8 +69,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
     @JsonView(Views.Full.class) public String purchase_title;
     @JsonView(Views.Full.class) public String embeddable_by;
 
-    @JsonView(Views.Full.class) public long likes_count = NOT_SET;
-    @JsonView(Views.Full.class) public long reposts_count = NOT_SET;
+    @JsonView(Views.Full.class) public int likes_count = NOT_SET;
+    @JsonView(Views.Full.class) public int reposts_count = NOT_SET;
     @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
     public int shared_to_count = NOT_SET;
     @JsonView(Views.Full.class) public String tag_list;
@@ -107,8 +107,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         sharing = Sharing.from(cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.SHARING)));
         license = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.LICENSE));
         genre = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.GENRE));
-        likes_count = ResolverHelper.getLongOrNotSet(cursor, TableColumns.SoundView.LIKES_COUNT);
-        reposts_count = ResolverHelper.getLongOrNotSet(cursor, TableColumns.SoundView.REPOSTS_COUNT);
+        likes_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.LIKES_COUNT);
+        reposts_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.REPOSTS_COUNT);
         user_id = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.USER_ID));
 
         final long lastUpdated = cursor.getLong(cursor.getColumnIndex(TableColumns.SoundView.LAST_UPDATED));
@@ -272,8 +272,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         release_month = b.getInt("release_month");
         purchase_title = b.getString("purchase_title");
         embeddable_by = b.getString("embeddable_by");
-        likes_count = b.getLong("likes_count");
-        reposts_count = b.getLong("reposts_count");
+        likes_count = b.getInt("likes_count");
+        reposts_count = b.getInt("reposts_count");
         tag_list = b.getString("tag_list");
         sharing = Sharing.from(b.getString("sharing"));
         mElapsedTime = b.getCharSequence("elapsedTime");

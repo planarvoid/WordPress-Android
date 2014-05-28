@@ -51,12 +51,12 @@ public class PlaylistSummaryBlueprint {
     @Default
     PlayableStats stats = new PlayableStats() {
         @Override
-        public long getRepostsCount() {
+        public int getRepostsCount() {
             return 5;
         }
 
         @Override
-        public long getLikesCount() {
+        public int getLikesCount() {
             return 10;
         }
     };

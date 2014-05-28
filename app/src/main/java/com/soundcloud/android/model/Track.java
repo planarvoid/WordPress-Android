@@ -317,7 +317,7 @@ public class Track extends Playable {
         playback_count = b.getLong("playback_count");
         download_count = b.getInt("download_count");
         comment_count = b.getLong("comment_count");
-        reposts_count = b.getLong("reposts_count");
+        reposts_count = b.getInt("reposts_count");
         shared_to_count = b.getInt("shared_to_count");
         original_format = b.getString("original_format");
         user_uri = b.getString("user_uri");

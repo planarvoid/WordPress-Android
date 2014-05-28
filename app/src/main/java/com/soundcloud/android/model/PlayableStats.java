@@ -4,24 +4,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PlayableStats {
 
-    private long mRepostsCount;
-    private long mLikesCount;
+    private int repostsCount;
+    private int likesCount;
 
-    public long getRepostsCount() {
-        return mRepostsCount;
+    public int getRepostsCount() {
+        return repostsCount;
     }
 
     @JsonProperty("reposts_count")
-    public void setRepostsCount(long repostsCount) {
-        this.mRepostsCount = repostsCount;
+    public void setRepostsCount(int repostsCount) {
+        this.repostsCount = repostsCount;
     }
 
-    public long getLikesCount() {
-        return mLikesCount;
+    public int getLikesCount() {
+        return likesCount;
     }
 
     @JsonProperty("likes_count")
-    public void setLikesCount(long likesCount) {
-        this.mLikesCount = likesCount;
+    public void setLikesCount(int likesCount) {
+        this.likesCount = likesCount;
     }
 }

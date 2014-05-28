@@ -47,7 +47,7 @@ public class SoundAssociationStorageTest {
 
         expect(Content.ME_LIKES).toHaveCount(1);
         final Track storedTrack = TestHelper.reload(track);
-        expect(storedTrack.likes_count).toBe(1L);
+        expect(storedTrack.likes_count).toBe(1);
         expect(storedTrack.user_like).toBeTrue();
     }
 
@@ -60,7 +60,7 @@ public class SoundAssociationStorageTest {
 
         expect(Content.ME_LIKES).toHaveCount(1);
         final Track storedTrack = TestHelper.reload(track);
-        expect(storedTrack.likes_count).toBe(1L);
+        expect(storedTrack.likes_count).toBe(1);
         expect(storedTrack.user_like).toBeTrue();
     }
 
@@ -76,7 +76,7 @@ public class SoundAssociationStorageTest {
 
         expect(Content.ME_LIKES).toHaveCount(0);
         final Track storedTrack = TestHelper.reload(track);
-        expect(storedTrack.likes_count).toBe(0L);
+        expect(storedTrack.likes_count).toBe(0);
         expect(storedTrack.user_like).toBeFalse();
     }
 
@@ -90,7 +90,7 @@ public class SoundAssociationStorageTest {
 
         expect(Content.ME_LIKES).toHaveCount(0);
         final Track storedTrack = TestHelper.reload(track);
-        expect(storedTrack.likes_count).toBe(0L);
+        expect(storedTrack.likes_count).toBe(0);
         expect(storedTrack.user_like).toBeFalse();
     }
 
@@ -105,7 +105,7 @@ public class SoundAssociationStorageTest {
 
         expect(Content.ME_REPOSTS).toHaveCount(1);
         final Track storedTrack = TestHelper.reload(track);
-        expect(storedTrack.reposts_count).toBe(1L);
+        expect(storedTrack.reposts_count).toBe(1);
         expect(storedTrack.user_repost).toBeTrue();
     }
 
@@ -118,7 +118,7 @@ public class SoundAssociationStorageTest {
 
         expect(Content.ME_REPOSTS).toHaveCount(1);
         final Track storedTrack = TestHelper.reload(track);
-        expect(storedTrack.reposts_count).toBe(1L);
+        expect(storedTrack.reposts_count).toBe(1);
         expect(storedTrack.user_repost).toBeTrue();
     }
 
@@ -134,7 +134,7 @@ public class SoundAssociationStorageTest {
 
         expect(Content.ME_REPOSTS).toHaveCount(0);
         final Track storedTrack = TestHelper.reload(track);
-        expect(storedTrack.reposts_count).toBe(0L);
+        expect(storedTrack.reposts_count).toBe(0);
         expect(storedTrack.user_repost).toBeFalse();
     }
 
@@ -148,7 +148,7 @@ public class SoundAssociationStorageTest {
 
         expect(Content.ME_REPOSTS).toHaveCount(0);
         final Track storedTrack = TestHelper.reload(track);
-        expect(storedTrack.reposts_count).toBe(0L);
+        expect(storedTrack.reposts_count).toBe(0);
         expect(storedTrack.user_repost).toBeFalse();
     }
 
@@ -258,7 +258,7 @@ public class SoundAssociationStorageTest {
     public void shouldNotifyContentObserverWhenAddingLikes() {
         ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
 
-        storage.addLike(new Playlist(1L));
+        storage.addLike(new Playlist(1));
 
         expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/likes/1");
     }
