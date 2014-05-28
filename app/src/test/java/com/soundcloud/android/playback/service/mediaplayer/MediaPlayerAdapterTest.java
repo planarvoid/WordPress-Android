@@ -320,6 +320,15 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
+    public void seekRemovesSeekPosClearingThroughHandlerThroughHandler() throws Exception {
+        playUrlAndSetPrepared();
+
+        mediaPlayerAdapter.seek(456l);
+        // seek position cleared via handler
+        verify(playerHandler).removeMessages(MediaPlayerAdapter.PlayerHandler.CLEAR_LAST_SEEK);
+    }
+
+    @Test
     public void playUrlShouldSetErrorStateIfProxyObservableCallsOnError() throws Exception {
         when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(Observable.<Uri>error(new IOException("uhoh")));
         mediaPlayerAdapter.play(track);
@@ -370,6 +379,22 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.stop();
         verify(subscription).unsubscribe();
+    }
+
+    @Test
+    public void onTrackEndedeResetsRetryCount() throws IOException {
+        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(Observable.just(STREAM_URI));
+        mediaPlayerAdapter.play(track);
+        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        for (int i = 0; i < MediaPlayerAdapter.MAX_CONNECT_RETRIES; i++) {
+            mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
+        }
+        mediaPlayerAdapter.onTrackEnded();
+        for (int i = 0; i < MediaPlayerAdapter.MAX_CONNECT_RETRIES; i++) {
+            mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
+        }
+        verify(mediaPlayer, times(6)).reset();
+        verify(mediaPlayer, never()).release();
     }
 
     @Test
@@ -495,7 +520,7 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_END, 0);
 
         // seek position cleared via handler
-        verify(playerHandler, times(2)).removeMessages(MediaPlayerAdapter.PlayerHandler.CLEAR_LAST_SEEK);
+        verify(playerHandler, times(3)).removeMessages(MediaPlayerAdapter.PlayerHandler.CLEAR_LAST_SEEK);
         verify(playerHandler).sendEmptyMessageDelayed(MediaPlayerAdapter.PlayerHandler.CLEAR_LAST_SEEK, 3000);
     }
 

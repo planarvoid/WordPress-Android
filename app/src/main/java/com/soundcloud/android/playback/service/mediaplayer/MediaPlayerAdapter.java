@@ -131,7 +131,6 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     public void onPrepared(MediaPlayer mp) {
         if (mp.equals(mMediaPlayer) && mInternalState == PlaybackState.PREPARING) {
 
-            connectionRetries = 0;
             if (mPlayaListener != null && mPlayaListener.requestAudioFocus()) {
                 play();
                 publishTimeToPlayEvent(System.currentTimeMillis() - prepareStartTimeMs, track.getStreamUrl());
@@ -151,6 +150,10 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         }
     }
 
+    void resetConnectionRetries() {
+        connectionRetries = 0;
+    }
+
     private void publishTimeToPlayEvent(long timeToPlay, String streamUrl) {
         final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
                 PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(), Uri.parse(streamUrl).getHost());
@@ -166,7 +169,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        return handleMediaPlayerError(mp, POS_NOT_SET);
+        return handleMediaPlayerError(mp, getProgress());
 
     }
 
@@ -182,7 +185,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                 Log.d(TAG, "stream disconnected, giving up");
                 setInternalState(PlaybackState.ERROR);
                 mp.release();
-                connectionRetries = 0;
+                resetConnectionRetries();
                 mMediaPlayer = null;
             }
         }
@@ -268,6 +271,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     void onTrackEnded() {
+        resetConnectionRetries();
         setInternalState(PlaybackState.COMPLETED);
     }
 
@@ -401,6 +405,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG, "seeking to " + newPos);
                     }
+
+                    playerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
                     seekPos = newPos;
                     waitingForSeek = true;
                     mMediaPlayer.seekTo((int) newPos);
