@@ -115,7 +115,21 @@ public class PlayQueueManagerTest {
     public void getCurrentPlayQueueCountReturnsSizeOfCurrentQueue() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 0, playSessionSource), playSessionSource);
 
-        expect(playQueueManager.getCurrentPlayQueueSize()).toBe(3);
+        expect(playQueueManager.getQueueSize()).toBe(3);
+    }
+
+    @Test
+    public void isQueueEmptyReturnsTrueIfQueueSizeIsZero() throws Exception {
+        playQueueManager.setNewPlayQueue(PlayQueue.empty(), playSessionSource);
+
+        expect(playQueueManager.isQueueEmpty()).toBeTrue();
+    }
+
+    @Test
+    public void isQueueEmptyReturnsFalseIfQueueSizeGreaterThanZero() throws Exception {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 0, playSessionSource), playSessionSource);
+
+        expect(playQueueManager.isQueueEmpty()).toBeFalse();
     }
 
     @Test

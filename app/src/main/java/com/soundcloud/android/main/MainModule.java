@@ -2,6 +2,7 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.LegacyPlayerController;
 import com.soundcloud.android.playback.ui.PlayerController;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -28,9 +29,9 @@ import dagger.Provides;
 public class MainModule {
 
     @Provides
-    PlayerController providePlayerController(FeatureFlags featureFlags, EventBus eventBus) {
+    PlayerController providePlayerController(FeatureFlags featureFlags, PlayQueueManager playQueueManager, EventBus eventBus) {
         if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
-            return new SlidingPlayerController(eventBus);
+            return new SlidingPlayerController(playQueueManager, eventBus);
         } else {
             return new LegacyPlayerController();
         }

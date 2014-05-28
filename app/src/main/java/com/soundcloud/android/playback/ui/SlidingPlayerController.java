@@ -8,6 +8,7 @@ import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
@@ -25,6 +26,7 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
     private static final float EXPAND_THRESHOLD = 0.5f;
 
     private final EventBus eventBus;
+    private final PlayQueueManager playQueueManager;
     private ActionBarController actionBarController;
     private SlidingUpPanelLayout slidingPanel;
 
@@ -33,8 +35,9 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
     private boolean isExpanding;
 
     @Inject
-    public SlidingPlayerController(EventBus eventBus) {
+    public SlidingPlayerController(PlayQueueManager playQueueManager, EventBus eventBus) {
         this.eventBus = eventBus;
+        this.playQueueManager = playQueueManager;
     }
 
     public void attach(Activity activity, ActionBarController actionBarController) {
@@ -42,7 +45,10 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
         slidingPanel = (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingPanel.setPanelSlideListener(this);
         slidingPanel.setEnableDragViewTouchEvents(true);
-        slidingPanel.getChildAt(1).setVisibility(View.GONE);
+
+        if (playQueueManager.isQueueEmpty()) {
+            slidingPanel.getChildAt(1).setVisibility(View.GONE);
+        }
     }
 
     @Override

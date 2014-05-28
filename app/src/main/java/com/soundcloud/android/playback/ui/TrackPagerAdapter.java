@@ -156,7 +156,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
 
     @Override
     public int getCount() {
-        return playQueueManager.getCurrentPlayQueueSize();
+        return playQueueManager.getQueueSize();
     }
 
     @Override

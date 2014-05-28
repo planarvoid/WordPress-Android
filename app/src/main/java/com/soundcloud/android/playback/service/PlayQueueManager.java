@@ -74,7 +74,11 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
         return position == getCurrentPosition();
     }
 
-    public int getCurrentPlayQueueSize() {
+    public boolean isQueueEmpty() {
+        return getQueueSize() == 0;
+    }
+
+    public int getQueueSize() {
         return playQueue.getItems().size();
     }
 

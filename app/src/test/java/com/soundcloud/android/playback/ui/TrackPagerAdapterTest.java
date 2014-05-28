@@ -64,7 +64,7 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void getCountReturnsCurrentPlayQueueSize() {
-        when(playQueueManager.getCurrentPlayQueueSize()).thenReturn(10);
+        when(playQueueManager.getQueueSize()).thenReturn(10);
         expect(adapter.getCount()).toBe(10);
     }
 

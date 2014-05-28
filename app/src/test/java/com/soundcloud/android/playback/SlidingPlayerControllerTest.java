@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -13,6 +14,7 @@ import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -30,6 +32,8 @@ import android.view.ViewTreeObserver;
 public class SlidingPlayerControllerTest {
 
     @Mock
+    private PlayQueueManager playQueueManager;
+    @Mock
     private EventBus eventBus;
     @Mock
     private ActionBarController actionBarController;
@@ -39,16 +43,19 @@ public class SlidingPlayerControllerTest {
     private Activity activity;
     @Mock
     private SlidingUpPanelLayout slidingPanel;
+    @Mock
+    private View playerView;
 
     private EventMonitor eventMonitor;
     private SlidingPlayerController controller;
 
+
     @Before
     public void setUp() throws Exception {
         eventMonitor = EventMonitor.on(eventBus);
-        controller = new SlidingPlayerController(eventBus);
+        controller = new SlidingPlayerController(playQueueManager, eventBus);
         when(activity.findViewById(R.id.sliding_layout)).thenReturn(slidingPanel);
-        when(slidingPanel.getChildAt(1)).thenReturn(mock(View.class));
+        when(slidingPanel.getChildAt(1)).thenReturn(playerView);
         controller.attach(activity, actionBarController);
     }
 
@@ -56,6 +63,24 @@ public class SlidingPlayerControllerTest {
     public void configuresSlidingPanelOnAttach() {
         verify(slidingPanel).setPanelSlideListener(controller);
         verify(slidingPanel).setEnableDragViewTouchEvents(true);
+    }
+
+    @Test
+    public void hidePlayerWhenPlayQueueIsEmpty() throws Exception {
+        when(playQueueManager.isQueueEmpty()).thenReturn(true);
+
+        controller.attach(activity, actionBarController);
+
+        verify(playerView).setVisibility(View.GONE);
+    }
+
+    @Test
+    public void doNotHidePlayerWhenPlayQueueIsNotEmpty() throws Exception {
+        when(playQueueManager.isQueueEmpty()).thenReturn(false);
+
+        controller.attach(activity, actionBarController);
+
+        verify(playerView, never()).setVisibility(View.GONE);
     }
 
     @Test
