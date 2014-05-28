@@ -49,7 +49,10 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         presenter = playerPresenterFactory.create(view, this);
-        presenter.setQueuePosition(playQueueManager.getCurrentPosition());
+        if (!playQueueManager.isQueueEmpty()) {
+            presenter.onPlayQueueChanged();
+            presenter.setQueuePosition(playQueueManager.getCurrentPosition());
+        }
     }
 
     @Override

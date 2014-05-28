@@ -1,11 +1,12 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.Reason;
+import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventBus;
@@ -69,47 +70,65 @@ public class PlayerFragmentTest {
         when(eventBus.subscribe(same(EventQueue.PLAY_QUEUE), any(Observer.class))).thenReturn(playQueueSubscription);
         when(eventBus.subscribe(same(EventQueue.PLAYBACK_PROGRESS), any(Observer.class))).thenReturn(playProgressSubscription);
         when(eventBus.subscribe(same(EventQueue.PLAYER_UI), any(Observer.class))).thenReturn(playerUiSubscription);
-
-        fragment.onCreate(null);
-        fragment.onViewCreated(view, null);
-        ArgumentCaptor<PlayerPresenter.Listener> captor = ArgumentCaptor.forClass(PlayerPresenter.Listener.class);
-        verify(presenterFactory).create(same(view), captor.capture());
-        listener = captor.getValue();
     }
 
     @Test
-    public void onViewCreateCallsSetQueuePositionWithCurrentPositionFromPlayqueueManager() {
+    public void onViewCreateCallsSetQueuePositionWithCurrentPositionFromPlayqueueManagerIfPlayQueueIsNotEmpty() {
+        when(playQueueManager.isQueueEmpty()).thenReturn(false);
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
         fragment.onViewCreated(view, null);
         verify(presenter).setQueuePosition(3);
     }
 
     @Test
+    public void onViewCreateCallsPresenterOnPlayQueueChangedIfPlayQueueIsNotEmpty() {
+        when(playQueueManager.isQueueEmpty()).thenReturn(false);
+        fragment.onViewCreated(view, null);
+        verify(presenter).onPlayQueueChanged();
+    }
+
+    @Test
+    public void onViewCreateDoesNotInteractWithPresenterIfPlayQueueIsEmpty() throws Exception {
+        when(playQueueManager.isQueueEmpty()).thenReturn(true);
+        fragment.onViewCreated(view, null);
+        verifyNoMoreInteractions(presenter);
+    }
+
+    @Test
     public void callingOnTogglePlayOnPresenterListenerCallsTogglePlaybackOnPlaybackOperations() {
+        createFragment();
+        captureListener();
         listener.onTogglePlay();
         verify(playbackOperations).togglePlayback();
     }
 
     @Test
     public void callingOnNextOnPresenterListenerCallsNextTrackOnPlaybackOperations() {
+        createFragment();
+        captureListener();
         listener.onNext();
         verify(playbackOperations).nextTrack();
     }
 
     @Test
     public void callingOnPreviousOnPresenterListenerCallsPreviousTrackOnPlaybackOperations() {
+        createFragment();
+        captureListener();
         listener.onPrevious();
         verify(playbackOperations).previousTrack();
     }
 
     @Test
     public void callingOnTrackChangedOnPresenterListenerCallsSetPlayQueuePositionOnPlaybackOperationsWithArgument() {
+        createFragment();
+        captureListener();
         listener.onTrackChanged(3);
         verify(playbackOperations).setPlayQueuePosition(3);
     }
 
     @Test
     public void onPlayingStateEventCallsOnPlaystateChangedOnFragmentWithIsPlaying() {
+        createFragment();
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         StateTransition state = new StateTransition(PlayaState.PLAYING, Reason.NONE);
         eventMonitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
@@ -118,6 +137,7 @@ public class PlayerFragmentTest {
 
     @Test
     public void onPlayQueueEventForTrackChangeCallsSetQueuePositionOnPresenterWithCurrentPlayQueueManagerPosition() {
+        createFragment();
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
@@ -127,6 +147,7 @@ public class PlayerFragmentTest {
 
     @Test
     public void onPlayQueueEventForNewQueueCallsSetQueuePositionOnPresenterWithCurrentPlayQueueManagerPosition() {
+        createFragment();
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
@@ -135,6 +156,8 @@ public class PlayerFragmentTest {
 
     @Test
     public void onPlayQueueEventForNewQueueCallsOnPlayQueueChangedOnPresenter() {
+        when(playQueueManager.isQueueEmpty()).thenReturn(true);
+        createFragment();
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
         verify(presenter).onPlayQueueChanged();
@@ -142,6 +165,8 @@ public class PlayerFragmentTest {
 
     @Test
     public void onPlayQueueEventForQueueUpdateCallsOnPlayQueueChangedOnPresenter() {
+        when(playQueueManager.isQueueEmpty()).thenReturn(true);
+        createFragment();
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
         verify(presenter).onPlayQueueChanged();
@@ -149,6 +174,7 @@ public class PlayerFragmentTest {
 
     @Test
     public void onPlaybackProgressEventSetsPlayerProgressOnPresenter() {
+        createFragment();
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
 
@@ -158,6 +184,7 @@ public class PlayerFragmentTest {
 
     @Test
     public void onPlayerExpandedEventSetsFullScreenPlayerOnPresenter() {
+        createFragment();
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
         verify(presenter).setFullScreenPlayer(true);
@@ -165,6 +192,7 @@ public class PlayerFragmentTest {
 
     @Test
     public void onPlayerCollapsedEventSetsFooterPlayerOnPresenter() {
+        createFragment();
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
         eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
         verify(presenter).setFullScreenPlayer(false);
@@ -172,11 +200,23 @@ public class PlayerFragmentTest {
 
     @Test
     public void shouldUnsubscribeFromEventQueuesOnDestroy() {
+        createFragment();
         fragment.onDestroy();
         verify(playQueueSubscription).unsubscribe();
         verify(playStateSubscription).unsubscribe();
         verify(playProgressSubscription).unsubscribe();
         verify(playerUiSubscription).unsubscribe();
+    }
+
+    private void createFragment() {
+        fragment.onCreate(null);
+        fragment.onViewCreated(view, null);
+    }
+
+    private void captureListener() {
+        ArgumentCaptor<PlayerPresenter.Listener> captor = ArgumentCaptor.forClass(PlayerPresenter.Listener.class);
+        verify(presenterFactory).create(same(view), captor.capture());
+        listener = captor.getValue();
     }
 
 }
