@@ -2,15 +2,17 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.view.adapters.CellPresenter;
 import com.soundcloud.android.view.adapters.LegacyPlayableRowPresenter;
 import com.soundcloud.android.view.adapters.LegacyUserRowPresenter;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 
 class SearchResultsAdapter extends PagingItemAdapter<ScResource> {
 
-    SearchResultsAdapter(CellPresenter<ScResource>... cellPresenters) {
-        super(cellPresenters);
+    static final int TYPE_USER = 0;
+    static final int TYPE_PLAYABLE = 1;
+
+    SearchResultsAdapter(LegacyUserRowPresenter userRowPresenter, LegacyPlayableRowPresenter<ScResource> playableRowPresenter) {
+        super(userRowPresenter, playableRowPresenter);
     }
 
     @Override
@@ -19,9 +21,7 @@ class SearchResultsAdapter extends PagingItemAdapter<ScResource> {
         if (itemViewType == IGNORE_ITEM_VIEW_TYPE) {
             return itemViewType;
         } else {
-            return getItem(position) instanceof User ?
-                    LegacyUserRowPresenter.TYPE_USER :
-                    LegacyPlayableRowPresenter.TYPE_PLAYABLE;
+            return getItem(position) instanceof User ? TYPE_USER : TYPE_PLAYABLE;
         }
     }
 

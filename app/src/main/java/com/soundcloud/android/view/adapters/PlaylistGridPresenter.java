@@ -56,11 +56,6 @@ public class PlaylistGridPresenter implements CellPresenter<PlaylistSummary> {
         imageOperations.displayInAdapterView(playlist.getUrn(), imageSize, viewHolder.imageView);
     }
 
-    @Override
-    public int getItemViewType() {
-        return DEFAULT_ITEM_VIEW_TYPE;
-    }
-
     private String formatTags(List<String> tags) {
         if (tags.size() >= 2) {
             return Joiner.on(", ").join(Lists.transform(tags.subList(0, 2), new Function<String, String>() {

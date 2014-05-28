@@ -70,11 +70,6 @@ class GenreCellPresenter implements CellPresenter<ExploreGenre> {
         }
     }
 
-    @Override
-    public int getItemViewType() {
-        return DEFAULT_ITEM_VIEW_TYPE;
-    }
-
     private GenreSection<ExploreGenre> getSection(int position) {
         return listPositionsToSections.get(position).section;
     }

@@ -11,7 +11,6 @@ import com.soundcloud.android.view.adapters.CellPresenter;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -40,11 +39,6 @@ class EmptyPlaylistTracksPresenter implements CellPresenter<Track>, EmptyViewAwa
     @Override
     public void bindItemView(int position, View itemView, List<Track> tracks) {
         ((EmptyView) itemView).setStatus(emptyViewStatus);
-    }
-
-    @Override
-    public int getItemViewType() {
-        return Adapter.IGNORE_ITEM_VIEW_TYPE;
     }
 
     public void setEmptyViewStatus(int emptyViewStatus) {

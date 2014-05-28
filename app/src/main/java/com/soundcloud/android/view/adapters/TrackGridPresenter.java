@@ -61,11 +61,6 @@ public class TrackGridPresenter implements CellPresenter<TrackSummary> {
         imageOperations.displayInAdapterView(track.getUrn(), imageSize, viewHolder.imageView);
     }
 
-    @Override
-    public int getItemViewType() {
-        return DEFAULT_ITEM_VIEW_TYPE;
-    }
-
     @VisibleForTesting
     static class ItemViewHolder {
         public ImageView imageView;

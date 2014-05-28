@@ -6,7 +6,6 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.view.adapters.CellPresenter;
 import com.soundcloud.android.view.adapters.LegacyPlayableRowPresenter;
 import com.soundcloud.android.view.adapters.LegacyUserRowPresenter;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
@@ -30,10 +29,8 @@ public class SearchModule {
 
     @Provides
     public SearchResultsAdapter searchResultAdapter(ImageOperations imageOperations) {
-        final CellPresenter[] cellPresenters = new CellPresenter[] {
+        return new SearchResultsAdapter(
                 new LegacyUserRowPresenter(imageOperations, Screen.SEARCH_EVERYTHING),
-                new LegacyPlayableRowPresenter<ScResource>(imageOperations)
-        };
-        return new SearchResultsAdapter(cellPresenters);
+                new LegacyPlayableRowPresenter<ScResource>(imageOperations));
     }
 }

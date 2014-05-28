@@ -27,9 +27,4 @@ class StreamItemPresenter implements CellPresenter<PropertySet> {
     @Override
     public void bindItemView(int position, View itemView, List<PropertySet> streamItems) {
     }
-
-    @Override
-    public int getItemViewType() {
-        return DEFAULT_ITEM_VIEW_TYPE;
-    }
 }

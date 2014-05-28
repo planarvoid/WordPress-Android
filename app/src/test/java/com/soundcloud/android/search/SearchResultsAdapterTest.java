@@ -32,8 +32,8 @@ public class SearchResultsAdapterTest {
         adapter.addItem(new User());
         adapter.addItem(new Track());
 
-        expect(adapter.getItemViewType(0)).toEqual(LegacyUserRowPresenter.TYPE_USER);
-        expect(adapter.getItemViewType(1)).toEqual(LegacyPlayableRowPresenter.TYPE_PLAYABLE);
+        expect(adapter.getItemViewType(0)).toEqual(SearchResultsAdapter.TYPE_USER);
+        expect(adapter.getItemViewType(1)).toEqual(SearchResultsAdapter.TYPE_PLAYABLE);
     }
 
 }

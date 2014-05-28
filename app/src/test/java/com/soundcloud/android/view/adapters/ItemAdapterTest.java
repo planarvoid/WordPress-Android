@@ -71,11 +71,6 @@ public class ItemAdapterTest {
     }
 
     @Test
-    public void shouldReturnDefaultCellPresenterItemViewType() {
-        expect(adapter.getItemViewType(0)).toEqual(CellPresenter.DEFAULT_ITEM_VIEW_TYPE);
-    }
-
-    @Test
     public void shouldCreateItemViewWithPresenter() {
         FrameLayout parent = mock(FrameLayout.class);
         adapter.addItem(new Track());
@@ -86,8 +81,8 @@ public class ItemAdapterTest {
     @Test
     public void shouldCreateItemViewForTwoDifferentViewTypes() {
         FrameLayout parent = mock(FrameLayout.class);
-        CellPresenter presenterOne = createPresenter(0);
-        CellPresenter presenterTwo = createPresenter(1);
+        CellPresenter presenterOne = mock(CellPresenter.class);
+        CellPresenter presenterTwo = mock(CellPresenter.class);
         adapter = new ItemAdapter<Track>(presenterOne, presenterTwo) {
             @Override
             public int getItemViewType(int position) {
@@ -100,18 +95,6 @@ public class ItemAdapterTest {
 
         adapter.getView(1, null, parent);
         verify(presenterTwo).createItemView(1, parent);
-    }
-
-    @Test (expected = IllegalStateException.class)
-    public void shouldThrowIllegalStateExceptionWhenNoPresenterDefinedForAViewType() {
-        final int UNKNOWN_VIEW_TYPE = 666;
-        adapter = new ItemAdapter<Track>(createPresenter(0)) {
-            @Override
-            public int getItemViewType(int position) {
-                return UNKNOWN_VIEW_TYPE;
-            }
-        };
-        adapter.getView(0, null, mock(FrameLayout.class));
     }
 
     @Test
@@ -169,9 +152,4 @@ public class ItemAdapterTest {
         }
     }
 
-    private CellPresenter createPresenter(final int itemViewType) {
-        CellPresenter presenter = mock(CellPresenter.class);
-        when(presenter.getItemViewType()).thenReturn(itemViewType);
-        return presenter;
-    }
 }

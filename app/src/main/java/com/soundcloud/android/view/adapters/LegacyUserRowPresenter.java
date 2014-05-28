@@ -17,8 +17,6 @@ import java.util.List;
  */
 public class LegacyUserRowPresenter implements CellPresenter<ScResource> {
 
-    public static final int TYPE_USER = LegacyUserRowPresenter.class.hashCode();
-
     private final ImageOperations imageOperations;
     private final Screen originScreen;
 
@@ -35,10 +33,5 @@ public class LegacyUserRowPresenter implements CellPresenter<ScResource> {
     @Override
     public void bindItemView(int position, View itemView, List<ScResource> items) {
         ((ListRow) itemView).display(position, items.get(position));
-    }
-
-    @Override
-    public int getItemViewType() {
-        return TYPE_USER;
     }
 }

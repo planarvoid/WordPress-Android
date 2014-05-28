@@ -12,8 +12,6 @@ import java.util.List;
 // wraps the legacy playable presentation logic in a cell presenter
 public class LegacyPlayableRowPresenter<T extends ScResource> implements CellPresenter<T> {
 
-    public static final int TYPE_PLAYABLE = LegacyPlayableRowPresenter.class.hashCode();
-
     private final ImageOperations imageOperations;
 
     public LegacyPlayableRowPresenter(ImageOperations imageOperations) {
@@ -28,10 +26,5 @@ public class LegacyPlayableRowPresenter<T extends ScResource> implements CellPre
     @Override
     public void bindItemView(int position, View itemView, List<T> items) {
         ((PlayableRow) itemView).display(position, items.get(position));
-    }
-
-    @Override
-    public int getItemViewType() {
-        return TYPE_PLAYABLE;
     }
 }

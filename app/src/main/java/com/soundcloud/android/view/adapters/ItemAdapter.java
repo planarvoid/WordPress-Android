@@ -4,12 +4,12 @@ import com.soundcloud.android.Consts;
 
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -24,14 +24,11 @@ public class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter {
     protected static final String EXTRA_KEY_ITEMS = "adapter.items";
 
     protected ArrayList<ItemT> items;
-    protected final SparseArray<CellPresenter<ItemT>> cellPresenters;
+    protected final List<CellPresenter<ItemT>> cellPresenters;
 
     public ItemAdapter(CellPresenter<ItemT>... cellPresenters) {
         this.items = new ArrayList<ItemT>(Consts.LIST_PAGE_SIZE);
-        this.cellPresenters = new SparseArray<CellPresenter<ItemT>>(cellPresenters.length);
-        for (CellPresenter<ItemT> presenter : cellPresenters) {
-            this.cellPresenters.put(presenter.getItemViewType(), presenter);
-        }
+        this.cellPresenters = Arrays.asList(cellPresenters);
     }
 
     @Override
@@ -63,31 +60,14 @@ public class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final CellPresenter<ItemT> presenter = getItemPresenter(getItemViewType(position));
+        final CellPresenter<ItemT> presenter = cellPresenters.get(getItemViewType(position));
 
-        View itemView;
-        if (convertView == null) {
+        View itemView = convertView;
+        if (itemView == null) {
             itemView = presenter.createItemView(position, parent);
-        } else {
-            itemView = convertView;
         }
         presenter.bindItemView(position, itemView, items);
         return itemView;
-    }
-
-    private CellPresenter<ItemT> getItemPresenter(int itemViewType) {
-        CellPresenter<ItemT> presenter = cellPresenters.get(itemViewType);
-        if (presenter == null) {
-            throw new IllegalStateException("No presenter registered for item view type : " + itemViewType);
-        }
-        return presenter;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        // we fix this to our default view type constant since adapters and presenters use our constant, not the value
-        // Android provides by default (and which doesn't have a symbolic name)
-        return CellPresenter.DEFAULT_ITEM_VIEW_TYPE;
     }
 
     /**
