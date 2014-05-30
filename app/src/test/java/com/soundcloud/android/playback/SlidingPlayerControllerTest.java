@@ -55,7 +55,7 @@ public class SlidingPlayerControllerTest {
         eventMonitor = EventMonitor.on(eventBus);
         controller = new SlidingPlayerController(playQueueManager, eventBus);
         when(activity.findViewById(R.id.sliding_layout)).thenReturn(slidingPanel);
-        when(slidingPanel.getChildAt(1)).thenReturn(playerView);
+        when(slidingPanel.findViewById(R.id.player_root)).thenReturn(playerView);
     }
 
     @Test

@@ -47,7 +47,7 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
         slidingPanel.setEnableDragViewTouchEvents(true);
 
         if (playQueueManager.isQueueEmpty()) {
-            slidingPanel.getChildAt(1).setVisibility(View.GONE);
+            slidingPanel.findViewById(R.id.player_root).setVisibility(View.GONE);
         }
     }
 

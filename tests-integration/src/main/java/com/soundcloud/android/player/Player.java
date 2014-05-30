@@ -31,6 +31,10 @@ public class Player extends ActivityTestCase<MainActivity> {
         playerElement = new PlayerElement(solo);
     }
 
+    public void testPlayerShouldNotBeVisibleWhenPlayQueueIsEmpty() throws Exception {
+        assertThat(playerElement.isVisible(), is(false));
+    }
+
     public void testPlayerCollapsesWhenBackButtonIsPressed() throws Exception {
         playFirstTrack();
         playerElement.pressBackToCollapse();

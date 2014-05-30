@@ -99,4 +99,7 @@ public class PlayerElement extends Element {
         return (SlidingUpPanelLayout) solo.getView(R.id.sliding_layout);
     }
 
+    public boolean isVisible() {
+        return solo.getView(R.id.player_root).getVisibility() == View.VISIBLE;
+    }
 }
