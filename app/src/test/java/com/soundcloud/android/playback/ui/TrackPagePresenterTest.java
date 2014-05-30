@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.image.ImageOperations;
@@ -16,7 +17,6 @@ import org.mockito.Mock;
 import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ToggleButton;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackPagePresenterTest {
@@ -77,6 +77,41 @@ public class TrackPagePresenterTest {
         presenter.setFullScreen(trackView, false);
 
         expect(holder.footer.getVisibility()).toEqual(View.VISIBLE);
+    }
+
+    @Test
+         public void togglePlayOnFooterToggleClick() {
+        presenter.onClick(getHolder(trackView).footerPlayToggle);
+
+        verify(listener).onTogglePlay();
+    }
+
+    @Test
+    public void togglePlayOnTrackPageArtworkClick() {
+        presenter.onClick(getHolder(trackView).artwork);
+
+        verify(listener).onTogglePlay();
+    }
+
+    @Test
+    public void footerTapOnFooterControlsClick() {
+        presenter.onClick(getHolder(trackView).footer);
+
+        verify(listener).onFooterTap();
+    }
+
+    @Test
+    public void playerCloseOnPlayerCloseClick() {
+        presenter.onClick(getHolder(trackView).close);
+
+        verify(listener).onPlayerClose();
+    }
+
+    @Test
+    public void playerCloseOnPlayerBottomCloseClick() {
+        presenter.onClick(getHolder(trackView).bottomClose);
+
+        verify(listener).onPlayerClose();
     }
 
     private TrackPageHolder getHolder(View trackView) {
