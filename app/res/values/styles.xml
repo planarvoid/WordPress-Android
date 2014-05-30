@@ -1580,6 +1580,11 @@
         <item name="android:clickable">false</item>
     </style>
 
+    <style name="TrackPageSkip">
+        <item name="android:layout_width">@dimen/track_page_skip_width</item>
+        <item name="android:layout_height">@dimen/track_page_skip_height</item>
+    </style>
+
     <!-- Misc -->
 
     <style name="CustomToggle">

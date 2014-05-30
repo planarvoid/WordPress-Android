@@ -27,6 +27,8 @@ class TrackPagePresenter implements View.OnClickListener {
         void onTogglePlay();
         void onFooterTap();
         void onPlayerClose();
+        void onNext();
+        void onPrevious();
     }
 
     @Inject
@@ -45,6 +47,12 @@ class TrackPagePresenter implements View.OnClickListener {
             case R.id.footer_toggle:
             case R.id.track_page_artwork:
                 listener.onTogglePlay();
+                break;
+            case R.id.track_page_next:
+                listener.onNext();
+                break;
+            case R.id.track_page_previous:
+                listener.onPrevious();
                 break;
             case R.id.footer_controls:
                 listener.onFooterTap();
@@ -98,6 +106,8 @@ class TrackPagePresenter implements View.OnClickListener {
         holder.artwork.setOnClickListener(this);
         holder.close.setOnClickListener(this);
         holder.bottomClose.setOnClickListener(this);
+        holder.next.setOnClickListener(this);
+        holder.previous.setOnClickListener(this);
 
         holder.footer.setOnClickListener(this);
         holder.footerPlayToggle.setOnClickListener(this);
@@ -119,6 +129,8 @@ class TrackPagePresenter implements View.OnClickListener {
         holder.more = trackView.findViewById(R.id.track_page_more);
         holder.close = trackView.findViewById(R.id.player_close);
         holder.bottomClose = trackView.findViewById(R.id.player_bottom_close);
+        holder.next = trackView.findViewById(R.id.track_page_next);
+        holder.previous = trackView.findViewById(R.id.track_page_previous);
 
         holder.footer = trackView.findViewById(R.id.footer_controls);
         holder.footerPlayToggle = (ToggleButton) trackView.findViewById(R.id.footer_toggle);
@@ -135,6 +147,8 @@ class TrackPagePresenter implements View.OnClickListener {
         View more;
         View close;
         View bottomClose;
+        View next;
+        View previous;
 
         View footer;
         ToggleButton footerPlayToggle;

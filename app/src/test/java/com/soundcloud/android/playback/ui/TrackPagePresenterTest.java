@@ -2,12 +2,15 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,42 +83,79 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-         public void togglePlayOnFooterToggleClick() {
-        presenter.onClick(getHolder(trackView).footerPlayToggle);
+    public void togglePlayOnFooterToggleClick() throws CreateModelException {
+        populateTrackPage();
+
+        getHolder(trackView).footerPlayToggle.performClick();
 
         verify(listener).onTogglePlay();
     }
 
     @Test
-    public void togglePlayOnTrackPageArtworkClick() {
-        presenter.onClick(getHolder(trackView).artwork);
+    public void togglePlayOnTrackPageArtworkClick() throws CreateModelException {
+        populateTrackPage();
+
+        getHolder(trackView).artwork.performClick();
 
         verify(listener).onTogglePlay();
     }
 
     @Test
-    public void footerTapOnFooterControlsClick() {
-        presenter.onClick(getHolder(trackView).footer);
+    public void nextOnTrackPagerNextClick() throws CreateModelException {
+        populateTrackPage();
+
+        getHolder(trackView).next.performClick();
+
+        verify(listener).onNext();
+    }
+
+    @Test
+    public void nextOnTrackPagerPreviousClick() throws CreateModelException {
+        populateTrackPage();
+
+        getHolder(trackView).previous.performClick();;
+
+        verify(listener).onPrevious();
+    }
+
+    @Test
+    public void footerTapOnFooterControlsClick() throws CreateModelException {
+        populateTrackPage();
+
+        getHolder(trackView).footer.performClick();;
 
         verify(listener).onFooterTap();
     }
 
     @Test
-    public void playerCloseOnPlayerCloseClick() {
-        presenter.onClick(getHolder(trackView).close);
+    public void playerCloseOnPlayerCloseClick() throws CreateModelException {
+        populateTrackPage();
+
+        getHolder(trackView).close.performClick();;
 
         verify(listener).onPlayerClose();
     }
 
     @Test
-    public void playerCloseOnPlayerBottomCloseClick() {
-        presenter.onClick(getHolder(trackView).bottomClose);
+    public void playerCloseOnPlayerBottomCloseClick() throws CreateModelException {
+        populateTrackPage();
+
+        getHolder(trackView).bottomClose.performClick();;
 
         verify(listener).onPlayerClose();
     }
 
+    @Test (expected=IllegalArgumentException.class)
+    public void throwIllegalArgumentExceptionOnClickingUnexpectedView() {
+        presenter.onClick(mock(View.class));
+    }
+
     private TrackPageHolder getHolder(View trackView) {
         return (TrackPageHolder) trackView.getTag();
+    }
+
+    private void populateTrackPage() throws CreateModelException {
+        presenter.populateTrackPage(trackView, TestHelper.getModelFactory().createModel(Track.class));
     }
 
 }

@@ -10,6 +10,18 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop" />
 
+    <FrameLayout
+            android:id="@+id/track_page_next"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            style="@style/TrackPageSkip"/>
+
+    <FrameLayout
+            android:id="@+id/track_page_previous"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            style="@style/TrackPageSkip"/>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_gradient_height"

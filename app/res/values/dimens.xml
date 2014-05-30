@@ -162,5 +162,7 @@
     <dimen name="player_gradient_height">180dp</dimen>
     <dimen name="player_footer_margin">10dp</dimen>
     <dimen name="player_pager_spacing">2dp</dimen>
+    <dimen name="track_page_skip_width">85dp</dimen>
+    <dimen name="track_page_skip_height">70dp</dimen>
 
 </resources>

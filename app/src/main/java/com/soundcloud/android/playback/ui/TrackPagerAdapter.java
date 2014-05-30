@@ -174,4 +174,10 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
     }
 
+    @Override
+    public void onNext() { playbackOperations.nextTrack(); }
+
+    @Override
+    public void onPrevious() { playbackOperations.previousTrack(); }
+
 }

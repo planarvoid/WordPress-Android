@@ -52,6 +52,14 @@ public class PlayerElement extends Element {
         solo.clickOnView(R.id.player_previous);
     }
 
+    public void tapTrackPageNext() {
+        solo.clickOnView(getCurrentTrackPage().findViewById(R.id.track_page_next));
+    }
+
+    public void tapTrackPagePrevious() {
+        solo.clickOnView(getCurrentTrackPage().findViewById(R.id.track_page_previous));
+    }
+
     public void swipeNext() {
         solo.swipeLeft(.7f);
     }
