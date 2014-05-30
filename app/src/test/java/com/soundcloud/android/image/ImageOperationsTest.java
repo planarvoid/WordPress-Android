@@ -11,15 +11,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.cache.Cache;
-import com.nostra13.universalimageloader.cache.disc.DiscCacheAware;
+import com.nostra13.universalimageloader.cache.disc.DiskCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.ImageLoadingListener;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -63,7 +63,7 @@ public class ImageOperationsTest {
     @Mock
     PlaceholderGenerator placeholderGenerator;
     @Mock
-    DiscCacheAware diskCache;
+    DiskCache diskCache;
     @Mock
     ImageListener imageListener;
     @Mock
@@ -103,7 +103,7 @@ public class ImageOperationsTest {
     @Before
     public void setUp() throws Exception {
         imageOperations = new ImageOperations(imageLoader, imageEndpointBuilder, placeholderGenerator, cache, viewlessLoadingAdapterFactory);
-        when(imageLoader.getDiscCache()).thenReturn(diskCache);
+        when(imageLoader.getDiskCache()).thenReturn(diskCache);
         when(imageEndpointBuilder.imageUrl(URN, ImageSize.LARGE)).thenReturn(RESOLVER_URL_LARGE);
         when(placeholderGenerator.generate(any(String.class))).thenReturn(drawable);
     }
@@ -283,7 +283,7 @@ public class ImageOperationsTest {
                 anyString(), any(ImageAware.class), displayOptionsCaptor.capture(), any(ImageListenerUILAdapter.class));
         expect(displayOptionsCaptor.getValue().getDelayBeforeLoading()).toEqual(ImageOptionsFactory.DELAY_BEFORE_LOADING_LOW_PRIORITY);
         expect(displayOptionsCaptor.getValue().getDisplayer()).toBeInstanceOf(FadeInBitmapDisplayer.class);
-        expect(displayOptionsCaptor.getValue().isCacheOnDisc()).toBeTrue();
+        expect(displayOptionsCaptor.getValue().isCacheOnDisk()).toBeTrue();
     }
 
     @Test
@@ -305,7 +305,7 @@ public class ImageOperationsTest {
         imageOperations.prefetch(URL);
         verify(imageLoader).loadImage(eq(ADJUSTED_URL), displayOptionsCaptor.capture(), isNull(ImageLoadingListener.class));
         expect(displayOptionsCaptor.getValue().isCacheInMemory()).toBeFalse();
-        expect(displayOptionsCaptor.getValue().isCacheOnDisc()).toBeTrue();
+        expect(displayOptionsCaptor.getValue().isCacheOnDisk()).toBeTrue();
     }
 
     @Test
@@ -383,7 +383,7 @@ public class ImageOperationsTest {
     }
 
     private void verifyFullCacheOptions() {
-        expect(displayOptionsCaptor.getValue().isCacheOnDisc()).toBeTrue();
+        expect(displayOptionsCaptor.getValue().isCacheOnDisk()).toBeTrue();
         expect(displayOptionsCaptor.getValue().isCacheInMemory()).toBeTrue();
     }
 

@@ -83,8 +83,10 @@ class ImageOptionsFactory {
             mParentView = parentView;
         }
 
+
+
         @Override
-        public Bitmap display(Bitmap bitmap, ImageAware imageAware, LoadedFrom loadedFrom) {
+        public void display(Bitmap bitmap, ImageAware imageAware, LoadedFrom loadedFrom) {
             final View wrappedView = imageAware.getWrappedView();
             imageAware.setImageBitmap(bitmap);
             if (wrappedView.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
@@ -104,7 +106,6 @@ class ImageOptionsFactory {
                     mParentView.setBackgroundDrawable(null);
                 }
             }
-            return bitmap;
         }
     }
 
@@ -125,7 +126,7 @@ class ImageOptionsFactory {
         abstract protected Drawable getTransitionFromDrawable(ImageView imageView);
 
         @Override
-        public Bitmap display(Bitmap bitmap, ImageAware imageAware, LoadedFrom loadedFrom) {
+        public void display(Bitmap bitmap, ImageAware imageAware, LoadedFrom loadedFrom) {
             ImageView wrappedImageView = (ImageView) imageAware.getWrappedView();
             if (wrappedImageView != null && bitmap != null) {
                 if (loadedFrom != LoadedFrom.MEMORY_CACHE) {
@@ -134,7 +135,6 @@ class ImageOptionsFactory {
                     imageAware.setImageBitmap(bitmap);
                 }
             }
-            return bitmap;
         }
 
         protected void performDrawableTransition(Bitmap bitmap, final ImageView imageView) {

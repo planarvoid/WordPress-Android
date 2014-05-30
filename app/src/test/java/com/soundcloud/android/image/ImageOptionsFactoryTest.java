@@ -41,14 +41,14 @@ public class ImageOptionsFactoryTest {
     public void shouldCreatePrefetchOptions() throws Exception {
         DisplayImageOptions displayImageOptions = ImageOptionsFactory.prefetch();
         expect(displayImageOptions.isCacheInMemory()).toBeFalse();
-        expect(displayImageOptions.isCacheOnDisc()).toBeTrue();
+        expect(displayImageOptions.isCacheOnDisk()).toBeTrue();
     }
 
     @Test
     public void shouldCreateCacheOptions() throws Exception {
         DisplayImageOptions displayImageOptions = ImageOptionsFactory.cache();
         expect(displayImageOptions.isCacheInMemory()).toBeTrue();
-        expect(displayImageOptions.isCacheOnDisc()).toBeTrue();
+        expect(displayImageOptions.isCacheOnDisk()).toBeTrue();
     }
 
     @Test
@@ -57,7 +57,7 @@ public class ImageOptionsFactoryTest {
         Drawable drawable = mock(Drawable.class);
         DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable);
         expect(displayImageOptions.isCacheInMemory()).toBeTrue();
-        expect(displayImageOptions.isCacheOnDisc()).toBeTrue();
+        expect(displayImageOptions.isCacheOnDisk()).toBeTrue();
         expect(displayImageOptions.getImageForEmptyUri(resources)).toBe(drawable);
         expect(displayImageOptions.getImageOnFail(resources)).toBe(drawable);
         expect(displayImageOptions.getImageOnLoading(resources)).toBe(drawable);
@@ -87,10 +87,5 @@ public class ImageOptionsFactoryTest {
         new ImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.NETWORK);
         verify(imageView).getDrawable();
         verify(imageView, never()).getBackground();
-    }
-
-    @Test
-    public void shouldHandleNullImageViewGracefullySinceImageAwareKeepsWeakReferences() {
-        new ImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, new ImageViewAware(null), LoadedFrom.NETWORK);
     }
 }

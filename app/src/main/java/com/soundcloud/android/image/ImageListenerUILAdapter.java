@@ -1,7 +1,7 @@
 package com.soundcloud.android.image;
 
 import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import android.graphics.Bitmap;
 import android.view.View;
