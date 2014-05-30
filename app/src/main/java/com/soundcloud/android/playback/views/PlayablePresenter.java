@@ -2,8 +2,8 @@ package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Log;
@@ -37,8 +37,8 @@ public class PlayablePresenter {
 
     private boolean mShowFullStats;
 
-    private ImageSize mArtworkSize = ImageSize.Unknown;
-    private ImageSize mAvatarSize = ImageSize.Unknown;
+    private ApiImageSize mArtworkSize = ApiImageSize.Unknown;
+    private ApiImageSize mAvatarSize = ApiImageSize.Unknown;
 
     private Playable mPlayable;
     private ImageOperations mImageOperations;
@@ -76,13 +76,13 @@ public class PlayablePresenter {
         return this;
     }
 
-    public PlayablePresenter setArtwork(ImageView artworkView, ImageSize artworkSize) {
+    public PlayablePresenter setArtwork(ImageView artworkView, ApiImageSize artworkSize) {
         mArtworkView = artworkView;
         mArtworkSize = artworkSize;
         return this;
     }
 
-    public PlayablePresenter setAvatarView(ImageView avatarView, ImageSize avatarSize) {
+    public PlayablePresenter setAvatarView(ImageView avatarView, ApiImageSize avatarSize) {
         mAvatarView = avatarView;
         mAvatarSize = avatarSize;
         return this;

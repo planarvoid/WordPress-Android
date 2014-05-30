@@ -7,8 +7,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.SearchSuggestions;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
@@ -359,7 +359,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             }
 
             mImageOperations.displayInAdapterView(urn,
-                    ImageSize.getListItemImageSize(context),
+                    ApiImageSize.getListItemImageSize(context),
                     tag.iv_icon);
         }
         return view;

@@ -6,8 +6,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -221,7 +221,7 @@ public class NavigationFragment extends Fragment {
                 R.plurals.number_of_followers, followersCount, followersCount));
 
         imageOperations.displayWithPlaceholder(user.getUrn(),
-                ImageSize.getFullImageSize(getResources()),
+                ApiImageSize.getFullImageSize(getResources()),
                 profileViewHolder.imageView);
     }
 

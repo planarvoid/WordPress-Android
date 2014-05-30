@@ -1,8 +1,8 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.view.GridViewCompat;
 
@@ -91,7 +91,7 @@ class SuggestedUsersAdapter extends BaseAdapter {
         Resources resources = viewHolder.imageView.getResources();
         imageOperations.displayInAdapterView(
                 suggestedUser.getUrn(),
-                ImageSize.getFullImageSize(resources),
+                ApiImageSize.getFullImageSize(resources),
                 viewHolder.imageView);
     }
 

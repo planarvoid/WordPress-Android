@@ -3,8 +3,8 @@ package com.soundcloud.android.playback.views;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.LegacyWaveformCache;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
@@ -373,7 +373,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     }
 
     public void prefetchAvatar(Comment comment) {
-        mImageOperations.prefetch(ImageSize.formatUriForList(getContext(), comment.getUser().getNonDefaultAvatarUrl()));
+        mImageOperations.prefetch(ApiImageSize.formatUriForList(getContext(), comment.getUser().getNonDefaultAvatarUrl()));
     }
 
     public void setSecondaryProgress(int percent) {

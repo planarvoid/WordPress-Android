@@ -15,8 +15,8 @@ import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
@@ -385,7 +385,7 @@ public class ProfileActivity extends ScActivity implements
         }
 
         imageOperations.displayWithPlaceholder(this.user.getUrn(),
-                ImageSize.getFullImageSize(getResources()),
+                ApiImageSize.getFullImageSize(getResources()),
                 userImage);
 
         supportInvalidateOptionsMenu();

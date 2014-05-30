@@ -11,8 +11,8 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -121,7 +121,7 @@ public class PlaySessionControllerTest {
     @Test
     public void playQueueChangedHandlerSetsLockScreenStateWithBitmapForCurrentTrack() {
         when(audioManager.isTrackChangeSupported()).thenReturn(true);
-        when(imageOperations.image(TRACK_URN, ImageSize.T500, true)).thenReturn(Observable.just(bitmap));
+        when(imageOperations.image(TRACK_URN, ApiImageSize.T500, true)).thenReturn(Observable.just(bitmap));
 
         InOrder inOrder = Mockito.inOrder(audioManager);
         monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
@@ -132,7 +132,7 @@ public class PlaySessionControllerTest {
     @Test
     public void playQueueChangedHandlerSetsLockScreenStateWithNullBitmapForCurrentTrackOnImageLoadError() {
         when(audioManager.isTrackChangeSupported()).thenReturn(true);
-        when(imageOperations.image(TRACK_URN, ImageSize.T500, true)).thenReturn(Observable.<Bitmap>error(new Exception("Could not load image")));
+        when(imageOperations.image(TRACK_URN, ApiImageSize.T500, true)).thenReturn(Observable.<Bitmap>error(new Exception("Could not load image")));
 
         monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
         verify(audioManager).onTrackChanged(track, null);

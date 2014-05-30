@@ -3,9 +3,9 @@ package com.soundcloud.android.playback.views;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
@@ -61,7 +61,7 @@ public class PlayerAvatarBarView extends View {
 
     private Bitmap defaultAvatar;
 
-    private ImageSize avatarGraphicsSize;
+    private ApiImageSize avatarGraphicsSize;
 
     private Set<ImageView> avatarLoadingViews;
 
@@ -73,8 +73,8 @@ public class PlayerAvatarBarView extends View {
         imageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
 
         avatarGraphicsSize = context.getResources().getDisplayMetrics().density > 1 ?
-                ImageSize.BADGE :
-                ImageSize.SMALL;
+                ApiImageSize.BADGE :
+                ApiImageSize.SMALL;
 
         avatarLoadingViews = new HashSet<ImageView>(Consts.MAX_COMMENTS_TO_LOAD);
 

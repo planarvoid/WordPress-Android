@@ -117,50 +117,50 @@ public class ImageOperations {
         FileCache.installFileCache(IOUtils.getCacheDir(appContext));
     }
 
-    public void displayInAdapterView(Urn urn, ImageSize imageSize, ImageView imageView) {
+    public void displayInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(
-                buildUrlIfNotPreviouslyMissing(urn, imageSize),
+                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 imageAware,
                 ImageOptionsFactory.adapterView(getPlaceholderDrawable(urn, imageAware)), notFoundListener);
     }
 
-    public void displayWithPlaceholder(Urn urn, ImageSize imageSize, ImageView imageView) {
+    public void displayWithPlaceholder(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(
-                buildUrlIfNotPreviouslyMissing(urn, imageSize),
+                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 imageAware,
                 ImageOptionsFactory.placeholder(getPlaceholderDrawable(urn, imageAware)),
                 notFoundListener);
     }
 
-    public void displayInVisualPlayer(Urn urn, ImageSize imageSize, ImageView imageView) {
+    public void displayInVisualPlayer(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(
-                buildUrlIfNotPreviouslyMissing(urn, imageSize),
+                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 imageAware,
                 ImageOptionsFactory.placeholder(getPlaceholderDrawable(urn, imageAware)));
     }
 
-    public void displayInPlayerView(Urn urn, ImageSize imageSize, ImageView imageView, View parentView,
+    public void displayInPlayerView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, View parentView,
                                     boolean priority, ImageListener imageListener) {
         imageLoader.displayImage(
-                buildUrlIfNotPreviouslyMissing(urn, imageSize),
+                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 new ImageViewAware(imageView, false),
                 ImageOptionsFactory.player(parentView, priority), new ImageListenerUILAdapter(imageListener));
     }
 
-    public void displayInFullDialogView(Urn urn, ImageSize imageSize, ImageView imageView, ImageListener imageListener) {
+    public void displayInFullDialogView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, ImageListener imageListener) {
         imageLoader.displayImage(
-                buildUrlIfNotPreviouslyMissing(urn, imageSize),
+                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 new ImageViewAware(imageView, false),
                 ImageOptionsFactory.fullImageDialog(),
                 new ImageListenerUILAdapter(imageListener));
     }
 
-    public void load(Urn urn, ImageSize imageSize, ImageListener imageListener) {
+    public void load(Urn urn, ApiImageSize apiImageSize, ImageListener imageListener) {
         imageLoader.loadImage(
-                buildUrlIfNotPreviouslyMissing(urn, imageSize),
+                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 new ImageListenerUILAdapter(imageListener));
     }
 
@@ -179,11 +179,11 @@ public class ImageOperations {
         imageLoader.loadImage(adjustUrl(imageUrl), ImageOptionsFactory.prefetch(), null);
     }
 
-    public Observable<Bitmap> image(final Urn resourceUrn, final ImageSize imageSize, final boolean emitCopy) {
+    public Observable<Bitmap> image(final Urn resourceUrn, final ApiImageSize apiImageSize, final boolean emitCopy) {
         return Observable.create(new Observable.OnSubscribe<Bitmap>() {
             @Override
             public void call(Subscriber<? super Bitmap> subscriber) {
-                load(resourceUrn, imageSize, viewlessLoadingAdapterFactory.create(subscriber, emitCopy));
+                load(resourceUrn, apiImageSize, viewlessLoadingAdapterFactory.create(subscriber, emitCopy));
             }
         });
     }
@@ -240,8 +240,8 @@ public class ImageOperations {
     }
 
     @Nullable
-    private String buildUrlIfNotPreviouslyMissing(Urn urn, ImageSize imageSize) {
-        final String imageUrl = imageEndpointBuilder.imageUrl(urn, imageSize);
+    private String buildUrlIfNotPreviouslyMissing(Urn urn, ApiImageSize apiImageSize) {
+        final String imageUrl = imageEndpointBuilder.imageUrl(urn, apiImageSize);
         return notFoundUris.contains(imageUrl) ? null : imageUrl;
     }
 }

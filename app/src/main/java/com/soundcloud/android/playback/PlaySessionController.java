@@ -7,8 +7,8 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -129,7 +129,7 @@ public class PlaySessionController {
     private void updateRemoteAudioManager() {
         if (audioManager.isTrackChangeSupported()) {
             audioManager.onTrackChanged(currentPlayQueueTrack, null); // set initial data without bitmap so it doesn't have to wait
-            currentTrackSubscription = imageOperations.image(currentPlayQueueTrack.getUrn(), ImageSize.getFullImageSize(resources), true)
+            currentTrackSubscription = imageOperations.image(currentPlayQueueTrack.getUrn(), ApiImageSize.getFullImageSize(resources), true)
                     .subscribe(new DefaultSubscriber<Bitmap>() {
                         @Override
                         public void onNext(Bitmap bitmap) {
