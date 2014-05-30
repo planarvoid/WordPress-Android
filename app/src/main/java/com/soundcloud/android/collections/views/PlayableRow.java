@@ -84,6 +84,13 @@ public class PlayableRow extends IconLayout implements ListRow {
 
     @Override
     public CharSequence getContentDescription() {
+        if (playableHolder != null) {
+            return getPlayableDescription();
+        }
+        return getResources().getString(R.string.no_info_available);
+    }
+
+    private CharSequence getPlayableDescription() {
         Playable playable = playableHolder.getPlayable();
 
         StringBuilder builder = new StringBuilder();
