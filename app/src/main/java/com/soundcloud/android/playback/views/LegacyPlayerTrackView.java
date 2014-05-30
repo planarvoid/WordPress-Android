@@ -11,7 +11,7 @@ import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.associations.SoundAssociationOperations;
-import com.soundcloud.android.image.ImageSize;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -97,7 +97,7 @@ public class LegacyPlayerTrackView extends FrameLayout implements PlayerTrackVie
             });
 
             mPlayablePresenter.setPlayableRowView(this)
-                    .setAvatarView((ImageView) trackInfoBar.findViewById(R.id.icon), ImageSize.getListItemImageSize(context))
+                    .setAvatarView((ImageView) trackInfoBar.findViewById(R.id.icon), ApiImageSize.getListItemImageSize(context))
                     .addTextShadowForGrayBg();
         }
     }

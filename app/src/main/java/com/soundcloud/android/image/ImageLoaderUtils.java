@@ -1,7 +1,7 @@
 package com.soundcloud.android.image;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.MemoryCacheUtil;
+import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -31,7 +31,7 @@ public class ImageLoaderUtils {
         if (ScTextUtils.isBlank(listArtworkUrl)) {
             return null;
         } else {
-            return imageLoader.getMemoryCache().get(MemoryCacheUtil.generateKey(
+            return imageLoader.getMemoryCache().get(MemoryCacheUtils.generateKey(
                     listArtworkUrl,
                     new com.nostra13.universalimageloader.core.assist.ImageSize(
                             (int) context.getResources().getDimension(R.dimen.list_icon_width),

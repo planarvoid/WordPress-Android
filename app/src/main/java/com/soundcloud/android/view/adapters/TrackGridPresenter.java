@@ -2,8 +2,8 @@ package com.soundcloud.android.view.adapters;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -57,8 +57,8 @@ public class TrackGridPresenter implements CellPresenter<TrackSummary> {
         final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getStats().getPlaybackCount());
         viewHolder.playcount.setText(playcountWithCommas);
 
-        final ImageSize imageSize = ImageSize.getFullImageSize(itemView.getResources());
-        imageOperations.displayInAdapterView(track.getUrn(), imageSize, viewHolder.imageView);
+        final ApiImageSize apiImageSize = ApiImageSize.getFullImageSize(itemView.getResources());
+        imageOperations.displayInAdapterView(track.getUrn(), apiImageSize, viewHolder.imageView);
     }
 
     @VisibleForTesting

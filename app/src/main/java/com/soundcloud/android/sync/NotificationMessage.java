@@ -4,11 +4,11 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.activities.Activities;
 import com.soundcloud.android.service.sync.NotificationImageDownloader;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -145,7 +145,7 @@ class NotificationMessage {
                                                   final Intent intent,
                                                   final int id,
                                                   final String artworkUri) {
-        final String largeIconUri = ImageSize.formatUriForNotificationLargeIcon(context, artworkUri);
+        final String largeIconUri = ApiImageSize.formatUriForNotificationLargeIcon(context, artworkUri);
         if (!Consts.SdkSwitches.useRichNotifications || !ImageUtils.checkIconShouldLoad(largeIconUri)) {
             showDashboardNotification(context, ticker, intent, title, message, id, null);
         } else {

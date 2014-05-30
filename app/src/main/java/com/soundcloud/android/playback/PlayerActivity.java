@@ -13,7 +13,7 @@ import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.image.ImageSize;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
@@ -148,7 +148,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
         playablePresenter.setTitleView((TextView) findViewById(R.id.playable_title))
                 .setUsernameView((TextView) findViewById(R.id.playable_user))
-                .setAvatarView((ImageView) findViewById(R.id.icon), ImageSize.getListItemImageSize(this))
+                .setAvatarView((ImageView) findViewById(R.id.icon), ApiImageSize.getListItemImageSize(this))
                 .setStatsView((StatsView) findViewById(R.id.stats), false)
                 .setCreatedAtView((TextView) findViewById(R.id.playable_created_at))
                 .setPrivacyIndicatorView((TextView) findViewById(R.id.playable_private_indicator));

@@ -3,7 +3,7 @@ package com.soundcloud.android.associations;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
-import com.soundcloud.android.image.ImageSize;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.activities.Activity;
@@ -37,7 +37,7 @@ public abstract class PlayableInteractionActivity extends ScActivity {
 
         new PlayablePresenter(this)
                 .setPlayableRowView(findViewById(R.id.playable_bar))
-                .setArtwork((ImageView) findViewById(R.id.icon), ImageSize.getListItemImageSize(this))
+                .setArtwork((ImageView) findViewById(R.id.icon), ApiImageSize.getListItemImageSize(this))
                 .setPlayable(playable);
 
 

@@ -5,8 +5,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.image.PlayerArtworkLoadListener;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
@@ -165,7 +165,7 @@ public class ArtworkTrackView extends LegacyPlayerTrackView {
         if (track == null || ActivityManager.isUserAMonkey()) return;
 
         showDefaultArtwork(); // during load
-        mImageOperations.displayInPlayerView(track.getUrn(), ImageSize.getFullImageSize(getResources()),
+        mImageOperations.displayInPlayerView(track.getUrn(), ApiImageSize.getFullImageSize(getResources()),
                 mArtwork, mArtworkHolder, priority,
                 new PlayerArtworkLoadListener(this, track));
     }

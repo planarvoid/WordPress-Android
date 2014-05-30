@@ -2,8 +2,8 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.view.JaggedTextView;
 
@@ -11,7 +11,6 @@ import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -94,7 +93,7 @@ class TrackPagePresenter implements View.OnClickListener {
         TrackPageHolder holder = getViewHolder(trackView);
         holder.user.setText(track.getUserName());
         holder.title.setText(track.getTitle());
-        imageOperations.displayInVisualPlayer(track.getUrn(), ImageSize.getFullImageSize(resources), holder.artwork);
+        imageOperations.displayInVisualPlayer(track.getUrn(), ApiImageSize.getFullImageSize(resources), holder.artwork);
         holder.artwork.setProgressProportion(currentProgressProportion);
         holder.artwork.setOnClickListener(this);
         holder.close.setOnClickListener(this);

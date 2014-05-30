@@ -5,8 +5,8 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.PlaylistSummary;
 
 import android.view.View;
@@ -52,8 +52,8 @@ public class PlaylistGridPresenter implements CellPresenter<PlaylistSummary> {
         viewHolder.trackCount.setText(tracksQuantity);
         viewHolder.tagList.setText(formatTags(playlist.getTags()));
 
-        final ImageSize imageSize = ImageSize.getFullImageSize(itemView.getResources());
-        imageOperations.displayInAdapterView(playlist.getUrn(), imageSize, viewHolder.imageView);
+        final ApiImageSize apiImageSize = ApiImageSize.getFullImageSize(itemView.getResources());
+        imageOperations.displayInAdapterView(playlist.getUrn(), apiImageSize, viewHolder.imageView);
     }
 
     private String formatTags(List<String> tags) {

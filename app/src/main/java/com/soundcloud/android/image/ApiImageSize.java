@@ -9,7 +9,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 
-public enum ImageSize {
+public enum ApiImageSize {
     T500("t500x500", 500, 500),
     CROP("crop", 400, 400),
     T300("t300x300", 300, 300),
@@ -26,14 +26,14 @@ public enum ImageSize {
     public final int height;
     public final String sizeSpec;
 
-    ImageSize(String sizeSpec, int width, int height) {
+    ApiImageSize(String sizeSpec, int width, int height) {
         this.sizeSpec = sizeSpec;
         this.width = width;
         this.height = height;
     }
 
-    public static ImageSize fromString(String s) {
-        for (ImageSize gs : values()) {
+    public static ApiImageSize fromString(String s) {
+        for (ApiImageSize gs : values()) {
             if (gs.sizeSpec.equalsIgnoreCase(s)) return gs;
         }
         return Unknown;
@@ -43,14 +43,14 @@ public enum ImageSize {
         return getListItemImageSize(c).formatUri(uri);
     }
 
-    public static ImageSize getListItemImageSize(Context c) {
+    public static ApiImageSize getListItemImageSize(Context c) {
         if (ImageUtils.isScreenXL(c)) {
-            return ImageSize.LARGE;
+            return ApiImageSize.LARGE;
         } else {
             if (c.getResources().getDisplayMetrics().density > 1) {
-                return ImageSize.LARGE;
+                return ApiImageSize.LARGE;
             } else {
-                return ImageSize.BADGE;
+                return ApiImageSize.BADGE;
             }
         }
     }
@@ -59,39 +59,39 @@ public enum ImageSize {
         return getNotificationLargeIconImageSize(c.getResources().getDisplayMetrics()).formatUri(uri);
     }
 
-    private static ImageSize getNotificationLargeIconImageSize(DisplayMetrics metrics) {
+    private static ApiImageSize getNotificationLargeIconImageSize(DisplayMetrics metrics) {
         if (metrics.density > 2) {
-            return ImageSize.T300;
+            return ApiImageSize.T300;
         } else {
-            return ImageSize.LARGE;
+            return ApiImageSize.LARGE;
         }
     }
 
-    public static ImageSize getSearchSuggestionsListItemImageSize(Context c) {
+    public static ApiImageSize getSearchSuggestionsListItemImageSize(Context c) {
         if (ImageUtils.isScreenXL(c)) {
-            return ImageSize.T67;
+            return ApiImageSize.T67;
         } else {
             if (c.getResources().getDisplayMetrics().density > 1) {
-                return ImageSize.BADGE;
+                return ApiImageSize.BADGE;
             } else {
-                return ImageSize.SMALL;
+                return ApiImageSize.SMALL;
             }
         }
     }
 
-    public static ImageSize getFullImageSize(Resources resources) {
-        ImageSize imageSize = ImageSize.fromString(resources.getString(R.string.full_image_size));
-        if (imageSize != Unknown){
-            return imageSize;
+    public static ApiImageSize getFullImageSize(Resources resources) {
+        ApiImageSize apiImageSize = ApiImageSize.fromString(resources.getString(R.string.full_image_size));
+        if (apiImageSize != Unknown){
+            return apiImageSize;
         } else {
-            return ImageSize.T500;
+            return ApiImageSize.T500;
         }
 
     }
 
     public String formatUri(String uri) {
         if (TextUtils.isEmpty(uri)) return null;
-        for (ImageSize size : ImageSize.values()) {
+        for (ApiImageSize size : ApiImageSize.values()) {
             if (uri.contains("-" + size.sizeSpec) && this != size) {
                 return uri.replace("-" + size.sizeSpec, "-" + sizeSpec);
             }
@@ -108,9 +108,9 @@ public enum ImageSize {
         return uri;
     }
 
-    public static ImageSize getMinimumSizeFor(int width, int height, boolean fillDimensions) {
-        ImageSize valid = null;
-        for (ImageSize gs : values()) {
+    public static ApiImageSize getMinimumSizeFor(int width, int height, boolean fillDimensions) {
+        ApiImageSize valid = null;
+        for (ApiImageSize gs : values()) {
             if (fillDimensions){
                 if (gs.width >= width && gs.height >= height) {
                     valid = gs;

@@ -17,8 +17,8 @@ class ImageEndpointBuilder {
         this.httpProperties = httpProperties;
     }
 
-    String imageUrl(Urn urn, ImageSize imageSize) {
+    String imageUrl(Urn urn, ApiImageSize apiImageSize) {
         final String baseUrl = httpProperties.getApiMobileBaseUriPath();
-        return String.format(Locale.US, IMAGE_URL_FORMAT, baseUrl, urn, imageSize.sizeSpec);
+        return String.format(Locale.US, IMAGE_URL_FORMAT, baseUrl, urn, apiImageSize.sizeSpec);
     }
 }

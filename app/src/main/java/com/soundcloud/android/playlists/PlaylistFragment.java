@@ -9,9 +9,9 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.EngagementsController;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.PlaylistUrn;
 import com.soundcloud.android.model.Track;
@@ -258,7 +258,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         playablePresenter.setTitleView((TextView) detailsView.findViewById(R.id.title))
                 .setUsernameView((TextView) detailsView.findViewById(R.id.username))
                 .setArtwork((ImageView) detailsView.findViewById(R.id.artwork),
-                        ImageSize.getFullImageSize(getActivity().getResources()));
+                        ApiImageSize.getFullImageSize(getActivity().getResources()));
 
         engagementsController.bindView(detailsView, new OriginProvider() {
             @Override

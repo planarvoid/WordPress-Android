@@ -1,7 +1,7 @@
 package com.soundcloud.android.image;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.views.ArtworkTrackView;
 
