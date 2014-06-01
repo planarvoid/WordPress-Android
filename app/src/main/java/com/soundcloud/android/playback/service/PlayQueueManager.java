@@ -28,6 +28,9 @@ import javax.inject.Singleton;
 @Singleton
 public class PlayQueueManager implements Observer<RelatedTracksCollection>, OriginProvider {
 
+    public static final String PLAYQUEUE_CHANGED_ACTION = "com.soundcloud.android.playlistchanged";
+    public static final String RELATED_LOAD_STATE_CHANGED_ACTION = "com.soundcloud.android.related.changed";
+
     private final Context context;
 
     private final ScModelManager modelManager;
@@ -246,14 +249,14 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
 
     private void setNewRelatedLoadingState(PlaybackOperations.AppendState appendState) {
         this.appendState = appendState;
-        final Intent intent = new Intent(PlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED)
+        final Intent intent = new Intent(RELATED_LOAD_STATE_CHANGED_ACTION)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(appendState));
         context.sendBroadcast(intent);
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
     }
 
     private void broadcastPlayQueueChanged() {
-        Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED)
+        Intent intent = new Intent(PLAYQUEUE_CHANGED_ACTION)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(appendState));
         context.sendBroadcast(intent);
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());

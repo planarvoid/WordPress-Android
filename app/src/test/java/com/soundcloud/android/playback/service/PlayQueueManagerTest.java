@@ -518,13 +518,13 @@ public class PlayQueueManagerTest {
     private void expectBroadcastPlayqueueChanged() {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).sendBroadcast(captor.capture());
-        expect(captor.getValue().getAction()).toEqual(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+        expect(captor.getValue().getAction()).toEqual(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION);
     }
 
     private void expectBroadcastRelatedLoadChanges() {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).sendBroadcast(captor.capture());
-        expect(captor.getValue().getAction()).toEqual(PlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED);
+        expect(captor.getValue().getAction()).toEqual(PlayQueueManager.RELATED_LOAD_STATE_CHANGED_ACTION);
     }
 
     @Module(library = true, injects = PlayQueueManagerTest.class)

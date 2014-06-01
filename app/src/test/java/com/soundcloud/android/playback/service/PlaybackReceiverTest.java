@@ -21,7 +21,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
-import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.media.AudioManager;
 
@@ -73,16 +72,6 @@ public class PlaybackReceiverTest {
     }
 
     @Test
-    public void updateAppWidgetProviderActionShouldCallUpdateOnAppWidgetProviderWithPlaystateChangedAction() {
-        Intent intent = new Intent(PlaybackService.Broadcasts.UPDATE_WIDGET_ACTION);
-        final int[] ids = {1, 2, 3};
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
-
-        playbackReceiver.onReceive(Robolectric.application, intent);
-        verify(playbackService).notifyChange(PlaybackService.Broadcasts.PLAYSTATE_CHANGED);
-    }
-
-    @Test
     public void shouldCallPauseOnServiceOnAudioBecomingNoisyAction() {
         Intent intent = new Intent(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
 
@@ -119,7 +108,7 @@ public class PlaybackReceiverTest {
     @Test
     public void shouldOpenCurrentIfPlayQueueChangedFromEmptyPlaylist() {
         when(playbackService.isWaitingForPlaylist()).thenReturn(true);
-        Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+        Intent intent = new Intent(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService, never()).stop();
     }
@@ -127,7 +116,7 @@ public class PlaybackReceiverTest {
     @Test
     public void shouldNotInteractWithThePlayBackServiceIfNoAccountExists() {
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
-        Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+        Intent intent = new Intent(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verifyZeroInteractions(playbackService);
     }
@@ -135,7 +124,7 @@ public class PlaybackReceiverTest {
     @Test
     public void shouldNotInteractWithThePlayqueueManagerIfNoAccountExists() {
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
-        Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+        Intent intent = new Intent(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verifyZeroInteractions(playQueue);
     }

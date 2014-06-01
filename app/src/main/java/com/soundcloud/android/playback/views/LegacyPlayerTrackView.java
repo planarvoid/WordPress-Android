@@ -306,9 +306,6 @@ public class LegacyPlayerTrackView extends FrameLayout implements PlayerTrackVie
             if (track.getId() == intent.getLongExtra(BroadcastExtras.ID, -1)) {
                 onCommentsChanged();
             }
-
-        } else if (Broadcasts.COMMENTS_LOADED.equals(action)) {
-            waveformController.setComments(track.comments, true);
         }
     }
 

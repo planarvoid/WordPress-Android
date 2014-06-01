@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.playback.service.PlaybackService.Actions;
-import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
@@ -53,12 +52,9 @@ class PlaybackReceiver extends BroadcastReceiver {
                 playbackService.play();
             } else if (Actions.PAUSE_ACTION.equals(action)) {
                 playbackService.pause();
-            } else if (Broadcasts.UPDATE_WIDGET_ACTION.equals(action)) {
-                // a widget was just added. Fake a playstate changed so it gets updated
-                playbackService.notifyChange(Broadcasts.PLAYSTATE_CHANGED);
             } else if (Actions.RETRY_RELATED_TRACKS.equals(action)) {
                 playQueueManager.retryRelatedTracksFetch();
-            } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
+            } else if (PlayQueueManager.PLAYQUEUE_CHANGED_ACTION.equals(action)) {
                 if (playbackService.isWaitingForPlaylist()) {
                     playbackService.openCurrent();
                 }

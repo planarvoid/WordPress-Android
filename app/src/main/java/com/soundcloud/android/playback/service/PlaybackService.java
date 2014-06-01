@@ -64,13 +64,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     // broadcast notifications
     public interface Broadcasts {
-        String UPDATE_WIDGET_ACTION     = "com.soundcloud.android.playback.updatewidgetaction";
         String PLAYSTATE_CHANGED        = "com.soundcloud.android.playstatechanged";
+        @Deprecated
         String META_CHANGED             = "com.soundcloud.android.metachanged";
-        String RELATED_LOAD_STATE_CHANGED = "com.soundcloud.android.related.changed";
-        String PLAYQUEUE_CHANGED        = "com.soundcloud.android.playlistchanged";
-        String COMMENTS_LOADED          = "com.soundcloud.android.commentsloaded";
-        String RESET_ALL                = "com.soundcloud.android.resetAll";
     }
 
     private static final int PLAYBACKSERVICE_STATUS_ID = 1;
@@ -184,7 +180,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         playbackFilter.addAction(Actions.PAUSE_ACTION);
         playbackFilter.addAction(Actions.RESET_ALL);
         playbackFilter.addAction(Actions.STOP_ACTION);
-        playbackFilter.addAction(Broadcasts.PLAYQUEUE_CHANGED);
+        playbackFilter.addAction(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION);
         playbackFilter.addAction(Actions.RELOAD_QUEUE);
         playbackFilter.addAction(Actions.RETRY_RELATED_TRACKS);
         playbackFilter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);

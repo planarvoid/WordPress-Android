@@ -123,7 +123,7 @@ public class PlaybackServiceTest {
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForPlayQueueChangedAction() throws Exception {
         playbackService.onCreate();
-        expect(getReceiversForAction(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED)).toContain(playbackReceiver);
+        expect(getReceiversForAction(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION)).toContain(playbackReceiver);
     }
 
     @Test

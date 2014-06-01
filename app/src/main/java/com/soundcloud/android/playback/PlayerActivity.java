@@ -373,11 +373,10 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
         bindService(new Intent(this, PlaybackService.class), osc, 0);
         IntentFilter f = new IntentFilter();
-        f.addAction(Broadcasts.PLAYQUEUE_CHANGED);
-        f.addAction(Broadcasts.RELATED_LOAD_STATE_CHANGED);
+        f.addAction(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION);
+        f.addAction(PlayQueueManager.RELATED_LOAD_STATE_CHANGED_ACTION);
         f.addAction(Broadcasts.PLAYSTATE_CHANGED);
         f.addAction(Broadcasts.META_CHANGED);
-        f.addAction(Broadcasts.COMMENTS_LOADED);
         f.addAction(Playable.COMMENT_ADDED);
         f.addAction(Playable.COMMENTS_UPDATED);
         f.addAction(Comment.ACTION_CREATE_COMMENT);
@@ -599,7 +598,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     /**
      * Gets a playQueue based on either the playqueue in the starting intent or from the service.
      * The decision is based on whether the intent playqueue exists and whether the service has loaded that playqueue
-     * already. If not, we show the temporary playqueue and wait for  {@link com.soundcloud.android.playback.service.PlaybackService.Broadcasts#PLAYQUEUE_CHANGED}
+     * already. If not, we show the temporary playqueue and wait for  {@link com.soundcloud.android.playback.service.PlayQueueManager#PLAYQUEUE_CHANGED_ACTION}
      */
     private PlayQueueView getInitialPlayQueue(boolean isFirstLoad) {
         final PlayQueueView intentPlayQueue = isFirstLoad ? getPlayQueueFromIntent(getIntent()) : PlayQueueView.EMPTY;
@@ -621,7 +620,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         public void onReceive(Context context, Intent intent) {
             final int queuePos = intent.getIntExtra(PlaybackService.BroadcastExtras.QUEUE_POSITION, -1);
             String action = intent.getAction();
-            if (action.equals(Broadcasts.PLAYQUEUE_CHANGED)) {
+            if (action.equals(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION)) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
                 playQueue = intent.getParcelableExtra(PlayQueueView.EXTRA);
                 if (playQueue.isEmpty()){
@@ -633,7 +632,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             } else if (action.equals(Broadcasts.META_CHANGED)) {
                 playQueue.setPosition(queuePos);
                 onMetaChanged();
-            } else if (action.equals(Broadcasts.RELATED_LOAD_STATE_CHANGED)) {
+            } else if (action.equals(PlayQueueManager.RELATED_LOAD_STATE_CHANGED_ACTION)) {
                 if (playQueue != PlayQueueView.EMPTY){
 
                     playQueue = intent.getParcelableExtra(PlayQueueView.EXTRA);
