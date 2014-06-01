@@ -29,7 +29,7 @@ public class MyProfileTest extends ActivityTestCase<MainActivity> {
     }
 
     public void ignoreLocationIsShown() {
-        assertEquals("Testville, United States", profileScreen.location());
+        assertEquals("Testville, United States", profileScreen.getLocation());
     }
 
 }

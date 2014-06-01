@@ -1,16 +1,23 @@
 package com.soundcloud.android.tests;
 
+import static com.google.common.collect.Collections2.filter;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import com.robotium.solo.By;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.R.id;
 import com.soundcloud.android.main.NavigationDrawerFragment;
+import com.soundcloud.android.screens.elements.ViewElement;
 import junit.framework.AssertionFailedError;
 
 import android.app.Activity;
@@ -51,6 +58,59 @@ public class Han  {
     @SuppressWarnings("UnusedDeclaration")
     public Han(Instrumentation instrumentation) {
         solo = new Solo(instrumentation);
+    }
+
+    public ViewElement findElement(int id){
+        ArrayList<ViewElement> foundElements = findElements(id);
+        if (foundElements.isEmpty()){
+            return new ViewElement(this);
+        }
+        return firstVisible(foundElements);
+    }
+
+    private ViewElement firstVisible(ArrayList<ViewElement> foundElements) {
+        for(ViewElement v : foundElements) {
+            if (v.isVisible()){ return v;}
+        }
+        return null;
+    }
+
+    public ViewElement findElement(Class<? extends View> viewClass) {
+        View view = null;
+        try {
+            view = solo.getView(viewClass, 0);
+        } catch (AssertionFailedError ignored) {
+
+        }
+        return new ViewElement(view, this);
+    }
+
+    private List<ViewElement> findAllElements() {
+        final Han that = this;
+        return Lists.transform(solo.getViews(), new Function<View, ViewElement>() {
+            @Override
+            public ViewElement apply(View view) {
+                return new ViewElement(view, that);
+            }
+        });
+    }
+
+    private List<ViewElement> findVisibleElements() {
+        return Lists.newArrayList(filter(findAllElements(), new Predicate<ViewElement>() {
+            public boolean apply(ViewElement viewElement) {
+                return viewElement.isVisible();
+            }
+        }));
+
+    }
+    public ArrayList<ViewElement> findElements(int id) {
+        ArrayList<ViewElement> foundViews = new ArrayList<ViewElement>();
+        for(ViewElement view : findVisibleElements()) {
+            if(view.getId() == id) {
+                foundViews.add(view);
+            }
+        }
+        return foundViews;
     }
 
     public void clickOnOK() {

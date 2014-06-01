@@ -2,6 +2,7 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.screens.elements.ViewElement;
 import com.soundcloud.android.tests.Han;
 
 import android.view.View;
@@ -12,39 +13,46 @@ public class ProfileScreen extends Screen {
 
     public ProfileScreen(Han solo) {
         super(solo);
-        waiter.waitForElement(followButton());
     }
 
-    private View followButton() {
-        return solo.getView(R.id.toggle_btn_follow);
+    private ViewElement followButton() {
+        return solo.findElement(R.id.toggle_btn_follow);
     }
+
+    private ViewElement userName() {
+        return solo.findElement(R.id.username);
+    }
+
+    private ViewElement location() {
+        return solo.findElement(R.id.location);
+    }
+
+    private ViewElement followersMessage(){
+        return solo.findElement(R.id.followers_message);
+    }
+
     @Override
     protected Class getActivity() {
         return ACTIVITY;
     }
 
-    public String userName() {
-        return getTextById(R.id.username);
+    public String getUserName() {
+        return userName().getText();
     }
 
-    public String location() {
-        return getTextById(R.id.location);
+    public String getLocation() {
+        return location().getText();
     }
 
-    public String followingMessage() {
-        return getTextById(R.id.followers_message);
+    public String getFollowersMessage() {
+        return followersMessage().getText();
     }
 
     public void clickFollowToggle() {
-        solo.clickOnView(R.id.toggle_btn_follow);
+        followButton().click();
     }
 
     public boolean isFollowButtonVisible() {
-        return followButton().getVisibility() == View.VISIBLE;
-    }
-
-    private String getTextById(int id) {
-        TextView location = (TextView) solo.getView(id);
-        return location.getText().toString();
+        return followButton().isVisible();
     }
 }

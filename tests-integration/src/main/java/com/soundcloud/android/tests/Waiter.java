@@ -5,6 +5,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.NavigationDrawerFragment;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
+import com.soundcloud.android.screens.elements.ViewElement;
 import com.soundcloud.android.utils.Log;
 
 import android.content.Context;
@@ -37,7 +38,7 @@ public class Waiter {
         return solo.waitForCondition(new NoTextCondition(text), this.NETWORK_TIMEOUT);
     }
 
-    public ExpectedConditions expect(View view) {
+    public ExpectedConditions expect(ViewElement view) {
         return new ExpectedConditions(this, view);
     }
 

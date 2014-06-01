@@ -38,7 +38,7 @@ public class DrawerTest extends ActivityTestCase<LauncherActivity> {
     public void testDrawerProfileButtonOpensProfile() {
         menuScreen.open();
         ProfileScreen profileScreen = menuScreen.clickProfile();
-        assertEquals("Should go to user profile", "android-testing", profileScreen.userName());
+        assertEquals("Should go to user profile", "android-testing", profileScreen.getUserName());
     }
 
     public void testDrawerOpenExplore() {

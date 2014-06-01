@@ -19,13 +19,13 @@ public class ResolveSoundUriTest extends ResolveBaseTest {
         playerScreen = new LegacyPlayerScreen(solo);
         playerScreen.stopPlayback();
 
-        waiter.expect(playerScreen.trackTitleElement())
+        waiter.expect(playerScreen.trackTitle())
                 .toHaveText(TRACK_NAME);
 
         // make sure recommendations load
         playerScreen.swipeLeft();
         solo.sleep(1000);
-        assertThat(TRACK_NAME, is(not(equalTo(playerScreen.trackTitle()))));
+        assertThat(TRACK_NAME, is(not(equalTo(playerScreen.getTrackTitle()))));
     }
 
     @Override
