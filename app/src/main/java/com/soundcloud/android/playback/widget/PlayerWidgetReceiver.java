@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.widget;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.playback.service.PlaybackService;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -19,9 +18,9 @@ public class PlayerWidgetReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (PlaybackService.Actions.WIDGET_LIKE_CHANGED.equals(intent.getAction())) {
+        if (PlayerWidgetController.ACTION_LIKE_CHANGED.equals(intent.getAction())) {
             SoundCloudApplication.getObjectGraph().inject(this);
-            boolean isLiked = intent.getBooleanExtra(PlaybackService.BroadcastExtras.IS_LIKE, false);
+            boolean isLiked = intent.getBooleanExtra(PlayerWidgetController.EXTRA_IS_LIKE, false);
             controller.handleToggleLikeAction(isLiked);
         }
     }

@@ -13,6 +13,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
+import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -59,7 +60,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         String STOP_ACTION              = "com.soundcloud.android.playback.stop"; // from the notification
         String RELOAD_QUEUE             = "com.soundcloud.android.reloadqueue";
         String RETRY_RELATED_TRACKS     = "com.soundcloud.android.retryRelatedTracks";
-        String WIDGET_LIKE_CHANGED      = "com.soundcloud.android.widgetLike";
     }
 
     // broadcast notifications
@@ -126,20 +126,11 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private Subscription streamableTrackSubscription = Subscriptions.empty();
     private Subscription loadTrackSubscription = Subscriptions.empty();
 
-    public interface PlayExtras{
-        String TRACK = Track.EXTRA;
-        String TRACK_ID = Track.EXTRA_ID;
-    }
-
     public interface BroadcastExtras{
         String ID = "id";
-        String TITLE = "title";
         String USER_ID = "user_id";
-        String USERNAME = "username";
-        String POSITION = "position";
+        String PROGRESS_POSITION = "progress_position";
         String QUEUE_POSITION = "queuePosition";
-        String IS_LIKE = "isLike";
-        String IS_REPOST = "isRepost";
     }
 
     public PlaybackService() {
@@ -346,16 +337,11 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         Log.d(TAG, "notifyChange(" + what + ", " + stateTransition.getNewState() + ")");
         Intent intent = new Intent(what)
             .putExtra(BroadcastExtras.ID, getTrackId())
-            .putExtra(BroadcastExtras.TITLE, getTrackName())
             .putExtra(BroadcastExtras.USER_ID, getTrackUserId())
-            .putExtra(BroadcastExtras.USERNAME, getUserName())
-            .putExtra(BroadcastExtras.POSITION, getProgress())
-            .putExtra(BroadcastExtras.QUEUE_POSITION, getPlayQueueInternal().getPosition())
-            .putExtra(BroadcastExtras.IS_LIKE, getIsLike())
-            .putExtra(BroadcastExtras.IS_REPOST, getIsRepost());
+            .putExtra(BroadcastExtras.PROGRESS_POSITION, getProgress())
+            .putExtra(BroadcastExtras.QUEUE_POSITION, getPlayQueueInternal().getPosition());
 
         stateTransition.addToIntent(intent);
-
         sendBroadcast(intent);
 
         if (what.equals(Broadcasts.PLAYSTATE_CHANGED) &&
@@ -599,14 +585,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         return playQueueManager.getCurrentPlayQueue();
     }
 
-    private long getCurrentUserId() {
-        return accountOperations.getLoggedInUserId();
-    }
-
-    private String getUserName() {
-        return currentTrack != null ? currentTrack.getUserName() : null;
-    }
-
     private long getTrackUserId() {
         return currentTrack != null ? currentTrack.user_id : -1;
     }
@@ -618,19 +596,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     long getTrackId() {
         return currentTrack == null ? -1 : currentTrack.getId();
     }
-
-    private String getTrackName() {
-        return currentTrack == null ? null : currentTrack.title;
-    }
-
-    private boolean getIsLike() {
-        return currentTrack != null && currentTrack.user_like;
-    }
-
-    private boolean getIsRepost() {
-        return currentTrack != null && currentTrack.user_repost;
-    }
-
 
     private static final class DelayedStopHandler extends Handler {
         private WeakReference<PlaybackService> serviceRef;

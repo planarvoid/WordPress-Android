@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.playback.external.PlaybackAction;
-import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.views.PlaybackRemoteViews;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -53,8 +52,8 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
             setOnClickPendingIntent(R.id.user_txt, PendingIntent.getActivity(context,
                     PENDING_INTENT_REQUEST_CODE, browser, PendingIntent.FLAG_UPDATE_CURRENT));
 
-            final Intent toggleLike = new Intent(PlaybackService.Actions.WIDGET_LIKE_CHANGED);
-            toggleLike.putExtra(PlaybackService.BroadcastExtras.IS_LIKE, userLike);
+            final Intent toggleLike = new Intent(PlayerWidgetController.ACTION_LIKE_CHANGED);
+            toggleLike.putExtra(PlayerWidgetController.EXTRA_IS_LIKE, userLike);
 
             // toggle like
             setOnClickPendingIntent(R.id.btn_like, PendingIntent.getBroadcast(context,

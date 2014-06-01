@@ -282,7 +282,7 @@ public class LegacyPlayerTrackView extends FrameLayout implements PlayerTrackVie
                 hideUnplayable();
                 track.last_playback_error = -1;
             } else {
-                waveformController.setPlaybackStatus(false, intent.getLongExtra(BroadcastExtras.POSITION, 0));
+                waveformController.setPlaybackStatus(false, intent.getLongExtra(BroadcastExtras.PROGRESS_POSITION, 0));
 
                 if (stateTransition.wasError()){
                     // I realize how horrible it is to store error state on the model.
@@ -312,7 +312,7 @@ public class LegacyPlayerTrackView extends FrameLayout implements PlayerTrackVie
     private void onUnplayable(Intent intent) {
         waveformController.setBufferingState(false);
         waveformController.setPlaybackStatus(Playa.StateTransition.fromIntent(intent).getNewState().isPlayerPlaying(),
-                intent.getLongExtra(BroadcastExtras.POSITION, 0));
+                intent.getLongExtra(BroadcastExtras.PROGRESS_POSITION, 0));
 
         showUnplayable();
     }

@@ -28,6 +28,9 @@ import javax.inject.Singleton;
 @Singleton
 public class PlayerWidgetController {
 
+    public static final String ACTION_LIKE_CHANGED = "com.soundcloud.android.widgetLike";
+    public static final String EXTRA_IS_LIKE = "isLike";
+
     private final Context context;
     private final PlayerWidgetPresenter presenter;
     private final PlaySessionController playSessionController;
