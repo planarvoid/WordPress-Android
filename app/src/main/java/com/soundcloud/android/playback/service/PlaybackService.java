@@ -13,7 +13,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
-import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -58,7 +57,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         String PAUSE_ACTION             = "com.soundcloud.android.playback.pause";
         String RESET_ALL                = "com.soundcloud.android.playback.reset"; // used on logout
         String STOP_ACTION              = "com.soundcloud.android.playback.stop"; // from the notification
-        String RELOAD_QUEUE             = "com.soundcloud.android.reloadqueue";
         String RETRY_RELATED_TRACKS     = "com.soundcloud.android.retryRelatedTracks";
     }
 
@@ -172,7 +170,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         playbackFilter.addAction(Actions.RESET_ALL);
         playbackFilter.addAction(Actions.STOP_ACTION);
         playbackFilter.addAction(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION);
-        playbackFilter.addAction(Actions.RELOAD_QUEUE);
         playbackFilter.addAction(Actions.RETRY_RELATED_TRACKS);
         playbackFilter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
         registerReceiver(playbackReceiver, playbackFilter);

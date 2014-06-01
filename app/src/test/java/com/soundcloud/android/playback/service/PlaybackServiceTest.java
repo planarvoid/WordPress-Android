@@ -115,12 +115,6 @@ public class PlaybackServiceTest {
     }
 
     @Test
-    public void onCreateRegistersPlaybackReceiverToListenForReloadQueueAction() throws Exception {
-        playbackService.onCreate();
-        expect(getReceiversForAction(PlaybackService.Actions.RELOAD_QUEUE)).toContain(playbackReceiver);
-    }
-
-    @Test
     public void onCreateRegistersPlaybackReceiverToListenForPlayQueueChangedAction() throws Exception {
         playbackService.onCreate();
         expect(getReceiversForAction(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION)).toContain(playbackReceiver);
