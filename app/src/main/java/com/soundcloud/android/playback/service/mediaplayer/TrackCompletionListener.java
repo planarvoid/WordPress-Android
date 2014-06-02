@@ -23,12 +23,13 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
 
         // Check for a premature track completion that we should auto-retry
         final long lastPosition = getTargetStopPosition(mediaPlayer);
+        final int duration = mediaPlayer.getDuration();
 
-        if (shouldAutoRetry(lastPosition, mediaPlayer.getDuration())) {
+        if (shouldAutoRetry(lastPosition, duration)) {
             mediaPlayerAdapter.setResumeTimeAndInvokeErrorListener(mediaPlayer, lastPosition);
 
             Log.w(PlaybackService.TAG, "premature end of track [lastPosition = " + lastPosition
-                    + ", duration = " + mediaPlayer.getDuration() + ", diff = "+ (mediaPlayer.getDuration() - lastPosition) + "]");
+                    + ", duration = " + duration + ", diff = "+ (duration - lastPosition) + "]");
 
         } else if (mediaPlayerAdapter.isInErrorState()) {
             // onComplete must have been called in error state
