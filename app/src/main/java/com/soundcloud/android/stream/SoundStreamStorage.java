@@ -92,7 +92,7 @@ class SoundStreamStorage extends ScheduledOperations {
             propertySet.add(PlayableProperty.TITLE, cursor.getString(SoundView.TITLE));
             propertySet.add(PlayableProperty.DURATION, cursor.getInt(SoundView.DURATION));
             propertySet.add(PlayableProperty.CREATOR, cursor.getString(SoundView.USERNAME));
-            propertySet.add(PlayableProperty.REPOSTED_AT, cursor.getDateFromTimestamp(ActivityView.CREATED_AT));
+            propertySet.add(PlayableProperty.CREATED_AT, cursor.getDateFromTimestamp(ActivityView.CREATED_AT));
             addOptionalPlaylistLike(cursor, propertySet);
             addOptionalLikesCount(cursor, propertySet);
             addOptionalPlayCount(cursor, propertySet);

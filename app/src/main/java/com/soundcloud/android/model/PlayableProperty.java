@@ -8,7 +8,7 @@ public final class PlayableProperty {
     public static final Property<Integer> DURATION = Property.of(Integer.class);
     public static final Property<String> CREATOR = Property.of(String.class);
     public static final Property<String> REPOSTER = Property.of(String.class);
-    public static final Property<Date> REPOSTED_AT = Property.of(Date.class);
+    public static final Property<Date> CREATED_AT = Property.of(Date.class);
     public static final Property<Integer> LIKES_COUNT = Property.of(Integer.class);
     public static final Property<Boolean> IS_LIKED = Property.of(Boolean.class);
 }
