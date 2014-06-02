@@ -96,7 +96,7 @@ public class PlaySessionControllerTest {
         final Playa.StateTransition lastTransition = Mockito.mock(Playa.StateTransition.class);
         when(lastTransition.playSessionIsActive()).thenReturn(true);
         monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
-        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
 
         verify(playbackOperations).playCurrent();
     }
@@ -106,7 +106,7 @@ public class PlaySessionControllerTest {
         final Playa.StateTransition lastTransition = Mockito.mock(Playa.StateTransition.class);
         when(lastTransition.playSessionIsActive()).thenReturn(false);
         monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
-        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
 
         verify(playbackOperations, never()).playCurrent();
     }
@@ -114,7 +114,7 @@ public class PlaySessionControllerTest {
     @Test
     public void playQueueChangedHandlerDoesNotSetTrackOnAudioManagerIfTrackChangeNotSupported() {
         when(audioManager.isTrackChangeSupported()).thenReturn(false);
-        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
         verify(audioManager, never()).onTrackChanged(any(Track.class), any(Bitmap.class));
     }
 
@@ -124,7 +124,7 @@ public class PlaySessionControllerTest {
         when(imageOperations.image(TRACK_URN, ApiImageSize.T500, true)).thenReturn(Observable.just(bitmap));
 
         InOrder inOrder = Mockito.inOrder(audioManager);
-        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
         inOrder.verify(audioManager).onTrackChanged(track, null);
         inOrder.verify(audioManager).onTrackChanged(track, bitmap);
     }
@@ -134,13 +134,13 @@ public class PlaySessionControllerTest {
         when(audioManager.isTrackChangeSupported()).thenReturn(true);
         when(imageOperations.image(TRACK_URN, ApiImageSize.T500, true)).thenReturn(Observable.<Bitmap>error(new Exception("Could not load image")));
 
-        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
         verify(audioManager).onTrackChanged(track, null);
     }
 
     @Test
     public void shouldNotRespondToQueueChangesWhenPlayerIsNotPlaying() {
-        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        monitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
 
         verify(playbackOperations, never()).playCurrent();
     }

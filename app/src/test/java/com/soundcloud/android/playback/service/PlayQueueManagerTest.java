@@ -18,6 +18,7 @@ import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -157,6 +158,7 @@ public class PlayQueueManagerTest {
 
         PlayQueueEvent playQueueEvent = eventMonitor.verifyEventOn(EventQueue.PLAY_QUEUE);
         expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.NEW_QUEUE);
+        expect(playQueueEvent.getCurrentTrackUrn()).toEqual(Urn.forTrack(playQueue.getCurrentTrackId()));
     }
 
     @Test

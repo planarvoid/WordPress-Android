@@ -11,6 +11,7 @@ import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -97,14 +98,14 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
         if (position != playQueue.getPosition()
                 && position < playQueue.getItems().size()) {
             playQueue.setPosition(position);
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackId()));
         }
     }
 
     public void previousTrack() {
         if (playQueue.hasPreviousTrack()) {
             playQueue.moveToPrevious();
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackId()));
         }
     }
 
@@ -123,7 +124,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     private boolean nextTrackInternal(boolean manual) {
         if (playQueue.hasNextTrack()) {
             playQueue.moveToNext(manual);
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackId()));
             return true;
         } else {
             return false;
@@ -252,14 +253,14 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
         final Intent intent = new Intent(RELATED_LOAD_STATE_CHANGED_ACTION)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(appendState));
         context.sendBroadcast(intent);
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackId()));
     }
 
     private void broadcastPlayQueueChanged() {
         Intent intent = new Intent(PLAYQUEUE_CHANGED_ACTION)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(appendState));
         context.sendBroadcast(intent);
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(playQueue.getCurrentTrackId()));
     }
 
     private void stopLoadingOperations() {
