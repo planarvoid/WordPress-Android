@@ -121,6 +121,12 @@ public class QueryTest {
     }
 
     @Test
+    public void shouldApplyJoinViaWhereClause() {
+        query.joinOn("x", "y").runOn(database);
+        verify(database).rawQuery("SELECT * FROM table WHERE x = y", new String[]{});
+    }
+
+    @Test
     public void shouldApplySimpleLimitClause() {
         query.limit(10).runOn(database);
         verify(database).rawQuery("SELECT * FROM table LIMIT 10", null);

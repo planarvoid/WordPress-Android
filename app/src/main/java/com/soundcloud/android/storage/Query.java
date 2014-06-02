@@ -113,6 +113,11 @@ public final class Query {
         return this;
     }
 
+    public Query joinOn(String leftColumn, String rightColumn) {
+        where(leftColumn + " = " + rightColumn);
+        return this;
+    }
+
     // Taken from Android's DatabaseUtilsCompat -- for some reason, that method always returned
     // null in unit tests, so copying this here verbatim.
     @Nullable
