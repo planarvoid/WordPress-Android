@@ -19,22 +19,22 @@ import android.widget.RelativeLayout;
 import java.lang.ref.WeakReference;
 
 public class WaveformControllerLayoutLand extends WaveformControllerLayout {
-    private final AccountOperations mAccountOperations;
-    private boolean mShouldShowComments;
-    private CommentPanelLayout mCommentPanel;
+    private final AccountOperations accountOperations;
+    private boolean shouldShowComments;
+    private CommentPanelLayout commentPanel;
 
     private static final String PLAYER_SHOWING_COMMENTS = "playerShowingComments";
     private static final int COMMENT_ANIMATE_DURATION = 500;
     private static final long MAX_AUTO_COMMENT_DISPLAY_TIME = 30000;
 
-    private boolean mWaveformHalf;
-    private boolean mCommentPanelVisible;
+    private boolean waveformHalf;
+    private boolean commentPanelVisible;
 
     public WaveformControllerLayoutLand(Context context, AttributeSet attrs) {
         super(context, attrs);
         setStaticTransformationsEnabled(false);
-        mAccountOperations = SoundCloudApplication.fromContext(context).getAccountOperations();
-        mShouldShowComments = mAccountOperations.getAccountDataBoolean(PLAYER_SHOWING_COMMENTS);
+        accountOperations = SoundCloudApplication.fromContext(context).getAccountOperations();
+        shouldShowComments = accountOperations.getAccountDataBoolean(PLAYER_SHOWING_COMMENTS);
 
     }
 
@@ -59,7 +59,7 @@ public class WaveformControllerLayoutLand extends WaveformControllerLayout {
         }
     };
 
-    private CommentHandler mCommentHandler = new CommentHandler(this);
+    private CommentHandler commentHandler = new CommentHandler(this);
 
     @Override
     protected boolean isLandscape() {
@@ -67,8 +67,8 @@ public class WaveformControllerLayoutLand extends WaveformControllerLayout {
     }
 
     protected void processDownInput(InputObject input) {
-        if (input.view == mPlayerAvatarBar && mode == TOUCH_MODE_NONE) {
-            if (mCurrentComments != null) {
+        if (input.view == playerAvatarBar && mode == TOUCH_MODE_NONE) {
+            if (currentComments != null) {
                 mode = TOUCH_MODE_AVATAR_DRAG;
                 //mCommentBubble.comment_mode = CommentBubble.MODE_SHOW_COMMENT;
                 calcAvatarHit(input.x, true);
@@ -80,48 +80,48 @@ public class WaveformControllerLayoutLand extends WaveformControllerLayout {
 
     private void calcAvatarHit(float xPos, boolean down) {
         Comment skipComment = null;
-        if (mCurrentShowingComment != null) {
-            if (isHitting(mCurrentShowingComment, xPos)) {
+        if (currentShowingComment != null) {
+            if (isHitting(currentShowingComment, xPos)) {
                 if (down)
-                    skipComment = mCurrentShowingComment;
+                    skipComment = currentShowingComment;
                 else
                     return;
             } else {
-                if (mCommentPanel != null && !mCommentPanel.closing) {
-                    mCommentPanel.interacted = false;
-                    mHandler.postDelayed(mAutoCloseComment, 500);
+                if (commentPanel != null && !commentPanel.closing) {
+                    commentPanel.interacted = false;
+                    handler.postDelayed(mAutoCloseComment, 500);
                 }
             }
         }
         Comment c = isHitting(xPos, skipComment);
         if (c != null) {
-            mCurrentShowingComment = c;
-            mShowComment = true;
+            currentShowingComment = c;
+            showComment = true;
             queueCommentUnique(UI_SHOW_CURRENT_COMMENT);
-        } else if (skipComment == null && mCommentPanel != null){
-            mShowComment = false;
+        } else if (skipComment == null && commentPanel != null){
+            showComment = false;
             queueUnique(UI_UPDATE_COMMENT);
         }
     }
 
     private boolean isHitting(Comment c, float xPos){
-        return (c.xPos < xPos && c.xPos + mPlayerAvatarBar.getAvatarWidth() > xPos);
+        return (c.xPos < xPos && c.xPos + playerAvatarBar.getAvatarWidth() > xPos);
     }
 
     private Comment isHitting(float xPos, Comment skipComment) {
-        for (int i = mCurrentTopComments.size() - 1; i >= 0; i--) {
-            if (mCurrentTopComments.get(i).xPos > 0 &&
-                    isHitting(mCurrentTopComments.get(i), xPos) &&
-                    (skipComment == null || skipComment.xPos < mCurrentTopComments.get(i).xPos)) {
-                return mCurrentTopComments.get(i);
-            } else if (mCurrentTopComments.get(i).xPos > xPos)
+        for (int i = currentTopComments.size() - 1; i >= 0; i--) {
+            if (currentTopComments.get(i).xPos > 0 &&
+                    isHitting(currentTopComments.get(i), xPos) &&
+                    (skipComment == null || skipComment.xPos < currentTopComments.get(i).xPos)) {
+                return currentTopComments.get(i);
+            } else if (currentTopComments.get(i).xPos > xPos)
                 break;
         }
         return null;
     }
 
     void queueCommentUnique(int what){
-        if (!mCommentHandler.hasMessages(what)) mCommentHandler.sendEmptyMessage(what);
+        if (!commentHandler.hasMessages(what)) commentHandler.sendEmptyMessage(what);
     }
 
     protected void processMoveInput(InputObject input) {
@@ -134,45 +134,45 @@ public class WaveformControllerLayoutLand extends WaveformControllerLayout {
     }
 
     protected void showCurrentComment(boolean userTriggered) {
-       if (mCurrentShowingComment != null) {
+       if (currentShowingComment != null) {
            cancelAutoCloseComment();
-           mPlayerAvatarBar.setCurrentComment(mCurrentShowingComment);
-           mCommentLines.setCurrentComment(mCurrentShowingComment);
+           playerAvatarBar.setCurrentComment(currentShowingComment);
+           commentLines.setCurrentComment(currentShowingComment);
 
-           if (mCommentPanel == null) {
-               mCommentPanel = new CommentPanelLayout(getContext(), mImageOperations, true);
-               mCommentPanel.setListener(this);
-               mCommentPanel.interacted = userTriggered;
-               mCurrentCommentPanel = mCommentPanel;
+           if (commentPanel == null) {
+               commentPanel = new CommentPanelLayout(getContext(), imageOperations, true);
+               commentPanel.setListener(this);
+               commentPanel.interacted = userTriggered;
+               currentCommentPanel = commentPanel;
                RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT,
-                       (int) (mWaveformHolder.getHeight() / 2 + (getResources().getDisplayMetrics().density * 10)));
+                       (int) (waveformHolder.getHeight() / 2 + (getResources().getDisplayMetrics().density * 10)));
                lp.bottomMargin = (int) -(getResources().getDisplayMetrics().density * 10);
                lp.addRule(ALIGN_PARENT_TOP);
-               addView(mCommentPanel, lp);
+               addView(commentPanel, lp);
            }
 
            toggleWaveformHalf(true);
            toggleCommentsPanelVisibility(true);
-           mCommentPanel.showComment(mCurrentShowingComment);
+           commentPanel.showComment(currentShowingComment);
        }
     }
 
     private void toggleWaveformHalf(boolean half){
-        if (half && !mWaveformHalf) {
-            mWaveformHalf = true;
-            if (mWaveformHolder.getAnimation() != null && !mWaveformHolder.getAnimation().hasEnded()){
+        if (half && !waveformHalf) {
+            waveformHalf = true;
+            if (waveformHolder.getAnimation() != null && !waveformHolder.getAnimation().hasEnded()){
                 //calculate new distances and durations based on unfinished animation
-                final float transY =getAnimationTransY(mWaveformHolder.getAnimation());
-                final long duration = (long) Math.max(0, (mWaveformHolder.getHeight() / 2 - transY) / (mWaveformHolder.getHeight() / 2) * COMMENT_ANIMATE_DURATION);
+                final float transY =getAnimationTransY(waveformHolder.getAnimation());
+                final long duration = (long) Math.max(0, (waveformHolder.getHeight() / 2 - transY) / (waveformHolder.getHeight() / 2) * COMMENT_ANIMATE_DURATION);
 
-                mWaveformHolder.clearAnimation();
+                waveformHolder.clearAnimation();
                 Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
-                        Animation.RELATIVE_TO_SELF, 0.0f, Animation.ABSOLUTE, mWaveformHolder.getTop() + transY,
+                        Animation.RELATIVE_TO_SELF, 0.0f, Animation.ABSOLUTE, waveformHolder.getTop() + transY,
                         Animation.RELATIVE_TO_SELF, 0.5f);
                 animation.setDuration(duration);
                 animation.setFillEnabled(true);
                 animation.setFillAfter(true);
-                mWaveformHolder.startAnimation(animation);
+                waveformHolder.startAnimation(animation);
             } else {
                  Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
                         Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
@@ -180,63 +180,63 @@ public class WaveformControllerLayoutLand extends WaveformControllerLayout {
                 animation.setFillEnabled(true);
                 animation.setFillAfter(true);
                 animation.setDuration(COMMENT_ANIMATE_DURATION);
-                mWaveformHolder.startAnimation(animation);
+                waveformHolder.startAnimation(animation);
             }
 
-        } else if (!half && mWaveformHalf) {
-            if (mWaveformHolder.getAnimation() != null){
-                mWaveformHolder.clearAnimation();
+        } else if (!half && waveformHalf) {
+            if (waveformHolder.getAnimation() != null){
+                waveformHolder.clearAnimation();
             }
-            mWaveformHalf = false;
+            waveformHalf = false;
             Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
                     Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.5f,
                     Animation.RELATIVE_TO_SELF, 0.0f);
             animation.setFillEnabled(true);
             animation.setFillAfter(true);
             animation.setDuration(COMMENT_ANIMATE_DURATION);
-            mWaveformHolder.startAnimation(animation);
+            waveformHolder.startAnimation(animation);
         }
     }
 
     private void toggleCommentsPanelVisibility(boolean visible) {
 
-        if (visible && !mCommentPanelVisible) {
-            mCommentPanelVisible = true;
+        if (visible && !commentPanelVisible) {
+            commentPanelVisible = true;
             clearDisappearingChildren();
             cancelAutoCloseComment();
 
-            if (mCommentPanel.getParent() != this) addView(mCommentPanel);
+            if (commentPanel.getParent() != this) addView(commentPanel);
 
-            if (mCommentPanel.getAnimation() != null && ! mCommentPanel.getAnimation().hasEnded()) {
+            if (commentPanel.getAnimation() != null && ! commentPanel.getAnimation().hasEnded()) {
                 //calculate new distances and durations based on unfinished animation
-                final float transY =getAnimationTransY(mCommentPanel.getAnimation());
-                final long duration = (long) (-transY/(mCommentPanel.getHeight()) * COMMENT_ANIMATE_DURATION);
+                final float transY =getAnimationTransY(commentPanel.getAnimation());
+                final long duration = (long) (-transY/(commentPanel.getHeight()) * COMMENT_ANIMATE_DURATION);
 
-                mCommentPanel.clearAnimation();
+                commentPanel.clearAnimation();
                 Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
-                        Animation.RELATIVE_TO_SELF, 0.0f, Animation.ABSOLUTE, mCommentPanel.getTop() + transY,
+                        Animation.RELATIVE_TO_SELF, 0.0f, Animation.ABSOLUTE, commentPanel.getTop() + transY,
                         Animation.RELATIVE_TO_SELF, 0.0f);
                 animation.setDuration(duration);
-                mCommentPanel.startAnimation(animation);
+                commentPanel.startAnimation(animation);
             } else {
                 Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
                         Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, -1.0f,
                         Animation.RELATIVE_TO_SELF, 0.0f);
                 animation.setDuration(COMMENT_ANIMATE_DURATION);
-                mCommentPanel.startAnimation(animation);
+                commentPanel.startAnimation(animation);
             }
 
-        } else if (!visible && mCommentPanelVisible && mCommentPanel.getParent() == this) {
-            if (mCommentPanel.getAnimation() != null) {
-                mCommentPanel.getAnimation().cancel();
+        } else if (!visible && commentPanelVisible && commentPanel.getParent() == this) {
+            if (commentPanel.getAnimation() != null) {
+                commentPanel.getAnimation().cancel();
             }
-            mCommentPanelVisible = false;
+            commentPanelVisible = false;
             Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
                     Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
                     Animation.RELATIVE_TO_SELF, -1.0f);
             animation.setDuration(COMMENT_ANIMATE_DURATION);
-            mCommentPanel.setAnimation(animation);
-            removeView(mCommentPanel);
+            commentPanel.setAnimation(animation);
+            removeView(commentPanel);
         }
     }
 
@@ -244,13 +244,13 @@ public class WaveformControllerLayoutLand extends WaveformControllerLayout {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         if (changed){
-            mCurrentTimeDisplay.setCommentingHeight(mWaveformHolder.getHeight()/2);
+            currentTimeDisplay.setCommentingHeight(waveformHolder.getHeight()/2);
         }
     }
 
     private float getAnimationTransY(Animation a) {
         Transformation outTransformation = new Transformation();
-        a.getTransformation(mWaveformHolder.getDrawingTime(), outTransformation);
+        a.getTransformation(waveformHolder.getDrawingTime(), outTransformation);
 
         Matrix transformationMatrix = outTransformation.getMatrix();
         float[] matrixValues = new float[9];
@@ -260,13 +260,13 @@ public class WaveformControllerLayoutLand extends WaveformControllerLayout {
 
     @Override
     public void closeComment(boolean userTriggered) {
-        if (userTriggered && mCurrentShowingComment == mLastAutoComment && mShouldShowComments) {
+        if (userTriggered && currentShowingComment == lastAutoComment && shouldShowComments) {
             toggleShowingComments();
         }
 
-        mCurrentShowingComment = null;
-        if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
-        if (mCommentLines != null) mCommentLines.setCurrentComment(null);
+        currentShowingComment = null;
+        if (playerAvatarBar != null) playerAvatarBar.setCurrentComment(null);
+        if (commentLines != null) commentLines.setCurrentComment(null);
 
         toggleWaveformHalf(false);
         toggleCommentsPanelVisibility(false);
@@ -277,50 +277,50 @@ public class WaveformControllerLayoutLand extends WaveformControllerLayout {
         if (commenting){
             toggleWaveformHalf(true);
             toggleCommentsPanelVisibility(false);
-            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(ALIGN_PARENT_TOP);
-            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(ABOVE,0);
-            mCurrentTimeDisplay.setRoundTop(false);
+            ((RelativeLayout.LayoutParams) currentTimeDisplay.getLayoutParams()).addRule(ALIGN_PARENT_TOP);
+            ((RelativeLayout.LayoutParams) currentTimeDisplay.getLayoutParams()).addRule(ABOVE,0);
+            currentTimeDisplay.setRoundTop(false);
         } else {
             toggleWaveformHalf(false);
-            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(ALIGN_PARENT_TOP, 0);
-            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(ABOVE, R.id.player_avatar_bar_holder);
-            mCurrentTimeDisplay.setRoundTop(true);
+            ((RelativeLayout.LayoutParams) currentTimeDisplay.getLayoutParams()).addRule(ALIGN_PARENT_TOP, 0);
+            ((RelativeLayout.LayoutParams) currentTimeDisplay.getLayoutParams()).addRule(ABOVE, R.id.player_avatar_bar_holder);
+            currentTimeDisplay.setRoundTop(true);
         }
-        mCurrentTimeDisplay.setCommenting(commenting);
+        currentTimeDisplay.setCommenting(commenting);
         super.setCommentMode(commenting);
     }
 
     @Override
     public void resetCommentDisplay(){
-        if (mCommentPanel != null && mCommentPanel.getParent() == this) {
-            if (mCommentPanel.getAnimation() != null) {
-                mCommentPanel.getAnimation().cancel();
+        if (commentPanel != null && commentPanel.getParent() == this) {
+            if (commentPanel.getAnimation() != null) {
+                commentPanel.getAnimation().cancel();
             }
-            mCommentPanelVisible = false;
-            removeView(mCommentPanel);
+            commentPanelVisible = false;
+            removeView(commentPanel);
         }
-        mWaveformHolder.clearAnimation();
+        waveformHolder.clearAnimation();
     }
 
      @Override
      protected void autoShowComment(Comment c) {
-         if (mShouldShowComments) {
+         if (shouldShowComments) {
 
             cancelAutoCloseComment();
-            mCurrentShowingComment = c;
+            currentShowingComment = c;
             showCurrentComment(true);
 
-            final Comment nextComment = nextCommentAfterTimestamp(mCurrentShowingComment.timestamp);
+            final Comment nextComment = nextCommentAfterTimestamp(currentShowingComment.timestamp);
             if (nextComment != null) prefetchAvatar(nextComment);
 
             if (nextComment == null || nextComment.timestamp - c.timestamp > MAX_AUTO_COMMENT_DISPLAY_TIME) {
-                mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
+                handler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
             }
         }
     }
 
     private void toggleShowingComments() {
-        mShouldShowComments = !mShouldShowComments;
-        mAccountOperations.setAccountData(PLAYER_SHOWING_COMMENTS, Boolean.toString(mShouldShowComments));
+        shouldShowComments = !shouldShowComments;
+        accountOperations.setAccountData(PLAYER_SHOWING_COMMENTS, Boolean.toString(shouldShowComments));
     }
 }

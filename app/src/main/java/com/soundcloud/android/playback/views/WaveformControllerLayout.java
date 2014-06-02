@@ -39,43 +39,43 @@ import java.util.List;
 public class WaveformControllerLayout extends TouchLayout implements CommentPanelLayout.CommentPanelListener {
     private static final String TAG = WaveformControllerLayout.class.getSimpleName();
 
-    protected ImageOperations mImageOperations;
+    protected ImageOperations imageOperations;
 
     protected static final long CLOSE_COMMENT_DELAY = 5000;
     private static final int OVERLAY_BG_COLOR = Color.WHITE;
 
     protected @Nullable
-    PlayerAvatarBarView mPlayerAvatarBar;
+    PlayerAvatarBarView playerAvatarBar;
 
-    private View mOverlay;
-    protected ProgressBar mProgressBar;
-    protected WaveformHolderLayout mWaveformHolder;
-    protected RelativeLayout mWaveformFrame;
-    private PlayerTouchBarView mPlayerTouchBar;
+    private View overlay;
+    protected ProgressBar progressBar;
+    protected WaveformHolderLayout waveformHolder;
+    protected RelativeLayout waveformFrame;
+    private PlayerTouchBarView playerTouchBar;
     protected @Nullable
-    WaveformCommentLinesView mCommentLines;
-    protected PlayerTimeView mCurrentTimeDisplay;
+    WaveformCommentLinesView commentLines;
+    protected PlayerTimeView currentTimeDisplay;
 
-    protected @Nullable Track mTrack;
-    protected int mQueuePosition;
+    protected @Nullable Track track;
+    protected int queuePosition;
 
-    protected boolean mSuspendTimeDisplay, mOnScreen;
-    protected @Nullable List<Comment> mCurrentComments;
-    protected List<Comment> mCurrentTopComments;
-    protected @Nullable Comment mCurrentShowingComment;
+    protected boolean suspendTimeDisplay, onScreen;
+    protected @Nullable List<Comment> currentComments;
+    protected List<Comment> currentTopComments;
+    protected @Nullable Comment currentShowingComment;
 
-    private WaveformState mWaveformState;
+    private WaveformState waveformState;
 
     protected @Nullable
-    CommentPanelLayout mCurrentCommentPanel;
+    CommentPanelLayout currentCommentPanel;
 
-    protected Comment mLastAutoComment;
+    protected Comment lastAutoComment;
 
-    private int mWaveformErrorCount, mDuration;
-    private float mSeekPercent;
+    private int waveformErrorCount, duration;
+    private float seekPercent;
 
-    protected final Handler mHandler = new Handler();
-    private Handler mTouchHandler = new TouchHandler(this);
+    protected final Handler handler = new Handler();
+    private Handler touchHandler = new TouchHandler(this);
 
     private static final int MAX_WAVEFORM_RETRIES = 2;
 
@@ -93,18 +93,18 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     static final int TOUCH_MODE_AVATAR_DRAG = 3;
     static final int TOUCH_MODE_SEEK_CLEAR_DRAG = 4;
 
-    private boolean mSuppressComments;
+    private boolean suppressComments;
 
     protected int mode = TOUCH_MODE_NONE;
 
-    protected boolean mShowComment;
+    protected boolean showComment;
     private static final long MIN_COMMENT_DISPLAY_TIME = 2000;
 
-    private boolean mIsBuffering;
-    private int mTouchSlop;
-    private int mWaveformColor;
+    private boolean isBuffering;
+    private int touchSlop;
+    private int waveformColor;
 
-    private WaveformListener mListener;
+    private WaveformListener listener;
 
     public interface WaveformListener {
         long sendSeek(float seekPosition);
@@ -115,7 +115,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     public WaveformControllerLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        mImageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
+        imageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
 
         setWillNotDraw(false);
 
@@ -124,39 +124,39 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         inflater.inflate(R.layout.wave_form_controller, this);
 
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
-        mTouchSlop = configuration.getScaledTouchSlop();
+        touchSlop = configuration.getScaledTouchSlop();
 
-        mWaveformFrame = (RelativeLayout) findViewById(R.id.waveform_frame);
-        mWaveformHolder = (WaveformHolderLayout) findViewById(R.id.waveform_holder);
-        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        mCurrentTimeDisplay = (PlayerTimeView) findViewById(R.id.currenttime);
+        waveformFrame = (RelativeLayout) findViewById(R.id.waveform_frame);
+        waveformHolder = (WaveformHolderLayout) findViewById(R.id.waveform_holder);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        currentTimeDisplay = (PlayerTimeView) findViewById(R.id.currenttime);
 
-        mWaveformColor = context.getResources().getColor(R.color.player_control_background);
-        mOverlay = findViewById(R.id.progress_overlay);
-        mOverlay.setBackgroundColor(OVERLAY_BG_COLOR);
+        waveformColor = context.getResources().getColor(R.color.player_control_background);
+        overlay = findViewById(R.id.progress_overlay);
+        overlay.setBackgroundColor(OVERLAY_BG_COLOR);
 
-        mPlayerTouchBar = (PlayerTouchBarView) findViewById(R.id.track_touch_bar);
-        mPlayerAvatarBar = (PlayerAvatarBarView) findViewById(R.id.player_avatar_bar);
-        mPlayerAvatarBar.setIsLandscape(isLandscape());
+        playerTouchBar = (PlayerTouchBarView) findViewById(R.id.track_touch_bar);
+        playerAvatarBar = (PlayerAvatarBarView) findViewById(R.id.player_avatar_bar);
+        playerAvatarBar.setIsLandscape(isLandscape());
 
-        mCommentLines = new WaveformCommentLinesView(context, null);
-        mWaveformHolder.addView(mCommentLines);
+        commentLines = new WaveformCommentLinesView(context, null);
+        waveformHolder.addView(commentLines);
 
-        mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
-        mPlayerTouchBar.setLandscape(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
+        currentTimeDisplay.setVisibility(View.INVISIBLE);
+        playerTouchBar.setLandscape(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
 
         // override default touch layout functionality, these views are all we want to respond
-        mPlayerTouchBar.setOnTouchListener(this);
-        mPlayerAvatarBar.setOnTouchListener(this);
+        playerTouchBar.setOnTouchListener(this);
+        playerAvatarBar.setOnTouchListener(this);
         setOnTouchListener(null);
     }
 
     public void setOnScreen(boolean onScreen){
-        mOnScreen = onScreen;
+        this.onScreen = onScreen;
     }
 
     public void setListener(WaveformListener listener){
-        mListener = listener;
+        this.listener = listener;
     }
 
     @Override
@@ -180,7 +180,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     private Runnable mSmoothProgress = new Runnable() {
         public void run() {
             setProgressInternal(lastTrackTime + System.currentTimeMillis() - lastProgressTimestamp);
-            mHandler.postDelayed(this, mProgressPeriod);
+            handler.postDelayed(this, mProgressPeriod);
         }
     };
 
@@ -195,24 +195,24 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         if (changed && getWidth()  > 0) {
-            if (mCurrentComments != null && mDuration > 0) {
-                for (Comment c : mCurrentComments) {
-                    c.calculateXPos(getWidth(), mDuration);
+            if (currentComments != null && duration > 0) {
+                for (Comment c : currentComments) {
+                    c.calculateXPos(getWidth(), duration);
                 }
             }
         }
     }
 
     public void reset(boolean hide){
-        mIsBuffering = false;
+        isBuffering = false;
         setProgressInternal(0);
         setSecondaryProgress(0);
         onStop(false);
 
         if (hide){
             showWaiting();
-            mOverlay.setVisibility(View.INVISIBLE);
-            mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
+            overlay.setVisibility(View.INVISIBLE);
+            currentTimeDisplay.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -220,39 +220,39 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         cancelAutoCloseComment();
 
          // comment states
-        if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
-        if (mCommentLines != null) mCommentLines.setCurrentComment(null);
-        mLastAutoComment = null;
-        mCurrentShowingComment = null;
+        if (playerAvatarBar != null) playerAvatarBar.setCurrentComment(null);
+        if (commentLines != null) commentLines.setCurrentComment(null);
+        lastAutoComment = null;
+        currentShowingComment = null;
         resetCommentDisplay();
 
          //only performed on activity stop
-         if (mPlayerAvatarBar != null && killLoading) mPlayerAvatarBar.stopAvatarLoading();
+         if (playerAvatarBar != null && killLoading) playerAvatarBar.stopAvatarLoading();
     }
 
     public void resetCommentDisplay(){
-        if (mCurrentCommentPanel != null) {
-            if (mCurrentCommentPanel.getAnimation() != null){
-                mCurrentCommentPanel.getAnimation().cancel();
-                mCurrentCommentPanel.clearAnimation();
+        if (currentCommentPanel != null) {
+            if (currentCommentPanel.getAnimation() != null){
+                currentCommentPanel.getAnimation().cancel();
+                currentCommentPanel.clearAnimation();
             }
-            if (mCurrentCommentPanel.getParent() == mWaveformFrame){
-                mWaveformFrame.removeView(mCurrentCommentPanel);
+            if (currentCommentPanel.getParent() == waveformFrame){
+                waveformFrame.removeView(currentCommentPanel);
             }
-            mCurrentCommentPanel = null;
+            currentCommentPanel = null;
         }
     }
 
     public void setSuppressComments(boolean suppressComments){
-        mSuppressComments = suppressComments;
+        this.suppressComments = suppressComments;
         closeComment(false);
     }
 
     public void setBufferingState(boolean isBuffering) {
-        mIsBuffering = isBuffering;
-        if (mIsBuffering){
+        this.isBuffering = isBuffering;
+        if (this.isBuffering){
             showWaiting();
-        } else if (mWaveformState != WaveformState.LOADING){
+        } else if (waveformState != WaveformState.LOADING){
             hideWaiting();
         }
     }
@@ -262,37 +262,37 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     }
 
     private void showWaiting() {
-        mWaveformHolder.showWaitingLayout(true);
+        waveformHolder.showWaitingLayout(true);
         invalidate();
     }
 
     private void hideWaiting() {
-        mWaveformHolder.hideWaitingLayout();
+        waveformHolder.hideWaitingLayout();
         invalidate();
 
     }
 
     public void setCommentMode(boolean commenting) {
-        mCurrentTimeDisplay.setCommenting(commenting);
+        currentTimeDisplay.setCommenting(commenting);
         if (commenting) {
-            if (mCurrentShowingComment != null && !isLandscape()) {
+            if (currentShowingComment != null && !isLandscape()) {
                 closeComment(false);
             }
-            mSuspendTimeDisplay = true;
+            suspendTimeDisplay = true;
             mode = TOUCH_MODE_COMMENT_DRAG;
-            mPlayerTouchBar.setSeekPosition((int) ((((float) lastTrackTime) / mDuration) * getWidth()), mPlayerTouchBar.getHeight(), true);
-            mCurrentTimeDisplay.setByPercent(((float) lastTrackTime) / mDuration);
+            playerTouchBar.setSeekPosition((int) ((((float) lastTrackTime) / duration) * getWidth()), playerTouchBar.getHeight(), true);
+            currentTimeDisplay.setByPercent(((float) lastTrackTime) / duration);
         } else {
-            mSuspendTimeDisplay = false;
+            suspendTimeDisplay = false;
             mode = TOUCH_MODE_NONE;
-            mPlayerTouchBar.clearSeek();
+            playerTouchBar.clearSeek();
             setCurrentTime(lastTrackTime);
         }
     }
 
     public void setProgress(long pos, float loadPercent) {
         setProgress(pos);
-        if (mDuration > 0){
+        if (duration > 0){
             setSecondaryProgress((int) (loadPercent * 10));
         } else {
             setSecondaryProgress(0);
@@ -302,7 +302,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     public void setProgress(long pos) {
         if (pos < 0) return;
 
-        if (mDuration > 0){
+        if (duration > 0){
             lastProgressTimestamp = System.currentTimeMillis();
             lastTrackTime = pos;
             if (mode != TOUCH_MODE_SEEK_DRAG){
@@ -314,31 +314,31 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     }
 
     protected void setProgressInternal(long pos) {
-        if (mDuration <= 0)
+        if (duration <= 0)
             return;
 
-        mProgressBar.setProgress((int) (pos * 1000 / mDuration));
+        progressBar.setProgress((int) (pos * 1000 / duration));
         if (mode != TOUCH_MODE_SEEK_DRAG) {
             setCurrentTime(pos);
         }
 
-        if (mode == TOUCH_MODE_NONE && mCurrentTopComments != null) {
+        if (mode == TOUCH_MODE_NONE && currentTopComments != null) {
             final Comment last = lastCommentBeforeTimestamp(pos);
             if (last != null) {
-                if (mLastAutoComment != last && pos - last.timestamp < 2000) {
+                if (lastAutoComment != last && pos - last.timestamp < 2000) {
                     // todo, isShown expensive?? it traverses up the hierarchy
-                    if (isShown() && (mCurrentShowingComment == null ||
-                                    (mCurrentShowingComment == mLastAutoComment &&
-                                    last.timestamp - mLastAutoComment.timestamp > MIN_COMMENT_DISPLAY_TIME))) {
-                        if (!mSuppressComments){
-                            mHandler.post(new Runnable() {
+                    if (isShown() && (currentShowingComment == null ||
+                                    (currentShowingComment == lastAutoComment &&
+                                    last.timestamp - lastAutoComment.timestamp > MIN_COMMENT_DISPLAY_TIME))) {
+                        if (!suppressComments){
+                            handler.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     autoShowComment(last);
                                 }
                             });
                         }
-                        mLastAutoComment = last;
+                        lastAutoComment = last;
                     }
                 }
             }
@@ -346,16 +346,16 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     }
 
     private void setCurrentTime(final long pos){
-        if (mode != TOUCH_MODE_SEEK_DRAG && !mSuspendTimeDisplay) {
+        if (mode != TOUCH_MODE_SEEK_DRAG && !suspendTimeDisplay) {
             if (getWidth() == 0) {
                 post(new Runnable() {
                     @Override
                     public void run() {
-                        mCurrentTimeDisplay.setCurrentTime(pos);
+                        currentTimeDisplay.setCurrentTime(pos);
                     }
                 });
             } else {
-                mCurrentTimeDisplay.setCurrentTime(pos);
+                currentTimeDisplay.setCurrentTime(pos);
             }
         }
     }
@@ -364,35 +364,35 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         autoCloseComment();
         cancelAutoCloseComment();
 
-        mCurrentShowingComment = c;
+        currentShowingComment = c;
         showCurrentComment(false);
 
-        final Comment nextComment = nextCommentAfterTimestamp(mCurrentShowingComment.timestamp);
+        final Comment nextComment = nextCommentAfterTimestamp(currentShowingComment.timestamp);
         if (nextComment != null) prefetchAvatar(nextComment);
-        mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
+        handler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
     }
 
     public void prefetchAvatar(Comment comment) {
-        mImageOperations.prefetch(ApiImageSize.formatUriForList(getContext(), comment.getUser().getNonDefaultAvatarUrl()));
+        imageOperations.prefetch(ApiImageSize.formatUriForList(getContext(), comment.getUser().getNonDefaultAvatarUrl()));
     }
 
     public void setSecondaryProgress(int percent) {
-        mProgressBar.setSecondaryProgress(percent);
+        progressBar.setSecondaryProgress(percent);
     }
 
     public void updateTrack(@Nullable Track track, int queuePosition, boolean visibleNow) {
-        mQueuePosition = queuePosition;
-        if (track == null || (mTrack != null
-                && mTrack.getId() == track.getId()
-                && mWaveformState != WaveformState.ERROR
-                && mDuration == mTrack.duration)) {
+        this.queuePosition = queuePosition;
+        if (track == null || (this.track != null
+                && this.track.getId() == track.getId()
+                && waveformState != WaveformState.ERROR
+                && duration == this.track.duration)) {
             return;
         }
 
-        final boolean changed = mTrack != track;
-        mTrack = track;
-        mDuration = mTrack.duration;
-        mCurrentTimeDisplay.setDuration(mDuration);
+        final boolean changed = this.track != track;
+        this.track = track;
+        duration = this.track.duration;
+        currentTimeDisplay.setDuration(duration);
 
         if (changed) {
             hideWaiting();
@@ -402,8 +402,8 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
 
         if (!track.hasWaveform()) {
             Log.w(TAG, "track " + track.title + " has no waveform");
-            mWaveformState = WaveformState .ERROR;
-            mOverlay.setBackgroundColor(OVERLAY_BG_COLOR);
+            waveformState = WaveformState .ERROR;
+            overlay.setBackgroundColor(OVERLAY_BG_COLOR);
             onDoneLoadingWaveform(false, false);
             return;
         }
@@ -411,17 +411,17 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         if (LegacyWaveformCache.get().getData(track, new LegacyWaveformCache.WaveformCallback() {
             @Override
             public void onWaveformDataLoaded(Track track, WaveformData data, boolean fromCache) {
-                if (track.equals(mTrack)) {
-                    mWaveformErrorCount = 0;
-                    mWaveformState = WaveformState.OK;
-                    mOverlay.setBackgroundDrawable(new WaveformDrawable(data, mWaveformColor, !isLandscape()));
-                    onDoneLoadingWaveform(true, !fromCache && mOnScreen);
+                if (track.equals(WaveformControllerLayout.this.track)) {
+                    waveformErrorCount = 0;
+                    waveformState = WaveformState.OK;
+                    overlay.setBackgroundDrawable(new WaveformDrawable(data, waveformColor, !isLandscape()));
+                    onDoneLoadingWaveform(true, !fromCache && onScreen);
                 }
             }
             @Override
             public void onWaveformError(Track track) {
-                if (track.equals(mTrack)) {
-                    mWaveformState = WaveformState.ERROR;
+                if (track.equals(WaveformControllerLayout.this.track)) {
+                    waveformState = WaveformState.ERROR;
                     WaveformControllerLayout.this.onWaveformError();
                 }
             }
@@ -429,27 +429,27 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         }) == null) {
             // loading
             showWaiting();
-            mWaveformState = WaveformState.LOADING;
-            mOverlay.setVisibility(View.INVISIBLE);
-            mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
+            waveformState = WaveformState.LOADING;
+            overlay.setVisibility(View.INVISIBLE);
+            currentTimeDisplay.setVisibility(View.INVISIBLE);
         }
     }
 
     protected void showCurrentComment(boolean userTriggered) {
-        if (mCurrentShowingComment != null) {
-            mPlayerAvatarBar.setCurrentComment(mCurrentShowingComment);
-            mCommentLines.setCurrentComment(mCurrentShowingComment);
+        if (currentShowingComment != null) {
+            playerAvatarBar.setCurrentComment(currentShowingComment);
+            commentLines.setCurrentComment(currentShowingComment);
 
-            CommentPanelLayout commentPanel = new CommentPanelLayout(getContext(), mImageOperations, false);
+            CommentPanelLayout commentPanel = new CommentPanelLayout(getContext(), imageOperations, false);
             commentPanel.setListener(this);
-            commentPanel.showComment(mCurrentShowingComment);
+            commentPanel.showComment(currentShowingComment);
             commentPanel.interacted = userTriggered;
-            mCurrentCommentPanel = commentPanel;
+            currentCommentPanel = commentPanel;
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
                     LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-            lp.addRule(RelativeLayout.ABOVE, mWaveformHolder.getId());
+            lp.addRule(RelativeLayout.ABOVE, waveformHolder.getId());
             lp.bottomMargin = (int) -(getResources().getDisplayMetrics().density * 10);
-            mWaveformFrame.addView(commentPanel, mWaveformFrame.indexOfChild(mCurrentTimeDisplay), lp);
+            waveformFrame.addView(commentPanel, waveformFrame.indexOfChild(currentTimeDisplay), lp);
 
             AnimationSet set = new AnimationSet(true);
             Animation animation = new AlphaAnimation(0.0f, 1.0f);
@@ -467,28 +467,28 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
 
     public void closeComment(boolean userTriggered) {
 
-        mCurrentShowingComment = null;
-        if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
-        if (mCommentLines != null) mCommentLines.setCurrentComment(null);
+        currentShowingComment = null;
+        if (playerAvatarBar != null) playerAvatarBar.setCurrentComment(null);
+        if (commentLines != null) commentLines.setCurrentComment(null);
 
-        if (mCurrentCommentPanel != null) {
+        if (currentCommentPanel != null) {
             Animation animation = new AlphaAnimation(1.0f, 0.0f);
             animation.setDuration(300);
-            mCurrentCommentPanel.setAnimation(animation);
-            mWaveformFrame.removeView(mCurrentCommentPanel);
-            mCurrentCommentPanel = null;
+            currentCommentPanel.setAnimation(animation);
+            waveformFrame.removeView(currentCommentPanel);
+            currentCommentPanel = null;
         }
     }
 
     protected void autoCloseComment() {
-        if (mCurrentCommentPanel != null && mCurrentShowingComment != null)
-            if (mCurrentShowingComment == mCurrentCommentPanel.getComment() && !mCurrentCommentPanel.interacted) {
+        if (currentCommentPanel != null && currentShowingComment != null)
+            if (currentShowingComment == currentCommentPanel.getComment() && !currentCommentPanel.interacted) {
                 closeComment(false);
             }
     }
 
     protected void cancelAutoCloseComment() {
-        mHandler.removeCallbacks(mAutoCloseComment);
+        handler.removeCallbacks(mAutoCloseComment);
     }
 
     final Runnable mAutoCloseComment = new Runnable() {
@@ -498,10 +498,10 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     };
 
     public void nextCommentInThread() {
-        if (mCurrentShowingComment != null && mCurrentShowingComment.nextComment != null) {
-            final Comment nextComment = mCurrentShowingComment.nextComment;
+        if (currentShowingComment != null && currentShowingComment.nextComment != null) {
+            final Comment nextComment = currentShowingComment.nextComment;
             if (!isLandscape()) closeComment(false);
-            mCurrentShowingComment = nextComment;
+            currentShowingComment = nextComment;
             showCurrentComment(true);
         }
     }
@@ -510,52 +510,52 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         cancelAutoCloseComment();
         closeComment(false);
 
-        if (mPlayerAvatarBar != null) {
-            mPlayerAvatarBar.setVisibility(View.INVISIBLE);
-            mPlayerAvatarBar.clearTrackData();
+        if (playerAvatarBar != null) {
+            playerAvatarBar.setVisibility(View.INVISIBLE);
+            playerAvatarBar.clearTrackData();
         }
-        if (mCommentLines != null) {
-            mCommentLines.setVisibility(View.INVISIBLE);
-            mCommentLines.clearTrackData();
+        if (commentLines != null) {
+            commentLines.setVisibility(View.INVISIBLE);
+            commentLines.clearTrackData();
         }
 
-        mCurrentComments = null;
-        mCurrentTopComments = null;
+        currentComments = null;
+        currentTopComments = null;
         if (mode == TOUCH_MODE_AVATAR_DRAG) mode = TOUCH_MODE_NONE;
     }
 
     private void onWaveformError() {
-        mWaveformErrorCount++;
-        if (mWaveformErrorCount < MAX_WAVEFORM_RETRIES) {
-            updateTrack(mTrack, mQueuePosition, mOnScreen);
+        waveformErrorCount++;
+        if (waveformErrorCount < MAX_WAVEFORM_RETRIES) {
+            updateTrack(track, queuePosition, onScreen);
         } else {
-            mOverlay.setBackgroundColor(OVERLAY_BG_COLOR);
-            onDoneLoadingWaveform(false, mOnScreen);
+            overlay.setBackgroundColor(OVERLAY_BG_COLOR);
+            onDoneLoadingWaveform(false, onScreen);
         }
     }
 
 
     private void onDoneLoadingWaveform(boolean success, boolean animate) {
-        if (!mIsBuffering) hideWaiting();
+        if (!isBuffering) hideWaiting();
 
         final AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
         aa.setDuration(500);
 
         // only show the image if the load was successful, otherwise it will obscure the progress
-        if (success && mOverlay.getVisibility() != View.VISIBLE) {
-            if (animate) mOverlay.startAnimation(aa);
-            mOverlay.setVisibility(View.VISIBLE);
+        if (success && overlay.getVisibility() != View.VISIBLE) {
+            if (animate) overlay.startAnimation(aa);
+            overlay.setVisibility(View.VISIBLE);
         }
 
-        if (mCurrentTimeDisplay.getVisibility() != View.VISIBLE) {
-            if (animate) mCurrentTimeDisplay.startAnimation(aa);
-            mCurrentTimeDisplay.setVisibility(View.VISIBLE);
+        if (currentTimeDisplay.getVisibility() != View.VISIBLE) {
+            if (animate) currentTimeDisplay.startAnimation(aa);
+            currentTimeDisplay.setVisibility(View.VISIBLE);
         }
     }
 
 
     private @Nullable Comment lastCommentBeforeTimestamp(long timestamp) {
-        for (Comment comment : mCurrentTopComments)
+        for (Comment comment : currentTopComments)
             if (comment.timestamp < timestamp)
                 return comment;
 
@@ -563,10 +563,10 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     }
 
     protected @Nullable Comment nextCommentAfterTimestamp(long timestamp) {
-        if (mCurrentTopComments != null) {
-            for (int i = mCurrentTopComments.size() - 1; i >= 0; i--) {
-                if (mCurrentTopComments.get(i).timestamp > timestamp)
-                    return mCurrentTopComments.get(i);
+        if (currentTopComments != null) {
+            for (int i = currentTopComments.size() - 1; i >= 0; i--) {
+                if (currentTopComments.get(i).timestamp > timestamp)
+                    return currentTopComments.get(i);
             }
         }
         return null;
@@ -578,34 +578,34 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     }
 
     public void setComments(List<Comment> comments, boolean animateIn, boolean forceRefresh) {
-        if (comments.equals(mCurrentComments) && !forceRefresh){
+        if (comments.equals(currentComments) && !forceRefresh){
             return;
         }
-        mCurrentComments = comments;
-        mCurrentTopComments = getTopComments(comments, mDuration);
+        currentComments = comments;
+        currentTopComments = getTopComments(comments, duration);
 
-        if (mPlayerAvatarBar != null) {
-            mPlayerAvatarBar.setTrackData(mDuration, comments);
-            mPlayerAvatarBar.invalidate();
+        if (playerAvatarBar != null) {
+            playerAvatarBar.setTrackData(duration, comments);
+            playerAvatarBar.invalidate();
         }
 
-        if (mCommentLines != null) {
-            mCommentLines.setTrackData(mDuration, comments);
-            mCommentLines.invalidate();
+        if (commentLines != null) {
+            commentLines.setTrackData(duration, comments);
+            commentLines.invalidate();
         }
 
-        if (mPlayerAvatarBar != null && mPlayerAvatarBar.getVisibility() == View.INVISIBLE) {
+        if (playerAvatarBar != null && playerAvatarBar.getVisibility() == View.INVISIBLE) {
             if (animateIn) {
                 AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
                 aa.setStartOffset(500);
                 aa.setDuration(500);
 
-                mPlayerAvatarBar.startAnimation(aa);
-                mCommentLines.startAnimation(aa);
+                playerAvatarBar.startAnimation(aa);
+                commentLines.startAnimation(aa);
             }
 
-            mPlayerAvatarBar.setVisibility(View.VISIBLE);
-            mCommentLines.setVisibility(View.VISIBLE);
+            playerAvatarBar.setVisibility(View.VISIBLE);
+            commentLines.setVisibility(View.VISIBLE);
         }
     }
 
@@ -634,13 +634,13 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     @Override
     protected void processDownInput(InputObject input) {
         if (mode == TOUCH_MODE_COMMENT_DRAG) {
-            mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
+            seekPercent = ((float) input.x) / waveformHolder.getWidth();
             queueUnique(UI_UPDATE_COMMENT_POSITION);
 
-        } else if (input.view == mPlayerTouchBar && new PlaybackStateProvider().isSeekable()) {
+        } else if (input.view == playerTouchBar && new PlaybackStateProvider().isSeekable()) {
             mode = TOUCH_MODE_SEEK_DRAG;
-            mLastAutoComment = null; //reset auto comment in case they seek backward
-            mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
+            lastAutoComment = null; //reset auto comment in case they seek backward
+            seekPercent = ((float) input.x) / waveformHolder.getWidth();
             queueUnique(UI_UPDATE_SEEK);
         }
     }
@@ -650,13 +650,13 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         switch (mode) {
             case TOUCH_MODE_COMMENT_DRAG:
                 if (isOnTouchBar(input.y)) {
-                    mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
+                    seekPercent = ((float) input.x) / waveformHolder.getWidth();
                     queueUnique(UI_UPDATE_COMMENT_POSITION);
                 }
                 break;
             case TOUCH_MODE_SEEK_DRAG:
                 if (isOnTouchBar(input.y)) {
-                    mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
+                    seekPercent = ((float) input.x) / waveformHolder.getWidth();
                     queueUnique(UI_UPDATE_SEEK);
                 } else {
                     queueUnique(UI_CLEAR_SEEK);
@@ -666,7 +666,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
 
             case TOUCH_MODE_SEEK_CLEAR_DRAG:
                 if (isOnTouchBar(input.y)) {
-                    mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
+                    seekPercent = ((float) input.x) / waveformHolder.getWidth();
                     queueUnique(UI_UPDATE_SEEK);
                     mode = TOUCH_MODE_SEEK_DRAG;
                 }
@@ -680,7 +680,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
             case TOUCH_MODE_COMMENT_DRAG:
                 if (isOnTouchBar(input.y)) {
                     Comment comment = Comment.build(
-                            mTrack,
+                            track,
                             SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUser(),
                             stampFromPosition(input.x),
                             "",
@@ -712,43 +712,43 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     }
 
     private boolean isOnTouchBar(int y){
-        return (y > mPlayerTouchBar.getTop() - mTouchSlop && y < mPlayerTouchBar.getBottom() + mTouchSlop);
+        return (y > playerTouchBar.getTop() - touchSlop && y < playerTouchBar.getBottom() + touchSlop);
     }
 
     protected void queueUnique(int what) {
-        if (!mTouchHandler.hasMessages(what)) mTouchHandler.sendEmptyMessage(what);
+        if (!touchHandler.hasMessages(what)) touchHandler.sendEmptyMessage(what);
     }
 
     public void onDestroy() {
         super.onDestroy();
 
-        if (mCurrentComments != null) {
-            for (Comment c : mCurrentComments) {
+        if (currentComments != null) {
+            for (Comment c : currentComments) {
                 c.xPos = -1;
             }
         }
-        mPlayerAvatarBar.clearTrackData();
-        mCommentLines.clearTrackData();
+        playerAvatarBar.clearTrackData();
+        commentLines.clearTrackData();
     }
 
     protected long stampFromPosition(int x) {
-        return (long) (Math.min(Math.max(.001, (((float) x) / getWidth())), 1) * mTrack.duration);
+        return (long) (Math.min(Math.max(.001, (((float) x) / getWidth())), 1) * track.duration);
     }
 
     public void showNewComment(Comment c) {
         if (c.xPos == -1){
-            if (getWidth() == 0 || mDuration <= 0) return;
-            c.calculateXPos(getWidth(), mDuration);
+            if (getWidth() == 0 || duration <= 0) return;
+            c.calculateXPos(getWidth(), duration);
         }
-        if (mCurrentCommentPanel != null && mCurrentShowingComment != null) closeComment(false);
-        mCurrentShowingComment = mLastAutoComment = c;
+        if (currentCommentPanel != null && currentShowingComment != null) closeComment(false);
+        currentShowingComment = lastAutoComment = c;
         showCurrentComment(false);
-        mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
+        handler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
     }
 
     public void onDataConnected() {
-        if (mWaveformState == WaveformState.ERROR) {
-            updateTrack(mTrack, mQueuePosition, mOnScreen);
+        if (waveformState == WaveformState.ERROR) {
+            updateTrack(track, queuePosition, onScreen);
         }
     }
 
@@ -758,30 +758,30 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
 
 
     private void processTouchMessage(int what){
-        final float seekPercent = mSeekPercent;
-        final PlayerTouchBarView touchBar = mPlayerTouchBar;
+        final float seekPercent = this.seekPercent;
+        final PlayerTouchBarView touchBar = playerTouchBar;
 
         switch (what) {
             case UI_UPDATE_SEEK:
-                if (mListener != null) {
-                    long seekTime = mListener.setSeekMarker(mQueuePosition, seekPercent);
+                if (listener != null) {
+                    long seekTime = listener.setSeekMarker(queuePosition, seekPercent);
                     if (seekTime == -1) {
                         // the seek did not work, abort
                         mode = TOUCH_MODE_NONE;
                     } else {
-                        mPlayerTouchBar.setSeekPosition((int) (seekPercent * getWidth()), mPlayerTouchBar.getHeight(), false);
-                        mCurrentTimeDisplay.setCurrentTime(seekTime);
+                        playerTouchBar.setSeekPosition((int) (seekPercent * getWidth()), playerTouchBar.getHeight(), false);
+                        currentTimeDisplay.setCurrentTime(seekTime);
                     }
-                    mWaveformHolder.invalidate();
+                    waveformHolder.invalidate();
                 }
                 break;
 
             case UI_SEND_SEEK:
-                onSeek((long) (seekPercent * mDuration));
-                if (mListener != null) {
-                    mListener.sendSeek(seekPercent);
+                onSeek((long) (seekPercent * duration));
+                if (listener != null) {
+                    listener.sendSeek(seekPercent);
                 }
-                mPlayerTouchBar.clearSeek(); 
+                playerTouchBar.clearSeek();
                 break;
 
             case UI_CLEAR_SEEK:
@@ -791,12 +791,12 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
                 break;
 
             case UI_UPDATE_COMMENT_POSITION:
-                mCurrentTimeDisplay.setByPercent(seekPercent);
+                currentTimeDisplay.setByPercent(seekPercent);
                 touchBar.setSeekPosition((int) (seekPercent * getWidth()), touchBar.getHeight(), true);
                 break;
 
             case UI_UPDATE_COMMENT:
-                if (mShowComment) {
+                if (showComment) {
                     showCurrentComment(true);
                 } else {
                     closeComment(false);
