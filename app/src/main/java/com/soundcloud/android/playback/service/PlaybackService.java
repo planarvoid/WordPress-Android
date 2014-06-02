@@ -626,7 +626,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         private static final int DUCK             = 3;
 
         private WeakReference<PlaybackService> serviceRef;
-        private float mCurrentVolume;
+        private float currentVolume;
 
         private static final float FADE_CHANGE = 0.02f; // change to fade faster/slower
         private static final float DUCK_VOLUME = 0.1f;
@@ -647,33 +647,33 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 case FADE_IN:
                     removeMessages(FADE_OUT);
                     if (!service.streamPlayer.isPlaying()) {
-                        mCurrentVolume = 0f;
+                        currentVolume = 0f;
                         service.streamPlayer.setVolume(0f);
                         service.play();
                         sendEmptyMessageDelayed(FADE_IN, 10);
                     } else {
-                        mCurrentVolume += FADE_CHANGE;
-                        if (mCurrentVolume < 1.0f) {
+                        currentVolume += FADE_CHANGE;
+                        if (currentVolume < 1.0f) {
                             sendEmptyMessageDelayed(FADE_IN, 10);
                         } else {
-                            mCurrentVolume = 1.0f;
+                            currentVolume = 1.0f;
                         }
-                        service.streamPlayer.setVolume(mCurrentVolume);
+                        service.streamPlayer.setVolume(currentVolume);
                     }
                     break;
                 case FADE_OUT:
                     removeMessages(FADE_IN);
                     if (service.streamPlayer.isPlaying()) {
-                        mCurrentVolume -= FADE_CHANGE;
-                        if (mCurrentVolume > 0f) {
+                        currentVolume -= FADE_CHANGE;
+                        if (currentVolume > 0f) {
                             sendEmptyMessageDelayed(FADE_OUT, 10);
                         } else {
                             if (service != null) {
                                 service.pause();
                             }
-                            mCurrentVolume = 0f;
+                            currentVolume = 0f;
                         }
-                        service.streamPlayer.setVolume(mCurrentVolume);
+                        service.streamPlayer.setVolume(currentVolume);
                     } else {
                         service.streamPlayer.setVolume(0f);
                     }
