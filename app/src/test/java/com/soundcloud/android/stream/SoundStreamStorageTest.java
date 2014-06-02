@@ -65,7 +65,7 @@ public class SoundStreamStorageTest {
         helper.insertTrackRepost(track, reposter, TIMESTAMP);
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
         final PropertySet trackRepost = createTrackPropertySet(track)
-                .add(PlayableProperty.REPOSTER, reposter.getUsername());
+                .put(PlayableProperty.REPOSTER, reposter.getUsername());
 
         verify(observer).onNext(trackRepost);
         verify(observer).onCompleted();
@@ -89,7 +89,7 @@ public class SoundStreamStorageTest {
         helper.insertPlaylistRepost(playlist, reposter, TIMESTAMP);
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
         PropertySet playlistRepost = createPlaylistPropertySet(playlist)
-                .add(PlayableProperty.REPOSTER, reposter.getUsername());
+                .put(PlayableProperty.REPOSTER, reposter.getUsername());
 
         verify(observer).onNext(playlistRepost);
         verify(observer).onCompleted();
@@ -104,7 +104,7 @@ public class SoundStreamStorageTest {
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(currentUserId), 50).subscribe(observer);
 
         PropertySet playlistRepost = createPlaylistPropertySet(playlist)
-                .add(PlayableProperty.IS_LIKED, true);
+                .put(PlayableProperty.IS_LIKED, true);
 
         verify(observer).onNext(playlistRepost);
         verify(observer).onCompleted();

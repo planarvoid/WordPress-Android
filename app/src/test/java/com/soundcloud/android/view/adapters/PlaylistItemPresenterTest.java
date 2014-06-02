@@ -81,14 +81,14 @@ public class PlaylistItemPresenterTest {
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
         expect(textView(R.id.likes_count).getCompoundDrawables()[0].getLevel()).toEqual(0);
 
-        propertySet.add(PlayableProperty.IS_LIKED, true);
+        propertySet.put(PlayableProperty.IS_LIKED, true);
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
         expect(textView(R.id.likes_count).getCompoundDrawables()[0].getLevel()).toEqual(1);
     }
 
     @Test
     public void shouldBindReposterIfAny() {
-        propertySet.add(PlayableProperty.REPOSTER, "reposter");
+        propertySet.put(PlayableProperty.REPOSTER, "reposter");
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
         expect(textView(R.id.reposter).getVisibility()).toBe(View.VISIBLE);

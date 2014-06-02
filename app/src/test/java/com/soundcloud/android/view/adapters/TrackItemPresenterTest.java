@@ -80,7 +80,7 @@ public class TrackItemPresenterTest {
 
     @Test
     public void shouldBindReposterIfAny() {
-        propertySet.add(PlayableProperty.REPOSTER, "reposter");
+        propertySet.put(PlayableProperty.REPOSTER, "reposter");
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
         expect(textView(R.id.reposter).getVisibility()).toBe(View.VISIBLE);

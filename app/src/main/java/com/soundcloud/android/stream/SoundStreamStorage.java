@@ -88,11 +88,11 @@ class SoundStreamStorage extends ScheduledOperations {
         public PropertySet call(ManagedCursor cursor) {
             final PropertySet propertySet = PropertySet.create(cursor.getColumnCount());
 
-            propertySet.add(PlayableProperty.URN, readSoundUrn(cursor));
-            propertySet.add(PlayableProperty.TITLE, cursor.getString(SoundView.TITLE));
-            propertySet.add(PlayableProperty.DURATION, cursor.getInt(SoundView.DURATION));
-            propertySet.add(PlayableProperty.CREATOR, cursor.getString(SoundView.USERNAME));
-            propertySet.add(PlayableProperty.CREATED_AT, cursor.getDateFromTimestamp(ActivityView.CREATED_AT));
+            propertySet.put(PlayableProperty.URN, readSoundUrn(cursor));
+            propertySet.put(PlayableProperty.TITLE, cursor.getString(SoundView.TITLE));
+            propertySet.put(PlayableProperty.DURATION, cursor.getInt(SoundView.DURATION));
+            propertySet.put(PlayableProperty.CREATOR, cursor.getString(SoundView.USERNAME));
+            propertySet.put(PlayableProperty.CREATED_AT, cursor.getDateFromTimestamp(ActivityView.CREATED_AT));
             addOptionalPlaylistLike(cursor, propertySet);
             addOptionalLikesCount(cursor, propertySet);
             addOptionalPlayCount(cursor, propertySet);
@@ -104,31 +104,31 @@ class SoundStreamStorage extends ScheduledOperations {
 
         private void addOptionalPlaylistLike(ManagedCursor cursor, PropertySet propertySet) {
             if (getSoundType(cursor) == Playable.DB_TYPE_PLAYLIST) {
-                propertySet.add(PlayableProperty.IS_LIKED, cursor.getBoolean(SoundView.USER_LIKE));
+                propertySet.put(PlayableProperty.IS_LIKED, cursor.getBoolean(SoundView.USER_LIKE));
             }
         }
 
         private void addOptionalPlayCount(ManagedCursor cursor, PropertySet propertySet) {
             if (getSoundType(cursor) == Playable.DB_TYPE_TRACK) {
-                propertySet.add(TrackProperty.PLAY_COUNT, cursor.getInt(SoundView.PLAYBACK_COUNT));
+                propertySet.put(TrackProperty.PLAY_COUNT, cursor.getInt(SoundView.PLAYBACK_COUNT));
             }
         }
 
         private void addOptionalLikesCount(ManagedCursor cursor, PropertySet propertySet) {
             if (getSoundType(cursor) == Playable.DB_TYPE_PLAYLIST) {
-                propertySet.add(PlayableProperty.LIKES_COUNT, cursor.getInt(SoundView.LIKES_COUNT));
+                propertySet.put(PlayableProperty.LIKES_COUNT, cursor.getInt(SoundView.LIKES_COUNT));
             }
         }
 
         private void addOptionalTrackCount(ManagedCursor cursor, PropertySet propertySet) {
             if (getSoundType(cursor) == Playable.DB_TYPE_PLAYLIST) {
-                propertySet.add(PlaylistProperty.TRACK_COUNT, cursor.getInt(SoundView.TRACK_COUNT));
+                propertySet.put(PlaylistProperty.TRACK_COUNT, cursor.getInt(SoundView.TRACK_COUNT));
             }
         }
 
         private void addOptionalReposter(ManagedCursor cursor, PropertySet propertySet) {
             if (cursor.getString(ActivityView.TYPE).endsWith("-repost")) {
-                propertySet.add(PlayableProperty.REPOSTER, cursor.getString(ActivityView.USER_USERNAME));
+                propertySet.put(PlayableProperty.REPOSTER, cursor.getString(ActivityView.USER_USERNAME));
             }
         }
 

@@ -24,8 +24,8 @@ public class PropertySetTest {
     @Test
     public void aPropertySetCanAddAndGetPropertiesInATypeSafeWay() {
         PropertySet propertySet = PropertySet.create(2);
-        propertySet.add(TEST_PROP_STRING, "Test");
-        propertySet.add(TEST_PROP_INT, 1);
+        propertySet.put(TEST_PROP_STRING, "Test");
+        propertySet.put(TEST_PROP_INT, 1);
 
         expect(propertySet.get(TEST_PROP_STRING)).toEqual("Test");
         expect(propertySet.get(TEST_PROP_INT)).toEqual(1);
@@ -34,7 +34,7 @@ public class PropertySetTest {
     @Test
     public void containsReturnsWhetherOrNotAPropertyIsPartOfTheSet() {
         PropertySet propertySet = PropertySet.create(2);
-        propertySet.add(TEST_PROP_STRING, "Test");
+        propertySet.put(TEST_PROP_STRING, "Test");
 
         expect(propertySet.contains(TEST_PROP_STRING)).toBeTrue();
         expect(propertySet.contains(TEST_PROP_INT)).toBeFalse();
@@ -43,8 +43,8 @@ public class PropertySetTest {
     @Test
     public void addingAPropertyMoreThanOnceOverwritesAnyExistingBinding() {
         PropertySet propertySet = PropertySet.create(2);
-        propertySet.add(TEST_PROP_STRING, "Test1");
-        propertySet.add(TEST_PROP_STRING, "Test2");
+        propertySet.put(TEST_PROP_STRING, "Test1");
+        propertySet.put(TEST_PROP_STRING, "Test2");
 
         expect(propertySet.get(TEST_PROP_STRING)).toEqual("Test2");
     }

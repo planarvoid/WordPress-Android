@@ -53,7 +53,7 @@ public final class PropertySet implements Parcelable {
         table.put(binding.property.id, binding);
     }
 
-    public <T> PropertySet add(Property<T> property, T value) {
+    public <T> PropertySet put(Property<T> property, T value) {
         addBinding(property.bind(value));
         return this;
     }
