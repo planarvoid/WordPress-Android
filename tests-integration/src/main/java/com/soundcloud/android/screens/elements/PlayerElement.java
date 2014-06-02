@@ -87,11 +87,11 @@ public class PlayerElement extends Element {
     }
 
     public void toggleFooterPlay() {
-        solo.clickOnView(R.id.footer_toggle);
+        solo.clickOnView(getCurrentTrackPage().findViewById(R.id.footer_toggle));
     }
 
     public void togglePlay() {
-        solo.clickOnView(R.id.track_page_artwork);
+        solo.clickOnView(getCurrentTrackPage().findViewById(R.id.track_page_artwork));
     }
 
     public boolean isFooterInPlayingState() {

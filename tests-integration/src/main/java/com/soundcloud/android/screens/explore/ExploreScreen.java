@@ -11,7 +11,6 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.Screen;
-import com.soundcloud.android.screens.elements.PlayerElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.view.SlidingTabLayout;
