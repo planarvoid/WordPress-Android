@@ -17,6 +17,7 @@ import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.track.TrackOperations;
 import com.xtremelabs.robolectric.Robolectric;
@@ -41,8 +42,10 @@ import java.util.Iterator;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaybackServiceTest {
-    
-    PlaybackService playbackService;
+
+    public static final int DURATION = 1000;
+    private PlaybackService playbackService;
+    private Track track;
 
     @Mock
     private ApplicationProperties applicationProperties;
@@ -83,9 +86,13 @@ public class PlaybackServiceTest {
                 playbackEventSource, accountOperations, imageOperations, appWidgetProvider, streamPlayer,
                 playbackReceiverFactory, audioManagerProvider);
 
+        track = TestHelper.getModelFactory().createModel(Track.class);
+        track.duration = DURATION;
+
         when(playbackReceiverFactory.create(playbackService, accountOperations, playQueueManager, eventBus)).thenReturn(playbackReceiver);
         when(audioManagerProvider.get()).thenReturn(remoteAudioManager);
         when(playQueueManager.getCurrentPlayQueue()).thenReturn(playQueue);
+        when(trackOperations.markTrackAsPlayed(track)).thenReturn(Observable.just(track));
     }
 
     @Test
@@ -292,7 +299,43 @@ public class PlaybackServiceTest {
         ShadowService service = Robolectric.shadowOf(playbackService);
         final Notification lastForegroundNotification = service.getLastForegroundNotification();
         expect(lastForegroundNotification).not.toBeNull();
+    }
 
+    @Test
+    public void seekBeforeZeroPercentReturnsZero() throws Exception {
+        expect(playbackService.seek(-1f, true)).toBe(0L);
+    }
+
+    @Test
+    public void seekAfter100PercentReturnsZero() throws Exception {
+        expect(playbackService.seek(1.1f, true)).toBe(0L);
+    }
+
+    @Test
+    public void seekAWithInvalidDurationReturns0() throws Exception {
+        expect(playbackService.seek(1f, true)).toBe(0L);
+    }
+
+    @Test
+    public void seekWithValidPercentCallsSeekOnStreamPlaya() throws Exception {
+        playbackService.onCreate();
+        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
+
+        playbackService.openCurrent(track);
+        playbackService.seek(.5f, true);
+        verify(streamPlayer).seek(500L, true);
+    }
+
+    @Test
+    public void seekWithValidPercentReturnsStreamPlayaSeekValue() throws Exception {
+        playbackService.onCreate();
+        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
+        when(streamPlayer.seek(500L, true)).thenReturn(500L);
+
+        playbackService.openCurrent(track);
+        expect(playbackService.seek(.5f, true)).toEqual(500L);
     }
 
     private ArrayList<BroadcastReceiver> getReceiversForAction(String action) {
