@@ -27,7 +27,7 @@ public abstract class Urn implements Parcelable {
     public static final String USERS_TYPE = "users";
 
     private static final Pattern URN_PATTERN = Pattern.compile("^soundcloud:(" + SOUNDS_TYPE +
-            "|" + TRACKS_TYPE + "|" + PLAYLISTS_TYPE + "|" + USERS_TYPE + "):\\d+");
+            "|" + TRACKS_TYPE + "|" + PLAYLISTS_TYPE + "|" + USERS_TYPE + "):-?\\d+");
 
     public static final Creator<Urn> CREATOR = new Creator<Urn>() {
         @Override

@@ -2,12 +2,12 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import android.net.Uri;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.net.Uri;
 import android.os.Parcel;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -55,6 +55,17 @@ public class UrnTest {
         expect(urn.type).toEqual("playlists");
         expect(urn.numericId).toEqual(123L);
         expect(urn.contentProviderUri()).toEqual(Content.PLAYLIST.forId(123L));
+        expect(urn.isSound()).toBeTrue();
+    }
+
+    // Eventually we shouldn't have to do it anymore, but this is how we currently represent local playlists
+    @Test
+    public void shouldParseNegativePlaylistUrns() throws Exception {
+        Urn urn = Urn.parse("soundcloud:playlists:-123");
+        expect(urn).toBeInstanceOf(PlaylistUrn.class);
+        expect(urn.type).toEqual("playlists");
+        expect(urn.numericId).toEqual(-123L);
+        expect(urn.contentProviderUri()).toEqual(Content.PLAYLIST.forId(-123L));
         expect(urn.isSound()).toBeTrue();
     }
 
