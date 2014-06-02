@@ -66,9 +66,17 @@ public class ManagedCursorTest {
     }
 
     @Test
-    public void shouldReadIntFromCursorAtCurrentCursorPosition() {
+    public void shouldReadIntFromCursor() {
         cursor.moveToPosition(0);
         expect(managedCursor.getInt("int_col")).toEqual(0);
+    }
+
+    @Test
+    public void shouldReadBooleanFromCursor() {
+        cursor.moveToPosition(0);
+        expect(managedCursor.getBoolean("int_col")).toEqual(false);
+        cursor.moveToPosition(1);
+        expect(managedCursor.getBoolean("int_col")).toEqual(true);
     }
 
     @Test

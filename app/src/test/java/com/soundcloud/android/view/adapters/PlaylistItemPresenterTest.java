@@ -37,6 +37,7 @@ public class PlaylistItemPresenterTest {
                 PlayableProperty.TITLE.bind("title"),
                 PlayableProperty.CREATOR.bind("creator"),
                 PlayableProperty.LIKES_COUNT.bind(5),
+                PlayableProperty.IS_LIKED.bind(false),
                 PlaylistProperty.TRACK_COUNT.bind(11)
         );
 
@@ -73,6 +74,16 @@ public class PlaylistItemPresenterTest {
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
         expect(textView(R.id.likes_count).getText()).toEqual("5");
+    }
+
+    @Test
+    public void shouldBindLikeStatusToView() {
+        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        expect(textView(R.id.likes_count).getCompoundDrawables()[0].getLevel()).toEqual(0);
+
+        propertySet.add(PlayableProperty.IS_LIKED, true);
+        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        expect(textView(R.id.likes_count).getCompoundDrawables()[0].getLevel()).toEqual(1);
     }
 
     @Test

@@ -9,6 +9,8 @@ import java.util.Date;
 
 public final class ManagedCursor {
 
+    private static final int TRUE_VALUE = 1;
+
     private final Cursor cursor;
 
     ManagedCursor(Cursor cursor) {
@@ -37,6 +39,10 @@ public final class ManagedCursor {
 
     public long getLong(String column) {
         return cursor.getLong(cursor.getColumnIndex(column));
+    }
+
+    public boolean getBoolean(String column) {
+        return getInt(column) == TRUE_VALUE;
     }
 
     public Date getDateFromTimestamp(String column) {

@@ -75,8 +75,8 @@ class SoundStreamStorage extends ScheduledOperations {
 
     private Query soundAssociationQuery(int collectionType, long userId, String colName) {
         Query association = Query.from(Table.COLLECTION_ITEMS.name, Table.SOUNDS.name);
-        association.whereEq(ActivityView.SOUND_ID, CollectionItems.ITEM_ID);
-        association.whereEq(ActivityView.SOUND_TYPE, CollectionItems.RESOURCE_TYPE);
+        association.joinOn(ActivityView.SOUND_ID, CollectionItems.ITEM_ID);
+        association.joinOn(ActivityView.SOUND_TYPE, CollectionItems.RESOURCE_TYPE);
         association.whereEq(CollectionItems.COLLECTION_TYPE, collectionType);
         association.whereEq(Table.COLLECTION_ITEMS.name + "." + CollectionItems.USER_ID, userId);
         return association.exists().as(colName);
@@ -93,12 +93,19 @@ class SoundStreamStorage extends ScheduledOperations {
             propertySet.add(PlayableProperty.DURATION, cursor.getInt(SoundView.DURATION));
             propertySet.add(PlayableProperty.CREATOR, cursor.getString(SoundView.USERNAME));
             propertySet.add(PlayableProperty.REPOSTED_AT, cursor.getDateFromTimestamp(ActivityView.CREATED_AT));
+            addOptionalPlaylistLike(cursor, propertySet);
             addOptionalLikesCount(cursor, propertySet);
             addOptionalPlayCount(cursor, propertySet);
             addOptionalTrackCount(cursor, propertySet);
             addOptionalReposter(cursor, propertySet);
 
             return propertySet;
+        }
+
+        private void addOptionalPlaylistLike(ManagedCursor cursor, PropertySet propertySet) {
+            if (getSoundType(cursor) == Playable.DB_TYPE_PLAYLIST) {
+                propertySet.add(PlayableProperty.IS_LIKED, cursor.getBoolean(SoundView.USER_LIKE));
+            }
         }
 
         private void addOptionalPlayCount(ManagedCursor cursor, PropertySet propertySet) {

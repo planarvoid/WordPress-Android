@@ -105,6 +105,7 @@ public class SoundStreamStorageTest {
                 PlayableProperty.REPOSTED_AT.bind(new Date(TIMESTAMP)),
                 PlayableProperty.CREATOR.bind(playlist.getUser().getUsername()),
                 PlayableProperty.LIKES_COUNT.bind(playlist.getStats().getLikesCount()),
+                PlayableProperty.IS_LIKED.bind(false),
                 PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()));
 
         expect(observer.getOnNextEvents()).toNumber(1);
@@ -129,11 +130,37 @@ public class SoundStreamStorageTest {
                 PlayableProperty.CREATOR.bind(playlist.getUser().getUsername()),
                 PlayableProperty.REPOSTER.bind(reposter.getUsername()),
                 PlayableProperty.LIKES_COUNT.bind(playlist.getStats().getLikesCount()),
+                PlayableProperty.IS_LIKED.bind(false),
                 PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()));
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnCompletedEvents()).toNumber(1);
         observer.assertReceivedOnNext(Arrays.asList(playlistRepost));
+    }
+
+    @Test
+    public void shouldIncludeLikesStateForPlaylistAndUser() throws CreateModelException {
+        final PlaylistSummary playlist = helper.insertPlaylist();
+        helper.insertPlaylistPost(playlist, TIMESTAMP);
+        final int currentUserId = 123;
+        helper.insertPlaylistLike(playlist.getId(), currentUserId);
+
+        TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
+        storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(currentUserId), 50).subscribe(observer);
+
+        final PropertySet playlistPost = PropertySet.from(
+                PlayableProperty.URN.bind(Urn.forPlaylist(playlist.getId())),
+                PlayableProperty.TITLE.bind(playlist.getTitle()),
+                PlayableProperty.DURATION.bind(playlist.getDuration()),
+                PlayableProperty.REPOSTED_AT.bind(new Date(TIMESTAMP)),
+                PlayableProperty.CREATOR.bind(playlist.getUser().getUsername()),
+                PlayableProperty.LIKES_COUNT.bind(playlist.getStats().getLikesCount()),
+                PlayableProperty.IS_LIKED.bind(true),
+                PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()));
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnCompletedEvents()).toNumber(1);
+        observer.assertReceivedOnNext(Arrays.asList(playlistPost));
     }
 
     // we'll eventually refactor the underlying schema, but for now we need to make sure to exclude stuff
