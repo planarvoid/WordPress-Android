@@ -555,7 +555,15 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     public long seek(float percent, boolean performSeek) {
-        return seek((long) (getDuration() * percent), performSeek);
+        final int duration = getDuration();
+        final boolean invalidSeek = (duration <= 0 || percent < 0 || percent > 1);
+        if (invalidSeek){
+            final String message = "Invalid Seek [percent=" + percent + ", duration=" + duration +"]";
+            SoundCloudApplication.handleSilentException(message, new IllegalStateException(message));
+            return 0;
+        } else {
+            return seek((long) (duration * percent), performSeek);
+        }
     }
 
     public long seek(long pos, boolean performSeek) {
