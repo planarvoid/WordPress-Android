@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
@@ -40,6 +41,7 @@ public class SoundStreamFragment extends Fragment
 
     private ConnectableObservable<Page<List<PropertySet>>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
+    private Subscription playQueueEventSubscription = Subscriptions.empty();
 
     public SoundStreamFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -80,12 +82,15 @@ public class SoundStreamFragment extends Fragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        playQueueEventSubscription = eventBus.subscribe(EventQueue.PLAY_QUEUE, adapter.new PlayQueueEventSubscriber());
+
         listViewController.onViewCreated(this, observable, view, adapter, adapter);
         pullToRefreshController.onViewCreated(this, observable, adapter);
     }
 
     @Override
     public void onDestroyView() {
+        playQueueEventSubscription.unsubscribe();
         listViewController.onDestroyView();
         pullToRefreshController.onDestroyView();
         super.onDestroyView();

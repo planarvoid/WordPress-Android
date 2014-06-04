@@ -42,7 +42,7 @@ public class TrackItemPresenterTest {
                 PlayableProperty.TITLE.bind("title"),
                 PlayableProperty.CREATOR.bind("creator"),
                 PlayableProperty.DURATION.bind(227000),
-                PlayableProperty.URN.bind(Urn.forTrack(0)),
+                PlayableProperty.URN.bind(Urn.forTrack(123)),
                 TrackProperty.PLAY_COUNT.bind(870)
         );
 
@@ -92,6 +92,24 @@ public class TrackItemPresenterTest {
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
         expect(textView(R.id.reposter).getVisibility()).toBe(View.GONE);
+    }
+
+    @Test
+    public void shouldHighlightCurrentlyPlayingTrack() {
+        presenter.setPlayingTrack(Urn.forTrack(123));
+        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+
+        expect(textView(R.id.play_count).getVisibility()).toEqual(View.GONE);
+        expect(textView(R.id.now_playing).getVisibility()).toEqual(View.VISIBLE);
+    }
+
+    @Test
+    public void shouldNotHighlightTrackRowIfNotCurrentlyPlayingTrack() {
+        presenter.setPlayingTrack(Urn.forTrack(-1));
+        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+
+        expect(textView(R.id.play_count).getVisibility()).toEqual(View.VISIBLE);
+        expect(textView(R.id.now_playing).getVisibility()).toEqual(View.GONE);
     }
 
     private TextView textView(int id) {
