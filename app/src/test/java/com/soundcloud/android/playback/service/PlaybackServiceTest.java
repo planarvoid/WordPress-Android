@@ -20,7 +20,7 @@ import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowService;
@@ -55,7 +55,7 @@ public class PlaybackServiceTest {
     @Mock
     private PlayQueueManager playQueueManager;
     @Mock
-    private TrackOperations trackOperations;
+    private LegacyTrackOperations trackOperations;
     @Mock
     private AccountOperations accountOperations;
     @Mock

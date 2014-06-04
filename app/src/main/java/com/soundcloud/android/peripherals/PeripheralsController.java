@@ -9,7 +9,7 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import com.soundcloud.android.utils.ScTextUtils;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -27,10 +27,10 @@ public class PeripheralsController {
     private final Context context;
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
-    private final TrackOperations trackOperations;
+    private final LegacyTrackOperations trackOperations;
 
     @Inject
-    public PeripheralsController(Context context, EventBus eventBus, PlayQueueManager playQueueManager, TrackOperations trackOperations) {
+    public PeripheralsController(Context context, EventBus eventBus, PlayQueueManager playQueueManager, LegacyTrackOperations trackOperations) {
         this.context = context;
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;

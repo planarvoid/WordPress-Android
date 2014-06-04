@@ -20,7 +20,7 @@ import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +39,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     private Track track;
 
     @Mock
-    private TrackOperations trackOperations;
+    private LegacyTrackOperations trackOperations;
     @Mock
     private AccountOperations accountOperations;
     @Mock

@@ -14,7 +14,7 @@ import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -47,7 +47,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Inject
     PlayQueueManager playQueueManager;
     @Inject
-    TrackOperations trackOperations;
+    LegacyTrackOperations trackOperations;
     @Inject
     AccountOperations accountOperations;
     @Inject
@@ -131,7 +131,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @VisibleForTesting
     PlaybackService(PlayQueueManager playQueueManager,
-                    EventBus eventBus, TrackOperations trackOperations,
+                    EventBus eventBus, LegacyTrackOperations trackOperations,
                     AccountOperations accountOperations,
                     StreamPlaya streamPlaya,
                     PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider,

@@ -14,7 +14,7 @@ import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.LegacyPlayerTrackView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import com.soundcloud.android.view.EmptyView;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class PlayerTrackPagerAdapterTest {
     private PlayerTrackPagerAdapter adapter;
 
     @Mock
-    private TrackOperations trackOperations;
+    private LegacyTrackOperations trackOperations;
     @Mock
     private PlaybackStateProvider stateProvider;
     @Mock

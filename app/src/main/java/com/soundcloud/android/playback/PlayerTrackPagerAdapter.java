@@ -8,7 +8,7 @@ import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.LegacyPlayerTrackView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.RecyclingPager.RecyclingPagerAdapter;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +35,7 @@ public abstract class  PlayerTrackPagerAdapter<T extends View & PlayerTrackView>
     private static final long EMPTY_VIEW_ID = -1;
 
     private final BiMap<T, Integer> trackViewsByPosition = HashBiMap.create(EXPECTED_TRACKVIEW_COUNT);
-    private final TrackOperations trackOperations;
+    private final LegacyTrackOperations trackOperations;
     private final PlaybackStateProvider stateProvider;
 
     protected PlayQueueView playQueue = PlayQueueView.EMPTY;
@@ -44,7 +44,7 @@ public abstract class  PlayerTrackPagerAdapter<T extends View & PlayerTrackView>
     private final LruCache<Long, ReplaySubject<Track>> trackSubjectCache =
             new LruCache<Long, ReplaySubject<Track>>(TRACK_CACHE_SIZE);
 
-    public PlayerTrackPagerAdapter(TrackOperations trackOperations, PlaybackStateProvider stateProvider) {
+    public PlayerTrackPagerAdapter(LegacyTrackOperations trackOperations, PlaybackStateProvider stateProvider) {
         this.trackOperations = trackOperations;
         this.stateProvider = stateProvider;
     }

@@ -12,7 +12,7 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import com.soundcloud.android.view.RecyclingPager.RecyclingPagerAdapter;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -32,7 +32,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
 
     private final PlayQueueManager playQueueManager;
     private final PlaySessionController playSessionController;
-    private final TrackOperations trackOperations;
+    private final LegacyTrackOperations trackOperations;
     private final TrackPagePresenter trackPagePresenter;
     private final PlaybackOperations playbackOperations;
     private final EventBus eventBus;
@@ -44,7 +44,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
 
     @Inject
     TrackPagerAdapter(PlayQueueManager playQueueManager, PlaySessionController playSessionController,
-                      TrackOperations trackOperations, TrackPagePresenter trackPagePresenter,
+                      LegacyTrackOperations trackOperations, TrackPagePresenter trackPagePresenter,
                       PlaybackOperations playbackOperations, EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;

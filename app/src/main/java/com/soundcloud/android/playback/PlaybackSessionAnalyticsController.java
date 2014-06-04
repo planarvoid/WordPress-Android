@@ -11,7 +11,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -22,7 +22,7 @@ import javax.inject.Inject;
 public class PlaybackSessionAnalyticsController {
 
     private final EventBus eventBus;
-    private final TrackOperations trackOperations;
+    private final LegacyTrackOperations trackOperations;
     private final AccountOperations accountOperations;
     private final PlayQueueManager playQueueManager;
     private PlaybackSessionEvent lastPlayEventData;
@@ -32,7 +32,7 @@ public class PlaybackSessionAnalyticsController {
     private ReplaySubject<Integer> durationObservable;
 
     @Inject
-    public PlaybackSessionAnalyticsController(EventBus eventBus, TrackOperations trackOperations,
+    public PlaybackSessionAnalyticsController(EventBus eventBus, LegacyTrackOperations trackOperations,
                                               AccountOperations accountOperations, PlayQueueManager playQueueManager) {
         this.eventBus = eventBus;
         this.trackOperations = trackOperations;
