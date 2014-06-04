@@ -9,11 +9,10 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
@@ -33,7 +32,7 @@ public class PlaybackNotificationController {
 
     private final Context context;
     private final PlaybackNotificationPresenter presenter;
-    private final TrackOperations trackOperations;
+    private final LegacyTrackOperations trackOperations;
     private final NotificationManager notificationManager;
     private final EventBus eventBus;
     private final ImageOperations imageOperations;
@@ -73,7 +72,7 @@ public class PlaybackNotificationController {
     };
 
     @Inject
-    public PlaybackNotificationController(Context context, TrackOperations trackOperations, PlaybackNotificationPresenter presenter,
+    public PlaybackNotificationController(Context context, LegacyTrackOperations trackOperations, PlaybackNotificationPresenter presenter,
                                           NotificationManager notificationManager, EventBus eventBus, ImageOperations imageOperations) {
         this.context = context;
         this.trackOperations = trackOperations;

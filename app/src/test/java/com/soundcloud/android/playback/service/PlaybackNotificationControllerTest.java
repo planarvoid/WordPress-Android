@@ -22,7 +22,7 @@ import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import com.xtremelabs.robolectric.Robolectric;
 import junit.framework.TestCase;
 import org.junit.Before;
@@ -53,7 +53,7 @@ public class PlaybackNotificationControllerTest extends TestCase {
     @Mock
     private Context context;
     @Mock
-    private TrackOperations trackOperations;
+    private LegacyTrackOperations trackOperations;
     @Mock
     private ImageOperations imageOperations;
     @Mock
