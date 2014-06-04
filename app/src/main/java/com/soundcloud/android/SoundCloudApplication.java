@@ -20,6 +20,8 @@ import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.service.PlaybackNotificationController;
+import com.soundcloud.android.playback.service.PlaybackServiceModule;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
 import com.soundcloud.android.playback.PlaybackSessionAnalyticsController;
@@ -89,6 +91,8 @@ public class SoundCloudApplication extends Application {
     PlaybackSessionAnalyticsController playSessionAnalyticsController;
     @Inject
     PlaylistTagStorage playlistTagStorage;
+    @Inject
+    PlaybackNotificationController playbackNotificationController;
 
     // we need this object to exist througout the life time of the app,
     // even if it appears to be unused
@@ -104,7 +108,8 @@ public class SoundCloudApplication extends Application {
                 new AnalyticsModule(),
                 new WidgetModule(),
                 new LegacyModule(),
-                new FeaturesModule());
+                new FeaturesModule(),
+                new PlaybackServiceModule());
     }
 
     @VisibleForTesting
@@ -155,6 +160,7 @@ public class SoundCloudApplication extends Application {
         peripheralsController.subscribe();
         playSessionController.subscribe();
         playSessionAnalyticsController.subscribe();
+        playbackNotificationController.subscribe();
     }
 
     private void setupCurrentUserAccount() {

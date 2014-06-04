@@ -6,6 +6,9 @@
     <dimen name="notification_image_width">65dip</dimen>
     <dimen name="notification_image_height">65dip</dimen>
 
+    <dimen name="notification_image_large_width">112dip</dimen>
+    <dimen name="notification_image_large_height">112dip</dimen>
+
     <dimen name="list_icon_width">47dip</dimen>
     <dimen name="list_icon_height">47dip</dimen>
 
@@ -164,5 +167,9 @@
     <dimen name="player_pager_spacing">2dp</dimen>
     <dimen name="track_page_skip_width">85dp</dimen>
     <dimen name="track_page_skip_height">70dp</dimen>
+
+    <!-- notifications -->
+    <dimen name="notification_title_text_size">24sp</dimen>
+    <dimen name="notification_user_text_size">14sp</dimen>
 
 </resources>

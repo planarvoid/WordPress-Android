@@ -12,8 +12,9 @@ import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.playback.widget.PlayerWidgetController;
+import com.soundcloud.android.playback.service.PlaybackNotificationController;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
+import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.storage.PlaylistTagStorage;
 import dagger.Module;
@@ -132,4 +133,10 @@ public class TestApplicationModule {
     public IRemoteAudioManager provideIRemoteAudioManager() {
         return mock(IRemoteAudioManager.class);
     }
+
+    @Provides
+    public PlaybackNotificationController providePlaybackNotificationController() {
+        return mock(PlaybackNotificationController.class);
+    }
 }
+

@@ -2,14 +2,17 @@ package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.external.PlaybackAction;
 import com.soundcloud.android.playback.service.PlaybackService;
 
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Parcel;
+import android.view.View;
+
+import javax.inject.Inject;
 
 /**
  * Play controls used in notifications (API level 11 and up)
@@ -18,24 +21,16 @@ public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
 
     private static final int PENDING_INTENT_REQUEST_CODE = NotificationPlaybackRemoteViews.class.hashCode();
 
-    public NotificationPlaybackRemoteViews(String packageName) {
+    NotificationPlaybackRemoteViews(String packageName, int layout) {
         super(packageName,
-                R.layout.playback_status_v11,
-                R.drawable.ic_notification_play_states,
-                R.drawable.ic_notification_pause_states);
+                layout,
+                R.drawable.notifications_play,
+                R.drawable.notifications_pause);
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public NotificationPlaybackRemoteViews(Parcel parcel) {
         super(parcel);
-    }
-
-    @Deprecated
-    public void setNotification(Track track, boolean isPlaying) {
-        this.track = track;
-        this.isPlaying = isPlaying;
-        setCurrentTrackTitle(track.title);
-        setCurrentUsername(track.user == null ? "" : track.user.username);
     }
 
     public void linkButtonsNotification(Context context) {
@@ -45,9 +40,23 @@ public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
                 PENDING_INTENT_REQUEST_CODE, close, 0));
     }
 
+    public void setIcon(Uri bitmapUri) {
+        if (bitmapUri != null){
+            setImageViewUri(R.id.icon, bitmapUri);
+            setViewVisibility(R.id.icon, View.VISIBLE);
+        } else {
+            setViewVisibility(R.id.icon,View.GONE);
+        }
+    }
+
+    public void clearIcon(){
+        setViewVisibility(R.id.icon,View.GONE);
+    }
+
     private void linkPlayerControls(Context context) {
         setOnClickPendingIntent(R.id.toggle_playback, createPendingIntent(context, PlaybackAction.TOGGLE_PLAYBACK));
         setOnClickPendingIntent(R.id.next, createPendingIntent(context, PlaybackAction.NEXT));
+        setOnClickPendingIntent(R.id.prev, createPendingIntent(context, PlaybackAction.PREVIOUS));
     }
 
     private PendingIntent createPendingIntent(Context context, String playbackAction) {
@@ -59,7 +68,17 @@ public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
                 .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_WIDGET);
     }
 
-    public boolean isAlreadyNotifying(Track track, boolean isPlaying) {
-        return track == this.track && isPlaying == this.isPlaying;
+    public static class Factory {
+        @Inject
+        public Factory() {
+        }
+
+        public NotificationPlaybackRemoteViews create(String packageName) {
+            return create(packageName, R.layout.playback_status_v11);
+        }
+
+        public NotificationPlaybackRemoteViews create(String packageName, int layout){
+            return new NotificationPlaybackRemoteViews(packageName, layout);
+        }
     }
 }

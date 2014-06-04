@@ -76,12 +76,14 @@ public class PlaybackServiceTest {
     private Playa.StateTransition stateTransition;
     @Mock
     private FeatureFlags featureFlags;
+    @Mock
+    private PlaybackNotificationController playbackNotificationController;
 
     @Before
     public void setUp() throws Exception {
-        playbackService = new PlaybackService(applicationProperties, playQueueManager, eventBus, trackOperations,
-                accountOperations, imageOperations, streamPlayer,
-                playbackReceiverFactory, audioManagerProvider, featureFlags);
+        playbackService = new PlaybackService(playQueueManager, eventBus, trackOperations,
+                accountOperations, streamPlayer,
+                playbackReceiverFactory, audioManagerProvider, featureFlags, playbackNotificationController);
 
 
         track = TestHelper.getModelFactory().createModel(Track.class);
@@ -91,6 +93,7 @@ public class PlaybackServiceTest {
         when(audioManagerProvider.get()).thenReturn(remoteAudioManager);
         when(playQueueManager.getCurrentPlayQueue()).thenReturn(playQueue);
         when(trackOperations.markTrackAsPlayed(track)).thenReturn(Observable.just(track));
+//        when(playbackNotificationController).playingNotification()
     }
 
     @Test
@@ -248,6 +251,7 @@ public class PlaybackServiceTest {
 
         when(streamPlayer.getLastStateTransition()).thenReturn(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE));
         when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
+        when(playbackNotificationController.playingNotification()).thenReturn(Observable.just(Mockito.mock(Notification.class)));
         playbackService.openCurrent(new Track());
 
         playbackService.stop();

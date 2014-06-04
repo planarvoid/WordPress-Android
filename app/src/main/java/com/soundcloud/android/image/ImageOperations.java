@@ -4,12 +4,16 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Sets;
+import com.nostra13.universalimageloader.cache.disc.naming.FileNameGenerator;
+import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -23,12 +27,14 @@ import rx.Subscriber;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ImageView;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -51,12 +57,14 @@ public class ImageOperations {
     private final Set<String> notFoundUris = Sets.newHashSet();
     private final Cache<String, Drawable> placeholderCache;
     private final ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory;
+    private final FileNameGenerator fileNameGenerator;
 
     @Inject
     public ImageOperations(ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator,
                            ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory) {
-        this(ImageLoader.getInstance(), imageEndpointBuilder, placeholderGenerator,
-                CacheBuilder.newBuilder().weakValues().maximumSize(50).<String, Drawable>build(), viewlessLoadingAdapterFactory);
+        this(ImageLoader.getInstance(), imageEndpointBuilder, placeholderGenerator, viewlessLoadingAdapterFactory,
+                CacheBuilder.newBuilder().weakValues().maximumSize(50).<String, Drawable>build(),
+                new HashCodeFileNameGenerator());
 
     }
 
@@ -88,13 +96,14 @@ public class ImageOperations {
     };
 
     @VisibleForTesting
-    ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator, Cache<String, Drawable> placeholderCache,
-                    ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory) {
+    ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator, ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory, Cache<String, Drawable> placeholderCache,
+                    FileNameGenerator fileNameGenerator) {
         this.imageLoader = imageLoader;
         this.imageEndpointBuilder = imageEndpointBuilder;
         this.placeholderGenerator = placeholderGenerator;
         this.placeholderCache = placeholderCache;
         this.viewlessLoadingAdapterFactory = viewlessLoadingAdapterFactory;
+        this.fileNameGenerator = fileNameGenerator;
     }
 
     public void initialise(Context context, ApplicationProperties properties) {
@@ -106,6 +115,7 @@ public class ImageOperations {
         }
 
         builder.defaultDisplayImageOptions(ImageOptionsFactory.cache());
+        builder.diskCacheFileNameGenerator(fileNameGenerator);
         final long availableMemory = Runtime.getRuntime().maxMemory();
         // Here are some reference values for available mem: Wildfire: 16,777,216; Nexus S: 33,554,432; Nexus 4: 201,326,592
         if (availableMemory < LOW_MEM_DEVICE_THRESHOLD) {
@@ -164,6 +174,13 @@ public class ImageOperations {
                 new ImageListenerUILAdapter(imageListener));
     }
 
+    public void load(Urn urn, ApiImageSize apiImageSize, int targetWidth, int targetHeight, ImageListener imageListener) {
+        imageLoader.loadImage(
+                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
+                new ImageSize(targetWidth, targetHeight),
+                new ImageListenerUILAdapter(imageListener));
+    }
+
     @Deprecated // use the variants that take URNs instead
     public void load(String imageUrl, ImageListener imageListener) {
         imageLoader.loadImage(adjustUrl(imageUrl), new ImageListenerUILAdapter(imageListener));
@@ -186,6 +203,36 @@ public class ImageOperations {
                 load(resourceUrn, apiImageSize, viewlessLoadingAdapterFactory.create(subscriber, emitCopy));
             }
         });
+    }
+
+    public Observable<Bitmap> image(final Urn resourceUrn, final ApiImageSize apiImageSize, final int targetWidth,
+                                    final int targetHeight, final boolean emitCopy) {
+        return Observable.create(new Observable.OnSubscribe<Bitmap>() {
+            @Override
+            public void call(Subscriber<? super Bitmap> subscriber) {
+                load(resourceUrn, apiImageSize, targetWidth, targetHeight, viewlessLoadingAdapterFactory.create(subscriber, emitCopy));
+            }
+        });
+    }
+
+    public Bitmap getCachedBitmap(Urn resourceUrn, ApiImageSize apiImageSize, int targetWidth, int targetHeight){
+        return imageLoader.getMemoryCache().get(MemoryCacheUtils.generateKey(
+                buildUrlIfNotPreviouslyMissing(resourceUrn, apiImageSize),
+                new com.nostra13.universalimageloader.core.assist.ImageSize(
+                        targetWidth,
+                        targetHeight
+                )
+        ));
+    }
+
+    public Uri getLocalImageUri(Urn resourceUrn, ApiImageSize apiImageSize){
+        final String imageUri = buildUrlIfNotPreviouslyMissing(resourceUrn, apiImageSize);
+        if (imageUri != null){
+            final File cacheDir = imageLoader.getDiskCache().getDirectory().getAbsoluteFile();
+            final File imageFile = new File(cacheDir, fileNameGenerator.generate(imageUri));
+            return Uri.fromFile(imageFile);
+        }
+        return null;
     }
 
     public void resume() {

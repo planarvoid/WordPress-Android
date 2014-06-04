@@ -81,6 +81,10 @@ public class ApplicationProperties {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
     }
 
+    public boolean shouldUseBigNotifications() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("buildType", BUILD_TYPE).add("isDalvik", IS_RUNNING_ON_DALVIK).

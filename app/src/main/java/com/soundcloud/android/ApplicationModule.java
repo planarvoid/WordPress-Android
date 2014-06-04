@@ -4,14 +4,20 @@ import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.playback.service.BigPlaybackNotificationPresenter;
+import com.soundcloud.android.playback.service.PlaybackNotificationPresenter;
+import com.soundcloud.android.playback.service.RichNotificationPresenter;
 import com.soundcloud.android.playback.service.managers.FroyoRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
+import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.storage.StorageModule;
 import dagger.Module;
 import dagger.Provides;
 
 import android.accounts.AccountManager;
+import android.app.NotificationManager;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -20,10 +26,12 @@ import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 @Module(library = true, includes = {ApiModule.class, StorageModule.class})
@@ -71,6 +79,11 @@ public class ApplicationModule {
     }
 
     @Provides
+    public NotificationManager provideNotificationManager() {
+        return (NotificationManager) application.getSystemService(Context.NOTIFICATION_SERVICE);
+    }
+
+    @Provides
     public LayoutInflater provideLayoutInflater() {
         return LayoutInflater.from(application);
     }
@@ -102,6 +115,25 @@ public class ApplicationModule {
     @Provides
     public AppWidgetManager provideAppWidgetManager(Context context) {
         return AppWidgetManager.getInstance(context);
+    }
+
+    @Provides
+    public NotificationCompat.Builder provideNotificationBuilder(Context context){
+        return new NotificationCompat.Builder(context);
+    }
+
+    @Provides
+    @Singleton
+    public PlaybackNotificationPresenter providePlaybackNotificationPresenter(Context context, ApplicationProperties applicationProperties,
+                                                                              NotificationPlaybackRemoteViews.Factory factory,
+                                                                              Provider<NotificationCompat.Builder> builder) {
+        if (applicationProperties.shouldUseBigNotifications()) {
+            return new BigPlaybackNotificationPresenter(context, factory, builder);
+        } else if (applicationProperties.shouldUseRichNotifications()){
+            return new RichNotificationPresenter(context, factory, builder);
+        } else {
+            return new PlaybackNotificationPresenter(context, builder);
+        }
     }
 
     @SuppressWarnings("unchecked")
