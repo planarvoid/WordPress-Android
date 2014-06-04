@@ -9,15 +9,12 @@ import com.robotium.solo.By;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 import com.soundcloud.android.R;
-import com.soundcloud.android.R.id;
-import com.soundcloud.android.main.NavigationDrawerFragment;
 import com.soundcloud.android.screens.elements.ViewElement;
 import junit.framework.AssertionFailedError;
 
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.SystemClock;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -39,9 +36,6 @@ import java.util.regex.Pattern;
 public class Han  {
     private static final String TAG = Han.class.getSimpleName().toString();
     private static final int DEFAULT_TIMEOUT = 20 * 1000;
-    private static final int TIMEOUT = 3 * 1000;
-    private static final int SMALL_TIMEOUT = 500;
-    private static final int SWIPE_SLEEP = 1000;
     private static ViewFetcher viewFetcher;
 
     private final Solo solo;
@@ -201,11 +195,6 @@ public class Han  {
         solo.waitForView(GridView.class);
         final ArrayList<GridView> currentGridViews = solo.getCurrentViews(GridView.class);
         return currentGridViews == null || currentGridViews.isEmpty() ? null : currentGridViews.get(0);
-    }
-
-    public NavigationDrawerFragment getCurrentNavigationDrawer() {
-        final FragmentActivity fragmentActivity = (FragmentActivity) solo.getCurrentActivity();
-        return (NavigationDrawerFragment) fragmentActivity.getSupportFragmentManager().findFragmentById(id.navigation_fragment_id);
     }
 
     public void swipeLeft() {

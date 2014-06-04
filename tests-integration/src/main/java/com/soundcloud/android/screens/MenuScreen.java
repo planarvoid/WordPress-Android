@@ -1,16 +1,15 @@
 package com.soundcloud.android.screens;
 
-import android.view.View;
-import android.widget.ListView;
-import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.R.id;
 import com.soundcloud.android.R.string;
-import com.soundcloud.android.main.NavigationDrawerFragment;
-import com.soundcloud.android.main.NavigationFragment;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
+
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
 
 public class MenuScreen {
     protected Han solo;
@@ -46,7 +45,7 @@ public class MenuScreen {
     }
 
     public View youMenu() {
-        return rootMenu().getChildAt(NavigationFragment.NavItem.PROFILE.ordinal());
+        return rootMenu().getChildAt(0);
     }
 
     //TODO: move this to ActionBarScreen
@@ -74,13 +73,7 @@ public class MenuScreen {
     }
 
     public boolean isOpened() {
-        NavigationDrawerFragment navigationDrawerFragment = null;
-        try {
-            navigationDrawerFragment = solo.getCurrentNavigationDrawer();
-        } catch (Exception e) {
-            return false;
-        }
-            return navigationDrawerFragment.isDrawerOpen();
+        return solo.findElement(id.navigation_fragment_id).isVisible();
     }
 
     public ProfileScreen clickProfile() {

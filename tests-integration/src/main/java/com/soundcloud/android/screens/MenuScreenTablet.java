@@ -1,6 +1,5 @@
 package com.soundcloud.android.screens;
 
-import android.support.v4.app.FragmentActivity;
 import com.soundcloud.android.R;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.Han;
@@ -36,8 +35,7 @@ public class MenuScreenTablet extends MenuScreen{
     }
 
     public boolean isOpened() {
-        FragmentActivity activity = (FragmentActivity) solo.getCurrentActivity();
-        return activity.getSupportFragmentManager().findFragmentById(R.id.fixed_navigation_fragment_id) != null;
+        return solo.findElement(R.id.fixed_navigation_fragment_id).isVisible();
     }
 
 }

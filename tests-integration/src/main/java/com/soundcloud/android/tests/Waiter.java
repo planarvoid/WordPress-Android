@@ -3,8 +3,8 @@ package com.soundcloud.android.tests;
 import com.robotium.solo.Condition;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.NavigationDrawerFragment;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
+import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.elements.ViewElement;
 import com.soundcloud.android.utils.Log;
 
@@ -15,9 +15,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Adapter;
-import android.widget.ListAdapter;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -294,16 +292,17 @@ public class Waiter {
     }
 
     private class DrawerStateCondition implements Condition {
-        private final NavigationDrawerFragment navigationDrawerFragment = solo.getCurrentNavigationDrawer();
+        private final MenuScreen menuScreen;
         private boolean state;
 
         DrawerStateCondition(boolean shouldBeOpen) {
             this.state = shouldBeOpen;
+            menuScreen = new MenuScreen(solo);
         }
 
         @Override
         public boolean isSatisfied() {
-            return state && navigationDrawerFragment.isDrawerOpen();
+            return state && menuScreen.isOpened();
         }
     }
 
