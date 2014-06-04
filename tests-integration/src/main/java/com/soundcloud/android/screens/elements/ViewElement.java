@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens.elements;
 
+import com.robotium.solo.Solo;
 import com.soundcloud.android.tests.Han;
 
 import android.content.Context;
@@ -10,81 +11,70 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class ViewElement {
-    private final Han testDriver;
-    private final View mView;
+    private final Solo testDriver;
+    private final View view;
 
-    public ViewElement(View element, Han driver) {
+    public ViewElement(View element, Solo driver) {
         testDriver = driver;
-        mView = element;
+        view = element;
     }
 
-    public ViewElement(Han driver){
+    public ViewElement(Solo driver){
         testDriver = driver;
-        mView = null;
+        view = null;
     }
 
     public void click() {
         if( !isVisible() ) {
             throw new Error("View is not visible, cannot click it!");
         }
-        testDriver.clickOnView(mView);
+        testDriver.clickOnView(view);
     }
 
     public void typeText(String text) {
-        testDriver.typeText((EditText)mView, text);
+        testDriver.typeText((EditText) view, text);
     }
     public void clearText() {
-        testDriver.clearEditText((EditText)mView);
+        testDriver.clearEditText((EditText) view);
     }
 
     public boolean isVisible(){
-        return mView != null && isShown() && hasVisibility() && hasDimentions() && isOnScreen();
+        return view != null && isShown() && hasVisibility() && hasDimentions() && isOnScreen();
     }
 
     public String getText() {
-        return ((TextView) mView).getText().toString();
+        if (view == null) return "";
+        return ((TextView) view).getText().toString();
     }
 
     public int getHeight() {
-        return mView.getHeight();
+        return view.getHeight();
     }
 
     public int getWidth() {
-        return mView.getWidth();
+        return view.getWidth();
     }
 
     public int[] getLocation() {
         int[] locationOnScreen = new int [2];
-        mView.getLocationOnScreen(locationOnScreen);
+        view.getLocationOnScreen(locationOnScreen);
         return locationOnScreen;
     }
 
     public View getView() {
-        return mView;
-    }
-
-    public ViewElement findElement(int id) {
-        //TODO parent!
-        return testDriver.findElement(id);
-    }
-
-    public ViewElement findElement(Class <? extends View> viewClass) {
-        return testDriver.findElement(viewClass);
-    }
-
-    public ListElement toList() {
-        return new ListElement(mView, testDriver);
+        return view;
     }
 
     public int getId() {
-        return mView.getId();
+        return view.getId();
     }
 
     private boolean hasDimentions() {
         return getHeight() > 0 && getWidth() > 0 ;
     }
+
     private boolean isShown() {
-        return mView.isShown();
+        return view.isShown();
     }
 
     private boolean isOnScreen() {
@@ -108,7 +98,7 @@ public class ViewElement {
     }
 
     private boolean hasVisibility() {
-        return mView.getVisibility() == View.VISIBLE;
+        return view.getVisibility() == View.VISIBLE;
     }
 
 }

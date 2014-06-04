@@ -1,16 +1,10 @@
 package com.soundcloud.android.tests;
 
-import static com.google.common.collect.Collections2.filter;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import com.robotium.solo.By;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
@@ -43,74 +37,26 @@ import java.util.regex.Pattern;
  * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
  */
 public class Han  {
+    private static final String TAG = Han.class.getSimpleName().toString();
     private static final int DEFAULT_TIMEOUT = 20 * 1000;
+    private static final int TIMEOUT = 3 * 1000;
+    private static final int SMALL_TIMEOUT = 500;
     private static final int SWIPE_SLEEP = 1000;
+    private static ViewFetcher viewFetcher;
 
     private final Solo solo;
-
-    public Han(Instrumentation instrumentation, Activity activity) {
-        solo = new Solo(instrumentation, activity);
-    }
 
     public Solo getSolo() {
         return solo;
     }
-    @SuppressWarnings("UnusedDeclaration")
+
     public Han(Instrumentation instrumentation) {
         solo = new Solo(instrumentation);
+        viewFetcher = new ViewFetcher(solo);
     }
 
-    public ViewElement findElement(int id){
-        ArrayList<ViewElement> foundElements = findElements(id);
-        if (foundElements.isEmpty()){
-            return new ViewElement(this);
-        }
-        return firstVisible(foundElements);
-    }
-
-    private ViewElement firstVisible(ArrayList<ViewElement> foundElements) {
-        for(ViewElement v : foundElements) {
-            if (v.isVisible()){ return v;}
-        }
-        return null;
-    }
-
-    public ViewElement findElement(Class<? extends View> viewClass) {
-        View view = null;
-        try {
-            view = solo.getView(viewClass, 0);
-        } catch (AssertionFailedError ignored) {
-
-        }
-        return new ViewElement(view, this);
-    }
-
-    private List<ViewElement> findAllElements() {
-        final Han that = this;
-        return Lists.transform(solo.getViews(), new Function<View, ViewElement>() {
-            @Override
-            public ViewElement apply(View view) {
-                return new ViewElement(view, that);
-            }
-        });
-    }
-
-    private List<ViewElement> findVisibleElements() {
-        return Lists.newArrayList(filter(findAllElements(), new Predicate<ViewElement>() {
-            public boolean apply(ViewElement viewElement) {
-                return viewElement.isVisible();
-            }
-        }));
-
-    }
-    public ArrayList<ViewElement> findElements(int id) {
-        ArrayList<ViewElement> foundViews = new ArrayList<ViewElement>();
-        for(ViewElement view : findVisibleElements()) {
-            if(view.getId() == id) {
-                foundViews.add(view);
-            }
-        }
-        return foundViews;
+    public ViewElement findElement(int viewId) {
+        return viewFetcher.findElement(viewId);
     }
 
     public void clickOnOK() {
@@ -284,7 +230,7 @@ public class Han  {
         final int screenHeight = display.getHeight();
         final int screenWidth = display.getWidth();
 
-        drag(screenWidth/4, screenWidth/4, screenHeight/4, screenHeight/2, 10);
+        drag(screenWidth / 4, screenWidth / 4, screenHeight / 4, screenHeight / 2, 10);
     }
 
     public void enterTextId(int resId, String text) {
@@ -552,5 +498,13 @@ public class Han  {
         }
         return canHideKeyboard;
     }
-}
 
+    private class ViewClicker {
+        private final Solo testDriver;
+
+        public ViewClicker(Solo driver) {
+            testDriver = driver;
+        };
+
+    }
+}

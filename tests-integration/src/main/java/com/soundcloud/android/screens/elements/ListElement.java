@@ -1,17 +1,18 @@
 package com.soundcloud.android.screens.elements;
 
+import com.robotium.solo.Solo;
 import com.soundcloud.android.tests.Han;
 
 import android.view.View;
 import android.widget.AbsListView;
 
 public class ListElement {
-    private final Han testDriver;
-    private final AbsListView mView;
+    private final Solo testDriver;
+    private final AbsListView absListView;
 
-    public ListElement(View element, Han driver) {
+    public ListElement(View element, Solo driver) {
         testDriver = driver;
-        mView = (AbsListView)element;
+        absListView = (AbsListView)element;
     }
 
     public void clickItemAt(int index) {
@@ -19,14 +20,14 @@ public class ListElement {
     }
 
     public ViewElement getItemAt(int index) {
-        return new ViewElement(mView.getChildAt(index), testDriver);
+        return new ViewElement(absListView.getChildAt(index), testDriver);
     }
 
     public void scrollToBottom() {
-        testDriver.scrollToBottom(mView);
+        testDriver.scrollToBottom();
     }
 
     public int getCount() {
-        return mView.getAdapter().getCount();
+        return absListView.getAdapter().getCount();
     }
 }

@@ -73,7 +73,7 @@ public class Waiter {
         return solo.waitForCondition(new PlayerCollapsedCondition(), ELEMENT_TIMEOUT);
     }
 
-    public boolean waitForTextInView(TextView textView, String text) {
+    public boolean waitForTextInView(ViewElement textView, String text) {
         return solo.waitForCondition(new TextInViewCondition(textView, text), ELEMENT_TIMEOUT);
     }
 
@@ -315,10 +315,10 @@ public class Waiter {
     }
 
     private class TextInViewCondition implements Condition {
-        private final TextView view;
+        private final ViewElement view;
         private final String text;
 
-        private TextInViewCondition(TextView view, String text) {
+        private TextInViewCondition(ViewElement view, String text) {
             this.view = view;
             this.text = text;
         }

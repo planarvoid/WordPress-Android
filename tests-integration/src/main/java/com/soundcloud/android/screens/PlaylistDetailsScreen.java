@@ -2,6 +2,7 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.screens.elements.ViewElement;
 import com.soundcloud.android.tests.Han;
 
 import android.widget.ToggleButton;
@@ -29,15 +30,15 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public String getUsername() {
-        return ((TextView) title()).getText().toString();
+        return title().getText();
     }
 
     public String getTitle() {
-        return ((TextView) title()).getText().toString();
+        return title().getText();
     }
 
-    private View title() {
-        return rootContainer().findViewById(TITLE);
+    private ViewElement title() {
+        return solo.findElement(TITLE);
     }
 
     private View username() {

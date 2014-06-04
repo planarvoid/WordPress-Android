@@ -4,22 +4,19 @@ import static junit.framework.Assert.assertEquals;
 
 import com.soundcloud.android.screens.elements.ViewElement;
 
-import android.view.View;
-import android.widget.TextView;
-
 public class ExpectedConditions {
 
-    private final ViewElement view;
+    private final ViewElement viewElement;
     private final Waiter waiter;
 
-    public ExpectedConditions(Waiter waiter, ViewElement view) {
+    public ExpectedConditions(Waiter waiter, ViewElement element) {
         this.waiter = waiter;
-        this.view = view;
+        this.viewElement = element;
     }
 
     public void toHaveText(String text) {
-        waiter.waitForTextInView((TextView) view.getView(), text);
-        assertEquals("Element should have text", text, view.getText());
+        waiter.waitForTextInView(viewElement, text);
+        assertEquals("Element should have text", text, viewElement.getText());
     }
 
 }
