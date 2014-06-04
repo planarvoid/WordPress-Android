@@ -68,7 +68,7 @@ public class PlayerFragmentTest {
         Robolectric.shadowOf(fragment).setActivity(activity);
 
         when(eventBus.subscribe(same(EventQueue.PLAYBACK_STATE_CHANGED), any(Observer.class))).thenReturn(playStateSubscription);
-        when(eventBus.subscribe(same(EventQueue.PLAY_QUEUE), any(Observer.class))).thenReturn(playQueueSubscription);
+        when(eventBus.subscribeImmediate(same(EventQueue.PLAY_QUEUE), any(Observer.class))).thenReturn(playQueueSubscription);
         when(eventBus.subscribe(same(EventQueue.PLAYBACK_PROGRESS), any(Observer.class))).thenReturn(playProgressSubscription);
         when(eventBus.subscribe(same(EventQueue.PLAYER_UI), any(Observer.class))).thenReturn(playerUiSubscription);
     }
@@ -138,38 +138,51 @@ public class PlayerFragmentTest {
 
     @Test
     public void onPlayQueueEventForTrackChangeCallsSetQueuePositionOnPresenterWithCurrentPlayQueueManagerPosition() {
-        createFragment();
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
+        when(playQueueManager.isQueueEmpty()).thenReturn(true);
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        eventMonitor.monitorQueue(EventQueue.PLAY_QUEUE);
+        createFragment();
 
         eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(Urn.forTrack(123)));
+
         verify(presenter).setQueuePosition(3);
     }
 
     @Test
     public void onPlayQueueEventForNewQueueCallsSetQueuePositionOnPresenterWithCurrentPlayQueueManagerPosition() {
-        createFragment();
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
+        when(playQueueManager.isQueueEmpty()).thenReturn(true);
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        eventMonitor.monitorQueue(EventQueue.PLAY_QUEUE);
+        createFragment();
+
         eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.forTrack(123)));
+
         verify(presenter).setQueuePosition(3);
     }
 
     @Test
     public void onPlayQueueEventForNewQueueCallsOnPlayQueueChangedOnPresenter() {
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
-        createFragment();
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        eventMonitor.monitorQueue(EventQueue.PLAY_QUEUE);
+        createFragment();
+
         eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.forTrack(123)));
+
         verify(presenter).onPlayQueueChanged();
     }
 
     @Test
     public void onPlayQueueEventForQueueUpdateCallsOnPlayQueueChangedOnPresenter() {
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
-        createFragment();
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        eventMonitor.monitorQueue(EventQueue.PLAY_QUEUE);
+        createFragment();
+
         eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(Urn.forTrack(123)));
+
         verify(presenter).onPlayQueueChanged();
     }
 

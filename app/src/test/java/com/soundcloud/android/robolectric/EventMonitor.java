@@ -3,6 +3,7 @@ package com.soundcloud.android.robolectric;
 import static com.soundcloud.android.Expect.expect;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -16,6 +17,8 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.rx.EventSubject;
 import org.hamcrest.Matchers;
 import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.mockito.verification.VerificationMode;
 import rx.Observer;
 import rx.Subscription;
@@ -26,6 +29,7 @@ import rx.util.functions.Action1;
 import java.util.HashMap;
 import java.util.Map;
 
+// TODO: Fix this entire class
 public class EventMonitor {
 
     private EventBus eventBus;
@@ -55,6 +59,22 @@ public class EventMonitor {
         subject.subscribe(testObserver);
         monitoredQueues.put(queue, new MonitoredQueue(subject, testObserver));
         when(eventBus.queue(queue)).thenReturn(subject);
+        when(eventBus.subscribe(eq(queue), any(Observer.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Observer observer = (Observer) invocation.getArguments()[1];
+                subject.subscribe(observer);
+                return null;
+            }
+        });
+        when(eventBus.subscribeImmediate(eq(queue), any(Observer.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Observer observer = (Observer) invocation.getArguments()[1];
+                subject.subscribe(observer);
+                return null;
+            }
+        });
         return this;
     }
 

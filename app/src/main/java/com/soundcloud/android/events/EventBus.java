@@ -79,6 +79,10 @@ public class EventBus {
         return this.queue(qd).observeOn(AndroidSchedulers.mainThread()).subscribe(observer);
     }
 
+    public <T> Subscription subscribeImmediate(Queue<T> qd, Observer<T> observer) {
+        return this.queue(qd).subscribe(observer);
+    }
+
     public <T> void publish(Queue<T> qd, T event) {
         this.queue(qd).onNext(event);
     }

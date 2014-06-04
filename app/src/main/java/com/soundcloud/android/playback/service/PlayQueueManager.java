@@ -16,11 +16,13 @@ import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Action1;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Looper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -152,7 +154,6 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
      * @return last stored seek pos of the current track in queue, or -1 if there is no reload
      */
     public PlaybackProgressInfo loadPlayQueue() {
-
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
         if (playQueueObservable != null) {
             playQueueSubscription = playQueueObservable.subscribe(new Action1<PlayQueue>() {
@@ -197,7 +198,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     }
 
     public void fetchRelatedTracks(long trackId) {
-        relatedTracksObservable = playQueueOperations.getRelatedTracks(trackId);
+        relatedTracksObservable = playQueueOperations.getRelatedTracks(trackId).observeOn(AndroidSchedulers.mainThread());
         loadRelatedTracks();
     }
 
@@ -268,4 +269,5 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
 
         playQueueSubscription.unsubscribe();
     }
+
 }

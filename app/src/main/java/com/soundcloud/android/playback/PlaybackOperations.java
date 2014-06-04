@@ -41,6 +41,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
 import android.content.Context;
@@ -220,7 +221,7 @@ public class PlaybackOperations {
         showPlayer(activityContext, initialTrack);
 
         if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
-            trackStorage.getTrackIdsForUriAsync(uri).subscribe(new DefaultSubscriber<List<Long>>() {
+            trackStorage.getTrackIdsForUriAsync(uri).observeOn(AndroidSchedulers.mainThread()).subscribe(new DefaultSubscriber<List<Long>>() {
                 @Override
                 public void onNext(List<Long> idList) {
 
