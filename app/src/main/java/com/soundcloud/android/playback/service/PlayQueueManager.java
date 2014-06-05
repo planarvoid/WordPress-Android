@@ -11,7 +11,6 @@ import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.playback.PlaybackOperations;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
@@ -22,7 +21,6 @@ import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Looper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -49,7 +47,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     private PlaybackProgressInfo playbackProgressInfo;
 
     private boolean gotRelatedTracks;
-    private PlaybackOperations.AppendState appendState = PlaybackOperations.AppendState.IDLE;
+    private PlaybackServiceOperations.AppendState appendState = PlaybackServiceOperations.AppendState.IDLE;
 
     @Inject
     public PlayQueueManager(Context context,
@@ -221,7 +219,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     }
 
     private void loadRelatedTracks() {
-        setNewRelatedLoadingState(PlaybackOperations.AppendState.LOADING);
+        setNewRelatedLoadingState(PlaybackServiceOperations.AppendState.LOADING);
         gotRelatedTracks = false;
         fetchRelatedSubscription = relatedTracksObservable.subscribe(this);
     }
@@ -240,15 +238,15 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     @Override
     public void onCompleted() {
         // TODO, save new tracks to database
-        setNewRelatedLoadingState(gotRelatedTracks ? PlaybackOperations.AppendState.IDLE : PlaybackOperations.AppendState.EMPTY);
+        setNewRelatedLoadingState(gotRelatedTracks ? PlaybackServiceOperations.AppendState.IDLE : PlaybackServiceOperations.AppendState.EMPTY);
     }
 
     @Override
     public void onError(Throwable e) {
-        setNewRelatedLoadingState(PlaybackOperations.AppendState.ERROR);
+        setNewRelatedLoadingState(PlaybackServiceOperations.AppendState.ERROR);
     }
 
-    private void setNewRelatedLoadingState(PlaybackOperations.AppendState appendState) {
+    private void setNewRelatedLoadingState(PlaybackServiceOperations.AppendState appendState) {
         this.appendState = appendState;
         final Intent intent = new Intent(RELATED_LOAD_STATE_CHANGED_ACTION)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(appendState));

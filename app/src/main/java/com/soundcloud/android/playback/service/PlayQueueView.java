@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.service;
 
 
-import static com.soundcloud.android.playback.PlaybackOperations.AppendState;
+import static com.soundcloud.android.playback.service.PlaybackServiceOperations.AppendState;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;

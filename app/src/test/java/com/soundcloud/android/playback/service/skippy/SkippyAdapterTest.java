@@ -24,9 +24,9 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserUrn;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.service.PlaybackServiceOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -69,7 +69,7 @@ public class SkippyAdapterTest {
     @Mock
     private SkippyAdapter.StateChangeHandler stateChangeHandler;
     @Mock
-    private PlaybackOperations playbackOperations;
+    private PlaybackServiceOperations playbackOperations;
     @Mock
     private Track track;
     @Mock
