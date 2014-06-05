@@ -133,12 +133,6 @@ public class PlaybackServiceTest {
     }
 
     @Test
-    public void onCreateRegistersPlaybackReceiverToListenForRetryRelatedTracksAction() throws Exception {
-        playbackService.onCreate();
-        expect(getReceiversForAction(PlaybackService.Actions.RETRY_RELATED_TRACKS)).toContain(playbackReceiver);
-    }
-
-    @Test
     public void onCreateRegistersNoisyListenerToListenForAudioBecomingNoisyBroadcast() throws Exception {
         playbackService.onCreate();
         expect(getReceiversForAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)).toContain(playbackReceiver);
