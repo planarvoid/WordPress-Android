@@ -64,4 +64,18 @@
         <item name="android:background">@drawable/btn_header_play_toggle</item>
         <item name="android:visibility">gone</item>
     </style>
+
+    <style name="Playlist">
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:background">@android:color/black</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_marginTop">60dip</item>
+    </style>
+
+    <style name="PlaylistActionContainer" parent="PlayerActionContainer">
+        <item name="android:background">@null</item>
+    </style>
+
 </resources>

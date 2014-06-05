@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- list styles -->
+
+    <style name="ListView" parent="@android:style/Widget.ListView">
+        <item name="android:divider">@drawable/divider_list_grey</item>
+        <item name="android:dividerHeight">1px</item>
+        <item name="android:listSelector">@drawable/list_selector_gray</item>
+    </style>
+
+    <style name="ListItemContainer">
+        <item name="android:paddingLeft">@dimen/list_item_padding_left</item>
+        <item name="android:paddingTop">@dimen/list_item_padding_top</item>
+        <item name="android:paddingRight">@dimen/list_item_padding_right</item>
+        <item name="android:paddingBottom">@dimen/list_item_padding_bottom</item>
+    </style>
+
+    <style name="PlayableIcon">
+        <item name="android:layout_width">@dimen/list_icon_width</item>
+        <item name="android:layout_height">@dimen/list_icon_height</item>
+        <item name="android:layout_marginRight">@dimen/list_icon_margin_right</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="android:contentDescription"/>  <!-- TODO Need a string for this? -->
+    </style>
+
+    <style name="PlayableIcon.Playlist">
+        <item name="android:layout_width">@dimen/playlist_page_icon_size</item>
+        <item name="android:layout_height">@dimen/playlist_page_icon_size</item>
+    </style>
+
+    <!-- grid styles -->
+
+    <style name="GridView" parent="@android:style/Widget.GridView">
+        <item name="android:clipToPadding">false</item>
+        <item name="android:fadingEdge">none</item>
+        <item name="android:scrollbarStyle">outsideOverlay</item>
+        <item name="android:layout_gravity">top</item>
+        <item name="android:paddingLeft">@dimen/gridview_padding_left_right</item>
+        <item name="android:paddingRight">@dimen/gridview_padding_left_right</item>
+        <item name="android:paddingTop">@dimen/gridview_padding_top_bottom</item>
+        <item name="android:paddingBottom">@dimen/gridview_padding_top_bottom</item>
+        <item name="android:horizontalSpacing">@dimen/grid_view_spacing_inside_horizontal</item>
+        <item name="android:verticalSpacing">@dimen/grid_view_spacing_inside_vertical</item>
+        <item name="android:listSelector">@drawable/grid_view_item_selector</item>
+        <item name="android:numColumns">@integer/grid_view_num_columns</item>
+        <item name="android:drawSelectorOnTop">true</item>
+    </style>
+
+    <style name="GridItemBottom">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:drawablePadding">5dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.GridItemBottom</item>
+    </style>
+
+    <style name="GridItemTag" parent="GridItemBottom">
+        <item name="android:layout_marginLeft">2dp</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:gravity">left|center_vertical</item>
+    </style>
+
+    <style name="GridItemExtra" parent="GridItemBottom">
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_marginRight">2dp</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="GridItemImageViewBase">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="dominantMeasurement">width</item>
+        <item name="aspectRatio">.55</item>
+        <item name="aspectRatioEnabled">true</item>
+    </style>
+
+    <style name="GridItemImageView" parent="GridItemImageViewBase">
+        <item name="movement">-15dp</item>
+    </style>
+
+    <style name="GridItemTextHolder">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+</resources>

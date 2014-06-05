@@ -58,5 +58,12 @@
         <item name="android:textColor">@color/dialog_subtext</item>
     </style>
 
+    <style name="FullImageDialogImageView">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:layout_margin">@dimen/full_image_margin</item>
+    </style>
 
 </resources>
