@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="toggle_blue">
+        <item name="android:textColor">@drawable/txt_toggle_blue_states</item>
+        <item name="android:background">@drawable/toggle_blue_states</item>
+    </style>
+
+    <style name="toggle_record_edit" parent="toggle_blue">
+        <item name="android:layout_width">125dp</item>
+        <item name="android:layout_height">50dp</item>
+    </style>
+
+    <style name="txt_record_dark">
+        <item name="android:textColor">#ff000000</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:shadowColor">#ff777777</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">1</item>
+    </style>
+
+    <style name="txt_record_saved_message">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@color/btn_dark_flat</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:paddingRight">5dp</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="txt_record_title">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="txt_record_instructions" parent="txt_record_dark">
+        <item name="android:textSize">44sp</item>
+        <item name="android:paddingLeft">5dip</item>
+        <item name="android:paddingRight">5dip</item>
+    </style>
+
+    <style name="txt_record_chrono" parent="txt_record_dark">
+        <item name="android:textSize">@dimen/rec_chronometer_text_size</item>
+        <item name="android:paddingLeft">5dip</item>
+        <item name="android:paddingRight">5dip</item>
+    </style>
+
+    <style name="txt_record_message">
+        <item name="android:textColor">@color/list_text_secondary</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/rec_tips_bubble</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:padding">5dip</item>
+    </style>
+
+    <style name="txt_record_input">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:padding">10dip</item>
+    </style>
+
+    <style name="txt_record_add_image">
+        <item name="android:textColor">#ff9e9e9e</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="txt_record_share_options">
+        <item name="android:textColor">#ff9e9e9e</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:shadowColor">#ff000000</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">1</item>
+    </style>
+
+
+    <style name="txt_record_connections" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="txt_record_email_access">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:padding">10dip</item>
+    </style>
+
+    <style name="txt_record_email_access_gray" parent="txt_record_email_access">
+        <item name="android:textColor">@color/darker_gray</item>
+    </style>
+
+    <style name="txt_record_connections_footer">
+        <item name="android:textColor">#ff9e9e9e</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_marginTop">10dip</item>
+    </style>
+
+    <style name="txt_connection_footer">
+        <item name="android:textColor">@color/list_text_secondary</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="txt_not_streamable">
+        <item name="android:textColor">@color/list_text_secondary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="txt_search_rdo">
+        <item name="android:textColor">@color/list_text_value</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="txt_record_artwork_hint">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="txt_private_message_metadata_title">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="txt_private_message_metadata_message">
+        <item name="android:textColor">#ff9e9e9e</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="txt_upload_monitor_events">
+        <item name="android:textColor">#ff000000</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="txt_upload_monitor_events_inactive" parent="txt_upload_monitor_events">
+        <item name="android:textColor">#ff9e9e9e</item>
+    </style>
+
+</resources>

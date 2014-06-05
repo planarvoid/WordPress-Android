@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- NEW PLAYER -->
+
+    <style name="FooterToggle" parent="CustomToggle">
+        <item name="android:layout_width">@dimen/player_footer_control</item>
+        <item name="android:layout_height">@dimen/player_footer_control</item>
+        <item name="android:background">@drawable/btn_footer_play_toggle</item>
+    </style>
+
+    <style name="PlayerToggle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/btn_player_play</item>
+    </style>
+
+    <style name="PlayerNext">
+        <item name="android:layout_width">@dimen/player_skip</item>
+        <item name="android:layout_height">@dimen/player_skip</item>
+        <item name="android:background">@drawable/btn_player_next</item>
+    </style>
+
+    <style name="PlayerPrevious" parent="PlayerNext">
+        <item name="android:background">@drawable/btn_player_previous</item>
+    </style>
+
+    <style name="FooterUser">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="custom_font">fonts/Roboto-Light.ttf</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/player_user_text</item>
+    </style>
+
+    <style name="FooterTitle" parent="FooterUser">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="PlayerUser" parent="FooterUser">
+        <item name="android:textSize">16sp</item>
+        <item name="jagged_background">@color/overlay_text_background</item>
+        <item name="android:paddingLeft">6dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">2dp</item>
+    </style>
+
+    <style name="PlayerTitle" parent="FooterTitle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:singleLine">false</item>
+        <item name="android:maxLines">2</item>
+        <item name="jagged_background">@color/overlay_text_background</item>
+        <item name="android:paddingLeft">6dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">2dp</item>
+    </style>
+
+    <style name="PlayerLike" parent="CustomToggle">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:background">@drawable/btn_player_like</item>
+    </style>
+
+    <style name="PlayerMore">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:background">@drawable/btn_player_more</item>
+    </style>
+
+    <style name="PlayerClose">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:background">@drawable/btn_player_close</item>
+        <item name="android:duplicateParentState">true</item>
+        <item name="android:clickable">false</item>
+    </style>
+
+    <style name="TrackPageSkip">
+        <item name="android:layout_width">@dimen/track_page_skip_width</item>
+        <item name="android:layout_height">@dimen/track_page_skip_height</item>
+    </style>
+
+    <!-- OLD PLAYER -->
+
+    <style name="PlayerActionSeparator">
+        <item name="android:background">@drawable/player_track_vert_separator_bg</item>
+        <item name="android:layout_width">2dp</item>
+        <item name="android:layout_height">38dp</item>
+        <item name="android:layout_centerVertical">true</item>
+    </style>
+
+    <style name="PlayerAction">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/btn_min_height</item>
+        <item name="android:textSize">@dimen/btn_text_size</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingLeft">@dimen/btn_padding</item>
+        <item name="android:paddingRight">@dimen/btn_padding</item>
+    </style>
+
+    <style name="PlayerAction.ToggleButton">
+        <item name="android:layout_gravity">left|center</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:background">@drawable/btn_default_states</item>
+        <item name="android:minWidth">72dp</item>
+        <item name="android:drawablePadding">6dp</item>
+        <item name="android:textOn"></item>
+        <item name="android:textOff"></item>
+    </style>
+
+    <style name="PlayerAction.ToggleButton.Like">
+        <item name="android:drawableLeft">@drawable/ic_toggle_player_like_states</item>
+        <item name="android:layout_marginLeft">10dp</item>
+    </style>
+
+    <style name="PlayerAction.ToggleButton.Repost">
+        <item name="android:drawableLeft">@drawable/ic_toggle_player_repost_states</item>
+        <item name="android:layout_marginLeft">5dp</item>
+    </style>
+
+    <style name="PlayerAction.Button">
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+        <item name="android:layout_width">50dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:background">@drawable/btn_default_states</item>
+    </style>
+
+    <style name="PlayerAction.Button.AddToSet">
+        <item name="android:src">@drawable/ic_btn_add_set</item>
+        <item name="android:background">@drawable/btn_default_states</item>
+    </style>
+
+    <style name="PlayerAction.Button.Share">
+        <item name="android:src">@drawable/ic_btn_share</item>
+        <item name="android:background">@drawable/btn_default_states</item>
+    </style>
+
+    <style name="PlayerAction.Button.Info">
+        <item name="android:background">@null</item>
+        <item name="android:drawablePadding">0dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_width">45dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@drawable/toggle_txt_player_info_states</item>
+        <item name="android:textOn">@string/info</item>
+        <item name="android:textOff">@string/info</item>
+    </style>
+
+    <style name="Player"/>
+    <style name="Player.TrackInfo"/>
+
+    <style name="Player.TrackInfo.Table">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="Player.TrackInfo.Row">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">@drawable/bottom_separator</item>
+    </style>
+
+    <style name="Player.TrackInfo.Row.Clickable">
+        <item name="android:clickable">true</item>
+        <item name="android:background">@drawable/track_info_clickable_row_bg</item>
+    </style>
+
+    <style name="Player.TrackInfo.Icon">
+        <item name="android:layout_width">20dip</item>
+        <item name="android:layout_height">20dip</item>
+
+        <item name="android:layout_marginLeft">22dp</item>
+
+        <item name="android:scaleType">center</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="Player.TrackInfo.Label" parent="TextAppearance.List.Main">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">60dip</item>
+
+        <item name="android:gravity">left|center_vertical</item>
+
+        <item name="android:paddingLeft">6dip</item>
+        <item name="android:paddingRight">12dip</item>
+    </style>
+
+    <style name="Player.TrackInfo.Separator">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">1px</item>
+        <item name="android:layout_alignWithParentIfMissing">true</item>
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
+
+    <style name="AddCommentEditText">
+        <item name="android:inputType">textMultiLine</item>
+        <item name="android:layout_margin">5dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:imeOptions">actionDone</item>
+        <item name="android:background">@drawable/edit_text_holo_light</item>
+        <item name="android:minLines">3</item>
+    </style>
+
+    <style name="txt_player_time">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textSize">@dimen/player_time_text_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="txt_player_time_land" parent="txt_player_time">
+        <item name="android:background">@drawable/player_time_bg_land</item>
+    </style>
+    <style name="txt_player_time_instructrions">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textSize">@dimen/player_time_text_instructions_size</item>
+    </style>
+
+    <style name="txt_player_track_info_stats">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingLeft">5dip</item>
+        <item name="android:paddingRight">5dip</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/list_text_value</item>
+    </style>
+
+
+    <style name="txt_player_track_info">
+        <item name="android:textColor">@color/txt_description_color</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingTop">10dip</item>
+        <item name="android:paddingBottom">5dip</item>
+        <item name="android:paddingLeft">@dimen/list_item_padding_left</item>
+        <item name="android:paddingRight">@dimen/list_item_padding_right</item>
+        <item name="android:linksClickable">true</item>
+    </style>
+
+    <style name="txt_player_touch_bar">
+        <item name="android:textColor">#ff7b7b7b</item>
+        <item name="android:textSize">@dimen/player_comment_bar_txt_size</item>
+    </style>
+
+    <style name="btn_sc_transport" parent="Widget.AppCompat.ActionButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="btn_sc_transport_comment" parent="btn_sc_transport">
+        <item name="android:textOn">@null</item>
+        <item name="android:textOff">@null</item>
+        <item name="android:background">@drawable/toggle_player_comment_states</item>
+        <item name="android:contentDescription">@string/accessibility_comment_action</item>
+    </style>
+
+    <style name="txt_player_drawer_blue" parent="android:Widget.TextView">
+        <item name="android:textColor">#2EC9FF</item>
+    </style>
+
+    <style name="FloatingPlayer">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="progress_oc_player_loader">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">300dip</item>
+        <item name="android:indeterminate">true</item>
+        <item name="android:indeterminateOnly">true</item>
+        <item name="android:minHeight">20dip</item>
+        <item name="android:maxHeight">20dip</item>
+    </style>
+
+
+    <style name="txt_comment_bubble">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="txt_comment_bubble_new" parent="txt_comment_bubble">
+        <item name="android:textColor">@color/comment_gray</item>
+    </style>
+
+    <style name="txt_comment_bubble_new_time" parent="txt_comment_bubble">
+        <item name="android:textColor">#ffe36711</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="txt_comment_bubble_white" parent="txt_comment_bubble">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:paddingLeft">5dip</item>
+    </style>
+
+    <style name="txt_comment_bubble_username" parent="txt_comment_bubble">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="txt_comment_bubble_gray" parent="txt_comment_bubble">
+        <item name="android:textColor">@color/comment_gray</item>
+        <item name="android:paddingLeft">5dip</item>
+    </style>
+
+    <style name="txt_comment_bubble_reply" parent="txt_comment_bubble">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+</resources>
