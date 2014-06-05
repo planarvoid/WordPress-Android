@@ -5,10 +5,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PropertySet;
+import com.soundcloud.android.model.TrackProperty;
+import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +29,12 @@ import javax.inject.Provider;
 @RunWith(SoundCloudTestRunner.class)
 public class PlaybackNotificationPresenterTest extends TestCase {
 
+    private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
+    private static final String TITLE = "TITLE";
+    private static final String CREATOR = "CREATOR";
+
     private PlaybackNotificationPresenter presenter;
+    private PropertySet propertySet;
 
     @Mock
     private NotificationPlaybackRemoteViews.Factory factory;
@@ -37,11 +45,13 @@ public class PlaybackNotificationPresenterTest extends TestCase {
     @Mock
     private Notification notification;
 
-    private Track track;
-
     @Before
     public void setUp() throws Exception {
-        track = TestHelper.getModelFactory().createModel(Track.class);
+        propertySet = PropertySet.from(
+                TrackProperty.URN.bind(TRACK_URN),
+                PlayableProperty.TITLE.bind(TITLE),
+                PlayableProperty.CREATOR.bind(CREATOR));
+
         presenter = new PlaybackNotificationPresenter(context, new Provider<NotificationCompat.Builder>() {
             @Override
             public NotificationCompat.Builder get() {
@@ -52,21 +62,21 @@ public class PlaybackNotificationPresenterTest extends TestCase {
 
     @Test
     public void createTrackSeCallsSetTitleOnNotificationBuilder() throws Exception {
-        presenter.createNotification(track);
-        verify(notificationBuilder).setContentTitle(track.getTitle());
+        presenter.createNotification(propertySet);
+        verify(notificationBuilder).setContentTitle(TITLE);
     }
 
     @Test
     public void createTrackSeSetsUsernameAsTextOnNotificationBuilder() throws Exception {
-        presenter.createNotification(track);
-        verify(notificationBuilder).setContentText(track.getUserName());
+        presenter.createNotification(propertySet);
+        verify(notificationBuilder).setContentText(CREATOR);
     }
 
     @Test
     public void createTrackSeReturnsNotificationFromBuilder() throws Exception {
         Notification notification = new Notification();
         when(notificationBuilder.build()).thenReturn(notification);
-        expect(presenter.createNotification(track)).toBe(notification);
+        expect(presenter.createNotification(propertySet)).toBe(notification);
     }
 
     @Test

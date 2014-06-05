@@ -50,7 +50,7 @@ public class TrackStorageTest {
 
     private PropertySet createTrackPropertySet(final TrackSummary track) throws CreateModelException {
         return PropertySet.from(
-                PlayableProperty.URN.bind(Urn.forTrack(track.getId())),
+                TrackProperty.URN.bind(Urn.forTrack(track.getId())),
                 PlayableProperty.TITLE.bind(track.getTitle()),
                 PlayableProperty.DURATION.bind(track.getDuration()),
                 PlayableProperty.CREATOR.bind(track.getUser().getUsername()),
