@@ -11,6 +11,7 @@ import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.model.TrackUrn;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
@@ -87,6 +88,10 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
 
     public long getIdAtPosition(int position) {
         return playQueue.getItems().get(position).getTrackId();
+    }
+
+    public TrackUrn getUrnAtPosition(int position) {
+        return TrackUrn.forTrack(getIdAtPosition(position));
     }
 
     public PlaybackProgressInfo getPlayProgressInfo() {

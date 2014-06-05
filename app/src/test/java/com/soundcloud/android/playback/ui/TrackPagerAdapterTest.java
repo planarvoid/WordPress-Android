@@ -11,6 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -119,6 +120,30 @@ public class TrackPagerAdapterTest {
     }
 
     @Test
+    public void setProgressOnCurrentTrackWhenSetProgressOnAllViews() {
+        setupGetCurrentViewPreconditions();
+        PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
+        when(playSessionController.getCurrentProgress()).thenReturn(progressEvent);
+        when(playSessionController.isPlayingTrack(playQueueManager.getUrnAtPosition(4))).thenReturn(true);
+        adapter.getView(3, view, container);
+
+        adapter.setProgressOnAllViews();
+
+        verify(trackPagePresenter).setProgress(view, progressEvent);
+    }
+
+    @Test
+    public void resetProgressOnNotCurrentTracksWhenSetProgressOnAllViews() {
+        setupGetCurrentViewPreconditions();
+        when(playSessionController.isPlayingTrack(any(TrackUrn.class))).thenReturn(false);
+        adapter.getView(3, view, container);
+
+        adapter.setProgressOnAllViews();
+
+        verify(trackPagePresenter).resetProgress(view);
+    }
+
+    @Test
     public void setPlayStateSetsPlayingStateForCurrentTrack() {
         setupGetCurrentViewPreconditions();
         when(playQueueManager.isCurrentPosition(3)).thenReturn(true);
@@ -138,6 +163,16 @@ public class TrackPagerAdapterTest {
         adapter.setPlayState(true);
 
         verify(trackPagePresenter).setPlayState(view, false);
+    }
+
+    @Test
+    public void setTrackPagePresenterFullScreenMode() {
+        setupGetCurrentViewPreconditions();
+        adapter.getView(3, view, container);
+
+        adapter.fullScreenMode(true);
+
+        verify(trackPagePresenter).setFullScreen(view, true);
     }
 
     @Test

@@ -97,6 +97,18 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
         trackPagePresenter.setProgress(currentTrackView, progress);
     }
 
+    public void setProgressOnAllViews(){
+        for (Map.Entry<View, Integer> entry : trackViewsByPosition.entrySet()) {
+            View trackView = entry.getKey();
+            Integer position = entry.getValue();
+            if (playSessionController.isPlayingTrack(playQueueManager.getUrnAtPosition(position))) {
+                trackPagePresenter.setProgress(trackView, playSessionController.getCurrentProgress());
+            } else {
+                trackPagePresenter.resetProgress(trackView);
+            }
+        }
+    }
+
     public void setPlayState(boolean isPlaying) {
         for (Map.Entry<View, Integer> entry : trackViewsByPosition.entrySet()) {
             trackPagePresenter.setPlayState(entry.getKey(), isPlaying && playQueueManager.isCurrentPosition(entry.getValue()));

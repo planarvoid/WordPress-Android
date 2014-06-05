@@ -77,6 +77,10 @@ class TrackPagePresenter implements View.OnClickListener {
         getViewHolder(trackView).artwork.setProgressProportion(progress.getProgressProportion());
     }
 
+    public void resetProgress(View trackView) {
+        setProgress(trackView, PlaybackProgressEvent.empty());
+    }
+
     public void setPlayState(View trackView, boolean isPlaying) {
         getViewHolder(trackView).footerPlayToggle.setChecked(isPlaying);
     }

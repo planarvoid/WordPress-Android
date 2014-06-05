@@ -69,7 +69,11 @@ public class PlaySessionController {
     }
 
     public boolean isPlayingTrack(Track track){
-        return currentPlayingUrn != null && currentPlayingUrn.equals(track.getUrn());
+        return isPlayingTrack(track.getUrn());
+    }
+
+    public boolean isPlayingTrack(TrackUrn trackUrn){
+        return currentPlayingUrn != null && currentPlayingUrn.equals(trackUrn);
     }
 
     public PlaybackProgressEvent getCurrentProgress() {
