@@ -153,6 +153,9 @@ public interface Playa {
             return "StateTransition{" +
                     "newState=" + newState +
                     ", reason=" + reason +
+                    ", currentProgress=" + currentProgress +
+                    ", duration=" + duration +
+                    ", trackUrn=" + trackUrn +
                     '}';
         }
     }

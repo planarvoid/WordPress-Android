@@ -16,6 +16,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.crashlytics.android.internal.D;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
@@ -120,8 +121,10 @@ public class MediaPlayerAdapterTest {
 
     @Test
     public void playUrlShouldCallBufferingState() throws Exception {
+        when(mediaPlayer.getCurrentPosition()).thenReturn(0);
+        when(mediaPlayer.getDuration()).thenReturn(DURATION);
         mediaPlayerAdapter.play(track);
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE)));
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 0, DURATION)));
         verifyNoMoreInteractions(listener);
     }
 
@@ -142,9 +145,14 @@ public class MediaPlayerAdapterTest {
 
     @Test
     public void preparedListenerShouldCallStatesBufferingToPlaying() throws Exception {
+        when(mediaPlayer.getCurrentPosition()).thenReturn(0);
+
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE)));
+
+        InOrder inOrder = Mockito.inOrder(listener);
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, 0, 0)));
     }
 
     @Test
@@ -183,7 +191,10 @@ public class MediaPlayerAdapterTest {
     public void pauseNotifyIdleStateIfPausedWhilePreparing() throws Exception {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.pause();
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE)));
+
+        InOrder inOrder = Mockito.inOrder(listener);
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE, 0, 0)));
     }
 
     @Test
@@ -339,8 +350,8 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.play(track);
 
         InOrder inOrder = inOrder(listener);
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, 0, 0)));
     }
 
     @Test
@@ -350,8 +361,8 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.play(track);
 
         InOrder inOrder = inOrder(listener);
-        inOrder.verify(listener, times(4)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED)));
+        inOrder.verify(listener, times(4)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, 0, 0)));
     }
 
     @Test
@@ -427,8 +438,8 @@ public class MediaPlayerAdapterTest {
         }
 
         InOrder inOrder = inOrder(listener);
-        inOrder.verify(listener, times(4)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED)));
+        inOrder.verify(listener, times(4)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, 0, 0)));
     }
 
     @Test
