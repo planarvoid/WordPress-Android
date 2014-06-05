@@ -40,6 +40,7 @@ public class NowPlayingActionBarController extends ActionBarController implement
     public void onPause() {
         super.onPause();
         stopListening();
+        nowPlaying.onPause();
     }
 
     @Override

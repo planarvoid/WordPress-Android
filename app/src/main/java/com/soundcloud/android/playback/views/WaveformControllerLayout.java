@@ -2,16 +2,18 @@ package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.cache.LegacyWaveformCache;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
+import com.soundcloud.android.waveform.WaveformOperations;
+import com.soundcloud.android.waveform.WaveformResult;
 import org.jetbrains.annotations.Nullable;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +33,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,8 +41,6 @@ import java.util.List;
 
 public class WaveformControllerLayout extends TouchLayout implements CommentPanelLayout.CommentPanelListener {
     private static final String TAG = WaveformControllerLayout.class.getSimpleName();
-
-    protected ImageOperations imageOperations;
 
     protected static final long CLOSE_COMMENT_DELAY = 5000;
     private static final int OVERLAY_BG_COLOR = Color.WHITE;
@@ -106,6 +107,12 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
 
     private WaveformListener listener;
 
+    @Inject
+    WaveformOperations waveformOperations;
+    @Inject
+    ImageOperations imageOperations;
+
+
     public interface WaveformListener {
         long sendSeek(float seekPosition);
         long setSeekMarker(int queuePosition, float seekPosition);
@@ -115,7 +122,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     public WaveformControllerLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        imageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
+        SoundCloudApplication.getObjectGraph().inject(this);
 
         setWillNotDraw(false);
 
@@ -380,7 +387,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         progressBar.setSecondaryProgress(percent);
     }
 
-    public void updateTrack(@Nullable Track track, int queuePosition, boolean visibleNow) {
+    public void updateTrack(@Nullable final Track track, int queuePosition, boolean visibleNow) {
         this.queuePosition = queuePosition;
         if (track == null || (this.track != null
                 && this.track.getId() == track.getId()
@@ -408,31 +415,33 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
             return;
         }
 
-        if (LegacyWaveformCache.get().getData(track, new LegacyWaveformCache.WaveformCallback() {
-            @Override
-            public void onWaveformDataLoaded(Track track, WaveformData data, boolean fromCache) {
-                if (track.equals(WaveformControllerLayout.this.track)) {
-                    waveformErrorCount = 0;
-                    waveformState = WaveformState.OK;
-                    overlay.setBackgroundDrawable(new WaveformDrawable(data, waveformColor, !isLandscape()));
-                    onDoneLoadingWaveform(true, !fromCache && onScreen);
-                }
-            }
-            @Override
-            public void onWaveformError(Track track) {
-                if (track.equals(WaveformControllerLayout.this.track)) {
-                    waveformState = WaveformState.ERROR;
-                    WaveformControllerLayout.this.onWaveformError();
-                }
-            }
+        // loading
+        showWaiting();
+        waveformState = WaveformState.LOADING;
+        overlay.setVisibility(View.INVISIBLE);
+        currentTimeDisplay.setVisibility(View.INVISIBLE);
 
-        }) == null) {
-            // loading
-            showWaiting();
-            waveformState = WaveformState.LOADING;
-            overlay.setVisibility(View.INVISIBLE);
-            currentTimeDisplay.setVisibility(View.INVISIBLE);
-        }
+        waveformOperations.waveformFor(track)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DefaultSubscriber<WaveformResult>() {
+                    @Override
+                    public void onError(Throwable e) {
+                        if (track.equals(WaveformControllerLayout.this.track)) {
+                            waveformState = WaveformState.ERROR;
+                            WaveformControllerLayout.this.onWaveformError();
+                        }
+                    }
+
+                    @Override
+                    public void onNext(WaveformResult args) {
+                        if (track.equals(WaveformControllerLayout.this.track)) {
+                            waveformErrorCount = 0;
+                            waveformState = WaveformState.OK;
+                            overlay.setBackgroundDrawable(new WaveformDrawable(args.getWaveformData(), waveformColor, !isLandscape()));
+                            onDoneLoadingWaveform(true, !args.isFromCache() && onScreen);
+                        }
+                    }
+                });
     }
 
     protected void showCurrentComment(boolean userTriggered) {

@@ -4,13 +4,19 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import com.soundcloud.android.cache.LegacyWaveformCache;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.WaveformControllerLayout;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.waveform.WaveformOperations;
+import com.soundcloud.android.waveform.WaveformResult;
 import org.jetbrains.annotations.Nullable;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.subscriptions.Subscriptions;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -27,6 +33,7 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.widget.ProgressBar;
 
+import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
 public class NowPlayingProgressBar extends ProgressBar {
@@ -58,6 +65,11 @@ public class NowPlayingProgressBar extends ProgressBar {
     private WaveformData waveformData;
     private PlaybackStateProvider playbackStateProvider;
 
+    private Subscription waveformSubscription = Subscriptions.empty();
+
+    @Inject
+    WaveformOperations waveformOperations;
+
     private final Handler handler = new RefreshHandler(this);
 
     @SuppressWarnings("UnusedDeclaration")
@@ -78,7 +90,14 @@ public class NowPlayingProgressBar extends ProgressBar {
         init();
     }
 
+    public void onPause() {
+        waveformSubscription.unsubscribe();
+    }
+
     private void init() {
+
+        SoundCloudApplication.getObjectGraph().inject(this);
+
         playbackStateProvider = new PlaybackStateProvider();
 
         PorterDuffXfermode sourceIn = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
@@ -137,30 +156,27 @@ public class NowPlayingProgressBar extends ProgressBar {
             if (track == null || !track.hasWaveform() || waveformErrorCount > 3) {
                 setDefaultWaveform();
             } else {
-                if (LegacyWaveformCache.get().getData(track, new LegacyWaveformCache.WaveformCallback() {
-                    @Override
-                    public void onWaveformDataLoaded(Track track, WaveformData data, boolean fromCache) {
-                        if (track.equals(NowPlayingProgressBar.this.track)) {
-                            waveformErrorCount = 0;
-                            waveformState = WaveformControllerLayout.WaveformState.OK;
-                            setWaveform(data);
-                        }
-                    }
+                waveformSubscription = waveformOperations.waveformFor(track)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new DefaultSubscriber<WaveformResult>() {
+                            @Override
+                            public void onError(Throwable e) {
+                                if (track.equals(NowPlayingProgressBar.this.track)) {
+                                    waveformState = WaveformControllerLayout.WaveformState.ERROR;
+                                    waveformErrorCount++;
+                                    setCurrentTrack();
+                                }
+                            }
 
-                    @Override
-                    public void onWaveformError(Track track) {
-                        if (track.equals(NowPlayingProgressBar.this.track)) {
-                            waveformState = WaveformControllerLayout.WaveformState.ERROR;
-                            waveformErrorCount++;
-                            setCurrentTrack();
-                        }
-                    }
-
-                }) == null) {
-                    // loading
-                    // TODO, loading indicator?
-                }
-
+                            @Override
+                            public void onNext(WaveformResult args) {
+                                if (track.equals(NowPlayingProgressBar.this.track)) {
+                                    waveformErrorCount = 0;
+                                    waveformState = WaveformControllerLayout.WaveformState.OK;
+                                    setWaveform(args.getWaveformData());
+                                }
+                            }
+                        });
             }
         }
     }

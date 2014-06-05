@@ -136,6 +136,7 @@ public class WaveformControllerLayoutLand extends WaveformControllerLayout {
     protected void showCurrentComment(boolean userTriggered) {
        if (currentShowingComment != null) {
            cancelAutoCloseComment();
+
            playerAvatarBar.setCurrentComment(currentShowingComment);
            commentLines.setCurrentComment(currentShowingComment);
 

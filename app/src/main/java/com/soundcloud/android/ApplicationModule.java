@@ -1,9 +1,13 @@
 package com.soundcloud.android;
 
+import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFORM_CACHE_SIZE;
+
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.playback.service.BigPlaybackNotificationPresenter;
 import com.soundcloud.android.playback.service.PlaybackNotificationPresenter;
 import com.soundcloud.android.playback.service.RichNotificationPresenter;
@@ -26,6 +30,7 @@ import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.support.v4.util.LruCache;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
@@ -148,5 +153,11 @@ public class ApplicationModule {
             }
         }
         return new FroyoRemoteAudioManager(context);
+    }
+
+    @Singleton
+    @Provides
+    public LruCache<TrackUrn, WaveformData> provideWaveformCache(){
+        return new LruCache<TrackUrn, WaveformData>(DEFAULT_WAVEFORM_CACHE_SIZE);
     }
 }
