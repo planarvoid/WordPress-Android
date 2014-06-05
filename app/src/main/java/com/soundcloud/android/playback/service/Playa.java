@@ -29,10 +29,6 @@ public interface Playa {
         private final PlayaState newState;
         private final Reason reason;
 
-        public long getCurrentProgress() {
-            return currentProgress;
-        }
-
         private final long currentProgress;
         private final long duration;
 
@@ -147,8 +143,8 @@ public interface Playa {
             result = 31 * result + reason.hashCode();
             result = 31 * result + (int) (currentProgress ^ (currentProgress >>> 32));
             result = 31 * result + (int) (duration ^ (duration >>> 32));
-            result = 31 * result + (debugExtra != null ? debugExtra.hashCode() : 0);
-            result = 31 * result + (trackUrn != null ? trackUrn.hashCode() : 0);
+            result = 31 * result + (debugExtra == null ? 0 : debugExtra.hashCode());
+            result = 31 * result + (trackUrn == null ? 0 : trackUrn.hashCode());
             return result;
         }
 
