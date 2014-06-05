@@ -10,7 +10,6 @@ import dagger.Module;
         PlayerActivity.class,
         PlayerFragment.class,
         PlaybackActionReceiver.class,
-        WaveformOperations.class
 })
 public class PlayerModule {
 
