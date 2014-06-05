@@ -4,15 +4,19 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlayerWidgetController;
+import com.soundcloud.android.playback.service.StreamPlaya;
 import com.soundcloud.android.playback.service.managers.FroyoRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.ui.PlayerFragment;
+import com.soundcloud.android.properties.ApplicationProperties;
 import dagger.Module;
 import dagger.Provides;
 
 import android.content.Context;
 import android.os.Build;
+
+import javax.inject.Inject;
 
 @Module(addsTo = ApplicationModule.class, injects = {
         PlaybackService.class, PlayerActivity.class, PlayerFragment.class, PlayerWidgetController.class
@@ -30,5 +34,14 @@ public class PlaybackModule {
             }
         }
         return new FroyoRemoteAudioManager(context);
+    }
+
+    @Provides
+    public StreamPlaya.PlayerSwitcherInfo providePlayerSwitcherInfo(ApplicationProperties applicationProperties){
+        if (applicationProperties.isReleaseBuild()){
+            return new StreamPlaya.PlayerSwitcherInfo(9, 1);
+        } else {
+            return new StreamPlaya.PlayerSwitcherInfo(2, 2);
+        }
     }
 }
