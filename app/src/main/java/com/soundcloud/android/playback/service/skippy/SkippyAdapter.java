@@ -89,7 +89,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
         if (!playaListener.requestAudioFocus()){
             Log.e(TAG,"Unable to acquire audio focus, aborting playback");
-            playaListener.onPlaystateChanged(new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED));
+            playaListener.onPlaystateChanged(new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, fromPos, track.duration));
             return;
         }
 
@@ -187,7 +187,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
             final PlayaState translatedState = getTranslatedState(state, reason);
             final Reason translatedReason = getTranslatedReason(reason, errorcode);
-            final StateTransition transition = new StateTransition(translatedState, translatedReason);
+            final StateTransition transition = new StateTransition(translatedState, translatedReason, position, duration);
 
             if (transition.playbackHasStopped()){
                 currentStreamUrl = null;

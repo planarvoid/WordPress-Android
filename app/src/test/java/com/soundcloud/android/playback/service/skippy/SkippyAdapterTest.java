@@ -251,7 +251,7 @@ public class SkippyAdapterTest {
         skippyAdapter.play(track);
 
         when(applicationProperties.isReleaseBuild()).thenReturn(false);
-        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE);
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE, PROGRESS, DURATION);
         expected.setDebugExtra("Experimental Player");
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
 
@@ -262,7 +262,7 @@ public class SkippyAdapterTest {
     @Test
     public void skippyIdlePausedEventTranslatesToListenerIdleEvent() throws Exception {
         skippyAdapter.play(track);
-        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE);
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK, PROGRESS, DURATION, STREAM_URL);
         verify(stateChangeHandler).sendMessage(message);
@@ -271,7 +271,7 @@ public class SkippyAdapterTest {
     @Test
     public void skippyPlayingTranslatesToListenerPlayingEvent() throws Exception {
         skippyAdapter.play(track);
-        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.PLAYING, Playa.Reason.NONE);
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.PLAYING, Playa.Reason.NONE, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK, PROGRESS, DURATION, STREAM_URL);
         verify(stateChangeHandler).sendMessage(message);
@@ -280,7 +280,7 @@ public class SkippyAdapterTest {
     @Test
     public void skippyPlayBufferingTranslatesToListenerBufferingEvent() throws Exception {
         skippyAdapter.play(track);
-        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.BUFFERING, Playa.Reason.NONE);
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.BUFFERING, Playa.Reason.NONE, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.PLAYING, Reason.BUFFERING, Error.OK, PROGRESS, DURATION, STREAM_URL);
         verify(stateChangeHandler).sendMessage(message);
@@ -289,7 +289,7 @@ public class SkippyAdapterTest {
     @Test
     public void skippyIdleErrorTimeoutTranslatesToListenerTimeoutError() throws Exception {
         skippyAdapter.play(track);
-        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FAILED);
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FAILED, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.TIMEOUT, PROGRESS, DURATION, STREAM_URL);
         verify(stateChangeHandler).sendMessage(message);
@@ -298,7 +298,7 @@ public class SkippyAdapterTest {
     @Test
     public void skippyFailedErrorTranslatesToListenerErrorFailed() throws Exception {
         skippyAdapter.play(track);
-        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FAILED);
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FAILED, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FAILED, PROGRESS, DURATION, STREAM_URL);
         verify(stateChangeHandler).sendMessage(message);
@@ -307,7 +307,7 @@ public class SkippyAdapterTest {
     @Test
     public void skippyIdleErrorForbiddenTranslatesToListenerErrorForbiddenEvent() throws Exception {
         skippyAdapter.play(track);
-        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FORBIDDEN);
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FORBIDDEN, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FORBIDDEN, PROGRESS, DURATION, STREAM_URL);
         verify(stateChangeHandler).sendMessage(message);
@@ -316,7 +316,7 @@ public class SkippyAdapterTest {
     @Test
     public void skippyIdleErrorNotFoundTranslatesToListenerErrorNotFoundEvent() throws Exception {
         skippyAdapter.play(track);
-        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND);
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.MEDIA_NOT_FOUND, PROGRESS, DURATION, STREAM_URL);
         verify(stateChangeHandler).sendMessage(message);
@@ -325,7 +325,7 @@ public class SkippyAdapterTest {
     @Test
     public void returnsLastStateChangeProgressAfterError() throws Exception {
         skippyAdapter.play(track);
-        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND);
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.MEDIA_NOT_FOUND, PROGRESS, DURATION, STREAM_URL);
         expect(skippyAdapter.getProgress()).toEqual(PROGRESS);

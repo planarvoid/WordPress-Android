@@ -508,9 +508,9 @@ public class MediaPlayerAdapterTest {
     @Test
     public void onBufferingListenerSetsBufferingStateWhenBuffering() throws Exception {
         playUrlAndSetPrepared();
-
+        when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE)));
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 123, DURATION)));
     }
 
     @Test
@@ -543,8 +543,9 @@ public class MediaPlayerAdapterTest {
     @Test
     public void shouldSetStateToPlayingAfterBufferingCompletes() throws Exception {
         playUrlAndSetPrepared();
+        when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_END, 0);
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE)));
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, 123, DURATION)));
     }
 
     @Test
@@ -563,9 +564,10 @@ public class MediaPlayerAdapterTest {
     @Test
     public void stopCallsStopAndSetsIdleStateIfStoppable() throws Exception {
         playUrlAndSetPrepared();
+        when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.stop();
         verify(mediaPlayer).stop();
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE)));
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE, 123, DURATION)));
     }
 
     @Test
