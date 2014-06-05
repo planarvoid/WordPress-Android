@@ -26,11 +26,20 @@ public interface Playa {
     public boolean isNotSeekablePastBuffer();
 
     public static class StateTransition {
-        private PlayaState newState;
-        private Reason reason;
+        private final PlayaState newState;
+        private final Reason reason;
+
+        public long getCurrentProgress() {
+            return currentProgress;
+        }
+
+        private final long currentProgress;
+        private final long duration;
 
         @VisibleForTesting
         private static final String DEBUG_EXTRA = "DEBUG_EXTRA";
+        private static final String PROGRESS_EXTRA = "PROGRESS_EXTRA";
+        private static final String DURATION_EXTRA = "DURATION_EXTRA";
 
         private String debugExtra;
         private TrackUrn trackUrn;
@@ -38,8 +47,14 @@ public interface Playa {
         public static final StateTransition DEFAULT = new StateTransition(PlayaState.IDLE, Reason.NONE);
 
         public StateTransition(PlayaState newState, Reason reason) {
+            this(newState, reason, 0, 1);
+        }
+
+        public StateTransition(PlayaState newState, Reason reason, long currentProgress, long duration) {
             this.newState = newState;
             this.reason = reason;
+            this.currentProgress = currentProgress;
+            this.duration = duration;
         }
 
         public void setDebugExtra(String debugExtra){
@@ -107,7 +122,9 @@ public interface Playa {
         }
 
         public static StateTransition fromIntent(Intent intent) {
-            final StateTransition stateTransition = new StateTransition(PlayaState.fromIntent(intent), Reason.fromIntent(intent));
+            final StateTransition stateTransition = new StateTransition(PlayaState.fromIntent(intent), Reason.fromIntent(intent),
+                    intent.getLongExtra(PROGRESS_EXTRA, 0), intent.getLongExtra(DURATION_EXTRA, 0));
+
             stateTransition.setDebugExtra(intent.getStringExtra(DEBUG_EXTRA));
             return stateTransition;
         }
@@ -119,6 +136,8 @@ public interface Playa {
             if (o == null || getClass() != o.getClass()) return false;
             StateTransition that = (StateTransition) o;
             return Objects.equal(newState, that.newState) && Objects.equal(reason, that.reason)
+                    && Objects.equal(currentProgress, that.currentProgress)
+                    && Objects.equal(duration, that.duration)
                     && Objects.equal(debugExtra, that.debugExtra);
         }
 
@@ -126,6 +145,10 @@ public interface Playa {
         public int hashCode() {
             int result = newState.hashCode();
             result = 31 * result + reason.hashCode();
+            result = 31 * result + (int) (currentProgress ^ (currentProgress >>> 32));
+            result = 31 * result + (int) (duration ^ (duration >>> 32));
+            result = 31 * result + (debugExtra != null ? debugExtra.hashCode() : 0);
+            result = 31 * result + (trackUrn != null ? trackUrn.hashCode() : 0);
             return result;
         }
 
