@@ -13,7 +13,7 @@ import javax.inject.Inject;
 
 public class WaveformOperations {
 
-    public static int DEFAULT_WAVEFORM_CACHE_SIZE = 20;
+    public static final int DEFAULT_WAVEFORM_CACHE_SIZE = 20;
 
     private final LruCache<TrackUrn, WaveformData> waveformCache;
     private final WaveformFetcher waveformFetcher;
