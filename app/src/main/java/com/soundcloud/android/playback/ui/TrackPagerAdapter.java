@@ -92,11 +92,9 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
         return trackViewsByPosition.inverse().get(id);
     }
 
-    public void setProgressOnCurrentTrack(PlaybackProgressEvent progress){
+    public void setProgressOnCurrentTrack(PlaybackProgressEvent progress) {
         View currentTrackView = trackViewsByPosition.inverse().get(playQueueManager.getCurrentPosition());
-        if (currentTrackView != null) {
-            trackPagePresenter.setProgress(currentTrackView, progress);
-        }
+        trackPagePresenter.setProgress(currentTrackView, progress);
     }
 
     public void setPlayState(boolean isPlaying) {

@@ -46,7 +46,7 @@ public class PlaySessionController {
     private TrackUrn currentPlayingUrn; // the track that is currently loaded in the playback service
     private Track currentPlayQueueTrack; // the track that is currently set in the queue
 
-    private PlaybackProgressEvent currentProgress;
+    private PlaybackProgressEvent currentProgress = PlaybackProgressEvent.empty();
 
     @Inject
     public PlaySessionController(Resources resources, EventBus eventBus, PlaybackOperations playbackOperations,
