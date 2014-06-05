@@ -13,8 +13,8 @@ public class EmailOptInScreen extends Screen {
     }
 
     public HomeScreen clickNo() {
-        solo.clickOnText(R.string.optin_no);
-        return new HomeScreen(solo);
+        testDriver.clickOnText(R.string.optin_no);
+        return new HomeScreen(testDriver);
     }
 
     @Override

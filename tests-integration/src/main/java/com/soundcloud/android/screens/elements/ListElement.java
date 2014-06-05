@@ -1,7 +1,7 @@
 package com.soundcloud.android.screens.elements;
 
 import com.robotium.solo.Solo;
-import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ViewElement;
 
 import android.view.View;
 import android.widget.AbsListView;

@@ -38,27 +38,27 @@ public class SearchResultsScreen extends Screen {
     public LegacyPlayerScreen clickFirstTrackItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         View itemView = getFirstResultsItemByClass(Track.class);
-        solo.clickOnView(itemView);
-        return new LegacyPlayerScreen(solo);
+        testDriver.clickOnView(itemView);
+        return new LegacyPlayerScreen(testDriver);
     }
 
     public PlaylistDetailsScreen clickFirstPlaylistItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         View itemView = getFirstResultsItemByClass(Playlist.class);
-        solo.clickOnView(itemView);
-        return new PlaylistDetailsScreen(solo);
+        testDriver.clickOnView(itemView);
+        return new PlaylistDetailsScreen(testDriver);
     }
 
     public ProfileScreen clickFirstUserItem() {
 
         View itemView = getFirstResultsItemByClass(User.class);
-        solo.clickOnView(itemView);
-        return new ProfileScreen(solo);
+        testDriver.clickOnView(itemView);
+        return new ProfileScreen(testDriver);
     }
 
     public PlaylistTagsScreen pressBack() {
-        solo.goBack();
-        return new PlaylistTagsScreen(solo);
+        testDriver.goBack();
+        return new PlaylistTagsScreen(testDriver);
     }
 
     public void touchAllTab() {
@@ -82,7 +82,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
-        solo.scrollToBottom((ListView) getViewPager().getCurrentPage(ListView.class));
+        testDriver.scrollToBottom((ListView) getViewPager().getCurrentPage(ListView.class));
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
@@ -90,7 +90,7 @@ public class SearchResultsScreen extends Screen {
         List<View> indicatorItems = getViewPagerIndicator().getChildAt(0).getTouchables();
         for (View view : indicatorItems) {
             if (((TextView) view).getText().equals(tabText)) {
-                solo.performClick(view);
+                testDriver.performClick(view);
                 return true;
             }
         }
@@ -105,11 +105,11 @@ public class SearchResultsScreen extends Screen {
 
     private ViewPagerElement getViewPager() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return new ViewPagerElement(solo);
+        return new ViewPagerElement(testDriver);
     }
 
     private SlidingTabLayout getViewPagerIndicator() {
-        return (SlidingTabLayout) solo.getView(R.id.sliding_tabs);
+        return (SlidingTabLayout) testDriver.getView(R.id.sliding_tabs);
     }
 
     public int getResultItemCount() {
@@ -122,7 +122,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     private ViewPagerElement viewPagerElement() {
-        return new ViewPagerElement(solo);
+        return new ViewPagerElement(testDriver);
     }
 
     private View getFirstResultsItemByClass(Class itemClass) {

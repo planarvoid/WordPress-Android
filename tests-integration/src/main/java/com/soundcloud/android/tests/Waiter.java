@@ -5,7 +5,6 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.screens.MenuScreen;
-import com.soundcloud.android.screens.elements.ViewElement;
 import com.soundcloud.android.utils.Log;
 
 import android.content.Context;

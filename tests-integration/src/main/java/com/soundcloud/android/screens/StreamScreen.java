@@ -1,7 +1,6 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.elements.PlayerElement;
 import com.soundcloud.android.tests.Han;
 
 public class StreamScreen extends Screen {
@@ -13,7 +12,7 @@ public class StreamScreen extends Screen {
     }
 
     public void clickFirstTrack() {
-        solo.clickInList(0);
+        testDriver.clickInList(0);
     }
 
     @Override

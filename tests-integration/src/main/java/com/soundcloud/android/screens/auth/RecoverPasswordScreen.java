@@ -18,15 +18,15 @@ public class RecoverPasswordScreen extends Screen {
     }
 
     public EditText email() {
-        return (EditText) solo.getView(R.id.txt_email_address);
+        return (EditText) testDriver.getView(R.id.txt_email_address);
     }
 
     public void typeEmail(String email) {
-        solo.enterText(email(), email);
+        testDriver.enterText(email(), email);
     }
 
     public void clickOkButton () {
-        solo.clickOnOK();
+        testDriver.clickOnOK();
     }
 
     @Override

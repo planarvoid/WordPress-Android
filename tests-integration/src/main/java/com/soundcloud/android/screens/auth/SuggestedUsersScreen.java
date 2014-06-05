@@ -1,12 +1,9 @@
 package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.screens.EmailConfirmScreen;
-import com.soundcloud.android.screens.EmailOptInScreen;
-import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
 
@@ -25,30 +22,30 @@ public class SuggestedUsersScreen extends Screen {
     }
 
     public boolean hasContent(){
-        solo.scrollListToTop(0);
-        return solo.getView(R.id.list_section_header) != null;
+        testDriver.scrollListToTop(0);
+        return testDriver.getView(R.id.list_section_header) != null;
     }
 
     public boolean hasFacebookSection(){
-        solo.scrollListToTop(0);
-        return solo.searchText(solo.getString(R.string.suggested_users_section_facebook), true);
+        testDriver.scrollListToTop(0);
+        return testDriver.searchText(testDriver.getString(R.string.suggested_users_section_facebook), true);
     }
 
     public boolean hasMusicSection(){
-        solo.scrollListToTop(0);
-        return solo.searchText(solo.getString(R.string.suggested_users_section_music), true);
+        testDriver.scrollListToTop(0);
+        return testDriver.searchText(testDriver.getString(R.string.suggested_users_section_music), true);
     }
 
     public boolean hasAudioSection(){
-        solo.scrollListToTop(0);
-        return solo.searchText(solo.getString(R.string.suggested_users_section_audio), true);
+        testDriver.scrollListToTop(0);
+        return testDriver.searchText(testDriver.getString(R.string.suggested_users_section_audio), true);
     }
 
     public SuggestedUsersCategoryScreen rockOut(){
         // TODO : do not click on text, but rather listview items
-        solo.scrollListToTop(0);
-        solo.clickOnText("Rock");
-        return new SuggestedUsersCategoryScreen(solo);
+        testDriver.scrollListToTop(0);
+        testDriver.clickOnText("Rock");
+        return new SuggestedUsersCategoryScreen(testDriver);
     }
 
     public String subtextAtIndexEquals(int index) {
@@ -58,32 +55,32 @@ public class SuggestedUsersScreen extends Screen {
 
     public SuggestedUsersScreen clickToggleCategoryCheckmark(int visibleIndex){
         clickOnCategoryElement(visibleIndex, R.id.btn_user_bucket_select_all);
-        return new SuggestedUsersScreen(solo);
+        return new SuggestedUsersScreen(testDriver);
     }
 
     public SuggestedUsersCategoryScreen clickCategory(int visibleIndex) {
         clickOnCategoryElement(visibleIndex, android.R.id.text1);
-        solo.waitForActivity(SuggestedUsersCategoryActivity.class);
-        return new SuggestedUsersCategoryScreen(solo);
+        testDriver.waitForActivity(SuggestedUsersCategoryActivity.class);
+        return new SuggestedUsersCategoryScreen(testDriver);
     }
 
     public SuggestedUsersCategoryScreen goToFacebook() {
-        solo.clickOnText("Facebook");
-        return new SuggestedUsersCategoryScreen(solo);
+        testDriver.clickOnText("Facebook");
+        return new SuggestedUsersCategoryScreen(testDriver);
     }
 
     private void clickOnCategoryElement(int index, int elementId) {
         View categoryRow = getCategoryRow(index);
-        solo.clickOnView(categoryRow.findViewById(elementId));
+        testDriver.clickOnView(categoryRow.findViewById(elementId));
     }
 
     private View getCategoryRow(int index) {
-        return ((ViewGroup) solo.getView(android.R.id.list)).getChildAt(index);
+        return ((ViewGroup) testDriver.getView(android.R.id.list)).getChildAt(index);
     }
 
     public EmailConfirmScreen finish() {
-        solo.clickOnActionBarItem(R.id.finish);
-        return new EmailConfirmScreen(solo);
+        testDriver.clickOnActionBarItem(R.id.finish);
+        return new EmailConfirmScreen(testDriver);
     }
 
     @Override

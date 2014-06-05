@@ -1,7 +1,7 @@
-package com.soundcloud.android.screens.elements;
+package com.soundcloud.android.tests;
 
 import com.robotium.solo.Solo;
-import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.screens.elements.ListElement;
 
 import android.content.Context;
 import android.view.Display;
@@ -13,15 +13,21 @@ import android.widget.TextView;
 public class ViewElement {
     private final Solo testDriver;
     private final View view;
+    private ViewFetcher viewFetcher;
 
     public ViewElement(View element, Solo driver) {
         testDriver = driver;
         view = element;
+        viewFetcher = new ViewFetcher(view, driver);
     }
 
     public ViewElement(Solo driver){
         testDriver = driver;
         view = null;
+    }
+
+    public ViewElement findElement(int viewId) {
+        return viewFetcher.findElement(viewId);
     }
 
     public void click() {
@@ -67,6 +73,10 @@ public class ViewElement {
 
     public int getId() {
         return view.getId();
+    }
+
+    public ListElement toListView() {
+        return new ListElement(view, testDriver);
     }
 
     private boolean hasDimentions() {

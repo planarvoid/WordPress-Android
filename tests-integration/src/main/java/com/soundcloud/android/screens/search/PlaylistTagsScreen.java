@@ -9,7 +9,6 @@ import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
 
-import android.view.View;
 import android.widget.TextView;
 
 import java.util.List;
@@ -24,8 +23,8 @@ public class PlaylistTagsScreen extends Screen {
     }
 
     public PlaylistResultsScreen clickOnTag(int index) {
-        solo.getSolo().clickOnView(getTagViews(R.id.all_tags).get(index));
-        return new PlaylistResultsScreen(solo);
+        testDriver.getSolo().clickOnView(getTagViews(R.id.all_tags).get(index));
+        return new PlaylistResultsScreen(testDriver);
     }
 
     public List<String> getTags() {
@@ -62,16 +61,16 @@ public class PlaylistTagsScreen extends Screen {
     }
 
     private List<TextView> getTagViews(int containerId) {
-        if (solo.getView(containerId) != null) {
+        if (testDriver.getView(containerId) != null) {
             waiter.waitForContentAndRetryIfLoadingFailed();
-            return solo.getSolo().getCurrentViews(TextView.class, solo.getView(containerId));
+            return testDriver.getSolo().getCurrentViews(TextView.class, testDriver.getView(containerId));
         }
         return null;
     }
 
     public MainScreen pressBack() {
-        solo.goBack();
-        return new MainScreen(solo);
+        testDriver.goBack();
+        return new MainScreen(testDriver);
     }
 
     @Override

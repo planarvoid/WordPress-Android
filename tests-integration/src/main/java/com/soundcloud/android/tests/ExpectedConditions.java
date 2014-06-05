@@ -2,8 +2,6 @@ package com.soundcloud.android.tests;
 
 import static junit.framework.Assert.assertEquals;
 
-import com.soundcloud.android.screens.elements.ViewElement;
-
 public class ExpectedConditions {
 
     private final ViewElement viewElement;

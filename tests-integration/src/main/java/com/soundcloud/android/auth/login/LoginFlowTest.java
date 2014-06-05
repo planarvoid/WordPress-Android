@@ -120,7 +120,8 @@ public class LoginFlowTest extends LoginTestCase {
         FBWebViewScreen.typePassword(scAccount.getPassword());
         FBWebViewScreen.typeEmail(scAccount.getEmail());
         FBWebViewScreen.submit();
-
+        menuScreen.open();
+        
         assertEquals(scAccount.getUsername(), menuScreen.getUserName());
     }
 

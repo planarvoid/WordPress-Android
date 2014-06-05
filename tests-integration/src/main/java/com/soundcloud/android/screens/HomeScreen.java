@@ -6,6 +6,7 @@ import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.auth.LoginScreen;
 import com.soundcloud.android.screens.auth.SignUpScreen;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ViewElement;
 
 public class HomeScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;
@@ -14,20 +15,27 @@ public class HomeScreen extends Screen {
         super(solo);
     }
 
+    private ViewElement bottomBar() {
+        return testDriver.findElement(R.id.tour_bottom_bar);
+    }
+
     public LoginScreen clickLogInButton() {
-        solo.clickOnButtonResId(R.string.authentication_log_in);
-        waiter.waitForText(solo.getString(string.done));
-        return new LoginScreen(solo);
+        logInButton().click();
+        waiter.waitForText(testDriver.getString(string.done));
+        return new LoginScreen(testDriver);
     }
 
     public SignUpScreen clickSignUpButton() {
-        solo.clickOnView(R.id.signup_btn);
-        solo.waitForViewId(R.id.btn_signup, 5000);
-        return new SignUpScreen(solo);
+        testDriver.clickOnView(R.id.signup_btn);
+        return new SignUpScreen(testDriver);
     }
 
     public boolean hasItemByUsername(String username){
-        return solo.searchText(username, true);
+        return testDriver.searchText(username, true);
+    }
+
+    private ViewElement logInButton() {
+       return bottomBar().findElement(R.id.login_btn);
     }
 
     @Override

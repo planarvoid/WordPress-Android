@@ -3,13 +3,11 @@ package com.soundcloud.android.screens;
 import com.soundcloud.android.R;
 import com.soundcloud.android.R.id;
 import com.soundcloud.android.R.string;
+import com.soundcloud.android.screens.elements.ListElement;
+import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
-
-import android.view.View;
-import android.widget.ListView;
-import android.widget.TextView;
 
 public class MenuScreen {
     protected Han solo;
@@ -17,7 +15,7 @@ public class MenuScreen {
     protected int explore_selector = R.string.side_menu_explore;
     protected int likes_selector = R.string.side_menu_likes;
     protected int playlist_selector = string.side_menu_playlists;
-    protected int profiles_selector = id.username;
+    protected final int profiles_selector = id.username;
 
     public MenuScreen(Han solo) {
         this.solo = solo;
@@ -40,12 +38,16 @@ public class MenuScreen {
         return new SettingsScreen(solo);
     }
 
-    public ListView rootMenu() {
-        return (ListView) solo.waitForViewId(R.id.nav_listview, 20000);
+    private ListElement menuContainer() {
+        return solo.findElement(R.id.nav_listview).toListView();
     }
 
-    public View youMenu() {
-        return rootMenu().getChildAt(0);
+    private ViewElement youMenu() {
+        return menuContainer().getItemAt(0);
+    }
+
+    private ViewElement username() {
+        return youMenu().findElement(profiles_selector);
     }
 
     //TODO: move this to ActionBarScreen
@@ -60,16 +62,7 @@ public class MenuScreen {
     }
 
     public String getUserName() {
-        TextView you = (TextView) youMenu().findViewById(R.id.username);
-        return you.getText().toString();
-    }
-
-    public void openExplore() {
-        solo.clickOnActionBarHomeButton();
-        waiter.waitForDrawerToOpen();
-        solo.clickOnText(explore_selector);
-        waiter.waitForViewId(android.R.id.list);
-        waiter.waitForContentAndRetryIfLoadingFailed();
+        return username().getText();
     }
 
     public boolean isOpened() {
@@ -77,7 +70,7 @@ public class MenuScreen {
     }
 
     public ProfileScreen clickProfile() {
-        solo.clickOnView(R.id.username);
+        solo.clickOnView(profiles_selector);
         waiter.waitForDrawerToClose();
         return new MyProfileScreen(solo);
     }

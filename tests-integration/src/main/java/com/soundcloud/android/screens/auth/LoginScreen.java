@@ -5,91 +5,91 @@ import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ViewElement;
 
 import android.R.id;
-import android.view.View;
 import android.widget.EditText;
 
 public class LoginScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;
 
-    public LoginScreen(Han solo) {
-        super(solo);
+    public LoginScreen(Han testDriver) {
+        super(testDriver);
         waiter.waitForActivity(ACTIVITY);
         waiter.waitForElement(id.content);
     }
 
-    public EditText email() {
-        return (EditText) solo.getView(R.id.auto_txt_email_address);
+    private ViewElement googleSignInButton() {
+        return testDriver.findElement(R.id.google_plus_btn);
     }
 
-    public EditText password() {
-        return (EditText) solo.getView(R.id.txt_password);
+    private ViewElement facebookSignInButton() {
+        return testDriver.findElement(R.id.facebook_btn);
     }
 
-    public void typeUsername(String username) {
-        solo.enterText(email(), username );
+    private ViewElement emailInputField() {
+        return testDriver.findElement(R.id.auto_txt_email_address);
     }
 
-    public void typePassword(String password) {
-        solo.enterText(password(), password);
+    private ViewElement passwordInputfield() {
+        return testDriver.findElement(R.id.txt_password);
     }
 
-    // What would be the best way of getting reference to element?
-    public int logInButton() {
-        return (R.string.authentication_log_in);
+    private ViewElement cancelButton() {
+        return testDriver.findElement(R.id.btn_cancel);
+    }
+    private ViewElement loginButton() {
+        return testDriver.findElement(R.id.btn_login);
+    }
+
+    private ViewElement forgotPasswordButton() {
+        return testDriver.findElement(R.id.txt_i_forgot_my_password);
     }
 
     public void clickOkButton() {
-        solo.clickOnOK();
+        testDriver.clickOnOK();
     }
 
     public void clickOnFBSignInButton() {
-        solo.clickOnText(R.string.authentication_log_in_with_facebook);
+        facebookSignInButton().click();
     }
 
     public void clickSignInWithGoogleButton() {
-        solo.clickOnButton(R.string.authentication_log_in_with_google);
+        googleSignInButton().click();
     }
 
     public RecoverPasswordScreen clickForgotPassword() {
-        waiter.waitForElement(R.id.txt_i_forgot_my_password);
-        solo.clickOnView(R.id.txt_i_forgot_my_password);
-        return new RecoverPasswordScreen(solo);
+        forgotPasswordButton().click();
+        return new RecoverPasswordScreen(testDriver);
     }
 
     public void selectUserFromDialog(String username) {
-        solo.clickOnText(username);
+        testDriver.clickOnText(username);
         waiter.waitForActivity(OnboardActivity.class);
     }
 
-    public void clickOnCancelButton() {
-        solo.clickOnButton(R.string.cancel);
-        solo.waitForActivity(OnboardActivity.class);
-        solo.waitForViewId(R.id.tour_bottom_bar, 5000);
-    }
-
     public void clickOnContinueButton() {
-        solo.clickOnButton(R.string.btn_continue);
+        testDriver.clickOnButton(R.string.btn_continue);
         waiter.waitForTextToDisappear("Logging you in");
     }
     public MainScreen loginAs(String username, String password) {
-        solo.clearEditText(email());
-        typeUsername(username);
-        typePassword(password);
-        solo.clickOnDone();
-        return new MainScreen(solo);
+        emailInputField().clearText();
+
+        emailInputField().typeText(username);
+        passwordInputfield().typeText(password);
+        loginButton().click();
+        return new MainScreen(testDriver);
     }
 
     public Screen loginAs(String username, String password, boolean validCredentials) {
-        solo.clearEditText(email());
+        emailInputField().clearText();
 
-        typeUsername(username);
-        typePassword(password);
+        emailInputField().typeText(username);
+        passwordInputfield().typeText(password);
 
-        solo.clickOnDone();
+        loginButton().click();
         if (validCredentials) {
-            return new MainScreen(solo);
+            return new MainScreen(testDriver);
         }
         return this;
     }

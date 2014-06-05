@@ -11,7 +11,6 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.Screen;
-import com.soundcloud.android.screens.elements.PlayerElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.view.SlidingTabLayout;
@@ -64,14 +63,14 @@ public class ExploreScreen extends Screen {
     }
 
     public ExploreGenreCategoryScreen clickElectronicGenre() {
-        solo.clickOnText("Electronic");
-        return new ExploreGenreCategoryScreen(solo);
+        testDriver.clickOnText("Electronic");
+        return new ExploreGenreCategoryScreen(testDriver);
     }
 
     public ExploreGenreCategoryScreen clickGenreItem(String genreName) {
-        solo.clickOnText(genreName, true);
+        testDriver.clickOnText(genreName, true);
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return new ExploreGenreCategoryScreen(solo);
+        return new ExploreGenreCategoryScreen(testDriver);
     }
 
     public void touchTrendingAudioTab() {
@@ -87,19 +86,19 @@ public class ExploreScreen extends Screen {
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
-        solo.scrollToBottom((GridView) viewPager.getCurrentPage(GridView.class));
+        testDriver.scrollToBottom((GridView) viewPager.getCurrentPage(GridView.class));
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public LegacyPlayerScreen playPopularTrack(int trackNumber) {
         View view = ((GridView) viewPager.getCurrentPage(GridView.class)).getChildAt(trackNumber);
-        solo.clickOnView(view);
-        return new LegacyPlayerScreen(solo);
+        testDriver.clickOnView(view);
+        return new LegacyPlayerScreen(testDriver);
     }
 
     public void playFirstTrack() {
         View view = ((GridView) viewPager.getCurrentPage(GridView.class)).getChildAt(0);
-        solo.clickOnView(view);
+        testDriver.clickOnView(view);
     }
 
     private void validateThatClickedTrackMatchesExpectedTrackToPlay(List<TextView> textViewsForClickedItem, TrackSummary trackSummaryForPlayedTrack) {
@@ -111,11 +110,11 @@ public class ExploreScreen extends Screen {
     }
 
     private boolean touchTab(String tabText) {
-        SlidingTabLayout tabIndicator = (SlidingTabLayout) solo.getView(R.id.sliding_tabs);
+        SlidingTabLayout tabIndicator = (SlidingTabLayout) testDriver.getView(R.id.sliding_tabs);
         List<View> touchableViews = tabIndicator.getChildAt(0).getTouchables();
         for(View view : touchableViews){
             if(((TextView)view).getText().equals(tabText)){
-                solo.performClick(view);
+                testDriver.performClick(view);
                 return true;
             }
         }
@@ -129,11 +128,11 @@ public class ExploreScreen extends Screen {
     }
 
     private ViewPager getViewPager() {
-        return (ViewPager) solo.getView(R.id.pager);
+        return (ViewPager) testDriver.getView(R.id.pager);
     }
 
     private SlidingTabLayout getViewPagerIndicator() {
-        return (SlidingTabLayout) solo.getView(R.id.sliding_tabs);
+        return (SlidingTabLayout) testDriver.getView(R.id.sliding_tabs);
     }
 
     public int getNumberOfItemsInGenresTab() {

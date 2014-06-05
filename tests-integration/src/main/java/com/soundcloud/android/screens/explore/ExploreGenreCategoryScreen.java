@@ -29,18 +29,18 @@ public class ExploreGenreCategoryScreen extends Screen {
     }
 
     public LegacyPlayerScreen playTrack(int index) {
-        solo.clickOnView(tracksList().getChildAt(index));
-        return new LegacyPlayerScreen(solo);
+        testDriver.clickOnView(tracksList().getChildAt(index));
+        return new LegacyPlayerScreen(testDriver);
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
-        solo.scrollToBottom(tracksList());
+        testDriver.scrollToBottom(tracksList());
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     //TODO: This should be even more generic GV.items()
     private GridView tracksList() {
-        return solo.getCurrentGridView();
+        return testDriver.getCurrentGridView();
     }
 
     @Override

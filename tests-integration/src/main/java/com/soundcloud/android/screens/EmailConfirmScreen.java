@@ -13,13 +13,13 @@ public class EmailConfirmScreen extends Screen {
     }
 
     public EmailOptInScreen clickConfirmLater() {
-        solo.clickOnText(R.string.email_confirmation_confirm_later);
-        return new EmailOptInScreen(solo);
+        testDriver.clickOnText(R.string.email_confirmation_confirm_later);
+        return new EmailOptInScreen(testDriver);
     }
 
     public HomeScreen goBack() {
-        solo.goBack();
-        return new HomeScreen(solo);
+        testDriver.goBack();
+        return new HomeScreen(testDriver);
     }
 
     @Override

@@ -9,7 +9,6 @@ import com.robotium.solo.By;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 import com.soundcloud.android.R;
-import com.soundcloud.android.screens.elements.ViewElement;
 import junit.framework.AssertionFailedError;
 
 import android.app.Activity;
