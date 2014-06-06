@@ -57,26 +57,30 @@ public class WaveformOperations {
 
     public void display(final TrackUrn trackUrn, String waveformUrl, WaveformView waveformView) {
         viewToTrackMap.put(waveformView, trackUrn);
-
         final WaveformData cachedWaveform = waveformCache.get(trackUrn);
-        if (cachedWaveform != null){
-            waveformView.setWaveform(cachedWaveform);
+        if (cachedWaveform == null) {
+            fetchAndSetWaveform(trackUrn, waveformUrl, waveformView);
         } else {
-            final WeakReference<WaveformView> weakReference = new WeakReference<WaveformView>(waveformView);
-            waveformFetcher.fetch(waveformUrl).doOnNext(new Action1<WaveformData>() {
-                @Override
-                public void call(WaveformData waveformData) {
-                    waveformCache.put(trackUrn, waveformData);
-                }
-            }).onErrorResumeNext(waveformFetcher.fetchDefault()).subscribe(new DefaultSubscriber<WaveformData>() {
-                @Override
-                public void onNext(WaveformData waveformData) {
-                    WaveformView waveformView =  weakReference.get();
-                    if (waveformView != null && trackUrn.equals(viewToTrackMap.get(waveformView))) {
-                        waveformView.setWaveform(waveformData);
-                    }
-                }
-            });
+            waveformView.setWaveform(cachedWaveform);
         }
     }
+
+    private void fetchAndSetWaveform(final TrackUrn trackUrn, String waveformUrl, WaveformView waveformView) {
+        final WeakReference<WaveformView> weakReference = new WeakReference<WaveformView>(waveformView);
+        waveformFetcher.fetch(waveformUrl).doOnNext(new Action1<WaveformData>() {
+            @Override
+            public void call(WaveformData waveformData) {
+                waveformCache.put(trackUrn, waveformData);
+            }
+        }).onErrorResumeNext(waveformFetcher.fetchDefault()).subscribe(new DefaultSubscriber<WaveformData>() {
+            @Override
+            public void onNext(WaveformData waveformData) {
+                WaveformView waveformView =  weakReference.get();
+                if (waveformView != null && trackUrn.equals(viewToTrackMap.get(waveformView))) {
+                    waveformView.setWaveform(waveformData);
+                }
+            }
+        });
+    }
+
 }
