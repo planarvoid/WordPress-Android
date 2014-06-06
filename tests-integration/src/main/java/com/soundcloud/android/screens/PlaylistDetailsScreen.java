@@ -44,17 +44,21 @@ public class PlaylistDetailsScreen extends Screen {
         return rootContainer().findViewById(USERNAME);
     }
 
+    private ViewElement headerPlayToggle() {
+        return testDriver.findElement(R.id.toggle_play_pause);
+    }
+
     public void clickHeaderPlay() {
-        testDriver.clickOnView(R.id.toggle_play_pause);
+        headerPlayToggle().click();
         waiter.waitForPlayerPlaying();
     }
 
     public void clickHeaderPause() {
-        testDriver.clickOnView(R.id.toggle_play_pause);
+        headerPlayToggle().click();
     }
 
     public boolean isPlayToggleChecked() {
-        return ((ToggleButton) testDriver.getView(R.id.toggle_play_pause)).isChecked();
+        return headerPlayToggle().isChecked();
     }
 
 }

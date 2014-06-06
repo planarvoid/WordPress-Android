@@ -11,8 +11,8 @@ public class MenuScreenTablet extends MenuScreen{
     }
 
     @Override
-    public MyProfileScreen clickProfile() {
-        solo.clickOnView(profiles_selector);
+    public MyProfileScreen clickUserProfile() {
+        userProfileMenuItem().click();
         return new MyProfileScreen(solo);
     }
 

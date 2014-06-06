@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class ViewElement {
     private final Solo testDriver;
@@ -81,6 +82,10 @@ public class ViewElement {
 
     public boolean isEnabled() {
         return view.isEnabled();
+    }
+
+    public boolean isChecked() {
+        return ((ToggleButton)view).isChecked();
     }
 
     private boolean hasDimentions() {

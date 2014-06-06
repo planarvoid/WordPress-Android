@@ -76,11 +76,6 @@ public class Han  {
         solo.clickOnText(text, 1, true);
     }
 
-    public void clickOnView(int resId) {
-        solo.waitForView(resId);
-        clickOnView(solo.getCurrentActivity().findViewById(resId));
-    }
-
     public void sendKey(int key) {
         solo.sendKey(key);
     }

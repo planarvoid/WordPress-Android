@@ -57,7 +57,7 @@ public class SignUpScreen extends Screen {
     }
 
     public void signup() {
-        testDriver.clickOnView(R.id.btn_signup);
+        doneButton().click();
     }
 
     public void acceptTerms() {

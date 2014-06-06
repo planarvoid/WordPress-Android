@@ -28,7 +28,7 @@ public class ProfileTest extends ActivityTestCase<MainActivity> {
         AccountAssistant.loginAs(getInstrumentation(), followedUser.getUsername(), followedUser.getPassword());
         assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
         super.setUp();
-        myProfileScreen = new MenuScreenTablet(solo).clickProfile();
+        myProfileScreen = new MenuScreenTablet(solo).clickUserProfile();
         navigateToFollower();
     }
 

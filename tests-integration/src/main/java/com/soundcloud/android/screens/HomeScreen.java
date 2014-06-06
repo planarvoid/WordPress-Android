@@ -1,7 +1,6 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.R.string;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.auth.LoginScreen;
 import com.soundcloud.android.screens.auth.SignUpScreen;
@@ -15,23 +14,26 @@ public class HomeScreen extends Screen {
         super(solo);
     }
 
-    private ViewElement bottomBar() {
-        return testDriver.findElement(R.id.tour_bottom_bar);
-    }
-
     public LoginScreen clickLogInButton() {
         logInButton().click();
-        waiter.waitForText(testDriver.getString(string.done));
         return new LoginScreen(testDriver);
     }
 
     public SignUpScreen clickSignUpButton() {
-        testDriver.clickOnView(R.id.signup_btn);
+        signUpButton().click();
         return new SignUpScreen(testDriver);
     }
 
     public boolean hasItemByUsername(String username){
         return testDriver.searchText(username, true);
+    }
+
+    private ViewElement bottomBar() {
+        return testDriver.findElement(R.id.tour_bottom_bar);
+    }
+
+    private ViewElement signUpButton() {
+        return testDriver.findElement(R.id.btn_signup);
     }
 
     private ViewElement logInButton() {

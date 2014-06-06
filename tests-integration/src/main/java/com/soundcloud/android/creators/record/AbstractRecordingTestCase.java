@@ -110,10 +110,10 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
     protected void record(int howlong, String text) {
         solo.assertText(text);
         assertState(IDLE_RECORD, IDLE_PLAYBACK);
-        solo.clickOnView(R.id.btn_action);
+        solo.findElement(R.id.btn_action).click();
         solo.sleep(howlong);
         assertState(RECORD);
-        solo.clickOnView(R.id.btn_action);
+        solo.findElement(R.id.btn_action).click();
         solo.assertText(R.string.reset); // "Discard"
         assertState(IDLE_PLAYBACK);
     }
@@ -133,13 +133,13 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
 
     protected void playback() {
         assertState(IDLE_PLAYBACK);
-        solo.clickOnView(R.id.btn_play);
+        solo.findElement(R.id.btn_play).click();
         assertState(PLAYBACK);
     }
 
     protected void playbackEdit() {
         assertState(EDIT);
-        solo.clickOnView(R.id.btn_play_edit);
+        solo.findElement(R.id.btn_play_edit).click();
         assertState(EDIT_PLAYBACK);
     }
 
@@ -154,10 +154,10 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         }
 
         if (location != null) {
-            solo.clickOnView(R.id.where);
+            solo.findElement(R.id.where).click();
             solo.assertActivity(LocationPickerActivity.class);
 
-            solo.clickOnView(R.id.where);
+            solo.findElement(R.id.where).click();
             solo.enterTextId(R.id.where, location);
             solo.sendKey(Solo.ENTER);
 

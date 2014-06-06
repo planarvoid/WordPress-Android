@@ -1,12 +1,10 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.R.id;
-import com.soundcloud.android.R.string;
 import com.soundcloud.android.screens.elements.ListElement;
-import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Waiter;
 
 public class MenuScreen {
@@ -14,8 +12,8 @@ public class MenuScreen {
     protected Waiter waiter;
     protected int explore_selector = R.string.side_menu_explore;
     protected int likes_selector = R.string.side_menu_likes;
-    protected int playlist_selector = string.side_menu_playlists;
-    protected final int profiles_selector = id.username;
+    protected int playlist_selector = R.string.side_menu_playlists;
+    protected final int username_selector = R.id.username;
 
     public MenuScreen(Han solo) {
         this.solo = solo;
@@ -34,7 +32,7 @@ public class MenuScreen {
 
     //TODO: Move this to systemSettingsScreen
     public SettingsScreen clickSystemSettings() {
-        solo.clickOnActionBarItem(id.action_settings);
+        solo.clickOnActionBarItem(R.id.action_settings);
         return new SettingsScreen(solo);
     }
 
@@ -42,12 +40,28 @@ public class MenuScreen {
         return solo.findElement(R.id.nav_listview).toListView();
     }
 
-    private ViewElement youMenu() {
+    protected ViewElement userProfileMenuItem() {
         return menuContainer().getItemAt(0);
     }
 
-    private ViewElement username() {
-        return youMenu().findElement(profiles_selector);
+    private ViewElement streamMenuItem() {
+        return menuContainer().getItemAt(1);
+    }
+
+    private ViewElement exploreMenuItem() {
+        return menuContainer().getItemAt(2);
+    }
+
+    private ViewElement likesMenuItem() {
+        return menuContainer().getItemAt(3);
+    }
+
+    private ViewElement playlistsMenuItem() {
+        return menuContainer().getItemAt(4);
+    }
+
+    protected ViewElement usernameLabel() {
+        return userProfileMenuItem().findElement(username_selector);
     }
 
     //TODO: move this to ActionBarScreen
@@ -62,33 +76,33 @@ public class MenuScreen {
     }
 
     public String getUserName() {
-        return username().getText();
+        return usernameLabel().getText();
     }
 
     public boolean isOpened() {
-        return solo.findElement(id.navigation_fragment_id).isVisible();
+        return solo.findElement(R.id.navigation_fragment_id).isVisible();
     }
 
-    public ProfileScreen clickProfile() {
-        solo.clickOnView(profiles_selector);
+    public ProfileScreen clickUserProfile() {
+        userProfileMenuItem().click();
         waiter.waitForDrawerToClose();
         return new MyProfileScreen(solo);
     }
 
     public ExploreScreen clickExplore() {
-        solo.clickOnText(explore_selector);
+        exploreMenuItem().click();
         waiter.waitForDrawerToClose();
         return new ExploreScreen(solo);
     }
 
     public LikesScreen clickLikes() {
-        solo.clickOnText(likes_selector);
+        likesMenuItem().click();
         waiter.waitForDrawerToClose();
         return new LikesScreen(solo);
     }
 
     public PlaylistScreen clickPlaylist() {
-        solo.clickOnText(playlist_selector);
+        playlistsMenuItem().click();
         waiter.waitForDrawerToClose();
         return new PlaylistScreen(solo);
     }
