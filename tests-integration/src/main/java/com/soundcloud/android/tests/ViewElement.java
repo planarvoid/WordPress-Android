@@ -79,6 +79,10 @@ public class ViewElement {
         return new ListElement(view, testDriver);
     }
 
+    public boolean isEnabled() {
+        return view.isEnabled();
+    }
+
     private boolean hasDimentions() {
         return getHeight() > 0 && getWidth() > 0 ;
     }

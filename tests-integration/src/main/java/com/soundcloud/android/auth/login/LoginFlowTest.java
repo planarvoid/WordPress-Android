@@ -5,6 +5,9 @@ import static com.soundcloud.android.tests.TestUser.GPlusAccount;
 import static com.soundcloud.android.tests.TestUser.noGPlusAccount;
 import static com.soundcloud.android.tests.TestUser.scAccount;
 import static com.soundcloud.android.tests.TestUser.scTestAccount;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.auth.LoginTestCase;
@@ -15,6 +18,7 @@ import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
 import com.soundcloud.android.tests.AccountAssistant;
+import com.soundcloud.android.tests.ToastElement;
 import com.soundcloud.android.tests.Waiter;
 
 import android.webkit.WebView;
