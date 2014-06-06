@@ -83,9 +83,13 @@ class TrackPagePresenter implements View.OnClickListener {
         setProgress(trackView, PlaybackProgressEvent.empty());
     }
 
-    public void setPlayState(View trackView, boolean isPlaying) {
+    public void setTrackPlayState(View trackView, boolean isPlaying) {
         TrackPageHolder holder = getViewHolder(trackView);
         holder.footerPlayToggle.setChecked(isPlaying);
+    }
+
+    public void setGlobalPlayState(View trackView, boolean isPlaying) {
+        TrackPageHolder holder = getViewHolder(trackView);
         holder.waveform.setVisibility(isPlaying ? View.VISIBLE : View.GONE);
 
         final int playControlVisibility = isPlaying ? View.GONE : View.VISIBLE;

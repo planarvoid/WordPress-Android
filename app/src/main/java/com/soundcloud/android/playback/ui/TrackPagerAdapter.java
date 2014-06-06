@@ -101,7 +101,8 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     public void setPlayState(boolean isPlaying) {
         for (Map.Entry<View, Integer> entry : trackViewsByPosition.entrySet()) {
-            trackPagePresenter.setPlayState(entry.getKey(), isPlaying && playQueueManager.isCurrentPosition(entry.getValue()));
+            trackPagePresenter.setTrackPlayState(entry.getKey(), playQueueManager.isCurrentPosition(entry.getValue()) && isPlaying);
+            trackPagePresenter.setGlobalPlayState(entry.getKey(), isPlaying);
         }
     }
 

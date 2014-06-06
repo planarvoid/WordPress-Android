@@ -136,14 +136,15 @@ public class TrackPagerAdapterTest {
     }
 
     @Test
-    public void setPlayStateSetsPlayingStateForCurrentTrack() {
+    public void setPlayStateSetsTrackPlayingStateForCurrentTrack() {
         setupGetCurrentViewPreconditions();
         when(playQueueManager.isCurrentPosition(3)).thenReturn(true);
 
         adapter.getView(3, view, container);
         adapter.setPlayState(true);
 
-        verify(trackPagePresenter).setPlayState(view, true);
+        verify(trackPagePresenter).setTrackPlayState(view, true);
+        verify(trackPagePresenter).setGlobalPlayState(view, true);
     }
 
     @Test
@@ -154,7 +155,8 @@ public class TrackPagerAdapterTest {
         adapter.getView(3, view, container);
         adapter.setPlayState(true);
 
-        verify(trackPagePresenter).setPlayState(view, false);
+        verify(trackPagePresenter).setTrackPlayState(view, false);
+        verify(trackPagePresenter).setGlobalPlayState(view, true);
     }
 
     @Test
