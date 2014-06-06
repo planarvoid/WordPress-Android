@@ -9,6 +9,7 @@ import com.soundcloud.android.playback.views.PlaybackRemoteViews;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.utils.ScTextUtils;
 
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -72,6 +73,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
         return PendingIntent.getBroadcast(context, PENDING_INTENT_REQUEST_CODE, createIntent(playbackAction), 0);
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
     private Intent createIntent(String playbackAction) {
         final Intent intent = new Intent(playbackAction)
                 .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_WIDGET);
