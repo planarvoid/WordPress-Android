@@ -12,6 +12,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Parcel;
 
 /**
@@ -72,7 +73,13 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
     }
 
     private Intent createIntent(String playbackAction) {
-        return new Intent(playbackAction)
+        final Intent intent = new Intent(playbackAction)
                 .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_WIDGET);
+
+        // add this or it will not trigger a process start (as of 3.1)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1){
+            intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        }
+        return intent;
     }
 }
