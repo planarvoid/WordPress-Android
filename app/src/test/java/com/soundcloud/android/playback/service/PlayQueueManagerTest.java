@@ -14,7 +14,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.RelatedTracksCollection;
+import com.soundcloud.android.model.RecommendedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
@@ -42,7 +42,6 @@ import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 import java.util.Collections;
-import java.util.Set;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueManagerTest {
@@ -393,7 +392,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldGetRelatedTracksObservableWhenFetchingRelatedTracks(){
-        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(Observable.<RelatedTracksCollection>empty());
+        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(Observable.<RecommendedTracksCollection>empty());
 
         playQueueManager.fetchRelatedTracks(123L);
         verify(playQueueOperations).getRelatedTracks(123L);
@@ -410,15 +409,15 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldSetLoadingStateOnQueueAndBroadcastWhenFetchingRelatedTracks(){
-        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(Observable.<RelatedTracksCollection>never());
+        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(Observable.<RecommendedTracksCollection>never());
         playQueueManager.fetchRelatedTracks(123L);
-        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackServiceOperations.AppendState.LOADING);
+        expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.LOADING);
         expectBroadcastRelatedLoadChanges();
     }
 
     @Test
     public void shouldPublishPlayQueueRelatedTracksEventOnRelatedLoadingStateChange() throws CreateModelException {
-        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(Observable.<RelatedTracksCollection>never());
+        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(Observable.<RecommendedTracksCollection>never());
         playQueueManager.fetchRelatedTracks(123L);
 
         PlayQueueEvent playQueueEvent = eventMonitor.verifyEventOn(EventQueue.PLAY_QUEUE);
@@ -429,7 +428,7 @@ public class PlayQueueManagerTest {
     public void shouldCacheAndAddRelatedTracksToQueueWhenRelatedTracksReturn() throws CreateModelException {
         final TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(123L), 0, playSessionSource), playSessionSource);
-        playQueueManager.onNext(new RelatedTracksCollection(Lists.newArrayList(trackSummary), "123"));
+        playQueueManager.onNext(new RecommendedTracksCollection(Lists.newArrayList(trackSummary), "123"));
 
         expect(playQueueManager.getPlayQueueView()).toContainExactly(123L, trackSummary.getId());
 
@@ -440,23 +439,23 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldSetIdleStateOnQueueAndBroadcastWhenDoneSuccessfulRelatedLoad(){
-        playQueueManager.onNext(new RelatedTracksCollection(Collections.<TrackSummary>emptyList(), "123"));
+        playQueueManager.onNext(new RecommendedTracksCollection(Collections.<TrackSummary>emptyList(), "123"));
         playQueueManager.onCompleted();
-        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackServiceOperations.AppendState.IDLE);
+        expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.IDLE);
         expectBroadcastRelatedLoadChanges();
     }
 
     @Test
     public void shouldSetEmptyStateOnQueueAndBroadcastWhenDoneEmptyRelatedLoad(){
         playQueueManager.onCompleted();
-        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackServiceOperations.AppendState.EMPTY);
+        expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.EMPTY);
         expectBroadcastRelatedLoadChanges();
     }
 
     @Test
     public void shouldSetErrorStateOnQueueAndBroadcastWhenOnErrorCalled(){
         playQueueManager.onError(new Throwable());
-        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackServiceOperations.AppendState.ERROR);
+        expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.ERROR);
         expectBroadcastRelatedLoadChanges();
     }
 

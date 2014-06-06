@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.service;
 
 
-import static com.soundcloud.android.playback.service.PlaybackServiceOperations.AppendState;
+import static com.soundcloud.android.playback.service.PlayQueueManager.FetchRecommendedState;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
@@ -20,7 +20,7 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
     public static final PlayQueueView EMPTY = new PlayQueueView(Collections.<Long>emptyList(), -1);
 
     private final List<Long> trackIds;
-    private final AppendState appendState;
+    private final FetchRecommendedState fetchState;
     private int position;
 
     public PlayQueueView(Long id) {
@@ -28,13 +28,13 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
     }
 
     public PlayQueueView(List<Long> trackIds, int playPosition) {
-        this(trackIds, playPosition, AppendState.IDLE);
+        this(trackIds, playPosition, FetchRecommendedState.IDLE);
     }
 
-    public PlayQueueView(List<Long> trackIds, int playPosition, AppendState appendState) {
+    public PlayQueueView(List<Long> trackIds, int playPosition, FetchRecommendedState fetchState) {
         this.trackIds = ImmutableList.copyOf(trackIds);
         position = playPosition < 0 || playPosition >= trackIds.size() ? 0 : playPosition;
-        this.appendState = appendState;
+        this.fetchState = fetchState;
     }
 
     private PlayQueueView(Parcel in) {
@@ -45,7 +45,7 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
         this.trackIds = Lists.newArrayListWithExpectedSize(trackIds.length);
         for (long n : trackIds) this.trackIds.add(n);
         position = in.readInt();
-        appendState = AppendState.valueOf(in.readString());
+        fetchState = FetchRecommendedState.valueOf(in.readString());
 
     }
 
@@ -54,8 +54,8 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
         return trackIds.iterator();
     }
 
-    public AppendState getAppendState() {
-        return appendState;
+    public FetchRecommendedState getFetchRecommendedState() {
+        return fetchState;
     }
 
     public boolean isEmpty() {
@@ -96,15 +96,15 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
     }
 
     public boolean isLoading() {
-        return appendState == AppendState.LOADING;
+        return fetchState == FetchRecommendedState.LOADING;
     }
 
     public boolean lastLoadFailed() {
-        return appendState == AppendState.ERROR;
+        return fetchState == FetchRecommendedState.ERROR;
     }
 
     public boolean lastLoadWasEmpty() {
-        return appendState == AppendState.EMPTY;
+        return fetchState == FetchRecommendedState.EMPTY;
     }
 
     @Override
@@ -112,7 +112,7 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
         dest.writeInt(trackIds.size());
         dest.writeLongArray(Longs.toArray(trackIds));
         dest.writeInt(position);
-        dest.writeString(appendState.name());
+        dest.writeString(fetchState.name());
     }
 
     @Override
@@ -147,7 +147,7 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
         PlayQueueView longs = (PlayQueueView) o;
 
         if (position != longs.position) return false;
-        if (appendState != longs.appendState) return false;
+        if (fetchState != longs.fetchState) return false;
         if (trackIds != null ? !trackIds.equals(longs.trackIds) : longs.trackIds != null) return false;
 
         return true;
@@ -156,7 +156,7 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
     @Override
     public int hashCode() {
         int result = trackIds != null ? trackIds.hashCode() : 0;
-        result = 31 * result + (appendState != null ? appendState.hashCode() : 0);
+        result = 31 * result + (fetchState != null ? fetchState.hashCode() : 0);
         result = 31 * result + position;
         return result;
     }

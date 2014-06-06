@@ -19,7 +19,7 @@ import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.RelatedTracksCollection;
+import com.soundcloud.android.model.RecommendedTracksCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.Urn;
@@ -189,9 +189,9 @@ public class PlayQueueOperationsTest {
 
         TrackSummary suggestion1 = TestHelper.getModelFactory().createModel(TrackSummary.class);
         TrackSummary suggestion2 = TestHelper.getModelFactory().createModel(TrackSummary.class);
-        RelatedTracksCollection collection = createCollection(suggestion1, suggestion2);
+        RecommendedTracksCollection collection = createCollection(suggestion1, suggestion2);
 
-        when(rxHttpClient.<RelatedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
+        when(rxHttpClient.<RecommendedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
         when(bulkStorage.bulkInsertAsync(anyCollection())).thenReturn(Observable.<Collection>empty());
 
         playQueueOperations.getRelatedTracks(123L).subscribe(relatedObserver);
@@ -207,9 +207,9 @@ public class PlayQueueOperationsTest {
 
     @Test
     public void shouldWriteRelatedTracksInLocalStorage() throws Exception {
-        RelatedTracksCollection collection = createCollection(
+        RecommendedTracksCollection collection = createCollection(
                 TestHelper.getModelFactory().createModel(TrackSummary.class));
-        when(rxHttpClient.<RelatedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
+        when(rxHttpClient.<RecommendedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
 
         playQueueOperations.getRelatedTracks(1L).subscribe(observer);
 
@@ -217,8 +217,8 @@ public class PlayQueueOperationsTest {
         verify(bulkStorage).bulkInsertAsync(resources);
     }
 
-    private RelatedTracksCollection createCollection(TrackSummary... suggestions) {
-        final RelatedTracksCollection collection = new RelatedTracksCollection();
+    private RecommendedTracksCollection createCollection(TrackSummary... suggestions) {
+        final RecommendedTracksCollection collection = new RecommendedTracksCollection();
         collection.setCollection(Lists.newArrayList(suggestions));
         return collection;
     }

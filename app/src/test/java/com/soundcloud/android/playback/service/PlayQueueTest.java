@@ -168,10 +168,10 @@ public class PlayQueueTest {
     @Test
     public void shouldReturnPlayQueueViewWithAppendState() {
         PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), 2);
-        final PlayQueueView playQueueView = playQueue.getViewWithAppendState(PlaybackServiceOperations.AppendState.LOADING);
+        final PlayQueueView playQueueView = playQueue.getViewWithAppendState(PlayQueueManager.FetchRecommendedState.LOADING);
         expect(playQueueView).toContainExactly(1L, 2L, 3L);
         expect(playQueueView.getPosition()).toBe(2);
-        expect(playQueueView.getAppendState()).toEqual(PlaybackServiceOperations.AppendState.LOADING);
+        expect(playQueueView.getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.LOADING);
     }
 
     @Test

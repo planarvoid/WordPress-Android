@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.service;
 
+import static com.soundcloud.android.playback.service.PlayQueueManager.FetchRecommendedState;
+
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -30,8 +32,8 @@ public class PlayQueue {
         position = startPosition;
     }
 
-    public PlayQueueView getViewWithAppendState(PlaybackServiceOperations.AppendState appendState) {
-        return new PlayQueueView(getTrackIds(), position, appendState);
+    public PlayQueueView getViewWithAppendState(FetchRecommendedState fetchState) {
+        return new PlayQueueView(getTrackIds(), position, fetchState);
     }
 
     public List<PlayQueueItem> getItems() {

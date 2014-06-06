@@ -59,8 +59,4 @@ public class PlaybackServiceOperations {
         builder.addQueryParameters(PARAM_CLIENT_ID, httpProperties.getClientId());
         return builder.forPrivateAPI(1).build();
     }
-
-    public enum AppendState {
-        IDLE, LOADING, ERROR, EMPTY;
-    }
 }
