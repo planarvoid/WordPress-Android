@@ -73,12 +73,17 @@
             android:layout_marginLeft="20dp" />
     </FrameLayout>
 
+    <View
+        android:id="@+id/center_point"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerInParent="true" />
+
     <com.soundcloud.android.playback.ui.view.WaveformView
             android:id="@+id/track_page_waveform"
             android:layout_width="match_parent"
             android:layout_height="@dimen/player_waveform_height"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="180dp"
+            android:layout_below="@id/center_point"
             android:layout_marginRight="8dp"
             android:layout_marginLeft="8dp" />
 
