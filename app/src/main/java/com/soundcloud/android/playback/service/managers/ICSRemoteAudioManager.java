@@ -49,12 +49,10 @@ public class ICSRemoteAudioManager extends FroyoRemoteAudioManager {
     }
 
     private void applyRemoteMetadata(Track track, Bitmap artwork) {
-        client.editMetadata(true)
+        client.editMetadata(false)
                 .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, artwork)
                 .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, track.title)
-                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST, track.getUserName())
-                // album artist seems to get used, but set other field anyway
-                .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, track.getUserName())
+                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, track.getUserName())
                 .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, track.duration)
                 .apply();
     }

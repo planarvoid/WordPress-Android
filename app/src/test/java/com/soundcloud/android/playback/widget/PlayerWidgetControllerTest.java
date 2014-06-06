@@ -24,7 +24,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,7 +49,7 @@ public class PlayerWidgetControllerTest {
     @Mock
     private PlayQueueManager playQueueManager;
     @Mock
-    private TrackOperations trackOperations;
+    private LegacyTrackOperations trackOperations;
     @Mock
     private SoundAssociationOperations soundAssocicationOps;
     @Mock
@@ -104,7 +104,7 @@ public class PlayerWidgetControllerTest {
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
         controller.subscribe();
 
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
 
         verify(playerWidgetPresenter).updatePlayableInformation(any(Context.class), eq(track));
     }
@@ -116,8 +116,8 @@ public class PlayerWidgetControllerTest {
                 .thenReturn(Observable.<Track>error(new Exception()), Observable.just(track));
         controller.subscribe();
 
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
 
         verify(playerWidgetPresenter).updatePlayableInformation(any(Context.class), eq(track));
     }

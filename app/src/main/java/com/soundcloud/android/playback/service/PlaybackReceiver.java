@@ -52,8 +52,6 @@ class PlaybackReceiver extends BroadcastReceiver {
                 playbackService.play();
             } else if (Actions.PAUSE_ACTION.equals(action)) {
                 playbackService.pause();
-            } else if (Actions.RETRY_RELATED_TRACKS.equals(action)) {
-                playQueueManager.retryRelatedTracksFetch();
             } else if (PlayQueueManager.PLAYQUEUE_CHANGED_ACTION.equals(action)) {
                 if (playbackService.isWaitingForPlaylist()) {
                     playbackService.openCurrent();

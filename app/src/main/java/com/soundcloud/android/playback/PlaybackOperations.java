@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback;
 
-import static com.google.common.base.Preconditions.checkState;
-
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -9,14 +7,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.APIResponse;
-import com.soundcloud.android.api.http.HttpProperties;
-import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -25,7 +16,6 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.playback.service.PlayQueue;
@@ -38,10 +28,8 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
-import rx.Observable;
-import rx.functions.Func1;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
 import android.content.Intent;
@@ -65,31 +53,22 @@ public class PlaybackOperations {
         }
     };
 
-    private static final String PARAM_CLIENT_ID = "client_id";
-
     private final Context context;
     private final ScModelManager modelManager;
     private final TrackStorage trackStorage;
     private final PlayQueueManager playQueueManager;
-    private final AccountOperations accountOperations;
-    private final HttpProperties httpProperties;
     private final FeatureFlags featureFlags;
     private final EventBus eventBus;
-    private final RxHttpClient rxHttpClient;
 
     @Inject
     public PlaybackOperations(Context context, ScModelManager modelManager, TrackStorage trackStorage, PlayQueueManager playQueueManager,
-                              AccountOperations accountOperations, HttpProperties httpProperties,RxHttpClient rxHttpClient,
                               FeatureFlags featureFlags, EventBus eventBus) {
         this.context = context;
         this.modelManager = modelManager;
         this.trackStorage = trackStorage;
         this.playQueueManager = playQueueManager;
-        this.accountOperations = accountOperations;
-        this.httpProperties = httpProperties;
         this.featureFlags = featureFlags;
         this.eventBus = eventBus;
-        this.rxHttpClient = rxHttpClient;
     }
 
     /**
@@ -106,15 +85,6 @@ public class PlaybackOperations {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screenTag);
         playSessionSource.setExploreVersion(exploreTag);
         playTrack(activityContext, track, playSessionSource, true);
-    }
-
-    public String buildHLSUrlForTrack(Track track) {
-        checkState(accountOperations.isUserLoggedIn(), "SoundCloud User account does not exist");
-        Token token = accountOperations.getSoundCloudToken();
-        return Uri.parse(httpProperties.getPrivateApiHostWithHttpScheme() + APIEndpoints.HLS_STREAM.unencodedPath(track.getUrn()))
-                .buildUpon()
-                .appendQueryParameter(HttpProperties.Parameter.OAUTH_PARAMETER.toString(), token.access)
-                .build().toString();
     }
 
     private void playTrack(Context activityContext, Track track, PlaySessionSource playSessionSource, boolean loadRelated) {
@@ -220,7 +190,7 @@ public class PlaybackOperations {
         showPlayer(activityContext, initialTrack);
 
         if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
-            trackStorage.getTrackIdsForUriAsync(uri).subscribe(new DefaultSubscriber<List<Long>>() {
+            trackStorage.getTrackIdsForUriAsync(uri).observeOn(AndroidSchedulers.mainThread()).subscribe(new DefaultSubscriber<List<Long>>() {
                 @Override
                 public void onNext(List<Long> idList) {
 
@@ -327,10 +297,11 @@ public class PlaybackOperations {
         return startPosition;
     }
 
-    public enum AppendState {
-        IDLE, LOADING, ERROR, EMPTY;
-    }
+    /**
+     * Legacy Player navigation functions.
+     */
 
+    @Deprecated
     public @Nullable Intent getServiceBasedUpIntent() {
         final String originScreen = playQueueManager.getScreenTag();
         if (ScTextUtils.isBlank(originScreen)){
@@ -344,28 +315,12 @@ public class PlaybackOperations {
         }
     }
 
+    @Deprecated
     private Intent getUpDestinationFromPlaylist(long playlistId, String originScreen) {
         final Screen screen = Screen.fromScreenTag(originScreen);
         final Intent upIntent = PlaylistDetailActivity.getIntent(Urn.forPlaylist(playlistId), screen);
         upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return upIntent;
-    }
-
-    public Observable<TrackUrn> logPlay(final TrackUrn urn){
-        final APIRequest apiRequest = buildRequestForLoggingPlay(urn);
-        return rxHttpClient.fetchResponse(apiRequest).map(new Func1<APIResponse, TrackUrn>() {
-            @Override
-            public TrackUrn call(APIResponse apiResponse) {
-                return urn;
-            }
-        });
-    }
-
-    private APIRequest buildRequestForLoggingPlay(final TrackUrn trackUrn) {
-        final String endpoint = String.format(APIEndpoints.LOG_PLAY.path(), trackUrn.toEncodedString());
-        SoundCloudAPIRequest.RequestBuilder builder = SoundCloudAPIRequest.RequestBuilder.post(endpoint);
-        builder.addQueryParameters(PARAM_CLIENT_ID, httpProperties.getClientId());
-        return builder.forPrivateAPI(1).build();
     }
 
 }

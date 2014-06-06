@@ -1,22 +1,15 @@
 package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.http.APIResponse;
-import com.soundcloud.android.api.http.HttpProperties;
-import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -38,7 +31,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.api.Token;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
@@ -48,7 +40,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.Observer;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -71,26 +62,16 @@ public class PlaybackOperationsTest {
     @Mock
     private TrackStorage trackStorage;
     @Mock
-    private Observer observer;
-    @Mock
     private PlayQueueManager playQueueManager;
-    @Mock
-    private HttpProperties httpProperties;
-    @Mock
-    private AccountOperations accountOperations;
     @Mock
     private FeatureFlags featureFlags;
     @Mock
-    private Token token;
-    @Mock
     private EventBus eventBus;
-    @Mock
-    private RxHttpClient rxHttpClient;
 
     @Before
     public void setUp() throws Exception {
         playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage, playQueueManager,
-                accountOperations, httpProperties, rxHttpClient, featureFlags, eventBus);
+                featureFlags, eventBus);
         track = TestHelper.getModelFactory().createModel(Track.class);
     }
 
@@ -365,7 +346,7 @@ public class PlaybackOperationsTest {
     public void playFromAdapterShouldRemoveDuplicates() throws Exception {
         ArrayList<Track> playables = Lists.newArrayList(new Track(1L), new Track(2L), new Track(3L), new Track(2L), new Track(1L));
         playbackOperations.playFromAdapter(Robolectric.application, playables, 4, null, ORIGIN_SCREEN);
-        checkSetNewPlayQueueArgs( 2, new PlaySessionSource(ORIGIN_SCREEN.get()), 2L, 3L, 1L);
+        checkSetNewPlayQueueArgs(2, new PlaySessionSource(ORIGIN_SCREEN.get()), 2L, 3L, 1L);
     }
 
     @Test
@@ -435,7 +416,7 @@ public class PlaybackOperationsTest {
         when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(value));
         playbackOperations.playFromAdapter(Robolectric.application, playables, 2, Content.ME_LIKES.uri, ORIGIN_SCREEN);
 
-        checkSetNewPlayQueueArgs(2,  new PlaySessionSource(ORIGIN_SCREEN.get()), 5L, 1L, 2L);
+        checkSetNewPlayQueueArgs(2, new PlaySessionSource(ORIGIN_SCREEN.get()), 5L, 1L, 2L);
     }
 
 
@@ -532,42 +513,6 @@ public class PlaybackOperationsTest {
         expect(intent).toHaveAction("com.soundcloud.android.action.LIKES");
         expect(intent).toHaveFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
-
-    @Test(expected = IllegalStateException.class)
-    public void shouldThrowExceptionWhenBuilding(){
-        when(accountOperations.isUserLoggedIn()).thenReturn(false);
-        playbackOperations.buildHLSUrlForTrack(track);
-    }
-
-    @Test
-    public void shouldBuildHLSUrlForTrackBasedOnTrackURN() {
-        Track mockTrack = mock(Track.class);
-        when(mockTrack.getUrn()).thenReturn(Urn.forTrack(123));
-        when(accountOperations.isUserLoggedIn()).thenReturn(true);
-        when(accountOperations.getSoundCloudToken()).thenReturn(token);
-        token.access = "access";
-        when(httpProperties.getPrivateApiHostWithHttpScheme()).thenReturn("https://somehost/path");
-
-        expect(playbackOperations
-                .buildHLSUrlForTrack(mockTrack))
-                .toEqual("https://somehost/path/tracks/soundcloud:sounds:123/streams/hls?oauth_token=access");
-    }
-
-    @Test
-    public void logPlaycountCallsOnNextWithTrackUrnOnExpectedResponse() throws Exception {
-        final Track track = new Track(1L);
-        APIResponse response = mock(APIResponse.class);
-
-        when(rxHttpClient.fetchResponse(argThat(isMobileApiRequestTo("POST", "/tracks/soundcloud%3Asounds%3A1/plays")
-                .withQueryParam("client_id", "12345")))).thenReturn(Observable.just(response));
-        when(httpProperties.getClientId()).thenReturn("12345");
-        when(response.getStatusCode()).thenReturn(302);
-
-        playbackOperations.logPlay(track.getUrn()).subscribe(observer);
-        verify(observer).onNext(track.getUrn());
-
-    }
-
 
     private void checkSetNewPlayQueueArgs(int startPosition, PlaySessionSource playSessionSource, Long... ids){
         verify(playQueueManager).setNewPlayQueue(

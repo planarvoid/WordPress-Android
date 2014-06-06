@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.LegacyPlayerTrackView;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import com.soundcloud.android.view.EmptyView;
 
 import android.content.Context;
@@ -25,7 +25,7 @@ public class CommentingPlayerPagerAdapter extends PlayerTrackPagerAdapter<Legacy
     private int commentingPosition = NOT_SET;
 
     @Inject
-    public CommentingPlayerPagerAdapter(TrackOperations trackOperations, PlaybackStateProvider stateProvider) {
+    public CommentingPlayerPagerAdapter(LegacyTrackOperations trackOperations, PlaybackStateProvider stateProvider) {
         super(trackOperations, stateProvider);
     }
 

@@ -17,7 +17,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +42,7 @@ public class PeripheralsControllerTest {
     private PlayQueueManager playQueueManager;
 
     @Mock
-    private TrackOperations trackOperations;
+    private LegacyTrackOperations trackOperations;
 
     @Mock
     private EventBus eventBus;
@@ -100,7 +100,7 @@ public class PeripheralsControllerTest {
         final Track track = createTrack();
         when(trackOperations.loadTrack(eq(currentTrackId), any(Scheduler.class))).thenReturn(Observable.just(track));
 
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
 
         verifyBroadcastSentAndCapture();
         expect(captor.getValue().getAction()).toEqual("com.android.music.metachanged");

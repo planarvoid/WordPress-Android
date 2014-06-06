@@ -88,9 +88,9 @@ class SoundStreamOperations {
         Log.d(TAG, "Received " + propertySets.size() + " items");
         if (!propertySets.isEmpty()) {
             Log.d(TAG, "First item = " + propertySets.get(0).get(PlayableProperty.URN) +
-                    "; timestamp = " + propertySets.get(0).get(PlayableProperty.REPOSTED_AT).getTime());
+                    "; timestamp = " + propertySets.get(0).get(PlayableProperty.CREATED_AT).getTime());
             Log.d(TAG, "Last item = " + getLast(propertySets).get(PlayableProperty.URN) +
-                    "; timestamp = " + getLast(propertySets).get(PlayableProperty.REPOSTED_AT).getTime());
+                    "; timestamp = " + getLast(propertySets).get(PlayableProperty.CREATED_AT).getTime());
         }
     }
 
@@ -100,7 +100,7 @@ class SoundStreamOperations {
             @Override
             public Observable<Page<List<PropertySet>>> call(final List<PropertySet> result) {
                 // to implement paging, we move the timestamp down reverse chronologically
-                final long nextTimestamp = getLast(result).get(PlayableProperty.REPOSTED_AT).getTime();
+                final long nextTimestamp = getLast(result).get(PlayableProperty.CREATED_AT).getTime();
                 Log.d(TAG, "Building next page observable for timestamp " + nextTimestamp);
                 return pagedStreamItems(userUrn, nextTimestamp);
             }

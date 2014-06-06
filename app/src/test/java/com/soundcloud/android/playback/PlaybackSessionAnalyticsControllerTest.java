@@ -20,7 +20,7 @@ import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +39,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     private Track track;
 
     @Mock
-    private TrackOperations trackOperations;
+    private LegacyTrackOperations trackOperations;
     @Mock
     private AccountOperations accountOperations;
     @Mock
@@ -64,13 +64,13 @@ public class PlaybackSessionAnalyticsControllerTest {
 
     @Test
     public void playQueueChangedEventDoesNotPublishEventWithNoActiveSession() throws Exception {
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
         eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
     }
 
     @Test
     public void trackChangedEventDoesNotPublishEventWithNoActiveSession() throws Exception {
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
         eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
     }
 
@@ -138,7 +138,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     public void playQueueEventForQueueChangePublishesStopEventForNewQueue() throws Exception {
         publishPlayingEvent();
 
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_NEW_QUEUE);
     }
@@ -147,7 +147,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     public void playQueueEventForTrackChangePublishesStopEventForSkip() throws Exception {
         publishPlayingEvent();
 
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_SKIP);
     }
@@ -157,14 +157,14 @@ public class PlaybackSessionAnalyticsControllerTest {
         publishPlayingEvent();
 
         track.duration = 2000;
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_SKIP);
     }
 
     protected void publishPlayingEvent() {
         eventMonitor.monitorQueue(EventQueue.PLAYBACK_SESSION);
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
 
         final Playa.StateTransition startEvent = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE);
         startEvent.setTrackUrn(TRACK_URN);

@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Before;
@@ -169,10 +168,10 @@ public class PlayQueueTest {
     @Test
     public void shouldReturnPlayQueueViewWithAppendState() {
         PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), 2);
-        final PlayQueueView playQueueView = playQueue.getViewWithAppendState(PlaybackOperations.AppendState.LOADING);
+        final PlayQueueView playQueueView = playQueue.getViewWithAppendState(PlaybackServiceOperations.AppendState.LOADING);
         expect(playQueueView).toContainExactly(1L, 2L, 3L);
         expect(playQueueView.getPosition()).toBe(2);
-        expect(playQueueView.getAppendState()).toEqual(PlaybackOperations.AppendState.LOADING);
+        expect(playQueueView.getAppendState()).toEqual(PlaybackServiceOperations.AppendState.LOADING);
     }
 
     @Test

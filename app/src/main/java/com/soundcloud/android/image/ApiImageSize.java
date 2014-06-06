@@ -59,7 +59,7 @@ public enum ApiImageSize {
         return getNotificationLargeIconImageSize(c.getResources().getDisplayMetrics()).formatUri(uri);
     }
 
-    private static ApiImageSize getNotificationLargeIconImageSize(DisplayMetrics metrics) {
+    public static ApiImageSize getNotificationLargeIconImageSize(DisplayMetrics metrics) {
         if (metrics.density > 2) {
             return ApiImageSize.T300;
         } else {

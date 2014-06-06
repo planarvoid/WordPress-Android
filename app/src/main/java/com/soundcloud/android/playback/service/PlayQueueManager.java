@@ -11,13 +11,13 @@ import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.playback.PlaybackOperations;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Action1;
 
 import android.content.Context;
 import android.content.Intent;
@@ -47,7 +47,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     private PlaybackProgressInfo playbackProgressInfo;
 
     private boolean gotRelatedTracks;
-    private PlaybackOperations.AppendState appendState = PlaybackOperations.AppendState.IDLE;
+    private PlaybackServiceOperations.AppendState appendState = PlaybackServiceOperations.AppendState.IDLE;
 
     @Inject
     public PlayQueueManager(Context context,
@@ -97,14 +97,14 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
         if (position != playQueue.getPosition()
                 && position < playQueue.getItems().size()) {
             playQueue.setPosition(position);
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackId()));
         }
     }
 
     public void previousTrack() {
         if (playQueue.hasPreviousTrack()) {
             playQueue.moveToPrevious();
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackId()));
         }
     }
 
@@ -123,7 +123,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     private boolean nextTrackInternal(boolean manual) {
         if (playQueue.hasNextTrack()) {
             playQueue.moveToNext(manual);
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange());
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackId()));
             return true;
         } else {
             return false;
@@ -152,7 +152,6 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
      * @return last stored seek pos of the current track in queue, or -1 if there is no reload
      */
     public PlaybackProgressInfo loadPlayQueue() {
-
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
         if (playQueueObservable != null) {
             playQueueSubscription = playQueueObservable.subscribe(new Action1<PlayQueue>() {
@@ -197,7 +196,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     }
 
     public void fetchRelatedTracks(long trackId) {
-        relatedTracksObservable = playQueueOperations.getRelatedTracks(trackId);
+        relatedTracksObservable = playQueueOperations.getRelatedTracks(trackId).observeOn(AndroidSchedulers.mainThread());
         loadRelatedTracks();
     }
 
@@ -220,7 +219,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     }
 
     private void loadRelatedTracks() {
-        setNewRelatedLoadingState(PlaybackOperations.AppendState.LOADING);
+        setNewRelatedLoadingState(PlaybackServiceOperations.AppendState.LOADING);
         gotRelatedTracks = false;
         fetchRelatedSubscription = relatedTracksObservable.subscribe(this);
     }
@@ -239,27 +238,27 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     @Override
     public void onCompleted() {
         // TODO, save new tracks to database
-        setNewRelatedLoadingState(gotRelatedTracks ? PlaybackOperations.AppendState.IDLE : PlaybackOperations.AppendState.EMPTY);
+        setNewRelatedLoadingState(gotRelatedTracks ? PlaybackServiceOperations.AppendState.IDLE : PlaybackServiceOperations.AppendState.EMPTY);
     }
 
     @Override
     public void onError(Throwable e) {
-        setNewRelatedLoadingState(PlaybackOperations.AppendState.ERROR);
+        setNewRelatedLoadingState(PlaybackServiceOperations.AppendState.ERROR);
     }
 
-    private void setNewRelatedLoadingState(PlaybackOperations.AppendState appendState) {
+    private void setNewRelatedLoadingState(PlaybackServiceOperations.AppendState appendState) {
         this.appendState = appendState;
         final Intent intent = new Intent(RELATED_LOAD_STATE_CHANGED_ACTION)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(appendState));
         context.sendBroadcast(intent);
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackId()));
     }
 
     private void broadcastPlayQueueChanged() {
         Intent intent = new Intent(PLAYQUEUE_CHANGED_ACTION)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(appendState));
         context.sendBroadcast(intent);
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(playQueue.getCurrentTrackId()));
     }
 
     private void stopLoadingOperations() {
@@ -268,4 +267,5 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
 
         playQueueSubscription.unsubscribe();
     }
+
 }

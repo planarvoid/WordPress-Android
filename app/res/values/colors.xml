@@ -115,4 +115,8 @@
     <color name="tab_bar_divider">#dddddd</color>
     <color name="darker_gray">#aaaaaa</color>
 
+    <!-- Notifications -->
+    <color name="notification_title">@color/white</color>
+    <color name="notification_user">#c5c5c5</color>
+
 </resources>

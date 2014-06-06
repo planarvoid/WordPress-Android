@@ -60,7 +60,7 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
         super.onCreate(savedInstanceState);
         eventSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber()));
         eventSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber()));
-        eventSubscription.add(eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
+        eventSubscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
         eventSubscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber()));
     }
 

@@ -86,10 +86,11 @@ public class DatabaseHelper {
         return id;
     }
 
-    public long insertLike(long soundId, long userId) {
+    public long insertPlaylistLike(long playlistId, long userId) {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.CollectionItems.ITEM_ID, soundId);
+        cv.put(TableColumns.CollectionItems.ITEM_ID, playlistId);
         cv.put(TableColumns.CollectionItems.USER_ID, userId);
+        cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, Playable.DB_TYPE_PLAYLIST);
         cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, CollectionStorage.CollectionItemTypes.LIKE);
         return insertInto(Table.COLLECTION_ITEMS, cv);
     }

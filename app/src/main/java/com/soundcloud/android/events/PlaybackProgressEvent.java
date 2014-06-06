@@ -1,8 +1,12 @@
 package com.soundcloud.android.events;
 
 public class PlaybackProgressEvent {
-    long progress;
-    long duration;
+    final long progress;
+    final long duration;
+
+    public static PlaybackProgressEvent empty() {
+        return new PlaybackProgressEvent(0, 0);
+    }
 
     public PlaybackProgressEvent(long progress, long duration) {
         this.progress = progress;
@@ -18,6 +22,10 @@ public class PlaybackProgressEvent {
     }
 
     public float getProgressProportion() {
-        return ((float) progress) / duration;
+        if (duration == 0) {
+            return 0.0f;
+        } else {
+            return ((float) progress) / duration;
+        }
     }
 }

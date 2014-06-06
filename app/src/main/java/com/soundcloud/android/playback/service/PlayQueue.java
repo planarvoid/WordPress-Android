@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.playback.PlaybackOperations;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -31,7 +30,7 @@ public class PlayQueue {
         position = startPosition;
     }
 
-    public PlayQueueView getViewWithAppendState(PlaybackOperations.AppendState appendState) {
+    public PlayQueueView getViewWithAppendState(PlaybackServiceOperations.AppendState appendState) {
         return new PlayQueueView(getTrackIds(), position, appendState);
     }
 

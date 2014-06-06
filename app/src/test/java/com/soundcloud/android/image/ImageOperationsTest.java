@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.cache.Cache;
 import com.nostra13.universalimageloader.cache.disc.DiskCache;
+import com.nostra13.universalimageloader.cache.disc.naming.FileNameGenerator;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -82,6 +83,8 @@ public class ImageOperationsTest {
     ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory;
     @Mock
     ViewlessLoadingAdapter viewlessLoadingAdapter;
+    @Mock
+    FileNameGenerator fileNameGenerator;
 
     @Captor
     ArgumentCaptor<ImageListenerUILAdapter> imageListenerUILAdapterCaptor;
@@ -102,7 +105,7 @@ public class ImageOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        imageOperations = new ImageOperations(imageLoader, imageEndpointBuilder, placeholderGenerator, cache, viewlessLoadingAdapterFactory);
+        imageOperations = new ImageOperations(imageLoader, imageEndpointBuilder, placeholderGenerator, viewlessLoadingAdapterFactory, cache, fileNameGenerator);
         when(imageLoader.getDiskCache()).thenReturn(diskCache);
         when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(RESOLVER_URL_LARGE);
         when(placeholderGenerator.generate(any(String.class))).thenReturn(drawable);

@@ -1,12 +1,11 @@
 package com.soundcloud.android.storage;
 
-import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.Nullable;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
+import android.util.Log;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -114,6 +113,11 @@ public final class Query {
         return this;
     }
 
+    public Query joinOn(String leftColumn, String rightColumn) {
+        where(leftColumn + " = " + rightColumn);
+        return this;
+    }
+
     // Taken from Android's DatabaseUtilsCompat -- for some reason, that method always returned
     // null in unit tests, so copying this here verbatim.
     @Nullable
@@ -170,8 +174,14 @@ public final class Query {
     public ManagedCursor runOn(SQLiteDatabase database) {
         final String sql = buildQueryForExecution();
         final String[] selectionArgs = resolveSelectionArgs();
-        Log.d(TAG, sql + "; args = " + Arrays.toString(selectionArgs));
+        logQuery(sql, selectionArgs);
         return new ManagedCursor(database.rawQuery(sql, selectionArgs));
+    }
+
+    private static void logQuery(String sql, @Nullable String[] selectionArgs) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, String.format(sql.replaceAll("\\?", "%s"), selectionArgs));
+        }
     }
 
     private String buildQueryForExecution() {

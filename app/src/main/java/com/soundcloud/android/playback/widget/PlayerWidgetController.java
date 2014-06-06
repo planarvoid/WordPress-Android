@@ -15,7 +15,7 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -35,14 +35,14 @@ public class PlayerWidgetController {
     private final PlayerWidgetPresenter presenter;
     private final PlaySessionController playSessionController;
     private final PlayQueueManager playQueueManager;
-    private final TrackOperations trackOperations;
+    private final LegacyTrackOperations trackOperations;
     private final SoundAssociationOperations soundAssociationOps;
     private final EventBus eventBus;
 
     @Inject
     public PlayerWidgetController(Context context, PlayerWidgetPresenter presenter,
                                   PlaySessionController playSessionController, PlayQueueManager playQueueManager,
-                                  TrackOperations trackOperations, SoundAssociationOperations soundAssocicationOps, EventBus eventBus) {
+                                  LegacyTrackOperations trackOperations, SoundAssociationOperations soundAssocicationOps, EventBus eventBus) {
         this.context = context;
         this.presenter = presenter;
         this.playSessionController = playSessionController;

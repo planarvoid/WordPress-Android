@@ -138,7 +138,6 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         }
         if (mediaPlayer.equals(this.mediaPlayer) && internalState == PlaybackState.PREPARING) {
 
-            connectionRetries = 0;
             if (playaListener != null && playaListener.requestAudioFocus()) {
                 play();
                 publishTimeToPlayEvent(System.currentTimeMillis() - prepareStartTimeMs, track.getStreamUrl());
@@ -158,6 +157,10 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         }
     }
 
+    void resetConnectionRetries() {
+        connectionRetries = 0;
+    }
+
     private void publishTimeToPlayEvent(long timeToPlay, String streamUrl) {
         final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
                 PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(),
@@ -174,7 +177,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        return handleMediaPlayerError(mp, POS_NOT_SET);
+        return handleMediaPlayerError(mp, getProgress());
 
     }
 
@@ -190,7 +193,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                 Log.d(TAG, "stream disconnected, giving up");
                 setInternalState(PlaybackState.ERROR);
                 mp.release();
-                connectionRetries = 0;
+                resetConnectionRetries();
                 mediaPlayer = null;
             }
         }
@@ -276,6 +279,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     void onTrackEnded() {
+        resetConnectionRetries();
         setInternalState(PlaybackState.COMPLETED);
     }
 
@@ -324,10 +328,14 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     private void setInternalState(PlaybackState playbackState) {
+        setInternalState(playbackState, getProgress(),getDuration());
+    }
+
+    private void setInternalState(PlaybackState playbackState, long progress, long duration) {
         internalState = playbackState;
 
         if (playaListener != null) {
-            playaListener.onPlaystateChanged( new StateTransition(getTranslatedState(), getTranslatedReason()));
+            playaListener.onPlaystateChanged( new StateTransition(getTranslatedState(), getTranslatedReason(), progress, duration));
         }
     }
 
@@ -409,6 +417,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG, "seeking to " + newPos);
                     }
+
+                    playerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
                     seekPos = newPos;
                     waitingForSeek = true;
                     mediaPlayer.seekTo((int) newPos);
@@ -428,6 +438,14 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             return seekPos;
         } else if (mediaPlayer != null && !internalState.isError() && internalState != PlaybackState.PREPARING) {
             return mediaPlayer.getCurrentPosition();
+        } else {
+            return 0;
+        }
+    }
+
+    public long getDuration() {
+        if (mediaPlayer != null && !internalState.isError() && internalState != PlaybackState.PREPARING) {
+            return mediaPlayer.getDuration();
         } else {
             return 0;
         }
@@ -484,11 +502,16 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
         final MediaPlayer mediaPlayer = this.mediaPlayer;
         if (mediaPlayer != null) {
+            // store times as they will not be accessible after release
+            final long progress = getProgress();
+            final long duration = getDuration();
+
             if (internalState.isStoppable()) {
                 mediaPlayer.stop();
             }
+
             releaseUnresettableMediaPlayer();
-            setInternalState(PlaybackState.STOPPED);
+            setInternalState(PlaybackState.STOPPED, progress, duration);
         }
         uriSubscription.unsubscribe();
     }

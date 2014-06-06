@@ -1,10 +1,10 @@
 package com.soundcloud.android.events;
 
+import com.soundcloud.android.rx.EventSubject;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
-import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
 
 import android.util.SparseArray;
@@ -69,9 +69,7 @@ public class EventBus {
         final int queueId = qd.id();
         Subject<T, T> queue = (Subject<T, T>) queues.get(queueId);
         if (queue == null) {
-            queue = qd.defaultEvent != null ? BehaviorSubject.create(qd.defaultEvent)
-                    : PublishSubject.<T>create();
-
+            queue = qd.defaultEvent == null ? EventSubject.<T>create() : BehaviorSubject.create(qd.defaultEvent);
             queues.put(queueId, queue);
         }
         return queue;
@@ -79,6 +77,10 @@ public class EventBus {
 
     public <T> Subscription subscribe(Queue<T> qd, Observer<T> observer) {
         return this.queue(qd).observeOn(AndroidSchedulers.mainThread()).subscribe(observer);
+    }
+
+    public <T> Subscription subscribeImmediate(Queue<T> qd, Observer<T> observer) {
+        return this.queue(qd).subscribe(observer);
     }
 
     public <T> void publish(Queue<T> qd, T event) {

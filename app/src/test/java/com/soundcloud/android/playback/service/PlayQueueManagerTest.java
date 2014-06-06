@@ -18,7 +18,7 @@ import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -157,6 +157,7 @@ public class PlayQueueManagerTest {
 
         PlayQueueEvent playQueueEvent = eventMonitor.verifyEventOn(EventQueue.PLAY_QUEUE);
         expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.NEW_QUEUE);
+        expect(playQueueEvent.getCurrentTrackUrn()).toEqual(Urn.forTrack(playQueue.getCurrentTrackId()));
     }
 
     @Test
@@ -408,7 +409,7 @@ public class PlayQueueManagerTest {
     public void shouldSetLoadingStateOnQueueAndBroadcastWhenFetchingRelatedTracks(){
         when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(Observable.<RelatedTracksCollection>never());
         playQueueManager.fetchRelatedTracks(123L);
-        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackOperations.AppendState.LOADING);
+        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackServiceOperations.AppendState.LOADING);
         expectBroadcastRelatedLoadChanges();
     }
 
@@ -438,21 +439,21 @@ public class PlayQueueManagerTest {
     public void shouldSetIdleStateOnQueueAndBroadcastWhenDoneSuccessfulRelatedLoad(){
         playQueueManager.onNext(new RelatedTracksCollection(Collections.<TrackSummary>emptyList(), "123"));
         playQueueManager.onCompleted();
-        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackOperations.AppendState.IDLE);
+        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackServiceOperations.AppendState.IDLE);
         expectBroadcastRelatedLoadChanges();
     }
 
     @Test
     public void shouldSetEmptyStateOnQueueAndBroadcastWhenDoneEmptyRelatedLoad(){
         playQueueManager.onCompleted();
-        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackOperations.AppendState.EMPTY);
+        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackServiceOperations.AppendState.EMPTY);
         expectBroadcastRelatedLoadChanges();
     }
 
     @Test
     public void shouldSetErrorStateOnQueueAndBroadcastWhenOnErrorCalled(){
         playQueueManager.onError(new Throwable());
-        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackOperations.AppendState.ERROR);
+        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackServiceOperations.AppendState.ERROR);
         expectBroadcastRelatedLoadChanges();
     }
 

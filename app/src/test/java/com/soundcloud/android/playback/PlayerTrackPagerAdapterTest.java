@@ -10,11 +10,12 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlayQueueView;
+import com.soundcloud.android.playback.service.PlaybackServiceOperations;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.LegacyPlayerTrackView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import com.soundcloud.android.view.EmptyView;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +36,7 @@ public class PlayerTrackPagerAdapterTest {
     private PlayerTrackPagerAdapter adapter;
 
     @Mock
-    private TrackOperations trackOperations;
+    private LegacyTrackOperations trackOperations;
     @Mock
     private PlaybackStateProvider stateProvider;
     @Mock
@@ -209,46 +210,46 @@ public class PlayerTrackPagerAdapterTest {
 
     @Test
     public void setsAppendStateFromQueueOnEmptyViewWhenGettingViewAtInvalidPlayQueuePosition() throws Exception {
-        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackOperations.AppendState.LOADING));
+        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackServiceOperations.AppendState.LOADING));
         adapter.getView(1, null, mock(ViewGroup.class));
         verify(emptyView).setStatus(EmptyView.Status.WAITING);
     }
 
     @Test
     public void setsErrorStateFromQueueOnEmptyViewWhenGettingViewAtInvalidPlayQueuePosition() throws Exception {
-        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackOperations.AppendState.ERROR));
+        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackServiceOperations.AppendState.ERROR));
         adapter.getView(1, null, mock(ViewGroup.class));
         verify(emptyView).setStatus(EmptyView.Status.ERROR);
     }
 
     @Test
     public void setsOkStateFromQueueOnEmptyViewWhenGettingViewAtInvalidPlayQueuePosition() throws Exception {
-        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackOperations.AppendState.EMPTY));
+        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackServiceOperations.AppendState.EMPTY));
         adapter.getView(1, null, mock(ViewGroup.class));
         verify(emptyView).setStatus(EmptyView.Status.OK);
     }
 
     @Test
     public void returnsExtraItemWhenQueueFetching() {
-        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackOperations.AppendState.LOADING));
+        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackServiceOperations.AppendState.LOADING));
         expect(adapter.getCount()).toBe(2);
     }
 
     @Test
     public void returnsExtraItemWhenLastQueueFetchFailed() {
-        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackOperations.AppendState.ERROR));
+        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackServiceOperations.AppendState.ERROR));
         expect(adapter.getCount()).toBe(2);
     }
 
     @Test
     public void returnsExtraItemWhenLastQueueFetchWasEmpty() {
-        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackOperations.AppendState.EMPTY));
+        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackServiceOperations.AppendState.EMPTY));
         expect(adapter.getCount()).toBe(2);
     }
 
     @Test
     public void returnsPlayQueueSizeWhenLastQueueFetchIsIdle() {
-        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackOperations.AppendState.IDLE));
+        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackServiceOperations.AppendState.IDLE));
         expect(adapter.getCount()).toBe(1);
     }
 

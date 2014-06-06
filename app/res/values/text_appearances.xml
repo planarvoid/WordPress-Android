@@ -30,6 +30,17 @@
         <item name="android:textColor">@color/list_text_created_at</item>
     </style>
 
+    <style name="TextAppearance.Notification" />
+    <style name="TextAppearance.Notification.Title">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/list_txt_main_size</item>
+    </style>
+
+    <style name="TextAppearance.Notification.Username">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/list_txt_sub_size</item>
+    </style>
+
     <style name="TextAppearance.Playable" />
     <style name="TextAppearance.Playable.Username">
         <item name="android:textColor">@color/list_text_track_user</item>

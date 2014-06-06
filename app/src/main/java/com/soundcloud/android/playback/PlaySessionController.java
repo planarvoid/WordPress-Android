@@ -15,7 +15,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.track.LegacyTrackOperations;
 import dagger.Lazy;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -34,7 +34,7 @@ public class PlaySessionController {
     private final Resources resources;
     private final EventBus eventBus;
     private final PlaybackOperations playbackOperations;
-    private final TrackOperations trackOperations;
+    private final LegacyTrackOperations trackOperations;
     private final PlayQueueManager playQueueManager;
     private final IRemoteAudioManager audioManager;
     private final ImageOperations imageOperations;
@@ -46,11 +46,11 @@ public class PlaySessionController {
     private TrackUrn currentPlayingUrn; // the track that is currently loaded in the playback service
     private Track currentPlayQueueTrack; // the track that is currently set in the queue
 
-    private PlaybackProgressEvent currentProgress;
+    private PlaybackProgressEvent currentProgress = PlaybackProgressEvent.empty();
 
     @Inject
     public PlaySessionController(Resources resources, EventBus eventBus, PlaybackOperations playbackOperations,
-                                 PlayQueueManager playQueueManager, TrackOperations trackOperations, Lazy<IRemoteAudioManager> audioManager,
+                                 PlayQueueManager playQueueManager, LegacyTrackOperations trackOperations, Lazy<IRemoteAudioManager> audioManager,
                                  ImageOperations imageOperations) {
         this.resources = resources;
         this.eventBus = eventBus;

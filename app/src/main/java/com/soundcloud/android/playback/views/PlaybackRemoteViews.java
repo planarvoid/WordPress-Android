@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.views;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
 
-import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.text.TextUtils;
 import android.view.View;
@@ -45,14 +44,5 @@ public abstract class PlaybackRemoteViews extends RemoteViews {
 
     public void setPlaybackStatus(boolean playing) {
         setImageViewResource(R.id.toggle_playback, playing ? pauseBtnId : playBtnId);
-    }
-
-    public void setIcon(Bitmap icon){
-        setImageViewBitmap(R.id.icon,icon);
-        setViewVisibility(R.id.icon,View.VISIBLE);
-    }
-
-    public void clearIcon(){
-        setViewVisibility(R.id.icon,View.GONE);
     }
 }

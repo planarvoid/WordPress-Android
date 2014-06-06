@@ -17,9 +17,9 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.UserUrn;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.service.PlaybackServiceOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.skippy.Skippy;
@@ -45,7 +45,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final Skippy skippy;
     private final AccountOperations accountOperations;
     private final StateChangeHandler stateHandler;
-    private final PlaybackOperations playbackOperations;
+    private final PlaybackServiceOperations playbackOperations;
     private final NetworkConnectionHelper connectionHelper;
     private final ApplicationProperties applicationProperties;
 
@@ -54,7 +54,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private long lastStateChangeProgress;
 
     @Inject
-    SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, PlaybackOperations playbackOperations,
+    SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, PlaybackServiceOperations playbackOperations,
                   StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper,
                   ApplicationProperties applicationProperties) {
         skippy = skippyFactory.create(this);
@@ -89,7 +89,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
         if (!playaListener.requestAudioFocus()){
             Log.e(TAG,"Unable to acquire audio focus, aborting playback");
-            playaListener.onPlaystateChanged(new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED));
+            playaListener.onPlaystateChanged(new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, fromPos, track.duration));
             return;
         }
 
@@ -187,7 +187,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
             final PlayaState translatedState = getTranslatedState(state, reason);
             final Reason translatedReason = getTranslatedReason(reason, errorcode);
-            final StateTransition transition = new StateTransition(translatedState, translatedReason);
+            final StateTransition transition = new StateTransition(translatedState, translatedReason, position, duration);
 
             if (transition.playbackHasStopped()){
                 currentStreamUrl = null;

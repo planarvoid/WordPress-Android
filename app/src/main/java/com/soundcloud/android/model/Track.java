@@ -66,7 +66,8 @@ public class Track extends Playable {
     @JsonView(Views.Mini.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public String user_uri;
 
-    @JsonView(Views.Full.class) public String waveform_url;
+    @JsonView(Views.Full.class)
+    public String waveform_url;
     @JsonView(Views.Mini.class) public String stream_url;
     @JsonView(Views.Full.class) public int user_playback_count = NOT_SET;
 
@@ -243,6 +244,10 @@ public class Track extends Playable {
         */
 
         dest.writeBundle(b);
+    }
+
+    public String getWaveformUrl() {
+        return waveform_url;
     }
 
     @JsonIgnoreProperties(ignoreUnknown=true)
