@@ -6,7 +6,7 @@ import javax.inject.Inject;
 
 class PlayerListener implements PlayerPresenter.Listener {
 
-    private PlaybackOperations playbackOperations;
+    private final PlaybackOperations playbackOperations;
 
     @Inject
     public PlayerListener(PlaybackOperations playbackOperations) {

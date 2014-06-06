@@ -76,7 +76,9 @@ public class WaveformView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (waveformMask == null || target == null) return;
+        if (waveformMask == null || target == null) {
+            return;
+        }
 
         final int height = getHeight();
         final int width = getWidth();
