@@ -42,6 +42,7 @@ import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.Set;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueManagerTest {
@@ -332,11 +333,6 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldNotReloadPlayqueueFromStorageWhenPlaybackOperationsHasReturnsNoObservable(){
-        expect(playQueueManager.loadPlayQueue()).toBeNull();
-    }
-
-    @Test
     public void shouldPublishPlayQueueChangedEventOnLoadPlayQueueIfNoPlayQueueStore() {
         playQueueManager.loadPlayQueue();
 
@@ -345,12 +341,19 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldReturnResumeInfoWhenReloadingPlayQueue(){
+    public void shouldHaveNoPlayProgressInfoWhenPlaybackOperationsHasReturnsNoObservable(){
+        playQueueManager.loadPlayQueue();
+        expect(playQueueManager.getPlayProgressInfo()).toBeNull();
+    }
+
+    @Test
+    public void shouldSetPlayProgressInfoWhenReloadingPlayQueue(){
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.<PlayQueue>empty());
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
 
-        PlaybackProgressInfo resumeInfo = playQueueManager.loadPlayQueue();
+        playQueueManager.loadPlayQueue();
+        PlaybackProgressInfo resumeInfo = playQueueManager.getPlayProgressInfo();
         expect(resumeInfo.getTrackId()).toEqual(456L);
         expect(resumeInfo.getTime()).toEqual(400L);
     }

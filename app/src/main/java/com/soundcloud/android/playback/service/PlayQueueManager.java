@@ -156,7 +156,8 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     /**
      * @return last stored seek pos of the current track in queue, or -1 if there is no reload
      */
-    public PlaybackProgressInfo loadPlayQueue() {
+    public void loadPlayQueue() {
+
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
         if (playQueueObservable != null) {
             playQueueSubscription = playQueueObservable.subscribe(new Action1<PlayQueue>() {
@@ -166,11 +167,10 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
                 }
             });
             // return so player can have the resume information while load is in progress
-            return new PlaybackProgressInfo(playQueueOperations.getLastStoredPlayingTrackId(), playQueueOperations.getLastStoredSeekPosition());
+            playbackProgressInfo = new PlaybackProgressInfo(playQueueOperations.getLastStoredPlayingTrackId(), playQueueOperations.getLastStoredSeekPosition());
         } else {
             // this is so the player can finish() instead of display waiting to the user
             broadcastPlayQueueChanged();
-            return null;
         }
     }
 
