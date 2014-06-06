@@ -63,29 +63,38 @@ public class WaveformView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         target = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_4444);
-        buildWaveformMask();
+        setWaveformMask();
     }
 
     public void setWaveform(WaveformData data) {
         this.data = data;
-        buildWaveformMask();
+        setWaveformMask();
         invalidate();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
         if (waveformMask == null || target == null) {
-            return;
+            drawLoading(canvas);
+        } else {
+            drawWaveform(canvas);
         }
+    }
 
+    private void drawLoading(Canvas canvas) {
+        aboveBackground.setStrokeWidth(spaceWidth);
+        canvas.drawLine(0, baseline, getWidth(), baseline, aboveBackground);
+    }
+
+    private void drawWaveform(Canvas canvas) {
         final int height = getHeight();
         final int width = getWidth();
 
         final Canvas targetCanvas = new Canvas(target);
         targetCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
+        aboveBackground.setStrokeWidth(1);
         targetCanvas.drawRect(0, 0, width, baseline, aboveBackground);
         targetCanvas.drawRect(0, baseline + spaceWidth, width, height, belowBackground);
 
@@ -94,14 +103,16 @@ public class WaveformView extends View {
         canvas.drawBitmap(target, 0, 0, antiAliasPaint);
     }
 
-    private void buildWaveformMask() {
+    private void setWaveformMask() {
         final int width = getWidth();
         final int height = getHeight();
 
-        if (data == null || width == 0 || height == 0) {
-            return;
+        if (data != null && width != 0 && height != 0) {
+            waveformMask = buildWaveformMask(width, height);
         }
+    }
 
+    private Bitmap buildWaveformMask(int width, int height) {
         Bitmap mask = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
         Canvas canvas = new Canvas(mask);
         WaveformData scaled = data.scale(width);
@@ -128,7 +139,7 @@ public class WaveformView extends View {
                 }
             }
         }
-        waveformMask = mask;
+        return mask;
     }
 
     private void drawMaskAbove(Canvas canvas, int x, int height) {
