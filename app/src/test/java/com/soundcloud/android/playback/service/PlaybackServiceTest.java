@@ -176,17 +176,6 @@ public class PlaybackServiceTest {
     }
 
     @Test
-    public void stopSavesCurrentQueueAndPosition() throws Exception {
-        playbackService.onCreate();
-        when(streamPlayer.getProgress()).thenReturn(123L);
-        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
-        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
-        playbackService.openCurrent(new Track());
-        playbackService.stop();
-        verify(playQueueManager).saveCurrentPosition(123L);
-    }
-
-    @Test
     public void openCurrentLoadsStreamableTrackFromTrackOperations() throws Exception {
         playbackService.onCreate();
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);

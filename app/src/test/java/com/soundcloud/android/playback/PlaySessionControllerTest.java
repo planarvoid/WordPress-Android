@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -170,7 +171,7 @@ public class PlaySessionControllerTest {
         monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE));
         monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE));
         monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED));
-        verifyZeroInteractions(playQueueManager);
+        verify(playQueueManager, never()).autoNextTrack();
     }
 
     @Test
@@ -194,5 +195,35 @@ public class PlaySessionControllerTest {
         Playa.StateTransition event = monitor.verifyEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
         expect(event.getNewState()).toBe(Playa.PlayaState.IDLE);
         expect(event.getReason()).toBe(Playa.Reason.PLAY_QUEUE_COMPLETE);
+    }
+
+    @Test
+    public void onStateTransitionForTrackEndSavesQueueWithPositionWithZero() throws Exception {
+        monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE, 123, 456));
+        verify(playQueueManager).saveCurrentPosition(0);
+    }
+
+    @Test
+    public void onStateTransitionForReasonNoneSavesQueueWithPositionFromTransition() throws Exception {
+        monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, 123, 456));
+        verify(playQueueManager).saveCurrentPosition(123);
+    }
+
+    @Test
+    public void onStateTransitionForQueueCompleteDoesNotSavePosition() throws Exception {
+        monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.PLAY_QUEUE_COMPLETE));
+        verify(playQueueManager, never()).saveCurrentPosition(anyInt());
+    }
+
+    @Test
+    public void onStateTransitionForBufferingDoesNotSaveQueuePosition() throws Exception {
+        monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, 123, 456));
+        verify(playQueueManager, never()).saveCurrentPosition(anyInt());
+    }
+
+    @Test
+    public void onStateTransitionForPlayingDoesNotSaveQueuePosition() throws Exception {
+        monitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, 123, 456));
+        verify(playQueueManager, never()).saveCurrentPosition(anyInt());
     }
 }
