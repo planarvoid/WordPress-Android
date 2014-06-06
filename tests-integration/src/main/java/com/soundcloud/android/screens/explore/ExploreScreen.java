@@ -1,26 +1,18 @@
 package com.soundcloud.android.screens.explore;
 
-import static junit.framework.Assert.assertEquals;
-
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.view.SlidingTabLayout;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.GridView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -31,12 +23,6 @@ public class ExploreScreen extends Screen {
     private static final String GENRES_TAB_TEXT = "GENRES";
     private static final String TRENDING_AUDIO_TAB_TEXT = "AUDIO";
     private static final String TRENDING_MUSIC_TAB_TEXT = "MUSIC";
-    private static final Predicate<TextView> TITLE_TEXT_VIEW_PREDICATE = new Predicate<TextView>() {
-        @Override
-        public boolean apply(TextView input) {
-            return input.getId() == R.id.title;
-        }
-    };
 
     private ViewPagerElement viewPager;
 
@@ -66,11 +52,6 @@ public class ExploreScreen extends Screen {
     public void touchTrendingMusicTab() {
         touchTab(TRENDING_MUSIC_TAB_TEXT);
         waiter.waitForContentAndRetryIfLoadingFailed();
-    }
-
-    public ExploreGenreCategoryScreen clickElectronicGenre() {
-        testDriver.clickOnText("Electronic");
-        return new ExploreGenreCategoryScreen(testDriver);
     }
 
     public ExploreGenreCategoryScreen clickGenreItem(String genreName) {
@@ -107,14 +88,6 @@ public class ExploreScreen extends Screen {
         testDriver.clickOnView(view);
     }
 
-    private void validateThatClickedTrackMatchesExpectedTrackToPlay(List<TextView> textViewsForClickedItem, TrackSummary trackSummaryForPlayedTrack) {
-        Optional<TextView> titleTextView = Iterables.tryFind(textViewsForClickedItem, TITLE_TEXT_VIEW_PREDICATE);
-        if(!titleTextView.isPresent()){
-            throw new IllegalStateException("Cannot find textview for explore track that has title");
-        }
-        assertEquals("Track title is not the same as the one that was clicked on", trackSummaryForPlayedTrack.getTitle(), titleTextView.get().getText());
-    }
-
     private void touchTab(String tabText) {
         tabs().getTabWithText(tabText).click();
     }
@@ -133,28 +106,12 @@ public class ExploreScreen extends Screen {
         return (SlidingTabLayout) testDriver.getView(R.id.sliding_tabs);
     }
 
-    public int getNumberOfItemsInGenresTab() {
-        return genresPage().getAdapter().getCount();
-    }
-
-    public int getItemsOnGenresList() {
-        return genresPage().getAdapter().getCount();
-    }
-
     public int getItemsOnTrendingMusicList(){
         return musicPage().getAdapter().getCount();
     }
 
     public int getItemsOnTrendingAudioList(){
         return audioPage().getAdapter().getCount();
-    }
-
-    private ListView genresPage() {
-        if (currentTabTitle().equals(GENRES_TAB_TEXT)) {
-            return (ListView) viewPager.getCurrentPage(ListView.class);
-        }
-        //TODO: Don't return nulls
-        return null;
     }
 
     private GridView musicPage() {
@@ -172,18 +129,4 @@ public class ExploreScreen extends Screen {
         //TODO: Don't return nulls
         return null;
     }
-
-    private class CurrentTabTitleCondition implements Condition {
-        private String expectedTabString;
-
-        private CurrentTabTitleCondition(String expectedTabString) {
-            this.expectedTabString = expectedTabString;
-        }
-
-        @Override
-        public boolean isSatisfied() {
-            return currentTabTitle().equals(expectedTabString);
-        }
-    };
-
 }

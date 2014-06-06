@@ -286,10 +286,6 @@ public class Han  {
         return view;
     }
 
-    public <T extends View> boolean waitForView(View view) {
-        return solo.waitForView(view);
-    }
-
     public void clickOnButton(Integer resource) {
         solo.clickOnButton(getString(resource));
     }
@@ -391,10 +387,6 @@ public class Han  {
         return solo.searchText(text,0,false,true);
     }
 
-    public boolean searchText(String text, int minimumNumberOfMatches, boolean scroll) {
-        return solo.searchText(text, minimumNumberOfMatches, false);
-    }
-
     public void typeText(EditText editText, String text) {
         solo.typeText(editText, text);
     }
@@ -419,10 +411,6 @@ public class Han  {
         return solo.waitForCondition(condition, timeout);
     }
 
-    public void scrollToItem(int item) {
-        solo.scrollListToLine(0, item - 1);
-    }
-
     public List<TextView> clickInList(int item) {
         return solo.clickInList(item);
     }
@@ -443,10 +431,6 @@ public class Han  {
         return solo.waitForFragmentByTag(fragment_tag, timeout);
     }
 
-    public void clickInList(int line, int index) {
-        solo.clickInList(line, index);
-    }
-
     public boolean isKeyboardShown() {
         InputMethodManager inputMethodManager = (InputMethodManager)  solo.getCurrentActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         View focusedView = solo.getCurrentActivity().getCurrentFocus();
@@ -462,12 +446,4 @@ public class Han  {
         return canHideKeyboard;
     }
 
-    private class ViewClicker {
-        private final Solo testDriver;
-
-        public ViewClicker(Solo driver) {
-            testDriver = driver;
-        };
-
-    }
 }
