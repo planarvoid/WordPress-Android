@@ -85,7 +85,8 @@
             android:layout_height="@dimen/player_waveform_height"
             android:layout_below="@id/center_point"
             android:layout_marginRight="8dp"
-            android:layout_marginLeft="8dp" />
+            android:layout_marginLeft="8dp"
+            android:visibility="gone" />
 
     <LinearLayout
             android:id="@+id/player_bottom_close"

@@ -161,7 +161,7 @@ class TrackPagePresenter implements View.OnClickListener {
     }
 
     static class TrackPageHolder {
-
+        // Full screen player
         JaggedTextView title;
         JaggedTextView user;
         PlayerArtworkImageView artwork;
@@ -175,7 +175,7 @@ class TrackPagePresenter implements View.OnClickListener {
         View previousTouch;
         View previousButton;
         View playButton;
-
+        // Footer player
         View footer;
         ToggleButton footerPlayToggle;
         TextView footerTitle;
