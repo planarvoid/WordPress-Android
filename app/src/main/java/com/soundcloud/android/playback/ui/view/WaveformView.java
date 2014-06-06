@@ -29,9 +29,9 @@ public class WaveformView extends View {
     private final Paint antiAliasPaint;
     private final Rect cropRect;
 
-    private final float barWidth;
-    private final float spaceWidth;
-    private final float baseline;
+    private final int barWidth;
+    private final int spaceWidth;
+    private final int baseline;
 
     private WaveformData data;
     private Bitmap waveformMask;
@@ -52,9 +52,9 @@ public class WaveformView extends View {
         antiAliasPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
         final float density = getResources().getDisplayMetrics().density;
-        barWidth = BAR_WIDTH_DP * density;
-        spaceWidth = BAR_SPACE_DP * density;
-        baseline = BASELINE_DP * density;
+        barWidth = (int) (BAR_WIDTH_DP * density);
+        spaceWidth = (int) (BAR_SPACE_DP * density);
+        baseline = (int) (BASELINE_DP * density);
 
         cropRect = new Rect();
     }
