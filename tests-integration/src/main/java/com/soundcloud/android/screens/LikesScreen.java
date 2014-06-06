@@ -13,8 +13,8 @@ public class LikesScreen extends Screen {
     }
 
     public void clickItem(int index) {
-        ListView listView = solo.getCurrentListView();
-        solo.clickOnView(listView.getChildAt(index));
+        ListView listView = testDriver.getCurrentListView();
+        testDriver.clickOnView(listView.getChildAt(index));
     }
     @Override
     protected Class getActivity() {

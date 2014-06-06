@@ -26,6 +26,7 @@ public class Waiter {
     public final int TIMEOUT = 10 * 1000;
     public final int NETWORK_TIMEOUT = 120 * 1000;
     private final int ELEMENT_TIMEOUT = 5 * 1000;
+    private int SMALL_TIMEOUT = 500;
 
     public Waiter(Han driver) {
         solo = driver;
@@ -72,6 +73,11 @@ public class Waiter {
 
     public boolean waitForTextInView(ViewElement textView, String text) {
         return solo.waitForCondition(new TextInViewCondition(textView, text), ELEMENT_TIMEOUT);
+    }
+
+    @Deprecated //"Need for improvement"
+    public void waitForPlayerPage() {
+        solo.sleep(SMALL_TIMEOUT);
     }
 
     private boolean waitForListContent() {

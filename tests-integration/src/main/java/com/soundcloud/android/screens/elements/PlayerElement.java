@@ -94,26 +94,32 @@ public class PlayerElement extends Element {
 
     public void tapNext() {
         nextButton().click();
+        waiter.waitForPlayerPage();
     }
 
     public void tapPrevious() {
         previousButton().click();
+        waiter.waitForPlayerPage();
     }
 
     public void tapTrackPageNext() {
         nextPageArea().click();
+        waiter.waitForPlayerPage();
     }
 
     public void tapTrackPagePrevious() {
         previousPageArea().click();
+        waiter.waitForPlayerPage();
     }
 
     public void swipeNext() {
         solo.swipeLeft(.7f);
+        waiter.waitForPlayerPage();
     }
 
     public void swipePrevious() {
         solo.swipeRight(.7f);
+        waiter.waitForPlayerPage();
     }
 
     public String getTrackTitle() {
