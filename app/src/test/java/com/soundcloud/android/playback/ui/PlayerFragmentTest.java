@@ -179,9 +179,9 @@ public class PlayerFragmentTest {
     }
 
     @Test
-    public void shouldUnsubscribeFromEventQueuesOnDestroy() {
+    public void shouldUnsubscribeFromEventQueuesOnDestroyView() {
         createFragment();
-        fragment.onDestroy();
+        fragment.onDestroyView();
         verify(playQueueSubscription).unsubscribe();
         verify(playStateSubscription).unsubscribe();
         verify(playProgressSubscription).unsubscribe();

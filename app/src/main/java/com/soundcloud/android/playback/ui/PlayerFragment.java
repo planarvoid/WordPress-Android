@@ -50,11 +50,10 @@ public class PlayerFragment extends Fragment {
             presenter.onPlayQueueChanged();
             presenter.setQueuePosition(playQueueManager.getCurrentPosition());
         }
+        subscribeToEventQueues();
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    private void subscribeToEventQueues() {
         eventSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber()));
         eventSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber()));
         eventSubscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
@@ -62,9 +61,9 @@ public class PlayerFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroyView() {
         eventSubscription.unsubscribe();
-        super.onDestroy();
+        super.onDestroyView();
     }
 
     private final class PlaybackStateSubscriber extends DefaultSubscriber<StateTransition> {
