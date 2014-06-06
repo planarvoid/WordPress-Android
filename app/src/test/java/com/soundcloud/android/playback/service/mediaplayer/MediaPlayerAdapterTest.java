@@ -124,7 +124,7 @@ public class MediaPlayerAdapterTest {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
         when(mediaPlayer.getDuration()).thenReturn(DURATION);
         mediaPlayerAdapter.play(track);
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 0, DURATION)));
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 0, 0)));
         verifyNoMoreInteractions(listener);
     }
 

@@ -54,12 +54,12 @@ import java.util.EnumSet;
         return this == ERROR || this == ERROR_RETRYING;
     }
 
+    public boolean canGetMPProgress() {
+        return !isError() && this != PREPARING && this != STOPPED;
+    }
+
     // is the service currently playing, or about to play soon?
     public boolean isSupposedToBePlaying() {
         return this == PREPARING || this == PLAYING || this == PAUSED_FOR_BUFFERING;
-    }
-
-    public boolean isInIdleState() {
-        return this == PAUSED || this == STOPPED || this == COMPLETED || this == ERROR;
     }
 }

@@ -436,7 +436,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             return resumePos;
         } else if (waitingForSeek) {
             return seekPos;
-        } else if (mediaPlayer != null && !internalState.isError() && internalState != PlaybackState.PREPARING) {
+        } else if (mediaPlayer != null && internalState.canGetMPProgress()) {
             return mediaPlayer.getCurrentPosition();
         } else {
             return 0;
@@ -444,7 +444,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     public long getDuration() {
-        if (mediaPlayer != null && !internalState.isError() && internalState != PlaybackState.PREPARING) {
+        if (mediaPlayer != null && internalState.canGetMPProgress()) {
             return mediaPlayer.getDuration();
         } else {
             return 0;
