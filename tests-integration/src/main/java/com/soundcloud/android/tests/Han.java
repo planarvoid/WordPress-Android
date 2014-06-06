@@ -56,10 +56,6 @@ public class Han  {
         clickOnText(getString(android.R.string.ok));
     }
 
-    public void clickOnDone() {
-        clickOnButtonResId(R.string.done);
-    }
-
     public void clickOnPublish() {
         clickOnButtonResId(R.string.btn_publish);
     }
