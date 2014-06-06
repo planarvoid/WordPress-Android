@@ -131,11 +131,11 @@ public class WaveformView extends View {
         waveformMask = mask;
     }
 
-    private void drawMaskAbove(Canvas canvas, int x, float height) {
+    private void drawMaskAbove(Canvas canvas, int x, int height) {
         canvas.drawLine(x, baseline - height, x, baseline, xorPaint);
     }
 
-    private void drawMaskBelow(Canvas canvas, int x, float height) {
+    private void drawMaskBelow(Canvas canvas, int x, int height) {
         canvas.drawLine(x, baseline, x, baseline + height, xorPaint);
     }
 
