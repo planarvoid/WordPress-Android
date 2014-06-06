@@ -5,7 +5,9 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.view.JaggedTextView;
+import com.soundcloud.android.waveform.WaveformOperations;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -18,26 +20,25 @@ import javax.inject.Inject;
 
 class TrackPagePresenter implements View.OnClickListener {
 
-    private final ImageOperations imageOperations;
     private final Resources resources;
-
-    private Listener listener;
+    private final ImageOperations imageOperations;
+    private final WaveformOperations waveformOperations;
+    private final Listener listener;
 
     interface Listener {
         void onTogglePlay();
-        void onFooterTap();
-        void onPlayerClose();
         void onNext();
         void onPrevious();
+        void onFooterTap();
+        void onPlayerClose();
     }
 
     @Inject
-    public TrackPagePresenter(ImageOperations imageOperations, Resources resources) {
-        this.imageOperations = imageOperations;
+    public TrackPagePresenter(Resources resources, ImageOperations imageOperations,
+                              WaveformOperations waveformOperations, TrackPageListener listener) {
         this.resources = resources;
-    }
-
-    public void setListener(Listener listener) {
+        this.imageOperations = imageOperations;
+        this.waveformOperations = waveformOperations;
         this.listener = listener;
     }
 
@@ -45,6 +46,7 @@ class TrackPagePresenter implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.footer_toggle:
+            case R.id.player_play:
             case R.id.track_page_artwork:
                 listener.onTogglePlay();
                 break;
@@ -82,15 +84,24 @@ class TrackPagePresenter implements View.OnClickListener {
     }
 
     public void setPlayState(View trackView, boolean isPlaying) {
-        getViewHolder(trackView).footerPlayToggle.setChecked(isPlaying);
+        TrackPageHolder holder = getViewHolder(trackView);
+        holder.footerPlayToggle.setChecked(isPlaying);
+        holder.waveform.setVisibility(isPlaying ? View.VISIBLE : View.GONE);
+
+        final int playControlVisibility = isPlaying ? View.GONE : View.VISIBLE;
+        holder.nextButton.setVisibility(playControlVisibility);
+        holder.previousButton.setVisibility(playControlVisibility);
+        holder.playButton.setVisibility(playControlVisibility);
     }
 
     public void setFullScreen(View trackView, boolean expanded) {
         TrackPageHolder holder = getViewHolder(trackView);
         holder.footer.setVisibility(expanded ? View.GONE : View.VISIBLE);
-        holder.user.setVisibility(expanded ? View.VISIBLE : View.GONE);
-        holder.title.setVisibility(expanded ? View.VISIBLE : View.GONE);
-        holder.close.setVisibility(expanded ? View.VISIBLE : View.GONE);
+
+        final int fullScreenVisibility = expanded ? View.VISIBLE : View.GONE;
+        holder.user.setVisibility(fullScreenVisibility);
+        holder.title.setVisibility(fullScreenVisibility);
+        holder.close.setVisibility(fullScreenVisibility);
     }
 
     public void populateTrackPage(View trackView, Track track) {
@@ -107,17 +118,15 @@ class TrackPagePresenter implements View.OnClickListener {
         holder.title.setText(track.getTitle());
         imageOperations.displayInVisualPlayer(track.getUrn(), ApiImageSize.getFullImageSize(resources), holder.artwork);
         holder.artwork.setProgressProportion(currentProgressProportion);
-        holder.artwork.setOnClickListener(this);
-        holder.close.setOnClickListener(this);
-        holder.bottomClose.setOnClickListener(this);
-        holder.next.setOnClickListener(this);
-        holder.previous.setOnClickListener(this);
+        holder.waveform.setWaveform(waveformOperations.getDefaultWaveform());
 
-        holder.footer.setOnClickListener(this);
-        holder.footerPlayToggle.setOnClickListener(this);
         holder.footerPlayToggle.setChecked(false); // Reset to paused state
         holder.footerUser.setText(track.getUserName());
         holder.footerTitle.setText(track.getTitle());
+
+        for (View v : holder.getOnClickViews()) {
+            v.setOnClickListener(this);
+        }
     }
 
     private TrackPageHolder getViewHolder(View trackView) {
@@ -129,12 +138,16 @@ class TrackPagePresenter implements View.OnClickListener {
         holder.title = (JaggedTextView) trackView.findViewById(R.id.track_page_title);
         holder.user = (JaggedTextView) trackView.findViewById(R.id.track_page_user);
         holder.artwork = (PlayerArtworkImageView) trackView.findViewById(R.id.track_page_artwork);
+        holder.waveform = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
         holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
         holder.more = trackView.findViewById(R.id.track_page_more);
         holder.close = trackView.findViewById(R.id.player_close);
         holder.bottomClose = trackView.findViewById(R.id.player_bottom_close);
-        holder.next = trackView.findViewById(R.id.track_page_next);
-        holder.previous = trackView.findViewById(R.id.track_page_previous);
+        holder.nextTouch = trackView.findViewById(R.id.track_page_next);
+        holder.nextButton = trackView.findViewById(R.id.player_next);
+        holder.previousTouch = trackView.findViewById(R.id.track_page_previous);
+        holder.previousButton = trackView.findViewById(R.id.player_previous);
+        holder.playButton = trackView.findViewById(R.id.player_play);
 
         holder.footer = trackView.findViewById(R.id.footer_controls);
         holder.footerPlayToggle = (ToggleButton) trackView.findViewById(R.id.footer_toggle);
@@ -144,20 +157,29 @@ class TrackPagePresenter implements View.OnClickListener {
     }
 
     static class TrackPageHolder {
+
         JaggedTextView title;
         JaggedTextView user;
         PlayerArtworkImageView artwork;
+        WaveformView waveform;
         ToggleButton likeToggle;
         View more;
         View close;
         View bottomClose;
-        View next;
-        View previous;
+        View nextTouch;
+        View nextButton;
+        View previousTouch;
+        View previousButton;
+        View playButton;
 
         View footer;
         ToggleButton footerPlayToggle;
         TextView footerTitle;
         TextView footerUser;
+
+        public View[] getOnClickViews() {
+            return new View[] { artwork, close, bottomClose, nextTouch, previousTouch, playButton, footer, footerPlayToggle };
+        }
     }
 
 }

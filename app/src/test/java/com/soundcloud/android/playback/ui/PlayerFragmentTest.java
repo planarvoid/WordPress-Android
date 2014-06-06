@@ -23,7 +23,6 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observer;
@@ -60,11 +59,10 @@ public class PlayerFragmentTest {
 
     @InjectMocks
     private PlayerFragment fragment;
-    private PlayerPresenter.Listener listener;
 
     @Before
     public void setUp() throws Exception {
-        when(presenterFactory.create(same(view), any(PlayerPresenter.Listener.class))).thenReturn(presenter);
+        when(presenterFactory.create(same(view))).thenReturn(presenter);
         Robolectric.shadowOf(fragment).setActivity(activity);
 
         when(eventBus.subscribe(same(EventQueue.PLAYBACK_STATE_CHANGED), any(Observer.class))).thenReturn(playStateSubscription);
@@ -93,38 +91,6 @@ public class PlayerFragmentTest {
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
         fragment.onViewCreated(view, null);
         verifyNoMoreInteractions(presenter);
-    }
-
-    @Test
-    public void callingOnTogglePlayOnPresenterListenerCallsTogglePlaybackOnPlaybackOperations() {
-        createFragment();
-        captureListener();
-        listener.onTogglePlay();
-        verify(playbackOperations).togglePlayback();
-    }
-
-    @Test
-    public void callingOnNextOnPresenterListenerCallsNextTrackOnPlaybackOperations() {
-        createFragment();
-        captureListener();
-        listener.onNext();
-        verify(playbackOperations).nextTrack();
-    }
-
-    @Test
-    public void callingOnPreviousOnPresenterListenerCallsPreviousTrackOnPlaybackOperations() {
-        createFragment();
-        captureListener();
-        listener.onPrevious();
-        verify(playbackOperations).previousTrack();
-    }
-
-    @Test
-    public void callingOnTrackChangedOnPresenterListenerCallsSetPlayQueuePositionOnPlaybackOperationsWithArgument() {
-        createFragment();
-        captureListener();
-        listener.onTrackChanged(3);
-        verify(playbackOperations).setPlayQueuePosition(3);
     }
 
     @Test
@@ -225,12 +191,6 @@ public class PlayerFragmentTest {
     private void createFragment() {
         fragment.onCreate(null);
         fragment.onViewCreated(view, null);
-    }
-
-    private void captureListener() {
-        ArgumentCaptor<PlayerPresenter.Listener> captor = ArgumentCaptor.forClass(PlayerPresenter.Listener.class);
-        verify(presenterFactory).create(same(view), captor.capture());
-        listener = captor.getValue();
     }
 
 }

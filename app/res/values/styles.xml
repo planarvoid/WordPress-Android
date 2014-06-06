@@ -285,6 +285,8 @@
         <item name="android:background">@color/tab_bar_divider</item>
     </style>
 
+    <!-- Misc -->
+
     <style name="CustomToggle">
         <item name="android:textOn">@null</item>
         <item name="android:textOff">@null</item>

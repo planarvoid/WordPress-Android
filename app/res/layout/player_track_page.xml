@@ -10,18 +10,6 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop" />
 
-    <FrameLayout
-            android:id="@+id/track_page_next"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            style="@style/TrackPageSkip"/>
-
-    <FrameLayout
-            android:id="@+id/track_page_previous"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            style="@style/TrackPageSkip"/>
-
     <View
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_gradient_height"
@@ -85,6 +73,13 @@
             android:layout_marginLeft="20dp" />
     </FrameLayout>
 
+    <com.soundcloud.android.playback.ui.view.WaveformView
+            android:id="@+id/track_page_waveform"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/player_waveform_height"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="180dp" />
+
     <LinearLayout
             android:id="@+id/player_bottom_close"
             android:layout_width="match_parent"
@@ -102,5 +97,35 @@
             android:id="@+id/track_page_more"
             style="@style/PlayerMore" />
     </LinearLayout>
+
+    <Button
+            android:id="@+id/player_play"
+            android:layout_centerInParent="true"
+            style="@style/PlayerToggle" />
+
+    <FrameLayout
+            android:id="@+id/track_page_next"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            style="@style/PlayerSkipTouchTarget">
+
+        <Button
+            android:id="@+id/player_next"
+            android:layout_gravity="left|center_vertical"
+            style="@style/PlayerNext" />
+    </FrameLayout>
+
+
+    <FrameLayout
+            android:id="@+id/track_page_previous"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            style="@style/PlayerSkipTouchTarget">
+
+        <Button
+            android:id="@+id/player_previous"
+            android:layout_gravity="right|center_vertical"
+            style="@style/PlayerPrevious" />
+    </FrameLayout>
 
 </RelativeLayout>

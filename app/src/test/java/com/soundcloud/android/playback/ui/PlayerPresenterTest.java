@@ -29,7 +29,7 @@ public class PlayerPresenterTest {
     @Mock
     private TrackPagerAdapter trackPagerAdapter;
     @Mock
-    private PlayerPresenter.Listener listener;
+    private PlayerListener listener;
     @Mock
     private ViewPager trackPager;
     @Mock
@@ -50,45 +50,9 @@ public class PlayerPresenterTest {
         when(view.findViewById(R.id.player_track_pager)).thenReturn(trackPager);
         when(view.findViewById(R.id.player_next)).thenReturn(nextButton);
         when(view.findViewById(R.id.player_previous)).thenReturn(previousButton);
-        playerPresenter = new PlayerPresenter(resources, trackPagerAdapter, view, listener);
+        playerPresenter = new PlayerPresenter(resources, trackPagerAdapter, listener, view);
         verify(trackPager).setOnPageChangeListener(captor.capture());
         pagerListener = captor.getValue();
-    }
-
-    @Test
-    public void constructorSetsPresenterAsListenerOnPlayButton() {
-        verify(playButton).setOnClickListener(playerPresenter);
-    }
-
-    @Test
-    public void constructorSetsPresenterAsListenerOnNextButton() {
-        verify(nextButton).setOnClickListener(playerPresenter);
-    }
-
-    @Test
-    public void constructorSetsPresenterAsListenerOnPreviousButton() {
-        verify(previousButton).setOnClickListener(playerPresenter);
-    }
-
-    @Test
-    public void onClickWithPlayerToggleViewCallsOnTogglePlayOnListener() {
-        when(view.getId()).thenReturn(R.id.player_play);
-        playerPresenter.onClick(view);
-        verify(listener).onTogglePlay();
-    }
-
-    @Test
-    public void onClickWithPlayerNextViewCallsOnNextOnListener() {
-        when(view.getId()).thenReturn(R.id.player_next);
-        playerPresenter.onClick(view);
-        verify(listener).onNext();
-    }
-
-    @Test
-    public void onClickWithPlayerPreviousViewCallsOnPreviousOnListener() {
-        when(view.getId()).thenReturn(R.id.player_previous);
-        playerPresenter.onClick(view);
-        verify(listener).onPrevious();
     }
 
     @Test
@@ -134,22 +98,6 @@ public class PlayerPresenterTest {
     }
 
     @Test
-    public void hidePlayControlsWhenMovingToPlayingState() {
-        playerPresenter.onPlayStateChanged(true);
-        verify(playButton).setVisibility(View.GONE);
-        verify(nextButton).setVisibility(View.INVISIBLE);
-        verify(previousButton).setVisibility(View.INVISIBLE);
-    }
-
-    @Test
-    public void showPlayControlsWhenMovingToPausedState() {
-        playerPresenter.onPlayStateChanged(false);
-        verify(playButton).setVisibility(View.VISIBLE);
-        verify(nextButton).setVisibility(View.VISIBLE);
-        verify(previousButton).setVisibility(View.VISIBLE);
-    }
-
-    @Test
     public void onPlayStateChangedNotifiesTrackPageAdapter() {
         playerPresenter.onPlayStateChanged(true);
         verify(trackPagerAdapter).setPlayState(true);
@@ -165,7 +113,7 @@ public class PlayerPresenterTest {
     @Test
     public void presenterFactoryCreatesPresenterWithTrackPagerFromConstructor() {
         reset(trackPager);
-        PlayerPresenter presenter = new PlayerPresenter.Factory(resources, trackPagerAdapter).create(view, listener);
+        PlayerPresenter presenter = new PlayerPresenter.Factory(resources, trackPagerAdapter, listener).create(view);
 
         presenter.onPlayQueueChanged();
 

@@ -25,7 +25,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.Map;
 
-public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPagePresenter.Listener {
+public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     private static final int EXPECTED_TRACKVIEW_COUNT = 4;
     private static final int TRACK_CACHE_SIZE = 10;
@@ -34,8 +34,6 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
     private final PlaySessionController playSessionController;
     private final LegacyTrackOperations trackOperations;
     private final TrackPagePresenter trackPagePresenter;
-    private final PlaybackOperations playbackOperations;
-    private final EventBus eventBus;
 
     private boolean newPagesInFullScreenMode;
 
@@ -44,15 +42,11 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
 
     @Inject
     TrackPagerAdapter(PlayQueueManager playQueueManager, PlaySessionController playSessionController,
-                      LegacyTrackOperations trackOperations, TrackPagePresenter trackPagePresenter,
-                      PlaybackOperations playbackOperations, EventBus eventBus) {
+                      LegacyTrackOperations trackOperations, TrackPagePresenter trackPagePresenter) {
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.trackPagePresenter = trackPagePresenter;
         this.playSessionController = playSessionController;
-        this.playbackOperations = playbackOperations;
-        this.eventBus = eventBus;
-        trackPagePresenter.setListener(this);
     }
 
     @Override
@@ -168,26 +162,5 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
     public int getCount() {
         return playQueueManager.getQueueSize();
     }
-
-    @Override
-    public void onTogglePlay() {
-        playbackOperations.togglePlayback();
-    }
-
-    @Override
-    public void onFooterTap() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
-    }
-
-    @Override
-    public void onPlayerClose() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
-    }
-
-    @Override
-    public void onNext() { playbackOperations.nextTrack(); }
-
-    @Override
-    public void onPrevious() { playbackOperations.previousTrack(); }
 
 }
