@@ -155,22 +155,6 @@ public class Han  {
         solo.clickOnButton(getString(resId));
     }
 
-    public void performClick(final View view) {
-        assertNotNull("view is null", view);
-        try {
-            solo.getCurrentActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    view.performClick();
-                }
-            });
-        } catch (Throwable throwable) {
-            throw new RuntimeException("Could not click on view on UI Thread", throwable);
-        }
-        solo.sleep(500);
-    }
-
-
     public String getString(int resId, Object... args) {
         return solo.getCurrentActivity().getString(resId, args);
     }

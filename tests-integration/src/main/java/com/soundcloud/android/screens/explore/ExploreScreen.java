@@ -11,8 +11,10 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.view.SlidingTabLayout;
 
 import android.support.v4.view.ViewPager;
@@ -50,6 +52,10 @@ public class ExploreScreen extends Screen {
     @Override
     protected Class getActivity() {
         return ACTIVITY;
+    }
+
+    private SlidingTabs tabs() {
+        return testDriver.findElement(R.id.sliding_tabs).toSlidingTabs();
     }
 
     public void touchGenresTab() {
@@ -109,16 +115,8 @@ public class ExploreScreen extends Screen {
         assertEquals("Track title is not the same as the one that was clicked on", trackSummaryForPlayedTrack.getTitle(), titleTextView.get().getText());
     }
 
-    private boolean touchTab(String tabText) {
-        SlidingTabLayout tabIndicator = (SlidingTabLayout) testDriver.getView(R.id.sliding_tabs);
-        List<View> touchableViews = tabIndicator.getChildAt(0).getTouchables();
-        for(View view : touchableViews){
-            if(((TextView)view).getText().equals(tabText)){
-                testDriver.performClick(view);
-                return true;
-            }
-        }
-        return false;
+    private void touchTab(String tabText) {
+        tabs().getTabWithText(tabText).click();
     }
 
     public String currentTabTitle(){

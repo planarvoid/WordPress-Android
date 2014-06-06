@@ -10,6 +10,7 @@ import junit.framework.AssertionFailedError;
 
 import android.os.SystemClock;
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -30,6 +31,26 @@ class ViewFetcher {
 
     public ViewElement findElement(int viewId) {
         return waitForViewWithId(viewId);
+    }
+
+    public List<ViewElement> findElements(String textToFind) {
+        return getElementsWithText(textToFind);
+    }
+
+    public ViewElement findElement(String textToFind) {
+        List<ViewElement> foundViews = getElementsWithText(textToFind);
+        return foundViews.isEmpty() ? new ViewElement(testDriver) : foundViews.get(0);
+    }
+
+    private List<ViewElement> getElementsWithText(final String textToFind) {
+        return Lists.newArrayList(filter(getVisibleElements(), new Predicate<ViewElement>() {
+            public boolean apply(ViewElement viewElement) {
+                if (viewElement.isTextView()) {
+                    return viewElement.getText().equals(textToFind);
+                }
+                return false;
+            }
+        }));
     }
 
     public List<ViewElement> findElements(final int id) {

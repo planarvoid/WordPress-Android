@@ -2,6 +2,7 @@ package com.soundcloud.android.tests;
 
 import com.robotium.solo.Solo;
 import com.soundcloud.android.screens.elements.ListElement;
+import com.soundcloud.android.screens.elements.SlidingTabs;
 
 import android.content.Context;
 import android.view.Display;
@@ -10,6 +11,8 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import java.util.List;
 
 public class ViewElement {
     private final Solo testDriver;
@@ -29,6 +32,14 @@ public class ViewElement {
 
     public ViewElement findElement(int viewId) {
         return viewFetcher.findElement(viewId);
+    }
+
+    public ViewElement findElement(String textToFind) {
+        return viewFetcher.findElement(textToFind);
+    }
+
+    public List<ViewElement> findElements(String textToFind) {
+        return viewFetcher.findElements(textToFind);
     }
 
     public void click() {
@@ -86,6 +97,14 @@ public class ViewElement {
 
     public boolean isChecked() {
         return ((ToggleButton)view).isChecked();
+    }
+
+    public boolean isTextView() {
+        return (view instanceof TextView);
+    }
+
+    public SlidingTabs toSlidingTabs() {
+        return new SlidingTabs(this, testDriver);
     }
 
     private boolean hasDimentions() {

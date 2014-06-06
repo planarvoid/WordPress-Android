@@ -8,6 +8,7 @@ import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
@@ -86,15 +87,8 @@ public class SearchResultsScreen extends Screen {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    private boolean touchTab(String tabText) {
-        List<View> indicatorItems = getViewPagerIndicator().getChildAt(0).getTouchables();
-        for (View view : indicatorItems) {
-            if (((TextView) view).getText().equals(tabText)) {
-                testDriver.performClick(view);
-                return true;
-            }
-        }
-        return false;
+    private void touchTab(String tabText) {
+        tabs().getTabWithText(tabText).click();
     }
 
     public String currentTabTitle() {
@@ -137,6 +131,9 @@ public class SearchResultsScreen extends Screen {
         return null;
     }
 
+    private SlidingTabs tabs(){
+        return testDriver.findElement(R.id.sliding_tabs).toSlidingTabs();
+    }
     @Override
     protected Class getActivity() {
         return ACTIVITY;
