@@ -8,6 +8,7 @@ import com.soundcloud.android.tests.by.With;
 import android.content.Context;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewParent;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -42,8 +43,8 @@ public class ViewElement {
         return viewFetcher.findElements(textToFind);
     }
 
-    public List<ViewElement> findElements() {
-        return viewFetcher.findElements();
+    public ViewElement getChildAt(int index) {
+        return viewFetcher.getChildAt(index);
     }
 
     public void click() {
@@ -109,6 +110,10 @@ public class ViewElement {
 
     public SlidingTabs toSlidingTabs() {
         return new SlidingTabs(this, testDriver);
+    }
+
+    public ViewParent getParent() {
+        return view.getParent();
     }
 
     private boolean hasDimentions() {

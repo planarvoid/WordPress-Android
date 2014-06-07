@@ -29,15 +29,15 @@ class ViewFetcher {
         testDriver = driver;
     }
     public ViewElement findElement(With with) {
-        return Lists.newArrayList(filter(getAllElementsFromScreen(), with.filter())).get(0);
+        return Lists.newArrayList(filter(getAllViewsFromScreen(), with.filter())).get(0);
     }
 
     public List<ViewElement> findElements(String textToFind) {
         return getElementsWithText(textToFind);
     }
 
-    public List<ViewElement> findElements() {
-        return getAllVisibleElements();
+    public ViewElement getChildAt(int index) {
+        return getDirectChildViews().get(index);
     }
 
     public ViewElement findElement(String textToFind) {
@@ -98,15 +98,24 @@ class ViewFetcher {
         return new ViewElement(view, testDriver);
     }
 
+    private List<ViewElement> getDirectChildViews() {
+        return Lists.newArrayList(filter(getAllVisibleElements(), new Predicate<ViewElement>() {
+            @Override
+            public boolean apply(ViewElement viewElement) {
+                return viewElement.getParent().equals(parentView);
+            }
+        }));
+    }
+
     private List<ViewElement> getAllVisibleElements() {
-        return Lists.newArrayList(filter(getAllElementsFromScreen(), new Predicate<ViewElement>() {
+        return Lists.newArrayList(filter(getAllViewsFromScreen(), new Predicate<ViewElement>() {
             public boolean apply(ViewElement viewElement) {
                 return viewElement.isVisible();
             }
         }));
     }
 
-    private List<ViewElement> getAllElementsFromScreen() {
+    private List<ViewElement> getAllViewsFromScreen() {
         return Lists.transform(testDriver.getViews(parentView), new Function<View, ViewElement>() {
             @Override
             public ViewElement apply(View view) {
@@ -114,4 +123,5 @@ class ViewFetcher {
             }
         });
     }
+
 }
