@@ -6,6 +6,7 @@ import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActiv
 import com.soundcloud.android.screens.EmailConfirmScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.with.With;
 
 import android.R.id;
 import android.view.View;
@@ -70,8 +71,7 @@ public class SuggestedUsersScreen extends Screen {
     }
 
     private void clickOnCategoryElement(int index, int elementId) {
-        View categoryRow = getCategoryRow(index);
-        testDriver.clickOnView(categoryRow.findViewById(elementId));
+        testDriver.findElement(With.id(android.R.id.list)).toListView().getItemAt(index).findElement(With.id(elementId)).click();
     }
 
     private View getCategoryRow(int index) {

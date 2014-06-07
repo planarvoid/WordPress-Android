@@ -19,6 +19,7 @@ import com.soundcloud.android.preferences.DeveloperPreferences;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Runner;
+import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Env;
@@ -120,15 +121,17 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
     }
 
     protected void gotoEditMode() {
-        solo.clickOnView(getActivity().findViewById(R.id.btn_edit));
+        solo.findElement(With.id(R.id.btn_edit)).click();
         solo.assertText(R.string.btn_revert_to_original);
         assertState(EDIT);
     }
 
     protected boolean toggleFade() {
         assertState(EDIT);
-        ToggleButton tb = (ToggleButton) solo.getView(R.id.toggle_fade);
-        solo.clickOnView(tb);
+
+        ViewElement tb = solo.findElement(With.id(R.id.toggle_fade));
+        tb.click();
+
         return tb.isChecked();
     }
 

@@ -5,6 +5,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.screens.MenuScreen;
+import com.soundcloud.android.tests.with.With;
 import com.soundcloud.android.utils.Log;
 
 import android.content.Context;
@@ -93,9 +94,9 @@ public class Waiter {
 
     //TODO: We should have an error screen class defined
     private boolean retryIfFailed() {
-        View retryButton = solo.waitForViewId(R.id.btn_retry, 1, false);
-        if(retryButton != null){
-            solo.clickOnView(retryButton);
+        ViewElement retryButton = solo.findElement(With.id(R.id.btn_retry));
+        if(retryButton.isVisible()){
+            retryButton.click();
             waitForListContent();
         }
         return retryButton != null;

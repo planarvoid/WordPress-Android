@@ -81,11 +81,6 @@ public class Han  {
         solo.sendKey(key);
     }
 
-    public void clickOnView(View view) {
-        assertNotNull(view);
-        solo.clickOnView(view);
-    }
-
     public void clickLongOnView(int resId) {
         View view = solo.getCurrentActivity().findViewById(resId);
         assertNotNull(view);

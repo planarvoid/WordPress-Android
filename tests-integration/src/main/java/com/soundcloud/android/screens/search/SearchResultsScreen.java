@@ -1,6 +1,7 @@
 package com.soundcloud.android.screens.search;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.collections.views.UserlistRow;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -12,6 +13,7 @@ import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
 import com.soundcloud.android.view.SlidingTabLayout;
 
@@ -37,21 +39,20 @@ public class SearchResultsScreen extends Screen {
     public LegacyPlayerScreen clickFirstTrackItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         View itemView = getFirstResultsItemByClass(Track.class);
-        testDriver.clickOnView(itemView);
+        new ViewElement(itemView, testDriver.getSolo()).click();
         return new LegacyPlayerScreen(testDriver);
     }
 
     public PlaylistDetailsScreen clickFirstPlaylistItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         View itemView = getFirstResultsItemByClass(Playlist.class);
-        testDriver.clickOnView(itemView);
+        new ViewElement(itemView, testDriver.getSolo()).click();
         return new PlaylistDetailsScreen(testDriver);
     }
 
     public ProfileScreen clickFirstUserItem() {
-
-        View itemView = getFirstResultsItemByClass(User.class);
-        testDriver.clickOnView(itemView);
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        testDriver.findElement(With.className(UserlistRow.class)).click();
         return new ProfileScreen(testDriver);
     }
 

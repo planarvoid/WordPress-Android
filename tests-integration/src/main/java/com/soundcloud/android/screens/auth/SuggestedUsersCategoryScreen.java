@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.view.GridViewCompat;
 
 import android.view.ViewGroup;
@@ -26,7 +27,7 @@ public class SuggestedUsersCategoryScreen extends Screen {
         }
         ViewGroup viewGroup = (ViewGroup) gridViewCompat.getChildAt(index);
         TextView textView = (TextView) viewGroup.findViewById(R.id.username);
-        testDriver.clickOnView(textView);
+        new ViewElement(textView, testDriver.getSolo()).click();
         return textView.getText().toString();
 
     }
@@ -39,7 +40,7 @@ public class SuggestedUsersCategoryScreen extends Screen {
         }
         ViewGroup viewGroup = (ViewGroup) gridViewCompat.getChildAt((int) (Math.random() * gridViewCompat.getChildCount()));
         TextView textView = (TextView) viewGroup.findViewById(R.id.username);
-        testDriver.clickOnView(textView);
+        new ViewElement(textView, testDriver.getSolo()).click();
         return textView.getText().toString();
     }
 

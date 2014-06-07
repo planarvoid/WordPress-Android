@@ -11,6 +11,8 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TabletTest;
+import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.with.With;
 
 import static com.soundcloud.android.tests.TestUser.followedUser;
 
@@ -52,11 +54,11 @@ public class ProfileTest extends ActivityTestCase<MainActivity> {
         solo.sleep(1000);
 
         ViewPager pager = (ViewPager)(solo.getSolo().getCurrentViews(ViewPager.class).get(0));
-        ScListView list = solo.getSolo().getCurrentViews(ScListView.class, pager).get(1);
+        ViewElement list = solo.findElement(With.className(ScListView.class));
 
-        View item = list.findViewById(R.id.username);
+        ViewElement item = list.findElement(With.id(R.id.username));
 
-        solo.clickOnView(item);
+        item.click();
         profileScreen = new ProfileScreen(solo);
     }
 
