@@ -5,7 +5,7 @@ import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
-import com.soundcloud.android.tests.by.With;
+import com.soundcloud.android.tests.with.With;
 
 public class SignUpScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;

@@ -1,13 +1,13 @@
 package com.soundcloud.android.screens.auth;
 
 import android.R.id;
-import android.widget.EditText;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.onboarding.auth.RecoverActivity;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
-import com.soundcloud.android.tests.by.With;
+import com.soundcloud.android.tests.with.With;
 
 public class RecoverPasswordScreen extends Screen {
     private static final Class ACTIVITY = RecoverActivity.class;

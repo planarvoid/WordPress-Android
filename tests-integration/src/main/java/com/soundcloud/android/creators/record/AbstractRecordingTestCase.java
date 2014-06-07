@@ -19,7 +19,7 @@ import com.soundcloud.android.preferences.DeveloperPreferences;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Runner;
-import com.soundcloud.android.tests.by.With;
+import com.soundcloud.android.tests.with.With;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Env;
 import org.jetbrains.annotations.NotNull;

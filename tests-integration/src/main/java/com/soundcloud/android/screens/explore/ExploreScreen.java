@@ -7,7 +7,7 @@ import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.by.With;
+import com.soundcloud.android.tests.with.With;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;

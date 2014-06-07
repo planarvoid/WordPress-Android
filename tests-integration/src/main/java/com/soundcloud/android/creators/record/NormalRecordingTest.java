@@ -13,7 +13,7 @@ import com.soundcloud.android.preferences.DeveloperPreferences;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.tests.SlowTest;
 import com.soundcloud.android.tests.TestUser;
-import com.soundcloud.android.tests.by.With;
+import com.soundcloud.android.tests.with.With;
 
 import android.content.Intent;
 import android.os.Build;

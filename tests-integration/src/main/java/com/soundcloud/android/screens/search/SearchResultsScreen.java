@@ -12,15 +12,12 @@ import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.by.With;
+import com.soundcloud.android.tests.with.With;
 import com.soundcloud.android.view.SlidingTabLayout;
 
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
-
-import java.util.List;
 
 public class SearchResultsScreen extends Screen {
     private static final Class ACTIVITY = SearchActivity.class;

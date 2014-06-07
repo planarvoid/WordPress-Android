@@ -6,10 +6,9 @@ import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
-import com.soundcloud.android.tests.by.With;
+import com.soundcloud.android.tests.with.With;
 
 import android.R.id;
-import android.widget.EditText;
 
 public class LoginScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;

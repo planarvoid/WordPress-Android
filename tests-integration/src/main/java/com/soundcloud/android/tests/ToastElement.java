@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests;
 
-import com.soundcloud.android.tests.by.With;
+import com.soundcloud.android.tests.with.With;
 
 public class ToastElement {
     private final Han testDriver;

@@ -3,7 +3,7 @@ package com.soundcloud.android.tests;
 import com.robotium.solo.Solo;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
-import com.soundcloud.android.tests.by.With;
+import com.soundcloud.android.tests.with.With;
 
 import android.content.Context;
 import android.view.Display;
@@ -14,7 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import java.util.List;
+import java.awt.font.FontRenderContext;
 
 public class ViewElement {
     private final Solo testDriver;
@@ -35,13 +35,9 @@ public class ViewElement {
         return viewFetcher.findElement(with);
     }
 
-    public ViewElement findElement(String textToFind) {
-        return viewFetcher.findElement(textToFind);
-    }
-
-    public List<ViewElement> findElements(String textToFind) {
-        return viewFetcher.findElements(textToFind);
-    }
+//    public List<ViewElement> findElements(String textToFind) {
+//        return viewFetcher.findElements(textToFind);
+//    }
 
     public ViewElement getChildAt(int index) {
         return viewFetcher.getChildAt(index);
@@ -88,12 +84,12 @@ public class ViewElement {
         return view;
     }
 
-    public int getId() {
-        return view.getId();
-    }
-
     public ListElement toListView() {
         return new ListElement(view, testDriver);
+    }
+
+    public SlidingTabs toSlidingTabs() {
+        return new SlidingTabs(this, testDriver);
     }
 
     public boolean isEnabled() {
@@ -104,16 +100,20 @@ public class ViewElement {
         return ((ToggleButton)view).isChecked();
     }
 
+    public int getId() {
+        return view.getId();
+    }
+
     public boolean isTextView() {
         return (view instanceof TextView);
     }
 
-    public SlidingTabs toSlidingTabs() {
-        return new SlidingTabs(this, testDriver);
-    }
-
     public ViewParent getParent() {
         return view.getParent();
+    }
+
+    public String getClassName() {
+        return view.getClass().getSimpleName();
     }
 
     private boolean hasDimentions() {

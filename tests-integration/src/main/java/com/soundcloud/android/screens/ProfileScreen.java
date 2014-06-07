@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.by.With;
+import com.soundcloud.android.tests.with.With;
 
 public class ProfileScreen extends Screen {
     private static Class ACTIVITY = ProfileActivity.class;

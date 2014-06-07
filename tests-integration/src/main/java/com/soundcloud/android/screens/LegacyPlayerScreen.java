@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.by.With;
+import com.soundcloud.android.tests.with.With;
 
 public class LegacyPlayerScreen extends Screen {
     private static final Class ACTIVITY = PlayerActivity.class;

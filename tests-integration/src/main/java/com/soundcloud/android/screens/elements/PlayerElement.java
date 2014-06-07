@@ -4,12 +4,9 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
-import com.soundcloud.android.tests.by.With;
+import com.soundcloud.android.tests.with.With;
 
 import android.support.v4.view.ViewPager;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.ToggleButton;
 
 public class PlayerElement extends Element {
 

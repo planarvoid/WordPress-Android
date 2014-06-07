@@ -6,19 +6,19 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.robotium.solo.Solo;
-import com.soundcloud.android.tests.by.With;
+import com.soundcloud.android.tests.with.With;
 import junit.framework.AssertionFailedError;
 
 import android.os.SystemClock;
 import android.view.View;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 class ViewFetcher {
-    private static final int ELEMENT_TIMEOUT = 3 * 1000;
-    private static final int SMALL_TIMEOUT = 500;
     private Solo testDriver;
     private View parentView;
+    private Waiter waiter = new Waiter();
 
     public ViewFetcher(Solo driver){
         testDriver = driver;
@@ -28,74 +28,17 @@ class ViewFetcher {
         parentView = view;
         testDriver = driver;
     }
-    public ViewElement findElement(With with) {
-        return Lists.newArrayList(filter(getAllViewsFromScreen(), with.filter())).get(0);
-    }
-
-    public List<ViewElement> findElements(String textToFind) {
-        return getElementsWithText(textToFind);
+    public ViewElement findElement(final With with) {
+        return waiter.waitForElement(new Callable<List<ViewElement>>() {
+            @Override
+            public List<ViewElement> call() throws Exception {
+                return Lists.newArrayList(filter(getAllVisibleElements(), with.filter()));
+            }
+        });
     }
 
     public ViewElement getChildAt(int index) {
         return getDirectChildViews().get(index);
-    }
-
-    public ViewElement findElement(String textToFind) {
-        List<ViewElement> foundViews = getElementsWithText(textToFind);
-        return foundViews.isEmpty() ? new ViewElement(testDriver) : foundViews.get(0);
-    }
-
-    private List<ViewElement> getElementsWithText(final String textToFind) {
-        return Lists.newArrayList(filter(getAllVisibleElements(), new Predicate<ViewElement>() {
-            public boolean apply(ViewElement viewElement) {
-                if (viewElement.isTextView()) {
-                    return viewElement.getText().equals(textToFind);
-                }
-                return false;
-            }
-        }));
-    }
-
-    public List<ViewElement> findElements(final int id) {
-        return Lists.newArrayList(filter(getAllVisibleElements(), new Predicate<ViewElement>() {
-            public boolean apply(ViewElement viewElement) {
-                return viewElement.getId() == id;
-            }
-        }));
-    }
-
-    private ViewElement waitForViewWithId(int viewId) {
-        long endTime = SystemClock.uptimeMillis() + ELEMENT_TIMEOUT;
-        ViewElement viewElement = null;
-
-        while (SystemClock.uptimeMillis() <= endTime) {
-            viewElement = findElementById(viewId);
-
-            if (viewElement.isVisible()) {
-                return viewElement;
-            }
-            testDriver.sleep(SMALL_TIMEOUT);
-        }
-
-        return viewElement;
-    }
-
-    private ViewElement findElementById(int id){
-        List<ViewElement> foundElements = findElements(id);
-        if (foundElements.isEmpty()){
-            return new ViewElement(testDriver);
-        }
-        return foundElements.get(0);
-    }
-
-    public ViewElement findElement(Class<? extends View> viewClass) {
-        View view = null;
-        try {
-            view = testDriver.getView(viewClass, 0);
-        } catch (AssertionFailedError ignored) {
-
-        }
-        return new ViewElement(view, testDriver);
     }
 
     private List<ViewElement> getDirectChildViews() {
@@ -123,5 +66,36 @@ class ViewFetcher {
             }
         });
     }
+    class Waiter {
+        private static final int ELEMENT_TIMEOUT = 3 * 1000;
+        private static final int SMALL_TIMEOUT = 500;
 
+        public ViewElement waitForElement(Callable<List<ViewElement>> callable) {
+            return waitForOne(callable);
+        }
+
+        public List<ViewElement> waitForMany(Callable<List<ViewElement>> callable) {
+            return null;
+        };
+
+        private ViewElement waitForOne(Callable<List<ViewElement>> callable) {
+            long endTime = SystemClock.uptimeMillis() + ELEMENT_TIMEOUT;
+            List<ViewElement> viewElements;
+
+            while (SystemClock.uptimeMillis() <= endTime) {
+                try {
+                    viewElements = callable.call();
+                    if (viewElements.size() > 0) {
+                        return viewElements.get(0);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                testDriver.sleep(SMALL_TIMEOUT);
+            }
+            //ToDO: ViewNotFound
+            return new ViewElement(testDriver);
+        }
+
+    }
 }
