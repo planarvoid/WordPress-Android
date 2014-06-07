@@ -307,7 +307,7 @@ public class Waiter {
 
         @Override
         public boolean isSatisfied() {
-            return state && menuScreen.isOpened();
+            return menuScreen.isOpened() == state;
         }
     }
 
