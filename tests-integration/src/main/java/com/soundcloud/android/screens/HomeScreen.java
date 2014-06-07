@@ -6,6 +6,7 @@ import com.soundcloud.android.screens.auth.LoginScreen;
 import com.soundcloud.android.screens.auth.SignUpScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.by.With;
 
 public class HomeScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;
@@ -29,15 +30,15 @@ public class HomeScreen extends Screen {
     }
 
     private ViewElement bottomBar() {
-        return testDriver.findElement(R.id.tour_bottom_bar);
+        return testDriver.findElement(With.id(R.id.tour_bottom_bar));
     }
 
     private ViewElement signUpButton() {
-        return testDriver.findElement(R.id.btn_signup);
+        return testDriver.findElement(With.id(R.id.btn_signup));
     }
 
     private ViewElement logInButton() {
-       return bottomBar().findElement(R.id.login_btn);
+       return bottomBar().findElement(With.id(R.id.login_btn));
     }
 
     @Override

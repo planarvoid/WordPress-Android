@@ -12,6 +12,7 @@ import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.by.With;
 import com.soundcloud.android.view.SlidingTabLayout;
 
 import android.view.View;
@@ -132,7 +133,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     private SlidingTabs tabs(){
-        return testDriver.findElement(R.id.sliding_tabs).toSlidingTabs();
+        return testDriver.findElement(With.id(R.id.sliding_tabs)).toSlidingTabs();
     }
     @Override
     protected Class getActivity() {

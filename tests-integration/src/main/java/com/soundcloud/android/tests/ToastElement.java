@@ -1,10 +1,7 @@
 package com.soundcloud.android.tests;
 
-import android.widget.Toast;
+import com.soundcloud.android.tests.by.With;
 
-/**
- * Created by slawomirsmiechura on 06/06/14.
- */
 public class ToastElement {
     private final Han testDriver;
 
@@ -13,7 +10,7 @@ public class ToastElement {
     };
 
     private ViewElement toastMessage() {
-        return testDriver.findElement(android.R.id.message);
+        return testDriver.findElement(With.id(android.R.id.message));
     }
 
     public String getMessage() {

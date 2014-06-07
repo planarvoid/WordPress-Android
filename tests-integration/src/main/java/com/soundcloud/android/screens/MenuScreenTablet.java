@@ -3,6 +3,7 @@ package com.soundcloud.android.screens;
 import com.soundcloud.android.R;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.by.With;
 
 public class MenuScreenTablet extends MenuScreen{
 
@@ -35,7 +36,7 @@ public class MenuScreenTablet extends MenuScreen{
     }
 
     public boolean isOpened() {
-        return solo.findElement(R.id.fixed_navigation_fragment_id).isVisible();
+        return solo.findElement(With.id(R.id.fixed_navigation_fragment_id)).isVisible();
     }
 
 }

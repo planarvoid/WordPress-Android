@@ -13,6 +13,7 @@ import com.soundcloud.android.preferences.DeveloperPreferences;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.tests.SlowTest;
 import com.soundcloud.android.tests.TestUser;
+import com.soundcloud.android.tests.by.With;
 
 import android.content.Intent;
 import android.os.Build;
@@ -164,7 +165,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
             // countdown starts for last 5 minutes of recording time
             assertTrue("remaining time over 5 mins: "+remaining, remaining < 300);
 
-            solo.findElement(R.id.btn_action).click();
+            solo.findElement(With.id(R.id.btn_action)).click();
             solo.sleep(1000);
 
             while (getActivity().getRecorder().timeRemaining() > 10) {
@@ -301,7 +302,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void ignore_testShouldAutoSaveRecordingAndNavigateToYourSounds() throws Exception {
         record(recordingTime);
         solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
-        solo.findElement(R.id.home).click();
+        solo.findElement(With.id(R.id.home)).click();
         solo.clickOnText(TestUser.defaultUser.getUsername());
         solo.assertActivity(MeActivity.class);
 
@@ -311,9 +312,9 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         record(recordingTime);
         solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
         solo.sleep(500);
-        solo.findElement(R.id.btn_action).click();
+        solo.findElement(With.id(R.id.btn_action)).click();
         solo.sleep(1000);
-        solo.findElement(R.id.btn_action).click();
+        solo.findElement(With.id(R.id.btn_action)).click();
         solo.assertNoText(R.string.rec_your_sound_is_saved_locally_at);
     }
 

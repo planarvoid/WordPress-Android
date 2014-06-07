@@ -6,6 +6,7 @@ import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.by.With;
 
 import android.R.id;
 import android.widget.EditText;
@@ -20,31 +21,31 @@ public class LoginScreen extends Screen {
     }
 
     private ViewElement googleSignInButton() {
-        return testDriver.findElement(R.id.google_plus_btn);
+        return testDriver.findElement(With.id(R.id.google_plus_btn));
     }
 
     private ViewElement facebookSignInButton() {
-        return testDriver.findElement(R.id.facebook_btn);
+        return testDriver.findElement(With.id(R.id.facebook_btn));
     }
 
     private ViewElement emailInputField() {
-        return testDriver.findElement(R.id.auto_txt_email_address);
+        return testDriver.findElement(With.id(R.id.auto_txt_email_address));
     }
 
     private ViewElement passwordInputfield() {
-        return testDriver.findElement(R.id.txt_password);
+        return testDriver.findElement(With.id(R.id.txt_password));
     }
 
     private ViewElement cancelButton() {
-        return testDriver.findElement(R.id.btn_cancel);
+        return testDriver.findElement(With.id(R.id.btn_cancel));
     }
 
     private ViewElement loginButton() {
-        return testDriver.findElement(R.id.btn_login);
+        return testDriver.findElement(With.id(R.id.btn_login));
     }
 
     private ViewElement forgotPasswordButton() {
-        return testDriver.findElement(R.id.txt_i_forgot_my_password);
+        return testDriver.findElement(With.id(R.id.txt_i_forgot_my_password));
     }
 
     public void clickOkButton() {

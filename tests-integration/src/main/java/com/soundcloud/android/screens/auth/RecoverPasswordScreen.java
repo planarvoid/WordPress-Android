@@ -7,6 +7,7 @@ import com.soundcloud.android.onboarding.auth.RecoverActivity;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.by.With;
 
 public class RecoverPasswordScreen extends Screen {
     private static final Class ACTIVITY = RecoverActivity.class;
@@ -19,7 +20,7 @@ public class RecoverPasswordScreen extends Screen {
     }
 
     private ViewElement emailInputField() {
-        return testDriver.findElement(R.id.txt_email_address);
+        return testDriver.findElement(With.id(R.id.txt_email_address));
     }
 
     public void typeEmail(String text) {

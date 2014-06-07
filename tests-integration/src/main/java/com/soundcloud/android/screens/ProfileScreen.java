@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.by.With;
 
 public class ProfileScreen extends Screen {
     private static Class ACTIVITY = ProfileActivity.class;
@@ -13,19 +14,19 @@ public class ProfileScreen extends Screen {
     }
 
     private ViewElement followButton() {
-        return testDriver.findElement(R.id.toggle_btn_follow);
+        return testDriver.findElement(With.id(R.id.toggle_btn_follow));
     }
 
     private ViewElement userName() {
-        return testDriver.findElement(R.id.username);
+        return testDriver.findElement(With.id(R.id.username));
     }
 
     private ViewElement location() {
-        return testDriver.findElement(R.id.location);
+        return testDriver.findElement(With.id(R.id.location));
     }
 
     private ViewElement followersMessage(){
-        return testDriver.findElement(R.id.followers_message);
+        return testDriver.findElement(With.id(R.id.followers_message));
     }
 
     @Override

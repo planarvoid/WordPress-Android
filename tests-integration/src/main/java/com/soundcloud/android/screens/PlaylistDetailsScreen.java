@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.by.With;
 
 import android.widget.ToggleButton;
 import android.view.View;
@@ -37,7 +38,7 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     private ViewElement title() {
-        return testDriver.findElement(TITLE);
+        return testDriver.findElement(With.id(TITLE));
     }
 
     private View username() {
@@ -45,7 +46,7 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     private ViewElement headerPlayToggle() {
-        return testDriver.findElement(R.id.toggle_play_pause);
+        return testDriver.findElement(With.id(R.id.toggle_play_pause));
     }
 
     public void clickHeaderPlay() {

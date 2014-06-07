@@ -5,6 +5,7 @@ import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.by.With;
 
 public class SignUpScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;
@@ -13,31 +14,31 @@ public class SignUpScreen extends Screen {
     }
 
     private ViewElement googleSignInButton() {
-        return testDriver.findElement(R.id.google_plus_btn);
+        return testDriver.findElement(With.id(R.id.google_plus_btn));
     }
 
     private ViewElement facebookSignInButton() {
-        return testDriver.findElement(R.id.facebook_btn);
+        return testDriver.findElement(With.id(R.id.facebook_btn));
     }
 
     private ViewElement emailInputField() {
-        return testDriver.findElement(R.id.auto_txt_email_address);
+        return testDriver.findElement(With.id(R.id.auto_txt_email_address));
     }
 
     private ViewElement passwordInputfield() {
-        return testDriver.findElement(R.id.txt_choose_a_password);
+        return testDriver.findElement(With.id(R.id.txt_choose_a_password));
     }
 
     private ViewElement cancelButton() {
-        return testDriver.findElement(R.id.btn_cancel);
+        return testDriver.findElement(With.id(R.id.btn_cancel));
     }
 
     private ViewElement doneButton() {
-        return testDriver.findElement(R.id.btn_signup);
+        return testDriver.findElement(With.id(R.id.btn_signup));
     }
 
     private ViewElement acceptTermsButton() {
-        return testDriver.findElement(R.id.btn_accept_terms);
+        return testDriver.findElement(With.id(R.id.btn_accept_terms));
     }
 
     public void clickFacebookButton() {

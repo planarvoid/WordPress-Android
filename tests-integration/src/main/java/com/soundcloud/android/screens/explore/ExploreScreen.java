@@ -1,6 +1,5 @@
 package com.soundcloud.android.screens.explore;
 
-import com.google.common.base.Predicate;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
@@ -8,14 +7,12 @@ import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.view.SlidingTabLayout;
+import com.soundcloud.android.tests.by.With;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.TextView;
-
-import java.util.List;
 
 public class ExploreScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
@@ -41,7 +38,7 @@ public class ExploreScreen extends Screen {
     }
 
     private SlidingTabs tabs() {
-        return testDriver.findElement(R.id.sliding_tabs).toSlidingTabs();
+        return testDriver.findElement(With.id(R.id.sliding_tabs)).toSlidingTabs();
     }
 
     public void touchGenresTab() {
@@ -92,18 +89,13 @@ public class ExploreScreen extends Screen {
         tabs().getTabWithText(tabText).click();
     }
 
-    public String currentTabTitle(){
-        List<View> indicatorItems = getViewPagerIndicator().getChildAt(0).getTouchables();
-        TextView selectedItem = (TextView) indicatorItems.get(getViewPager().getCurrentItem());
-        return selectedItem.getText().toString();
+    public String currentTabTitle() {
+        int currentPage = getViewPager().getCurrentItem();
+        return tabs().getTabAt(currentPage).getText();
     }
 
     private ViewPager getViewPager() {
         return (ViewPager) testDriver.getView(R.id.pager);
-    }
-
-    private SlidingTabLayout getViewPagerIndicator() {
-        return (SlidingTabLayout) testDriver.getView(R.id.sliding_tabs);
     }
 
     public int getItemsOnTrendingMusicList(){

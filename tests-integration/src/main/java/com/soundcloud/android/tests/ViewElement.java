@@ -3,6 +3,7 @@ package com.soundcloud.android.tests;
 import com.robotium.solo.Solo;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
+import com.soundcloud.android.tests.by.With;
 
 import android.content.Context;
 import android.view.Display;
@@ -29,9 +30,8 @@ public class ViewElement {
         testDriver = driver;
         view = null;
     }
-
-    public ViewElement findElement(int viewId) {
-        return viewFetcher.findElement(viewId);
+    public ViewElement findElement(With with) {
+        return viewFetcher.findElement(with);
     }
 
     public ViewElement findElement(String textToFind) {
@@ -40,6 +40,10 @@ public class ViewElement {
 
     public List<ViewElement> findElements(String textToFind) {
         return viewFetcher.findElements(textToFind);
+    }
+
+    public List<ViewElement> findElements() {
+        return viewFetcher.findElements();
     }
 
     public void click() {

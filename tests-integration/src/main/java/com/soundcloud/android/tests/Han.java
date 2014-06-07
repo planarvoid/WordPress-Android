@@ -9,6 +9,7 @@ import com.robotium.solo.By;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 import com.soundcloud.android.R;
+import com.soundcloud.android.tests.by.With;
 import junit.framework.AssertionFailedError;
 
 import android.app.Activity;
@@ -48,8 +49,8 @@ public class Han  {
         viewFetcher = new ViewFetcher(solo);
     }
 
-    public ViewElement findElement(int viewId) {
-        return viewFetcher.findElement(viewId);
+    public ViewElement findElement(With findBy) {
+        return viewFetcher.findElement(findBy);
     }
 
     public void clickOnOK() {

@@ -6,6 +6,7 @@ import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Waiter;
+import com.soundcloud.android.tests.by.With;
 
 public class MenuScreen {
     protected Han solo;
@@ -37,7 +38,7 @@ public class MenuScreen {
     }
 
     private ListElement menuContainer() {
-        return solo.findElement(R.id.nav_listview).toListView();
+        return solo.findElement(With.id(R.id.nav_listview)).toListView();
     }
 
     protected ViewElement userProfileMenuItem() {
@@ -61,7 +62,7 @@ public class MenuScreen {
     }
 
     protected ViewElement usernameLabel() {
-        return userProfileMenuItem().findElement(username_selector);
+        return userProfileMenuItem().findElement(With.id(username_selector));
     }
 
     //TODO: move this to ActionBarScreen
@@ -80,7 +81,7 @@ public class MenuScreen {
     }
 
     public boolean isOpened() {
-        return solo.findElement(R.id.navigation_fragment_id).isVisible();
+        return solo.findElement(With.id(R.id.navigation_fragment_id)).isVisible();
     }
 
     public ProfileScreen clickUserProfile() {

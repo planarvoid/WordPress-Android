@@ -19,6 +19,7 @@ import com.soundcloud.android.preferences.DeveloperPreferences;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Runner;
+import com.soundcloud.android.tests.by.With;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Env;
 import org.jetbrains.annotations.NotNull;
@@ -110,10 +111,10 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
     protected void record(int howlong, String text) {
         solo.assertText(text);
         assertState(IDLE_RECORD, IDLE_PLAYBACK);
-        solo.findElement(R.id.btn_action).click();
+        solo.findElement(With.id(R.id.btn_action)).click();
         solo.sleep(howlong);
         assertState(RECORD);
-        solo.findElement(R.id.btn_action).click();
+        solo.findElement(With.id(R.id.btn_action)).click();
         solo.assertText(R.string.reset); // "Discard"
         assertState(IDLE_PLAYBACK);
     }
@@ -133,13 +134,13 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
 
     protected void playback() {
         assertState(IDLE_PLAYBACK);
-        solo.findElement(R.id.btn_play).click();
+        solo.findElement(With.id(R.id.btn_play)).click();
         assertState(PLAYBACK);
     }
 
     protected void playbackEdit() {
         assertState(EDIT);
-        solo.findElement(R.id.btn_play_edit).click();
+        solo.findElement(With.id(R.id.btn_play_edit)).click();
         assertState(EDIT_PLAYBACK);
     }
 
@@ -154,10 +155,10 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         }
 
         if (location != null) {
-            solo.findElement(R.id.where).click();
+            solo.findElement(With.id(R.id.where)).click();
             solo.assertActivity(LocationPickerActivity.class);
 
-            solo.findElement(R.id.where).click();
+            solo.findElement(With.id(R.id.where)).click();
             solo.enterTextId(R.id.where, location);
             solo.sendKey(Solo.ENTER);
 

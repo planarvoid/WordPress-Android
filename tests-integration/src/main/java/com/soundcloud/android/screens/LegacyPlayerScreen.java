@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.by.With;
 
 public class LegacyPlayerScreen extends Screen {
     private static final Class ACTIVITY = PlayerActivity.class;
@@ -13,11 +14,11 @@ public class LegacyPlayerScreen extends Screen {
     }
 
     private ViewElement stopButton() {
-        return testDriver.findElement(R.id.pause);
+        return testDriver.findElement(With.id(R.id.pause));
     }
 
     public ViewElement trackTitle() {
-        return testDriver.findElement(R.id.playable_title);
+        return testDriver.findElement(With.id(R.id.playable_title));
     }
 
     public void stopPlayback() {

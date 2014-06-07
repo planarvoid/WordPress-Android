@@ -6,11 +6,11 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.robotium.solo.Solo;
+import com.soundcloud.android.tests.by.With;
 import junit.framework.AssertionFailedError;
 
 import android.os.SystemClock;
 import android.view.View;
-import android.widget.TextView;
 
 import java.util.List;
 
@@ -28,13 +28,16 @@ class ViewFetcher {
         parentView = view;
         testDriver = driver;
     }
-
-    public ViewElement findElement(int viewId) {
-        return waitForViewWithId(viewId);
+    public ViewElement findElement(With with) {
+        return Lists.newArrayList(filter(getAllElementsFromScreen(), with.filter())).get(0);
     }
 
     public List<ViewElement> findElements(String textToFind) {
         return getElementsWithText(textToFind);
+    }
+
+    public List<ViewElement> findElements() {
+        return getAllVisibleElements();
     }
 
     public ViewElement findElement(String textToFind) {
@@ -43,7 +46,7 @@ class ViewFetcher {
     }
 
     private List<ViewElement> getElementsWithText(final String textToFind) {
-        return Lists.newArrayList(filter(getVisibleElements(), new Predicate<ViewElement>() {
+        return Lists.newArrayList(filter(getAllVisibleElements(), new Predicate<ViewElement>() {
             public boolean apply(ViewElement viewElement) {
                 if (viewElement.isTextView()) {
                     return viewElement.getText().equals(textToFind);
@@ -54,7 +57,7 @@ class ViewFetcher {
     }
 
     public List<ViewElement> findElements(final int id) {
-        return Lists.newArrayList(filter(getVisibleElements(), new Predicate<ViewElement>() {
+        return Lists.newArrayList(filter(getAllVisibleElements(), new Predicate<ViewElement>() {
             public boolean apply(ViewElement viewElement) {
                 return viewElement.getId() == id;
             }
@@ -95,21 +98,20 @@ class ViewFetcher {
         return new ViewElement(view, testDriver);
     }
 
-    private List<ViewElement> findAllElements() {
+    private List<ViewElement> getAllVisibleElements() {
+        return Lists.newArrayList(filter(getAllElementsFromScreen(), new Predicate<ViewElement>() {
+            public boolean apply(ViewElement viewElement) {
+                return viewElement.isVisible();
+            }
+        }));
+    }
+
+    private List<ViewElement> getAllElementsFromScreen() {
         return Lists.transform(testDriver.getViews(parentView), new Function<View, ViewElement>() {
             @Override
             public ViewElement apply(View view) {
                 return new ViewElement(view, testDriver);
             }
         });
-    }
-
-    private List<ViewElement> getVisibleElements() {
-        return Lists.newArrayList(filter(findAllElements(), new Predicate<ViewElement>() {
-            public boolean apply(ViewElement viewElement) {
-                return viewElement.isVisible();
-            }
-        }));
-
     }
 }

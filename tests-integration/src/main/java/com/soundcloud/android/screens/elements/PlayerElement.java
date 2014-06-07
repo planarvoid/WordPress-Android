@@ -4,6 +4,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.by.With;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -22,49 +23,49 @@ public class PlayerElement extends Element {
     }
 
     private ViewElement playerContainer() {
-        return solo.findElement(R.id.player_root);
+        return solo.findElement(With.id(R.id.player_root));
     }
 
     private ViewElement closeButton() {
-        return solo.findElement(R.id.player_close);
+        return solo.findElement(With.id(R.id.player_close));
     }
 
     private ViewElement artwork() {
-        return solo.findElement(R.id.track_page_artwork);
+        return solo.findElement(With.id(R.id.track_page_artwork));
     }
 
     private ViewElement previousButton() {
-        return solo.findElement(R.id.player_previous);
+        return solo.findElement(With.id(R.id.player_previous));
     }
 
     private ViewElement previousPageArea() {
         //TODO: this is an invisible view, wonder how it's gonna work with new driver
-        return solo.findElement(R.id.track_page_previous);
+        return solo.findElement(With.id(R.id.track_page_previous));
     }
 
     private ViewElement playButton() {
-        return solo.findElement(R.id.player_play);
+        return solo.findElement(With.id(R.id.player_play));
     }
 
     private ViewElement nextButton() {
-        return solo.findElement(R.id.player_next);
+        return solo.findElement(With.id(R.id.player_next));
     }
 
     private ViewElement nextPageArea(){
         //TODO: this is an invisible view, wonder how it's gonna work with new driver
-        return solo.findElement(R.id.track_page_next);
+        return solo.findElement(With.id(R.id.track_page_next));
     }
 
     private ViewElement footerPlayToggle() {
-        return solo.findElement(R.id.footer_toggle);
+        return solo.findElement(With.id(R.id.footer_toggle));
     }
 
     private ViewElement trackTitle() {
-        return solo.findElement(R.id.track_page_title);
+        return solo.findElement(With.id(R.id.track_page_title));
     }
 
     private ViewElement footerPlayer() {
-        return solo.findElement(R.id.footer_controls);
+        return solo.findElement(With.id(R.id.footer_controls));
     }
 
     public boolean isExpanded() {
