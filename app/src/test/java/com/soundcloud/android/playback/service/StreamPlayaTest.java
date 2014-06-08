@@ -29,6 +29,9 @@ import android.content.SharedPreferences;
 @RunWith(SoundCloudTestRunner.class)
 public class StreamPlayaTest {
 
+    private static final int MAX_CONSECUTIVE_SKIPPY_PLAYS = 2;
+    private static final int MAX_CONSECUTIVE_MP_PLAYS = 4;
+
     private StreamPlaya streamPlayerWrapper;
     @Mock
     private Context context;
@@ -48,12 +51,16 @@ public class StreamPlayaTest {
     private FeatureFlags featureFlags;
     @Mock
     private Track track;
+    @Mock
+    private StreamPlaya.PlayerSwitcherInfo playerSwitcherInfo;
 
     @Before
     public void setUp() throws Exception {
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putInt(anyString(), anyInt())).thenReturn(sharedPreferencesEditor);
         when(skippyAdapter.init(context)).thenReturn(true);
+        when(playerSwitcherInfo.getMaxConsecutiveMpPlays()).thenReturn(MAX_CONSECUTIVE_MP_PLAYS);
+        when(playerSwitcherInfo.getMaxConsecutiveSkippyPlays()).thenReturn(MAX_CONSECUTIVE_SKIPPY_PLAYS);
     }
 
     @After
@@ -62,7 +69,7 @@ public class StreamPlayaTest {
     }
 
     private void instantiateStreamPlaya() {
-        streamPlayerWrapper = new StreamPlaya(context, sharedPreferences, mediaPlayerAdapter, skippyAdapter, bufferingPlaya, featureFlags);
+        streamPlayerWrapper = new StreamPlaya(context, sharedPreferences, mediaPlayerAdapter, skippyAdapter, bufferingPlaya, featureFlags, playerSwitcherInfo);
         streamPlayerWrapper.setListener(playaListener);
     }
 
@@ -187,7 +194,7 @@ public class StreamPlayaTest {
     public void playUrlUsesMediaPlayerWhenTotalNumberOfPlaysHasNotHitThreshhold() throws Exception {
         instantiateStreamPlaya();
         when(sharedPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false)).thenReturn(false);
-        when(sharedPreferences.getInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, 0)).thenReturn(StreamPlaya.MAX_CONSECUTIVE_MP_PLAYS - 1);
+        when(sharedPreferences.getInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, 0)).thenReturn(MAX_CONSECUTIVE_SKIPPY_PLAYS - 1);
         streamPlayerWrapper.play(track);
         verify(mediaPlayerAdapter).play(track);
     }
@@ -201,10 +208,10 @@ public class StreamPlayaTest {
         reset(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putInt(anyString(), anyInt())).thenReturn(sharedPreferencesEditor);
         when(sharedPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false)).thenReturn(false);
-        when(sharedPreferences.getInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, 0)).thenReturn(StreamPlaya.MAX_CONSECUTIVE_MP_PLAYS - 1);
+        when(sharedPreferences.getInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, 0)).thenReturn(MAX_CONSECUTIVE_SKIPPY_PLAYS - 1);
 
         streamPlayerWrapper.play(track);
-        verify(sharedPreferencesEditor).putInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, StreamPlaya.MAX_CONSECUTIVE_MP_PLAYS);
+        verify(sharedPreferencesEditor).putInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, MAX_CONSECUTIVE_SKIPPY_PLAYS);
         verify(sharedPreferencesEditor).apply();
     }
 
@@ -215,7 +222,7 @@ public class StreamPlayaTest {
         streamPlayerWrapper.startBufferingMode();
 
         when(sharedPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false)).thenReturn(false);
-        when(sharedPreferences.getInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, 0)).thenReturn(StreamPlaya.MAX_CONSECUTIVE_MP_PLAYS);
+        when(sharedPreferences.getInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, 0)).thenReturn(MAX_CONSECUTIVE_MP_PLAYS);
         streamPlayerWrapper.play(track);
         verify(skippyAdapter).play(track);
     }
@@ -229,7 +236,7 @@ public class StreamPlayaTest {
         reset(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putInt(anyString(), anyInt())).thenReturn(sharedPreferencesEditor);
         when(sharedPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false)).thenReturn(false);
-        when(sharedPreferences.getInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, 0)).thenReturn(StreamPlaya.MAX_CONSECUTIVE_MP_PLAYS);
+        when(sharedPreferences.getInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, 0)).thenReturn(MAX_CONSECUTIVE_MP_PLAYS);
 
         streamPlayerWrapper.play(track);
         verify(sharedPreferencesEditor).putInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, 1);
@@ -240,7 +247,7 @@ public class StreamPlayaTest {
         when(skippyAdapter.init(context)).thenReturn(false);
         instantiateStreamPlaya();
         when(sharedPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false)).thenReturn(false);
-        when(sharedPreferences.getInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, 0)).thenReturn(StreamPlaya.MAX_CONSECUTIVE_SKIPPY_PLAYS);
+        when(sharedPreferences.getInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, 0)).thenReturn(MAX_CONSECUTIVE_MP_PLAYS);
         streamPlayerWrapper.play(track);
         verify(mediaPlayerAdapter).play(track);
     }
@@ -409,7 +416,7 @@ public class StreamPlayaTest {
     public void autoRetriesLastPlayOnMediaPlayerIfSkippyErrors() throws Exception {
         instantiateStreamPlaya();
         when(sharedPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false)).thenReturn(false);
-        when(sharedPreferences.getInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, 0)).thenReturn(StreamPlaya.MAX_CONSECUTIVE_SKIPPY_PLAYS);
+        when(sharedPreferences.getInt(StreamPlaya.PLAYS_ON_CURRENT_PLAYER, 0)).thenReturn(MAX_CONSECUTIVE_MP_PLAYS);
         when(skippyAdapter.getProgress()).thenReturn(123L);
         streamPlayerWrapper.play(track);
 

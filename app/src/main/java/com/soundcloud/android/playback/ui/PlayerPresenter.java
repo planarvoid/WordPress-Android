@@ -6,28 +6,20 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import android.content.res.Resources;
 import android.support.v4.view.ViewPager;
 import android.view.View;
-import android.widget.Button;
 
 import javax.inject.Inject;
 
-class PlayerPresenter implements View.OnClickListener {
+class PlayerPresenter {
 
     private final ViewPager trackPager;
-    private final Button play;
-    private final Button next;
-    private final Button previous;
-
     private final TrackPagerAdapter adapter;
     private final Listener listener;
 
     interface Listener {
-        void onTogglePlay();
-        void onNext();
-        void onPrevious();
         void onTrackChanged(int position);
     }
 
-    PlayerPresenter(Resources resources, TrackPagerAdapter adapter, View view, Listener listener) {
+    PlayerPresenter(Resources resources, TrackPagerAdapter adapter, Listener listener, View view) {
         this.adapter = adapter;
         this.listener = listener;
 
@@ -35,36 +27,12 @@ class PlayerPresenter implements View.OnClickListener {
         trackPager.setPageMargin(resources.getDimensionPixelSize(R.dimen.player_pager_spacing));
         trackPager.setPageMarginDrawable(R.color.black);
         trackPager.setOnPageChangeListener(new TrackPageChangeListener());
-
-        play = (Button) view.findViewById(R.id.player_play);
-        next = (Button) view.findViewById(R.id.player_next);
-        previous = (Button) view.findViewById(R.id.player_previous);
-        play.setOnClickListener(this);
-        next.setOnClickListener(this);
-        previous.setOnClickListener(this);
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.player_play:
-                setPlayControlsVisible(false);
-                listener.onTogglePlay();
-                break;
-            case R.id.player_next:
-                listener.onNext();
-                break;
-            case R.id.player_previous:
-                listener.onPrevious();
-                break;
-            default:
-                throw new IllegalArgumentException("Unexpected view ID");
-        }
     }
 
     void setQueuePosition(int position) {
         boolean isAdjacentTrack = Math.abs(trackPager.getCurrentItem() - position) <= 1;
         trackPager.setCurrentItem(position, isAdjacentTrack);
+        adapter.setProgressOnAllViews();
     }
 
     void onPlayQueueChanged() {
@@ -76,17 +44,10 @@ class PlayerPresenter implements View.OnClickListener {
 
     void onPlayStateChanged(boolean isPlaying){
         adapter.setPlayState(isPlaying);
-        setPlayControlsVisible(!isPlaying);
     }
 
     public void setFullScreenPlayer(boolean fullScreen) {
         adapter.fullScreenMode(fullScreen);
-    }
-
-    private void setPlayControlsVisible(boolean visble) {
-        play.setVisibility(visble ? View.VISIBLE : View.GONE);
-        next.setVisibility(visble ? View.VISIBLE : View.INVISIBLE);
-        previous.setVisibility(visble ? View.VISIBLE : View.INVISIBLE);
     }
 
     public void onPlayerProgress(PlaybackProgressEvent progress) {
@@ -115,15 +76,17 @@ class PlayerPresenter implements View.OnClickListener {
 
         private final Resources resources;
         private final TrackPagerAdapter trackPagerAdapter;
+        private final PlayerListener listener;
 
         @Inject
-        public Factory(Resources resources, TrackPagerAdapter trackPagerAdapter) {
+        public Factory(Resources resources, TrackPagerAdapter trackPagerAdapter, PlayerListener listener) {
             this.resources = resources;
             this.trackPagerAdapter = trackPagerAdapter;
+            this.listener = listener;
         }
 
-        public PlayerPresenter create(View view, Listener listener){
-            return new PlayerPresenter(resources, trackPagerAdapter, view, listener);
+        public PlayerPresenter create(View view){
+            return new PlayerPresenter(resources, trackPagerAdapter, listener, view);
         }
     }
 

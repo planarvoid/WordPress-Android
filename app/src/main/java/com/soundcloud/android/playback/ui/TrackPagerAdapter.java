@@ -3,13 +3,9 @@ package com.soundcloud.android.playback.ui;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaySessionController;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.track.LegacyTrackOperations;
@@ -25,7 +21,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.Map;
 
-public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPagePresenter.Listener {
+public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     private static final int EXPECTED_TRACKVIEW_COUNT = 4;
     private static final int TRACK_CACHE_SIZE = 10;
@@ -34,8 +30,6 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
     private final PlaySessionController playSessionController;
     private final LegacyTrackOperations trackOperations;
     private final TrackPagePresenter trackPagePresenter;
-    private final PlaybackOperations playbackOperations;
-    private final EventBus eventBus;
 
     private boolean newPagesInFullScreenMode;
 
@@ -44,15 +38,11 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
 
     @Inject
     TrackPagerAdapter(PlayQueueManager playQueueManager, PlaySessionController playSessionController,
-                      LegacyTrackOperations trackOperations, TrackPagePresenter trackPagePresenter,
-                      PlaybackOperations playbackOperations, EventBus eventBus) {
+                      LegacyTrackOperations trackOperations, TrackPagePresenter trackPagePresenter) {
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.trackPagePresenter = trackPagePresenter;
         this.playSessionController = playSessionController;
-        this.playbackOperations = playbackOperations;
-        this.eventBus = eventBus;
-        trackPagePresenter.setListener(this);
     }
 
     @Override
@@ -94,12 +84,27 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
 
     public void setProgressOnCurrentTrack(PlaybackProgressEvent progress) {
         View currentTrackView = trackViewsByPosition.inverse().get(playQueueManager.getCurrentPosition());
-        trackPagePresenter.setProgress(currentTrackView, progress);
+        if (currentTrackView != null) {
+            trackPagePresenter.setProgress(currentTrackView, progress);
+        }
+    }
+
+    public void setProgressOnAllViews(){
+        for (Map.Entry<View, Integer> entry : trackViewsByPosition.entrySet()) {
+            View trackView = entry.getKey();
+            Integer position = entry.getValue();
+            if (playSessionController.isPlayingTrack(playQueueManager.getUrnAtPosition(position))) {
+                trackPagePresenter.setProgress(trackView, playSessionController.getCurrentProgress());
+            } else {
+                trackPagePresenter.resetProgress(trackView);
+            }
+        }
     }
 
     public void setPlayState(boolean isPlaying) {
         for (Map.Entry<View, Integer> entry : trackViewsByPosition.entrySet()) {
-            trackPagePresenter.setPlayState(entry.getKey(), isPlaying && playQueueManager.isCurrentPosition(entry.getValue()));
+            trackPagePresenter.setTrackPlayState(entry.getKey(), playQueueManager.isCurrentPosition(entry.getValue()) && isPlaying);
+            trackPagePresenter.setGlobalPlayState(entry.getKey(), isPlaying);
         }
     }
 
@@ -156,26 +161,5 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter implements TrackPag
     public int getCount() {
         return playQueueManager.getQueueSize();
     }
-
-    @Override
-    public void onTogglePlay() {
-        playbackOperations.togglePlayback();
-    }
-
-    @Override
-    public void onFooterTap() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
-    }
-
-    @Override
-    public void onPlayerClose() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
-    }
-
-    @Override
-    public void onNext() { playbackOperations.nextTrack(); }
-
-    @Override
-    public void onPrevious() { playbackOperations.previousTrack(); }
 
 }

@@ -50,6 +50,10 @@ public class TestObservables {
         return endlessConnectableObservable(Subscriptions.empty());
     }
 
+    public static <T> MockObservable<T> endlessMockObservableFromSubscription(Subscription subscription) {
+        return new MockObservable<T>(new OnSubscribeCapture(endlessObservablefromSubscription(subscription)));
+    }
+
     public static <T> MockConnectableObservable<T> endlessConnectableObservable(Subscription subscription) {
         return new MockConnectableObservable<T>(new OnSubscribeCapture(endlessObservablefromSubscription(subscription)));
     }

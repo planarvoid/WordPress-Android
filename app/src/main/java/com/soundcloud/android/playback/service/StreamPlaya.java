@@ -22,9 +22,6 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     public static final String TAG = "StreamPlaya";
     @VisibleForTesting
     static final String PLAYS_ON_CURRENT_PLAYER = "StreamPlaya.playsOnCurrentPlaya";
-    @VisibleForTesting
-    static final int MAX_CONSECUTIVE_SKIPPY_PLAYS = 2; // TODO increase to 10 before launch
-    static final int MAX_CONSECUTIVE_MP_PLAYS = 2;
 
     @VisibleForTesting
     static boolean skippyFailedToInitialize;
@@ -34,6 +31,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     private final BufferingPlaya bufferingPlayaDelegate;
     private final SharedPreferences playbackPreferences;
     private final FeatureFlags featureFlags;
+    private final PlayerSwitcherInfo playerSwitcherInfo;
 
     private Playa currentPlaya, lastPlaya;
     private PlayaListener playaListener;
@@ -44,13 +42,15 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
     @Inject
     public StreamPlaya(Context context, SharedPreferences sharedPreferences, MediaPlayerAdapter mediaPlayerAdapter,
-                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, FeatureFlags featureFlags){
+                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, FeatureFlags featureFlags, PlayerSwitcherInfo playerSwitcherInfo){
         playbackPreferences = sharedPreferences;
         mediaPlayaDelegate = mediaPlayerAdapter;
         skippyPlayaDelegate = skippyAdapter;
         bufferingPlayaDelegate = bufferingPlaya;
         currentPlaya = bufferingPlayaDelegate;
         this.featureFlags = featureFlags;
+
+        this.playerSwitcherInfo = playerSwitcherInfo;
 
         if (!skippyFailedToInitialize) {
             skippyFailedToInitialize = !skippyPlayaDelegate.init(context);
@@ -232,13 +232,13 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
             return skippyPlayaDelegate;
         } else if (lastPlaya == skippyPlayaDelegate){
 
-            if (playbackPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0) >= MAX_CONSECUTIVE_MP_PLAYS) {
+            if (playbackPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0) >= playerSwitcherInfo.getMaxConsecutiveSkippyPlays()) {
                 return mediaPlayaDelegate;
             } else {
                 return skippyPlayaDelegate;
             }
         } else {
-            if (playbackPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0) >= MAX_CONSECUTIVE_SKIPPY_PLAYS) {
+            if (playbackPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0) >= playerSwitcherInfo.getMaxConsecutiveMpPlays()) {
                 return skippyPlayaDelegate;
             } else {
                 return mediaPlayaDelegate;
@@ -254,6 +254,24 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     private boolean isInForceSkippyMode() {
         return featureFlags.isEnabled(Feature.VISUAL_PLAYER) ||
                 playbackPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false);
+    }
+
+    public static class PlayerSwitcherInfo {
+        private final int skippyCount;
+        private final int mpCount;
+
+        public PlayerSwitcherInfo(int maxConsecutiveMpPlays, int maxConsecutiveSkippyPlays) {
+            this.mpCount = maxConsecutiveMpPlays;
+            this.skippyCount = maxConsecutiveSkippyPlays;
+        }
+
+        public int getMaxConsecutiveSkippyPlays() {
+            return skippyCount;
+        }
+
+        public int getMaxConsecutiveMpPlays() {
+            return mpCount;
+        }
     }
 
     private static class TrackPlaybackInfo {

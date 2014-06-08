@@ -101,7 +101,7 @@ public abstract class  PlayerTrackPagerAdapter<T extends View & PlayerTrackView>
             final EmptyView emptyView = convertView != null ? (EmptyView) convertView :
                     createEmptyListView(container.getContext());
 
-            switch (playQueue.getAppendState()){
+            switch (playQueue.getFetchRecommendedState()){
                 case LOADING:
                     emptyView.setStatus(EmptyView.Status.WAITING);
                     break;

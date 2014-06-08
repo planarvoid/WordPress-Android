@@ -7,14 +7,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.track.LegacyTrackOperations;
 import org.junit.Before;
@@ -54,12 +52,7 @@ public class TrackPagerAdapterTest {
 
     @Before
     public void setUp() throws Exception {
-        adapter = new TrackPagerAdapter(playQueueManager, playSessionController, trackOperations, trackPagePresenter, playbackOperations, eventBus);
-    }
-
-    @Test
-    public void setsTrackPagePresenterListenerInConstructor() {
-        verify(trackPagePresenter).setListener(adapter);
+        adapter = new TrackPagerAdapter(playQueueManager, playSessionController, trackOperations, trackPagePresenter);
     }
 
     @Test
@@ -119,14 +112,39 @@ public class TrackPagerAdapterTest {
     }
 
     @Test
-    public void setPlayStateSetsPlayingStateForCurrentTrack() {
+    public void setProgressOnCurrentTrackWhenSetProgressOnAllViews() {
+        setupGetCurrentViewPreconditions();
+        PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
+        when(playSessionController.getCurrentProgress()).thenReturn(progressEvent);
+        when(playSessionController.isPlayingTrack(playQueueManager.getUrnAtPosition(4))).thenReturn(true);
+        adapter.getView(3, view, container);
+
+        adapter.setProgressOnAllViews();
+
+        verify(trackPagePresenter).setProgress(view, progressEvent);
+    }
+
+    @Test
+    public void resetProgressOnNotCurrentTracksWhenSetProgressOnAllViews() {
+        setupGetCurrentViewPreconditions();
+        when(playSessionController.isPlayingTrack(any(TrackUrn.class))).thenReturn(false);
+        adapter.getView(3, view, container);
+
+        adapter.setProgressOnAllViews();
+
+        verify(trackPagePresenter).resetProgress(view);
+    }
+
+    @Test
+    public void setPlayStateSetsTrackPlayingStateForCurrentTrack() {
         setupGetCurrentViewPreconditions();
         when(playQueueManager.isCurrentPosition(3)).thenReturn(true);
 
         adapter.getView(3, view, container);
         adapter.setPlayState(true);
 
-        verify(trackPagePresenter).setPlayState(view, true);
+        verify(trackPagePresenter).setTrackPlayState(view, true);
+        verify(trackPagePresenter).setGlobalPlayState(view, true);
     }
 
     @Test
@@ -137,7 +155,18 @@ public class TrackPagerAdapterTest {
         adapter.getView(3, view, container);
         adapter.setPlayState(true);
 
-        verify(trackPagePresenter).setPlayState(view, false);
+        verify(trackPagePresenter).setTrackPlayState(view, false);
+        verify(trackPagePresenter).setGlobalPlayState(view, true);
+    }
+
+    @Test
+    public void setTrackPagePresenterFullScreenMode() {
+        setupGetCurrentViewPreconditions();
+        adapter.getView(3, view, container);
+
+        adapter.fullScreenMode(true);
+
+        verify(trackPagePresenter).setFullScreen(view, true);
     }
 
     @Test
@@ -148,28 +177,6 @@ public class TrackPagerAdapterTest {
         adapter.notifyDataSetChanged();
 
         expect(adapter.getTrackViewByPosition(3)).toBeNull();
-    }
-
-    @Test
-    public void onTogglePlayTogglesPlaybackViaPlaybackOperations() {
-        adapter.onTogglePlay();
-        verify(playbackOperations).togglePlayback();
-    }
-
-    @Test
-    public void onFooterTapPostsEventToExpandPlayer() {
-        EventMonitor monitor = EventMonitor.on(eventBus);
-        adapter.onFooterTap();
-        PlayerUIEvent playerUIEvent = monitor.verifyEventOn(EventQueue.PLAYER_UI);
-        expect(playerUIEvent.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
-    }
-
-    @Test
-    public void onPlayerClosePostsEventToClosePlayer() {
-        EventMonitor monitor = EventMonitor.on(eventBus);
-        adapter.onPlayerClose();
-        PlayerUIEvent playerUIEvent = monitor.verifyEventOn(EventQueue.PLAYER_UI);
-        expect(playerUIEvent.getKind()).toEqual(PlayerUIEvent.COLLAPSE_PLAYER);
     }
 
     private void setupGetCurrentViewPreconditions() {

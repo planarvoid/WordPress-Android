@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Dialog" parent="android:Theme.Dialog">
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
+    <style name="Theme.FramelessDialog" parent="Theme.ScDialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowTitleStyle">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.AddCommentDialog" parent="Theme.FramelessDialog">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:windowAnimationStyle">@style/Animation.AddCommentDialog</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustResize</item>
+    </style>
+
+    <style name="Theme.FullImageDialog" parent="Theme.FramelessDialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+    <!-- styles for android-styled-dialogs library -->
+    <style name="DialogStyleLight">
+        <item name="titleTextColor">@color/dialog_title</item>
+        <item name="titleSeparatorColor">@color/dialog_separator</item>
+        <item name="buttonBackgroundColorPressed">@color/dialog_button_pressed</item>
+        <item name="buttonBackgroundColorFocused">@color/dialog_button_focused</item>
+        <item name="buttonTextColor">@color/dialog_text</item>
+    </style>
+
+    <style name="DialogListView" parent="SDL.ListView">
+        <item name="android:divider">@drawable/divider_list_grey</item>
+        <item name="android:dividerHeight">1px</item>
+        <item name="android:listSelector">@drawable/list_selector_gray</item>
+    </style>
+
+    <style name="DialogTitleText" parent="SDL.TextView.Title">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="DialogText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/dialog_text</item>
+    </style>
+    <style name="DialogSubText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/dialog_subtext</item>
+    </style>
+
+    <style name="FullImageDialogImageView">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:layout_margin">@dimen/full_image_margin</item>
+    </style>
+
+</resources>

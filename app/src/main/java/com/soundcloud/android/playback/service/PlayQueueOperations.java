@@ -10,7 +10,7 @@ import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.RelatedTracksCollection;
+import com.soundcloud.android.model.RecommendedTracksCollection;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -40,9 +40,9 @@ public class PlayQueueOperations {
     private final BulkStorage bulkStorage;
     private final RxHttpClient rxHttpClient;
 
-    private final Action1<RelatedTracksCollection> mCacheRelatedTracks = new Action1<RelatedTracksCollection>() {
+    private final Action1<RecommendedTracksCollection> mCacheRelatedTracks = new Action1<RecommendedTracksCollection>() {
         @Override
-        public void call(RelatedTracksCollection collection) {
+        public void call(RecommendedTracksCollection collection) {
             fireAndForget(bulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), TrackSummary.TO_TRACK)));
         }
     };
@@ -110,13 +110,13 @@ public class PlayQueueOperations {
         playQueueStorage.clearState();
     }
 
-    public Observable<RelatedTracksCollection> getRelatedTracks(long trackId) {
+    public Observable<RecommendedTracksCollection> getRelatedTracks(long trackId) {
         final Urn urn = Urn.forTrack(trackId);
         final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), urn.toEncodedString());
-        final APIRequest<RelatedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<RelatedTracksCollection>get(endpoint)
+        final APIRequest<RecommendedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<RecommendedTracksCollection>get(endpoint)
                 .forPrivateAPI(1)
-                .forResource(TypeToken.of(RelatedTracksCollection.class)).build();
+                .forResource(TypeToken.of(RecommendedTracksCollection.class)).build();
 
-        return rxHttpClient.<RelatedTracksCollection>fetchModels(request).doOnNext(mCacheRelatedTracks);
+        return rxHttpClient.<RecommendedTracksCollection>fetchModels(request).doOnNext(mCacheRelatedTracks);
     }
 }

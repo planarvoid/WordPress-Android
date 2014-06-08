@@ -17,23 +17,4 @@
         android:id="@+id/player_track_pager"
         android:layout_below="@id/player_strip" />
 
-    <Button
-            android:id="@+id/player_play"
-            android:layout_centerInParent="true"
-            style="@style/PlayerToggle" />
-
-    <Button
-            android:id="@+id/player_next"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="@dimen/player_skip_margin"
-            style="@style/PlayerNext" />
-
-    <Button
-            android:id="@+id/player_previous"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="@dimen/player_skip_margin"
-            style="@style/PlayerPrevious" />
-
 </RelativeLayout>

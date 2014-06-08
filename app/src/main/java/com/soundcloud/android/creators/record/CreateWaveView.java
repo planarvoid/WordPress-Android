@@ -13,7 +13,6 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Shader;
-import android.util.FloatMath;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
@@ -436,8 +435,8 @@ public class CreateWaveView extends View {
             } else {
                 // scaling up, do interpolation
                 final float fIndex = Math.min(size - 1, size * ((float) x) / (width));
-                final float v1 = get((int) FloatMath.floor(fIndex));
-                final float v2 = get((int) FloatMath.ceil(fIndex));
+                final float v1 = get((int) Math.floor(fIndex));
+                final float v2 = get((int) Math.ceil(fIndex));
                 return v1 + (v2 - v1) * (fIndex - ((int) fIndex));
             }
         }

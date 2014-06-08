@@ -348,14 +348,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 }
             }
         }
-
-        if (stateTransition.playbackHasStopped()) {
-            saveQueue();
-        }
-    }
-
-    private void saveQueue(){
-        playQueueManager.saveCurrentPosition(currentTrack == null ? 0 : getProgress());
     }
 
     // TODO : Handle tracks that are not in local storage (quicksearch)
@@ -430,7 +422,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             streamPlayer.play(currentTrack, resumeInfo.getTime());
         } else {
             streamPlayer.play(currentTrack);
-            saveQueue();
         }
     }
 
@@ -464,7 +455,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     /* package */ void stop() {
-        saveQueue();
         streamPlayer.stop();
         suppressNotifications = true;
         stopForeground(true);

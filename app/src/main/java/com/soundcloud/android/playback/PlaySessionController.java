@@ -69,7 +69,11 @@ public class PlaySessionController {
     }
 
     public boolean isPlayingTrack(Track track){
-        return currentPlayingUrn != null && currentPlayingUrn.equals(track.getUrn());
+        return isPlayingTrack(track.getUrn());
+    }
+
+    public boolean isPlayingTrack(TrackUrn trackUrn){
+        return currentPlayingUrn != null && currentPlayingUrn.equals(trackUrn);
     }
 
     public PlaybackProgressEvent getCurrentProgress() {
@@ -88,14 +92,21 @@ public class PlaySessionController {
 
             audioManager.setPlaybackState(stateTransition.playSessionIsActive());
 
-            if (stateTransition.trackEnded()){
-                if (playQueueManager.autoNextTrack()){
-                    playbackOperations.playCurrent();
-                } else {
-                    eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, PLAY_QUEUE_COMPLETE_EVENT);
+            if (stateTransition.isPlayerIdle() && !stateTransition.equals(PLAY_QUEUE_COMPLETE_EVENT)) {
+                if (stateTransition.trackEnded()) {
+                    if (playQueueManager.autoNextTrack()) {
+                        playbackOperations.playCurrent();
+                    } else {
+                        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, PLAY_QUEUE_COMPLETE_EVENT);
+                    }
                 }
+                saveProgress(stateTransition);
             }
         }
+    }
+
+    private void saveProgress(StateTransition stateTransition) {
+        playQueueManager.saveCurrentPosition(stateTransition.trackEnded() ? 0 : stateTransition.getProgress());
     }
 
     private class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {

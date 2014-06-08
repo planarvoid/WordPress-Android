@@ -113,7 +113,7 @@ public class SkippyAdapterTest {
     public void playBroadcastsErrorStateIfAudioFocusFailsToBeGranted(){
         when(listener.requestAudioFocus()).thenReturn(false);
         skippyAdapter.play(track);
-        verify(listener).onPlaystateChanged(new Playa.StateTransition(PlayaState.IDLE , Playa.Reason.ERROR_FAILED));
+        verify(listener).onPlaystateChanged(new Playa.StateTransition(PlayaState.IDLE , Playa.Reason.ERROR_FAILED, 0, 0));
     }
 
     @Test

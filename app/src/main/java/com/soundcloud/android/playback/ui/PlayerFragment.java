@@ -9,7 +9,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.subscriptions.CompositeSubscription;
@@ -22,14 +21,12 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class PlayerFragment extends Fragment implements PlayerPresenter.Listener {
+public class PlayerFragment extends Fragment {
 
     @Inject
     EventBus eventBus;
     @Inject
     PlayQueueManager playQueueManager;
-    @Inject
-    PlaybackOperations playbackOperations;
     @Inject
     PlayerPresenter.Factory playerPresenterFactory;
 
@@ -48,16 +45,15 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        presenter = playerPresenterFactory.create(view, this);
+        presenter = playerPresenterFactory.create(view);
         if (!playQueueManager.isQueueEmpty()) {
             presenter.onPlayQueueChanged();
             presenter.setQueuePosition(playQueueManager.getCurrentPosition());
         }
+        subscribeToEventQueues();
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    private void subscribeToEventQueues() {
         eventSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber()));
         eventSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber()));
         eventSubscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
@@ -65,31 +61,10 @@ public class PlayerFragment extends Fragment implements PlayerPresenter.Listener
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroyView() {
         eventSubscription.unsubscribe();
-        super.onDestroy();
+        super.onDestroyView();
     }
-
-    @Override
-    public void onTogglePlay() {
-        playbackOperations.togglePlayback();
-    }
-
-    @Override
-    public void onNext() {
-        playbackOperations.nextTrack();
-    }
-
-    @Override
-    public void onPrevious() {
-        playbackOperations.previousTrack();
-    }
-
-    @Override
-    public void onTrackChanged(int position) {
-        playbackOperations.setPlayQueuePosition(position);
-    }
-
 
     private final class PlaybackStateSubscriber extends DefaultSubscriber<StateTransition> {
         @Override

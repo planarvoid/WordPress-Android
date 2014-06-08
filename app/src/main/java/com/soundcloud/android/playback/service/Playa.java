@@ -75,6 +75,10 @@ public interface Playa {
             return reason;
         }
 
+        public long getProgress() {
+            return currentProgress;
+        }
+
         boolean isPlaying(){
             return newState.isPlaying();
         }
@@ -85,6 +89,10 @@ public interface Playa {
 
         public boolean isPlayerPlaying(){
             return newState.isPlayerPlaying();
+        }
+
+        public boolean isPlayerIdle(){
+            return newState == PlayaState.IDLE;
         }
 
         public boolean isBuffering(){
@@ -114,6 +122,8 @@ public interface Playa {
         public void addToIntent(Intent intent) {
             newState.addToIntent(intent);
             reason.addToIntent(intent);
+            intent.putExtra(PROGRESS_EXTRA, currentProgress);
+            intent.putExtra(DURATION_EXTRA, duration);
             intent.putExtra(DEBUG_EXTRA, debugExtra);
         }
 
@@ -153,6 +163,9 @@ public interface Playa {
             return "StateTransition{" +
                     "newState=" + newState +
                     ", reason=" + reason +
+                    ", currentProgress=" + currentProgress +
+                    ", duration=" + duration +
+                    ", trackUrn=" + trackUrn +
                     '}';
         }
     }

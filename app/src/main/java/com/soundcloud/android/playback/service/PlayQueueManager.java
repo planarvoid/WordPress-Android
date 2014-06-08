@@ -7,10 +7,11 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.RelatedTracksCollection;
+import com.soundcloud.android.model.RecommendedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.model.TrackUrn;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
@@ -26,7 +27,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class PlayQueueManager implements Observer<RelatedTracksCollection>, OriginProvider {
+public class PlayQueueManager implements Observer<RecommendedTracksCollection>, OriginProvider {
 
     public static final String PLAYQUEUE_CHANGED_ACTION = "com.soundcloud.android.playlistchanged";
     public static final String RELATED_LOAD_STATE_CHANGED_ACTION = "com.soundcloud.android.related.changed";
@@ -40,14 +41,18 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     private PlayQueue playQueue = PlayQueue.empty();
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
 
-    private Subscription fetchRelatedSubscription = Subscriptions.empty();
+    private Subscription fetchRecommendedSubscription = Subscriptions.empty();
     private Subscription playQueueSubscription = Subscriptions.empty();
-    private Observable<RelatedTracksCollection> relatedTracksObservable;
+    private Observable<RecommendedTracksCollection> recommendedTracksObservable;
 
     private PlaybackProgressInfo playbackProgressInfo;
 
-    private boolean gotRelatedTracks;
-    private PlaybackServiceOperations.AppendState appendState = PlaybackServiceOperations.AppendState.IDLE;
+    private boolean gotRecommendedTracks;
+    private FetchRecommendedState fetchState = FetchRecommendedState.IDLE;
+
+    public enum FetchRecommendedState {
+        IDLE, LOADING, ERROR, EMPTY;
+    }
 
     @Inject
     public PlayQueueManager(Context context,
@@ -87,6 +92,10 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
 
     public long getIdAtPosition(int position) {
         return playQueue.getItems().get(position).getTrackId();
+    }
+
+    public TrackUrn getUrnAtPosition(int position) {
+        return TrackUrn.forTrack(getIdAtPosition(position));
     }
 
     public PlaybackProgressInfo getPlayProgressInfo() {
@@ -151,7 +160,8 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     /**
      * @return last stored seek pos of the current track in queue, or -1 if there is no reload
      */
-    public PlaybackProgressInfo loadPlayQueue() {
+    public void loadPlayQueue() {
+
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
         if (playQueueObservable != null) {
             playQueueSubscription = playQueueObservable.subscribe(new Action1<PlayQueue>() {
@@ -161,11 +171,10 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
                 }
             });
             // return so player can have the resume information while load is in progress
-            return new PlaybackProgressInfo(playQueueOperations.getLastStoredPlayingTrackId(), playQueueOperations.getLastStoredSeekPosition());
+            playbackProgressInfo = new PlaybackProgressInfo(playQueueOperations.getLastStoredPlayingTrackId(), playQueueOperations.getLastStoredSeekPosition());
         } else {
             // this is so the player can finish() instead of display waiting to the user
             broadcastPlayQueueChanged();
-            return null;
         }
     }
 
@@ -196,12 +205,12 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     }
 
     public void fetchRelatedTracks(long trackId) {
-        relatedTracksObservable = playQueueOperations.getRelatedTracks(trackId).observeOn(AndroidSchedulers.mainThread());
-        loadRelatedTracks();
+        recommendedTracksObservable = playQueueOperations.getRelatedTracks(trackId).observeOn(AndroidSchedulers.mainThread());
+        loadRecommendedTracks();
     }
 
     public void retryRelatedTracksFetch() {
-        loadRelatedTracks();
+        loadRecommendedTracks();
     }
 
     public void clearAll() {
@@ -215,55 +224,55 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection>, Orig
     }
 
     public PlayQueueView getPlayQueueView() {
-        return playQueue.getViewWithAppendState(appendState);
+        return playQueue.getViewWithAppendState(fetchState);
     }
 
-    private void loadRelatedTracks() {
-        setNewRelatedLoadingState(PlaybackServiceOperations.AppendState.LOADING);
-        gotRelatedTracks = false;
-        fetchRelatedSubscription = relatedTracksObservable.subscribe(this);
+    private void loadRecommendedTracks() {
+        setNewRelatedLoadingState(FetchRecommendedState.LOADING);
+        gotRecommendedTracks = false;
+        fetchRecommendedSubscription = recommendedTracksObservable.subscribe(this);
     }
 
     @Override
-    public void onNext(RelatedTracksCollection relatedTracks) {
+    public void onNext(RecommendedTracksCollection relatedTracks) {
         for (TrackSummary item : relatedTracks) {
             final Track track = new Track(item);
             modelManager.cache(track);
             playQueue.addTrack(track.getId(), PlaySessionSource.DiscoverySource.RECOMMENDER.value(),
                     relatedTracks.getSourceVersion());
         }
-        gotRelatedTracks = true;
+        gotRecommendedTracks = true;
     }
 
     @Override
     public void onCompleted() {
         // TODO, save new tracks to database
-        setNewRelatedLoadingState(gotRelatedTracks ? PlaybackServiceOperations.AppendState.IDLE : PlaybackServiceOperations.AppendState.EMPTY);
+        setNewRelatedLoadingState(gotRecommendedTracks ? FetchRecommendedState.IDLE : FetchRecommendedState.EMPTY);
     }
 
     @Override
     public void onError(Throwable e) {
-        setNewRelatedLoadingState(PlaybackServiceOperations.AppendState.ERROR);
+        setNewRelatedLoadingState(FetchRecommendedState.ERROR);
     }
 
-    private void setNewRelatedLoadingState(PlaybackServiceOperations.AppendState appendState) {
-        this.appendState = appendState;
+    private void setNewRelatedLoadingState(FetchRecommendedState fetchState) {
+        this.fetchState = fetchState;
         final Intent intent = new Intent(RELATED_LOAD_STATE_CHANGED_ACTION)
-                .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(appendState));
+                .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(fetchState));
         context.sendBroadcast(intent);
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackId()));
     }
 
     private void broadcastPlayQueueChanged() {
         Intent intent = new Intent(PLAYQUEUE_CHANGED_ACTION)
-                .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(appendState));
+                .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(fetchState));
         context.sendBroadcast(intent);
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(playQueue.getCurrentTrackId()));
     }
 
     private void stopLoadingOperations() {
-        fetchRelatedSubscription.unsubscribe();
-        fetchRelatedSubscription = Subscriptions.empty();
+        fetchRecommendedSubscription.unsubscribe();
+        fetchRecommendedSubscription = Subscriptions.empty();
 
         playQueueSubscription.unsubscribe();
     }

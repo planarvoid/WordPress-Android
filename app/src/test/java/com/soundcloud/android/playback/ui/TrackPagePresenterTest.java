@@ -10,6 +10,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.waveform.WaveformOperations;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -25,11 +26,13 @@ import android.view.ViewGroup;
 public class TrackPagePresenterTest {
 
     @Mock
-    private ImageOperations imageOperations;
-    @Mock
     private Resources resources;
     @Mock
-    private TrackPagePresenter.Listener listener;
+    private ImageOperations imageOperations;
+    @Mock
+    private WaveformOperations waveformOperations;
+    @Mock
+    private TrackPageListener listener;
     @Mock
     private Track track;
     @Mock
@@ -40,22 +43,21 @@ public class TrackPagePresenterTest {
 
     @Before
     public void setUp() throws Exception {
-        presenter = new TrackPagePresenter(imageOperations, resources);
-        presenter.setListener(listener);
+        presenter = new TrackPagePresenter(resources, imageOperations, waveformOperations, listener);
         when(container.getContext()).thenReturn(Robolectric.application);
         trackView = presenter.createTrackPage(container, true);
     }
 
     @Test
     public void playingStateSetsToggleChecked() {
-        presenter.setPlayState(trackView, true);
+        presenter.setTrackPlayState(trackView, true);
 
         expect(getHolder(trackView).footerPlayToggle.isChecked()).toBeTrue();
     }
 
     @Test
     public void pausedStateSetsToggleUnchecked() {
-        presenter.setPlayState(trackView, false);
+        presenter.setTrackPlayState(trackView, false);
 
         expect(getHolder(trackView).footerPlayToggle.isChecked()).toBeFalse();
     }
@@ -104,7 +106,7 @@ public class TrackPagePresenterTest {
     public void nextOnTrackPagerNextClick() throws CreateModelException {
         populateTrackPage();
 
-        getHolder(trackView).next.performClick();
+        getHolder(trackView).nextTouch.performClick();
 
         verify(listener).onNext();
     }
@@ -113,7 +115,7 @@ public class TrackPagePresenterTest {
     public void nextOnTrackPagerPreviousClick() throws CreateModelException {
         populateTrackPage();
 
-        getHolder(trackView).previous.performClick();;
+        getHolder(trackView).previousTouch.performClick();
 
         verify(listener).onPrevious();
     }
@@ -122,7 +124,7 @@ public class TrackPagePresenterTest {
     public void footerTapOnFooterControlsClick() throws CreateModelException {
         populateTrackPage();
 
-        getHolder(trackView).footer.performClick();;
+        getHolder(trackView).footer.performClick();
 
         verify(listener).onFooterTap();
     }
@@ -131,7 +133,7 @@ public class TrackPagePresenterTest {
     public void playerCloseOnPlayerCloseClick() throws CreateModelException {
         populateTrackPage();
 
-        getHolder(trackView).close.performClick();;
+        getHolder(trackView).close.performClick();
 
         verify(listener).onPlayerClose();
     }
@@ -140,7 +142,7 @@ public class TrackPagePresenterTest {
     public void playerCloseOnPlayerBottomCloseClick() throws CreateModelException {
         populateTrackPage();
 
-        getHolder(trackView).bottomClose.performClick();;
+        getHolder(trackView).bottomClose.performClick();
 
         verify(listener).onPlayerClose();
     }
