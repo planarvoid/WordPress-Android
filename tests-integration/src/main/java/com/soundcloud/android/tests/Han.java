@@ -78,10 +78,6 @@ public class Han  {
         assertTrue("Text '" + text + "' not found", solo.waitForText(Pattern.quote(text)));
     }
 
-    public void assertVisibleText(String text, long timeout) {
-        assertTrue(solo.waitForText(text, 0, timeout, false, true));
-    }
-
     public void assertText(String text) {
         assertTrue("text " + text + " not found", solo.waitForText(text));
     }

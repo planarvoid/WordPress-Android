@@ -4,9 +4,11 @@ import com.soundcloud.android.tests.with.With;
 
 public class ToastElement {
     private final Han testDriver;
+    private final Waiter waiter;
 
     public ToastElement(Han driver) {
         testDriver = driver;
+        waiter = new Waiter(testDriver);
     };
 
     private ViewElement toastMessage() {
@@ -14,6 +16,7 @@ public class ToastElement {
     }
 
     public String getMessage() {
+        waiter.waitForTextInView(toastMessage());
         return toastMessage().getText();
     }
 

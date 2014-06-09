@@ -149,6 +149,10 @@ public class Waiter {
         solo.waitForText(text, 1, TIMEOUT, false);
     }
 
+    public void waitForTextInView(ViewElement viewElement) {
+        solo.waitForCondition(new HasTextInViewCondition(viewElement), TIMEOUT);
+    }
+
     public boolean waitForFragmentByTag(String fragment_tag) {
         return solo.waitForFragmentByTag(fragment_tag, TIMEOUT);
     }
@@ -330,6 +334,20 @@ public class Waiter {
         @Override
         public boolean isSatisfied() {
             return view.getText().equals(text);
+        }
+    }
+
+    private class HasTextInViewCondition implements Condition {
+        private final ViewElement viewElement;
+
+        public HasTextInViewCondition(ViewElement viewElement) {
+            this.viewElement = viewElement;
+
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            return !viewElement.getText().equals("") ;
         }
     }
 }

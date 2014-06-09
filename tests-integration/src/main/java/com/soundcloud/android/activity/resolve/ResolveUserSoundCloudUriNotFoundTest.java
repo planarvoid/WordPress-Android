@@ -1,7 +1,12 @@
 package com.soundcloud.android.activity.resolve;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.hamcrest.Matchers.is;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.TestConsts;
+import com.soundcloud.android.tests.ToastElement;
 
 import android.net.Uri;
 
@@ -12,6 +17,6 @@ public class ResolveUserSoundCloudUriNotFoundTest extends ResolveBaseTest {
     }
 
     public void testResolveUnknownUrlShouldShowErrorLoadingUrl() throws Exception {
-        solo.assertText(R.string.error_loading_url, DEFAULT_WAIT);
+        assertThat(new ToastElement(solo).getMessage(), is(equalToIgnoringCase("There was a problem loading that url")));
     }
 }

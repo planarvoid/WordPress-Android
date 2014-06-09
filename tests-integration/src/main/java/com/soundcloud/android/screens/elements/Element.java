@@ -11,7 +11,6 @@ public abstract class Element {
     public Element(Han solo) {
         this.solo = solo;
         this.waiter = new Waiter(solo);
-        waiter.waitForElement(getRootViewId());
     }
 
     abstract protected int getRootViewId();

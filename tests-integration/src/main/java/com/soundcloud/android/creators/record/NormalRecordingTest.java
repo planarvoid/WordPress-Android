@@ -155,7 +155,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     @SlowTest
-    public void ignore_testRecordAndRunningOutOfStorageSpace() throws Exception {
+    public void testRecordAndRunningOutOfStorageSpace() throws Exception {
         if (!applicationProperties.isRunningOnEmulator()) return;
 
         File filler = fillUpSpace(1024*1024);
@@ -171,7 +171,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
             while (getActivity().getRecorder().timeRemaining() > 10) {
                 assertState(RECORD);
                 solo.sleep(100);
-                solo.assertVisibleText("(?:\\d+|One) (?:minute|second)s? available", 100);
+                solo.findElement(With.id(R.id.chronometer)).getText().matches("(?:\\d+|One) (?:minute|second)s? available");
             }
 
             solo.assertText(R.string.record_storage_is_full);

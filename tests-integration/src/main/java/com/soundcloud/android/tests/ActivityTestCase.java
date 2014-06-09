@@ -38,14 +38,13 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
         solo = new Han(getInstrumentation());
         waiter = new Waiter(solo);
 
-        applicationProperties = new ApplicationProperties(getActivity().getResources());
 
         testCaseName = String.format("%s.%s", getClass().getName(), getName());
         LogCollector.startCollecting(testCaseName);
         Log.d("TESTSTART:", String.format("%s", testCaseName));
 
         getActivity();
-        //TODO: Why? We cannot assume that manu is always visible on startup.
+        //TODO: Why? We cannot assume that menu is always visible on startup.
         menuScreen = new MenuScreen(solo);
 
         super.setUp(); // do not move, this has to run after the above
@@ -56,6 +55,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
             .edit()
             .putBoolean("hasShot1", true)
             .commit();
+        applicationProperties = new ApplicationProperties(getActivity().getResources());
     }
 
     @Override
