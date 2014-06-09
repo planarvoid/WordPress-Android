@@ -37,6 +37,10 @@ class ViewFetcher {
         });
     }
 
+    public List<ViewElement> findElements(With with) {
+        return Lists.newArrayList(filter(getAllViewsFromScreen(), with.filter()));
+    }
+
     public ViewElement getChildAt(int index) {
         return getDirectChildViews().get(index);
     }

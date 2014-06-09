@@ -52,6 +52,10 @@ public class Han  {
         return viewFetcher.findElement(findBy);
     }
 
+    public List<ViewElement> findElements(With with) {
+        return viewFetcher.findElements(with);
+    }
+
     public void clickOnText(String text) {
         findElement(With.text(text)).click();
     }
@@ -205,16 +209,6 @@ public class Han  {
         return display.getWidth();
     }
 
-    public void dragViewHorizontally(View view, int n, int steps) {
-        int[] xy = new int[2];
-        view.getLocationOnScreen(xy);
-        drag(Math.max(xy[0], 0),
-                Math.max(Math.min(getScreenWidth(), xy[0] + n), 0),
-                xy[1],
-                xy[1],
-                steps);
-    }
-
     public void drag(float fromX, float toX, float fromY, float toY, int stepCount) {
         log("dragging: (%.2f, %.2f) -> (%.2f, %.2f) count: %d", fromX, fromY, toX, toY, stepCount);
         solo.drag(fromX, toX, fromY, toY, stepCount);
@@ -242,12 +236,12 @@ public class Han  {
         solo.waitForActivity(name.getSimpleName(), timeout);
     }
 
+
     @Deprecated
     public void waitForActivity(String name) {
         assertTrue(String.format("timeout waiting for activity %s, current=%s",
                 name, solo.getCurrentActivity()), solo.waitForActivity(name));
     }
-
 
     public View getView(int id) {
         View view = null;
@@ -282,6 +276,7 @@ public class Han  {
         return null;
     }
 
+
     public View waitForViewId(int viewId, int timeout, boolean failIfNotFound) {
         long endTime = SystemClock.uptimeMillis() + timeout;
         while (SystemClock.uptimeMillis() < endTime) {
@@ -304,7 +299,6 @@ public class Han  {
 
         return null;
     }
-
 
     public void enterText(int index, String text) {
         solo.enterText(index, text);
@@ -340,10 +334,10 @@ public class Han  {
     public void scrollToBottom(AbsListView view) {
         solo.scrollListToBottom(view);
     }
-
     public void assertTextFound(String text, boolean onlyVisible) {
         assertTrue("Text " + text + " not found", solo.searchText(text, onlyVisible));
     }
+
     public boolean searchText(String text, boolean onlyVisible) {
         return solo.searchText(text, onlyVisible);
     }

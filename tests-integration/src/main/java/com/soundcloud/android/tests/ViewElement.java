@@ -1,11 +1,13 @@
 package com.soundcloud.android.tests;
 
 import com.robotium.solo.Solo;
+import com.soundcloud.android.creators.record.TrimHandleView;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.tests.with.With;
 
 import android.content.Context;
+import android.support.v4.view.ViewPager;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewParent;
@@ -14,7 +16,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import java.awt.font.FontRenderContext;
+import java.util.List;
 
 public class ViewElement {
     private final Solo testDriver;
@@ -33,6 +35,19 @@ public class ViewElement {
     }
     public ViewElement findElement(With with) {
         return viewFetcher.findElement(with);
+    }
+
+    public List<ViewElement> findElements(With with) {
+        return viewFetcher.findElements(with);
+    }
+
+    public void dragHorizontally(int n, int steps) {
+        int[] xy = getLocation();
+        testDriver.drag(Math.max(xy[0], 0),
+                Math.max(Math.min(getScreenWidth(), xy[0] + n), 0),
+                xy[1],
+                xy[1],
+                steps);
     }
 
 //    public List<ViewElement> findElements(String textToFind) {
@@ -117,8 +132,12 @@ public class ViewElement {
         return view.getParent();
     }
 
-    public String getClassName() {
-        return view.getClass().getSimpleName();
+    public Class getViewClass() {
+        return view.getClass();
+    }
+
+    public ViewPager toViewPager() {
+        return (ViewPager)view;
     }
 
     private boolean hasDimentions() {

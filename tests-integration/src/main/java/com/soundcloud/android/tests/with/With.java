@@ -56,18 +56,17 @@ public abstract class With {
     }
 
     private static class WithClass extends With {
-        private final String classToSearch;
+        private final Class classToSearch;
 
         public WithClass(Class className) {
-            classToSearch = className.getSimpleName();
+            classToSearch = className;
         }
 
         @Override
         public Predicate<ViewElement> filter() {
             return new Predicate<ViewElement>() {
                 public boolean apply(ViewElement viewElement) {
-                    String clasa = viewElement.getClassName();
-                    return viewElement.getClassName().equals(classToSearch);
+                    return classToSearch.isAssignableFrom(viewElement.getViewClass());
                 }
             };
         }

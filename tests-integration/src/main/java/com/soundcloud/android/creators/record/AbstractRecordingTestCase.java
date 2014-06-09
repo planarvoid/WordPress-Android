@@ -323,10 +323,12 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
 
     protected void trim(double left, double right) {
         assertState(EDIT);
-        TrimHandleView leftTrim = (TrimHandleView) solo.getView(TrimHandleView.class, 0);
-        TrimHandleView rightTrim = (TrimHandleView) solo.getView(TrimHandleView.class, 1);
+        ViewElement leftTrim, rightTrim;
+        leftTrim = solo.findElements(With.className(TrimHandleView.class)).get(0);
+        rightTrim = solo.findElements(With.className(TrimHandleView.class)).get(1);
         int width = solo.getScreenWidth();
-        if (left > 0)  solo.dragViewHorizontally(leftTrim ,  (int) (width * left), 5);
-        if (right > 0) solo.dragViewHorizontally(rightTrim, -(int) (width * right), 5);
+
+        if (left > 0)  leftTrim.dragHorizontally((int) (width * left), 5);
+        if (right > 0) rightTrim.dragHorizontally(-(int) (width * right),5);
     }
 }
