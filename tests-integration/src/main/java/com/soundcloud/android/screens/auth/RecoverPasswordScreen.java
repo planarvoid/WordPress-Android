@@ -28,7 +28,7 @@ public class RecoverPasswordScreen extends Screen {
     }
 
     public void clickOkButton () {
-        testDriver.clickOnOK();
+        testDriver.clickOnText(android.R.string.ok);
     }
 
     @Override

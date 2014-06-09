@@ -3,6 +3,7 @@ package com.soundcloud.android.screens;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.R;
+import com.soundcloud.android.tests.with.With;
 
 public class EmailConfirmScreen extends Screen {
 
@@ -13,7 +14,7 @@ public class EmailConfirmScreen extends Screen {
     }
 
     public EmailOptInScreen clickConfirmLater() {
-        testDriver.clickOnText(R.string.email_confirmation_confirm_later);
+        testDriver.findElement(With.text(testDriver.getString(R.string.email_confirmation_confirm_later))).click();
         return new EmailOptInScreen(testDriver);
     }
 

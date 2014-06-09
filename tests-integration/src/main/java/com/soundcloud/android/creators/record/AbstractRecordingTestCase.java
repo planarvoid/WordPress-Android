@@ -150,7 +150,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
     protected void uploadSound(@Nullable String title, @Nullable String location, boolean isPrivate) {
         assertState(IDLE_PLAYBACK);
 
-        solo.clickOnPublish();
+        solo.clickOnText(R.string.btn_publish);
         solo.assertActivity(UploadActivity.class);
 
         if (title != null) {

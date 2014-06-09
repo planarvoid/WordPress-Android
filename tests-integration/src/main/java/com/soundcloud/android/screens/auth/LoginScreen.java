@@ -48,7 +48,7 @@ public class LoginScreen extends Screen {
     }
 
     public void clickOkButton() {
-        testDriver.clickOnOK();
+        testDriver.clickOnText(android.R.string.ok);
     }
 
     public void clickOnFBSignInButton() {
@@ -65,7 +65,7 @@ public class LoginScreen extends Screen {
     }
 
     public void selectUserFromDialog(String username) {
-        testDriver.clickOnText(username);
+        testDriver.findElement(With.text(username)).click();
         waiter.waitForActivity(OnboardActivity.class);
     }
 

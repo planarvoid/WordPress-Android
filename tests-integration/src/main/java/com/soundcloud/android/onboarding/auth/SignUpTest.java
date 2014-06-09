@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.crop.CropImageActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.tests.ActivityTestCase;
+import com.soundcloud.android.tests.with.With;
 
 import android.test.suitebuilder.annotation.Suppress;
 import android.widget.EditText;
@@ -41,8 +42,6 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
         solo.enterText(0, generateUsername());
         solo.clickOnButtonResId(R.string.btn_save);
 
-        solo.assertDialogClosed();
-
         solo.assertText(R.string.side_menu_stream);
     }
 
@@ -52,7 +51,6 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
         solo.assertText(R.string.authentication_add_info_msg);
 
         solo.clickOnButtonResId(R.string.btn_skip);
-        solo.assertDialogClosed();
 
         // Find Friends
         solo.assertText(R.string.side_menu_who_to_follow);
@@ -82,7 +80,7 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
             solo.assertTextFound(solo.getString(R.string.add_image), true);
 
             // clear image
-            solo.clickLongOnView(R.id.artwork);
+            solo.findElement(With.id(R.id.artwork)).longClick();
             solo.assertText(R.string.add_image);
         }
     }
@@ -107,7 +105,7 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
             solo.assertTextFound(solo.getString(R.string.add_image), true);
 
             // clear image
-            solo.clickLongOnView(R.id.artwork);
+            solo.findElement(With.id(R.id.artwork)).longClick();
             solo.assertText(R.string.add_image);
         }
     }
@@ -136,7 +134,6 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
         solo.assertText(R.string.authentication_add_info_msg);
 
         solo.clickOnButtonResId(R.string.btn_skip);
-        solo.assertDialogClosed();
 
         // Find Friends
         solo.assertText(R.string.side_menu_who_to_follow);
@@ -150,7 +147,7 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
         performSignup(email, "password");
 
         solo.assertText(R.string.authentication_signup_error_message);
-        solo.clickOnOK();
+        solo.clickOnText(android.R.string.ok);
     }
 
     public void ignore_testSignupWithTooShortPassword() throws Exception {
@@ -232,7 +229,7 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
         solo.typeText(emailField, email);
         solo.assertText(email);
 
-        solo.enterText((EditText) solo.getView(R.id.txt_choose_a_password), password);
+        solo.findElement(With.id(R.id.txt_choose_a_password)).typeText(password);
         solo.clickOnButtonResId(R.string.done);
     }
 }

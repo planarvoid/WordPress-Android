@@ -10,11 +10,13 @@ import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.PlaylistScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 
 public class PlaylistDetails extends ActivityTestCase<LauncherActivity> {
 
     private PlaylistDetailsScreen playlistDetailsScreen;
+    private PlaylistScreen playlistScreen;
 
     public PlaylistDetails() {
         super(LauncherActivity.class);
@@ -31,10 +33,9 @@ public class PlaylistDetails extends ActivityTestCase<LauncherActivity> {
         waiter.waitForContentAndRetryIfLoadingFailed();
 
         waiter.waitForItemCountToIncrease(solo.getCurrentListView().getAdapter(),0);
-        menuScreen.open().clickPlaylist();
+        playlistScreen = menuScreen.open().clickPlaylist();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        solo.clickInList(0);
-
+        playlistScreen.clickPlaylistAt(0);
         playlistDetailsScreen = new PlaylistDetailsScreen(solo);
     }
 

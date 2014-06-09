@@ -19,19 +19,19 @@ public class MenuScreenTablet extends MenuScreen{
 
     @Override
     public ExploreScreen clickExplore() {
-        solo.clickOnText(explore_selector);
+        exploreMenuItem().click();
         return new ExploreScreen(solo);
     }
 
     @Override
     public LikesScreen clickLikes() {
-        solo.clickOnText(likes_selector);
+        likesMenuItem().click();
         return new LikesScreen(solo);
     }
 
     @Override
     public PlaylistScreen clickPlaylist() {
-        solo.clickOnText(playlist_selector);
+        playlistsMenuItem().click();
         return new PlaylistScreen(solo);
     }
 

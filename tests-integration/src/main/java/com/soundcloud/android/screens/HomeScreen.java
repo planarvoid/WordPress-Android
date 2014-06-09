@@ -34,7 +34,7 @@ public class HomeScreen extends Screen {
     }
 
     private ViewElement signUpButton() {
-        return testDriver.findElement(With.id(R.id.btn_signup));
+        return bottomBar().findElement(With.id(R.id.signup_btn));
     }
 
     private ViewElement logInButton() {

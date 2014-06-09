@@ -45,7 +45,7 @@ public class SuggestedUsersScreen extends Screen {
     public SuggestedUsersCategoryScreen rockOut(){
         // TODO : do not click on text, but rather listview items
         testDriver.scrollListToTop(0);
-        testDriver.clickOnText("Rock");
+        testDriver.findElement(With.text("Rock")).click();
         return new SuggestedUsersCategoryScreen(testDriver);
     }
 
@@ -66,7 +66,7 @@ public class SuggestedUsersScreen extends Screen {
     }
 
     public SuggestedUsersCategoryScreen goToFacebook() {
-        testDriver.clickOnText("Facebook");
+        testDriver.findElement(With.text("Facebook")).click();
         return new SuggestedUsersCategoryScreen(testDriver);
     }
 

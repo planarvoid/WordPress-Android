@@ -55,7 +55,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         solo.clickOnText(R.string.btn_revert_to_original);
         solo.assertText(R.string.dialog_revert_recording_message);
-        solo.clickOnOK();
+        solo.clickOnText(android.R.string.ok);
 
         assertState(IDLE_PLAYBACK);
     }
@@ -68,7 +68,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         solo.clickOnText(R.string.delete);
         solo.assertText(R.string.dialog_confirm_delete_recording_message);
-        solo.clickOnOK();
+        solo.clickOnText(android.R.string.ok);
         assertState(IDLE_RECORD);
     }
 
@@ -76,7 +76,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         record(recordingTime);
         solo.clickOnText(R.string.delete); // "Discard"
         solo.assertText(R.string.dialog_confirm_delete_recording_message); // "Are you sure you want to delete this recording?"
-        solo.clickOnOK();
+        solo.clickOnText(android.R.string.ok);
         assertState(IDLE_RECORD);
     }
 
@@ -129,7 +129,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void ignore_testRecordAndUploadThenRecordAnotherSound() throws Exception {
         record(recordingTime);
 
-        solo.clickOnPublish();
+        solo.clickOnText(R.string.btn_publish);
         solo.assertActivity(UploadActivity.class);
 
         solo.clickOnText(R.string.record_another_sound);
@@ -141,7 +141,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void ignore_testRecordAndUploadThenGoBack() throws Exception {
         record(recordingTime);
 
-        solo.clickOnPublish();
+        solo.clickOnText(R.string.btn_publish);
         solo.assertActivity(UploadActivity.class);
 
         solo.goBack();
@@ -268,7 +268,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         Recording r = getActivity().getRecorder().getRecording();
 
-        solo.clickOnPublish();
+        solo.clickOnText(R.string.btn_publish);
         solo.assertActivity(UploadActivity.class);
 
         long tstamp = System.currentTimeMillis();
@@ -322,7 +322,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void ignore_testRecordAndLoadAndAppend() throws Exception {
         record(recordingTime);
 
-        solo.clickOnPublish();
+        solo.clickOnText(R.string.btn_publish);
 
         long id = System.currentTimeMillis();
         final String name = "A test upload " + id;

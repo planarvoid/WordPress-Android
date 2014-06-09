@@ -15,6 +15,7 @@ import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.FacebookWebFlowActivity;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.MenuScreen;
+import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
 import com.soundcloud.android.tests.AccountAssistant;
@@ -33,6 +34,7 @@ public class LoginFlowTest extends LoginTestCase {
     private FBWebViewScreen FBWebViewScreen;
     private HomeScreen homeScreen;
     private Waiter waiter;
+    private Screen mainScreen;
 
     @Override
     public void setUp() throws Exception {
@@ -123,9 +125,9 @@ public class LoginFlowTest extends LoginTestCase {
 
         FBWebViewScreen.typePassword(scAccount.getPassword());
         FBWebViewScreen.typeEmail(scAccount.getEmail());
-        FBWebViewScreen.submit();
+        mainScreen = FBWebViewScreen.submit();
         menuScreen.open();
-        
+
         assertEquals(scAccount.getUsername(), menuScreen.getUserName());
     }
 
@@ -178,7 +180,6 @@ public class LoginFlowTest extends LoginTestCase {
         recoveryScreen.typeEmail("some-email-" + System.currentTimeMillis() + "@baz" + System.currentTimeMillis() + ".com");
         recoveryScreen.clickOkButton();
 
-        solo.assertDialogClosed();
         solo.assertText(R.string.authentication_recover_password_failure_reason, "Unknown Email Address");
     }
 

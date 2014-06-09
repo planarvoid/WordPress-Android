@@ -4,12 +4,17 @@ package com.soundcloud.android.screens.elements;
 import static junit.framework.Assert.assertEquals;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlaylistResultsScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.with.With;
 
+import android.os.Build;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.AutoCompleteTextView;
 
 import java.util.List;
@@ -28,12 +33,20 @@ public class ActionBarElement extends Element {
     }
 
     public void clickHomeButton() {
-        solo.clickOnActionBarHomeButton();
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
+            solo.clickOnActionBarHomeButton();
+        } else {
+            solo.findElement(With.id(R.id.up)).click();
+        }
     }
 
     public PlaylistTagsScreen clickSearchButton() {
         waiter.waitForElement(SEARCH_SELECTOR);
-        solo.clickOnActionBarItem(SEARCH_SELECTOR);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
+            solo.clickOnActionBarItem(SEARCH_SELECTOR);
+        } else {
+            solo.findElement(With.id(SEARCH_SELECTOR)).click();
+        }
         return new PlaylistTagsScreen(solo);
     }
 
@@ -50,23 +63,23 @@ public class ActionBarElement extends Element {
     }
 
     public String getSearchQuery() {
-        return getSearchView().getText().toString();
+        return searchInputField().getText().toString();
     }
 
     public void setSearchQuery(final String query) {
-        solo.typeText(getSearchView(), query);
+        searchInputField().typeText(query);
     }
 
-    private AutoCompleteTextView getSearchView() {
+    private ViewElement searchInputField() {
         waiter.waitForElement(AutoCompleteTextView.class);
         solo.getSolo().waitForView(AutoCompleteTextView.class);
         List<AutoCompleteTextView> views = solo.getSolo().getCurrentViews(AutoCompleteTextView.class);
         assertEquals("Expected to find just one search view", 1, views.size());
-        return views.get(0);
+        return new ViewElement(views.get(0), solo.getSolo());
     }
 
     public PlaylistTagsScreen dismissSearch() {
-        solo.clearEditText(getSearchView());
+        searchInputField().clearText();
         return new PlaylistTagsScreen(solo);
     }
 

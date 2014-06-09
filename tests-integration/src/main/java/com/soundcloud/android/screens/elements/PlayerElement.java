@@ -36,7 +36,6 @@ public class PlayerElement extends Element {
     }
 
     private ViewElement previousPageArea() {
-        //TODO: this is an invisible view, wonder how it's gonna work with new driver
         return solo.findElement(With.id(R.id.track_page_previous));
     }
 
@@ -49,7 +48,6 @@ public class PlayerElement extends Element {
     }
 
     private ViewElement nextPageArea(){
-        //TODO: this is an invisible view, wonder how it's gonna work with new driver
         return solo.findElement(With.id(R.id.track_page_next));
     }
 

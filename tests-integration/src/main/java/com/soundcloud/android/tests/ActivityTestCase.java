@@ -36,7 +36,6 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
     @Override
     protected void setUp() throws Exception {
         solo = new Han(getInstrumentation());
-        menuScreen = new MenuScreen(solo);
         waiter = new Waiter(solo);
 
         applicationProperties = new ApplicationProperties(getActivity().getResources());
@@ -46,8 +45,11 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
         Log.d("TESTSTART:", String.format("%s", testCaseName));
 
         getActivity();
+        //TODO: Why? We cannot assume that manu is always visible on startup.
+        menuScreen = new MenuScreen(solo);
 
         super.setUp(); // do not move, this has to run after the above
+
 
         getInstrumentation().getContext()
             .getSharedPreferences("showcase_internal", Context.MODE_PRIVATE)

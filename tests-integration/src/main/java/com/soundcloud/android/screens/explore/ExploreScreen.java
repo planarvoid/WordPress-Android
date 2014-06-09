@@ -53,7 +53,7 @@ public class ExploreScreen extends Screen {
     }
 
     public ExploreGenreCategoryScreen clickGenreItem(String genreName) {
-        testDriver.clickOnText(genreName, true);
+        testDriver.clickOnText(genreName);
         waiter.waitForContentAndRetryIfLoadingFailed();
         return new ExploreGenreCategoryScreen(testDriver);
     }

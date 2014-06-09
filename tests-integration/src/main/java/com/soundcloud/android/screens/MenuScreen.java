@@ -1,6 +1,7 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.screens.elements.ActionBarElement;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.Han;
@@ -8,7 +9,10 @@ import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Waiter;
 import com.soundcloud.android.tests.with.With;
 
+import android.os.Build;
+
 public class MenuScreen {
+    private final ActionBarElement actionBar;
     protected Han solo;
     protected Waiter waiter;
     protected int explore_selector = R.string.side_menu_explore;
@@ -18,6 +22,7 @@ public class MenuScreen {
 
     public MenuScreen(Han solo) {
         this.solo = solo;
+        this.actionBar = new ActionBarElement(solo);
         this.waiter = new Waiter(solo);
     }
 
@@ -25,9 +30,9 @@ public class MenuScreen {
         solo.openSystemMenu();
         solo.clickOnActionBarItem(R.id.action_settings);
         new SettingsScreen(solo);
-        solo.clickOnText(R.string.pref_revoke_access);
+        solo.findElement(With.text(solo.getString(R.string.pref_revoke_access))).click();
         solo.assertText(R.string.menu_clear_user_title);
-        solo.clickOnOK();
+        solo.clickOnText(android.R.string.ok);
         return new HomeScreen(solo);
     }
 
@@ -45,19 +50,19 @@ public class MenuScreen {
         return menuContainer().getItemAt(0);
     }
 
-    private ViewElement streamMenuItem() {
+    protected ViewElement streamMenuItem() {
         return menuContainer().getItemAt(1);
     }
 
-    private ViewElement exploreMenuItem() {
+    protected ViewElement exploreMenuItem() {
         return menuContainer().getItemAt(2);
     }
 
-    private ViewElement likesMenuItem() {
+    protected ViewElement likesMenuItem() {
         return menuContainer().getItemAt(3);
     }
 
-    private ViewElement playlistsMenuItem() {
+    protected ViewElement playlistsMenuItem() {
         return menuContainer().getItemAt(4);
     }
 
@@ -67,11 +72,12 @@ public class MenuScreen {
 
     //TODO: move this to ActionBarScreen
     public MenuScreen open() {
-        solo.getCurrentActivity().runOnUiThread(new Runnable() {
-            public void run() {
-                solo.clickOnActionBarHomeButton();
-            }
-        });
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
+            actionBar.clickHomeButton();
+        } else {
+            solo.findElement(With.id(R.id.up)).click();
+        }
+
         waiter.waitForDrawerToOpen();
         return new MenuScreen(solo);
     }

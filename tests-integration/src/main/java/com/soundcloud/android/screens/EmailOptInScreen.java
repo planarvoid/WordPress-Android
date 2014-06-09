@@ -3,6 +3,7 @@ package com.soundcloud.android.screens;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.R;
+import com.soundcloud.android.tests.with.With;
 
 public class EmailOptInScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
@@ -13,7 +14,9 @@ public class EmailOptInScreen extends Screen {
     }
 
     public HomeScreen clickNo() {
-        testDriver.clickOnText(R.string.optin_no);
+        String text = testDriver.getCurrentActivity().getString(R.string.optin_no);
+        testDriver.findElement(With.text(text)).click();
+
         return new HomeScreen(testDriver);
     }
 

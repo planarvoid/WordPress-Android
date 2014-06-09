@@ -8,7 +8,6 @@ import static junit.framework.Assert.fail;
 import com.robotium.solo.By;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
-import com.soundcloud.android.R;
 import com.soundcloud.android.tests.with.With;
 import junit.framework.AssertionFailedError;
 
@@ -53,38 +52,21 @@ public class Han  {
         return viewFetcher.findElement(findBy);
     }
 
-    public void clickOnOK() {
-        clickOnText(getString(android.R.string.ok));
+    public void clickOnText(String text) {
+        findElement(With.text(text)).click();
     }
 
-    public void clickOnPublish() {
-        clickOnButtonResId(R.string.btn_publish);
+    public void clickOnText(int stringId) {
+        String text = getString(stringId);
+        findElement(With.text(text)).click();
     }
 
     public void clearTextInWebElement(By by) {
         solo.clearTextInWebElement(by);
     }
 
-    public void clickOnText(int resId) {
-        clickOnText(getString(resId));
-    }
-
-    public void clickOnText(String text) {
-        solo.clickOnText(text);
-    }
-
-    public void clickOnText(String text, boolean scroll) {
-        solo.clickOnText(text, 1, true);
-    }
-
     public void sendKey(int key) {
         solo.sendKey(key);
-    }
-
-    public void clickLongOnView(int resId) {
-        View view = solo.getCurrentActivity().findViewById(resId);
-        assertNotNull(view);
-        solo.clickLongOnView(view);
     }
 
     public void assertText(int resId, Object... args) {
@@ -140,11 +122,6 @@ public class Han  {
         Activity a = solo.getCurrentActivity();
         assertNotNull("activity is null", a);
         assertTrue("Activity "+a+" not finished", a.isFinishing());
-    }
-
-    public void assertDialogClosed() {
-        // TODO: replace with more intelligent checks
-        //assertTrue(waitForDialogToClose(DEFAULT_TIMEOUT));
     }
 
     public void clickOnButtonResId(int resId) {
@@ -333,10 +310,6 @@ public class Han  {
         solo.enterText(index, text);
     }
 
-    public void enterText(EditText editText, String text) {
-        solo.enterText(editText, text);
-    }
-
     public void finishOpenedActivities() {
         solo.finishOpenedActivities();
     }
@@ -357,10 +330,6 @@ public class Han  {
 
     public Activity getCurrentActivity() {
         return solo.getCurrentActivity();
-    }
-
-    public boolean isToggleButtonChecked(String text) {
-        return solo.isToggleButtonChecked(text);
     }
 
     public boolean scrollListToTop(int index) {
@@ -407,10 +376,6 @@ public class Han  {
         return solo.waitForCondition(condition, timeout);
     }
 
-    public List<TextView> clickInList(int item) {
-        return solo.clickInList(item);
-    }
-
     public void waitForDialogToClose(long timeout) {
         solo.waitForDialogToClose(timeout);
     }
@@ -441,5 +406,4 @@ public class Han  {
         }
         return canHideKeyboard;
     }
-
 }

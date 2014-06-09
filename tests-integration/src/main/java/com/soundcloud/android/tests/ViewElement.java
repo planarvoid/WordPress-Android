@@ -50,9 +50,14 @@ public class ViewElement {
         testDriver.clickOnView(view);
     }
 
+    public void longClick() {
+        testDriver.clickLongOnView(view);
+    }
+
     public void typeText(String text) {
         testDriver.typeText((EditText) view, text);
     }
+
     public void clearText() {
         testDriver.clearEditText((EditText) view);
     }
@@ -105,7 +110,7 @@ public class ViewElement {
     }
 
     public boolean isTextView() {
-        return (view instanceof TextView);
+        return (TextView.class.isAssignableFrom(view.getClass()));
     }
 
     public ViewParent getParent() {
