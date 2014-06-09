@@ -183,7 +183,7 @@ public class LoginFlowTest extends LoginTestCase {
         recoveryScreen.typeEmail("some-email-" + System.currentTimeMillis() + "@baz" + System.currentTimeMillis() + ".com");
         recoveryScreen.clickOkButton();
 
-        String message = solo.getString(R.string.authentication_recover_password_failure_reason);
+        String message = solo.getString(R.string.authentication_recover_password_failure_reason, "Unknown Email Address");
         assertThat(new ToastElement(solo).getMessage(), is(equalToIgnoringCase(message)));
     }
 
