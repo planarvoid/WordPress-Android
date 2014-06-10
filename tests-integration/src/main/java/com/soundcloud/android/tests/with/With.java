@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.with;
 
+import android.view.View;
 import com.google.common.base.Predicate;
 import com.soundcloud.android.tests.ViewElement;
 
@@ -46,19 +47,16 @@ public abstract class With {
         public Predicate<ViewElement> filter() {
             return new Predicate<ViewElement>() {
                 public boolean apply(ViewElement viewElement) {
-                    if (viewElement.isTextView()) {
-                        return viewElement.getText().equals(searchedText);
-                    }
-                    return false;
+                    return viewElement.getText().equals(searchedText);
                 }
             };
         }
     }
 
     private static class WithClass extends With {
-        private final Class classToSearch;
+        private final Class<? extends View> classToSearch;
 
-        public WithClass(Class className) {
+        public WithClass(Class<? extends View> className) {
             classToSearch = className;
         }
 
