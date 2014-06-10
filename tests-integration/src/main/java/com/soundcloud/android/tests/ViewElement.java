@@ -1,7 +1,6 @@
 package com.soundcloud.android.tests;
 
 import com.robotium.solo.Solo;
-import com.soundcloud.android.creators.record.TrimHandleView;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.tests.with.With;
@@ -50,10 +49,6 @@ public class ViewElement {
                 steps);
     }
 
-//    public List<ViewElement> findElements(String textToFind) {
-//        return viewFetcher.findElements(textToFind);
-//    }
-
     public ViewElement getChildAt(int index) {
         return viewFetcher.getChildAt(index);
     }
@@ -78,12 +73,15 @@ public class ViewElement {
     }
 
     public boolean isVisible(){
-        return view != null && isShown() && hasVisibility() && hasDimentions() && isOnScreen();
+        return view != null && isShown() && hasVisibility() && hasDimensions() && isOnScreen();
     }
 
     public String getText() {
-        if (view == null) return "";
-        return ((TextView) view).getText().toString();
+        if (view instanceof TextView) {
+          return ((TextView) view).getText().toString();
+        }  else {
+          return "";
+        }
     }
 
     public int getHeight() {
@@ -140,7 +138,7 @@ public class ViewElement {
         return (ViewPager)view;
     }
 
-    private boolean hasDimentions() {
+    private boolean hasDimensions() {
         return getHeight() > 0 && getWidth() > 0 ;
     }
 
