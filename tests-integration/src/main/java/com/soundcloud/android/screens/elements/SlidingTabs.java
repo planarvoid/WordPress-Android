@@ -1,15 +1,12 @@
 package com.soundcloud.android.screens.elements;
 
-import com.robotium.solo.Solo;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 public class SlidingTabs {
-    private final Solo testDriver;
     private final ViewElement tabsStrip;
 
-    public SlidingTabs(ViewElement parentView, Solo driver) {
-        testDriver = driver;
+    public SlidingTabs(ViewElement parentView) {
         tabsStrip = parentView.getChildAt(0);
     }
 

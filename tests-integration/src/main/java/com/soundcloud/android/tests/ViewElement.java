@@ -107,7 +107,7 @@ public class ViewElement {
     }
 
     public SlidingTabs toSlidingTabs() {
-        return new SlidingTabs(this, testDriver);
+        return new SlidingTabs(this);
     }
 
     public boolean isEnabled() {
