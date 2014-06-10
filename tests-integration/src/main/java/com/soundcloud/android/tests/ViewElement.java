@@ -22,16 +22,13 @@ public class ViewElement {
     private final View view;
     private ViewFetcher viewFetcher;
 
-    public ViewElement(View element, Solo driver) {
+    public ViewElement(View view, Solo driver) {
+        if (view == null) throw new IllegalArgumentException("viewElement cannot be null");
         testDriver = driver;
-        view = element;
         viewFetcher = new ViewFetcher(view, driver);
+        this.view = view;
     }
 
-    public ViewElement(Solo driver){
-        testDriver = driver;
-        view = null;
-    }
     public ViewElement findElement(With with) {
         return viewFetcher.findElement(with);
     }
@@ -55,7 +52,7 @@ public class ViewElement {
 
     public void click() {
         if( !isVisible() ) {
-            throw new Error("View is not visible, cannot click it!");
+            throw new ViewNotVisibleException();
         }
         testDriver.clickOnView(view);
     }
@@ -73,7 +70,7 @@ public class ViewElement {
     }
 
     public boolean isVisible(){
-        return view != null && isShown() && hasVisibility() && hasDimensions() && isOnScreen();
+        return isShown() && hasVisibility() && hasDimensions() && isOnScreen();
     }
 
     public String getText() {
@@ -98,10 +95,6 @@ public class ViewElement {
         return locationOnScreen;
     }
 
-    public View getView() {
-        return view;
-    }
-
     public ListElement toListView() {
         return new ListElement(view, testDriver);
     }
@@ -120,10 +113,6 @@ public class ViewElement {
 
     public int getId() {
         return view.getId();
-    }
-
-    public boolean isTextView() {
-        return (TextView.class.isAssignableFrom(view.getClass()));
     }
 
     public ViewParent getParent() {

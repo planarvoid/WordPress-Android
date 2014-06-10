@@ -93,9 +93,8 @@ class ViewFetcher {
                 }
                 testDriver.sleep(SMALL_TIMEOUT);
             }
-            //ToDO: ViewNotFound
-            return new ViewElement(testDriver);
-        }
 
+            throw new ViewNotFoundException(callable.toString());
+        }
     }
 }
