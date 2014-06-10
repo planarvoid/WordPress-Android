@@ -51,6 +51,9 @@ public class Han  {
         return new DefaultViewElement(view, solo);
     }
 
+
+    public ToastElement getToast() { return new ToastElement(this); }
+
     public ViewElement findElement(With findBy) {
         return viewFetcher.findElement(findBy);
     }

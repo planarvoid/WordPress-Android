@@ -24,21 +24,21 @@ public interface ViewElement {
 
     void typeText(String text);
 
-    void clearText();
+    boolean isEnabled();
+
+    boolean isChecked();
+
+    int getId();
 
     boolean isVisible();
+
+    void clearText();
 
     String getText();
 
     ListElement toListView();
 
     SlidingTabs toSlidingTabs();
-
-    boolean isEnabled();
-
-    boolean isChecked();
-
-    int getId();
 
     ViewParent getParent();
 

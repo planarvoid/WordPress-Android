@@ -6,7 +6,7 @@ public class ToastElement {
     private final Han testDriver;
     private final Waiter waiter;
 
-    public ToastElement(Han driver) {
+    ToastElement(Han driver) {
         testDriver = driver;
         waiter = new Waiter(testDriver);
     }
@@ -15,7 +15,7 @@ public class ToastElement {
         return testDriver.findElement(With.id(android.R.id.message));
     }
 
-    public String getMessage() {
+    public String getText() {
         waiter.waitForTextInView(toastMessage());
         return toastMessage().getText();
     }

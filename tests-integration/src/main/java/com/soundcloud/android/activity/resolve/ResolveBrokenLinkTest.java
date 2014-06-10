@@ -7,8 +7,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.screens.MainScreen;
-import com.soundcloud.android.tests.ToastElement;
-import com.soundcloud.android.tests.ViewElement;
 
 import android.net.Uri;
 
@@ -22,8 +20,8 @@ public class ResolveBrokenLinkTest extends ResolveBaseTest {
     public void ignoretestShouldResolveBrokenLinks() {
         assertThat(new MainScreen(solo), is(Visible()));
     }
-    
+
     public void testShouldResolveBrokenLinks() {
-        assertThat(new ToastElement(solo).getMessage(), is(equalToIgnoringCase("There was a problem loading that url")));
+        assertThat(solo.getToast().getText(), is(equalToIgnoringCase("There was a problem loading that url")));
     }
 }

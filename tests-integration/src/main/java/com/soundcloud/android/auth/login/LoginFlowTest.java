@@ -19,7 +19,6 @@ import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
 import com.soundcloud.android.tests.AccountAssistant;
-import com.soundcloud.android.tests.ToastElement;
 import com.soundcloud.android.tests.Waiter;
 
 import android.webkit.WebView;
@@ -184,7 +183,7 @@ public class LoginFlowTest extends LoginTestCase {
         recoveryScreen.clickOkButton();
 
         String message = solo.getString(R.string.authentication_recover_password_failure_reason, "Unknown Email Address");
-        assertThat(new ToastElement(solo).getMessage(), is(equalToIgnoringCase(message)));
+        assertThat(solo.getToast().getText(), is(equalToIgnoringCase(message)));
     }
 
     /*
@@ -198,6 +197,6 @@ public class LoginFlowTest extends LoginTestCase {
         loginScreen.clickOkButton();
 
         String message = solo.getString(R.string.authentication_error_incomplete_fields);
-        assertThat(new ToastElement(solo).getMessage(), is(equalToIgnoringCase(message)));
+        assertThat(solo.getToast().getText(), is(equalToIgnoringCase(message)));
     }
 }
