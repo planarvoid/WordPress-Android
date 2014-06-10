@@ -294,18 +294,11 @@ public class SoundCloudApplication extends Application {
     private static void setupStrictMode() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.FROYO) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                    //.detectDiskReads()
-                    //.detectDiskWrites()
-                    //.detectNetwork()
-                    //.penaltyLog()
                     .detectAll()
                     .penaltyLog()
                     .build());
 
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                    //.detectLeakedSqlLiteObjects()
-                    //.penaltyLog()
-                    //.penaltyDeath()
                     .detectAll()
                     .penaltyLog()
                     .build());
