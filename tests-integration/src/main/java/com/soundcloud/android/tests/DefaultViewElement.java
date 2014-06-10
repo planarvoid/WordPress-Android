@@ -91,22 +91,6 @@ public class DefaultViewElement implements ViewElement {
         }
     }
 
-    @Override
-    public int getHeight() {
-        return view.getHeight();
-    }
-
-    @Override
-    public int getWidth() {
-        return view.getWidth();
-    }
-
-    @Override
-    public int[] getLocation() {
-        int[] locationOnScreen = new int [2];
-        view.getLocationOnScreen(locationOnScreen);
-        return locationOnScreen;
-    }
 
     @Override
     public ListElement toListView() {
@@ -152,6 +136,14 @@ public class DefaultViewElement implements ViewElement {
         return getHeight() > 0 && getWidth() > 0 ;
     }
 
+    private int getHeight() {
+        return view.getHeight();
+    }
+
+    private int getWidth() {
+        return view.getWidth();
+    }
+
     private boolean isShown() {
         return view.isShown();
     }
@@ -161,6 +153,12 @@ public class DefaultViewElement implements ViewElement {
                 getLocation()[0] <= getScreenWidth() &&
                 getLocation()[1] >= 0 &&
                 getLocation()[1] <= getScreenHeight();
+    }
+
+    private int[] getLocation() {
+        int[] locationOnScreen = new int [2];
+        view.getLocationOnScreen(locationOnScreen);
+        return locationOnScreen;
     }
 
     //TODO: Move this to Device class

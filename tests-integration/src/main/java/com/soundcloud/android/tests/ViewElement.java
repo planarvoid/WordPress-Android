@@ -30,12 +30,6 @@ public interface ViewElement {
 
     String getText();
 
-    int getHeight();
-
-    int getWidth();
-
-    int[] getLocation();
-
     ListElement toListView();
 
     SlidingTabs toSlidingTabs();

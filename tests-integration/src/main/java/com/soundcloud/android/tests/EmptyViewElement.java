@@ -61,21 +61,6 @@ public class EmptyViewElement implements ViewElement {
     }
 
     @Override
-    public int getHeight() {
-        return 0;
-    }
-
-    @Override
-    public int getWidth() {
-        return 0;
-    }
-
-    @Override
-    public int[] getLocation() {
-        return new int[] {0,0};
-    }
-
-    @Override
     public ListElement toListView() {
         throw new ViewNotFoundException();
     }
