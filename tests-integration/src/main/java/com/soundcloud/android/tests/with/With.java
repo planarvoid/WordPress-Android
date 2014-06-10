@@ -1,10 +1,11 @@
 package com.soundcloud.android.tests.with;
 
-import android.view.View;
 import com.google.common.base.Predicate;
 import com.soundcloud.android.tests.ViewElement;
 
-public abstract class With {
+import android.view.View;
+
+public abstract class With implements Predicate<ViewElement> {
     public static With id(int viewId) {
         return new WithId(viewId);
     }
@@ -13,11 +14,11 @@ public abstract class With {
         return new WithText(text);
     }
 
-    public static With className (Class classToSearch) {
+    public static With className (Class<? extends View> classToSearch) {
         return new WithClass(classToSearch);
     }
 
-    public abstract Predicate<ViewElement> filter();
+    public abstract boolean apply(ViewElement input);
 
     static class WithId extends With {
         private final int viewId;
@@ -26,13 +27,9 @@ public abstract class With {
             viewId = id;
         }
 
-        public Predicate filter() {
-            return new Predicate<ViewElement>() {
-                @Override
-                public boolean apply(ViewElement viewElement) {
-                    return viewElement.getId() == viewId;
-                }
-            };
+        @Override
+        public boolean apply(ViewElement viewElement) {
+            return viewElement.getId() == viewId;
         }
     }
 
@@ -44,12 +41,8 @@ public abstract class With {
         }
 
         @Override
-        public Predicate<ViewElement> filter() {
-            return new Predicate<ViewElement>() {
-                public boolean apply(ViewElement viewElement) {
-                    return viewElement.getText().equals(searchedText);
-                }
-            };
+        public boolean apply(ViewElement viewElement) {
+            return viewElement.getText().equals(searchedText);
         }
     }
 
@@ -61,12 +54,8 @@ public abstract class With {
         }
 
         @Override
-        public Predicate<ViewElement> filter() {
-            return new Predicate<ViewElement>() {
-                public boolean apply(ViewElement viewElement) {
-                    return classToSearch.isAssignableFrom(viewElement.getViewClass());
-                }
-            };
+        public boolean apply(ViewElement viewElement) {
+            return classToSearch.isAssignableFrom(viewElement.getViewClass());
         }
     }
 }

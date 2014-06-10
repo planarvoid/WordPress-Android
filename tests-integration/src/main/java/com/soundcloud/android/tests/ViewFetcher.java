@@ -31,13 +31,13 @@ class ViewFetcher {
         return waiter.waitForElement(new Callable<List<ViewElement>>() {
             @Override
             public List<ViewElement> call() throws Exception {
-                return Lists.newArrayList(filter(getAllVisibleElements(), with.filter()));
+                return Lists.newArrayList(filter(getAllVisibleElements(), with));
             }
         });
     }
 
     public List<ViewElement> findElements(With with) {
-        return Lists.newArrayList(filter(getAllViewsFromScreen(), with.filter()));
+        return Lists.newArrayList(filter(getAllViewsFromScreen(), with));
     }
 
     public ViewElement getChildAt(int index) {
