@@ -37,11 +37,6 @@ public class PullToRefreshController {
         this.wrapper = wrapper;
     }
 
-    @Deprecated
-    public PullToRefreshController(EventBus eventBus) {
-        this(eventBus, new PullToRefreshWrapper());
-    }
-
     @Deprecated // this will become a private method once ScListFragment gets removed
     public void onViewCreated(FragmentActivity activity, PullToRefreshLayout pullToRefreshLayout, OnRefreshListener listener) {
         wrapper.attach(activity, pullToRefreshLayout, listener);
