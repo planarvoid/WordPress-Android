@@ -13,7 +13,6 @@ import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.with.With;
-import com.soundcloud.android.view.SlidingTabLayout;
 
 import android.view.View;
 import android.widget.ListAdapter;
@@ -59,11 +58,6 @@ public class SearchResultsScreen extends Screen {
         return new PlaylistTagsScreen(testDriver);
     }
 
-    public void touchAllTab() {
-        touchTab(ALL_TAB_TEXT);
-        waiter.waitForContentAndRetryIfLoadingFailed();
-    }
-
     public void touchTracksTab() {
         touchTab(TRACKS_TAB_TEXT);
         waiter.waitForContentAndRetryIfLoadingFailed();
@@ -99,10 +93,6 @@ public class SearchResultsScreen extends Screen {
         return new ViewPagerElement(testDriver);
     }
 
-    private SlidingTabLayout getViewPagerIndicator() {
-        return (SlidingTabLayout) testDriver.getView(R.id.sliding_tabs);
-    }
-
     public int getResultItemCount() {
         waiter.waitForItemCountToIncrease(resultsList().getAdapter(), 0);
         return resultsList().getAdapter().getCount();
@@ -110,10 +100,6 @@ public class SearchResultsScreen extends Screen {
 
     private ListView resultsList() {
         return (ListView) getViewPager().getCurrentPage(ListView.class);
-    }
-
-    private ViewPagerElement viewPagerElement() {
-        return new ViewPagerElement(testDriver);
     }
 
     private View getFirstResultsItemByClass(Class itemClass) {

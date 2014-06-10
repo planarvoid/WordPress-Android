@@ -5,15 +5,11 @@ import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.with.With;
 import com.soundcloud.android.view.SafeViewPager;
 
-import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.Display;
 import android.view.View;
-import android.view.WindowManager;
 
 public class ViewPagerElement extends Element {
-    private final static int MAX_VIEWS = 3;
     private ViewPager viewPager;
 
     public ViewPagerElement(Han solo) {
@@ -63,18 +59,6 @@ public class ViewPagerElement extends Element {
         return viewPager.getAdapter();
     }
 
-    private int getAllPages() {
-        return adapter().getCount();
-    }
-
-    private int getDisplayedPagesCount() {
-        return viewPager.getChildCount();
-    }
-
-    private int getPagesCount() {
-        return adapter().getCount();
-    }
-
     private int getX() {
         return getLocationOnScreen()[0];
     }
@@ -88,19 +72,4 @@ public class ViewPagerElement extends Element {
         viewPager.getLocationOnScreen(locationOnScreen);
         return locationOnScreen;
     }
-
-    //TODO: Move this to Device class
-    private int getScreenWidth() {
-        return getDisplay().getWidth();
-    }
-
-    private int getScreenHeight() {
-        return getDisplay().getHeight();
-    }
-
-    private Display getDisplay() {
-        return ((WindowManager) solo.getCurrentActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-    }
-
-
 }

@@ -18,8 +18,6 @@ public abstract class With implements Predicate<ViewElement> {
         return new WithClass(classToSearch);
     }
 
-    public abstract boolean apply(ViewElement input);
-
     static class WithId extends With {
         private final int viewId;
 

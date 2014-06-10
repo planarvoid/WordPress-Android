@@ -13,10 +13,6 @@ public class StreamScreen extends Screen {
         waiter.waitForFragmentByTag("stream_fragment");
     }
 
-    public void clickItemAt(int index) {
-        streamList().getItemAt(index).click();
-    }
-
     @Override
     protected Class getActivity() {
         return ACTIVITY;

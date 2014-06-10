@@ -15,9 +15,6 @@ public class MenuScreen {
     private final ActionBarElement actionBar;
     protected Han solo;
     protected Waiter waiter;
-    protected int explore_selector = R.string.side_menu_explore;
-    protected int likes_selector = R.string.side_menu_likes;
-    protected int playlist_selector = R.string.side_menu_playlists;
     protected final int username_selector = R.id.username;
 
     public MenuScreen(Han solo) {
@@ -48,10 +45,6 @@ public class MenuScreen {
 
     protected ViewElement userProfileMenuItem() {
         return menuContainer().getItemAt(0);
-    }
-
-    protected ViewElement streamMenuItem() {
-        return menuContainer().getItemAt(1);
     }
 
     protected ViewElement exploreMenuItem() {

@@ -24,7 +24,6 @@ import android.widget.GridView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -221,12 +220,6 @@ public class Han  {
         Log.d(getClass().getSimpleName(), msg == null ? null : String.format(msg.toString(), args));
     }
 
-    public void log(View view) {
-        int[] xy = new int[2];
-        view.getLocationOnScreen(xy);
-        log("View: " + view.getClass().getSimpleName() + " loc: " + Arrays.toString(xy));
-    }
-
     public void waitForActivity(Class<? extends Activity> name) {
         waitForActivity(name.getSimpleName());
     }
@@ -234,7 +227,6 @@ public class Han  {
     public void waitForActivity(Class<? extends Activity> name, int timeout) {
         solo.waitForActivity(name.getSimpleName(), timeout);
     }
-
 
     @Deprecated
     public void waitForActivity(String name) {
@@ -365,10 +357,6 @@ public class Han  {
 
     public void waitForDialogToClose(long timeout) {
         solo.waitForDialogToClose(timeout);
-    }
-
-    public boolean waitForText(String text, int minimumNumberOfMatches, long timeout, boolean scroll) {
-        return solo.waitForText(text, minimumNumberOfMatches, timeout, scroll);
     }
 
     public void openSystemMenu() {

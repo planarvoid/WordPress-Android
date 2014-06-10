@@ -16,19 +16,7 @@ public class ListElement {
         absListView = (AbsListView)element;
     }
 
-    public void clickItemAt(int index) {
-        getItemAt(index).click();
-    }
-
     public ViewElement getItemAt(int index) {
         return new DefaultViewElement(absListView.getChildAt(index), testDriver);
-    }
-
-    public void scrollToBottom() {
-        testDriver.scrollToBottom();
-    }
-
-    public int getCount() {
-        return absListView.getAdapter().getCount();
     }
 }

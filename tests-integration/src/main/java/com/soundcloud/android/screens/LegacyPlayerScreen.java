@@ -25,11 +25,6 @@ public class LegacyPlayerScreen extends Screen {
         stopButton().click();
     }
 
-    public PlaylistDetailsScreen goBackToPlaylist() {
-        testDriver.goBack();
-        return new PlaylistDetailsScreen(testDriver);
-    }
-
     @Override
     protected Class getActivity() {
         return ACTIVITY;

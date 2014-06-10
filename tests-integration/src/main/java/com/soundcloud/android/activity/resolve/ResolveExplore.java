@@ -1,16 +1,15 @@
 package com.soundcloud.android.activity.resolve;
 
-import android.content.Intent;
-import android.net.Uri;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 
+import android.content.Intent;
+import android.net.Uri;
+
 
 //TODO: For some reason WebView kicks in before Resolver gets to play
 public class ResolveExplore extends ActivityTestCase<ResolveActivity> {
-    protected static final int DEFAULT_WAIT = 30 * 1000;
-
     public ResolveExplore() {
         super(ResolveActivity.class);
     }

@@ -35,10 +35,6 @@ public class LoginScreen extends Screen {
         return testDriver.findElement(With.id(R.id.txt_password));
     }
 
-    private ViewElement cancelButton() {
-        return testDriver.findElement(With.id(R.id.btn_cancel));
-    }
-
     private ViewElement loginButton() {
         return testDriver.findElement(With.id(R.id.btn_login));
     }
