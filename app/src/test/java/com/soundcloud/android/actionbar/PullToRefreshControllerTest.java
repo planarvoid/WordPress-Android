@@ -3,7 +3,6 @@ package com.soundcloud.android.actionbar;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.rx.RxTestHelper.singlePage;
 import static com.soundcloud.android.rx.TestObservables.MockConnectableObservable;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -15,14 +14,13 @@ import static org.mockito.Mockito.when;
 import static rx.android.OperatorPaged.Page;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.RefreshableListComponent;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,10 +29,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import rx.Subscriber;
 import rx.Subscription;
 import rx.android.OperatorPaged;
-import rx.subscriptions.Subscriptions;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
@@ -50,9 +46,9 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class PullToRefreshControllerTest {
 
-    @Mock
-    private EventBus eventBus;
+    private TestEventBus eventBus = new TestEventBus();
     private RefreshableFragment fragment = new RefreshableFragment();
+
     @Mock
     private FragmentActivity activity;
     @Mock
@@ -75,7 +71,6 @@ public class PullToRefreshControllerTest {
     public void setUp() throws Exception {
         controller = new PullToRefreshController(eventBus, wrapper);
         Robolectric.shadowOf(fragment).setActivity(activity);
-        when(eventBus.subscribe(any(EventBus.Queue.class), any(Subscriber.class))).thenReturn(Subscriptions.empty());
         when(layout.findViewById(R.id.ptr_layout)).thenReturn(layout);
         observable = TestObservables.emptyConnectableObservable(subscription);
     }
@@ -107,22 +102,10 @@ public class PullToRefreshControllerTest {
     }
 
     @Test
-    public void shouldSubscribeToPlayerUIEventWhenViewsAreCreated() {
-        EventMonitor monitor = EventMonitor.on(eventBus);
-
-        controller.onViewCreated(fragment, listener);
-
-        monitor.verifySubscribedTo(EventQueue.PLAYER_UI);
-    }
-
-    @Test
     public void shouldUnsubscribeFromEventsWhenViewsGetDestroyed() {
-        EventMonitor monitor = EventMonitor.on(eventBus);
         controller.onViewCreated(fragment, listener);
-
         controller.onDestroyView();
-
-        monitor.verifyUnsubscribed();
+        eventBus.verifyUnsubscribed();
     }
 
     @Test
@@ -149,10 +132,9 @@ public class PullToRefreshControllerTest {
 
     @Test
     public void shouldStopRefreshingWhenPlayerExpandedEventIsReceived() {
-        EventMonitor monitor = EventMonitor.on(eventBus);
         controller.onViewCreated(fragment, listener);
 
-        monitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
         verify(wrapper, times(2)).setRefreshing(false);
     }

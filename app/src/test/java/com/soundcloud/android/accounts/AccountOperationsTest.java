@@ -9,11 +9,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+import com.google.common.base.Predicate;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
@@ -21,8 +20,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
@@ -54,12 +53,13 @@ public class AccountOperationsTest {
     private static final String KEY = "key";
 
     private AccountOperations accountOperations;
+
+    private TestEventBus eventBus = new TestEventBus();
+
     @Mock
     private AccountManager accountManager;
     @Mock
     private SoundCloudTokenOperations tokenOperations;
-    @Mock
-    private EventBus eventBus;
     @Mock
     private ScModelManager modelManager;
     @Mock
@@ -77,7 +77,6 @@ public class AccountOperationsTest {
 
     @Before
     public void setUp() {
-        initMocks(this);
         accountOperations = new AccountOperations(Robolectric.application, accountManager, tokenOperations,
                 modelManager, userStorage, eventBus, new Lazy<AccountCleanupAction>() {
             @Override
@@ -216,14 +215,13 @@ public class AccountOperationsTest {
 
     @Test
     public void shouldPublishUserChangedEventIfAccountAdditionSucceeds() {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         Account account = new Account("username", SC_ACCOUNT_TYPE);
         when(user.getUsername()).thenReturn("username");
         when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
 
         accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
 
-        CurrentUserChangedEvent event = eventMonitor.verifyEventOn(EventQueue.CURRENT_USER_CHANGED);
+        final CurrentUserChangedEvent event = eventBus.lastEventOn(EventQueue.CURRENT_USER_CHANGED);
         expect(event.getKind()).toBe(CurrentUserChangedEvent.USER_UPDATED);
     }
 
@@ -434,12 +432,10 @@ public class AccountOperationsTest {
 
     @Test
     public void shouldPublishUserRemovalIfPurgingUserDataSucceeds() {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
-
         accountOperations.purgeUserData().subscribe(observer);
 
-        CurrentUserChangedEvent event = eventMonitor.verifyEventOn(EventQueue.CURRENT_USER_CHANGED);
-        assertEquals(event.getKind(), CurrentUserChangedEvent.USER_REMOVED);
+        final CurrentUserChangedEvent event = eventBus.lastEventOn(EventQueue.CURRENT_USER_CHANGED);
+        expect(event.getKind()).toBe(CurrentUserChangedEvent.USER_REMOVED);
     }
 
     @Test

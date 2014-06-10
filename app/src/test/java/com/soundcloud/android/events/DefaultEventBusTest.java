@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -14,36 +15,18 @@ import rx.Subscription;
 import rx.functions.Func1;
 
 @RunWith(SoundCloudTestRunner.class)
-public class EventBusTest {
+public class DefaultEventBusTest {
 
-    private static final EventBus.Queue<String> TEST_QUEUE = EventBus.Queue.create("test_queue_1", String.class);
-    private static final EventBus.Queue<String> TEST_BEHAVIOR_QUEUE =
-            EventBus.Queue.create("test_behavior_queue_1", String.class, "default-item");
+    private static final Queue<String> TEST_QUEUE = Queue.create("test_queue_1", String.class);
+    private static final Queue<String> TEST_BEHAVIOR_QUEUE =
+            Queue.create("test_behavior_queue_1", String.class, "default-item");
 
-    private EventBus eventBus = new EventBus();
+    private DefaultEventBus eventBus = new DefaultEventBus();
 
     @Mock
     private Observer<String> observer1;
     @Mock
     private Observer<String> observer2;
-
-    @Test
-    public void shouldCreateUniqueQueueDescriptorsBasedOnQueueName() {
-        EventBus.Queue qd1 = EventBus.Queue.create("one", String.class);
-        EventBus.Queue qd2 = EventBus.Queue.create("one", String.class);
-        EventBus.Queue qd3 = EventBus.Queue.create("two", String.class);
-
-        expect(qd1).toEqual(qd2);
-        expect(qd1.hashCode()).toEqual(qd2.hashCode());
-        expect(qd1.hashCode()).not.toEqual(qd3.hashCode());
-        expect(qd1).not.toEqual(qd3);
-    }
-
-    @Test
-    public void shouldDeriveQueueNameWhenEventTypeIsCustomType() {
-        EventBus.Queue qd = EventBus.Queue.create(Object.class);
-        expect(qd.name).toEqual("Object");
-    }
 
     @Test
     public void shouldLazilyCreateEventQueuesWhenFirstAccessingThem() {

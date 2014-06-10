@@ -6,7 +6,6 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -17,8 +16,8 @@ import com.soundcloud.android.model.UserUrn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.track.LegacyTrackOperations;
 import org.junit.Before;
@@ -35,7 +34,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     private static final UserUrn USER_URN = Urn.forUser(2L);
 
     private PlaybackSessionAnalyticsController playbackSessionAnalyticsController;
-    private EventMonitor eventMonitor;
+    private TestEventBus eventBus = new TestEventBus();
     private Track track;
 
     @Mock
@@ -45,15 +44,12 @@ public class PlaybackSessionAnalyticsControllerTest {
     @Mock
     private PlayQueueManager playQueueManager;
     @Mock
-    private EventBus eventBus;
-    @Mock
     private TrackSourceInfo trackSourceInfo;
 
     @Before
     public void setUp() throws Exception {
         playbackSessionAnalyticsController = new PlaybackSessionAnalyticsController(eventBus, trackOperations, accountOperations, playQueueManager);
         playbackSessionAnalyticsController.subscribe();
-        eventMonitor =  EventMonitor.on(eventBus);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
 
@@ -64,27 +60,27 @@ public class PlaybackSessionAnalyticsControllerTest {
 
     @Test
     public void playQueueChangedEventDoesNotPublishEventWithNoActiveSession() throws Exception {
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
-        eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
+        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
     }
 
     @Test
     public void trackChangedEventDoesNotPublishEventWithNoActiveSession() throws Exception {
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
-        eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
+        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
     }
 
     @Test
     public void stateChangeEventDoesNotPublishEventWithNoTrackUrn() throws Exception {
-        eventMonitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE));
-        eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE));
+        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
     }
 
     @Test
     public void stateChangeEventWithValidTrackUrnInPlayingStatePublishesPlayEvent() throws Exception {
         publishPlayingEvent();
 
-        PlaybackSessionEvent playbackSessionEvent = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_SESSION);
+        PlaybackSessionEvent playbackSessionEvent = eventBus.firstEventOn(EventQueue.PLAYBACK_SESSION);
         expect(playbackSessionEvent.getTrackUrn()).toEqual(TRACK_URN);
         expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
         expect(playbackSessionEvent.isStopEvent()).toBeFalse();
@@ -138,7 +134,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     public void playQueueEventForQueueChangePublishesStopEventForNewQueue() throws Exception {
         publishPlayingEvent();
 
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_NEW_QUEUE);
     }
@@ -147,7 +143,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     public void playQueueEventForTrackChangePublishesStopEventForSkip() throws Exception {
         publishPlayingEvent();
 
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_SKIP);
     }
@@ -157,28 +153,27 @@ public class PlaybackSessionAnalyticsControllerTest {
         publishPlayingEvent();
 
         track.duration = 2000;
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_SKIP);
     }
 
     protected void publishPlayingEvent() {
-        eventMonitor.monitorQueue(EventQueue.PLAYBACK_SESSION);
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
 
         final Playa.StateTransition startEvent = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE);
         startEvent.setTrackUrn(TRACK_URN);
-        eventMonitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, startEvent);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, startEvent);
     }
 
     protected void publishStopEvent(Playa.PlayaState newState, Playa.Reason reason) {
         final Playa.StateTransition stopEvent = new Playa.StateTransition(newState, reason);
         stopEvent.setTrackUrn(TRACK_URN);
-        eventMonitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, stopEvent);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stopEvent);
     }
 
     protected void verifyStopEvent(int stopReason) {
-        final PlaybackSessionEvent playbackSessionEvent = eventMonitor.verifyLastEventOn(EventQueue.PLAYBACK_SESSION);
+        final PlaybackSessionEvent playbackSessionEvent = eventBus.lastEventOn(EventQueue.PLAYBACK_SESSION);
         expect(playbackSessionEvent.getTrackUrn()).toEqual(TRACK_URN);
         expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
         expect(playbackSessionEvent.isStopEvent()).toBeTrue();

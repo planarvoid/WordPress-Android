@@ -1,21 +1,18 @@
 package com.soundcloud.android.playback.external;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -23,15 +20,12 @@ public class PlaybackActionControllerTest {
 
     private PlaybackActionController controller;
 
-    @Mock
-    private EventBus eventBus;
+    private TestEventBus eventBus = new TestEventBus();
+
     @Mock
     private PlaybackOperations playbackOperations;
     @Mock
     private PlaySessionController playSessionController;
-
-    @Captor
-    ArgumentCaptor<PlayControlEvent> captor;
 
     @Before
     public void setup() {
@@ -49,9 +43,7 @@ public class PlaybackActionControllerTest {
     public void shouldTrackPreviousEventWithSource() {
         controller.handleAction(PlaybackAction.PREVIOUS, "source");
 
-        verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
-
-        PlayControlEvent event = captor.getValue();
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
         expect(event.getAttributes().get("action")).toEqual("prev");
         expect(event.getAttributes().get("location")).toEqual("source");
     }
@@ -67,8 +59,7 @@ public class PlaybackActionControllerTest {
     public void shouldTrackSkipEventWithSource() {
         controller.handleAction(PlaybackAction.NEXT, "source");
 
-        verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
-        PlayControlEvent event = captor.getValue();
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
         expect(event.getAttributes().get("action")).toEqual("skip");
         expect(event.getAttributes().get("location")).toEqual("source");
     }
@@ -85,8 +76,7 @@ public class PlaybackActionControllerTest {
         when(playSessionController.isPlaying()).thenReturn(false);
         controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
 
-        verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
-        PlayControlEvent event = captor.getValue();
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
         expect(event.getAttributes().get("action")).toEqual("play");
         expect(event.getAttributes().get("location")).toEqual("source");
     }
@@ -96,8 +86,7 @@ public class PlaybackActionControllerTest {
         when(playSessionController.isPlaying()).thenReturn(true);
         controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
 
-        verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
-        PlayControlEvent event = captor.getValue();
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
         expect(event.getAttributes().get("action")).toEqual("pause");
         expect(event.getAttributes().get("location")).toEqual("source");
     }

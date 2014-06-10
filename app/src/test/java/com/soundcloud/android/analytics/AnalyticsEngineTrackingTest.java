@@ -17,7 +17,6 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -27,8 +26,8 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +35,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Scheduler;
-import rx.Subscription;
 import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
 
@@ -48,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(SoundCloudTestRunner.class)
 public class AnalyticsEngineTrackingTest {
     private AnalyticsEngine analyticsEngine;
-    private EventMonitor eventMonitor;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Mock
     private AnalyticsProperties analyticsProperties;
@@ -60,14 +58,9 @@ public class AnalyticsEngineTrackingTest {
     private AnalyticsProvider analyticsProviderTwo;
     @Mock
     private Scheduler scheduler;
-    @Mock
-    private EventBus eventBus;
-    @Mock
-    private Subscription eventSubscription;
 
     @Before
     public void setUp() throws Exception {
-        eventMonitor = EventMonitor.on(eventBus).withSubscription(eventSubscription);
         when(scheduler.schedule(any(Action1.class), anyLong(), any(TimeUnit.class))).thenReturn(Subscriptions.empty());
     }
 
@@ -78,7 +71,6 @@ public class AnalyticsEngineTrackingTest {
 
         initialiseAnalyticsEngine();
 
-        eventMonitor.verifyNotSubscribedTo(EventQueue.ACTIVITY_LIFE_CYCLE);
         verifyZeroInteractions(analyticsProviderOne);
         verifyZeroInteractions(analyticsProviderTwo);
     }
@@ -89,7 +81,6 @@ public class AnalyticsEngineTrackingTest {
 
         initialiseAnalyticsEngine();
 
-        eventMonitor.verifyNotSubscribedTo(EventQueue.ACTIVITY_LIFE_CYCLE);
         verifyZeroInteractions(analyticsProviderOne);
         verifyZeroInteractions(analyticsProviderTwo);
     }
@@ -101,13 +92,13 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
         // send the first event; should arrive
         final ActivityLifeCycleEvent event = ActivityLifeCycleEvent.forOnCreate(Activity.class);
-        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, event);
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, event);
 
         when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(false);
         analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingsActivity.ANALYTICS_ENABLED);
 
         // send the second event; should NOT arrive
-        eventMonitor.verifyUnsubscribed();
+        eventBus.verifyUnsubscribed();
 
         verify(analyticsProviderOne).handleActivityLifeCycleEvent(event);
         verify(analyticsProviderTwo).handleActivityLifeCycleEvent(event);
@@ -120,16 +111,14 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
         // send the first event; should not arrive
         final ActivityLifeCycleEvent event1 = ActivityLifeCycleEvent.forOnCreate(Activity.class);
-        eventMonitor.verifyNotSubscribedTo(EventQueue.ACTIVITY_LIFE_CYCLE);
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, event1);
 
         when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(true);
         analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingsActivity.ANALYTICS_ENABLED);
 
-        eventMonitor.verifySubscribedTo(EventQueue.ACTIVITY_LIFE_CYCLE);
-
         // send the second event; should arrive
         final ActivityLifeCycleEvent event2 = ActivityLifeCycleEvent.forOnCreate(Activity.class);
-        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, event2);
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, event2);
 
         verify(analyticsProviderOne, never()).handleActivityLifeCycleEvent(event1);
         verify(analyticsProviderTwo, never()).handleActivityLifeCycleEvent(event1);
@@ -161,7 +150,7 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         final CurrentUserChangedEvent event = CurrentUserChangedEvent.forLogout();
-        eventMonitor.publish(EventQueue.CURRENT_USER_CHANGED, event);
+        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, event);
 
         verify(analyticsProviderOne, times(1)).handleCurrentUserChangedEvent(event);
         verify(analyticsProviderTwo, times(1)).handleCurrentUserChangedEvent(event);
@@ -173,7 +162,7 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         final ActivityLifeCycleEvent event = ActivityLifeCycleEvent.forOnCreate(Activity.class);
-        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, event);
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, event);
 
         verify(analyticsProviderOne, times(1)).handleActivityLifeCycleEvent(event);
         verify(analyticsProviderTwo, times(1)).handleActivityLifeCycleEvent(event);
@@ -184,7 +173,7 @@ public class AnalyticsEngineTrackingTest {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
-        eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen");
+        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");
 
         verify(analyticsProviderOne, times(1)).handleScreenEvent(eq("screen"));
         verify(analyticsProviderTwo, times(1)).handleScreenEvent(eq("screen"));
@@ -198,7 +187,7 @@ public class AnalyticsEngineTrackingTest {
         PlaybackSessionEvent playbackSessionEvent = PlaybackSessionEvent.forPlay(Urn.forTrack(1L), Urn.forUser(1L),
                 Mockito.mock(TrackSourceInfo.class),123L);
 
-        eventMonitor.publish(EventQueue.PLAYBACK_SESSION, playbackSessionEvent);
+        eventBus.publish(EventQueue.PLAYBACK_SESSION, playbackSessionEvent);
 
         verify(analyticsProviderOne, times(1)).handlePlaybackSessionEvent(playbackSessionEvent);
         verify(analyticsProviderTwo, times(1)).handlePlaybackSessionEvent(playbackSessionEvent);
@@ -210,7 +199,7 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         UIEvent uiEvent = UIEvent.fromToggleFollow(true, "screen", 0);
-        eventMonitor.publish(EventQueue.UI, uiEvent);
+        eventBus.publish(EventQueue.UI, uiEvent);
 
         verify(analyticsProviderOne, times(1)).handleUIEvent(uiEvent);
         verify(analyticsProviderTwo, times(1)).handleUIEvent(uiEvent);
@@ -222,7 +211,7 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         OnboardingEvent onboardingEvent = OnboardingEvent.authComplete();
-        eventMonitor.publish(EventQueue.ONBOARDING, onboardingEvent);
+        eventBus.publish(EventQueue.ONBOARDING, onboardingEvent);
 
         verify(analyticsProviderOne, times(1)).handleOnboardingEvent(onboardingEvent);
         verify(analyticsProviderTwo, times(1)).handleOnboardingEvent(onboardingEvent);
@@ -234,7 +223,7 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         SearchEvent searchEvent = SearchEvent.searchSuggestion(Content.TRACK, true);
-        eventMonitor.publish(EventQueue.SEARCH, searchEvent);
+        eventBus.publish(EventQueue.SEARCH, searchEvent);
 
         verify(analyticsProviderOne, times(1)).handleSearchEvent(searchEvent);
         verify(analyticsProviderTwo, times(1)).handleSearchEvent(searchEvent);
@@ -246,7 +235,7 @@ public class AnalyticsEngineTrackingTest {
         initialiseAnalyticsEngine();
 
         PlayControlEvent playControlEvent = PlayControlEvent.playerClickPlay();
-        eventMonitor.publish(EventQueue.PLAY_CONTROL, playControlEvent);
+        eventBus.publish(EventQueue.PLAY_CONTROL, playControlEvent);
 
         verify(analyticsProviderOne, times(1)).handlePlayControlEvent(playControlEvent);
         verify(analyticsProviderTwo, times(1)).handlePlayControlEvent(playControlEvent);
@@ -265,13 +254,13 @@ public class AnalyticsEngineTrackingTest {
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleSearchEvent(any(SearchEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlayControlEvent(any(PlayControlEvent.class));
 
-        eventMonitor.publish(EventQueue.PLAYBACK_SESSION, PlaybackSessionEvent.forPlay(Urn.forTrack(1L), Urn.forUser(1L), mock(TrackSourceInfo.class), 123L));
-        eventMonitor.publish(EventQueue.UI, UIEvent.fromToggleFollow(true, "screen", 0));
-        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen");
-        eventMonitor.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
-        eventMonitor.publish(EventQueue.SEARCH, SearchEvent.popularTagSearch("search"));
-        eventMonitor.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerClickPlay());
+        eventBus.publish(EventQueue.PLAYBACK_SESSION, PlaybackSessionEvent.forPlay(Urn.forTrack(1L), Urn.forUser(1L), mock(TrackSourceInfo.class), 123L));
+        eventBus.publish(EventQueue.UI, UIEvent.fromToggleFollow(true, "screen", 0));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");
+        eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
+        eventBus.publish(EventQueue.SEARCH, SearchEvent.popularTagSearch("search"));
+        eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerClickPlay());
 
         verify(analyticsProviderTwo).handlePlaybackSessionEvent(any(PlaybackSessionEvent.class));
         verify(analyticsProviderTwo).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));

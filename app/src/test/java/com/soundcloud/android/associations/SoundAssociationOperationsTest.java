@@ -4,9 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,7 +13,6 @@ import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Playable;
@@ -26,6 +23,7 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,8 +42,8 @@ public class SoundAssociationOperationsTest {
 
     private SoundAssociationOperations operations;
 
-    @Mock
-    private EventBus eventBus;
+    private TestEventBus eventBus = new TestEventBus();
+
     @Mock
     private SoundAssociationStorage storage;
     @Mock
@@ -101,9 +99,10 @@ public class SoundAssociationOperationsTest {
 
         operations.like(track).subscribe(observer);
 
-        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), eventCaptor.capture());
-        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.IS_LIKED)).toBeTrue();
-        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.LIKES_COUNT)).toBeTrue();
+        PlayableChangedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
+        expect(event.getUrn()).toEqual(track.getUrn());
+        expect(event.getChangeSet().contains(PlayableProperty.IS_LIKED)).toBeTrue();
+        expect(event.getChangeSet().contains(PlayableProperty.LIKES_COUNT)).toBeTrue();
     }
 
     @Test
@@ -113,7 +112,7 @@ public class SoundAssociationOperationsTest {
         operations.like(new Track(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
-        verify(eventBus, never()).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
+        expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toBeEmpty();
     }
 
     @Test
@@ -140,9 +139,10 @@ public class SoundAssociationOperationsTest {
 
         operations.unlike(track).subscribe(observer);
 
-        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), eventCaptor.capture());
-        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.IS_LIKED)).toBeTrue();
-        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.LIKES_COUNT)).toBeTrue();
+        PlayableChangedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
+        expect(event.getUrn()).toEqual(track.getUrn());
+        expect(event.getChangeSet().contains(PlayableProperty.IS_LIKED)).toBeTrue();
+        expect(event.getChangeSet().contains(PlayableProperty.LIKES_COUNT)).toBeTrue();
     }
 
     @Test
@@ -152,7 +152,7 @@ public class SoundAssociationOperationsTest {
         operations.unlike(new Track(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
-        verify(eventBus, never()).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
+        expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toBeEmpty();
     }
 
     @Test
@@ -239,9 +239,10 @@ public class SoundAssociationOperationsTest {
 
         operations.repost(track).subscribe(observer);
 
-        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), eventCaptor.capture());
-        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.IS_REPOSTED)).toBeTrue();
-        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.REPOSTS_COUNT)).toBeTrue();
+        PlayableChangedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
+        expect(event.getUrn()).toEqual(track.getUrn());
+        expect(event.getChangeSet().contains(PlayableProperty.IS_REPOSTED)).toBeTrue();
+        expect(event.getChangeSet().contains(PlayableProperty.REPOSTS_COUNT)).toBeTrue();
     }
 
     @Test
@@ -251,7 +252,7 @@ public class SoundAssociationOperationsTest {
         operations.repost(new Track(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
-        verify(eventBus, never()).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
+        expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toBeEmpty();
     }
 
     @Test
@@ -278,9 +279,10 @@ public class SoundAssociationOperationsTest {
 
         operations.unrepost(track).subscribe(observer);
 
-        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), eventCaptor.capture());
-        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.IS_REPOSTED)).toBeTrue();
-        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.REPOSTS_COUNT)).toBeTrue();
+        PlayableChangedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
+        expect(event.getUrn()).toEqual(track.getUrn());
+        expect(event.getChangeSet().contains(PlayableProperty.IS_REPOSTED)).toBeTrue();
+        expect(event.getChangeSet().contains(PlayableProperty.REPOSTS_COUNT)).toBeTrue();
     }
 
     @Test
@@ -290,7 +292,7 @@ public class SoundAssociationOperationsTest {
         operations.unrepost(new Track(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
-        verify(eventBus, never()).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
+        expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toBeEmpty();
     }
 
     @Test

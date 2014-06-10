@@ -1,10 +1,8 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayableChangedEvent;
@@ -13,30 +11,30 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import rx.Subscription;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SoundStreamAdapterTest {
 
-    @InjectMocks
     private SoundStreamAdapter adapter;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Mock
     private TrackItemPresenter trackItemPresenter;
     @Mock
     private PlaylistItemPresenter playlistItemPresenter;
-    @Mock
-    private EventBus eventBus;
-    @Mock
-    private Subscription subscription;
+
+    @Before
+    public void setup() {
+        adapter = new SoundStreamAdapter(trackItemPresenter, playlistItemPresenter, eventBus);
+    }
 
     @Test
     public void shouldReportTwoDifferentItemViewTypes() {
@@ -57,19 +55,17 @@ public class SoundStreamAdapterTest {
 
     @Test
     public void trackChangedEventShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
-        final EventMonitor eventMonitor = EventMonitor.on(eventBus);
         final TrackUrn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playingTrack));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playingTrack));
         verify(trackItemPresenter).setPlayingTrack(playingTrack);
     }
 
     @Test
     public void newQueueEventShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
-        final EventMonitor eventMonitor = EventMonitor.on(eventBus);
         final TrackUrn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(playingTrack));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(playingTrack));
         verify(trackItemPresenter).setPlayingTrack(playingTrack);
     }
 
@@ -96,17 +92,16 @@ public class SoundStreamAdapterTest {
 
     @Test
     public void shouldUnsubscribeFromEventBusInOnDestroyView() {
-        EventMonitor.on(eventBus).withSubscription(subscription);
         adapter.onViewCreated();
         adapter.onDestroyView();
-        verify(subscription, times(2)).unsubscribe();
+        eventBus.verifyUnsubscribed();
     }
 
     private void publishPlaylistLikeEvent(long id) {
         Playlist playlist = new Playlist(id);
         playlist.user_like = true;
         playlist.likes_count = 1;
-        EventMonitor.on(eventBus).publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(playlist, true));
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(playlist, true));
     }
 
     private PropertySet buildLikedPlaylist(long id) {

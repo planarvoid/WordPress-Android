@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.rx.TestObservables.MockObservable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.verify;
@@ -14,22 +13,21 @@ import static rx.android.OperatorPaged.Page;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.PlaylistSummaryCollection;
 import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -57,6 +55,7 @@ public class PlaylistResultsFragmentTest {
     private Context context = Robolectric.application;
     private AbsListView content;
     private MockObservable<Page<PlaylistSummaryCollection>> observable;
+    private TestEventBus eventBus = new TestEventBus();
 
     @InjectMocks
     private PlaylistResultsFragment fragment;
@@ -70,8 +69,6 @@ public class PlaylistResultsFragmentTest {
     @Mock
     private ScModelManager modelManager;
     @Mock
-    private EventBus eventBus;
-    @Mock
     private EmptyView emptyView;
     @Mock
     private Subscription subscription;
@@ -80,6 +77,7 @@ public class PlaylistResultsFragmentTest {
 
     @Before
     public void setUp() throws Exception {
+        fragment.eventBus = eventBus;
         observable = TestObservables.emptyObservable(subscription);
         when(searchOperations.getPlaylistResults(anyString())).thenReturn(observable);
         when(listViewController.getEmptyView()).thenReturn(emptyView);
@@ -148,7 +146,7 @@ public class PlaylistResultsFragmentTest {
 
         fragment.onItemClick(content, null, 0, 0);
 
-        SearchEvent event = EventMonitor.on(eventBus).verifyEventOn(EventQueue.SEARCH);
+        SearchEvent event = eventBus.lastEventOn(EventQueue.SEARCH);
         expect(event.getKind()).toEqual(SearchEvent.SEARCH_RESULTS);
         expect(event.getAttributes().get("type")).toEqual("playlist");
         expect(event.getAttributes().get("context")).toEqual("tags");
@@ -159,7 +157,7 @@ public class PlaylistResultsFragmentTest {
         createFragment();
         fragment.onCreate(null);
 
-        verify(eventBus).publish(eq(EventQueue.SCREEN_ENTERED), eq(Screen.SEARCH_PLAYLIST_DISCO.get()));
+        expect(eventBus.lastEventOn(EventQueue.SCREEN_ENTERED)).toEqual(Screen.SEARCH_PLAYLIST_DISCO.get());
     }
 
     private void createFragment() {

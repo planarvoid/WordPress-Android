@@ -4,6 +4,7 @@ import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFOR
 
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.events.DefaultEventBus;
 import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.TrackUrn;
@@ -102,7 +103,7 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public EventBus provideEventBus() {
-        return new EventBus();
+        return new DefaultEventBus();
     }
 
     @Provides

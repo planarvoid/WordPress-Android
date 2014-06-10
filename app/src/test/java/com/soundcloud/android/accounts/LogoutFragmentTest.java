@@ -7,10 +7,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,9 +24,7 @@ import android.support.v4.app.FragmentActivity;
 public class LogoutFragmentTest {
 
     private LogoutFragment fragment;
-
-    @Mock
-    private EventBus eventBus;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Mock
     private AccountOperations accountOperations;
@@ -50,29 +47,20 @@ public class LogoutFragmentTest {
     }
 
     @Test
-    public void shouldSubscribeToCurrentUserChangedEventInOnCreate() {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
-        fragment.onCreate(null);
-        eventMonitor.verifySubscribedTo(EventQueue.CURRENT_USER_CHANGED);
-    }
-
-    @Test
     public void shouldUnsubscribeFromEventBusInOnDestroy() {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         fragment.onCreate(null);
         fragment.onDestroy();
-        eventMonitor.verifyUnsubscribed();
+        eventBus.verifyNoEventsOn(EventQueue.CURRENT_USER_CHANGED);
     }
 
     @Test
     public void shouldFinishActivityAndTriggerLoginOnCurrentUserRemovedEvent() {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         final FragmentActivity activity = new FragmentActivity();
         shadowOf(fragment).setActivity(activity);
 
         fragment.onCreate(null);
 
-        eventMonitor.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
+        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
         verify(accountOperations).triggerLoginFlow(activity);
         expect(activity.isFinishing()).toBeTrue();
     }

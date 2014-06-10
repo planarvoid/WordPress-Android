@@ -87,20 +87,23 @@ public class PlaySessionController {
     private class PlayStateSubscriber extends DefaultSubscriber<StateTransition> {
         @Override
         public void onNext(StateTransition stateTransition) {
-            lastStateTransition = stateTransition;
-            currentPlayingUrn = stateTransition.getTrackUrn();
 
-            audioManager.setPlaybackState(stateTransition.playSessionIsActive());
+            if (!StateTransition.DEFAULT.equals(stateTransition)){
+                lastStateTransition = stateTransition;
+                currentPlayingUrn = stateTransition.getTrackUrn();
 
-            if (stateTransition.isPlayerIdle() && !stateTransition.equals(PLAY_QUEUE_COMPLETE_EVENT)) {
-                if (stateTransition.trackEnded()) {
-                    if (playQueueManager.autoNextTrack()) {
-                        playbackOperations.playCurrent();
-                    } else {
-                        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, PLAY_QUEUE_COMPLETE_EVENT);
+                audioManager.setPlaybackState(stateTransition.playSessionIsActive());
+
+                if (stateTransition.isPlayerIdle() && !stateTransition.equals(PLAY_QUEUE_COMPLETE_EVENT)) {
+                    if (stateTransition.trackEnded()) {
+                        if (playQueueManager.autoNextTrack()) {
+                            playbackOperations.playCurrent();
+                        } else {
+                            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, PLAY_QUEUE_COMPLETE_EVENT);
+                        }
                     }
+                    saveProgress(stateTransition);
                 }
-                saveProgress(stateTransition);
             }
         }
     }

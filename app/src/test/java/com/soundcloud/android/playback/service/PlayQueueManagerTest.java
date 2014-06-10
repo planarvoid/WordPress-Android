@@ -9,8 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Playlist;
@@ -19,14 +19,11 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import dagger.Module;
-import dagger.ObjectGraph;
-import dagger.Provides;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +37,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
-import javax.inject.Inject;
+import javax.annotation.Nullable;
 import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -48,8 +45,9 @@ public class PlayQueueManagerTest {
 
     private static final String ORIGIN_PAGE = "explore:music:techno";
 
-    @Inject
-    PlayQueueManager playQueueManager;
+    private PlayQueueManager playQueueManager;
+    private TestEventBus eventBus = new TestEventBus();
+
     @Mock
     private Context context;
     @Mock
@@ -62,17 +60,12 @@ public class PlayQueueManagerTest {
     private SharedPreferences.Editor sharedPreferencesEditor;
     @Mock
     private PlayQueueOperations playQueueOperations;
-    @Mock
-    private EventBus eventBus;
-
-    private EventMonitor eventMonitor;
 
     private PlaySessionSource playSessionSource;
 
     @Before
     public void before() throws CreateModelException {
-
-        ObjectGraph.create(new TestModule()).inject(this);
+        playQueueManager = new PlayQueueManager(context, playQueueOperations, eventBus, modelManager);
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
@@ -82,8 +75,6 @@ public class PlayQueueManagerTest {
         playSessionSource  = new PlaySessionSource(ORIGIN_PAGE);
         playSessionSource.setPlaylist(playlist);
         playSessionSource.setExploreVersion("1.0");
-
-        eventMonitor = EventMonitor.on(eventBus);
     }
 
     @Test(expected = NullPointerException.class)
@@ -155,9 +146,10 @@ public class PlayQueueManagerTest {
     public void shouldPublishPlayQueueChangedEventOnSetNewPlayQueue() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
-        PlayQueueEvent playQueueEvent = eventMonitor.verifyEventOn(EventQueue.PLAY_QUEUE);
-        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.NEW_QUEUE);
-        expect(playQueueEvent.getCurrentTrackUrn()).toEqual(Urn.forTrack(playQueue.getCurrentTrackId()));
+        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).toNumber(1);
+        expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.NEW_QUEUE);
+        expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getCurrentTrackUrn())
+                .toEqual(Urn.forTrack(playQueue.getCurrentTrackId()));
     }
 
     @Test
@@ -210,11 +202,15 @@ public class PlayQueueManagerTest {
     @Test
     public void doesNotSendTrackChangeEventIfPositionSetToCurrent() throws Exception {
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 1, playSessionSource), playSessionSource);
-        Mockito.reset(eventBus);
 
         playQueueManager.setPosition(1);
 
-        eventMonitor.verifyNoEventsOn(EventQueue.PLAY_QUEUE);
+        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE, new Predicate<PlayQueueEvent>() {
+            @Override
+            public boolean apply(PlayQueueEvent event) {
+                return event.getKind() == PlayQueueEvent.TRACK_CHANGE;
+            }
+        })).toBeEmpty();
     }
 
     @Test
@@ -223,8 +219,7 @@ public class PlayQueueManagerTest {
 
         playQueueManager.setPosition(2);
 
-        PlayQueueEvent playQueueEvent = eventMonitor.verifyLastEventOn(EventQueue.PLAY_QUEUE);
-        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.TRACK_CHANGE);
+        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.TRACK_CHANGE);
     }
 
     @Test
@@ -234,8 +229,7 @@ public class PlayQueueManagerTest {
 
         playQueueManager.previousTrack();
 
-        PlayQueueEvent playQueueEvent = eventMonitor.verifyLastEventOn(EventQueue.PLAY_QUEUE);
-        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.TRACK_CHANGE);
+        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.TRACK_CHANGE);
     }
 
     @Test
@@ -254,7 +248,7 @@ public class PlayQueueManagerTest {
 
         playQueueManager.previousTrack();
 
-        eventMonitor.verifyNoEventsOn(EventQueue.PLAY_QUEUE);
+        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).toBeEmpty();
     }
 
     @Test
@@ -263,8 +257,12 @@ public class PlayQueueManagerTest {
         when(playQueue.hasNextTrack()).thenReturn(true);
         playQueueManager.nextTrack();
 
-        PlayQueueEvent playQueueEvent = eventMonitor.verifyLastEventOn(EventQueue.PLAY_QUEUE);
-        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.TRACK_CHANGE);
+        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE, new Predicate<PlayQueueEvent>() {
+            @Override
+            public boolean apply(PlayQueueEvent input) {
+                return input.getKind() == PlayQueueEvent.TRACK_CHANGE;
+            }
+        })).not.toBeEmpty();
     }
 
     @Test
@@ -328,15 +326,14 @@ public class PlayQueueManagerTest {
 
         playQueueManager.nextTrack();
 
-        eventMonitor.verifyNoEventsOn(EventQueue.PLAY_QUEUE);
+        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).toBeEmpty();
     }
 
     @Test
     public void shouldPublishPlayQueueChangedEventOnLoadPlayQueueIfNoPlayQueueStore() {
         playQueueManager.loadPlayQueue();
 
-        PlayQueueEvent playQueueEvent = eventMonitor.verifyEventOn(EventQueue.PLAY_QUEUE);
-        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.NEW_QUEUE);
+        expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.NEW_QUEUE);
     }
 
     @Test
@@ -420,8 +417,7 @@ public class PlayQueueManagerTest {
         when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(Observable.<RecommendedTracksCollection>never());
         playQueueManager.fetchRelatedTracks(123L);
 
-        PlayQueueEvent playQueueEvent = eventMonitor.verifyEventOn(EventQueue.PLAY_QUEUE);
-        expect(playQueueEvent.getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
+        expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
     }
 
     @Test
@@ -542,39 +538,5 @@ public class PlayQueueManagerTest {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).sendBroadcast(captor.capture());
         expect(captor.getValue().getAction()).toEqual(PlayQueueManager.RELATED_LOAD_STATE_CHANGED_ACTION);
-    }
-
-    @Module(library = true, injects = PlayQueueManagerTest.class)
-    class TestModule {
-        @Provides
-        Context provideContext(){
-            return context;
-        }
-
-        @Provides
-        PlayQueue provideTrackingPlayQueue(){
-            return playQueue;
-        }
-
-        @Provides
-        ScModelManager provideModelManager(){
-            return modelManager;
-        }
-
-        @Provides
-        SharedPreferences provideSharedPreferences(){
-            return sharedPreferences;
-        }
-
-        @Provides
-        PlayQueueOperations providePlayQueueOperations(){
-            return playQueueOperations;
-        }
-
-        @Provides
-        EventBus provideEventBus() {
-            return eventBus;
-        }
-
     }
 }

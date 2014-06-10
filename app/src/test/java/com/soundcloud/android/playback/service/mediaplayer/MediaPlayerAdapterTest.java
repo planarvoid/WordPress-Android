@@ -16,9 +16,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.crashlytics.android.internal.D;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
@@ -27,8 +25,8 @@ import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.StreamPlaya;
 import com.soundcloud.android.playback.streaming.StreamProxy;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -57,7 +55,8 @@ public class MediaPlayerAdapterTest {
     public static final String STREAM_URL = "http://url.com";
     public static final Uri STREAM_URI = Uri.parse(STREAM_URL);
     public static final int DURATION = 10000;
-    MediaPlayerAdapter mediaPlayerAdapter;
+
+    private MediaPlayerAdapter mediaPlayerAdapter;
 
     @Mock
     private Context context;
@@ -74,12 +73,12 @@ public class MediaPlayerAdapterTest {
     @Mock
     private Track track;
     @Mock
-    private EventBus eventBus;
-    @Mock
     private NetworkConnectionHelper networkConnectionHelper;
     @Mock
     private AccountOperations accountOperations;
+
     private UserUrn userUrn;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
@@ -157,13 +156,12 @@ public class MediaPlayerAdapterTest {
 
     @Test
     public void preparedListenerShouldReportTimeToPlay() throws Exception {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         when(track.getStreamUrl()).thenReturn(STREAM_URL);
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(PlaybackPerformanceEvent.ConnectionType.TWO_G);
         mediaPlayerAdapter.play(track, 123L);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
-        final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
+        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
         expect(event.getMetricValue()).toBeGreaterThan(0L);
         expect(event.getCdnHost()).toEqual(STREAM_URL);
@@ -636,12 +634,10 @@ public class MediaPlayerAdapterTest {
 
     @Test
     public void shouldNotFirePerformanceEventWhenPreparedIfUserIsNotLoggedIn(){
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         verify(accountOperations, never()).getLoggedInUserUrn();
-        eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
-
+        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
     }
 
     @Test

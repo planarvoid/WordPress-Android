@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.ImageOperations;
@@ -16,8 +15,8 @@ import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.track.LegacyTrackOperations;
@@ -47,11 +46,10 @@ public class PlaybackServiceTest {
     public static final int DURATION = 1000;
     private PlaybackService playbackService;
     private Track track;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Mock
     private ApplicationProperties applicationProperties;
-    @Mock
-    private EventBus eventBus;
     @Mock
     private PlayQueueManager playQueueManager;
     @Mock
@@ -93,7 +91,6 @@ public class PlaybackServiceTest {
         when(audioManagerProvider.get()).thenReturn(remoteAudioManager);
         when(playQueueManager.getCurrentPlayQueue()).thenReturn(playQueue);
         when(trackOperations.markTrackAsPlayed(track)).thenReturn(Observable.just(track));
-//        when(playbackNotificationController).playingNotification()
     }
 
     @Test
@@ -141,36 +138,33 @@ public class PlaybackServiceTest {
     @Test
     public void onPlaystateChangedPublishesStateTransition() throws Exception {
         playbackService.onCreate();
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
         when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.BUFFERING);
         when(stateTransition.trackEnded()).thenReturn(false);
 
         playbackService.onPlaystateChanged(stateTransition);
 
-        Playa.StateTransition broadcasted = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
+        Playa.StateTransition broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
         expect(broadcasted).toBe(stateTransition);
     }
 
     @Test
     public void onProgressDoesNotPublishProgressEvent() throws Exception {
         playbackService.onCreate();
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
         playbackService.onProgressEvent(123L, 456L);
 
-        eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_PROGRESS);
+        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PROGRESS);
     }
 
     @Test
     public void onProgressPublishesAProgressEventIfVisualPlayerEnabled() throws Exception {
         playbackService.onCreate();
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
         playbackService.onProgressEvent(123L, 456L);
 
-        PlaybackProgressEvent broadcasted = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PROGRESS);
+        PlaybackProgressEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS);
         expect(broadcasted.getProgress()).toEqual(123L);
         expect(broadcasted.getDuration()).toEqual(456L);
     }

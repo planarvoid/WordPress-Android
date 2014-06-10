@@ -14,7 +14,6 @@ import static org.mockito.Mockito.when;
 import static rx.android.OperatorPaged.Page;
 
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.Playlist;
@@ -22,8 +21,8 @@ import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.xtremelabs.robolectric.Robolectric;
@@ -49,6 +48,8 @@ public class SearchResultsFragmentTest {
     @InjectMocks
     private SearchResultsFragment fragment;
 
+    private TestEventBus eventBus = new TestEventBus();
+
     @Mock
     private SearchOperations searchOperations;
     @Mock
@@ -56,12 +57,11 @@ public class SearchResultsFragmentTest {
     @Mock
     private ListViewController listViewController;
     @Mock
-    private EventBus eventBus;
-    @Mock
     private SearchResultsAdapter adapter;
 
     @Before
     public void setUp() throws Exception {
+        fragment.eventBus = eventBus;
         Robolectric.shadowOf(fragment).setActivity(mock(FragmentActivity.class));
         Robolectric.shadowOf(fragment).setAttached(true);
         when(listViewController.getEmptyView()).thenReturn(mock(EmptyView.class));
@@ -185,7 +185,7 @@ public class SearchResultsFragmentTest {
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_TRACKS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
-        SearchEvent event = EventMonitor.on(eventBus).verifyEventOn(EventQueue.SEARCH);
+        SearchEvent event = eventBus.lastEventOn(EventQueue.SEARCH);
         expect(event.getKind()).toEqual(SearchEvent.SEARCH_RESULTS);
         expect(event.getAttributes().get("type")).toEqual("track");
         expect(event.getAttributes().get("context")).toEqual("tracks");
@@ -200,7 +200,7 @@ public class SearchResultsFragmentTest {
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_PLAYLISTS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
-        SearchEvent event = EventMonitor.on(eventBus).verifyEventOn(EventQueue.SEARCH);
+        SearchEvent event = eventBus.lastEventOn(EventQueue.SEARCH);
         expect(event.getKind()).toEqual(SearchEvent.SEARCH_RESULTS);
         expect(event.getAttributes().get("type")).toEqual("playlist");
         expect(event.getAttributes().get("context")).toEqual("playlists");
@@ -215,7 +215,7 @@ public class SearchResultsFragmentTest {
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_USERS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
-        SearchEvent event = EventMonitor.on(eventBus).verifyEventOn(EventQueue.SEARCH);
+        SearchEvent event = eventBus.lastEventOn(EventQueue.SEARCH);
         expect(event.getKind()).toEqual(SearchEvent.SEARCH_RESULTS);
         expect(event.getAttributes().get("type")).toEqual("user");
         expect(event.getAttributes().get("context")).toEqual("people");

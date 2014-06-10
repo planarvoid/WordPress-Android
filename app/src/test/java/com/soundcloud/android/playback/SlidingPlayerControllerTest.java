@@ -11,13 +11,12 @@ import static org.mockito.Mockito.when;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,8 +33,6 @@ public class SlidingPlayerControllerTest {
     @Mock
     private PlayQueueManager playQueueManager;
     @Mock
-    private EventBus eventBus;
-    @Mock
     private ActionBarController actionBarController;
     @Mock
     private View layout;
@@ -46,13 +43,12 @@ public class SlidingPlayerControllerTest {
     @Mock
     private View playerView;
 
-    private EventMonitor eventMonitor;
+    private TestEventBus eventBus = new TestEventBus();
     private SlidingPlayerController controller;
 
 
     @Before
     public void setUp() throws Exception {
-        eventMonitor = EventMonitor.on(eventBus);
         controller = new SlidingPlayerController(playQueueManager, eventBus);
         when(activity.findViewById(R.id.sliding_layout)).thenReturn(slidingPanel);
         when(slidingPanel.findViewById(R.id.player_root)).thenReturn(playerView);
@@ -85,18 +81,11 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void subscribesToPlayerUIEvents() {
-        controller.startListening();
-
-        eventMonitor.verifySubscribedTo(EventQueue.PLAYER_UI);
-    }
-
-    @Test
     public void unsubscribesFromPlayerUIEvents() {
         controller.startListening();
         controller.stopListening();
 
-        eventMonitor.verifyUnsubscribed();
+        eventBus.verifyUnsubscribed(EventQueue.PLAYER_UI);
     }
 
     @Test
@@ -105,7 +94,7 @@ public class SlidingPlayerControllerTest {
         controller.startListening();
         when(slidingPanel.isPaneVisible()).thenReturn(true);
 
-        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
 
         verify(slidingPanel).expandPane();
     }
@@ -117,7 +106,7 @@ public class SlidingPlayerControllerTest {
         when(slidingPanel.isPaneVisible()).thenReturn(false);
         when(slidingPanel.getViewTreeObserver()).thenReturn(mock(ViewTreeObserver.class));
 
-        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
 
         verify(slidingPanel).showPane();
     }
@@ -126,7 +115,7 @@ public class SlidingPlayerControllerTest {
     public void closesPlayerWhenPlayCloseEventIsReceived() {
         attachController();
         controller.startListening();
-        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
 
         verify(slidingPanel).collapsePane();
     }
@@ -134,7 +123,7 @@ public class SlidingPlayerControllerTest {
     @Test
     public void onlyRespondsToPlayTriggeredPlayerUIEvent() {
         controller.startListening();
-        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(slidingPanel, times(0)).expandPane();
     }
@@ -176,7 +165,7 @@ public class SlidingPlayerControllerTest {
 
         controller.restoreState(bundle);
 
-        PlayerUIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        PlayerUIEvent uiEvent = eventBus.firstEventOn(EventQueue.PLAYER_UI);
         expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
     }
 
@@ -184,7 +173,7 @@ public class SlidingPlayerControllerTest {
     public void sendsCollapsedEventWhenRestoringExpandedStateWithNullBundle() {
         controller.restoreState(null);
 
-        PlayerUIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        PlayerUIEvent uiEvent = eventBus.firstEventOn(EventQueue.PLAYER_UI);
         expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
     }
 
@@ -196,7 +185,7 @@ public class SlidingPlayerControllerTest {
 
         controller.restoreState(bundle);
 
-        PlayerUIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        PlayerUIEvent uiEvent = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDED);
     }
 
@@ -208,7 +197,7 @@ public class SlidingPlayerControllerTest {
         controller.onPanelSlide(layout, 0.7f);
 
         verify(actionBarController, times(1)).setVisible(true);
-        PlayerUIEvent event = eventMonitor.verifyLastEventOn(EventQueue.PLAYER_UI);
+        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
     }
 
@@ -220,7 +209,7 @@ public class SlidingPlayerControllerTest {
         controller.onPanelSlide(layout, 0.3f);
 
         verify(actionBarController, times(1)).setVisible(false);
-        PlayerUIEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDED);
     }
 

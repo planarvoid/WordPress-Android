@@ -16,6 +16,7 @@ import com.soundcloud.android.playback.service.PlaybackNotificationController;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.storage.PlaylistTagStorage;
 import dagger.Module;
 import dagger.Provides;
@@ -40,7 +41,7 @@ public class TestApplicationModule {
 
     @Provides
     public EventBus provideEventBus() {
-        return mock(EventBus.class);
+        return new TestEventBus();
     }
 
     @Provides

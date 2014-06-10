@@ -2,6 +2,8 @@ package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
@@ -14,6 +16,8 @@ import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import android.content.Intent;
 
 import java.io.IOException;
 
@@ -50,8 +54,7 @@ public class AddCommentTaskTest {
         mockSuccessfulCommentCreation();
         expect(task.execute(c).get()).not.toBeNull();
 
-        expect(DefaultTestRunner.application.broadcasts.size()).toEqual(1);
-        expect(DefaultTestRunner.application.broadcasts.get(0).getAction()).toEqual(Playable.COMMENTS_UPDATED);
+        expect(findBroadcast(Playable.COMMENTS_UPDATED)).not.toBeNull();
     }
 
     @Test
@@ -69,8 +72,8 @@ public class AddCommentTaskTest {
         SoundCloudApplication.sModelManager.cache(new Track(100l));
         TestHelper.addPendingIOException("/tracks/100/comments");
         expect(task.execute(c).get()).toBeNull();
-        expect(DefaultTestRunner.application.broadcasts.get(0).getAction()).toEqual(Actions.CONNECTION_ERROR);
-        expect(DefaultTestRunner.application.broadcasts.get(1).getAction()).toEqual(Playable.COMMENTS_UPDATED);
+        expect(findBroadcast(Actions.CONNECTION_ERROR)).not.toBeNull();
+        expect(findBroadcast(Playable.COMMENTS_UPDATED)).not.toBeNull();
     }
 
     @Test
@@ -98,5 +101,14 @@ public class AddCommentTaskTest {
         mockSuccessfulCommentCreation();
         expect(task.execute(c).get()).not.toBeNull();
         expect(c.track.comments.size()).toBe(1);
+    }
+
+    private Intent findBroadcast(final String action) {
+        return Iterables.find(DefaultTestRunner.application.broadcasts, new Predicate<Intent>() {
+            @Override
+            public boolean apply(Intent input) {
+                return input.getAction().equals(action);
+            }
+        });
     }
 }

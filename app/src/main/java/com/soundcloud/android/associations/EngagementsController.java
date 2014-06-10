@@ -10,6 +10,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -131,9 +133,9 @@ public class EngagementsController {
             });
         }
 
-        ImageButton mAddToPlaylistBtn = (ImageButton) rootView.findViewById(R.id.btn_addToPlaylist);
-        if (mAddToPlaylistBtn != null) {
-            mAddToPlaylistBtn.setOnClickListener(new View.OnClickListener() {
+        ImageButton addToPlaylistBtn = (ImageButton) rootView.findViewById(R.id.btn_addToPlaylist);
+        if (addToPlaylistBtn != null) {
+            addToPlaylistBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (playable instanceof Track && addToPlaylistListener != null) {
@@ -150,9 +152,18 @@ public class EngagementsController {
         subscription.add(eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new DefaultSubscriber<PlayableChangedEvent>() {
             @Override
             public void onNext(PlayableChangedEvent event) {
-                if (playable != null && playable.getId() == event.getPlayable().getId()) {
-                    updateLikeButton((int) event.getPlayable().likes_count, event.getPlayable().user_like);
-                    updateRepostButton((int) event.getPlayable().reposts_count, event.getPlayable().user_repost);
+                if (playable != null && playable.getUrn().equals(event.getUrn())) {
+                    final PropertySet changeSet = event.getChangeSet();
+                    if (changeSet.contains(PlayableProperty.IS_LIKED)) {
+                        updateLikeButton(
+                                changeSet.get(PlayableProperty.LIKES_COUNT),
+                                changeSet.get(PlayableProperty.IS_LIKED));
+                    }
+                    if (changeSet.contains(PlayableProperty.IS_REPOSTED)) {
+                        updateRepostButton(
+                                changeSet.get(PlayableProperty.REPOSTS_COUNT),
+                                changeSet.get(PlayableProperty.IS_REPOSTED));
+                    }
                 }
             }
         }));

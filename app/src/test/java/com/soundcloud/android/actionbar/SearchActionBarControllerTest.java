@@ -8,11 +8,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.search.SearchActivity;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,8 +27,8 @@ public class SearchActionBarControllerTest {
     private PublicCloudAPI cloudAPI;
     @Mock
     private SearchCallback callback;
-    @Mock
-    private EventBus eventBus;
+
+    private TestEventBus eventBus = new TestEventBus();
 
     private SearchActionBarController actionBarController;
 
@@ -87,9 +86,8 @@ public class SearchActionBarControllerTest {
 
     @Test
     public void shouldPublishSearchEventForNormalSearchInSearchField() throws Exception {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         actionBarController.performSearch("query", false);
-        SearchEvent event = eventMonitor.verifyEventOn(EventQueue.SEARCH);
+        SearchEvent event = eventBus.firstEventOn(EventQueue.SEARCH);
         expect(event.getKind()).toBe(SearchEvent.SEARCH_SUBMIT);
         expect(event.getAttributes().get("type")).toEqual("normal");
         expect(event.getAttributes().get("location")).toEqual("search_field");
@@ -98,9 +96,8 @@ public class SearchActionBarControllerTest {
 
     @Test
     public void shouldPublishSearchEventForNormalSearchViaShortcut() throws Exception {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         actionBarController.performSearch("query", true);
-        SearchEvent event = eventMonitor.verifyEventOn(EventQueue.SEARCH);
+        SearchEvent event = eventBus.firstEventOn(EventQueue.SEARCH);
         expect(event.getKind()).toBe(SearchEvent.SEARCH_SUBMIT);
         expect(event.getAttributes().get("type")).toEqual("normal");
         expect(event.getAttributes().get("location")).toEqual("search_suggestion");
@@ -109,9 +106,8 @@ public class SearchActionBarControllerTest {
 
     @Test
     public void shouldPublishSearchEventForTagSearchViaSearchField() throws Exception {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         actionBarController.performSearch("#query", false);
-        SearchEvent event = eventMonitor.verifyEventOn(EventQueue.SEARCH);
+        SearchEvent event = eventBus.firstEventOn(EventQueue.SEARCH);
         expect(event.getKind()).toBe(SearchEvent.SEARCH_SUBMIT);
         expect(event.getAttributes().get("type")).toEqual("tag");
         expect(event.getAttributes().get("location")).toEqual("search_field");
@@ -120,9 +116,8 @@ public class SearchActionBarControllerTest {
 
     @Test
     public void shouldPublishSearchEventForTagSearchViaShortcut() throws Exception {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         actionBarController.performSearch("#query", true);
-        SearchEvent event = eventMonitor.verifyEventOn(EventQueue.SEARCH);
+        SearchEvent event = eventBus.firstEventOn(EventQueue.SEARCH);
         expect(event.getKind()).toBe(SearchEvent.SEARCH_SUBMIT);
         expect(event.getAttributes().get("type")).toEqual("tag");
         expect(event.getAttributes().get("location")).toEqual("search_suggestion");

@@ -7,10 +7,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.view.SlidingTabLayout;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -27,6 +26,7 @@ import android.view.View;
 public class TabbedSearchFragmentTest {
 
     private TabbedSearchFragment fragment;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Mock
     private View mockLayout;
@@ -34,17 +34,12 @@ public class TabbedSearchFragmentTest {
     private SlidingTabLayout mockTabIndicator;
     @Mock
     private ViewPager mockViewPager;
-    @Mock
-    private EventBus eventBus;
-
-    private EventMonitor eventMonitor;
 
     @Before
     public void setUp() throws Exception {
         when(mockLayout.findViewById(R.id.pager)).thenReturn(mockViewPager);
         when(mockLayout.findViewById(R.id.sliding_tabs)).thenReturn(mockTabIndicator);
 
-        eventMonitor = EventMonitor.on(eventBus);
         fragment = new TabbedSearchFragment(eventBus, Robolectric.application.getResources());
         Robolectric.shadowOf(fragment).setActivity(mock(FragmentActivity.class));
     }
@@ -61,31 +56,27 @@ public class TabbedSearchFragmentTest {
     public void shouldTrackSearchAllScreenOnPageSelected() throws Exception {
         TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(eventBus);
         listener.onPageSelected(0);
-        String screenTag = eventMonitor.verifyEventOn(EventQueue.SCREEN_ENTERED);
-        expect(screenTag).toEqual("search:everything");
+        expect(eventBus.eventsOn(EventQueue.SCREEN_ENTERED)).toContainExactly("search:everything");
     }
 
     @Test
     public void shouldTrackSearchTracksScreenOnPageSelected() throws Exception {
         TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(eventBus);
         listener.onPageSelected(1);
-        String screenTag = eventMonitor.verifyEventOn(EventQueue.SCREEN_ENTERED);
-        expect(screenTag).toEqual("search:tracks");
+        expect(eventBus.eventsOn(EventQueue.SCREEN_ENTERED)).toContainExactly("search:tracks");
     }
 
     @Test
     public void shouldTrackSearchPlaylistsScreenOnPageSelected() throws Exception {
         TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(eventBus);
         listener.onPageSelected(2);
-        String screenTag = eventMonitor.verifyEventOn(EventQueue.SCREEN_ENTERED);
-        expect(screenTag).toEqual("search:playlists");
+        expect(eventBus.eventsOn(EventQueue.SCREEN_ENTERED)).toContainExactly("search:playlists");
     }
 
     @Test
     public void shouldTrackSearchPeopleScreenOnPageSelected() throws Exception {
         TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(eventBus);
         listener.onPageSelected(3);
-        String screenTag = eventMonitor.verifyEventOn(EventQueue.SCREEN_ENTERED);
-        expect(screenTag).toEqual("search:people");
+        expect(eventBus.eventsOn(EventQueue.SCREEN_ENTERED)).toContainExactly("search:people");
     }
 }

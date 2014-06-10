@@ -6,13 +6,12 @@ import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayableChangedEvent;
@@ -21,14 +20,17 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.track.LegacyTrackOperations;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 import rx.Scheduler;
 
@@ -38,7 +40,7 @@ import android.content.Context;
 public class PlayerWidgetControllerTest {
 
     private PlayerWidgetController controller;
-    private EventMonitor eventMonitor;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Mock
     private Context context;
@@ -52,12 +54,10 @@ public class PlayerWidgetControllerTest {
     private LegacyTrackOperations trackOperations;
     @Mock
     private SoundAssociationOperations soundAssocicationOps;
-    @Mock
-    private EventBus eventBus;
 
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         when(context.getApplicationContext()).thenReturn(context);
         controller = new PlayerWidgetController(context,
                 playerWidgetPresenter,
@@ -65,59 +65,46 @@ public class PlayerWidgetControllerTest {
                 playQueueManager,
                 trackOperations,
                 soundAssocicationOps, eventBus);
-        eventMonitor = EventMonitor.on(eventBus);
     }
 
     @Test
-    public void shouldSubscribeToPlayableChangeEvent() throws Exception {
+    public void shouldUpdatePlayStateWithNotPlayingOnSubscribingToPlaybackStateChangedQueue() {
         controller.subscribe();
 
-        eventMonitor.verifySubscribedTo(EventQueue.PLAYABLE_CHANGED);
+        verify(playerWidgetPresenter).updatePlayState(eq(context), eq(false));
     }
 
     @Test
-    public void shouldSubscribeToCurrentUserChangedEvent() throws Exception {
+    public void shouldUpdatePresenterWithDefaultPlayStateFollowedByReceivedPlayStateOnSubscribeAndReceivePlaybackStateChangedEvent() {
         controller.subscribe();
 
-        eventMonitor.verifySubscribedTo(EventQueue.CURRENT_USER_CHANGED);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.PLAYING, Reason.NONE));
+
+        InOrder inOrder = Mockito.inOrder(playerWidgetPresenter);
+        inOrder.verify(playerWidgetPresenter).updatePlayState(eq(context), eq(false));
+        inOrder.verify(playerWidgetPresenter).updatePlayState(eq(context), eq(true));
     }
 
     @Test
-    public void shouldSubscribeToPlaybackStateChangedEvent() throws Exception {
-        controller.subscribe();
-
-        eventMonitor.verifySubscribedTo(EventQueue.PLAYBACK_STATE_CHANGED);
-    }
-
-    @Test
-    public void shouldUpdatePresenterOnPlaybackStateChangedEvent() throws Exception {
-        controller.subscribe();
-
-        eventMonitor.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.PLAYING, Reason.NONE));
-
-        verify(playerWidgetPresenter).updatePlayState(any(Context.class), eq(true));
-    }
-
-    @Test
-    public void shouldUpdatePresenterPlayableInformationOnPlayQueueEvent() throws Exception {
+    public void shouldUpdatePresenterPlayableInformationOnPlayQueueEvent() throws CreateModelException {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
         controller.subscribe();
 
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
 
         verify(playerWidgetPresenter).updatePlayableInformation(any(Context.class), eq(track));
     }
 
     @Test
-    public void shouldKeepObservingPlayQueueEventsAfterAnError() throws Exception {
+    public void shouldKeepObservingPlayQueueEventsAfterAnError() throws CreateModelException {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class)))
                 .thenReturn(Observable.<Track>error(new Exception()), Observable.just(track));
         controller.subscribe();
 
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
 
         verify(playerWidgetPresenter).updatePlayableInformation(any(Context.class), eq(track));
     }
@@ -130,20 +117,20 @@ public class PlayerWidgetControllerTest {
 
         controller.subscribe();
 
-        eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, event);
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, event);
         verify(playerWidgetPresenter).updatePlayableInformation(context, currentTrack);
     }
 
     @Test
-    public void shouldNotPerformPresenterUpdateWhenChangedTrackIsNotCurrentlyPlayingTrack() {
+    public void shouldNotUpdatePresenterWhenChangedTrackIsNotCurrentlyPlayingTrack() {
         final Track currentTrack = new Track(1L);
         when(playQueueManager.getCurrentTrackId()).thenReturn(2L);
         PlayableChangedEvent event = PlayableChangedEvent.forLike(currentTrack, true);
 
         controller.subscribe();
 
-        eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, event);
-        verifyZeroInteractions(playerWidgetPresenter);
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, event);
+        verify(playerWidgetPresenter, never()).updatePlayableInformation(any(Context.class), any(Playable.class));
     }
 
     @Test
@@ -152,22 +139,22 @@ public class PlayerWidgetControllerTest {
 
         controller.subscribe();
 
-        eventMonitor.publish(EventQueue.CURRENT_USER_CHANGED, event);
+        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, event);
         verify(playerWidgetPresenter).reset(context);
     }
 
     @Test
-    public void doesNotInteractWithProviderWhenCurrentUserChangedEventReceivedForUserUpdated() {
+    public void doesNotResetPresentationWhenCurrentUserChangedEventReceivedForUserUpdated() {
         CurrentUserChangedEvent event = CurrentUserChangedEvent.forUserUpdated(new User(1));
 
         controller.subscribe();
 
-        eventMonitor.publish(EventQueue.CURRENT_USER_CHANGED, event);
-        verifyZeroInteractions(playerWidgetPresenter);
+        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, event);
+        verify(playerWidgetPresenter, never()).reset(any(Context.class));
     }
 
     @Test
-    public void shouldResetPresenterWhenTheCurrentTrackIsNotSetOnUpdate() throws Exception {
+    public void shouldResetPresenterWhenTheCurrentTrackIsNotSetOnUpdate() {
         when(playQueueManager.getCurrentTrackId()).thenReturn((long) Playable.NOT_SET);
 
         controller.update();
@@ -176,7 +163,7 @@ public class PlayerWidgetControllerTest {
     }
 
     @Test
-    public void shouldUpdatePresenterPlayableInformationWhenCurrentTrackIsSetOnUpdate() throws Exception {
+    public void shouldUpdatePresenterPlayableInformationWhenCurrentTrackIsSetOnUpdate() throws CreateModelException {
         when(playQueueManager.getCurrentTrackId()).thenReturn(1L);
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         when(trackOperations.loadTrack(eq(1L), any(Scheduler.class))).thenReturn(Observable.from(track));
@@ -187,7 +174,7 @@ public class PlayerWidgetControllerTest {
     }
 
     @Test
-    public void shouldUpdatePresenterWithCurrentPlayStateIfIsPlayingOnUpdate() throws Exception {
+    public void shouldUpdatePresenterWithCurrentPlayStateIfIsPlayingOnUpdate() {
         when(playSessionController.isPlaying()).thenReturn(true);
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
 
@@ -197,7 +184,7 @@ public class PlayerWidgetControllerTest {
     }
 
     @Test
-    public void shouldUpdatePresenterWithCurrentPlayStateIfIsNotPlayingOnUpdate() throws Exception {
+    public void shouldUpdatePresenterWithCurrentPlayStateIfIsNotPlayingOnUpdate() {
         when(playSessionController.isPlaying()).thenReturn(false);
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
 
@@ -207,7 +194,7 @@ public class PlayerWidgetControllerTest {
     }
 
     @Test
-    public void shouldSetLikeOnReceivedWidgetLikeChanged() throws Exception {
+    public void shouldSetLikeOnReceivedWidgetLikeChanged() throws CreateModelException {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class)))
                 .thenReturn(Observable.from(track));

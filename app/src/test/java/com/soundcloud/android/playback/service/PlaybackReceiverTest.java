@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -9,16 +8,14 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 
 import android.content.Intent;
@@ -29,6 +26,8 @@ public class PlaybackReceiverTest {
 
     private PlaybackReceiver playbackReceiver;
 
+    private TestEventBus eventBus = new TestEventBus();
+
     @Mock
     private PlaybackService playbackService;
     @Mock
@@ -38,12 +37,7 @@ public class PlaybackReceiverTest {
     @Mock
     private PlayQueueManager playQueueManager;
     @Mock
-    private EventBus eventBus;
-    @Mock
     private PlaySessionSource playSessionSource;
-
-    @Captor
-    private ArgumentCaptor<PlayControlEvent> captor;
 
     @Before
     public void setup() {
@@ -133,8 +127,7 @@ public class PlaybackReceiverTest {
     public void shouldTrackPlayEventWithSource() {
         setupTrackingTest(PlaybackService.Actions.PLAY_ACTION, "source");
 
-        verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
-        PlayControlEvent event = captor.getValue();
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
         expect(event.getAttributes().get("action")).toEqual("play");
         expect(event.getAttributes().get("location")).toEqual("source");
     }
@@ -143,8 +136,7 @@ public class PlaybackReceiverTest {
     public void shouldTrackPauseEventWithSource() {
         setupTrackingTest(PlaybackService.Actions.PAUSE_ACTION, "source");
 
-        verify(eventBus).publish(eq(EventQueue.PLAY_CONTROL), captor.capture());
-        PlayControlEvent event = captor.getValue();
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
         expect(event.getAttributes().get("action")).toEqual("pause");
         expect(event.getAttributes().get("location")).toEqual("source");
     }

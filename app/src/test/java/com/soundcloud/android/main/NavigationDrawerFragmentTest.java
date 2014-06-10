@@ -1,5 +1,6 @@
 package com.soundcloud.android.main;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -10,12 +11,11 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,8 +50,8 @@ public class NavigationDrawerFragmentTest {
     AccountOperations accountOperations;
     @Mock
     Resources resources;
-    @Mock
-    EventBus eventBus;
+
+    TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
@@ -93,43 +93,39 @@ public class NavigationDrawerFragmentTest {
 
     @Test
     public void shouldLockDrawerOnPlayerExpandedEvent() {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         fragment.onViewCreated(view, null);
         fragment.onActivityCreated(null);
 
-        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
         verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
 
     @Test
     public void shouldUnlockDrawerOnPlayerCollapsedEvent() {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         fragment.onViewCreated(view, null);
         fragment.onActivityCreated(null);
 
-        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
     }
 
     @Test
     public void shouldIgnoreDrawerEventsUntilDrawerFullyLayouted() {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         fragment.onViewCreated(view, null);
 
-        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
-        eventMonitor.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
         verifyZeroInteractions(drawerLayout);
     }
 
     @Test
     public void shouldUnsubscribeFromUIEventsInOnDestroyView() {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         fragment.onViewCreated(view, null);
         fragment.onDestroyView();
-        eventMonitor.verifyUnsubscribed();
+        eventBus.verifyUnsubscribed();
     }
 
 }

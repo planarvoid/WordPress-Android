@@ -1,21 +1,19 @@
 package com.soundcloud.android.actionbar;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.support.v7.app.ActionBar;
@@ -26,8 +24,8 @@ public class ActionBarControllerTest {
 
     @Mock
     private ScActivity activity;
-    @Mock
-    private EventBus eventBus;
+
+    private TestEventBus eventBus = new TestEventBus();
 
     private ActionBarController actionBarController;
 
@@ -44,9 +42,7 @@ public class ActionBarControllerTest {
 
         actionBarController.onOptionsItemSelected(item);
 
-        ArgumentCaptor<UIEvent> captor = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventBus).publish(eq(EventQueue.UI), captor.capture());
-        UIEvent uiEvent = captor.getValue();
+        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
         expect(uiEvent.getKind()).toBe(UIEvent.NAVIGATION);
         expect(uiEvent.getAttributes().get("page")).toEqual("search");
     }

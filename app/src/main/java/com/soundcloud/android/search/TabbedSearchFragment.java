@@ -90,10 +90,10 @@ public class TabbedSearchFragment extends Fragment {
     }
 
     protected static class SearchPagerScreenListener implements ViewPager.OnPageChangeListener {
-        private final EventBus mEventBus;
+        private final EventBus eventBus;
 
         public SearchPagerScreenListener(EventBus eventBus) {
-            mEventBus = eventBus;
+            this.eventBus = eventBus;
         }
 
         @Override
@@ -103,16 +103,16 @@ public class TabbedSearchFragment extends Fragment {
         public void onPageSelected(int pageSelected) {
             switch (pageSelected) {
                 case SearchPagerAdapter.TAB_ALL:
-                    mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_EVERYTHING.get());
+                    eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_EVERYTHING.get());
                     break;
                 case SearchPagerAdapter.TAB_TRACKS:
-                    mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_TRACKS.get());
+                    eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_TRACKS.get());
                     break;
                 case SearchPagerAdapter.TAB_PLAYLISTS:
-                    mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_PLAYLISTS.get());
+                    eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_PLAYLISTS.get());
                     break;
                 case SearchPagerAdapter.TAB_PEOPLE:
-                    mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_USERS.get());
+                    eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_USERS.get());
                     break;
                 default:
                     throw new IllegalArgumentException("Did not recognise page in pager to publish screen event");

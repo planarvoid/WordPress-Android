@@ -11,7 +11,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.PlayQueueItem;
@@ -28,8 +27,8 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -57,7 +56,9 @@ public class PlaybackOperationsTest {
     private static final Screen ORIGIN_SCREEN = Screen.EXPLORE_TRENDING_MUSIC;
 
     private PlaybackOperations playbackOperations;
+
     private Track track;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Mock
     private ScModelManager modelManager;
@@ -67,8 +68,6 @@ public class PlaybackOperationsTest {
     private PlayQueueManager playQueueManager;
     @Mock
     private FeatureFlags featureFlags;
-    @Mock
-    private EventBus eventBus;
 
     @Before
     public void setUp() throws Exception {
@@ -105,8 +104,7 @@ public class PlaybackOperationsTest {
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
         playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
 
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
-        PlayerUIEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(event.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
     }
 
@@ -202,8 +200,7 @@ public class PlaybackOperationsTest {
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
         playbackOperations.playPlaylistFromPosition(Robolectric.application, new Playlist(3L), 0, track, Screen.YOUR_LIKES);
 
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
-        PlayerUIEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(event.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
     }
 
@@ -386,8 +383,7 @@ public class PlaybackOperationsTest {
         ArrayList<Track> playables = Lists.newArrayList(new Track(1L), new Track(2L));
         playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, Screen.SIDE_MENU_STREAM); // clicked 2nd track
 
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
-        PlayerUIEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(event.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
     }
 
@@ -562,8 +558,7 @@ public class PlaybackOperationsTest {
         final Observable<TrackUrn> tracks = Observable.just(Urn.forTrack(123));
         playbackOperations.playTracks(Robolectric.application, Urn.forTrack(123), tracks, 0, ORIGIN_SCREEN);
 
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
-        PlayerUIEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(event.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
     }
 

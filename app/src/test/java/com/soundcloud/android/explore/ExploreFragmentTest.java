@@ -9,10 +9,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.view.SlidingTabLayout;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -38,11 +37,9 @@ public class ExploreFragmentTest {
     private ExplorePagerAdapterFactory adapterFactory;
     @Mock
     private ExplorePagerAdapter pagerAdapter;
-    @Mock
-    private EventBus eventBus;
 
-    private ExploreFragment mExploreFragment;
-    private EventMonitor eventMonitor;
+    private ExploreFragment fragment;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
@@ -50,19 +47,17 @@ public class ExploreFragmentTest {
         when(mockLayout.findViewById(R.id.indicator)).thenReturn(mockTabLayout);
         when(adapterFactory.create(any(FragmentManager.class))).thenReturn(pagerAdapter);
 
-        eventMonitor = EventMonitor.on(eventBus);
+        fragment = new ExploreFragment(adapterFactory, eventBus);
+        Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
+        Robolectric.shadowOf(fragment).setAttached(true);
 
-        mExploreFragment = new ExploreFragment(adapterFactory, eventBus);
-        Robolectric.shadowOf(mExploreFragment).setActivity(new FragmentActivity());
-        Robolectric.shadowOf(mExploreFragment).setAttached(true);
-
-        mExploreFragment.onCreate(null);
+        fragment.onCreate(null);
     }
 
     @Test
     public void shouldAddListenerToViewPagerForTrackingScreenEvents() {
         when(mockLayout.findViewById(R.id.sliding_tabs)).thenReturn(mockTabLayout);
-        mExploreFragment.onViewCreated(mockLayout, null);
+        fragment.onViewCreated(mockLayout, null);
         verify(mockTabLayout).setOnPageChangeListener(isA(ExplorePagerScreenListener.class));
     }
 
@@ -70,7 +65,7 @@ public class ExploreFragmentTest {
     public void shouldTrackGenresScreenOnPageSelected() {
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener(eventBus);
         explorePagerScreenListener.onPageSelected(0);
-        String screenTag = eventMonitor.verifyEventOn(EventQueue.SCREEN_ENTERED);
+        String screenTag = eventBus.firstEventOn(EventQueue.SCREEN_ENTERED);
         expect(screenTag).toEqual("explore:genres");
     }
 
@@ -78,7 +73,7 @@ public class ExploreFragmentTest {
     public void shouldTrackTrendingMusicScreenOnPageSelected() {
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener(eventBus);
         explorePagerScreenListener.onPageSelected(1);
-        String screenTag = eventMonitor.verifyEventOn(EventQueue.SCREEN_ENTERED);
+        String screenTag = eventBus.firstEventOn(EventQueue.SCREEN_ENTERED);
         expect(screenTag).toEqual("explore:trending_music");
     }
 
@@ -86,7 +81,7 @@ public class ExploreFragmentTest {
     public void shouldTrackTrendingAudioScreenOnPageSelected() {
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener(eventBus);
         explorePagerScreenListener.onPageSelected(2);
-        String screenTag = eventMonitor.verifyEventOn(EventQueue.SCREEN_ENTERED);
+        String screenTag = eventBus.firstEventOn(EventQueue.SCREEN_ENTERED);
         expect(screenTag).toEqual("explore:trending_audio");
     }
 

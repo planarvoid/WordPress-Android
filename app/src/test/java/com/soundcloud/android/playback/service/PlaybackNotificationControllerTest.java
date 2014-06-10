@@ -10,7 +10,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.image.ApiImageSize;
@@ -20,12 +19,11 @@ import com.soundcloud.android.model.TrackProperty;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.track.TrackOperations;
 import com.xtremelabs.robolectric.Robolectric;
-import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,13 +41,13 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlaybackNotificationControllerTest extends TestCase {
+public class PlaybackNotificationControllerTest {
 
     private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
     private PlaybackNotificationController controller;
 
     private PropertySet propertySet;
-    private EventMonitor eventMonitor;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Mock
     private Context context;
@@ -65,8 +63,6 @@ public class PlaybackNotificationControllerTest extends TestCase {
     private NotificationManager notificationManager;
     @Mock
     private PlayQueueManager playQueueManager;
-    @Mock
-    private EventBus eventBus;
     @Mock
     private Notification notification;
     @Mock
@@ -86,15 +82,12 @@ public class PlaybackNotificationControllerTest extends TestCase {
 
         controller = new PlaybackNotificationController(context, trackOperations, playbackNotificationPresenter,
                 notificationManager, eventBus, imageOperations);
-
-        eventMonitor = EventMonitor.on(eventBus);
     }
 
     @Test
     public void playQueueEventCreatesNewNotificationFromNewPlayQueueEvent() {
-        eventMonitor.monitorQueue(EventQueue.PLAY_QUEUE);
         controller.subscribe();
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(TRACK_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(TRACK_URN));
 
         verify(notificationManager).notify(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID, notification);
     }
@@ -166,7 +159,7 @@ public class PlaybackNotificationControllerTest extends TestCase {
 
         publishTrackChangedEvent();
         // loading an image for a different track should cancel existing image tasks
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(TRACK_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(TRACK_URN));
 
         verify(subscription).unsubscribe();
     }
@@ -221,8 +214,7 @@ public class PlaybackNotificationControllerTest extends TestCase {
     }
 
     private void publishTrackChangedEvent() {
-        eventMonitor.monitorQueue(EventQueue.PLAY_QUEUE);
         controller.subscribe();
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(TRACK_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(TRACK_URN));
     }
 }

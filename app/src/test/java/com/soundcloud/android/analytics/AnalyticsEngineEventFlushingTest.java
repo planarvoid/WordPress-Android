@@ -13,15 +13,14 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 public class AnalyticsEngineEventFlushingTest {
     @SuppressWarnings("unused") // needs to stay alive since it subscribes to event queues
     private AnalyticsEngine analyticsEngine;
-    private EventMonitor eventMonitor;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Mock
     private AnalyticsProperties analyticsProperties;
@@ -55,12 +54,9 @@ public class AnalyticsEngineEventFlushingTest {
     private Scheduler scheduler;
     @Mock
     private Subscription flushSubscription;
-    @Mock
-    private EventBus eventBus;
 
     @Before
     public void setUp() throws Exception {
-        eventMonitor = EventMonitor.on(eventBus);
         when(scheduler.schedule(any(Action1.class), anyLong(), any(TimeUnit.class))).thenReturn(flushSubscription);
 
         when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
@@ -71,16 +67,16 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldScheduleToFlushEventDataOnFirstTrackingEvent() {
-        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen");
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");
 
         verify(scheduler).schedule(any(Action1.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void flushActionShouldCallFlushOnAllProviders() {
-        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen");
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");
 
         ArgumentCaptor<Action1> flushAction = ArgumentCaptor.forClass(Action1.class);
         verify(scheduler).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
@@ -91,8 +87,8 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void successfulFlushShouldResetSubscription() {
-        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen");
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");
 
         ArgumentCaptor<Action1> flushAction = ArgumentCaptor.forClass(Action1.class);
         verify(scheduler).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
@@ -102,8 +98,8 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldRescheduleFlushForTrackingEventAfterPreviousFlushFinished() {
-        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen1");
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen1");
 
         InOrder inOrder = inOrder(scheduler, scheduler);
 
@@ -111,43 +107,43 @@ public class AnalyticsEngineEventFlushingTest {
         inOrder.verify(scheduler).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
         flushAction.getValue().call(null); // finishes the first flush
 
-        eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen2");
-        eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen3");
+        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen2");
+        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen3");
         inOrder.verify(scheduler).schedule(any(Action1.class), anyLong(), any(TimeUnit.class));
     }
 
     @Test
     public void shouldNotScheduleFlushIfFlushIsAlreadyScheduled() {
-        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen1");
-        eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen2");
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen1");
+        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen2");
 
         verify(scheduler, times(1)).schedule(any(Action1.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromOpenSessionEvents() {
-        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
 
         verify(scheduler).schedule(any(Action1.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromCloseSessionEvents() {
-        eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
 
         verify(scheduler).schedule(any(Action1.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromPlaybackEvents() {
-        eventMonitor.publish(EventQueue.PLAYBACK_SESSION, PlaybackSessionEvent.forPlay(Urn.forTrack(1L), Urn.forUser(2L), mock(TrackSourceInfo.class), 123L));
+        eventBus.publish(EventQueue.PLAYBACK_SESSION, PlaybackSessionEvent.forPlay(Urn.forTrack(1L), Urn.forUser(2L), mock(TrackSourceInfo.class), 123L));
         verify(scheduler).schedule(any(Action1.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromUIEvents() {
-        eventMonitor.publish(EventQueue.UI, UIEvent.fromComment("screen", 1L));
+        eventBus.publish(EventQueue.UI, UIEvent.fromComment("screen", 1L));
 
         verify(scheduler).schedule(any(Action1.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }

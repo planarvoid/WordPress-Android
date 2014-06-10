@@ -6,12 +6,11 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.ListViewController;
 import com.xtremelabs.robolectric.Robolectric;
@@ -38,6 +37,9 @@ public class ExploreGenresFragmentTest {
 
     @InjectMocks
     private ExploreGenresFragment fragment;
+
+    private TestEventBus eventBus = new TestEventBus();
+
     @Mock
     private ExploreGenresAdapter adapter;
     @Mock
@@ -49,12 +51,11 @@ public class ExploreGenresFragmentTest {
     @Mock
     private ListViewController listViewController;
     @Mock
-    private EventBus eventBus;
-    @Mock
     private Subscription subscription;
 
     @Before
     public void setUp() throws Exception {
+        fragment.eventBus = eventBus;
         Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
         observable = TestObservables.emptyObservable(subscription);
         when(operations.getCategories()).thenReturn(observable);
@@ -102,13 +103,11 @@ public class ExploreGenresFragmentTest {
         ExploreGenresSections categories = createSectionsFrom(electronicCategory, comedyCategory);
         mockCategoriesObservable(categories);
 
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
-
         fragment.onCreate(null);
         when(listView.getTag()).thenReturn("screentag");
         fragment.onItemClick(listView, listView, 0,0);
 
-        final String screenTag = eventMonitor.verifyEventOn(EventQueue.SCREEN_ENTERED);
+        final String screenTag = eventBus.firstEventOn(EventQueue.SCREEN_ENTERED);
         expect(screenTag).toEqual("screentag");
     }
 

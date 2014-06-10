@@ -1,21 +1,18 @@
 package com.soundcloud.android.actionbar;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.content.Context;
@@ -28,8 +25,8 @@ public class NowPlayingActionBarControllerTest {
 
     @Mock
     private ScActivity activity;
-    @Mock
-    private EventBus eventBus;
+
+    private TestEventBus eventBus = new TestEventBus();
 
     private NowPlayingActionBarController actionBarController;
 
@@ -46,9 +43,7 @@ public class NowPlayingActionBarControllerTest {
     public void shouldPublishPlayerShortcutEventOnShortcutClick() {
         actionBarController.onClick(mock(View.class));
 
-        ArgumentCaptor<UIEvent> captor = ArgumentCaptor.forClass(UIEvent.class);
-        verify(eventBus).publish(eq(EventQueue.UI), captor.capture());
-        UIEvent uiEvent = captor.getValue();
+        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
         expect(uiEvent.getKind()).toBe(UIEvent.NAVIGATION);
         expect(uiEvent.getAttributes().get("page")).toEqual("player_shortcut");
     }

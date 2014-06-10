@@ -11,12 +11,11 @@ import static org.mockito.Mockito.withSettings;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.SearchActionBarController;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.PlaylistTagsCollection;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.EmptyViewController;
 import com.xtremelabs.robolectric.Robolectric;
@@ -44,15 +43,17 @@ public class PlaylistTagsFragmentTest {
     @Mock
     private SearchActionBarController actionBarController;
     @Mock
-    private EventBus eventBus;
-    @Mock
     private EmptyViewController emptyViewController;
 
     @InjectMocks
     private PlaylistTagsFragment fragment;
 
+    private TestEventBus eventBus = new TestEventBus();
+
     @Before
     public void setUp() throws Exception {
+        fragment.eventBus = eventBus;
+
         final PlaylistTagsCollection popularTags = new PlaylistTagsCollection();
         popularTags.setCollection(Arrays.asList("popular1", "popular2", "popular3"));
 
@@ -150,12 +151,11 @@ public class PlaylistTagsFragmentTest {
     @Test
     public void shouldTrackSearchSubmitEventForRecentTag() throws Exception {
         createFragment();
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
         ViewGroup tagFlowLayout = (ViewGroup) fragment.getView().findViewById(R.id.recent_tags);
         tagFlowLayout.getChildAt(0).performClick();
 
-        SearchEvent event = eventMonitor.verifyEventOn(EventQueue.SEARCH);
+        SearchEvent event = eventBus.lastEventOn(EventQueue.SEARCH);
         expect(event.getKind()).toEqual(SearchEvent.SEARCH_SUBMIT);
         expect(event.getAttributes().get("type")).toEqual("tag");
         expect(event.getAttributes().get("location")).toEqual("recent_tags");
@@ -165,12 +165,11 @@ public class PlaylistTagsFragmentTest {
     @Test
     public void shouldTrackSearchSubmitEventForPopularTag() throws Exception {
         createFragment();
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
 
         ViewGroup tagFlowLayout = (ViewGroup) fragment.getView().findViewById(R.id.all_tags);
         tagFlowLayout.getChildAt(0).performClick();
 
-        SearchEvent event = eventMonitor.verifyEventOn(EventQueue.SEARCH);
+        SearchEvent event = eventBus.lastEventOn(EventQueue.SEARCH);
         expect(event.getKind()).toEqual(SearchEvent.SEARCH_SUBMIT);
         expect(event.getAttributes().get("type")).toEqual("tag");
         expect(event.getAttributes().get("location")).toEqual("popular_tags");

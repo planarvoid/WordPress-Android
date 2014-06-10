@@ -1,7 +1,6 @@
 package com.soundcloud.android.events;
 
-import static com.soundcloud.android.events.EventBus.Queue;
-import static com.soundcloud.android.events.EventBus.Queue.create;
+import static com.soundcloud.android.events.Queue.create;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
 public final class EventQueue {

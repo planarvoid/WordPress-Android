@@ -2,23 +2,18 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.refEq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.ListViewController;

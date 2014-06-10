@@ -16,7 +16,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -28,8 +27,8 @@ import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackServiceOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.skippy.Skippy;
@@ -65,8 +64,6 @@ public class SkippyAdapterTest {
     @Mock
     private ApplicationProperties applicationProperties;
     @Mock
-    private EventBus eventBus;
-    @Mock
     private SkippyAdapter.StateChangeHandler stateChangeHandler;
     @Mock
     private PlaybackServiceOperations playbackOperations;
@@ -76,7 +73,9 @@ public class SkippyAdapterTest {
     private Message message;
     @Mock
     private NetworkConnectionHelper connectionHelper;
+
     private UserUrn userUrn;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
@@ -333,11 +332,10 @@ public class SkippyAdapterTest {
 
     @Test
     public void performanceMetricPublishesTimeToPlayEventEvent() throws Exception {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY, 1000L, STREAM_URL, CDN_HOST);
 
-        final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
+        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
         expect(event.getMetricValue()).toEqual(1000L);
         expect(event.getCdnHost()).toEqual(CDN_HOST);
@@ -348,11 +346,10 @@ public class SkippyAdapterTest {
 
     @Test
     public void performanceMetricPublishesTimeToBufferEvent() throws Exception {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_BUFFER, 1000L, STREAM_URL, CDN_HOST);
 
-        final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
+        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_BUFFER);
         expect(event.getMetricValue()).toEqual(1000L);
         expect(event.getCdnHost()).toEqual(CDN_HOST);
@@ -363,11 +360,10 @@ public class SkippyAdapterTest {
 
     @Test
     public void performanceMetricPublishesTimeToPlaylistEvent() throws Exception {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_GET_PLAYLIST, 1000L, STREAM_URL, CDN_HOST);
 
-        final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
+        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST);
         expect(event.getMetricValue()).toEqual(1000L);
         expect(event.getCdnHost()).toEqual(CDN_HOST);
@@ -378,11 +374,10 @@ public class SkippyAdapterTest {
 
     @Test
     public void performanceMetricPublishesTimeToSeekEvent() throws Exception {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_SEEK, 1000L, STREAM_URL, CDN_HOST);
 
-        final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
+        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK);
         expect(event.getMetricValue()).toEqual(1000L);
         expect(event.getCdnHost()).toEqual(CDN_HOST);
@@ -393,11 +388,10 @@ public class SkippyAdapterTest {
 
     @Test
     public void performanceMetricPublishesFragmentDownloadRateEvent() throws Exception {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.FRAGMENT_DOWNLOAD_RATE, 1000L, STREAM_URL, CDN_HOST);
 
-        final PlaybackPerformanceEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_PERFORMANCE);
+        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE);
         expect(event.getMetricValue()).toEqual(1000L);
         expect(event.getCdnHost()).toEqual(CDN_HOST);
@@ -408,11 +402,9 @@ public class SkippyAdapterTest {
 
     @Test
     public void onErrorPublishesPlaybackErrorEvent() throws Exception {
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
-
         skippyAdapter.onErrorMessage("category", "message", STREAM_URL, CDN_HOST);
 
-        final PlaybackErrorEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_ERROR);
+        final PlaybackErrorEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_ERROR);
         expect(event.getBitrate()).toEqual("128");
         expect(event.getFormat()).toEqual("mp3");
         expect(event.getProtocol()).toEqual(PlaybackProtocol.HLS);
@@ -422,11 +414,10 @@ public class SkippyAdapterTest {
 
     @Test
     public void shouldNotPerformAnyActionIfUserIsNotLoggedInWhenGettingPerformanceCallback(){
-        EventMonitor eventMonitor = EventMonitor.on(eventBus);
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.FRAGMENT_DOWNLOAD_RATE, 1000L, STREAM_URL, CDN_HOST);
         verify(accountOperations, never()).getLoggedInUserUrn();
-        eventMonitor.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
+        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
     }
 
 }

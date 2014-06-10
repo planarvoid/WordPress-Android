@@ -6,7 +6,6 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,15 +13,14 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
@@ -43,18 +41,14 @@ public class EngagementsControllerTest {
 
     private EngagementsController controller;
     private ViewGroup rootView;
-    private EventMonitor eventMonitor;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Mock
     private SoundAssociationOperations soundAssocOps;
     @Mock
     private Context context;
     @Mock
-    private EventBus eventBus;
-    @Mock
     private AccountOperations accountOperations;
-    @Mock
-    private Subscription eventSubscription;
 
     @Before
     public void setup() {
@@ -62,7 +56,6 @@ public class EngagementsControllerTest {
         rootView = (ViewGroup) inflater.inflate(R.layout.player_action_bar, null);
         controller = new EngagementsController(eventBus, soundAssocOps, accountOperations);
         controller.bindView(rootView);
-        eventMonitor = EventMonitor.on(eventBus).withSubscription(eventSubscription);
         controller.startListeningForChanges();
     }
 
@@ -89,7 +82,7 @@ public class EngagementsControllerTest {
                 .thenReturn(Observable.just(new SoundAssociation(new Track())));
         rootView.findViewById(R.id.toggle_like).performClick();
 
-        UIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.UI);
+        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
         expect(uiEvent.getKind()).toBe(UIEvent.LIKE);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
@@ -104,7 +97,7 @@ public class EngagementsControllerTest {
         likeToggle.setChecked(true);
         likeToggle.performClick();
 
-        UIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.UI);
+        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
         expect(uiEvent.getKind()).toBe(UIEvent.UNLIKE);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
@@ -117,7 +110,7 @@ public class EngagementsControllerTest {
                 .thenReturn(Observable.just(new SoundAssociation(new Track())));
         rootView.findViewById(R.id.toggle_repost).performClick();
 
-        UIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.UI);
+        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
         expect(uiEvent.getKind()).toBe(UIEvent.REPOST);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
@@ -132,7 +125,7 @@ public class EngagementsControllerTest {
         repostToggle.setChecked(true);
         repostToggle.performClick();
 
-        UIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.UI);
+        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
         expect(uiEvent.getKind()).toBe(UIEvent.UNREPOST);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
@@ -144,7 +137,7 @@ public class EngagementsControllerTest {
 
         rootView.findViewById(R.id.btn_share).performClick();
 
-        UIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.UI);
+        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
         expect(uiEvent.getKind()).toBe(UIEvent.SHARE);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
@@ -152,7 +145,7 @@ public class EngagementsControllerTest {
     @Test
     public void shouldNotPublishUIEventWhenTrackIsNull() {
         rootView.findViewById(R.id.btn_share).performClick();
-        eventMonitor.verifyNoEventsOn(EventQueue.UI);
+        expect(eventBus.eventsOn(EventQueue.UI)).toBeEmpty();
     }
 
     @Test
@@ -244,19 +237,22 @@ public class EngagementsControllerTest {
         controller.stopListeningForChanges();
 
         verify(likeSubscription).unsubscribe();
-        verify(eventSubscription).unsubscribe();
+        eventBus.verifyUnsubscribed();
     }
 
     @Test
     public void shouldBeAbleToUnsubscribeThenResubscribeToChangeEvents() {
-        controller.setPlayable(new Track());
+        final Track track = new Track(1L);
+        controller.setPlayable(track);
 
         controller.stopListeningForChanges();
         controller.startListeningForChanges();
 
         // make sure starting to listen again does not try to use a subscription that had already been closed
         // (in which case unsubscribe is called more than once)
-        verify(eventSubscription, times(1)).unsubscribe();
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(track, true));
+        ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
+        expect(likeButton.isChecked()).toBeTrue();
     }
 
     @Test
@@ -275,8 +271,9 @@ public class EngagementsControllerTest {
         likedTrack.user_like = true;
         likedTrack.user_repost = true;
 
-        eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(likedTrack, true));
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(likedTrack, true));
         expect(likeButton.isChecked()).toBeTrue();
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forRepost(likedTrack, true));
         expect(repostButton.isChecked()).toBeTrue();
     }
 
@@ -294,7 +291,8 @@ public class EngagementsControllerTest {
         likedTrack.user_like = true;
         likedTrack.user_repost = true;
 
-        eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(likedTrack, true));
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(likedTrack, true));
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forRepost(likedTrack, true));
         expect(likeButton.isChecked()).toBeFalse();
         expect(repostButton.isChecked()).toBeFalse();
     }
@@ -313,7 +311,7 @@ public class EngagementsControllerTest {
 
         rootView.findViewById(R.id.btn_share).performClick();
 
-        UIEvent uiEvent = eventMonitor.verifyEventOn(EventQueue.UI);
+        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
     }
 

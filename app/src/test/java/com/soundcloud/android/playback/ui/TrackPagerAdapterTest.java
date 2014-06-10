@@ -6,7 +6,6 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
@@ -39,8 +38,6 @@ public class TrackPagerAdapterTest {
     private TrackPagePresenter trackPagePresenter;
     @Mock
     private PlaybackOperations playbackOperations;
-    @Mock
-    private EventBus eventBus;
     @Mock
     private View view;
     @Mock
