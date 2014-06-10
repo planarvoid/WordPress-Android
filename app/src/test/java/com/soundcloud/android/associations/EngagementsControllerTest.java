@@ -275,7 +275,7 @@ public class EngagementsControllerTest {
         likedTrack.user_like = true;
         likedTrack.user_repost = true;
 
-        eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.create(likedTrack));
+        eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(likedTrack, true));
         expect(likeButton.isChecked()).toBeTrue();
         expect(repostButton.isChecked()).toBeTrue();
     }
@@ -294,7 +294,7 @@ public class EngagementsControllerTest {
         likedTrack.user_like = true;
         likedTrack.user_repost = true;
 
-        eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.create(likedTrack));
+        eventMonitor.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(likedTrack, true));
         expect(likeButton.isChecked()).toBeFalse();
         expect(repostButton.isChecked()).toBeFalse();
     }

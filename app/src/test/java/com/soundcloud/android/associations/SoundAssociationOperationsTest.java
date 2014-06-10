@@ -1,5 +1,6 @@
 package com.soundcloud.android.associations;
 
+import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
@@ -18,6 +19,7 @@ import com.soundcloud.android.events.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
@@ -28,6 +30,8 @@ import com.soundcloud.android.storage.SoundAssociationStorage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
@@ -52,6 +56,8 @@ public class SoundAssociationOperationsTest {
     private Observer observer;
     @Mock
     private APIResponse response;
+    @Captor
+    private ArgumentCaptor<PlayableChangedEvent> eventCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -95,7 +101,9 @@ public class SoundAssociationOperationsTest {
 
         operations.like(track).subscribe(observer);
 
-        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
+        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), eventCaptor.capture());
+        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.IS_LIKED)).toBeTrue();
+        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.LIKES_COUNT)).toBeTrue();
     }
 
     @Test
@@ -132,7 +140,9 @@ public class SoundAssociationOperationsTest {
 
         operations.unlike(track).subscribe(observer);
 
-        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
+        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), eventCaptor.capture());
+        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.IS_LIKED)).toBeTrue();
+        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.LIKES_COUNT)).toBeTrue();
     }
 
     @Test
@@ -229,7 +239,9 @@ public class SoundAssociationOperationsTest {
 
         operations.repost(track).subscribe(observer);
 
-        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
+        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), eventCaptor.capture());
+        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.IS_REPOSTED)).toBeTrue();
+        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.REPOSTS_COUNT)).toBeTrue();
     }
 
     @Test
@@ -266,7 +278,9 @@ public class SoundAssociationOperationsTest {
 
         operations.unrepost(track).subscribe(observer);
 
-        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), any(PlayableChangedEvent.class));
+        verify(eventBus).publish(refEq(EventQueue.PLAYABLE_CHANGED), eventCaptor.capture());
+        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.IS_REPOSTED)).toBeTrue();
+        expect(eventCaptor.getValue().getChangeSet().contains(PlayableProperty.REPOSTS_COUNT)).toBeTrue();
     }
 
     @Test

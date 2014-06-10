@@ -509,6 +509,20 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void shouldReturnTrueIfGivenTrackIsCurrentTrack() {
+        when(playQueue.getCurrentTrackId()).thenReturn(123L);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        expect(playQueueManager.isCurrentTrack(Urn.forTrack(123))).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnFalseIfGivenTrackIsNotCurrentTrack() {
+        when(playQueue.getCurrentTrackId()).thenReturn(123L);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        expect(playQueueManager.isCurrentTrack(Urn.forTrack(456))).toBeFalse();
+    }
+
+    @Test
     public void shouldRetryWithSameObservable() {
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
         when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(observable);

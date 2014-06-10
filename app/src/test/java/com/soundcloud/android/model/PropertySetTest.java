@@ -14,6 +14,8 @@ import org.junit.runner.RunWith;
 
 import android.os.Parcel;
 
+import java.util.Iterator;
+
 @SuppressWarnings("ConstantConditions")
 @RunWith(SoundCloudTestRunner.class)
 public class PropertySetTest {
@@ -86,6 +88,15 @@ public class PropertySetTest {
     }
 
     @Test
+    public void twoPropertySetsCanBeMerged() {
+        PropertySet propertySet1 = PropertySet.from(TEST_PROP_STRING.bind("Foo"));
+        PropertySet propertySet2 = PropertySet.from(TEST_PROP_INT.bind(1));
+        PropertySet mergedSet = PropertySet.from(TEST_PROP_STRING.bind("Foo"), TEST_PROP_INT.bind(1));
+
+        expect(propertySet1.merge(propertySet2)).toEqual(mergedSet);
+    }
+
+    @Test
     public void aPropertySetHasAProperToStringImplementation() {
         final Property.Binding<String> binding1 = TEST_PROP_STRING.bind("Test");
         final Property.Binding<Integer> binding2 = TEST_PROP_INT.bind(1);
@@ -107,5 +118,25 @@ public class PropertySetTest {
 
         PropertySet restored = PropertySet.CREATOR.createFromParcel(parcel);
         assertThat(restored, equalTo(propertySet));
+    }
+
+    @Test
+    public void aPropertySetIsIterable() {
+        PropertySet propertySet = PropertySet.from(TEST_PROP_STRING.bind("Test"), TEST_PROP_INT.bind(1));
+        Iterator<Property.Binding> iter = propertySet.iterator();
+        expect(iter.hasNext()).toBeTrue();
+        expect(iter.next()).toEqual(TEST_PROP_STRING.bind("Test"));
+        expect(iter.hasNext()).toBeTrue();
+        expect(iter.next()).toEqual(TEST_PROP_INT.bind(1));
+        expect(iter.hasNext()).toBeFalse();
+    }
+
+    // There's not need to implement this right now, so simply throw exception
+    @Test(expected = UnsupportedOperationException.class)
+    public void shouldNotAllowRemovalOfBindingsThroughIterator() {
+        PropertySet propertySet = PropertySet.from(TEST_PROP_STRING.bind("Test"), TEST_PROP_INT.bind(1));
+        Iterator<Property.Binding> iter = propertySet.iterator();
+        iter.next();
+        iter.remove();
     }
 }

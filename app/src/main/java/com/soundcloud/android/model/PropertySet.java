@@ -6,13 +6,15 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
 
+import java.util.Iterator;
+
 /**
  * A PropertySet represents a set of {@link Property.Binding}s.
  * It can be understood as a fluent way of representing a SoundCloud business object such as
  * a track or user in a type safe fashion, without having to define various model classes
  * representing different combinations of fields.
  */
-public final class PropertySet implements Parcelable {
+public final class PropertySet implements Parcelable, Iterable<Property.Binding> {
 
     public static final Creator<PropertySet> CREATOR = new Creator<PropertySet>() {
         @Override
@@ -47,6 +49,43 @@ public final class PropertySet implements Parcelable {
 
     private PropertySet(SparseArray<Property.Binding<?>> sparseArray) {
         this.table = sparseArray;
+    }
+
+    /**
+     * Merges all bindings from the given source set into this set. This mutates the set on which `merge` is invoked,
+     * adding missing entries from the source set and overriding existing ones.
+     *
+     * @param propertySet the set whose bindings should be merged
+     * @return this set, with all bindings from the source set added or replaced
+     */
+    public PropertySet merge(PropertySet propertySet) {
+        for (Property.Binding<?> binding : propertySet) {
+            addBinding(binding);
+        }
+        return this;
+    }
+
+    @Override
+    public Iterator<Property.Binding> iterator() {
+        return new Iterator<Property.Binding>() {
+
+            private int currentIndex;
+
+            @Override
+            public boolean hasNext() {
+                return currentIndex < table.size();
+            }
+
+            @Override
+            public Property.Binding next() {
+                return table.valueAt(currentIndex++);
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 
     private void addBinding(Property.Binding<?> binding) {

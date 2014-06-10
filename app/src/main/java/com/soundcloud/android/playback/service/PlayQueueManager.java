@@ -74,6 +74,10 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return playQueue.getCurrentTrackId();
     }
 
+    public boolean isCurrentTrack(TrackUrn trackUrn) {
+        return playQueue.getCurrentTrackId() == trackUrn.numericId;
+    }
+
     public int getCurrentPosition() {
         return playQueue.getPosition();
     }

@@ -3,6 +3,7 @@ package com.soundcloud.android.utils;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,6 +19,7 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueue;
@@ -73,6 +75,7 @@ public class PlaybackOperationsTest {
         playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage, playQueueManager,
                 featureFlags, eventBus);
         track = TestHelper.getModelFactory().createModel(Track.class);
+        when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
     }
 
     @Test
@@ -98,7 +101,7 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playTrackFiresPlayTriggeredEvent() {
+    public void playTrackFiresPlayerExpandedEvent() {
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
         playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
 
@@ -122,16 +125,16 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playTrackShouldNotSendServiceIntentIfTrackAlreadyPlayingWithSameOrigin() {
-        when(playQueueManager.getCurrentTrackId()).thenReturn(track.getId());
+        when(playQueueManager.isCurrentTrack(track.getUrn())).thenReturn(true);
         playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        expect(application.getNextStartedService()).not.toBeNull();
+        expect(application.getNextStartedService()).toBeNull();
     }
 
     @Test
     public void playTrackShouldSendServiceIntentIfTrackAlreadyPlayingWithDifferentContext() {
-        when(playQueueManager.getCurrentTrackId()).thenReturn(track.getId());
+        when(playQueueManager.isCurrentTrack(track.getUrn())).thenReturn(true);
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get());
         playbackOperations.playTrack(Robolectric.application, track, Screen.EXPLORE_TRENDING_AUDIO);
 
@@ -242,7 +245,8 @@ public class PlaybackOperationsTest {
 
         when(playQueueManager.getCurrentTrackId()).thenReturn(tracks.get(1).getId()); // same track
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get()); // same screen origin
-        when(playQueueManager.getPlaylistId()).thenReturn(-1L); // different Playlist Id
+        when(playQueueManager.isPlaylist()).thenReturn(true);
+        when(playQueueManager.getPlaylistId()).thenReturn(playlist.getId() + 1); // different Playlist Id
 
         playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist, 1, tracks.get(1), Screen.EXPLORE_TRENDING_MUSIC);
 
@@ -512,6 +516,55 @@ public class PlaybackOperationsTest {
         final Intent intent = playbackOperations.getServiceBasedUpIntent();
         expect(intent).toHaveAction("com.soundcloud.android.action.LIKES");
         expect(intent).toHaveFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    }
+
+    @Test
+    public void playTracksShouldOpenLegacyPlayerWithGivenTrackIfVisualPlayerDisabled() {
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(false);
+        final Observable<TrackUrn> tracks = Observable.just(Urn.forTrack(123));
+        playbackOperations.playTracks(Robolectric.application, Urn.forTrack(123), tracks, 0, ORIGIN_SCREEN);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        Intent startedActivity = application.getNextStartedActivity();
+
+        expect(startedActivity).not.toBeNull();
+        expect(startedActivity.getAction()).toBe(Actions.PLAYER);
+        expect(startedActivity.getLongExtra(Track.EXTRA_ID, -1)).toBe(123L);
+    }
+
+    @Test
+    public void playTracksShouldNotOpenLegacyPlayerIfVisualPlayerEnabled() {
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
+        final Observable<TrackUrn> tracks = Observable.just(Urn.forTrack(123));
+        playbackOperations.playTracks(Robolectric.application, Urn.forTrack(123), tracks, 0, ORIGIN_SCREEN);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        Intent startedActivity = application.getNextStartedActivity();
+        expect(startedActivity).toBeNull();
+    }
+
+    @Test
+    public void playTracksShouldOpenLegacyPlayerButNotRestartServiceWhenTrackAlreadyPlaying() {
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(false);
+        when(playQueueManager.isCurrentTrack(Urn.forTrack(123L))).thenReturn(true);
+        final Observable<TrackUrn> tracks = Observable.just(Urn.forTrack(123));
+        playbackOperations.playTracks(Robolectric.application, Urn.forTrack(123), tracks, 0, ORIGIN_SCREEN);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        expect(application.getNextStartedActivity()).not.toBeNull();
+        expect(application.getNextStartedService()).toBeNull();
+        verify(playQueueManager, never()).setNewPlayQueue(any(PlayQueue.class), any(PlaySessionSource.class));
+    }
+
+    @Test
+    public void playTracksShouldFirePlayerExpandedEvent() {
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
+        final Observable<TrackUrn> tracks = Observable.just(Urn.forTrack(123));
+        playbackOperations.playTracks(Robolectric.application, Urn.forTrack(123), tracks, 0, ORIGIN_SCREEN);
+
+        EventMonitor eventMonitor = EventMonitor.on(eventBus);
+        PlayerUIEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYER_UI);
+        expect(event.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
     }
 
     private void checkSetNewPlayQueueArgs(int startPosition, PlaySessionSource playSessionSource, Long... ids){

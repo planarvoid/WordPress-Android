@@ -6,9 +6,14 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PlaylistUrn;
 import com.soundcloud.android.model.PropertySet;
+import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
 import rx.Subscription;
@@ -37,11 +42,10 @@ public class SoundStreamFragment extends Fragment
     @Inject
     PullToRefreshController pullToRefreshController;
     @Inject
-    EventBus eventBus;
+    PlaybackOperations playbackOperations;
 
     private ConnectableObservable<Page<List<PropertySet>>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
-    private Subscription playQueueEventSubscription = Subscriptions.empty();
 
     public SoundStreamFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -81,16 +85,14 @@ public class SoundStreamFragment extends Fragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        playQueueEventSubscription = eventBus.subscribe(EventQueue.PLAY_QUEUE, adapter.new PlayQueueEventSubscriber());
-
         listViewController.onViewCreated(this, observable, view, adapter, adapter);
         pullToRefreshController.onViewCreated(this, observable, adapter);
+        adapter.onViewCreated();
     }
 
     @Override
     public void onDestroyView() {
-        playQueueEventSubscription.unsubscribe();
+        adapter.onDestroyView();
         listViewController.onDestroyView();
         pullToRefreshController.onDestroyView();
         super.onDestroyView();
@@ -104,7 +106,13 @@ public class SoundStreamFragment extends Fragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+        final PropertySet item = adapter.getItem(position);
+        final Urn playableUrn = item.get(PlayableProperty.URN);
+        if (playableUrn instanceof TrackUrn) {
+            playbackOperations.playTracks(getActivity(), (TrackUrn) playableUrn,
+                    soundStreamOperations.trackUrnsForPlayback(), position, Screen.SIDE_MENU_STREAM);
+        } else if (playableUrn instanceof PlaylistUrn) {
+            PlaylistDetailActivity.start(getActivity(), (PlaylistUrn) playableUrn, Screen.SIDE_MENU_STREAM);
+        }
     }
-
 }

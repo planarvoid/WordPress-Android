@@ -13,6 +13,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PlaylistProperty;
 import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.model.TrackProperty;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
@@ -73,6 +74,19 @@ class SoundStreamStorage extends ScheduledOperations {
         }));
     }
 
+    public Observable<TrackUrn> trackUrns() {
+        return schedule(Observable.create(new Observable.OnSubscribe<TrackUrn>() {
+            @Override
+            public void call(Subscriber<? super TrackUrn> subscriber) {
+                Query.from(Table.ACTIVITY_VIEW.name)
+                        .select(ActivityView.SOUND_ID)
+                        .whereEq(ActivityView.CONTENT_ID, Content.ME_SOUND_STREAM.id)
+                        .whereEq(ActivityView.SOUND_TYPE, Playable.DB_TYPE_TRACK)
+                        .runOn(database).emit(subscriber, new TrackUrnMapper());
+            }
+        }));
+    }
+
     private Query soundAssociationQuery(int collectionType, long userId, String colName) {
         Query association = Query.from(Table.COLLECTION_ITEMS.name, Table.SOUNDS.name);
         association.joinOn(ActivityView.SOUND_ID, CollectionItems.ITEM_ID);
@@ -80,6 +94,13 @@ class SoundStreamStorage extends ScheduledOperations {
         association.whereEq(CollectionItems.COLLECTION_TYPE, collectionType);
         association.whereEq(Table.COLLECTION_ITEMS.name + "." + CollectionItems.USER_ID, userId);
         return association.exists().as(colName);
+    }
+
+    private static final class TrackUrnMapper implements RowMapper<TrackUrn> {
+        @Override
+        public TrackUrn call(ManagedCursor cursor) {
+            return Urn.forTrack(cursor.getLong(ActivityView.SOUND_ID));
+        }
     }
 
     private static final class StreamItemMapper implements RowMapper<PropertySet> {

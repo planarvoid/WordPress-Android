@@ -9,6 +9,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -52,6 +53,10 @@ class SoundStreamOperations {
      */
     public Observable<Page<List<PropertySet>>> existingStreamItems() {
         return pagedStreamItems(accountOperations.getLoggedInUserUrn(), INITIAL_TIMESTAMP);
+    }
+
+    public Observable<TrackUrn> trackUrnsForPlayback() {
+        return soundStreamStorage.trackUrns();
     }
 
     private Observable<Page<List<PropertySet>>> pagedStreamItems(final Urn userUrn, final long timestamp) {

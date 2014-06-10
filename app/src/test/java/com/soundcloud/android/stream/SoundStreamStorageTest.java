@@ -10,6 +10,7 @@ import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.model.TrackProperty;
 import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.DatabaseHelper;
@@ -170,6 +171,19 @@ public class SoundStreamStorageTest {
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).toEqual(oldestTrack.getUrn());
+    }
+
+    @Test
+    public void trackUrnsLoadsUrnsOfAllTrackItemsInSoundStream() throws CreateModelException {
+        final TrackSummary trackOne = helper.insertTrack();
+        helper.insertTrackPost(trackOne, TIMESTAMP);
+        final TrackSummary trackTwo = helper.insertTrack();
+        helper.insertTrackRepost(trackTwo, helper.insertUser(), TIMESTAMP - 1);
+        helper.insertPlaylistPost(helper.insertPlaylist(), TIMESTAMP - 2);
+
+        TestObserver<TrackUrn> observer = new TestObserver<TrackUrn>();
+        storage.trackUrns().subscribe(observer);
+        expect(observer.getOnNextEvents()).toContainExactly(trackOne.getUrn(), trackTwo.getUrn());
     }
 
     private PropertySet createTrackPropertySet(final TrackSummary track) throws CreateModelException {

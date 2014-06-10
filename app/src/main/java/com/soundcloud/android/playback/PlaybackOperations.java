@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.playback.service.PlayQueue;
@@ -29,7 +30,12 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
+import rx.Subscriber;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.content.Intent;
@@ -78,6 +84,10 @@ public class PlaybackOperations {
         playFromIdList(activityContext, Lists.newArrayList(track.getId()), 0, track, new PlaySessionSource(screen));
     }
 
+    private void playTrack(Context activityContext, Track track, PlaySessionSource playSessionSource, boolean loadRelated) {
+        playFromIdList(activityContext, Lists.newArrayList(track.getId()), 0, track, playSessionSource, loadRelated);
+    }
+
     /**
      * Created by anything played from the {@link com.soundcloud.android.explore.ExploreFragment} section.
      */
@@ -85,10 +95,6 @@ public class PlaybackOperations {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screenTag);
         playSessionSource.setExploreVersion(exploreTag);
         playTrack(activityContext, track, playSessionSource, true);
-    }
-
-    private void playTrack(Context activityContext, Track track, PlaySessionSource playSessionSource, boolean loadRelated) {
-        playFromIdList(activityContext, Lists.newArrayList(track.getId()), 0, track, playSessionSource, loadRelated);
     }
 
     /**
@@ -125,7 +131,7 @@ public class PlaybackOperations {
             final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
             final int adjustedPosition = Collections2.filter(data.subList(0, position), PLAYABLE_HOLDER_PREDICATE).size();
 
-            if (uri != null){
+            if (uri != null) {
                 playFromUri(activityContext, uri, position, (Track) playable, playSessionSource);
             } else {
                 playFromIdList(activityContext, getPlayableIdsFromModels(data), adjustedPosition, (Track) playable, playSessionSource);
@@ -135,6 +141,21 @@ public class PlaybackOperations {
             PlaylistDetailActivity.start(activityContext, (Playlist) playable, modelManager, screen);
         } else {
             throw new AssertionError("Unexpected playable type");
+        }
+    }
+
+    public Subscription playTracks(Context context, TrackUrn initialTrack, Observable<TrackUrn> allTracks, int position, Screen screen) {
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
+        if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
+            return allTracks.map(new Func1<TrackUrn, Long>() {
+                @Override
+                public Long call(TrackUrn trackUrn) {
+                    return trackUrn.numericId;
+                }
+            }).toList().subscribe(trackListLoadedSubscriber(context, position, playSessionSource, initialTrack, null));
+        } else {
+            showPlayer(context, initialTrack);
+            return Subscriptions.empty();
         }
     }
 
@@ -171,7 +192,7 @@ public class PlaybackOperations {
         List<Long> shuffled = Lists.newArrayList(ids);
         Collections.shuffle(shuffled);
         startPlaySession(shuffled, 0, new PlaySessionSource(screen));
-        gotoPlayer(activityContext, shuffled.get(0));
+        openLegacyPlayer(activityContext, shuffled.get(0));
     }
 
     private ArrayList<Long> getPlayableIdsFromModels(List<? extends ScModel> data) {
@@ -185,22 +206,34 @@ public class PlaybackOperations {
         return Lists.newArrayList(trackIds);
     }
 
-    private void playFromUri(final Context activityContext, Uri uri, final int startPosition, final Track initialTrack,
-                             final PlaySessionSource playSessionSource) {
-        showPlayer(activityContext, initialTrack);
-
-        if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
-            trackStorage.getTrackIdsForUriAsync(uri).observeOn(AndroidSchedulers.mainThread()).subscribe(new DefaultSubscriber<List<Long>>() {
-                @Override
-                public void onNext(List<Long> idList) {
-
-                    final int updatedPosition = correctStartPositionAndDeduplicateList(idList, startPosition, initialTrack);
-                    PlayQueue playQueue = PlayQueue.fromIdList(idList, updatedPosition, playSessionSource);
-                    playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-                    playCurrent();
-                }
-            });
+    @Deprecated
+    private Subscription playFromUri(final Context activityContext, Uri uri, final int startPosition, final Track initialTrack,
+                                     final PlaySessionSource playSessionSource) {
+        if (shouldChangePlayQueue(initialTrack.getUrn(), playSessionSource)) {
+            return trackStorage.getTrackIdsForUriAsync(uri)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(trackListLoadedSubscriber(
+                            activityContext, startPosition, playSessionSource, initialTrack.getUrn(), initialTrack));
+        } else {
+            showPlayer(activityContext, initialTrack.getUrn(), initialTrack);
+            return Subscriptions.empty();
         }
+    }
+
+    private Subscriber<List<Long>> trackListLoadedSubscriber(final Context context, final int startPosition,
+                                                             final PlaySessionSource playSessionSource,
+                                                             final TrackUrn initialTrackUrn,
+                                                             @Nullable final Track initialTrack) {
+        showPlayer(context, initialTrackUrn, initialTrack);
+        return new DefaultSubscriber<List<Long>>() {
+            @Override
+            public void onNext(List<Long> idList) {
+                final int updatedPosition = correctStartPositionAndDeduplicateList(idList, startPosition, initialTrackUrn);
+                PlayQueue playQueue = PlayQueue.fromIdList(idList, updatedPosition, playSessionSource);
+                playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+                playCurrent();
+            }
+        };
     }
 
     private void playFromIdList(Context activityContext, List<Long> idList, int startPosition, Track initialTrack,
@@ -210,34 +243,39 @@ public class PlaybackOperations {
 
     private void playFromIdList(Context activityContext, List<Long> idList, int startPosition, Track initialTrack,
                                 PlaySessionSource playSessionSource, boolean loadRelated) {
-        showPlayer(activityContext, initialTrack);
+        showPlayer(activityContext, initialTrack.getUrn(), initialTrack);
 
-        if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
+        if (shouldChangePlayQueue(initialTrack.getUrn(), playSessionSource)) {
             final int adjustedPosition = getDeduplicatedIdList(idList, startPosition);
             startPlaySession(idList, adjustedPosition, playSessionSource, loadRelated);
         }
     }
 
-    private void showPlayer(Context activityContext, Track initialTrack) {
+    private void showPlayer(Context activityContext, TrackUrn trackUrn) {
+        showPlayer(activityContext, trackUrn, null);
+    }
+
+    @Deprecated
+    private void showPlayer(Context activityContext, TrackUrn trackUrn, @Nullable Track initialTrack) {
         modelManager.cache(initialTrack);
         if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
             eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
         } else {
-            gotoPlayer(activityContext, initialTrack.getId());
+            openLegacyPlayer(activityContext, trackUrn.numericId);
         }
     }
 
-    private void gotoPlayer(Context activityContext, long initialTrackId) {
+    private void openLegacyPlayer(Context activityContext, long initialTrackId) {
         Intent playerActivityIntent = new Intent(Actions.PLAYER)
                 .putExtra(Track.EXTRA_ID, initialTrackId)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         activityContext.startActivity(playerActivityIntent);
     }
 
-    private boolean shouldChangePlayQueue(Track track, PlaySessionSource playSessionSource){
-        return playQueueManager.getCurrentTrackId() != track.getId() ||
+    private boolean shouldChangePlayQueue(TrackUrn trackUrn, PlaySessionSource playSessionSource) {
+        return !playQueueManager.isCurrentTrack(trackUrn) ||
                 !playSessionSource.getOriginScreen().equals(playQueueManager.getScreenTag()) ||
-                !playQueueManager.isCurrentPlaylist(playSessionSource.getPlaylistId());
+                (playQueueManager.isPlaylist() && !playQueueManager.isCurrentPlaylist(playSessionSource.getPlaylistId()));
     }
 
     private void startPlaySession(final List<Long> trackList, int startPosition,
@@ -252,23 +290,17 @@ public class PlaybackOperations {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         playCurrent();
 
-        if (loadRecommended){
+        if (loadRecommended) {
             playQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
         }
     }
 
-    private int correctStartPositionAndDeduplicateList(List<Long> idList, int startPosition, final Track initialTrack) {
+    private int correctStartPositionAndDeduplicateList(List<Long> idList, int startPosition, TrackUrn initialTrack) {
         final int updatedPosition;
-        if (startPosition < idList.size() &&
-                idList.get(startPosition) == initialTrack.getId()) {
+        if (startPosition < idList.size() && idList.get(startPosition) == initialTrack.numericId) {
             updatedPosition = startPosition;
         } else {
-            updatedPosition = Iterables.indexOf(idList, new Predicate<Long>() {
-                @Override
-                public boolean apply(Long input) {
-                    return input == initialTrack.getId();
-                }
-            });
+            updatedPosition = idList.indexOf(initialTrack.numericId);
         }
 
         return getDeduplicatedIdList(idList, updatedPosition);
@@ -278,8 +310,8 @@ public class PlaybackOperations {
      * Remove duplicates from playqueue, preserving the ordering with regards to the item they clicked on
      * Returns the new startPosition
      */
-    private int getDeduplicatedIdList(List<Long> idList, int startPosition){
-        final Set <Long> seenIds = Sets.newHashSetWithExpectedSize(idList.size());
+    private int getDeduplicatedIdList(List<Long> idList, int startPosition) {
+        final Set<Long> seenIds = Sets.newHashSetWithExpectedSize(idList.size());
         final long playedId = idList.get(startPosition);
 
         int i = 0;
@@ -302,9 +334,10 @@ public class PlaybackOperations {
      */
 
     @Deprecated
-    public @Nullable Intent getServiceBasedUpIntent() {
+    @Nullable
+    public Intent getServiceBasedUpIntent() {
         final String originScreen = playQueueManager.getScreenTag();
-        if (ScTextUtils.isBlank(originScreen)){
+        if (ScTextUtils.isBlank(originScreen)) {
             return null; // might have come from widget and the play queue is empty
         }
 
@@ -322,5 +355,4 @@ public class PlaybackOperations {
         upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return upIntent;
     }
-
 }

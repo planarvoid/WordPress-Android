@@ -21,13 +21,14 @@ public class PlaylistDetailActivity extends ScActivity {
 
     static final String LOG_TAG = "PlaylistDetails";
 
+    @Deprecated
     public static void start(Context context, @NotNull Playlist playlist, ScModelManager modelManager, Screen screen) {
         modelManager.cache(playlist);
-        context.startActivity(getIntent(playlist, screen));
+        context.startActivity(getIntent(playlist.getUrn(), screen));
     }
 
-    public static Intent getIntent(@NotNull Playlist playlist, Screen screen) {
-        return getIntent(playlist.getUrn(), screen);
+    public static void start(Context context, PlaylistUrn playlistUrn, Screen screen) {
+        context.startActivity(getIntent(playlistUrn, screen));
     }
 
     public static Intent getIntent(@NotNull PlaylistUrn playlistUrn, Screen screen) {

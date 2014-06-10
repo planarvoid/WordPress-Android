@@ -219,7 +219,7 @@ public class Playlist extends Playable {
 
     @Override
     public Intent getViewIntent() {
-        return PlaylistDetailActivity.getIntent(this, Screen.DEEPLINK);
+        return PlaylistDetailActivity.getIntent(getUrn(), Screen.DEEPLINK);
     }
 
     @Override

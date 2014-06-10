@@ -66,14 +66,14 @@ public class SoundAssociationOperations {
     public Observable<SoundAssociation> like(final Playable playable) {
         logPlayable("LIKE", playable);
         return httpClient.fetchResponse(buildRequestForLike(playable, true)).mergeMap(mapAddLikeResponse(playable))
-                .doOnCompleted(handlePlayableStateChanged(playable));
+                .doOnCompleted(handleLikeStateChanged(playable, true));
     }
 
     public Observable<SoundAssociation> unlike(final Playable playable) {
         logPlayable("UNLIKE", playable);
         return httpClient.fetchResponse(buildRequestForLike(playable, false)).mergeMap(mapRemoveLikeResponse(playable))
                 .onErrorResumeNext(handle404(soundAssocStorage.removeLikeAsync(playable)))
-                .doOnCompleted(handlePlayableStateChanged(playable));
+                .doOnCompleted(handleLikeStateChanged(playable, false));
     }
 
     // If a like has already been removed server side, and it hasn't synced back to the client, it can happen
@@ -136,14 +136,14 @@ public class SoundAssociationOperations {
     public Observable<SoundAssociation> repost(final Playable playable) {
         logPlayable("REPOST", playable);
         return httpClient.fetchResponse(buildRequestForReposts(playable, true)).mergeMap(mapAddRepostResponse(playable))
-                .doOnCompleted(handlePlayableStateChanged(playable));
+                .doOnCompleted(handleRepostStateChanged(playable, true));
     }
 
     public Observable<SoundAssociation> unrepost(final Playable playable) {
         logPlayable("UNREPOST", playable);
         return httpClient.fetchResponse(buildRequestForReposts(playable, false)).mergeMap(mapRemoveRepostResponse(playable))
                 .onErrorResumeNext(handle404(soundAssocStorage.removeRepostAsync(playable)))
-                .doOnCompleted(handlePlayableStateChanged(playable));
+                .doOnCompleted(handleRepostStateChanged(playable, false));
     }
 
     private APIRequest buildRequestForReposts(final Playable playable, final boolean likeAdded) {
@@ -175,14 +175,28 @@ public class SoundAssociationOperations {
 
     // FIXME: the playable is written on a BG thread and read on the UI thread,
     // this might cause thread visibility issues.
-    private Action0 handlePlayableStateChanged(final Playable playable) {
+    private Action0 handleLikeStateChanged(final Playable playable, final boolean isSet) {
         return new Action0() {
             @Override
             public void call() {
                 logPlayable("CACHE/PUBLISH", playable);
                 modelManager.cache(playable, ScResource.CacheUpdateMode.NONE);
                 Log.d(TAG, "publishing playable change event");
-                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.create(playable));
+                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(playable, isSet));
+            }
+        };
+    }
+
+    // FIXME: the playable is written on a BG thread and read on the UI thread,
+    // this might cause thread visibility issues.
+    private Action0 handleRepostStateChanged(final Playable playable, final boolean isSet) {
+        return new Action0() {
+            @Override
+            public void call() {
+                logPlayable("CACHE/PUBLISH", playable);
+                modelManager.cache(playable, ScResource.CacheUpdateMode.NONE);
+                Log.d(TAG, "publishing playable change event");
+                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forRepost(playable, isSet));
             }
         };
     }

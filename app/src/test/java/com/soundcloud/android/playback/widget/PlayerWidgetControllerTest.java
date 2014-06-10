@@ -126,7 +126,7 @@ public class PlayerWidgetControllerTest {
     public void shouldUpdatePresenterPlayStateInformationWhenChangedTrackIsCurrentlyPlayingTrack() {
         final Track currentTrack = new Track(1L);
         when(playQueueManager.getCurrentTrackId()).thenReturn(currentTrack.getId());
-        PlayableChangedEvent event = PlayableChangedEvent.create(currentTrack);
+        PlayableChangedEvent event = PlayableChangedEvent.forLike(currentTrack, true);
 
         controller.subscribe();
 
@@ -138,7 +138,7 @@ public class PlayerWidgetControllerTest {
     public void shouldNotPerformPresenterUpdateWhenChangedTrackIsNotCurrentlyPlayingTrack() {
         final Track currentTrack = new Track(1L);
         when(playQueueManager.getCurrentTrackId()).thenReturn(2L);
-        PlayableChangedEvent event = PlayableChangedEvent.create(currentTrack);
+        PlayableChangedEvent event = PlayableChangedEvent.forLike(currentTrack, true);
 
         controller.subscribe();
 
