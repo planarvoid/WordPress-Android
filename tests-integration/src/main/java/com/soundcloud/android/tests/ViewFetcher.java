@@ -7,7 +7,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.robotium.solo.Solo;
 import com.soundcloud.android.tests.with.With;
-import junit.framework.AssertionFailedError;
 
 import android.os.SystemClock;
 import android.view.View;
@@ -70,17 +69,14 @@ class ViewFetcher {
             }
         });
     }
-    class Waiter {
+
+   class Waiter {
         private static final int ELEMENT_TIMEOUT = 3 * 1000;
         private static final int SMALL_TIMEOUT = 500;
 
         public ViewElement waitForElement(Callable<List<ViewElement>> callable) {
             return waitForOne(callable);
         }
-
-        public List<ViewElement> waitForMany(Callable<List<ViewElement>> callable) {
-            return null;
-        };
 
         private ViewElement waitForOne(Callable<List<ViewElement>> callable) {
             long endTime = SystemClock.uptimeMillis() + ELEMENT_TIMEOUT;
