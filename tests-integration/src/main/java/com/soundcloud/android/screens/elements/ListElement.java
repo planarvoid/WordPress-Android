@@ -1,6 +1,7 @@
 package com.soundcloud.android.screens.elements;
 
 import com.robotium.solo.Solo;
+import com.soundcloud.android.tests.DefaultViewElement;
 import com.soundcloud.android.tests.ViewElement;
 
 import android.view.View;
@@ -20,7 +21,7 @@ public class ListElement {
     }
 
     public ViewElement getItemAt(int index) {
-        return new ViewElement(absListView.getChildAt(index), testDriver);
+        return new DefaultViewElement(absListView.getChildAt(index), testDriver);
     }
 
     public void scrollToBottom() {

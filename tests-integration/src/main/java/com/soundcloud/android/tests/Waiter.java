@@ -8,6 +8,7 @@ import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.tests.with.With;
 import com.soundcloud.android.utils.Log;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
@@ -20,6 +21,7 @@ import android.widget.ProgressBar;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class Waiter {
@@ -88,19 +90,25 @@ public class Waiter {
 
     public boolean waitForContentAndRetryIfLoadingFailed() {
         boolean success = waitForListContent();
-        success = retryIfFailed();
-
+        if (!success) {
+            if (retryIfFailed()) {
+                return waitForListContent();
+            }
+        }
         return success;
     }
 
     //TODO: We should have an error screen class defined
     private boolean retryIfFailed() {
-        ViewElement retryButton = solo.findElement(With.id(R.id.btn_retry));
-        if(retryButton.isVisible()){
-            retryButton.click();
-            waitForListContent();
+        List<ViewElement> retryButtons = solo.findElements(With.id(R.id.btn_retry));
+        if (!retryButtons.isEmpty())   {
+            ViewElement button = retryButtons.get(0);
+            if (button.isVisible()) {
+                button.click();
+                return true;
+            }
         }
-        return retryButton != null;
+        return false;
     }
 
     public boolean waitForContent(final ViewPager viewPager) {
@@ -126,10 +134,6 @@ public class Waiter {
         return solo.waitForCondition(new PlayerPlayingCondition(), this.NETWORK_TIMEOUT);
     }
 
-    public void waitForViewId(int id) {
-        solo.waitForViewId(id, TIMEOUT);
-    }
-
     public boolean waitForDrawerToClose() {
         return solo.waitForCondition(new DrawerStateCondition(false), this.TIMEOUT);
     }
@@ -142,12 +146,8 @@ public class Waiter {
         solo.waitForDialogToClose(NETWORK_TIMEOUT);
     }
 
-    public void waitForActivity(Class activityClass) {
+    public void waitForActivity(Class<? extends Activity> activityClass) {
         solo.waitForActivity(activityClass, TIMEOUT);
-    }
-
-    public void waitForText(String text) {
-        solo.waitForText(text, 1, TIMEOUT, false);
     }
 
     public void waitForTextInView(ViewElement viewElement) {
@@ -156,10 +156,6 @@ public class Waiter {
 
     public boolean waitForFragmentByTag(String fragment_tag) {
         return solo.waitForFragmentByTag(fragment_tag, TIMEOUT);
-    }
-
-    public boolean waitForElement(final View view) {
-        return solo.waitForCondition(new VisibleElementCondition(view), this.TIMEOUT);
     }
 
     public boolean waitForElement(final int content) {
@@ -224,11 +220,11 @@ public class Waiter {
                 if  (progressBar.isShown() &&
                         progressBar.getVisibility() == View.VISIBLE &&
                         isOnScreen(progressBar) &&
-                        progressBar.getClass().getSimpleName().toString().equals("ProgressBar")
+                        progressBar.getClass().getSimpleName().equals("ProgressBar")
                     ) {
                     Log.i(TAG, String.format("[ %s ] Spinner view found",
                            new Timestamp( new java.util.Date().getTime())));
-                    progressBarNotDisplayed = progressBarNotDisplayed && false;
+                    progressBarNotDisplayed = false;
                 }
             }
             return progressBarNotDisplayed;

@@ -7,7 +7,6 @@ import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import android.support.v4.view.ViewPager;
@@ -77,13 +76,13 @@ public class ExploreScreen extends Screen {
 
     public LegacyPlayerScreen playPopularTrack(int trackNumber) {
         View view = ((GridView) viewPager.getCurrentPage(GridView.class)).getChildAt(trackNumber);
-        new ViewElement(view, testDriver.getSolo()).click();
+        testDriver.wrap(view).click();
         return new LegacyPlayerScreen(testDriver);
     }
 
     public void playFirstTrack() {
         View view = ((GridView) viewPager.getCurrentPage(GridView.class)).getChildAt(0);
-        new ViewElement(view, testDriver.getSolo()).click();
+        testDriver.wrap(view).click();
     }
 
     private void touchTab(String tabText) {

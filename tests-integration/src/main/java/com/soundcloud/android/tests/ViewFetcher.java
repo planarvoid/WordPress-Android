@@ -38,7 +38,7 @@ class ViewFetcher {
     }
 
     public List<ViewElement> findElements(With with) {
-        return Lists.newArrayList(filter(getAllViewsFromScreen(), with));
+        return Lists.newArrayList(filter(getAllVisibleElements(), with));
     }
 
     public ViewElement getChildAt(int index) {
@@ -71,7 +71,7 @@ class ViewFetcher {
             return Lists.transform(views, new Function<View, ViewElement>() {
                 @Override
                 public ViewElement apply(View view) {
-                    return new ViewElement(view, testDriver);
+                    return new DefaultViewElement(view, testDriver);
                 }
             });
         }
@@ -87,11 +87,10 @@ class ViewFetcher {
 
         private ViewElement waitForOne(Callable<List<ViewElement>> callable) {
             long endTime = SystemClock.uptimeMillis() + ELEMENT_TIMEOUT;
-            List<ViewElement> viewElements;
 
             while (SystemClock.uptimeMillis() <= endTime) {
                 try {
-                    viewElements = callable.call();
+                    List<ViewElement> viewElements = callable.call();
                     if (viewElements.size() > 0) {
                         return viewElements.get(0);
                     }
@@ -100,7 +99,7 @@ class ViewFetcher {
                 }
                 testDriver.sleep(POLL_INTERVAL);
             }
-            throw new ViewNotFoundException(callable.toString());
+            return new EmptyViewElement();
         }
     }
 }

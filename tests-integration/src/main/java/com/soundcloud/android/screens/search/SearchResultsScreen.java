@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.collections.views.UserlistRow;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -13,7 +12,6 @@ import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
 import com.soundcloud.android.view.SlidingTabLayout;
 
@@ -39,14 +37,14 @@ public class SearchResultsScreen extends Screen {
     public LegacyPlayerScreen clickFirstTrackItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         View itemView = getFirstResultsItemByClass(Track.class);
-        new ViewElement(itemView, testDriver.getSolo()).click();
+        testDriver.wrap(itemView).click();
         return new LegacyPlayerScreen(testDriver);
     }
 
     public PlaylistDetailsScreen clickFirstPlaylistItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         View itemView = getFirstResultsItemByClass(Playlist.class);
-        new ViewElement(itemView, testDriver.getSolo()).click();
+        testDriver.wrap(itemView).click();
         return new PlaylistDetailsScreen(testDriver);
     }
 

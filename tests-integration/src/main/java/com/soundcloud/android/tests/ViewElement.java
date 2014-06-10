@@ -1,162 +1,54 @@
 package com.soundcloud.android.tests;
 
-import com.robotium.solo.Solo;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.tests.with.With;
 
-import android.content.Context;
 import android.support.v4.view.ViewPager;
-import android.view.Display;
-import android.view.View;
 import android.view.ViewParent;
-import android.view.WindowManager;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import java.util.List;
 
-public class ViewElement {
-    private final Solo testDriver;
-    private final View view;
-    private ViewFetcher viewFetcher;
+public interface ViewElement {
+    ViewElement findElement(With with);
 
-    public ViewElement(View view, Solo driver) {
-        if (view == null) throw new IllegalArgumentException("viewElement cannot be null");
-        testDriver = driver;
-        viewFetcher = new ViewFetcher(view, driver);
-        this.view = view;
-    }
+    List<ViewElement> findElements(With with);
 
-    public ViewElement findElement(With with) {
-        return viewFetcher.findElement(with);
-    }
+    void dragHorizontally(int n, int steps);
 
-    public List<ViewElement> findElements(With with) {
-        return viewFetcher.findElements(with);
-    }
+    ViewElement getChildAt(int index);
 
-    public void dragHorizontally(int n, int steps) {
-        int[] xy = getLocation();
-        testDriver.drag(Math.max(xy[0], 0),
-                Math.max(Math.min(getScreenWidth(), xy[0] + n), 0),
-                xy[1],
-                xy[1],
-                steps);
-    }
+    void click();
 
-    public ViewElement getChildAt(int index) {
-        return viewFetcher.getChildAt(index);
-    }
+    void longClick();
 
-    public void click() {
-        if( !isVisible() ) {
-            throw new ViewNotVisibleException();
-        }
-        testDriver.clickOnView(view);
-    }
+    void typeText(String text);
 
-    public void longClick() {
-        testDriver.clickLongOnView(view);
-    }
+    void clearText();
 
-    public void typeText(String text) {
-        testDriver.typeText((EditText) view, text);
-    }
+    boolean isVisible();
 
-    public void clearText() {
-        testDriver.clearEditText((EditText) view);
-    }
+    String getText();
 
-    public boolean isVisible(){
-        return isShown() && hasVisibility() && hasDimensions() && isOnScreen();
-    }
+    int getHeight();
 
-    public String getText() {
-        if (view instanceof TextView) {
-          return ((TextView) view).getText().toString();
-        }  else {
-          return "";
-        }
-    }
+    int getWidth();
 
-    public int getHeight() {
-        return view.getHeight();
-    }
+    int[] getLocation();
 
-    public int getWidth() {
-        return view.getWidth();
-    }
+    ListElement toListView();
 
-    public int[] getLocation() {
-        int[] locationOnScreen = new int [2];
-        view.getLocationOnScreen(locationOnScreen);
-        return locationOnScreen;
-    }
+    SlidingTabs toSlidingTabs();
 
-    public ListElement toListView() {
-        return new ListElement(view, testDriver);
-    }
+    boolean isEnabled();
 
-    public SlidingTabs toSlidingTabs() {
-        return new SlidingTabs(this);
-    }
+    boolean isChecked();
 
-    public boolean isEnabled() {
-        return view.isEnabled();
-    }
+    int getId();
 
-    public boolean isChecked() {
-        return ((ToggleButton)view).isChecked();
-    }
+    ViewParent getParent();
 
-    public int getId() {
-        return view.getId();
-    }
+    Class getViewClass();
 
-    public ViewParent getParent() {
-        return view.getParent();
-    }
-
-    public Class getViewClass() {
-        return view.getClass();
-    }
-
-    public ViewPager toViewPager() {
-        return (ViewPager)view;
-    }
-
-    private boolean hasDimensions() {
-        return getHeight() > 0 && getWidth() > 0 ;
-    }
-
-    private boolean isShown() {
-        return view.isShown();
-    }
-
-    private boolean isOnScreen() {
-        return getLocation()[0] >= 0 &&
-                getLocation()[0] <= getScreenWidth() &&
-                getLocation()[1] >= 0 &&
-                getLocation()[1] <= getScreenHeight();
-    }
-
-    //TODO: Move this to Device class
-    private int getScreenWidth() {
-        return getDisplay().getWidth();
-    }
-
-    private int getScreenHeight() {
-        return getDisplay().getHeight();
-    }
-
-    private Display getDisplay() {
-        return ((WindowManager) testDriver.getCurrentActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-    }
-
-    private boolean hasVisibility() {
-        return view.getVisibility() == View.VISIBLE;
-    }
-
+    ViewPager toViewPager();
 }

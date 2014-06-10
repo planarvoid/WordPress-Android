@@ -1,7 +1,7 @@
 package com.soundcloud.android.tablet;
 
-import android.support.v4.view.ViewPager;
-import android.view.View;
+import static com.soundcloud.android.tests.TestUser.followedUser;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.collections.ScListView;
 import com.soundcloud.android.main.MainActivity;
@@ -14,7 +14,7 @@ import com.soundcloud.android.tests.TabletTest;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
-import static com.soundcloud.android.tests.TestUser.followedUser;
+import android.support.v4.view.ViewPager;
 
 @TabletTest
 public class ProfileTest extends ActivityTestCase<MainActivity> {
@@ -53,7 +53,7 @@ public class ProfileTest extends ActivityTestCase<MainActivity> {
 
         solo.sleep(1000);
 
-        ViewPager pager = (ViewPager)(solo.getSolo().getCurrentViews(ViewPager.class).get(0));
+        ViewPager pager = solo.getSolo().getCurrentViews(ViewPager.class).get(0);
         ViewElement list = solo.findElement(With.className(ScListView.class));
 
         ViewElement item = list.findElement(With.id(R.id.username));

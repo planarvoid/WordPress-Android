@@ -47,6 +47,10 @@ public class Han  {
         viewFetcher = new ViewFetcher(solo);
     }
 
+    public ViewElement wrap(View view) {
+        return new DefaultViewElement(view, solo);
+    }
+
     public ViewElement findElement(With findBy) {
         return viewFetcher.findElement(findBy);
     }
