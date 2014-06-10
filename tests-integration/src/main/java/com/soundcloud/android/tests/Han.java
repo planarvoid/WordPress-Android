@@ -22,7 +22,6 @@ import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +32,6 @@ import java.util.regex.Pattern;
  * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
  */
 public class Han  {
-    private static final String TAG = Han.class.getSimpleName().toString();
     private static final int DEFAULT_TIMEOUT = 20 * 1000;
     private static ViewFetcher viewFetcher;
 
@@ -221,10 +219,6 @@ public class Han  {
         log("View: " + view.getClass().getSimpleName() + " loc: " + Arrays.toString(xy));
     }
 
-    public void clearEditText(EditText editText) {
-        solo.clearEditText(editText);
-    }
-
     public void waitForActivity(Class<? extends Activity> name) {
         waitForActivity(name.getSimpleName());
     }
@@ -307,12 +301,6 @@ public class Han  {
 
     public void sleep(int time) {
         solo.sleep(time);
-    }
-
-    public <T extends View> T getView(Class<T> viewClass, int index) {
-        T view = solo.getView(viewClass, index);
-        assertNotNull(view);
-        return view;
     }
 
     public void goBack() {

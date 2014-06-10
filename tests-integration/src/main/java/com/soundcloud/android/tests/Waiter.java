@@ -10,6 +10,7 @@ import com.soundcloud.android.utils.Log;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -27,7 +28,7 @@ public class Waiter {
     public final int TIMEOUT = 10 * 1000;
     public final int NETWORK_TIMEOUT = 120 * 1000;
     private final int ELEMENT_TIMEOUT = 5 * 1000;
-    private int SMALL_TIMEOUT = 500;
+    private static final int SMALL_TIMEOUT = 500;
 
     public Waiter(Han driver) {
         solo = driver;
@@ -342,12 +343,11 @@ public class Waiter {
 
         public HasTextInViewCondition(ViewElement viewElement) {
             this.viewElement = viewElement;
-
         }
 
         @Override
         public boolean isSatisfied() {
-            return !viewElement.getText().equals("") ;
+            return !TextUtils.isEmpty(viewElement.getText());
         }
     }
 }

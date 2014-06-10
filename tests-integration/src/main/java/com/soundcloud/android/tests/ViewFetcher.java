@@ -18,7 +18,7 @@ import java.util.concurrent.Callable;
 class ViewFetcher {
     private Solo testDriver;
     private View parentView;
-    private Waiter waiter = new Waiter();
+    private ElementWaiter elementWaiter = new ElementWaiter();
 
     public ViewFetcher(Solo driver){
         testDriver = driver;
@@ -29,7 +29,7 @@ class ViewFetcher {
         testDriver = driver;
     }
     public ViewElement findElement(final With with) {
-        return waiter.waitForElement(new Callable<List<ViewElement>>() {
+        return elementWaiter.waitForElement(new Callable<List<ViewElement>>() {
             @Override
             public List<ViewElement> call() throws Exception {
                 return Lists.newArrayList(filter(getAllVisibleElements(), with));
@@ -77,7 +77,7 @@ class ViewFetcher {
         }
     }
 
-    class Waiter {
+    class ElementWaiter {
         private static final int ELEMENT_TIMEOUT = 3 * 1000;
         private static final int POLL_INTERVAL = 500;
 
