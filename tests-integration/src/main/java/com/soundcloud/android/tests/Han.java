@@ -39,6 +39,7 @@ public class Han  {
 
     private final Solo solo;
 
+    @Deprecated
     public Solo getSolo() {
         return solo;
     }
