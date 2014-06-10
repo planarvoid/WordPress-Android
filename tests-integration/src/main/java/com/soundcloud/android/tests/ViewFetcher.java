@@ -11,6 +11,7 @@ import com.soundcloud.android.tests.with.With;
 import android.os.SystemClock;
 import android.view.View;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -62,17 +63,23 @@ class ViewFetcher {
     }
 
     private List<ViewElement> getAllViewsFromScreen() {
-        return Lists.transform(testDriver.getViews(parentView), new Function<View, ViewElement>() {
-            @Override
-            public ViewElement apply(View view) {
-                return new ViewElement(view, testDriver);
-            }
-        });
+        final List<View> views = testDriver.getViews(parentView);
+
+        if (views == null) {
+            return Collections.emptyList();
+        } else {
+            return Lists.transform(views, new Function<View, ViewElement>() {
+                @Override
+                public ViewElement apply(View view) {
+                    return new ViewElement(view, testDriver);
+                }
+            });
+        }
     }
 
-   class Waiter {
+    class Waiter {
         private static final int ELEMENT_TIMEOUT = 3 * 1000;
-        private static final int SMALL_TIMEOUT = 500;
+        private static final int POLL_INTERVAL = 500;
 
         public ViewElement waitForElement(Callable<List<ViewElement>> callable) {
             return waitForOne(callable);
@@ -89,11 +96,10 @@ class ViewFetcher {
                         return viewElements.get(0);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    throw new ViewNotFoundException(e);
                 }
-                testDriver.sleep(SMALL_TIMEOUT);
+                testDriver.sleep(POLL_INTERVAL);
             }
-
             throw new ViewNotFoundException(callable.toString());
         }
     }
