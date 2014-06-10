@@ -9,7 +9,7 @@ public class ToastElement {
     public ToastElement(Han driver) {
         testDriver = driver;
         waiter = new Waiter(testDriver);
-    };
+    }
 
     private ViewElement toastMessage() {
         return testDriver.findElement(With.id(android.R.id.message));
@@ -19,6 +19,4 @@ public class ToastElement {
         waiter.waitForTextInView(toastMessage());
         return toastMessage().getText();
     }
-
-
 }
