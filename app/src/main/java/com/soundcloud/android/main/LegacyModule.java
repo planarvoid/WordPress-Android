@@ -6,12 +6,14 @@ import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.associations.SoundAssociationAdapter;
 import com.soundcloud.android.associations.TrackInteractionActivity;
 import com.soundcloud.android.collections.DefaultPlayableAdapter;
+import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.playback.views.WaveformControllerLayout;
 import com.soundcloud.android.profile.MyTracksAdapter;
 import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
+                ScListFragment.class,
                 ActivitiesAdapter.class,
                 SoundAssociationAdapter.class,
                 DefaultPlayableAdapter.class,

@@ -11,6 +11,7 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.associations.CommentAdapter;
 import com.soundcloud.android.associations.FollowingOperations;
@@ -69,6 +70,7 @@ import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 
+import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
 @Deprecated
@@ -112,15 +114,15 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     private SyncStateManager syncStateManager;
 
     private int retainedListPosition;
-    private AccountOperations accountOperations;
-    protected PublicApi publicApi;
 
     private Subscription userEventSubscription = Subscriptions.empty();
 
-    private ImageOperations imageOperations;
-    private EventBus eventBus;
+    @Inject AccountOperations accountOperations;
+    @Inject ImageOperations imageOperations;
+    @Inject EventBus eventBus;
+    @Inject PullToRefreshController pullToRefreshController;
 
-    private PullToRefreshController pullToRefreshController;
+    protected PublicCloudAPI publicApi;
 
     public static ScListFragment newInstance(Content content, Screen screen) {
         return newInstance(content.uri, screen);
@@ -179,13 +181,13 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        eventBus = SoundCloudApplication.fromContext(getActivity()).getEventBus();
-        imageOperations = SoundCloudApplication.fromContext(getActivity()).getImageOperations();
-        accountOperations = SoundCloudApplication.fromContext(getActivity()).getAccountOperations();
+
+        SoundCloudApplication.getObjectGraph().inject(this);
+
         publicApi = new PublicApi(getActivity());
+
         keepGoing = true;
         setupListAdapter();
-        pullToRefreshController = new PullToRefreshController(eventBus);
     }
 
     @Override
