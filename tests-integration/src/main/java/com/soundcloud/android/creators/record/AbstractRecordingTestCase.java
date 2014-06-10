@@ -35,7 +35,6 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.ToggleButton;
 
 import java.io.File;
 import java.io.IOException;
@@ -116,13 +115,13 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         solo.sleep(howlong);
         assertState(RECORD);
         solo.findElement(With.id(R.id.btn_action)).click();
-//        solo.assertText(R.string.reset); // "Discard"
+        solo.assertText(R.string.reset); // "Discard"
         assertState(IDLE_PLAYBACK);
     }
 
     protected void gotoEditMode() {
         solo.findElement(With.id(R.id.btn_edit)).click();
-//        solo.assertText(R.string.btn_revert_to_original);
+        solo.assertText(R.string.btn_revert_to_original);
         assertState(EDIT);
     }
 

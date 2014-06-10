@@ -72,8 +72,8 @@ public class LoginFlowTest extends LoginTestCase {
 
         // Then termsOfUse dialog should be shown
 //        TODO: DialogElement
-//        solo.assertText(R.string.auth_disclaimer_title);
-//        solo.assertText(R.string.auth_disclaimer_message);
+        solo.assertText(R.string.auth_disclaimer_title);
+        solo.assertText(R.string.auth_disclaimer_message);
 
         loginScreen.clickOnContinueButton();
 
@@ -91,8 +91,8 @@ public class LoginFlowTest extends LoginTestCase {
 
         // Then termsOfUse dialog should be shown
         //TODO: DIALOG
-//        solo.assertText(R.string.auth_disclaimer_title);
-//        solo.assertText(R.string.auth_disclaimer_message);
+        solo.assertText(R.string.auth_disclaimer_title);
+        solo.assertText(R.string.auth_disclaimer_message);
 
         loginScreen.clickOnContinueButton();
 
@@ -116,8 +116,8 @@ public class LoginFlowTest extends LoginTestCase {
 
         //Then termsOfUse dialog should be shown
         //TODO: DialogElement
-//        solo.assertText(R.string.auth_disclaimer_title);
-//        solo.assertText(R.string.auth_disclaimer_message);
+        solo.assertText(R.string.auth_disclaimer_title);
+        solo.assertText(R.string.auth_disclaimer_message);
 
         loginScreen.clickOnContinueButton();
 
@@ -152,7 +152,7 @@ public class LoginFlowTest extends LoginTestCase {
         loginScreen = homeScreen.clickLogInButton();
         loginScreen.loginAs(scTestAccount.getUsername(), "wrong-password", false);
         //TODO: DialogElement
-//        solo.assertText(R.string.authentication_login_error_password_message, "We could not log you in");
+        solo.assertText(R.string.authentication_login_error_password_message, "We could not log you in");
         loginScreen.clickOkButton();
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
     }

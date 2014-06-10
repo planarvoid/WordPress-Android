@@ -79,6 +79,7 @@ public class Han  {
         solo.sendKey(key);
     }
 
+    @Deprecated
     public void assertText(int resId, Object... args) {
         final String text = getString(resId, args);
         assertTrue("Text '" + text + "' not found", solo.waitForText(Pattern.quote(text)));
