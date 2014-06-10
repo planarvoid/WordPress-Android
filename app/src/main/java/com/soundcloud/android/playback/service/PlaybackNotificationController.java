@@ -6,10 +6,11 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.PropertySet;
+import com.soundcloud.android.model.TrackProperty;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.LegacyTrackOperations;
+import com.soundcloud.android.track.TrackOperations;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -32,7 +33,7 @@ public class PlaybackNotificationController {
 
     private final Context context;
     private final PlaybackNotificationPresenter presenter;
-    private final LegacyTrackOperations trackOperations;
+    private final TrackOperations trackOperations;
     private final NotificationManager notificationManager;
     private final EventBus eventBus;
     private final ImageOperations imageOperations;
@@ -53,26 +54,26 @@ public class PlaybackNotificationController {
     private final Func1<PlayQueueEvent, Observable<Notification>> onPlayQueueEventFunc = new Func1<PlayQueueEvent, Observable<Notification>>() {
         @Override
         public Observable<Notification> call(PlayQueueEvent playQueueEvent) {
-            final long trackId = playQueueEvent.getCurrentTrackUrn().numericId;
             imageSubscription.unsubscribe();
-            notificationObservable = trackOperations.loadTrack(trackId, AndroidSchedulers.mainThread()).mergeMap(notificationFunction).cache();
+            notificationObservable = trackOperations.track(playQueueEvent.getCurrentTrackUrn()).observeOn(AndroidSchedulers.mainThread())
+                    .mergeMap(notificationFunction).cache();
             return notificationObservable;
         }
     };
 
-    private final Func1<Track, Observable<Notification>> notificationFunction = new Func1<Track, Observable<Notification>>() {
+    private final Func1<PropertySet, Observable<Notification>> notificationFunction = new Func1<PropertySet, Observable<Notification>>() {
         @Override
-        public Observable<Notification> call(final Track track) {
-            final Notification notification = presenter.createNotification(track);
+        public Observable<Notification> call(final PropertySet propertySet) {
+            final Notification notification = presenter.createNotification(propertySet);
             if (presenter.artworkCapable()) {
-                loadAndSetArtwork(track.getUrn(), notification);
+                loadAndSetArtwork(propertySet.get(TrackProperty.URN), notification);
             }
             return Observable.just(notification);
         }
     };
 
     @Inject
-    public PlaybackNotificationController(Context context, LegacyTrackOperations trackOperations, PlaybackNotificationPresenter presenter,
+    public PlaybackNotificationController(Context context, TrackOperations trackOperations, PlaybackNotificationPresenter presenter,
                                           NotificationManager notificationManager, EventBus eventBus, ImageOperations imageOperations) {
         this.context = context;
         this.trackOperations = trackOperations;

@@ -84,7 +84,7 @@ public class TrackStorage extends ScheduledOperations {
         public PropertySet call(ManagedCursor cursor) {
             final PropertySet propertySet = PropertySet.create(cursor.getColumnCount());
 
-            propertySet.put(PlayableProperty.URN, readSoundUrn(cursor));
+            propertySet.put(TrackProperty.URN, readSoundUrn(cursor));
             propertySet.put(PlayableProperty.TITLE, cursor.getString(TableColumns.SoundView.TITLE));
             propertySet.put(PlayableProperty.DURATION, cursor.getInt(TableColumns.SoundView.DURATION));
             propertySet.put(PlayableProperty.CREATOR, cursor.getString(TableColumns.SoundView.USERNAME));
@@ -93,7 +93,7 @@ public class TrackStorage extends ScheduledOperations {
             return propertySet;
         }
 
-        private Urn readSoundUrn(ManagedCursor cursor) {
+        private TrackUrn readSoundUrn(ManagedCursor cursor) {
             return Urn.forTrack(cursor.getInt(TableColumns.SoundView._ID));
         }
     }

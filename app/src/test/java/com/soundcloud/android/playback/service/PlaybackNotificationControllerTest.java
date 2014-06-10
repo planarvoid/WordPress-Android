@@ -15,14 +15,15 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.PropertySet;
+import com.soundcloud.android.model.TrackProperty;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.EventMonitor;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.track.LegacyTrackOperations;
+import com.soundcloud.android.track.TrackOperations;
 import com.xtremelabs.robolectric.Robolectric;
 import junit.framework.TestCase;
 import org.junit.Before;
@@ -32,7 +33,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Functions;
 
@@ -45,15 +45,16 @@ import android.net.Uri;
 @RunWith(SoundCloudTestRunner.class)
 public class PlaybackNotificationControllerTest extends TestCase {
 
+    private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
     private PlaybackNotificationController controller;
 
-    private Track track;
+    private PropertySet propertySet;
     private EventMonitor eventMonitor;
 
     @Mock
     private Context context;
     @Mock
-    private LegacyTrackOperations trackOperations;
+    private TrackOperations trackOperations;
     @Mock
     private ImageOperations imageOperations;
     @Mock
@@ -77,11 +78,11 @@ public class PlaybackNotificationControllerTest extends TestCase {
 
     @Before
     public void setUp() throws Exception {
-        track = TestHelper.getModelFactory().createModel(Track.class);
+        propertySet = PropertySet.from(TrackProperty.URN.bind(TRACK_URN));
 
         when(context.getResources()).thenReturn(Robolectric.getShadowApplication().getResources());
-        when(playbackNotificationPresenter.createNotification(track)).thenReturn(notification);
-        when(trackOperations.loadTrack(track.getUrn().numericId, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
+        when(playbackNotificationPresenter.createNotification(propertySet)).thenReturn(notification);
+        when(trackOperations.track(TRACK_URN)).thenReturn(Observable.just(propertySet));
 
         controller = new PlaybackNotificationController(context, trackOperations, playbackNotificationPresenter,
                 notificationManager, eventBus, imageOperations);
@@ -93,7 +94,7 @@ public class PlaybackNotificationControllerTest extends TestCase {
     public void playQueueEventCreatesNewNotificationFromNewPlayQueueEvent() {
         eventMonitor.monitorQueue(EventQueue.PLAY_QUEUE);
         controller.subscribe();
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(TRACK_URN));
 
         verify(notificationManager).notify(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID, notification);
     }
@@ -117,8 +118,8 @@ public class PlaybackNotificationControllerTest extends TestCase {
     @Test
     public void playQueueEventCreatesNewNotificationWithBitmapFromImageCache() {
         when(playbackNotificationPresenter.artworkCapable()).thenReturn(true);
-        when(imageOperations.getCachedBitmap(eq(track.getUrn()), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(bitmap);
-        when(imageOperations.getLocalImageUri(eq(track.getUrn()), any(ApiImageSize.class))).thenReturn(uri);
+        when(imageOperations.getCachedBitmap(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(bitmap);
+        when(imageOperations.getLocalImageUri(eq(TRACK_URN), any(ApiImageSize.class))).thenReturn(uri);
 
         publishTrackChangedEvent();
 
@@ -138,8 +139,8 @@ public class PlaybackNotificationControllerTest extends TestCase {
     @Test
     public void playQueueEventSetsLoadedBitmapWithPresenterWhenArtworkCapableAndNoCachedBitmap() {
         when(playbackNotificationPresenter.artworkCapable()).thenReturn(true);
-        when(imageOperations.image(eq(track.getUrn()), any(ApiImageSize.class), anyInt(), anyInt(), eq(false))).thenReturn(Observable.just(bitmap));
-        when(imageOperations.getLocalImageUri(eq(track.getUrn()), any(ApiImageSize.class))).thenReturn(uri);
+        when(imageOperations.image(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt(), eq(false))).thenReturn(Observable.just(bitmap));
+        when(imageOperations.getLocalImageUri(eq(TRACK_URN), any(ApiImageSize.class))).thenReturn(uri);
 
         publishTrackChangedEvent();
 
@@ -149,8 +150,8 @@ public class PlaybackNotificationControllerTest extends TestCase {
     @Test
     public void playQueueEventNotifiesAgainAfterBitmapLoaded() {
         when(playbackNotificationPresenter.artworkCapable()).thenReturn(true);
-        when(imageOperations.image(eq(track.getUrn()), any(ApiImageSize.class), anyInt(), anyInt(), eq(false))).thenReturn(Observable.just(bitmap));
-        when(imageOperations.getLocalImageUri(eq(track.getUrn()), any(ApiImageSize.class))).thenReturn(uri);
+        when(imageOperations.image(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt(), eq(false))).thenReturn(Observable.just(bitmap));
+        when(imageOperations.getLocalImageUri(eq(TRACK_URN), any(ApiImageSize.class))).thenReturn(uri);
 
         publishTrackChangedEvent();
 
@@ -165,7 +166,7 @@ public class PlaybackNotificationControllerTest extends TestCase {
 
         publishTrackChangedEvent();
         // loading an image for a different track should cancel existing image tasks
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(TRACK_URN));
 
         verify(subscription).unsubscribe();
     }
@@ -222,6 +223,6 @@ public class PlaybackNotificationControllerTest extends TestCase {
     private void publishTrackChangedEvent() {
         eventMonitor.monitorQueue(EventQueue.PLAY_QUEUE);
         controller.subscribe();
-        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(track.getUrn()));
+        eventMonitor.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(TRACK_URN));
     }
 }

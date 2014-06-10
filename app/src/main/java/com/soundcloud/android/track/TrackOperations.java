@@ -5,6 +5,8 @@ import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.model.TrackUrn;
 import rx.Observable;
 
+import javax.inject.Inject;
+
 public class TrackOperations {
 
     @SuppressWarnings("UnusedDeclaration")
@@ -13,6 +15,7 @@ public class TrackOperations {
     private final TrackStorage trackStorage;
     private final AccountOperations accountOperations;
 
+    @Inject
     public TrackOperations(TrackStorage trackStorage, AccountOperations accountOperations) {
         this.trackStorage = trackStorage;
         this.accountOperations = accountOperations;
