@@ -24,8 +24,6 @@ import javax.inject.Provider;
 )
 public class PlaylistsModule {
 
-    static final int INITIAL_ADAPTER_SIZE = 20;
-
     @Provides
     public PlaylistDetailsController providePlaylistTracksAdapter(Resources resources,
                                                                   Provider<SplitScreenController> splitScreenController,
