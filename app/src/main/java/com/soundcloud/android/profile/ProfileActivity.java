@@ -229,13 +229,13 @@ public class ProfileActivity extends ScActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        playerController.startListening();
+        playerController.onResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        playerController.stopListening();
+        playerController.onPause();
     }
 
     @Override

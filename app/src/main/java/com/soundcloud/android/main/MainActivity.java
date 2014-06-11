@@ -147,7 +147,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Override
     protected void onResume() {
         super.onResume();
-        playerController.startListening();
+        playerController.onResume();
 
         if (!accountOperations.isUserLoggedIn()) {
             accountOperations.triggerLoginFlow(this);
@@ -162,7 +162,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Override
     protected void onPause() {
         super.onPause();
-        playerController.stopListening();
+        playerController.onPause();
     }
 
     private void publishContentChangeEvent() {

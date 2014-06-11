@@ -13,12 +13,12 @@ public class LegacyPlayerController implements PlayerController {
     }
 
     @Override
-    public void startListening() {
+    public void onResume() {
         // Do nothing
     }
 
     @Override
-    public void stopListening() {
+    public void onPause() {
         // Do nothing
     }
 

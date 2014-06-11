@@ -13,9 +13,9 @@ public interface PlayerController {
 
     void collapse();
 
-    void startListening();
+    void onResume();
 
-    void stopListening();
+    void onPause();
 
     void storeState(Bundle bundle);
 

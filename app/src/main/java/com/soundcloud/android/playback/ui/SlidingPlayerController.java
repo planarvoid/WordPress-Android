@@ -45,28 +45,43 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
         slidingPanel = (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingPanel.setPanelSlideListener(this);
         slidingPanel.setEnableDragViewTouchEvents(true);
-
-        if (playQueueManager.isQueueEmpty()) {
-            slidingPanel.findViewById(R.id.player_root).setVisibility(View.GONE);
-        }
     }
 
     @Override
-    public void startListening() {
-        subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber());
-    }
-
-    @Override
-    public void stopListening() {
-        subscription.unsubscribe();
-    }
-
     public boolean isExpanded() {
         return slidingPanel.isExpanded();
     }
 
+    @Override
     public void collapse() {
         slidingPanel.collapsePane();
+    }
+
+    @Override
+    public void onResume() {
+        startListening();
+        refreshVisibility();
+    }
+
+    @Override
+    public void onPause() {
+        stopListening();
+    }
+
+    private void startListening() {
+        subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber());
+    }
+
+    private void stopListening() {
+        subscription.unsubscribe();
+    }
+
+    private void refreshVisibility() {
+        if (playQueueManager.isQueueEmpty()) {
+            slidingPanel.findViewById(R.id.player_root).setVisibility(View.GONE);
+        } else {
+            slidingPanel.showPane();
+        }
     }
 
     @Override

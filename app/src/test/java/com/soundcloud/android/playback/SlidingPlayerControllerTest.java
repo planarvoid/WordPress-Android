@@ -65,8 +65,9 @@ public class SlidingPlayerControllerTest {
     @Test
     public void hidePlayerWhenPlayQueueIsEmpty() throws Exception {
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
-
         attachController();
+
+        controller.onResume();
 
         verify(playerView).setVisibility(View.GONE);
     }
@@ -74,16 +75,18 @@ public class SlidingPlayerControllerTest {
     @Test
     public void doNotHidePlayerWhenPlayQueueIsNotEmpty() throws Exception {
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
-
         attachController();
+
+        controller.onResume();
 
         verify(playerView, never()).setVisibility(View.GONE);
     }
 
     @Test
     public void unsubscribesFromPlayerUIEvents() {
-        controller.startListening();
-        controller.stopListening();
+        attachController();
+        controller.onResume();
+        controller.onPause();
 
         eventBus.verifyUnsubscribed(EventQueue.PLAYER_UI);
     }
@@ -91,7 +94,7 @@ public class SlidingPlayerControllerTest {
     @Test
     public void expandsPlayerWhenVisiblePlayTriggeredEventIsReceived() {
         attachController();
-        controller.startListening();
+        controller.onResume();
         when(slidingPanel.isPaneVisible()).thenReturn(true);
 
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
@@ -101,10 +104,11 @@ public class SlidingPlayerControllerTest {
 
     @Test
     public void showsFooterPlayerWhenHiddenAndPlayTriggeredEventIsReceived() throws Exception {
-        attachController();
-        controller.startListening();
+        when(playQueueManager.isQueueEmpty()).thenReturn(true);
         when(slidingPanel.isPaneVisible()).thenReturn(false);
         when(slidingPanel.getViewTreeObserver()).thenReturn(mock(ViewTreeObserver.class));
+        attachController();
+        controller.onResume();
 
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
 
@@ -114,7 +118,7 @@ public class SlidingPlayerControllerTest {
     @Test
     public void closesPlayerWhenPlayCloseEventIsReceived() {
         attachController();
-        controller.startListening();
+        controller.onResume();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
 
         verify(slidingPanel).collapsePane();
@@ -122,7 +126,8 @@ public class SlidingPlayerControllerTest {
 
     @Test
     public void onlyRespondsToPlayTriggeredPlayerUIEvent() {
-        controller.startListening();
+        attachController();
+        controller.onResume();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(slidingPanel, times(0)).expandPane();
