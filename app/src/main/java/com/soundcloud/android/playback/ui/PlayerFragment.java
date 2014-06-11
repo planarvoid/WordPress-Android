@@ -32,7 +32,8 @@ public class PlayerFragment extends Fragment {
 
     private PlayerPresenter presenter;
 
-    private final CompositeSubscription eventSubscription = new CompositeSubscription();
+    private final CompositeSubscription viewLifetimeSubscription = new CompositeSubscription();
+    private CompositeSubscription foregroundLifetimeSubscription;
 
     public PlayerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -50,20 +51,44 @@ public class PlayerFragment extends Fragment {
             presenter.onPlayQueueChanged();
             presenter.setQueuePosition(playQueueManager.getCurrentPosition());
         }
-        subscribeToEventQueues();
+        subscribeViewLifetimeEvents();
     }
 
-    private void subscribeToEventQueues() {
-        eventSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber()));
-        eventSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber()));
-        eventSubscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
-        eventSubscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber()));
+    @Override
+    public void onResume() {
+        super.onResume();
+        subscribeForegroundLifetimeEvents();
+    }
+
+    @Override
+    public void onPause() {
+        unsubscribeForegroundLifetimeEvents();
+        super.onPause();
     }
 
     @Override
     public void onDestroyView() {
-        eventSubscription.unsubscribe();
+        unsubscribeViewLifetimeEvents();
         super.onDestroyView();
+    }
+
+    private void subscribeViewLifetimeEvents() {
+        viewLifetimeSubscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
+        viewLifetimeSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber()));
+    }
+
+    private void subscribeForegroundLifetimeEvents() {
+        foregroundLifetimeSubscription = new CompositeSubscription();
+        foregroundLifetimeSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber()));
+        foregroundLifetimeSubscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber()));
+    }
+
+    private void unsubscribeViewLifetimeEvents() {
+        viewLifetimeSubscription.unsubscribe();
+    }
+
+    private void unsubscribeForegroundLifetimeEvents() {
+        foregroundLifetimeSubscription.unsubscribe();
     }
 
     private final class PlaybackStateSubscriber extends DefaultSubscriber<StateTransition> {

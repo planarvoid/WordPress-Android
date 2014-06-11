@@ -91,8 +91,11 @@ public class PlayerFragmentTest {
     @Test
     public void onPlayingStateEventCallsOnPlaystateChangedOnFragmentWithIsPlaying() {
         createFragment();
+        fragment.onResume();
         StateTransition state = new StateTransition(PlayaState.PLAYING, Reason.NONE);
+
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
+
         verify(presenter).onPlayStateChanged(true);
     }
 
@@ -150,12 +153,14 @@ public class PlayerFragmentTest {
     @Test
     public void onFragmentCreationSetsFooterPlayerOnPresenter() {
         createFragment();
+        fragment.onResume();
         verify(presenter).setFullScreenPlayer(false);
     }
 
     @Test
     public void onPlayerExpandedEventSetsFullScreenPlayerOnPresenter() {
         createFragment();
+        fragment.onResume();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
         InOrder inOrder = Mockito.inOrder(presenter);
         inOrder.verify(presenter).setFullScreenPlayer(false);
@@ -165,15 +170,39 @@ public class PlayerFragmentTest {
     @Test
     public void onPlayerCollapsedEventSetsFooterPlayerOnPresenter() {
         createFragment();
+        fragment.onResume();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
         verify(presenter, times(2)).setFullScreenPlayer(false);
     }
 
     @Test
-    public void shouldUnsubscribeFromEventQueuesOnDestroyView() {
+    public void shouldUnsubscribeFromPlayQueueQueueOnDestroyView() {
         createFragment();
         fragment.onDestroyView();
-        eventBus.verifyUnsubscribed();
+        eventBus.verifyUnsubscribed(EventQueue.PLAY_QUEUE);
+    }
+
+    @Test
+    public void shouldUnsubscribeFromPlaybackProgressQueueOnDestroyView() {
+        createFragment();
+        fragment.onDestroyView();
+        eventBus.verifyUnsubscribed(EventQueue.PLAYBACK_PROGRESS);
+    }
+
+    @Test
+    public void shouldUnsubscribeFromPlaybackStateQueueOnPause() {
+        createFragment();
+        fragment.onResume();
+        fragment.onPause();
+        eventBus.verifyUnsubscribed(EventQueue.PLAYBACK_STATE_CHANGED);
+    }
+
+    @Test
+    public void shouldUnsubscribeFromPlayerUiQueueOnPause() {
+        createFragment();
+        fragment.onResume();
+        fragment.onPause();
+        eventBus.verifyUnsubscribed(EventQueue.PLAYER_UI);
     }
 
     private void createFragment() {
