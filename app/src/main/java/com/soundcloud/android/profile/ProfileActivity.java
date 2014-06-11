@@ -6,7 +6,6 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.FollowingOperations;
@@ -83,7 +82,6 @@ public class ProfileActivity extends ScActivity implements
 
     @Inject ImageOperations imageOperations;
     @Inject PublicCloudAPI oldCloudAPI;
-    @Inject AccountOperations accountOperations;
     @Inject FollowingOperations followingOperations;
     @Inject UserStorage userStorage;
     @Inject FeatureFlags featureFlags;
