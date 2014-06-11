@@ -15,6 +15,7 @@ import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.database.Cursor;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,15 +35,15 @@ import java.util.WeakHashMap;
             new WeakHashMap<FollowStatusChangedListener, FollowStatusChangedListener>();
 
     private AsyncQueryHandler asyncQueryHandler;
-    private Context context;
     private long last_sync_success = -1;
     private LocalCollection followingCollectionState;
-
     private HashMap<Long,Long> followedAtStamps = new HashMap<Long, Long>();
     private HashMap<Long,Long> unFollowedAtStamps = new HashMap<Long, Long>();
 
-    private SyncStateManager syncStateManager;
+    private final Context context;
+    private final SyncStateManager syncStateManager;
 
+    @Inject
     protected FollowStatus(final Context context) {
         this.context = context;
         syncStateManager = new SyncStateManager(context);

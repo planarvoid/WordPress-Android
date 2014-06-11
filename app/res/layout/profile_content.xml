@@ -3,8 +3,7 @@
               android:baselineAligned="false"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
-              android:orientation="vertical"
-              android:id="@+id/container">
+              android:orientation="vertical">
 
     <RelativeLayout android:background="@color/player_control_background"
                   style="@style/ListItemContainer"

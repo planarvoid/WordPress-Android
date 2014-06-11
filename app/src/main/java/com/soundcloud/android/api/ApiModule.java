@@ -34,4 +34,10 @@ public class ApiModule {
     public UnauthorisedRequestRegistry provideUnauthorizedRequestRegistry(Context context) {
         return UnauthorisedRequestRegistry.getInstance(context);
     }
+
+    @Provides
+    public PublicCloudAPI providePublicCloudApi(Context context) {
+        return new PublicApi(context);
+    }
+
 }

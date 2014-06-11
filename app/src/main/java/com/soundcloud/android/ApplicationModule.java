@@ -10,13 +10,19 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.playback.service.BigPlaybackNotificationPresenter;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaybackNotificationPresenter;
 import com.soundcloud.android.playback.service.RichNotificationPresenter;
 import com.soundcloud.android.playback.service.managers.FroyoRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
+import com.soundcloud.android.playback.ui.LegacyPlayerController;
+import com.soundcloud.android.playback.ui.PlayerController;
+import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.StorageModule;
 import dagger.Module;
 import dagger.Provides;
@@ -160,5 +166,14 @@ public class ApplicationModule {
     @Provides
     public LruCache<TrackUrn, WaveformData> provideWaveformCache(){
         return new LruCache<TrackUrn, WaveformData>(DEFAULT_WAVEFORM_CACHE_SIZE);
+    }
+
+    @Provides
+    PlayerController providePlayerController(FeatureFlags featureFlags, PlayQueueManager playQueueManager, EventBus eventBus) {
+        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
+            return new SlidingPlayerController(playQueueManager, eventBus);
+        } else {
+            return new LegacyPlayerController();
+        }
     }
 }

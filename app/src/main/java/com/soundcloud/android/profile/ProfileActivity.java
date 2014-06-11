@@ -8,7 +8,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ScListFragment;
@@ -22,6 +21,8 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
+import com.soundcloud.android.playback.ui.PlayerController;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -34,6 +35,7 @@ import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.SlidingTabLayout;
+import com.soundcloud.android.view.screen.ScreenPresenter;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
@@ -57,6 +59,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import javax.inject.Inject;
+
 public class ProfileActivity extends ScActivity implements
         FollowingOperations.FollowStatusChangedListener,
         ActionBar.OnNavigationListener, FetchModelTask.Listener<User>, ViewPager.OnPageChangeListener {
@@ -66,8 +70,6 @@ public class ProfileActivity extends ScActivity implements
 
     /* package */ @Nullable User user;
 
-    private ImageOperations imageOperations;
-
     private TextView username, fullName, followerCount, followerMessage, trackCount, location;
     private ToggleButton toggleFollow;
     private View vrStats;
@@ -76,14 +78,17 @@ public class ProfileActivity extends ScActivity implements
     private FetchUserTask loadUserTask;
     protected ViewPager pager;
     protected SlidingTabLayout indicator;
-
     private UserDetailsFragment userDetailsFragment;
-    private PublicCloudAPI oldCloudAPI;
-    private AccountOperations accountOperations;
-    private FollowingOperations followingOperations;
-    private final UserStorage userStorage = new UserStorage();
-
     private int initialOtherFollowers;
+
+    @Inject ImageOperations imageOperations;
+    @Inject PublicCloudAPI oldCloudAPI;
+    @Inject AccountOperations accountOperations;
+    @Inject FollowingOperations followingOperations;
+    @Inject UserStorage userStorage;
+    @Inject FeatureFlags featureFlags;
+    @Inject PlayerController playerController;
+    @Inject ScreenPresenter presenter;
 
     public static boolean startFromPlayable(Context context, Playable playable) {
         if (playable != null) {
@@ -95,15 +100,15 @@ public class ProfileActivity extends ScActivity implements
         return false;
     }
 
+    public ProfileActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+        presenter.attach(this);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
-    public void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
-        setContentView(R.layout.profile_activity);
-        imageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
-        accountOperations = SoundCloudApplication.fromContext(this).getAccountOperations();
-        oldCloudAPI = new PublicApi(this);
-        followingOperations = new FollowingOperations();
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         userImage = (ImageView) findViewById(R.id.user_image);
         username = (TextView) findViewById(R.id.username);
         fullName = (TextView) findViewById(R.id.fullname);
@@ -141,7 +146,7 @@ public class ProfileActivity extends ScActivity implements
 
         // make sure to call this only after we fully set up the view pager and the indicator, so as to receive
         // the callback to the page changed listener
-        if (bundle == null) {
+        if (savedInstanceState == null) {
             pager.setCurrentItem(Tab.tracks.ordinal());
         }
 
@@ -175,6 +180,14 @@ public class ProfileActivity extends ScActivity implements
             // if the user is null at this stage there is nothing we can do, except finishing
             finish();
         }
+
+        playerController.attach(this, actionBarController);
+        playerController.restoreState(savedInstanceState);
+    }
+
+    @Override
+    protected void setContentView() {
+        presenter.setBaseLayoutWithContent(R.layout.profile_content);
     }
 
     protected void handleIntent(Intent intent) {
@@ -211,6 +224,27 @@ public class ProfileActivity extends ScActivity implements
     public void onStop() {
         super.onStop();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRecordListener);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        playerController.startListening();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        playerController.stopListening();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (playerController.isExpanded()) {
+            playerController.collapse();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override

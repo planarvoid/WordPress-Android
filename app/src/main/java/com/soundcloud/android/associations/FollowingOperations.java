@@ -40,6 +40,7 @@ import android.content.Context;
 import android.os.SystemClock;
 import android.util.Log;
 
+import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -74,7 +75,7 @@ public class FollowingOperations {
     }
 
     // TODO, rollback memory state on error
-    @VisibleForTesting
+    @Inject
     protected FollowingOperations(RxHttpClient httpClient, UserAssociationStorage userAssociationStorage,
                                SyncStateManager syncStateManager, FollowStatus followStatus, ScModelManager modelManager) {
         rxHttpClient = httpClient;

@@ -23,13 +23,13 @@ import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.view.screen.ScreenPresenter;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 
@@ -54,6 +54,8 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject
     SoundCloudApplication application;
     @Inject
+    ScreenPresenter presenter;
+    @Inject
     UserOperations userOperations;
     @Inject
     StreamFragmentFactory streamFragmentFactory;
@@ -67,6 +69,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     public MainActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        presenter.attach(this);
     }
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,12 +106,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     @Override
     protected void setContentView() {
-        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
-            supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
-            setContentView(R.layout.main_activity);
-        } else {
-            setContentView(R.layout.main_activity_legacy);
-        }
+        presenter.setBaseDrawerLayout();
     }
 
     @Override
