@@ -71,7 +71,7 @@ public class Player extends ActivityTestCase<MainActivity> {
     public void testPlayStateCanBeToggledFromFullPlayer() throws Exception {
         playExploreTrack();
         assertThat(playerElement.isPlayControlsVisible(), is(false));
-        playerElement.togglePlay();
+        playerElement.clickArtwork();
         assertThat(playerElement.isPlayControlsVisible(), is(true));
     }
 
@@ -83,7 +83,7 @@ public class Player extends ActivityTestCase<MainActivity> {
     public void testSkippingWithNextAndPreviousChangesTrack() throws Exception {
         playExploreTrack();
         String originalTrack = playerElement.getTrackTitle();
-        playerElement.togglePlay();
+        playerElement.clickArtwork();
 
         playerElement.tapNext();
         assertThat(originalTrack, is(not(equalTo(playerElement.getTrackTitle()))));
@@ -113,7 +113,7 @@ public class Player extends ActivityTestCase<MainActivity> {
     public void testPlayerRemainsPausedWhenSkipping() throws Exception {
         playExploreTrack();
 
-        playerElement.togglePlay();
+        playerElement.clickArtwork();
         playerElement.tapNext();
 
         assertThat(playerElement.isPlayControlsVisible(), is(true));
@@ -122,7 +122,7 @@ public class Player extends ActivityTestCase<MainActivity> {
     public void testPreviousButtonDoesNothingOnFirstTrack() throws Exception {
         playExploreTrack();
         String originalTrack = playerElement.getTrackTitle();
-        playerElement.togglePlay();
+        playerElement.clickArtwork();
 
         playerElement.tapPrevious();
         assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
@@ -131,7 +131,7 @@ public class Player extends ActivityTestCase<MainActivity> {
     public void testNextButtonDoesNothingOnLastTrack() {
         playSingleTrack();
         String originalTrack = playerElement.getTrackTitle();
-        playerElement.togglePlay();
+        playerElement.clickArtwork();
 
         playerElement.tapNext();
         assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));

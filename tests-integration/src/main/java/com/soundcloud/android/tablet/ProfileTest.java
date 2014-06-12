@@ -1,7 +1,7 @@
 package com.soundcloud.android.tablet;
 
-import android.support.v4.view.ViewPager;
-import android.view.View;
+import static com.soundcloud.android.tests.TestUser.followedUser;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.collections.ScListView;
 import com.soundcloud.android.main.MainActivity;
@@ -11,8 +11,10 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TabletTest;
+import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.with.With;
 
-import static com.soundcloud.android.tests.TestUser.followedUser;
+import android.support.v4.view.ViewPager;
 
 @TabletTest
 public class ProfileTest extends ActivityTestCase<MainActivity> {
@@ -28,7 +30,7 @@ public class ProfileTest extends ActivityTestCase<MainActivity> {
         AccountAssistant.loginAs(getInstrumentation(), followedUser.getUsername(), followedUser.getPassword());
         assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
         super.setUp();
-        myProfileScreen = new MenuScreenTablet(solo).clickProfile();
+        myProfileScreen = new MenuScreenTablet(solo).clickUserProfile();
         navigateToFollower();
     }
 
@@ -37,9 +39,9 @@ public class ProfileTest extends ActivityTestCase<MainActivity> {
     }
 
     public void ignoreFollowingMessageUpdatedWhenFollowButtonToggled() {
-        String initialMessage = profileScreen.followingMessage();
+        String initialMessage = profileScreen.getFollowersMessage();
         profileScreen.clickFollowToggle();
-        assertEquals("Following message changes when FOLLOW button is toggled", false, initialMessage.equals(profileScreen.followingMessage()));
+        assertEquals("Following message changes when FOLLOW button is toggled", false, initialMessage.equals(profileScreen.getFollowersMessage()));
 
         followedUser.unfollowAll(solo.getCurrentActivity());
     }
@@ -51,12 +53,12 @@ public class ProfileTest extends ActivityTestCase<MainActivity> {
 
         solo.sleep(1000);
 
-        ViewPager pager = (ViewPager)(solo.getSolo().getCurrentViews(ViewPager.class).get(0));
-        ScListView list = solo.getSolo().getCurrentViews(ScListView.class, pager).get(1);
+        ViewPager pager = solo.getSolo().getCurrentViews(ViewPager.class).get(0);
+        ViewElement list = solo.findElement(With.className(ScListView.class));
 
-        View item = list.findViewById(R.id.username);
+        ViewElement item = list.findElement(With.id(R.id.username));
 
-        solo.clickOnView(item);
+        item.click();
         profileScreen = new ProfileScreen(solo);
     }
 

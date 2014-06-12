@@ -7,6 +7,7 @@ import com.soundcloud.android.onboarding.auth.FacebookWebFlowActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
+import com.soundcloud.android.tests.with.With;
 
 import android.webkit.WebView;
 
@@ -43,7 +44,7 @@ public class FBWebViewScreen {
         solo.waitForWebElement(loginField());
         solo.clickOnWebElement(loginField());
         if (solo.searchTextWithoutScrolling("Do you want the browser to remember this password?")) {
-            solo.clickOnText("Never");
+            solo.findElement(With.text("Never")).click();
         }
         waiter.waitForLogInDialog();
         return new MainScreen(solo);

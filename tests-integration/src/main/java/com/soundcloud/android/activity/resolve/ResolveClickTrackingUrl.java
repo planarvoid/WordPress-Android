@@ -20,6 +20,6 @@ public class ResolveClickTrackingUrl extends ResolveBaseTest {
     public void testResolveUrl() throws Exception {
         profileScreen = new ProfileScreen(solo);
         solo.assertActivity(ProfileActivity.class, DEFAULT_WAIT);
-        assertThat(profileScreen.userName(), equalToIgnoringCase("steveangello"));
+        assertThat(profileScreen.getUserName(), equalToIgnoringCase("steveangello"));
     }
 }

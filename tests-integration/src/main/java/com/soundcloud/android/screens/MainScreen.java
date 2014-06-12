@@ -19,10 +19,6 @@ public class MainScreen extends Screen {
                 .clickExplore();
     }
 
-    public MenuScreen menu() {
-        return menuScreen;
-    }
-
     @Override
     protected Class getActivity() {
         return ACTIVITY;

@@ -1,13 +1,14 @@
 package com.soundcloud.android.screens.explore;
 
-import android.view.View;
-import android.widget.GridView;
-import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.explore.ExploreTracksCategoryActivity;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
+
+import android.view.View;
+import android.widget.GridView;
+import android.widget.TextView;
 
 public class ExploreGenreCategoryScreen extends Screen {
     private static final Class ACTIVITY = ExploreTracksCategoryActivity.class;
@@ -29,18 +30,18 @@ public class ExploreGenreCategoryScreen extends Screen {
     }
 
     public LegacyPlayerScreen playTrack(int index) {
-        solo.clickOnView(tracksList().getChildAt(index));
-        return new LegacyPlayerScreen(solo);
+        testDriver.wrap(tracksList().getChildAt(index)).click();
+        return new LegacyPlayerScreen(testDriver);
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
-        solo.scrollToBottom(tracksList());
+        testDriver.scrollToBottom(tracksList());
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     //TODO: This should be even more generic GV.items()
     private GridView tracksList() {
-        return solo.getCurrentGridView();
+        return testDriver.getCurrentGridView();
     }
 
     @Override

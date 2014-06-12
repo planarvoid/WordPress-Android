@@ -5,6 +5,9 @@ import static com.soundcloud.android.tests.TestUser.GPlusAccount;
 import static com.soundcloud.android.tests.TestUser.noGPlusAccount;
 import static com.soundcloud.android.tests.TestUser.scAccount;
 import static com.soundcloud.android.tests.TestUser.scTestAccount;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.auth.LoginTestCase;
@@ -66,6 +69,7 @@ public class LoginFlowTest extends LoginTestCase {
         loginScreen.selectUserFromDialog(GPlusAccount.getEmail());
 
         // Then termsOfUse dialog should be shown
+//        TODO: DialogElement
         solo.assertText(R.string.auth_disclaimer_title);
         solo.assertText(R.string.auth_disclaimer_message);
 
@@ -84,6 +88,7 @@ public class LoginFlowTest extends LoginTestCase {
         loginScreen.selectUserFromDialog(noGPlusAccount.getEmail());
 
         // Then termsOfUse dialog should be shown
+        //TODO: DIALOG
         solo.assertText(R.string.auth_disclaimer_title);
         solo.assertText(R.string.auth_disclaimer_message);
 
@@ -108,6 +113,7 @@ public class LoginFlowTest extends LoginTestCase {
         loginScreen.clickOnFBSignInButton();
 
         //Then termsOfUse dialog should be shown
+        //TODO: DialogElement
         solo.assertText(R.string.auth_disclaimer_title);
         solo.assertText(R.string.auth_disclaimer_message);
 
@@ -120,6 +126,7 @@ public class LoginFlowTest extends LoginTestCase {
         FBWebViewScreen.typePassword(scAccount.getPassword());
         FBWebViewScreen.typeEmail(scAccount.getEmail());
         FBWebViewScreen.submit();
+        menuScreen.open();
 
         assertEquals(scAccount.getUsername(), menuScreen.getUserName());
     }
@@ -142,7 +149,7 @@ public class LoginFlowTest extends LoginTestCase {
     public void testLoginWithWrongCredentials() {
         loginScreen = homeScreen.clickLogInButton();
         loginScreen.loginAs(scTestAccount.getUsername(), "wrong-password", false);
-
+        //TODO: DialogElement
         solo.assertText(R.string.authentication_login_error_password_message, "We could not log you in");
         loginScreen.clickOkButton();
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
@@ -173,8 +180,8 @@ public class LoginFlowTest extends LoginTestCase {
         recoveryScreen.typeEmail("some-email-" + System.currentTimeMillis() + "@baz" + System.currentTimeMillis() + ".com");
         recoveryScreen.clickOkButton();
 
-        solo.assertDialogClosed();
-        solo.assertText(R.string.authentication_recover_password_failure_reason, "Unknown Email Address");
+        String message = solo.getString(R.string.authentication_recover_password_failure_reason, "Unknown Email Address");
+        assertThat(solo.getToast().getText(), is(equalToIgnoringCase(message)));
     }
 
     /*
@@ -187,6 +194,7 @@ public class LoginFlowTest extends LoginTestCase {
         loginScreen.clickForgotPassword();
         loginScreen.clickOkButton();
 
-        solo.assertText(R.string.authentication_error_incomplete_fields, "Error message should be shown");
+        String message = solo.getString(R.string.authentication_error_incomplete_fields);
+        assertThat(solo.getToast().getText(), is(equalToIgnoringCase(message)));
     }
 }

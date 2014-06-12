@@ -8,15 +8,12 @@ import static junit.framework.Assert.fail;
 import com.robotium.solo.By;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
-import com.soundcloud.android.R;
-import com.soundcloud.android.R.id;
-import com.soundcloud.android.main.NavigationDrawerFragment;
+import com.soundcloud.android.tests.with.With;
 import junit.framework.AssertionFailedError;
 
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.SystemClock;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -25,10 +22,8 @@ import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -37,77 +32,56 @@ import java.util.regex.Pattern;
  */
 public class Han  {
     private static final int DEFAULT_TIMEOUT = 20 * 1000;
-    private static final int SWIPE_SLEEP = 1000;
+    private static ViewFetcher viewFetcher;
 
     private final Solo solo;
 
-    public Han(Instrumentation instrumentation, Activity activity) {
-        solo = new Solo(instrumentation, activity);
-    }
-
+    @Deprecated
     public Solo getSolo() {
         return solo;
     }
-    @SuppressWarnings("UnusedDeclaration")
+
     public Han(Instrumentation instrumentation) {
         solo = new Solo(instrumentation);
+        viewFetcher = new ViewFetcher(solo);
     }
 
-    public void clickOnOK() {
-        clickOnText(getString(android.R.string.ok));
+    public ViewElement wrap(View view) {
+        return new DefaultViewElement(view, solo);
     }
 
-    public void clickOnDone() {
-        clickOnButtonResId(R.string.done);
+
+    public ToastElement getToast() { return new ToastElement(this); }
+
+    public ViewElement findElement(With findBy) {
+        return viewFetcher.findElement(findBy);
     }
 
-    public void clickOnPublish() {
-        clickOnButtonResId(R.string.btn_publish);
+    public List<ViewElement> findElements(With with) {
+        return viewFetcher.findElements(with);
+    }
+
+    public void clickOnText(String text) {
+        findElement(With.text(text)).click();
+    }
+
+    public void clickOnText(int stringId) {
+        String text = getString(stringId);
+        findElement(With.text(text)).click();
     }
 
     public void clearTextInWebElement(By by) {
         solo.clearTextInWebElement(by);
     }
 
-    public void clickOnText(int resId) {
-        clickOnText(getString(resId));
-    }
-
-    public void clickOnText(String text) {
-        solo.clickOnText(text);
-    }
-
-    public void clickOnText(String text, boolean scroll) {
-        solo.clickOnText(text, 1, true);
-    }
-
-    public void clickOnView(int resId) {
-        solo.waitForView(resId);
-        clickOnView(solo.getCurrentActivity().findViewById(resId));
-    }
-
     public void sendKey(int key) {
         solo.sendKey(key);
     }
 
-    public void clickOnView(View view) {
-        assertNotNull(view);
-        solo.clickOnView(view);
-    }
-
-    public void clickLongOnView(int resId) {
-        View view = solo.getCurrentActivity().findViewById(resId);
-        assertNotNull(view);
-        solo.clickLongOnView(view);
-    }
-
+    @Deprecated
     public void assertText(int resId, Object... args) {
         final String text = getString(resId, args);
         assertTrue("Text '" + text + "' not found", solo.waitForText(Pattern.quote(text)));
-    }
-
-    public void assertVisibleText(String text, long timeout) {
-        assertTrue(solo.waitForText(text, 0, timeout, false, true));
     }
 
     public void assertText(String text) {
@@ -156,30 +130,9 @@ public class Han  {
         assertTrue("Activity "+a+" not finished", a.isFinishing());
     }
 
-    public void assertDialogClosed() {
-        // TODO: replace with more intelligent checks
-        //assertTrue(waitForDialogToClose(DEFAULT_TIMEOUT));
-    }
-
     public void clickOnButtonResId(int resId) {
         solo.clickOnButton(getString(resId));
     }
-
-    public void performClick(final View view) {
-        assertNotNull("view is null", view);
-        try {
-            solo.getCurrentActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    view.performClick();
-                }
-            });
-        } catch (Throwable throwable) {
-            throw new RuntimeException("Could not click on view on UI Thread", throwable);
-        }
-        solo.sleep(500);
-    }
-
 
     public String getString(int resId, Object... args) {
         return solo.getCurrentActivity().getString(resId, args);
@@ -195,11 +148,6 @@ public class Han  {
         solo.waitForView(GridView.class);
         final ArrayList<GridView> currentGridViews = solo.getCurrentViews(GridView.class);
         return currentGridViews == null || currentGridViews.isEmpty() ? null : currentGridViews.get(0);
-    }
-
-    public NavigationDrawerFragment getCurrentNavigationDrawer() {
-        final FragmentActivity fragmentActivity = (FragmentActivity) solo.getCurrentActivity();
-        return (NavigationDrawerFragment) fragmentActivity.getSupportFragmentManager().findFragmentById(id.navigation_fragment_id);
     }
 
     public void swipeLeft() {
@@ -224,7 +172,7 @@ public class Han  {
         final int screenHeight = display.getHeight();
         final int screenWidth = display.getWidth();
 
-        drag(screenWidth/4, screenWidth/4, screenHeight/4, screenHeight/2, 10);
+        drag(screenWidth / 4, screenWidth / 4, screenHeight / 4, screenHeight / 2, 10);
     }
 
     public void enterTextId(int resId, String text) {
@@ -263,16 +211,6 @@ public class Han  {
         return display.getWidth();
     }
 
-    public void dragViewHorizontally(View view, int n, int steps) {
-        int[] xy = new int[2];
-        view.getLocationOnScreen(xy);
-        drag(Math.max(xy[0], 0),
-                Math.max(Math.min(getScreenWidth(), xy[0] + n), 0),
-                xy[1],
-                xy[1],
-                steps);
-    }
-
     public void drag(float fromX, float toX, float fromY, float toY, int stepCount) {
         log("dragging: (%.2f, %.2f) -> (%.2f, %.2f) count: %d", fromX, fromY, toX, toY, stepCount);
         solo.drag(fromX, toX, fromY, toY, stepCount);
@@ -280,16 +218,6 @@ public class Han  {
 
     public void log(Object msg, Object... args) {
         Log.d(getClass().getSimpleName(), msg == null ? null : String.format(msg.toString(), args));
-    }
-
-    public void log(View view) {
-        int[] xy = new int[2];
-        view.getLocationOnScreen(xy);
-        log("View: " + view.getClass().getSimpleName() + " loc: " + Arrays.toString(xy));
-    }
-
-    public void clearEditText(EditText editText) {
-        solo.clearEditText(editText);
     }
 
     public void waitForActivity(Class<? extends Activity> name) {
@@ -306,7 +234,6 @@ public class Han  {
                 name, solo.getCurrentActivity()), solo.waitForActivity(name));
     }
 
-
     public View getView(int id) {
         View view = null;
         try {
@@ -315,10 +242,6 @@ public class Han  {
 
         }
         return view;
-    }
-
-    public <T extends View> boolean waitForView(View view) {
-        return solo.waitForView(view);
     }
 
     public void clickOnButton(Integer resource) {
@@ -344,6 +267,7 @@ public class Han  {
         return null;
     }
 
+
     public View waitForViewId(int viewId, int timeout, boolean failIfNotFound) {
         long endTime = SystemClock.uptimeMillis() + timeout;
         while (SystemClock.uptimeMillis() < endTime) {
@@ -367,13 +291,8 @@ public class Han  {
         return null;
     }
 
-
     public void enterText(int index, String text) {
         solo.enterText(index, text);
-    }
-
-    public void enterText(EditText editText, String text) {
-        solo.enterText(editText, text);
     }
 
     public void finishOpenedActivities() {
@@ -384,22 +303,12 @@ public class Han  {
         solo.sleep(time);
     }
 
-    public <T extends View> T getView(Class<T> viewClass, int index) {
-        T view = solo.getView(viewClass, index);
-        assertNotNull(view);
-        return view;
-    }
-
     public void goBack() {
         solo.goBack();
     }
 
     public Activity getCurrentActivity() {
         return solo.getCurrentActivity();
-    }
-
-    public boolean isToggleButtonChecked(String text) {
-        return solo.isToggleButtonChecked(text);
     }
 
     public boolean scrollListToTop(int index) {
@@ -410,20 +319,16 @@ public class Han  {
     public void scrollToBottom(AbsListView view) {
         solo.scrollListToBottom(view);
     }
-
     public void assertTextFound(String text, boolean onlyVisible) {
         assertTrue("Text " + text + " not found", solo.searchText(text, onlyVisible));
     }
+
     public boolean searchText(String text, boolean onlyVisible) {
         return solo.searchText(text, onlyVisible);
     }
 
     public boolean searchTextWithoutScrolling(String text){
         return solo.searchText(text,0,false,true);
-    }
-
-    public boolean searchText(String text, int minimumNumberOfMatches, boolean scroll) {
-        return solo.searchText(text, minimumNumberOfMatches, false);
     }
 
     public void typeText(EditText editText, String text) {
@@ -450,20 +355,8 @@ public class Han  {
         return solo.waitForCondition(condition, timeout);
     }
 
-    public void scrollToItem(int item) {
-        solo.scrollListToLine(0, item - 1);
-    }
-
-    public List<TextView> clickInList(int item) {
-        return solo.clickInList(item);
-    }
-
     public void waitForDialogToClose(long timeout) {
         solo.waitForDialogToClose(timeout);
-    }
-
-    public boolean waitForText(String text, int minimumNumberOfMatches, long timeout, boolean scroll) {
-        return solo.waitForText(text, minimumNumberOfMatches, timeout, scroll);
     }
 
     public void openSystemMenu() {
@@ -472,10 +365,6 @@ public class Han  {
 
     public boolean waitForFragmentByTag(String fragment_tag, int timeout) {
         return solo.waitForFragmentByTag(fragment_tag, timeout);
-    }
-
-    public void clickInList(int line, int index) {
-        solo.clickInList(line, index);
     }
 
     public boolean isKeyboardShown() {
@@ -493,4 +382,3 @@ public class Han  {
         return canHideKeyboard;
     }
 }
-

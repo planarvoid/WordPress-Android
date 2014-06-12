@@ -3,24 +3,16 @@ package com.soundcloud.android.screens;
 import com.soundcloud.android.R;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.tests.Han;
-
-import android.widget.ToggleButton;
-import android.view.View;
-import android.widget.TextView;
+import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.with.With;
 
 public class PlaylistDetailsScreen extends Screen {
 
     private static final Class ACTIVITY = PlaylistDetailActivity.class;
     private static final int TITLE = R.id.title;
-    private static final int USERNAME = R.id.username;
 
     public PlaylistDetailsScreen(Han solo) {
         super(solo);
-    }
-
-    private View rootContainer() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return solo.getView(android.R.id.list);
     }
 
     @Override
@@ -28,33 +20,29 @@ public class PlaylistDetailsScreen extends Screen {
         return ACTIVITY;
     }
 
-    public String getUsername() {
-        return ((TextView) title()).getText().toString();
-    }
-
     public String getTitle() {
-        return ((TextView) title()).getText().toString();
+        return title().getText();
     }
 
-    private View title() {
-        return rootContainer().findViewById(TITLE);
+    private ViewElement title() {
+        return testDriver.findElement(With.id(TITLE));
     }
 
-    private View username() {
-        return rootContainer().findViewById(USERNAME);
+    private ViewElement headerPlayToggle() {
+        return testDriver.findElement(With.id(R.id.toggle_play_pause));
     }
 
     public void clickHeaderPlay() {
-        solo.clickOnView(R.id.toggle_play_pause);
+        headerPlayToggle().click();
         waiter.waitForPlayerPlaying();
     }
 
     public void clickHeaderPause() {
-        solo.clickOnView(R.id.toggle_play_pause);
+        headerPlayToggle().click();
     }
 
     public boolean isPlayToggleChecked() {
-        return ((ToggleButton) solo.getView(R.id.toggle_play_pause)).isChecked();
+        return headerPlayToggle().isChecked();
     }
 
 }

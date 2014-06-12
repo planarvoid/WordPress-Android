@@ -1,9 +1,9 @@
 package com.soundcloud.android.screens;
 
-import android.support.v4.app.FragmentActivity;
 import com.soundcloud.android.R;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.with.With;
 
 public class MenuScreenTablet extends MenuScreen{
 
@@ -12,32 +12,31 @@ public class MenuScreenTablet extends MenuScreen{
     }
 
     @Override
-    public MyProfileScreen clickProfile() {
-        solo.clickOnView(profiles_selector);
+    public MyProfileScreen clickUserProfile() {
+        userProfileMenuItem().click();
         return new MyProfileScreen(solo);
     }
 
     @Override
     public ExploreScreen clickExplore() {
-        solo.clickOnText(explore_selector);
+        exploreMenuItem().click();
         return new ExploreScreen(solo);
     }
 
     @Override
     public LikesScreen clickLikes() {
-        solo.clickOnText(likes_selector);
+        likesMenuItem().click();
         return new LikesScreen(solo);
     }
 
     @Override
     public PlaylistScreen clickPlaylist() {
-        solo.clickOnText(playlist_selector);
+        playlistsMenuItem().click();
         return new PlaylistScreen(solo);
     }
 
     public boolean isOpened() {
-        FragmentActivity activity = (FragmentActivity) solo.getCurrentActivity();
-        return activity.getSupportFragmentManager().findFragmentById(R.id.fixed_navigation_fragment_id) != null;
+        return solo.findElement(With.id(R.id.fixed_navigation_fragment_id)).isVisible();
     }
 
 }

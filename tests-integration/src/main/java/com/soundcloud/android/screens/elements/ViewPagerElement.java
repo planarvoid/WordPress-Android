@@ -1,40 +1,26 @@
 package com.soundcloud.android.screens.elements;
 
-import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.R;
+import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.with.With;
+import com.soundcloud.android.view.SafeViewPager;
 
-import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.Display;
 import android.view.View;
-import android.view.WindowManager;
-
-import java.util.ArrayList;
 
 public class ViewPagerElement extends Element {
-    private final static int MAX_VIEWS = 3;
     private ViewPager viewPager;
 
     public ViewPagerElement(Han solo) {
         super(solo);
         solo.getSolo().waitForView(ViewPager.class);
-        viewPager = solo.getView(ViewPager.class, 0);
-    }
-
-    public ViewPagerElement(Han solo, int viewPagerId) {
-        super(solo);
-        solo.getSolo().waitForView(viewPagerId);
-        viewPager = (ViewPager) solo.getView(viewPagerId);
+        viewPager = solo.findElement(With.className(SafeViewPager.class)).toViewPager();
     }
 
     @Override
     protected int getRootViewId() {
         return R.id.pager;
-    }
-
-    public  <T extends View> ArrayList<T> getPages(Class<T> viewClass) {
-        return solo.getSolo().getCurrentViews(viewClass, viewPager);
     }
 
     public  <T extends View> View getCurrentPage(Class<T> viewClass) {
@@ -73,18 +59,6 @@ public class ViewPagerElement extends Element {
         return viewPager.getAdapter();
     }
 
-    private int getAllPages() {
-        return adapter().getCount();
-    }
-
-    private int getDisplayedPagesCount() {
-        return viewPager.getChildCount();
-    }
-
-    private int getPagesCount() {
-        return adapter().getCount();
-    }
-
     private int getX() {
         return getLocationOnScreen()[0];
     }
@@ -98,19 +72,4 @@ public class ViewPagerElement extends Element {
         viewPager.getLocationOnScreen(locationOnScreen);
         return locationOnScreen;
     }
-
-    //TODO: Move this to Device class
-    private int getScreenWidth() {
-        return getDisplay().getWidth();
-    }
-
-    private int getScreenHeight() {
-        return getDisplay().getHeight();
-    }
-
-    private Display getDisplay() {
-        return ((WindowManager) solo.getCurrentActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-    }
-
-
 }

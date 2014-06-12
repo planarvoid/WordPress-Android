@@ -8,7 +8,6 @@ import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 
 import android.net.Uri;
-import android.test.suitebuilder.annotation.Suppress;
 
 public class ResolvePlaylistMobileUrlTest extends ResolveBaseTest {
 

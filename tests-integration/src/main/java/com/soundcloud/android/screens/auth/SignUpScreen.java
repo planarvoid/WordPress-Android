@@ -1,70 +1,83 @@
 package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.R.string;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
+import com.soundcloud.android.onboarding.OnboardActivity;
+import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.Waiter;
+import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.with.With;
 
-import android.view.View;
-import android.widget.EditText;
+public class SignUpScreen extends Screen {
+    private static final Class ACTIVITY = OnboardActivity.class;
+    public SignUpScreen(Han testDriver) {
+        super(testDriver);
+    }
 
-public class SignUpScreen {
+    private ViewElement googleSignInButton() {
+        return testDriver.findElement(With.id(R.id.google_plus_btn));
+    }
 
-    private final Waiter waiter;
-    private Han solo;
+    private ViewElement facebookSignInButton() {
+        return testDriver.findElement(With.id(R.id.facebook_btn));
+    }
 
-    public SignUpScreen(Han driver) {
-        solo = driver;
-        waiter = new Waiter(solo);
+    private ViewElement emailInputField() {
+        return testDriver.findElement(With.id(R.id.auto_txt_email_address));
+    }
+
+    private ViewElement passwordInputfield() {
+        return testDriver.findElement(With.id(R.id.txt_choose_a_password));
+    }
+
+    private ViewElement cancelButton() {
+        return testDriver.findElement(With.id(R.id.btn_cancel));
+    }
+
+    private ViewElement doneButton() {
+        return testDriver.findElement(With.id(R.id.btn_signup));
+    }
+
+    private ViewElement acceptTermsButton() {
+        return testDriver.findElement(With.id(R.id.btn_accept_terms));
     }
 
     public void clickFacebookButton() {
-        solo.clickOnView(R.id.facebook_btn);
-    }
-
-    public EditText email() {
-        return (EditText) solo.getView(R.id.auto_txt_email_address);
-    }
-
-    public EditText password() {
-        return (EditText) solo.getView(R.id.txt_choose_a_password);
+        facebookSignInButton().click();
     }
 
     public void typeEmail(String email) {
-        solo.enterText(email(), email);
+        emailInputField().typeText(email);
     }
 
     public void typePassword(String password) {
-        solo.enterText(password(), password);
+        passwordInputfield().typeText(password);
     }
 
-    public View getDoneButton() {
-        return solo.getView(R.id.btn_signup);
-    }
-
-    public void clickSignUpButton() {
-        solo.clickOnView(R.id.signup_btn);
-        solo.waitForViewId(R.id.btn_signup, 5000);
+    public boolean isDoneButtonEnabled() {
+        return doneButton().isEnabled();
     }
 
     public void signup() {
-        solo.clickOnView(R.id.btn_signup);
-        solo.waitForViewId(R.id.btn_accept_terms, 1000);
+        doneButton().click();
     }
 
     public void acceptTerms() {
-        solo.clickOnView(R.id.btn_accept_terms);
+        acceptTermsButton().click();
         waiter.waitForLogInDialog();
     }
 
     public void skipInfo() {
-        solo.assertText(R.string.authentication_add_info_msg);
-        solo.clickOnButtonResId(R.string.btn_skip);
+        testDriver.assertText(R.string.authentication_add_info_msg);
+        testDriver.clickOnButtonResId(R.string.btn_skip);
     }
 
     public SuggestedUsersScreen waitForSuggestedUsers() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return new SuggestedUsersScreen(solo);
+        return new SuggestedUsersScreen(testDriver);
+    }
+
+    @Override
+    protected Class getActivity() {
+        return ACTIVITY;
     }
 }

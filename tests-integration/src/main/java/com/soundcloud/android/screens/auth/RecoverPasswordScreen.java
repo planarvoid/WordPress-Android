@@ -1,11 +1,13 @@
 package com.soundcloud.android.screens.auth;
 
 import android.R.id;
-import android.widget.EditText;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.onboarding.auth.RecoverActivity;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.with.With;
 
 public class RecoverPasswordScreen extends Screen {
     private static final Class ACTIVITY = RecoverActivity.class;
@@ -17,16 +19,16 @@ public class RecoverPasswordScreen extends Screen {
         waiter.waitForElement(id.content);
     }
 
-    public EditText email() {
-        return (EditText) solo.getView(R.id.txt_email_address);
+    private ViewElement emailInputField() {
+        return testDriver.findElement(With.id(R.id.txt_email_address));
     }
 
-    public void typeEmail(String email) {
-        solo.enterText(email(), email);
+    public void typeEmail(String text) {
+        emailInputField().typeText(text);
     }
 
     public void clickOkButton () {
-        solo.clickOnOK();
+        testDriver.clickOnText(android.R.string.ok);
     }
 
     @Override

@@ -21,7 +21,7 @@ public class MyProfileTest extends ActivityTestCase<MainActivity> {
         AccountAssistant.loginAsDefault(getInstrumentation());
         assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
         super.setUp();
-        profileScreen = new MenuScreenTablet(solo).clickProfile();
+        profileScreen = new MenuScreenTablet(solo).clickUserProfile();
     }
 
     public void ignoreFollowButtonIsNotVisibleOnOwnProfile() {
@@ -29,7 +29,7 @@ public class MyProfileTest extends ActivityTestCase<MainActivity> {
     }
 
     public void ignoreLocationIsShown() {
-        assertEquals("Testville, United States", profileScreen.location());
+        assertEquals("Testville, United States", profileScreen.getLocation());
     }
 
 }

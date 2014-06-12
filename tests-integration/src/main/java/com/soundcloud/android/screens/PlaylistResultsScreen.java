@@ -30,18 +30,18 @@ public class PlaylistResultsScreen extends Screen {
 
     public PlaylistDetailsScreen clickOnPlaylist(int position) {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        solo.getSolo().clickInList(position);
-        return new PlaylistDetailsScreen(solo);
+        testDriver.getSolo().clickInList(position);
+        return new PlaylistDetailsScreen(testDriver);
     }
 
     public PlaylistTagsScreen pressBack() {
-        solo.goBack();
-        return new PlaylistTagsScreen(solo);
+        testDriver.goBack();
+        return new PlaylistTagsScreen(testDriver);
     }
 
     private GridView getList() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return solo.getCurrentGridView();
+        return testDriver.getCurrentGridView();
     }
 
 }

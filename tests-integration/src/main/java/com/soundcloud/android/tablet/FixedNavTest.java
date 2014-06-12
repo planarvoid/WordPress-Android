@@ -28,8 +28,8 @@ public class FixedNavTest extends ActivityTestCase<MainActivity> {
     }
 
     public void ignoreFixedNavProfileButtonOpensProfile() {
-        ProfileScreen profileScreen = tabletMenu.clickProfile();
-        assertEquals("Should go to user profile", "android-testing", profileScreen.userName());
+        ProfileScreen profileScreen = tabletMenu.clickUserProfile();
+        assertEquals("Should go to user profile", "android-testing", profileScreen.getUserName());
         assertEquals("Nav should not be visible on tablet PROFILE", false, tabletMenu.isOpened());
     }
 

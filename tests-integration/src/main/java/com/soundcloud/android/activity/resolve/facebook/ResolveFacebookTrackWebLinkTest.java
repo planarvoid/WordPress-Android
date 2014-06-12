@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
 
@@ -27,12 +26,12 @@ public class ResolveFacebookTrackWebLinkTest extends FacebookResolveBaseTest {
         assertThat(playerScreen, is(Visible()));
 
         playerScreen.stopPlayback();
-        waiter.expect(playerScreen.trackTitleElement())
+        waiter.expect(playerScreen.trackTitle())
                 .toHaveText(TRACK_NAME);
 
         // make sure recommendations load
         playerScreen.swipeLeft();
 
-        assertThat(TRACK_NAME, is(not(equalToIgnoringCase(playerScreen.trackTitle()))));
+        assertThat(TRACK_NAME, is(not(equalToIgnoringCase(playerScreen.getTrackTitle()))));
     }
 }

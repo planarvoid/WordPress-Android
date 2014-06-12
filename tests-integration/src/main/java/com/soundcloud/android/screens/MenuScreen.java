@@ -1,27 +1,25 @@
 package com.soundcloud.android.screens;
 
-import android.view.View;
-import android.widget.ListView;
-import android.widget.TextView;
 import com.soundcloud.android.R;
-import com.soundcloud.android.R.id;
-import com.soundcloud.android.R.string;
-import com.soundcloud.android.main.NavigationDrawerFragment;
-import com.soundcloud.android.main.NavigationFragment;
+import com.soundcloud.android.screens.elements.ActionBarElement;
+import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Waiter;
+import com.soundcloud.android.tests.with.With;
+
+import android.os.Build;
 
 public class MenuScreen {
+    private final ActionBarElement actionBar;
     protected Han solo;
     protected Waiter waiter;
-    protected int explore_selector = R.string.side_menu_explore;
-    protected int likes_selector = R.string.side_menu_likes;
-    protected int playlist_selector = string.side_menu_playlists;
-    protected int profiles_selector = id.username;
+    protected final int username_selector = R.id.username;
 
     public MenuScreen(Han solo) {
         this.solo = solo;
+        this.actionBar = new ActionBarElement(solo);
         this.waiter = new Waiter(solo);
     }
 
@@ -29,80 +27,82 @@ public class MenuScreen {
         solo.openSystemMenu();
         solo.clickOnActionBarItem(R.id.action_settings);
         new SettingsScreen(solo);
-        solo.clickOnText(R.string.pref_revoke_access);
+        solo.findElement(With.text(solo.getString(R.string.pref_revoke_access))).click();
         solo.assertText(R.string.menu_clear_user_title);
-        solo.clickOnOK();
+        solo.clickOnText(android.R.string.ok);
         return new HomeScreen(solo);
     }
 
     //TODO: Move this to systemSettingsScreen
     public SettingsScreen clickSystemSettings() {
-        solo.clickOnActionBarItem(id.action_settings);
+        solo.clickOnActionBarItem(R.id.action_settings);
         return new SettingsScreen(solo);
     }
 
-    public ListView rootMenu() {
-        return (ListView) solo.waitForViewId(R.id.nav_listview, 20000);
+    private ListElement menuContainer() {
+        return solo.findElement(With.id(R.id.nav_listview)).toListView();
     }
 
-    public View youMenu() {
-        return rootMenu().getChildAt(NavigationFragment.NavItem.PROFILE.ordinal());
+    protected ViewElement userProfileMenuItem() {
+        return menuContainer().getItemAt(0);
+    }
+
+    protected ViewElement exploreMenuItem() {
+        return menuContainer().getItemAt(2);
+    }
+
+    protected ViewElement likesMenuItem() {
+        return menuContainer().getItemAt(3);
+    }
+
+    protected ViewElement playlistsMenuItem() {
+        return menuContainer().getItemAt(4);
+    }
+
+    protected ViewElement usernameLabel() {
+        return userProfileMenuItem().findElement(With.id(username_selector));
     }
 
     //TODO: move this to ActionBarScreen
     public MenuScreen open() {
-        solo.getCurrentActivity().runOnUiThread(new Runnable() {
-            public void run() {
-                solo.clickOnActionBarHomeButton();
-            }
-        });
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
+            actionBar.clickHomeButton();
+        } else {
+            solo.findElement(With.id(R.id.up)).click();
+        }
+
         waiter.waitForDrawerToOpen();
         return new MenuScreen(solo);
     }
 
     public String getUserName() {
-        TextView you = (TextView) youMenu().findViewById(R.id.username);
-        return you.getText().toString();
-    }
-
-    public void openExplore() {
-        solo.clickOnActionBarHomeButton();
-        waiter.waitForDrawerToOpen();
-        solo.clickOnText(explore_selector);
-        waiter.waitForViewId(android.R.id.list);
-        waiter.waitForContentAndRetryIfLoadingFailed();
+        return usernameLabel().getText();
     }
 
     public boolean isOpened() {
-        NavigationDrawerFragment navigationDrawerFragment = null;
-        try {
-            navigationDrawerFragment = solo.getCurrentNavigationDrawer();
-        } catch (Exception e) {
-            return false;
-        }
-            return navigationDrawerFragment.isDrawerOpen();
+        return solo.findElement(With.id(R.id.navigation_fragment_id)).isVisible();
     }
 
-    public ProfileScreen clickProfile() {
-        solo.clickOnView(R.id.username);
+    public ProfileScreen clickUserProfile() {
+        userProfileMenuItem().click();
         waiter.waitForDrawerToClose();
         return new MyProfileScreen(solo);
     }
 
     public ExploreScreen clickExplore() {
-        solo.clickOnText(explore_selector);
+        exploreMenuItem().click();
         waiter.waitForDrawerToClose();
         return new ExploreScreen(solo);
     }
 
     public LikesScreen clickLikes() {
-        solo.clickOnText(likes_selector);
+        likesMenuItem().click();
         waiter.waitForDrawerToClose();
         return new LikesScreen(solo);
     }
 
     public PlaylistScreen clickPlaylist() {
-        solo.clickOnText(playlist_selector);
+        playlistsMenuItem().click();
         waiter.waitForDrawerToClose();
         return new PlaylistScreen(solo);
     }

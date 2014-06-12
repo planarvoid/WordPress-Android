@@ -1,11 +1,12 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.R.string;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.auth.LoginScreen;
 import com.soundcloud.android.screens.auth.SignUpScreen;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.with.With;
 
 public class HomeScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;
@@ -15,19 +16,29 @@ public class HomeScreen extends Screen {
     }
 
     public LoginScreen clickLogInButton() {
-        solo.clickOnButtonResId(R.string.authentication_log_in);
-        waiter.waitForText(solo.getString(string.done));
-        return new LoginScreen(solo);
+        logInButton().click();
+        return new LoginScreen(testDriver);
     }
 
     public SignUpScreen clickSignUpButton() {
-        solo.clickOnView(R.id.signup_btn);
-        solo.waitForViewId(R.id.btn_signup, 5000);
-        return new SignUpScreen(solo);
+        signUpButton().click();
+        return new SignUpScreen(testDriver);
     }
 
     public boolean hasItemByUsername(String username){
-        return solo.searchText(username, true);
+        return testDriver.searchText(username, true);
+    }
+
+    private ViewElement bottomBar() {
+        return testDriver.findElement(With.id(R.id.tour_bottom_bar));
+    }
+
+    private ViewElement signUpButton() {
+        return bottomBar().findElement(With.id(R.id.signup_btn));
+    }
+
+    private ViewElement logInButton() {
+       return bottomBar().findElement(With.id(R.id.login_btn));
     }
 
     @Override

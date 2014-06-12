@@ -6,6 +6,7 @@ import com.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.tests.SlowTest;
+import com.soundcloud.android.tests.with.With;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -121,14 +122,15 @@ public class RecordEditTest extends AbstractRecordingTestCase {
 
         playbackEdit();
 
-        solo.clickOnText("No Fading");
-        solo.clickOnText("Not Optimized");
-        solo.clickOnText("Save");
+        solo.findElement(With.text("No Fading")).click();
+        solo.findElement(With.text("Not Optimized")).click();
+        solo.findElement(With.text("Save")).click();
 
         assertState(RecordActivity.CreateState.IDLE_PLAYBACK);
 
-        assertTrue(solo.isToggleButtonChecked("Fades on"));
-        assertTrue(solo.isToggleButtonChecked("Optimized"));
+
+        assertTrue(solo.findElement(With.text("Fades on")).isChecked());
+        assertTrue(solo.findElement(With.text("Optimized")).isChecked());
 
         Uri recUri = getActivity().getRecorder().getRecording().toUri();
         assertNotNull(recUri);

@@ -19,6 +19,8 @@ import com.soundcloud.android.preferences.DeveloperPreferences;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Runner;
+import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.with.With;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Env;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +35,6 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.ToggleButton;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,6 +75,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
     @Override
     public void setUp() throws Exception {
         AccountAssistant.loginAsDefault(getInstrumentation());
+        super.setUp();
         recordingTime = applicationProperties.isRunningOnEmulator() ? 6000 : 2000;
         intents = Collections.synchronizedMap(new LinkedHashMap<String, Intent>());
         lbm = LocalBroadcastManager.getInstance(getActivity());
@@ -94,7 +96,6 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         env = Env.LIVE;
         setRecordingType(null);
 
-        super.setUp();
     }
 
     @Override
@@ -110,43 +111,45 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
     protected void record(int howlong, String text) {
         solo.assertText(text);
         assertState(IDLE_RECORD, IDLE_PLAYBACK);
-        solo.clickOnView(R.id.btn_action);
+        solo.findElement(With.id(R.id.btn_action)).click();
         solo.sleep(howlong);
         assertState(RECORD);
-        solo.clickOnView(R.id.btn_action);
+        solo.findElement(With.id(R.id.btn_action)).click();
         solo.assertText(R.string.reset); // "Discard"
         assertState(IDLE_PLAYBACK);
     }
 
     protected void gotoEditMode() {
-        solo.clickOnView(getActivity().findViewById(R.id.btn_edit));
+        solo.findElement(With.id(R.id.btn_edit)).click();
         solo.assertText(R.string.btn_revert_to_original);
         assertState(EDIT);
     }
 
     protected boolean toggleFade() {
         assertState(EDIT);
-        ToggleButton tb = (ToggleButton) solo.getView(R.id.toggle_fade);
-        solo.clickOnView(tb);
+
+        ViewElement tb = solo.findElement(With.id(R.id.toggle_fade));
+        tb.click();
+
         return tb.isChecked();
     }
 
     protected void playback() {
         assertState(IDLE_PLAYBACK);
-        solo.clickOnView(R.id.btn_play);
+        solo.findElement(With.id(R.id.btn_play)).click();
         assertState(PLAYBACK);
     }
 
     protected void playbackEdit() {
         assertState(EDIT);
-        solo.clickOnView(R.id.btn_play_edit);
+        solo.findElement(With.id(R.id.btn_play_edit)).click();
         assertState(EDIT_PLAYBACK);
     }
 
     protected void uploadSound(@Nullable String title, @Nullable String location, boolean isPrivate) {
         assertState(IDLE_PLAYBACK);
 
-        solo.clickOnPublish();
+        solo.clickOnText(R.string.btn_publish);
         solo.assertActivity(UploadActivity.class);
 
         if (title != null) {
@@ -154,10 +157,10 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         }
 
         if (location != null) {
-            solo.clickOnView(R.id.where);
+            solo.findElement(With.id(R.id.where)).click();
             solo.assertActivity(LocationPickerActivity.class);
 
-            solo.clickOnView(R.id.where);
+            solo.findElement(With.id(R.id.where)).click();
             solo.enterTextId(R.id.where, location);
             solo.sendKey(Solo.ENTER);
 
@@ -319,10 +322,12 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
 
     protected void trim(double left, double right) {
         assertState(EDIT);
-        TrimHandleView leftTrim = (TrimHandleView) solo.getView(TrimHandleView.class, 0);
-        TrimHandleView rightTrim = (TrimHandleView) solo.getView(TrimHandleView.class, 1);
+        ViewElement leftTrim, rightTrim;
+        leftTrim = solo.findElements(With.className(TrimHandleView.class)).get(0);
+        rightTrim = solo.findElements(With.className(TrimHandleView.class)).get(1);
         int width = solo.getScreenWidth();
-        if (left > 0)  solo.dragViewHorizontally(leftTrim ,  (int) (width * left), 5);
-        if (right > 0) solo.dragViewHorizontally(rightTrim, -(int) (width * right), 5);
+
+        if (left > 0)  leftTrim.dragHorizontally((int) (width * left), 5);
+        if (right > 0) rightTrim.dragHorizontally(-(int) (width * right),5);
     }
 }

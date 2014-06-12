@@ -71,7 +71,7 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
     public void testSearchingHashtagFromSuggestionShortcutShowsPlaylistDiscoveryResults() {
         playlistTagsScreen.actionBar().setSearchQuery("#deep house");
         //TODO: That should actually be handled buy SearchSuggestionsElement class
-        solo.clickOnText("Search for");
+        solo.clickOnText("Search for '#deep house'");
         PlaylistResultsScreen resultsScreen = new PlaylistResultsScreen(solo);
         assertEquals("Playlist results screen should be visible", true, resultsScreen.isVisible());
     }

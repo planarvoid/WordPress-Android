@@ -3,6 +3,7 @@ package com.soundcloud.android.screens;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.R;
+import com.soundcloud.android.tests.with.With;
 
 public class EmailConfirmScreen extends Screen {
 
@@ -13,13 +14,13 @@ public class EmailConfirmScreen extends Screen {
     }
 
     public EmailOptInScreen clickConfirmLater() {
-        solo.clickOnText(R.string.email_confirmation_confirm_later);
-        return new EmailOptInScreen(solo);
+        testDriver.findElement(With.text(testDriver.getString(R.string.email_confirmation_confirm_later))).click();
+        return new EmailOptInScreen(testDriver);
     }
 
     public HomeScreen goBack() {
-        solo.goBack();
-        return new HomeScreen(solo);
+        testDriver.goBack();
+        return new HomeScreen(testDriver);
     }
 
     @Override

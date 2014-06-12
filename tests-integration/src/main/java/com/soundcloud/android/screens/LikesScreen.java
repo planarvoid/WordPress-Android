@@ -1,9 +1,9 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.tests.Han;
-
-import android.widget.ListView;
+import com.soundcloud.android.tests.with.With;
 
 public class LikesScreen extends Screen {
     protected static final Class ACTIVITY = MainActivity.class;
@@ -13,8 +13,11 @@ public class LikesScreen extends Screen {
     }
 
     public void clickItem(int index) {
-        ListView listView = solo.getCurrentListView();
-        solo.clickOnView(listView.getChildAt(index));
+        likesList().getItemAt(index).click();
+    }
+
+    private ListElement likesList() {
+        return testDriver.findElement(With.id(android.R.id.list)).toListView();
     }
     @Override
     protected Class getActivity() {

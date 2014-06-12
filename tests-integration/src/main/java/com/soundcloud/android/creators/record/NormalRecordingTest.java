@@ -13,6 +13,7 @@ import com.soundcloud.android.preferences.DeveloperPreferences;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.tests.SlowTest;
 import com.soundcloud.android.tests.TestUser;
+import com.soundcloud.android.tests.with.With;
 
 import android.content.Intent;
 import android.os.Build;
@@ -54,7 +55,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         solo.clickOnText(R.string.btn_revert_to_original);
         solo.assertText(R.string.dialog_revert_recording_message);
-        solo.clickOnOK();
+        solo.clickOnText(android.R.string.ok);
 
         assertState(IDLE_PLAYBACK);
     }
@@ -67,7 +68,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         solo.clickOnText(R.string.delete);
         solo.assertText(R.string.dialog_confirm_delete_recording_message);
-        solo.clickOnOK();
+        solo.clickOnText(android.R.string.ok);
         assertState(IDLE_RECORD);
     }
 
@@ -75,7 +76,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         record(recordingTime);
         solo.clickOnText(R.string.delete); // "Discard"
         solo.assertText(R.string.dialog_confirm_delete_recording_message); // "Are you sure you want to delete this recording?"
-        solo.clickOnOK();
+        solo.clickOnText(android.R.string.ok);
         assertState(IDLE_RECORD);
     }
 
@@ -128,7 +129,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void ignore_testRecordAndUploadThenRecordAnotherSound() throws Exception {
         record(recordingTime);
 
-        solo.clickOnPublish();
+        solo.clickOnText(R.string.btn_publish);
         solo.assertActivity(UploadActivity.class);
 
         solo.clickOnText(R.string.record_another_sound);
@@ -140,7 +141,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void ignore_testRecordAndUploadThenGoBack() throws Exception {
         record(recordingTime);
 
-        solo.clickOnPublish();
+        solo.clickOnText(R.string.btn_publish);
         solo.assertActivity(UploadActivity.class);
 
         solo.goBack();
@@ -154,7 +155,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     @SlowTest
-    public void ignore_testRecordAndRunningOutOfStorageSpace() throws Exception {
+    public void testRecordAndRunningOutOfStorageSpace() throws Exception {
         if (!applicationProperties.isRunningOnEmulator()) return;
 
         File filler = fillUpSpace(1024*1024);
@@ -164,13 +165,13 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
             // countdown starts for last 5 minutes of recording time
             assertTrue("remaining time over 5 mins: "+remaining, remaining < 300);
 
-            solo.clickOnView(R.id.btn_action);
+            solo.findElement(With.id(R.id.btn_action)).click();
             solo.sleep(1000);
 
             while (getActivity().getRecorder().timeRemaining() > 10) {
                 assertState(RECORD);
                 solo.sleep(100);
-                solo.assertVisibleText("(?:\\d+|One) (?:minute|second)s? available", 100);
+                solo.findElement(With.id(R.id.chronometer)).getText().matches("(?:\\d+|One) (?:minute|second)s? available");
             }
 
             solo.assertText(R.string.record_storage_is_full);
@@ -267,7 +268,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         Recording r = getActivity().getRecorder().getRecording();
 
-        solo.clickOnPublish();
+        solo.clickOnText(R.string.btn_publish);
         solo.assertActivity(UploadActivity.class);
 
         long tstamp = System.currentTimeMillis();
@@ -278,7 +279,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.goBack();
 
         // doesn't exist any longer
-        //solo.clickOnView(R.id.action_bar_local_recordings);
+        //testDriver.clickOnView(R.id.action_bar_local_recordings);
 
         // delete wav file
         File wavFile = r.getFile();
@@ -301,7 +302,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void ignore_testShouldAutoSaveRecordingAndNavigateToYourSounds() throws Exception {
         record(recordingTime);
         solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
-        solo.clickOnView(R.id.home);
+        solo.findElement(With.id(R.id.home)).click();
         solo.clickOnText(TestUser.defaultUser.getUsername());
         solo.assertActivity(MeActivity.class);
 
@@ -311,9 +312,9 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         record(recordingTime);
         solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
         solo.sleep(500);
-        solo.clickOnView(R.id.btn_action);
+        solo.findElement(With.id(R.id.btn_action)).click();
         solo.sleep(1000);
-        solo.clickOnView(R.id.btn_action);
+        solo.findElement(With.id(R.id.btn_action)).click();
         solo.assertNoText(R.string.rec_your_sound_is_saved_locally_at);
     }
 
@@ -321,7 +322,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void ignore_testRecordAndLoadAndAppend() throws Exception {
         record(recordingTime);
 
-        solo.clickOnPublish();
+        solo.clickOnText(R.string.btn_publish);
 
         long id = System.currentTimeMillis();
         final String name = "A test upload " + id;

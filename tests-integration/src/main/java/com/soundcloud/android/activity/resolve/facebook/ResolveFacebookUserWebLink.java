@@ -24,6 +24,6 @@ public class ResolveFacebookUserWebLink extends FacebookResolveBaseTest {
     public void testFacebookUserDeeplink() {
         profileScreen = new ProfileScreen(solo);
         solo.assertActivity(ProfileActivity.class, DEFAULT_WAIT);
-        assertThat(profileScreen.userName(), is(equalToIgnoringCase("steveangello")));
+        assertThat(profileScreen.getUserName(), is(equalToIgnoringCase("steveangello")));
     }
 }

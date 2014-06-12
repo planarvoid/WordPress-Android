@@ -32,7 +32,7 @@ public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
         exploreScreen.touchTrendingMusicTab();
         String trackName = exploreScreen.getTrackTitle(1);
         playerScreen = exploreScreen.playPopularTrack(1);
-        waiter.expect(playerScreen.trackTitleElement())
+        waiter.expect(playerScreen.trackTitle())
                 .toHaveText(trackName);
     }
 
@@ -41,10 +41,10 @@ public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
         String trackName = categoryScreen.getTrackTitle(1);
         playerScreen = categoryScreen.playTrack(1);
-        waiter.expect(playerScreen.trackTitleElement()).toHaveText(trackName);
+        waiter.expect(playerScreen.trackTitle()).toHaveText(trackName);
 
         // make sure recommendations load
         playerScreen.swipeLeft();
-        assertNotSame(trackName, playerScreen.trackTitle());
+        assertNotSame(trackName, playerScreen.getTrackTitle());
     }
 }

@@ -1,24 +1,22 @@
 package com.soundcloud.android.screens.search;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.collections.views.UserlistRow;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.view.SlidingTabLayout;
+import com.soundcloud.android.tests.with.With;
 
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
-
-import java.util.List;
 
 public class SearchResultsScreen extends Screen {
     private static final Class ACTIVITY = SearchActivity.class;
@@ -38,32 +36,26 @@ public class SearchResultsScreen extends Screen {
     public LegacyPlayerScreen clickFirstTrackItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         View itemView = getFirstResultsItemByClass(Track.class);
-        solo.clickOnView(itemView);
-        return new LegacyPlayerScreen(solo);
+        testDriver.wrap(itemView).click();
+        return new LegacyPlayerScreen(testDriver);
     }
 
     public PlaylistDetailsScreen clickFirstPlaylistItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         View itemView = getFirstResultsItemByClass(Playlist.class);
-        solo.clickOnView(itemView);
-        return new PlaylistDetailsScreen(solo);
+        testDriver.wrap(itemView).click();
+        return new PlaylistDetailsScreen(testDriver);
     }
 
     public ProfileScreen clickFirstUserItem() {
-
-        View itemView = getFirstResultsItemByClass(User.class);
-        solo.clickOnView(itemView);
-        return new ProfileScreen(solo);
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        testDriver.findElement(With.className(UserlistRow.class)).click();
+        return new ProfileScreen(testDriver);
     }
 
     public PlaylistTagsScreen pressBack() {
-        solo.goBack();
-        return new PlaylistTagsScreen(solo);
-    }
-
-    public void touchAllTab() {
-        touchTab(ALL_TAB_TEXT);
-        waiter.waitForContentAndRetryIfLoadingFailed();
+        testDriver.goBack();
+        return new PlaylistTagsScreen(testDriver);
     }
 
     public void touchTracksTab() {
@@ -82,19 +74,12 @@ public class SearchResultsScreen extends Screen {
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
-        solo.scrollToBottom((ListView) getViewPager().getCurrentPage(ListView.class));
+        testDriver.scrollToBottom((ListView) getViewPager().getCurrentPage(ListView.class));
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    private boolean touchTab(String tabText) {
-        List<View> indicatorItems = getViewPagerIndicator().getChildAt(0).getTouchables();
-        for (View view : indicatorItems) {
-            if (((TextView) view).getText().equals(tabText)) {
-                solo.performClick(view);
-                return true;
-            }
-        }
-        return false;
+    private void touchTab(String tabText) {
+        tabs().getTabWithText(tabText).click();
     }
 
     public String currentTabTitle() {
@@ -105,11 +90,7 @@ public class SearchResultsScreen extends Screen {
 
     private ViewPagerElement getViewPager() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return new ViewPagerElement(solo);
-    }
-
-    private SlidingTabLayout getViewPagerIndicator() {
-        return (SlidingTabLayout) solo.getView(R.id.sliding_tabs);
+        return new ViewPagerElement(testDriver);
     }
 
     public int getResultItemCount() {
@@ -119,10 +100,6 @@ public class SearchResultsScreen extends Screen {
 
     private ListView resultsList() {
         return (ListView) getViewPager().getCurrentPage(ListView.class);
-    }
-
-    private ViewPagerElement viewPagerElement() {
-        return new ViewPagerElement(solo);
     }
 
     private View getFirstResultsItemByClass(Class itemClass) {
@@ -137,6 +114,9 @@ public class SearchResultsScreen extends Screen {
         return null;
     }
 
+    private SlidingTabs tabs(){
+        return testDriver.findElement(With.id(R.id.sliding_tabs)).toSlidingTabs();
+    }
     @Override
     protected Class getActivity() {
         return ACTIVITY;
