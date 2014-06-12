@@ -82,8 +82,9 @@
         <ignore path="res/layout/player_track.xml" />
         <ignore path="res/layout/player_action_bar.xml" />
         <!-- Different layout structures for landscape tablets -->
-        <ignore path="res/layout/profile_activity.xml" />
-        <ignore path="res/layout/main_activity.xml" />
+        <ignore path="res/layout/profile_content.xml" />
+        <ignore path="res/layout/base_with_drawer.xml" />
+        <ignore path="res/layout/base_with_drawer_legacy.xml" />
         <ignore path="res/layout-sw600dp-land/playlist_fragment.xml" />
     </issue>
 
