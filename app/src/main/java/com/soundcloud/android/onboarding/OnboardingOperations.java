@@ -20,7 +20,7 @@ public class OnboardingOperations {
     }
 
     public void sendEmailOptIn() {
-        APIRequest<Void> request = SoundCloudAPIRequest.RequestBuilder.<Void>post(APIEndpoints.NOTIFICATIONS.path())
+        APIRequest<Void> request = SoundCloudAPIRequest.RequestBuilder.<Void>put(APIEndpoints.SUBSCRIPTIONS.path())
                 .forPrivateAPI(1)
                 .withContent(new EmailOptIn())
                 .build();

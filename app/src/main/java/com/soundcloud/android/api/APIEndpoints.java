@@ -21,7 +21,7 @@ public enum APIEndpoints {
     RELATED_TRACKS("/tracks/%s/related"),
     EXPERIMENTS("/experiments/%s"),
     HLS_STREAM("/tracks/%s/streams/hls"),
-    NOTIFICATIONS("/notifications"),
+    SUBSCRIPTIONS("/subscriptions"),
     LOG_PLAY("/tracks/%s/plays"),
 
     // public API (DEPRECATED)
