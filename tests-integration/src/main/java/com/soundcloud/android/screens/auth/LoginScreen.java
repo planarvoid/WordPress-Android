@@ -72,8 +72,8 @@ public class LoginScreen extends Screen {
     public MainScreen loginAs(String username, String password) {
         emailInputField().clearText();
 
-        emailInputField().typeText(username);
         passwordInputfield().typeText(password);
+        emailInputField().typeText(username);
         loginButton().click();
         return new MainScreen(testDriver);
     }

@@ -74,7 +74,7 @@ public class LoginFlowTest extends LoginTestCase {
         solo.assertText(R.string.auth_disclaimer_message);
 
         loginScreen.clickOnContinueButton();
-
+        menuScreen.open();
         assertEquals(GPlusAccount.getUsername(), menuScreen.getUserName());
     }
 
@@ -94,6 +94,7 @@ public class LoginFlowTest extends LoginTestCase {
 
         loginScreen.clickOnContinueButton();
 
+        menuScreen.open();
         assertEquals(noGPlusAccount.getUsername(), menuScreen.getUserName());
     }
 
