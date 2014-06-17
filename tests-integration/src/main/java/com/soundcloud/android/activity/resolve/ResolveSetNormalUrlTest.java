@@ -13,6 +13,7 @@ public class ResolveSetNormalUrlTest extends ResolveBaseTest {
 
     public void testShouldOpenPlaylistDetails() throws Exception {
         PlaylistDetailsScreen pd = new PlaylistDetailsScreen(solo);
+        waiter.waitForContentAndRetryIfLoadingFailed();
         assertThat(pd.getTitle(), is(equalTo("Ecclesia Inspiration")));
     }
 
