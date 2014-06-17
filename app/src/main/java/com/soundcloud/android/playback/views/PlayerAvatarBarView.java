@@ -105,7 +105,9 @@ public class PlayerAvatarBarView extends View {
 
     public void stopAvatarLoading(){
         for (ImageView imageView : avatarLoadingViews) {
-            imageOperations.cancel(imageView);
+            if (imageView != null) {
+                imageOperations.cancel(imageView);
+            }
         }
         avatarLoadingViews.clear();
     }
