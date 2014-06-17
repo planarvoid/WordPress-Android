@@ -44,14 +44,16 @@ public class PlaybackProgress {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PlaybackProgress)) return false;
-
-        PlaybackProgress that = (PlaybackProgress) o;
-
-        return createdAt == that.createdAt
-                && duration == that.duration
-                && position == that.position;
+        if (this == o) {
+            return true;
+        } else if (o == null || getClass() != o.getClass()) {
+            return false;
+        } else {
+            PlaybackProgress that = (PlaybackProgress) o;
+            return createdAt == that.createdAt
+                    && duration == that.duration
+                    && position == that.position;
+        }
     }
 
     @Override

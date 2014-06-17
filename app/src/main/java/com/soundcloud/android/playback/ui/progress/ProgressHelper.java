@@ -27,15 +27,14 @@ public abstract class ProgressHelper {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ProgressHelper that = (ProgressHelper) o;
-
-        if (endPosition != that.endPosition) return false;
-        if (startPosition != that.startPosition) return false;
-
-        return true;
+        if (this == o) {
+            return true;
+        } else if (o == null || getClass() != o.getClass()) {
+            return false;
+        } else {
+            ProgressHelper that = (ProgressHelper) o;
+            return endPosition == that.endPosition && startPosition == that.startPosition;
+        }
     }
 
     @Override

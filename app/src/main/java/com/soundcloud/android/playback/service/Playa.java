@@ -140,14 +140,18 @@ public interface Playa {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            StateTransition that = (StateTransition) o;
-            return Objects.equal(newState, that.newState)
-                    && Objects.equal(reason, that.reason)
-                    && Objects.equal(progressEvent, that.progressEvent)
-                    && Objects.equal(trackUrn, that.trackUrn)
-                    && Objects.equal(debugExtra, that.debugExtra);
+            if (this == o) {
+                return true;
+            } else if (o == null || getClass() != o.getClass()) {
+                return false;
+            } else {
+                StateTransition that = (StateTransition) o;
+                return Objects.equal(newState, that.newState)
+                        && Objects.equal(reason, that.reason)
+                        && Objects.equal(progressEvent, that.progressEvent)
+                        && Objects.equal(trackUrn, that.trackUrn)
+                        && Objects.equal(debugExtra, that.debugExtra);
+            }
         }
 
         @Override
