@@ -87,6 +87,7 @@ public class ProgressController {
 
         @Inject
         public ProgressAnimationControllerFactory() {
+            // Required by Dagger
         }
 
         public ProgressController create(View progressView) {

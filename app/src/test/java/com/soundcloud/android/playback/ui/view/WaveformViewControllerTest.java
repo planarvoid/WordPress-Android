@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.ui.view;
 
 import static com.soundcloud.android.playback.ui.progress.ProgressController.ProgressAnimationControllerFactory;
-import static com.soundcloud.android.playback.ui.view.WaveformViewController.WaveformViewControllerFactory;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;

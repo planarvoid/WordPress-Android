@@ -24,9 +24,9 @@ public class PlayerArtworkView extends FrameLayout implements ProgressAware, Ima
 
     private static final int FADE_DURATION = 120;
 
-    private AspectRatioImageView wrappedImageView;
-    private ProgressController progressController;
-    private View artworkIdleOverlay;
+    private final AspectRatioImageView wrappedImageView;
+    private final ProgressController progressController;
+    private final View artworkIdleOverlay;
     private ObjectAnimator overlayAnimator;
     private boolean isForcingDarkness;
     private boolean isInPlayingState;

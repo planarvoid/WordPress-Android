@@ -51,19 +51,20 @@ public class WaveformView extends LinearLayout implements ProgressAware {
     private final int progressColor;
     private final int unplayedColor;
 
-    private ImageView leftWaveform;
-    private ImageView rightWaveform;
-    private ImageView leftLine;
-    private ImageView rightLine;
+    private final ImageView leftWaveform;
+    private final ImageView rightWaveform;
+    private final ImageView leftLine;
+    private final ImageView rightLine;
+
+    private final WaveformViewController waveformViewController;
 
     private ObjectAnimator leftWaveformScaler;
     private ObjectAnimator rightWaveformScaler;
 
     @Inject
-    WaveformViewController.WaveformViewControllerFactory waveformViewControllerFactory;
-    private WaveformViewController waveformViewController;
+    WaveformViewControllerFactory waveformViewControllerFactory;
 
-    private Runnable layoutWaveformsRunnable = new Runnable() {
+    private final Runnable layoutWaveformsRunnable = new Runnable() {
         @Override
         public void run() {
             leftWaveform.requestLayout();

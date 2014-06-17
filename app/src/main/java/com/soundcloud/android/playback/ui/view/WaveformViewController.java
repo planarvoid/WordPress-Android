@@ -12,13 +12,11 @@ import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
-import rx.schedulers.Schedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.graphics.Bitmap;
 import android.util.Pair;
 
-import javax.inject.Inject;
 import javax.inject.Provider;
 
 class WaveformViewController {
@@ -29,16 +27,13 @@ class WaveformViewController {
     private final ProgressController rightProgressController;
     private final Provider<Scheduler> waveformScheduler;
 
-    private TranslateXHelper leftProgressHelper;
-    private TranslateXHelper rightProgressHelper;
-
     private Observable<WaveformResult> waveformResultObservable;
     private Subscription waveformSubscription = Subscriptions.empty();
 
     private boolean inPlayingState;
     private int adjustedWidth;
 
-    private WaveformViewController(WaveformView waveform,
+    WaveformViewController(WaveformView waveform,
                                    ProgressAnimationControllerFactory animationControllerFactory,
                                    float waveformWidthRatio,
                                    Provider<Scheduler> waveformScheduler){
@@ -85,10 +80,10 @@ class WaveformViewController {
         final int middle = w / 2;
         waveformView.setWaveformTranslations(middle, 0);
 
-        leftProgressHelper = new TranslateXHelper(middle, middle - adjustedWidth);
+        TranslateXHelper leftProgressHelper = new TranslateXHelper(middle, middle - adjustedWidth);
         leftProgressController.setHelper(leftProgressHelper);
 
-        rightProgressHelper = new TranslateXHelper(0, -adjustedWidth);
+        TranslateXHelper rightProgressHelper = new TranslateXHelper(0, -adjustedWidth);
         rightProgressController.setHelper(rightProgressHelper);
 
         if (waveformResultObservable != null) {
@@ -132,27 +127,4 @@ class WaveformViewController {
         }
     }
 
-    static class WaveformViewControllerFactory {
-        private final ProgressAnimationControllerFactory animationControllerFactory;
-        private final Provider<Scheduler> waveformScheduler;
-
-        @Inject
-        WaveformViewControllerFactory(ProgressAnimationControllerFactory animationControllerFactory) {
-            this(animationControllerFactory, new Provider<Scheduler>(){
-                @Override
-                public Scheduler get() {
-                    return Schedulers.newThread();
-                }
-            });
-        }
-        WaveformViewControllerFactory(ProgressAnimationControllerFactory animationControllerFactory,
-                                      Provider<Scheduler> waveformScheduler) {
-            this.animationControllerFactory = animationControllerFactory;
-            this.waveformScheduler = waveformScheduler;
-        }
-        WaveformViewController create(WaveformView waveformView, float waveformWidthRatio){
-            return new WaveformViewController(waveformView, animationControllerFactory,
-                    waveformWidthRatio, waveformScheduler);
-        }
-    }
 }

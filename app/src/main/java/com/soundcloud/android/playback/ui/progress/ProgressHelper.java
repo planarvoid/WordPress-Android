@@ -5,8 +5,9 @@ import org.jetbrains.annotations.Nullable;
 import android.view.View;
 
 public abstract class ProgressHelper {
-    private int startPosition;
-    private int endPosition;
+
+    private final int startPosition;
+    private final int endPosition;
 
     protected ProgressHelper(int startPosition, int endPosition) {
         this.startPosition = startPosition;
