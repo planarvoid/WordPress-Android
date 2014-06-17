@@ -148,7 +148,9 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     public void destroy() {
         // call stop first as it will save the queue/position
         mediaPlayaDelegate.destroy();
-        skippyPlayaDelegate.destroy();
+        if(!skippyFailedToInitialize) {
+            skippyPlayaDelegate.destroy();
+        }
     }
 
     @Override

@@ -528,6 +528,14 @@ public class StreamPlayaTest {
         expect(streamPlayerWrapper.playbackHasPaused()).toEqual(true);
     }
 
+    @Test
+    public void shouldNotDestroySkippyIfInitialisationFailed(){
+        when(skippyAdapter.init(context)).thenReturn(false);
+        instantiateStreamPlaya();
+        streamPlayerWrapper.destroy();
+        verify(skippyAdapter, never()).destroy();
+    }
+
     private void startPlaybackOnSkippy() {
         when(sharedPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false)).thenReturn(true);
         streamPlayerWrapper.play(track);

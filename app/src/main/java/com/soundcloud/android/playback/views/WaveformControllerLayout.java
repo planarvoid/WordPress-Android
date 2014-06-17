@@ -643,13 +643,13 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     @Override
     protected void processDownInput(InputObject input) {
         if (mode == TOUCH_MODE_COMMENT_DRAG) {
-            seekPercent = ((float) input.x) / waveformHolder.getWidth();
+            seekPercent = adjustPosToBounds(((float) input.x) / waveformHolder.getWidth());
             queueUnique(UI_UPDATE_COMMENT_POSITION);
 
         } else if (input.view == playerTouchBar && new PlaybackStateProvider().isSeekable()) {
             mode = TOUCH_MODE_SEEK_DRAG;
             lastAutoComment = null; //reset auto comment in case they seek backward
-            seekPercent = ((float) input.x) / waveformHolder.getWidth();
+            seekPercent = adjustPosToBounds(((float) input.x) / waveformHolder.getWidth());
             queueUnique(UI_UPDATE_SEEK);
         }
     }
@@ -659,13 +659,13 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         switch (mode) {
             case TOUCH_MODE_COMMENT_DRAG:
                 if (isOnTouchBar(input.y)) {
-                    seekPercent = ((float) input.x) / waveformHolder.getWidth();
+                    seekPercent = adjustPosToBounds(((float) input.x) / waveformHolder.getWidth());
                     queueUnique(UI_UPDATE_COMMENT_POSITION);
                 }
                 break;
             case TOUCH_MODE_SEEK_DRAG:
                 if (isOnTouchBar(input.y)) {
-                    seekPercent = ((float) input.x) / waveformHolder.getWidth();
+                    seekPercent = adjustPosToBounds(((float) input.x) / waveformHolder.getWidth());
                     queueUnique(UI_UPDATE_SEEK);
                 } else {
                     queueUnique(UI_CLEAR_SEEK);
@@ -675,7 +675,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
 
             case TOUCH_MODE_SEEK_CLEAR_DRAG:
                 if (isOnTouchBar(input.y)) {
-                    seekPercent = ((float) input.x) / waveformHolder.getWidth();
+                    seekPercent = adjustPosToBounds(((float) input.x) / waveformHolder.getWidth());
                     queueUnique(UI_UPDATE_SEEK);
                     mode = TOUCH_MODE_SEEK_DRAG;
                 }
@@ -710,6 +710,10 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
                 break;
         }
         mode = TOUCH_MODE_NONE;
+    }
+
+    private float adjustPosToBounds(float f){
+        return Math.min(1f, Math.max(0f, f));
     }
 
     @Override
@@ -767,7 +771,6 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
 
 
     private void processTouchMessage(int what){
-        final float seekPercent = this.seekPercent;
         final PlayerTouchBarView touchBar = playerTouchBar;
 
         switch (what) {
