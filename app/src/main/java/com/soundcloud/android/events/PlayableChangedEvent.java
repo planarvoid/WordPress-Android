@@ -2,8 +2,8 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.propeller.PropertySet;
 
 public final class PlayableChangedEvent {
 

@@ -1,8 +1,8 @@
 package com.soundcloud.android.track;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 
 import javax.inject.Inject;

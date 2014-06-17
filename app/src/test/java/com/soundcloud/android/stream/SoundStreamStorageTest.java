@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PlaylistProperty;
 import com.soundcloud.android.model.PlaylistSummary;
-import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.model.TrackProperty;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.TrackUrn;
@@ -16,6 +15,8 @@ import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.DatabaseHelper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.DatabaseManager;
+import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -40,8 +41,9 @@ public class SoundStreamStorageTest {
     @Mock
     private Observer<PropertySet> observer;
 
-    private SQLiteDatabase database = new DatabaseManager(Robolectric.application).getWritableDatabase();
-    private DatabaseHelper helper = new DatabaseHelper(database);
+    private SQLiteDatabase sqliteDatabase = new DatabaseManager(Robolectric.application).getWritableDatabase();
+    private PropellerDatabase database = new PropellerDatabase(sqliteDatabase);
+    private DatabaseHelper helper = new DatabaseHelper(sqliteDatabase);
 
     @Before
     public void setup() {

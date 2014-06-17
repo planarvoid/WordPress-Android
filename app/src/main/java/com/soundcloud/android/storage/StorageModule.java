@@ -28,14 +28,7 @@ public class StorageModule {
     }
 
     @Provides
-    @Named("read-only")
-    public SQLiteDatabase provideReadableDatabase(Context context) {
-        return DatabaseManager.getInstance(context).getReadableDatabase();
-    }
-
-    @Provides
-    @Named("read-write")
-    public SQLiteDatabase provideWritableDatabase(Context context) {
+    public SQLiteDatabase provideDatabase(Context context) {
         return DatabaseManager.getInstance(context).getWritableDatabase();
     }
 }

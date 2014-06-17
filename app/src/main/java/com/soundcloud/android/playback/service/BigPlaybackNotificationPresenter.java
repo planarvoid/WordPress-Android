@@ -2,9 +2,9 @@ package com.soundcloud.android.playback.service;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.playback.views.PlaybackRemoteViews;
+import com.soundcloud.propeller.PropertySet;
 
 import android.annotation.TargetApi;
 import android.app.Notification;

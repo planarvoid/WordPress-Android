@@ -2,12 +2,12 @@ package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.TrackProperty;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
 import android.view.LayoutInflater;

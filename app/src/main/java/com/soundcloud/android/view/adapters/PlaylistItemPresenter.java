@@ -3,7 +3,7 @@ package com.soundcloud.android.view.adapters;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PlaylistProperty;
-import com.soundcloud.android.model.PropertySet;
+import com.soundcloud.propeller.PropertySet;
 
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;

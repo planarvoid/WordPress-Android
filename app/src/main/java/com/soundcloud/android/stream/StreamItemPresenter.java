@@ -1,7 +1,7 @@
 package com.soundcloud.android.stream;
 
-import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.view.adapters.CellPresenter;
+import com.soundcloud.propeller.PropertySet;
 
 import android.view.View;
 import android.view.ViewGroup;

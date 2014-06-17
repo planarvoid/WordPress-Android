@@ -6,47 +6,42 @@ import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTyp
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.model.TrackProperty;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserUrn;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
-import com.soundcloud.android.storage.ManagedCursor;
-import com.soundcloud.android.storage.Query;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.propeller.CursorReader;
+import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.propeller.Query;
+import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscriber;
-
-import android.database.sqlite.SQLiteDatabase;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 public class TrackStorage extends ScheduledOperations {
 
-    private final SQLiteDatabase database;
+    private final PropellerDatabase database;
 
     @Inject
-    public TrackStorage(@Named("read-only") SQLiteDatabase database) {
+    public TrackStorage(PropellerDatabase database) {
         this(database, ScSchedulers.STORAGE_SCHEDULER);
     }
 
     @VisibleForTesting
-    TrackStorage(SQLiteDatabase database, Scheduler scheduler) {
+    TrackStorage(PropellerDatabase database, Scheduler scheduler) {
         super(scheduler);
         this.database = database;
     }
 
     public Observable<PropertySet> track(final TrackUrn trackUrn, final UserUrn loggedInUserUrn) {
-        return schedule(Observable.create(new Observable.OnSubscribe<PropertySet>() {
-            @Override
-            public void call(Subscriber<? super PropertySet> subscriber) {
-                final Query query = Query.from(Table.SOUND_VIEW.name);
-                query.select(
+        final Query query = Query.from(Table.SOUND_VIEW.name)
+                .select(
                         TableColumns.SoundView._ID,
                         TableColumns.SoundView.TITLE,
                         TableColumns.SoundView.USERNAME,
@@ -56,17 +51,13 @@ public class TrackStorage extends ScheduledOperations {
                         TableColumns.SoundView.LIKES_COUNT,
                         soundAssociationQuery(LIKE, loggedInUserUrn.numericId, TableColumns.SoundView.USER_LIKE),
                         soundAssociationQuery(REPOST, loggedInUserUrn.numericId, TableColumns.SoundView.USER_REPOST)
-                );
-                query.whereEq(TableColumns.SoundView._ID, trackUrn.numericId);
-                query.runOn(database).emit(subscriber, new TrackItemMapper());
-            }
-        }));
+                ).whereEq(TableColumns.SoundView._ID, trackUrn.numericId);
+        return schedule(Observable.from(database.query(query)).map(new TrackItemMapper()));
     }
 
     /**
      * TODO: Duplicate code {@link com.soundcloud.android.stream.SoundStreamStorage#soundAssociationQuery(int, long, String)}
-      */
-
+     */
     private Query soundAssociationQuery(int collectionType, long userId, String colName) {
         Query association = Query.from(Table.COLLECTION_ITEMS.name, Table.SOUNDS.name);
         association.joinOn(TableColumns.SoundView._ID, TableColumns.CollectionItems.ITEM_ID);
@@ -77,24 +68,23 @@ public class TrackStorage extends ScheduledOperations {
         return association.exists().as(colName);
     }
 
-
-    private static final class TrackItemMapper implements ManagedCursor.RowMapper<PropertySet> {
+    private static final class TrackItemMapper extends RxResultMapper<PropertySet> {
 
         @Override
-        public PropertySet call(ManagedCursor cursor) {
-            final PropertySet propertySet = PropertySet.create(cursor.getColumnCount());
+        public PropertySet map(CursorReader cursorReader) {
+            final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
 
-            propertySet.put(TrackProperty.URN, readSoundUrn(cursor));
-            propertySet.put(PlayableProperty.TITLE, cursor.getString(TableColumns.SoundView.TITLE));
-            propertySet.put(PlayableProperty.DURATION, cursor.getInt(TableColumns.SoundView.DURATION));
-            propertySet.put(PlayableProperty.CREATOR, cursor.getString(TableColumns.SoundView.USERNAME));
-            propertySet.put(TrackProperty.PLAY_COUNT, cursor.getInt(TableColumns.SoundView.PLAYBACK_COUNT));
-            propertySet.put(PlayableProperty.LIKES_COUNT, cursor.getInt(TableColumns.SoundView.LIKES_COUNT));
+            propertySet.put(TrackProperty.URN, readSoundUrn(cursorReader));
+            propertySet.put(PlayableProperty.TITLE, cursorReader.getString(TableColumns.SoundView.TITLE));
+            propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(TableColumns.SoundView.DURATION));
+            propertySet.put(PlayableProperty.CREATOR, cursorReader.getString(TableColumns.SoundView.USERNAME));
+            propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(TableColumns.SoundView.PLAYBACK_COUNT));
+            propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
             return propertySet;
         }
 
-        private TrackUrn readSoundUrn(ManagedCursor cursor) {
-            return Urn.forTrack(cursor.getInt(TableColumns.SoundView._ID));
+        private TrackUrn readSoundUrn(CursorReader cursorReader) {
+            return Urn.forTrack(cursorReader.getInt(TableColumns.SoundView._ID));
         }
     }
 }
