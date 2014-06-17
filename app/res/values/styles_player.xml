@@ -103,7 +103,7 @@
     <style name="PlayerArtwork">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="aspectRationEnabled">true</item>
+        <item name="aspectRatioEnabled">true</item>
         <item name="dominantMeasurement">height</item>
     </style>
 
