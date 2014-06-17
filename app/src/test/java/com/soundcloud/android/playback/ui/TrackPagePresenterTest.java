@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -19,6 +20,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.content.res.Resources;
+import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -43,43 +45,78 @@ public class TrackPagePresenterTest {
 
     @Before
     public void setUp() throws Exception {
+        Robolectric.Reflection.setFinalStaticField(Build.VERSION.class, "SDK", String.valueOf(Build.VERSION_CODES.HONEYCOMB)); // Required by nineoldandroids
         presenter = new TrackPagePresenter(resources, imageOperations, waveformOperations, listener);
         when(container.getContext()).thenReturn(Robolectric.application);
-        trackView = presenter.createTrackPage(container, true);
+        trackView = presenter.createTrackPage(container);
     }
 
     @Test
-    public void playingStateSetsToggleChecked() {
-        presenter.setTrackPlayState(trackView, true);
+     public void playingStateSetsToggleChecked() {
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true);
 
         expect(getHolder(trackView).footerPlayToggle.isChecked()).toBeTrue();
     }
 
     @Test
+    public void playingStateShowsBackgroundOnTitle() {
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true);
+
+        expect(getHolder(trackView).title.isShowingBackground()).toBeTrue();
+    }
+
+    @Test
+    public void playingStateShowsBackgroundOnUser() {
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true);
+
+        expect(getHolder(trackView).user.isShowingBackground()).toBeTrue();
+    }
+
+    @Test
     public void pausedStateSetsToggleUnchecked() {
-        presenter.setTrackPlayState(trackView, false);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true);
 
         expect(getHolder(trackView).footerPlayToggle.isChecked()).toBeFalse();
     }
 
     @Test
+    public void pausedStateSetsHidesBackgroundOnTitle() {
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true);
+
+        expect(getHolder(trackView).title.isShowingBackground()).toBeFalse();
+    }
+
+    @Test
+    public void playingStateHidesBackgroundOnUser() {
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true);
+
+        expect(getHolder(trackView).user.isShowingBackground()).toBeFalse();
+    }
+
+    @Test
     public void pageCreatedInFullScreenModeHasFooterControlsHidden() {
+        presenter.setExpandedMode(true);
+        trackView = presenter.createTrackPage(container);
+
         expect(getHolder(trackView).footer.getVisibility()).toEqual(View.GONE);
     }
 
     @Test
     public void pageCreatedInFooterModeHasVisibleFooterControls() {
-        trackView = presenter.createTrackPage(container, false);
+        presenter.setExpandedMode(false);
+        trackView = presenter.createTrackPage(container);
 
         expect(getHolder(trackView).footer.getVisibility()).toEqual(View.VISIBLE);
     }
 
     @Test
     public void settingFooterModeUpdatesFooterControlVisibility() {
+        presenter.setExpandedMode(true);
+        trackView = presenter.createTrackPage(container);
         TrackPageHolder holder = getHolder(trackView);
         expect(holder.footer.getVisibility()).toEqual(View.GONE);
 
-        presenter.setFullScreen(trackView, false);
+        presenter.setCollapsed(trackView);
 
         expect(holder.footer.getVisibility()).toEqual(View.VISIBLE);
     }

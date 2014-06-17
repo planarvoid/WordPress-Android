@@ -3,10 +3,11 @@ package com.soundcloud.android.playback.ui;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlaybackProgress;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.track.LegacyTrackOperations;
 import com.soundcloud.android.view.RecyclingPager.RecyclingPagerAdapter;
@@ -30,8 +31,6 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     private final PlaySessionController playSessionController;
     private final LegacyTrackOperations trackOperations;
     private final TrackPagePresenter trackPagePresenter;
-
-    private boolean newPagesInFullScreenMode;
 
     private final LruCache<Long, Observable<Track>> trackObservableCache = new LruCache<Long, Observable<Track>>(TRACK_CACHE_SIZE);
     private final BiMap<View, Integer> trackViewsByPosition = HashBiMap.create(EXPECTED_TRACKVIEW_COUNT);
@@ -58,7 +57,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup container) {
         final View contentView = convertView == null
-                ? trackPagePresenter.createTrackPage(container, newPagesInFullScreenMode)
+                ? trackPagePresenter.createTrackPage(container)
                 : convertView;
 
         trackViewsByPosition.forcePut(contentView, position); // forcePut to remove existing entry
@@ -82,7 +81,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         return trackViewsByPosition.inverse().get(id);
     }
 
-    public void setProgressOnCurrentTrack(PlaybackProgressEvent progress) {
+    public void setProgressOnCurrentTrack(PlaybackProgress progress) {
         View currentTrackView = trackViewsByPosition.inverse().get(playQueueManager.getCurrentPosition());
         if (currentTrackView != null) {
             trackPagePresenter.setProgress(currentTrackView, progress);
@@ -101,17 +100,21 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         }
     }
 
-    public void setPlayState(boolean isPlaying) {
+    public void setPlayState(Playa.StateTransition stateTransition) {
         for (Map.Entry<View, Integer> entry : trackViewsByPosition.entrySet()) {
-            trackPagePresenter.setTrackPlayState(entry.getKey(), playQueueManager.isCurrentPosition(entry.getValue()) && isPlaying);
-            trackPagePresenter.setGlobalPlayState(entry.getKey(), isPlaying);
+            final boolean isCurrentQueuePosition = playQueueManager.isCurrentPosition(entry.getValue());
+            trackPagePresenter.setPlayState(entry.getKey(), stateTransition, isCurrentQueuePosition);
         }
     }
 
-    public void fullScreenMode(boolean fullScreen) {
-        newPagesInFullScreenMode = fullScreen;
+    public void setExpandedMode(boolean isExpanded) {
+        trackPagePresenter.setExpandedMode(isExpanded);
         for (View view : trackViewsByPosition.keySet()) {
-            trackPagePresenter.setFullScreen(view, fullScreen);
+            if (isExpanded) {
+                trackPagePresenter.setExpandedState(view, playSessionController.isPlaying());
+            } else {
+                trackPagePresenter.setCollapsed(view);
+            }
         }
     }
 

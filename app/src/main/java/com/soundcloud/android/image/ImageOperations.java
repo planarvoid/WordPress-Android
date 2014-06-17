@@ -144,12 +144,13 @@ public class ImageOperations {
                 notFoundListener);
     }
 
-    public void displayInVisualPlayer(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
+    public void displayInVisualPlayer(Urn urn, ApiImageSize apiImageSize, ImageView imageView, ImageListener imageListener) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 imageAware,
-                ImageOptionsFactory.placeholder(getPlaceholderDrawable(urn, imageAware)));
+                ImageOptionsFactory.placeholder(getPlaceholderDrawable(urn, imageAware)),
+                new ImageListenerUILAdapter(imageListener));
     }
 
     public void displayInPlayerView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, View parentView,

@@ -5,7 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlaybackProgress;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
@@ -314,7 +314,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Override
     public void onProgressEvent(long position, long duration) {
         if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)){
-            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressEvent(position, duration));
+            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgress(position, duration));
         }
     }
 

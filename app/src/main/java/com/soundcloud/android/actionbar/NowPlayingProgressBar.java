@@ -156,7 +156,7 @@ public class NowPlayingProgressBar extends ProgressBar {
             if (track == null || !track.hasWaveform() || waveformErrorCount > 3) {
                 setDefaultWaveform();
             } else {
-                waveformSubscription = waveformOperations.waveformFor(track)
+                waveformSubscription = waveformOperations.waveformDataFor(track)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new DefaultSubscriber<WaveformResult>() {
                             @Override

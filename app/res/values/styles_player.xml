@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <resources>
 
     <!-- NEW PLAYER -->
@@ -87,6 +88,25 @@
         <item name="android:clickable">false</item>
     </style>
 
+    <style name="Waveform">
+        <item name="barWidth">@dimen/waveform_bar_width</item>
+        <item name="spaceWidth">@dimen/waveform_space_width</item>
+        <item name="baseline">@dimen/waveform_baseline</item>
+        <item name="widthRatio">@dimen/waveform_width_ratio</item>
+        <item name="progressAboveStart">@color/wave_progress_start</item>
+        <item name="progressAboveEnd">@color/wave_progress_end</item>
+        <item name="progressBelow">@color/wave_progress_below</item>
+        <item name="unplayedAbove">@color/wave_above</item>
+        <item name="unplayedBelow">@color/wave_below</item>
+    </style>
+
+    <style name="PlayerArtwork">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="aspectRationEnabled">true</item>
+        <item name="dominantMeasurement">height</item>
+    </style>
+
     <!-- OLD PLAYER -->
 
     <style name="PlayerActionSeparator">
@@ -112,8 +132,8 @@
         <item name="android:background">@drawable/btn_default_states</item>
         <item name="android:minWidth">72dp</item>
         <item name="android:drawablePadding">6dp</item>
-        <item name="android:textOn"></item>
-        <item name="android:textOff"></item>
+        <item name="android:textOn">@null</item>
+        <item name="android:textOff">@null</item>
     </style>
 
     <style name="PlayerAction.ToggleButton.Like">

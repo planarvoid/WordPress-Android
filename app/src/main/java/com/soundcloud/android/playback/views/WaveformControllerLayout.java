@@ -421,7 +421,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         overlay.setVisibility(View.INVISIBLE);
         currentTimeDisplay.setVisibility(View.INVISIBLE);
 
-        waveformOperations.waveformFor(track)
+        waveformOperations.waveformDataFor(track)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new DefaultSubscriber<WaveformResult>() {
                     @Override

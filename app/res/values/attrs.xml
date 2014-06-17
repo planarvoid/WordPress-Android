@@ -62,4 +62,16 @@
     <declare-styleable name="SlidingTabLayout">
         <attr name="fixedTabs" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="WaveformView">
+        <attr name="progressAboveStart" format="color" />
+        <attr name="progressAboveEnd" format="color" />
+        <attr name="progressBelow" format="color" />
+        <attr name="unplayedAbove" format="color" />
+        <attr name="unplayedBelow" format="color" />
+        <attr name="widthRatio" format="float" />
+        <attr name="barWidth" format="dimension" />
+        <attr name="spaceWidth" format="dimension" />
+        <attr name="baseline" format="dimension" />
+    </declare-styleable>
 </resources>

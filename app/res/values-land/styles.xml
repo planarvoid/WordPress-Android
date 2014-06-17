@@ -42,4 +42,11 @@
         <item name="android:paddingRight">30dp</item>
     </style>
 
+    <style name="PlayerArtwork">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="aspectRationEnabled">true</item>
+        <item name="dominantMeasurement">width</item>
+    </style>
+
 </resources>

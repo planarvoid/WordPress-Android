@@ -6,12 +6,13 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlaybackProgress;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.track.LegacyTrackOperations;
 import org.junit.Before;
@@ -67,7 +68,7 @@ public class TrackPagerAdapterTest {
     @Test
     public void getViewReturnsCreatedViewWhenConvertViewIsNull() {
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
-        when(trackPagePresenter.createTrackPage(container, false)).thenReturn(view);
+        when(trackPagePresenter.createTrackPage(container)).thenReturn(view);
         expect(adapter.getView(0, null, container)).toBe(view);
     }
 
@@ -82,7 +83,7 @@ public class TrackPagerAdapterTest {
     @Test
     public void getViewLoadsTrackWithProgressForGivenPlayQueuePositionIfPositionIsPlaying() {
         setupGetCurrentViewPreconditions();
-        PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
+        PlaybackProgress progressEvent = new PlaybackProgress(5l, 10l);
         when(playSessionController.getCurrentProgress()).thenReturn(progressEvent);
         when(playSessionController.isPlayingTrack(track)).thenReturn(true);
 
@@ -100,7 +101,7 @@ public class TrackPagerAdapterTest {
     @Test
     public void setProgressOnCurrentTrackSetsProgressOnPresenter() {
         setupGetCurrentViewPreconditions();
-        PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
+        PlaybackProgress progressEvent = new PlaybackProgress(5l, 10l);
 
         adapter.getView(3, view, container);
         adapter.setProgressOnCurrentTrack(progressEvent);
@@ -111,7 +112,7 @@ public class TrackPagerAdapterTest {
     @Test
     public void setProgressOnCurrentTrackWhenSetProgressOnAllViews() {
         setupGetCurrentViewPreconditions();
-        PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
+        PlaybackProgress progressEvent = new PlaybackProgress(5l, 10l);
         when(playSessionController.getCurrentProgress()).thenReturn(progressEvent);
         when(playSessionController.isPlayingTrack(playQueueManager.getUrnAtPosition(4))).thenReturn(true);
         adapter.getView(3, view, container);
@@ -138,10 +139,9 @@ public class TrackPagerAdapterTest {
         when(playQueueManager.isCurrentPosition(3)).thenReturn(true);
 
         adapter.getView(3, view, container);
-        adapter.setPlayState(true);
+        adapter.setPlayState(new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE));
 
-        verify(trackPagePresenter).setTrackPlayState(view, true);
-        verify(trackPagePresenter).setGlobalPlayState(view, true);
+        verify(trackPagePresenter).setPlayState(view, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true);
     }
 
     @Test
@@ -150,10 +150,9 @@ public class TrackPagerAdapterTest {
         when(playQueueManager.isCurrentPosition(3)).thenReturn(false);
 
         adapter.getView(3, view, container);
-        adapter.setPlayState(true);
+        adapter.setPlayState(new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE));
 
-        verify(trackPagePresenter).setTrackPlayState(view, false);
-        verify(trackPagePresenter).setGlobalPlayState(view, true);
+        verify(trackPagePresenter).setPlayState(view, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), false);
     }
 
     @Test
@@ -161,9 +160,9 @@ public class TrackPagerAdapterTest {
         setupGetCurrentViewPreconditions();
         adapter.getView(3, view, container);
 
-        adapter.fullScreenMode(true);
+        adapter.setExpandedMode(true);
 
-        verify(trackPagePresenter).setFullScreen(view, true);
+        verify(trackPagePresenter).setExpandedState(view, false);
     }
 
     @Test

@@ -2,12 +2,13 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
+import com.nineoldandroids.animation.ObjectAnimator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlaybackProgress;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -69,6 +70,7 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onDestroyView() {
         unsubscribeViewLifetimeEvents();
+        ObjectAnimator.clearAllAnimations();
         super.onDestroyView();
     }
 
@@ -95,14 +97,14 @@ public class PlayerFragment extends Fragment {
         @Override
         public void onNext(StateTransition stateTransition) {
             if (presenter != null) {
-                presenter.onPlayStateChanged(stateTransition.playSessionIsActive());
+                presenter.onPlayStateChanged(stateTransition);
             }
         }
     }
 
-    private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
+    private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgress> {
         @Override
-        public void onNext(PlaybackProgressEvent progress) {
+        public void onNext(PlaybackProgress progress) {
             if (presenter != null) {
                 presenter.onPlayerProgress(progress);
             }
@@ -126,9 +128,9 @@ public class PlayerFragment extends Fragment {
         public void onNext(PlayerUIEvent event) {
             if (presenter != null) {
                 if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
-                    presenter.setFullScreenPlayer(true);
+                    presenter.setExpandedPlayer(true);
                 } else if (event.getKind() == PlayerUIEvent.PLAYER_COLLAPSED) {
-                    presenter.setFullScreenPlayer(false);
+                    presenter.setExpandedPlayer(false);
                 }
             }
         }

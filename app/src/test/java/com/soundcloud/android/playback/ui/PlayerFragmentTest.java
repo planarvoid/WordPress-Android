@@ -12,11 +12,12 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlaybackProgress;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.xtremelabs.robolectric.Robolectric;
@@ -96,7 +97,7 @@ public class PlayerFragmentTest {
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
-        verify(presenter).onPlayStateChanged(true);
+        verify(presenter).onPlayStateChanged(new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE));
     }
 
     @Test
@@ -144,7 +145,7 @@ public class PlayerFragmentTest {
     @Test
     public void onPlaybackProgressEventSetsPlayerProgressOnPresenter() {
         createFragment();
-        PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
+        PlaybackProgress progressEvent = new PlaybackProgress(5l, 10l);
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, progressEvent);
         verify(presenter).onPlayerProgress(progressEvent);
@@ -154,7 +155,8 @@ public class PlayerFragmentTest {
     public void onFragmentCreationSetsFooterPlayerOnPresenter() {
         createFragment();
         fragment.onResume();
-        verify(presenter).setFullScreenPlayer(false);
+
+        verify(presenter).setExpandedPlayer(false);
     }
 
     @Test
@@ -163,8 +165,8 @@ public class PlayerFragmentTest {
         fragment.onResume();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
         InOrder inOrder = Mockito.inOrder(presenter);
-        inOrder.verify(presenter).setFullScreenPlayer(false);
-        inOrder.verify(presenter).setFullScreenPlayer(true);
+        inOrder.verify(presenter).setExpandedPlayer(false);
+        inOrder.verify(presenter).setExpandedPlayer(true);
     }
 
     @Test
@@ -172,7 +174,7 @@ public class PlayerFragmentTest {
         createFragment();
         fragment.onResume();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
-        verify(presenter, times(2)).setFullScreenPlayer(false);
+        verify(presenter, times(2)).setExpandedPlayer(false);
     }
 
     @Test

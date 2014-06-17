@@ -32,6 +32,14 @@
     <color name="player_gradient_start">#48000000</color>
     <color name="player_user_text">#c5c5c5</color>
 
+    <color name="wave_above">#e5e5e5</color>
+    <color name="wave_below">#fafafa</color>
+    <color name="wave_progress_start">#ff7700</color>
+    <color name="wave_progress_end">#ff3300</color>
+    <color name="wave_progress_below">#ffbf99</color>
+
+    <color name="artwork_overlay">#cc000000</color>
+
     <!-- Creators -->
     <color name="record_upload_border">#525252</color>
     <color name="record_list_item_background">#999999</color>

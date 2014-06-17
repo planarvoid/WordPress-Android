@@ -171,4 +171,9 @@
     <dimen name="notification_title_text_size">24sp</dimen>
     <dimen name="notification_user_text_size">14sp</dimen>
 
+    <!-- waveform -->
+    <dimen name="waveform_bar_width">2dp</dimen>
+    <dimen name="waveform_space_width">1dp</dimen>
+    <dimen name="waveform_baseline">68dp</dimen>
+
 </resources>

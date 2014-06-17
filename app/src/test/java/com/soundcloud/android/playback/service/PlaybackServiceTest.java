@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlaybackProgress;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
@@ -164,8 +164,8 @@ public class PlaybackServiceTest {
 
         playbackService.onProgressEvent(123L, 456L);
 
-        PlaybackProgressEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS);
-        expect(broadcasted.getProgress()).toEqual(123L);
+        PlaybackProgress broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS);
+        expect(broadcasted.getPosition()).toEqual(123L);
         expect(broadcasted.getDuration()).toEqual(456L);
     }
 

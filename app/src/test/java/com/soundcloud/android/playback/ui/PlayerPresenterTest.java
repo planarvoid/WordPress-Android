@@ -7,7 +7,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlaybackProgress;
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,13 +100,14 @@ public class PlayerPresenterTest {
 
     @Test
     public void onPlayStateChangedNotifiesTrackPageAdapter() {
-        playerPresenter.onPlayStateChanged(true);
-        verify(trackPagerAdapter).setPlayState(true);
+        final Playa.StateTransition stateTransition = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE);
+        playerPresenter.onPlayStateChanged(stateTransition);
+        verify(trackPagerAdapter).setPlayState(stateTransition);
     }
 
     @Test
     public void onPlayerProgressSetsCurrentProgressOnTrackAdapter() {
-        PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(5l, 10l);
+        PlaybackProgress progressEvent = new PlaybackProgress(5l, 10l);
         playerPresenter.onPlayerProgress(progressEvent);
         verify(trackPagerAdapter).setProgressOnCurrentTrack(progressEvent);
     }

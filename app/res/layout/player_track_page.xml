@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    <com.soundcloud.android.playback.ui.PlayerArtworkImageView
+    <com.soundcloud.android.playback.ui.PlayerArtworkView
             android:id="@+id/track_page_artwork"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop" />
+            android:layout_height="match_parent"/>
 
     <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/player_gradient_height"
-        android:background="@drawable/player_gradient_top" />
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/player_gradient_height"
+            android:background="@drawable/player_gradient_top"/>
 
     <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/player_gradient_height"
-        android:layout_alignParentBottom="true"
-        android:background="@drawable/player_gradient_bottom" />
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/player_gradient_height"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/player_gradient_bottom"/>
 
     <RelativeLayout
             android:id="@+id/footer_controls"
@@ -29,21 +28,21 @@
         <ToggleButton
                 android:id="@+id/footer_toggle"
                 style="@style/FooterToggle"
-                android:layout_marginRight="8dp" />
+                android:layout_marginRight="8dp"/>
 
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/footer_user"
                 style="@style/FooterUser"
                 android:layout_toRightOf="@id/footer_toggle"
                 android:layout_marginTop="@dimen/player_footer_margin"
-                android:layout_marginRight="@dimen/player_footer_margin" />
+                android:layout_marginRight="@dimen/player_footer_margin"/>
 
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/footer_title"
                 style="@style/FooterTitle"
                 android:layout_below="@id/footer_user"
                 android:layout_toRightOf="@id/footer_toggle"
-                android:layout_marginRight="@dimen/player_footer_margin" />
+                android:layout_marginRight="@dimen/player_footer_margin"/>
     </RelativeLayout>
 
     <com.soundcloud.android.view.JaggedTextView
@@ -59,7 +58,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginTop="4dp"
-            android:layout_below="@id/track_page_user" />
+            android:layout_below="@id/track_page_user"/>
 
     <FrameLayout
             android:id="@+id/player_close"
@@ -68,28 +67,33 @@
             android:visibility="gone">
 
         <View
-            style="@style/PlayerClose"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="20dp" />
+                style="@style/PlayerClose"
+                android:layout_marginTop="8dp"
+                android:layout_marginLeft="20dp"/>
     </FrameLayout>
 
     <View
-        android:id="@+id/center_point"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_centerInParent="true" />
+            android:id="@+id/center_point"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_centerInParent="true"/>
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_below="@id/center_point"
+                    android:layout_above="@+id/player_bottom_close"
+                    android:layout_marginTop="20dp">
+        <com.soundcloud.android.playback.ui.view.WaveformView
+                android:id="@+id/track_page_waveform"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/player_waveform_height"
+                android:layout_centerVertical="true"
+                style="@style/Waveform"
+                android:visibility="gone"/>
+    </RelativeLayout>
 
-    <com.soundcloud.android.playback.ui.view.WaveformView
-            android:id="@+id/track_page_waveform"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/player_waveform_height"
-            android:layout_below="@id/center_point"
-            android:layout_marginRight="8dp"
-            android:layout_marginLeft="8dp"
-            android:visibility="gone" />
 
     <LinearLayout
-            android:id="@+id/player_bottom_close"
+            android:id="@id/player_bottom_close"
             android:layout_width="match_parent"
             android:layout_height="@dimen/player_footer_control"
             android:layout_alignParentBottom="true"
@@ -97,19 +101,19 @@
             android:paddingRight="16dp">
 
         <ToggleButton
-            android:id="@+id/track_page_like"
-            style="@style/PlayerLike"
-            android:layout_marginRight="16dp" />
+                android:id="@+id/track_page_like"
+                style="@style/PlayerLike"
+                android:layout_marginRight="16dp"/>
 
         <Button
-            android:id="@+id/track_page_more"
-            style="@style/PlayerMore" />
+                android:id="@+id/track_page_more"
+                style="@style/PlayerMore"/>
     </LinearLayout>
 
     <Button
             android:id="@+id/player_play"
             android:layout_centerInParent="true"
-            style="@style/PlayerToggle" />
+            style="@style/PlayerToggle"/>
 
     <FrameLayout
             android:id="@+id/track_page_next"
@@ -118,9 +122,9 @@
             style="@style/PlayerSkipTouchTarget">
 
         <Button
-            android:id="@+id/player_next"
-            android:layout_gravity="left|center_vertical"
-            style="@style/PlayerNext" />
+                android:id="@+id/player_next"
+                android:layout_gravity="left|center_vertical"
+                style="@style/PlayerNext"/>
     </FrameLayout>
 
 
@@ -131,9 +135,9 @@
             style="@style/PlayerSkipTouchTarget">
 
         <Button
-            android:id="@+id/player_previous"
-            android:layout_gravity="right|center_vertical"
-            style="@style/PlayerPrevious" />
+                android:id="@+id/player_previous"
+                android:layout_gravity="right|center_vertical"
+                style="@style/PlayerPrevious"/>
     </FrameLayout>
 
 </RelativeLayout>

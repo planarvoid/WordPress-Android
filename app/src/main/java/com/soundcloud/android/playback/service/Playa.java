@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import com.soundcloud.android.events.PlaybackProgress;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
 
@@ -28,9 +29,7 @@ public interface Playa {
     public static class StateTransition {
         private final PlayaState newState;
         private final Reason reason;
-
-        private final long currentProgress;
-        private final long duration;
+        private final PlaybackProgress progressEvent;
 
         @VisibleForTesting
         private static final String DEBUG_EXTRA = "DEBUG_EXTRA";
@@ -47,10 +46,13 @@ public interface Playa {
         }
 
         public StateTransition(PlayaState newState, Reason reason, long currentProgress, long duration) {
+            this(newState, reason, new PlaybackProgress(currentProgress, duration));
+        }
+
+        public StateTransition(PlayaState newState, Reason reason, PlaybackProgress currentProgressEvent) {
             this.newState = newState;
             this.reason = reason;
-            this.currentProgress = currentProgress;
-            this.duration = duration;
+            progressEvent = currentProgressEvent;
         }
 
         public void setDebugExtra(String debugExtra){
@@ -75,8 +77,8 @@ public interface Playa {
             return reason;
         }
 
-        public long getProgress() {
-            return currentProgress;
+        public PlaybackProgress getProgress() {
+            return progressEvent;
         }
 
         boolean isPlaying(){
@@ -122,8 +124,8 @@ public interface Playa {
         public void addToIntent(Intent intent) {
             newState.addToIntent(intent);
             reason.addToIntent(intent);
-            intent.putExtra(PROGRESS_EXTRA, currentProgress);
-            intent.putExtra(DURATION_EXTRA, duration);
+            intent.putExtra(PROGRESS_EXTRA, progressEvent.getPosition());
+            intent.putExtra(DURATION_EXTRA, progressEvent.getDuration());
             intent.putExtra(DEBUG_EXTRA, debugExtra);
         }
 
@@ -143,9 +145,8 @@ public interface Playa {
             StateTransition that = (StateTransition) o;
             return Objects.equal(newState, that.newState)
                     && Objects.equal(reason, that.reason)
-                    && Objects.equal(currentProgress, that.currentProgress)
+                    && Objects.equal(progressEvent, that.progressEvent)
                     && Objects.equal(trackUrn, that.trackUrn)
-                    && Objects.equal(duration, that.duration)
                     && Objects.equal(debugExtra, that.debugExtra);
         }
 
@@ -153,10 +154,9 @@ public interface Playa {
         public int hashCode() {
             int result = newState.hashCode();
             result = 31 * result + reason.hashCode();
-            result = 31 * result + (int) (currentProgress ^ (currentProgress >>> 32));
-            result = 31 * result + (int) (duration ^ (duration >>> 32));
-            result = 31 * result + (debugExtra == null ? 0 : debugExtra.hashCode());
-            result = 31 * result + (trackUrn == null ? 0 : trackUrn.hashCode());
+            result = 31 * result + progressEvent.hashCode();
+            result = 31 * result + (debugExtra != null ? debugExtra.hashCode() : 0);
+            result = 31 * result + (trackUrn != null ? trackUrn.hashCode() : 0);
             return result;
         }
 
@@ -165,8 +165,8 @@ public interface Playa {
             return "StateTransition{" +
                     "newState=" + newState +
                     ", reason=" + reason +
-                    ", currentProgress=" + currentProgress +
-                    ", duration=" + duration +
+                    ", currentProgress=" + progressEvent.getPosition() +
+                    ", duration=" + progressEvent.getDuration() +
                     ", trackUrn=" + trackUrn +
                     '}';
         }

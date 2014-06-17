@@ -1,10 +1,12 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlaybackProgress;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -24,6 +26,8 @@ class TrackPagePresenter implements View.OnClickListener {
     private final ImageOperations imageOperations;
     private final WaveformOperations waveformOperations;
     private final Listener listener;
+
+    private boolean isExpanded;
 
     interface Listener {
         void onTogglePlay();
@@ -68,68 +72,107 @@ class TrackPagePresenter implements View.OnClickListener {
         }
     }
 
-    public View createTrackPage(ViewGroup container, boolean fullScreen) {
-        View trackView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_track_page, container, false);
+    public View createTrackPage(ViewGroup container) {
+        final View trackView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_track_page, container, false);
         setupHolder(trackView);
-        setFullScreen(trackView, fullScreen);
+        if (isExpanded) {
+            setExpandedState(trackView, false);
+        } else {
+            setCollapsed(trackView);
+        }
         return trackView;
     }
 
-    public void setProgress(View trackView, PlaybackProgressEvent progress) {
-        getViewHolder(trackView).artwork.setProgressProportion(progress.getProgressProportion());
-    }
-
-    public void resetProgress(View trackView) {
-        setProgress(trackView, PlaybackProgressEvent.empty());
-    }
-
-    public void setTrackPlayState(View trackView, boolean isPlaying) {
-        TrackPageHolder holder = getViewHolder(trackView);
-        holder.footerPlayToggle.setChecked(isPlaying);
-    }
-
-    public void setGlobalPlayState(View trackView, boolean isPlaying) {
-        TrackPageHolder holder = getViewHolder(trackView);
-        holder.waveform.setVisibility(isPlaying ? View.VISIBLE : View.GONE);
-
-        final int playControlVisibility = isPlaying ? View.GONE : View.VISIBLE;
-        holder.nextButton.setVisibility(playControlVisibility);
-        holder.previousButton.setVisibility(playControlVisibility);
-        holder.playButton.setVisibility(playControlVisibility);
-    }
-
-    public void setFullScreen(View trackView, boolean expanded) {
-        TrackPageHolder holder = getViewHolder(trackView);
-        holder.footer.setVisibility(expanded ? View.GONE : View.VISIBLE);
-
-        final int fullScreenVisibility = expanded ? View.VISIBLE : View.GONE;
-        holder.user.setVisibility(fullScreenVisibility);
-        holder.title.setVisibility(fullScreenVisibility);
-        holder.close.setVisibility(fullScreenVisibility);
-    }
-
     public void populateTrackPage(View trackView, Track track) {
-        populateTrackPage(trackView, track, 0);
-    }
-
-    public void populateTrackPage(View trackView, Track track, PlaybackProgressEvent currentProgress) {
-        populateTrackPage(trackView, track, currentProgress == null ? 0 : currentProgress.getProgressProportion());
-    }
-
-    private void populateTrackPage(View trackView, Track track, float currentProgressProportion) {
-        TrackPageHolder holder = getViewHolder(trackView);
+        final TrackPageHolder holder = getViewHolder(trackView);
         holder.user.setText(track.getUserName());
         holder.title.setText(track.getTitle());
-        imageOperations.displayInVisualPlayer(track.getUrn(), ApiImageSize.getFullImageSize(resources), holder.artwork);
-        holder.artwork.setProgressProportion(currentProgressProportion);
-        waveformOperations.display(track.getUrn(), track.getWaveformUrl(), holder.waveform);
+        imageOperations.displayInVisualPlayer(track.getUrn(), ApiImageSize.getFullImageSize(resources),
+                holder.artwork.getImageView(), holder.artwork.getImageListener());
+        holder.waveform.displayWaveform(waveformOperations.waveformDataFor(track));
 
         holder.footerPlayToggle.setChecked(false); // Reset to paused state
         holder.footerUser.setText(track.getUserName());
         holder.footerTitle.setText(track.getTitle());
 
-        for (View v : holder.getOnClickViews()) {
-            v.setOnClickListener(this);
+        setClickListener(holder.getOnClickViews(), this);
+    }
+
+    void populateTrackPage(View trackView, Track track, PlaybackProgress playbackProgress) {
+        populateTrackPage(trackView, track);
+        for (ProgressAware view : getViewHolder(trackView).getProgressAwareViews()){
+            view.setProgress(playbackProgress);
+        }
+    }
+
+    public void setPlayState(View trackView, Playa.StateTransition state, boolean isCurrentTrack) {
+        final TrackPageHolder holder = getViewHolder(trackView);
+        final boolean playSessionIsActive = state.playSessionIsActive();
+
+        setVisibility(holder.getPlayControls(), !playSessionIsActive);
+        holder.footerPlayToggle.setChecked(playSessionIsActive && isCurrentTrack);
+        setArtworkPlayState(holder, state, isCurrentTrack);
+        setWaveformPlayState(holder, state, isCurrentTrack);
+    }
+
+    private void setArtworkPlayState(TrackPageHolder holder, Playa.StateTransition state, boolean isCurrentTrack) {
+        if (state.playSessionIsActive()) {
+            final PlaybackProgress progressOnThisTrack = isCurrentTrack && state.isPlayerPlaying() ?
+                    state.getProgress() : null;
+            holder.artwork.showPlayingState(progressOnThisTrack);
+        } else {
+            holder.artwork.showIdleState();
+        }
+        holder.title.showBackground(state.playSessionIsActive());
+        holder.user.showBackground(state.playSessionIsActive());
+    }
+
+    private void setWaveformPlayState(TrackPageHolder holder, Playa.StateTransition state, boolean isCurrentTrack) {
+        if (isCurrentTrack && state.isPlayerPlaying()){
+            holder.waveform.showPlayingState(state.getProgress());
+        } else {
+            holder.waveform.showIdleState();
+        }
+    }
+
+    public void setProgress(View trackView, PlaybackProgress progress) {
+        for (ProgressAware view : getViewHolder(trackView).getProgressAwareViews()){
+            view.setProgress(progress);
+        }
+    }
+
+    public void resetProgress(View trackView) {
+        setProgress(trackView, PlaybackProgress.empty());
+    }
+
+    public void setExpandedMode(boolean isExpanded) {
+        this.isExpanded = isExpanded;
+    }
+
+    public void setExpandedState(View trackView, boolean isPlaying) {
+        final TrackPageHolder holder = getViewHolder(trackView);
+        holder.footer.setVisibility(View.GONE);
+        holder.waveform.setVisibility(isPlaying ? View.VISIBLE : View.GONE);
+        holder.artwork.lighten();
+        setVisibility(holder.getFullScreenViews(), true);
+    }
+
+    public void setCollapsed(View trackView) {
+        final TrackPageHolder holder = getViewHolder(trackView);
+        holder.footer.setVisibility(View.VISIBLE);
+        holder.artwork.darken();
+        setVisibility(holder.getFullScreenViews(), false);
+    }
+
+    private void setVisibility(View[] views, boolean visible) {
+        for (View v : views) {
+            v.setVisibility(visible ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private void setClickListener(View[] views, View.OnClickListener listener) {
+        for (View v : views) {
+            v.setOnClickListener(listener);
         }
     }
 
@@ -141,7 +184,7 @@ class TrackPagePresenter implements View.OnClickListener {
         TrackPageHolder holder = new TrackPageHolder();
         holder.title = (JaggedTextView) trackView.findViewById(R.id.track_page_title);
         holder.user = (JaggedTextView) trackView.findViewById(R.id.track_page_user);
-        holder.artwork = (PlayerArtworkImageView) trackView.findViewById(R.id.track_page_artwork);
+        holder.artwork = (PlayerArtworkView) trackView.findViewById(R.id.track_page_artwork);
         holder.waveform = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
         holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
         holder.more = trackView.findViewById(R.id.track_page_more);
@@ -161,10 +204,10 @@ class TrackPagePresenter implements View.OnClickListener {
     }
 
     static class TrackPageHolder {
-        // Full screen player
+        // Expanded player
         JaggedTextView title;
         JaggedTextView user;
-        PlayerArtworkImageView artwork;
+        PlayerArtworkView artwork;
         WaveformView waveform;
         ToggleButton likeToggle;
         View more;
@@ -183,6 +226,18 @@ class TrackPagePresenter implements View.OnClickListener {
 
         public View[] getOnClickViews() {
             return new View[] { artwork, close, bottomClose, nextTouch, previousTouch, playButton, footer, footerPlayToggle };
+        }
+
+        public View[] getFullScreenViews() {
+            return new View[] { title, user, close, waveform };
+        }
+
+        public View[] getPlayControls() {
+            return new View[] { nextButton, previousButton, playButton };
+        }
+
+        public ProgressAware[] getProgressAwareViews() {
+            return new ProgressAware[] { waveform, artwork };
         }
     }
 

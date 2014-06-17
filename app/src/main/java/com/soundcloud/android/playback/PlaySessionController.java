@@ -6,7 +6,7 @@ import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlaybackProgress;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
@@ -46,7 +46,7 @@ public class PlaySessionController {
     private TrackUrn currentPlayingUrn; // the track that is currently loaded in the playback service
     private Track currentPlayQueueTrack; // the track that is currently set in the queue
 
-    private PlaybackProgressEvent currentProgress = PlaybackProgressEvent.empty();
+    private PlaybackProgress currentProgress = PlaybackProgress.empty();
 
     @Inject
     public PlaySessionController(Resources resources, EventBus eventBus, PlaybackOperations playbackOperations,
@@ -64,8 +64,8 @@ public class PlaySessionController {
 
     public void subscribe() {
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlayStateSubscriber());
-        eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber());
         eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
+        eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber());
     }
 
     public boolean isPlayingTrack(Track track){
@@ -76,7 +76,7 @@ public class PlaySessionController {
         return currentPlayingUrn != null && currentPlayingUrn.equals(trackUrn);
     }
 
-    public PlaybackProgressEvent getCurrentProgress() {
+    public PlaybackProgress getCurrentProgress() {
         return currentProgress;
     }
 
@@ -109,7 +109,7 @@ public class PlaySessionController {
     }
 
     private void saveProgress(StateTransition stateTransition) {
-        playQueueManager.saveCurrentPosition(stateTransition.trackEnded() ? 0 : stateTransition.getProgress());
+        playQueueManager.saveCurrentPosition(stateTransition.trackEnded() ? 0 : stateTransition.getProgress().getPosition());
     }
 
     private class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
@@ -125,9 +125,9 @@ public class PlaySessionController {
         }
     }
 
-    private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
+    private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgress> {
         @Override
-        public void onNext(PlaybackProgressEvent progress) {
+        public void onNext(PlaybackProgress progress) {
             currentProgress = progress;
         }
     }

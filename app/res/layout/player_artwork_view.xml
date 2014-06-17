@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+    <com.soundcloud.android.view.AspectRatioImageView
+            android:id="@+id/artwork_image_view"
+            style="@style/PlayerArtwork" />
+    <View android:id="@+id/artwork_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/artwork_overlay" />
+</merge>

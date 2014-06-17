@@ -50,6 +50,10 @@ public class JaggedTextView extends CustomFontTextView {
         // Does not support background drawable
     }
 
+    public boolean isShowingBackground() {
+        return showBackground;
+    }
+
     public void showBackground(boolean showBackground) {
         this.showBackground = showBackground;
         invalidate();

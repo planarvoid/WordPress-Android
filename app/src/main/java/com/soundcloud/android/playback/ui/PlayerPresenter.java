@@ -1,7 +1,9 @@
 package com.soundcloud.android.playback.ui;
 
+import static com.soundcloud.android.playback.service.Playa.StateTransition;
+
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlaybackProgress;
 
 import android.content.res.Resources;
 import android.support.v4.view.ViewPager;
@@ -42,15 +44,15 @@ class PlayerPresenter {
         }
     }
 
-    void onPlayStateChanged(boolean isPlaying){
-        adapter.setPlayState(isPlaying);
+    void onPlayStateChanged(StateTransition stateTransition){
+        adapter.setPlayState(stateTransition);
     }
 
-    public void setFullScreenPlayer(boolean fullScreen) {
-        adapter.fullScreenMode(fullScreen);
+    public void setExpandedPlayer(boolean isExpanded) {
+        adapter.setExpandedMode(isExpanded);
     }
 
-    public void onPlayerProgress(PlaybackProgressEvent progress) {
+    public void onPlayerProgress(PlaybackProgress progress) {
         adapter.setProgressOnCurrentTrack(progress);
     }
 
