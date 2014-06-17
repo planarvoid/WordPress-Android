@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.service;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.soundcloud.android.analytics.OriginProvider;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Playable;

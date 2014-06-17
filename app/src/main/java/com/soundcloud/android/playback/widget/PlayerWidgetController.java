@@ -4,7 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayableChangedEvent;

@@ -4,7 +4,7 @@ import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
@@ -107,7 +107,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
         uriSubscription.unsubscribe();
         uriSubscription = proxy.uriObservable(this.track.getStreamUrlWithAppendedId(), null)
-                .subscribe(new MediaPlayerDataSourceObserver(), AndroidSchedulers.mainThread());
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe(new MediaPlayerDataSourceObserver());
     }
 
     private class MediaPlayerDataSourceObserver extends DefaultSubscriber<Uri> {

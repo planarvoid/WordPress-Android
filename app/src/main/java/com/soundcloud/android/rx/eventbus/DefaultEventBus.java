@@ -1,10 +1,8 @@
-package com.soundcloud.android.events;
+package com.soundcloud.android.rx.eventbus;
 
-import com.soundcloud.android.rx.EventSubject;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.subjects.BehaviorSubject;
 import rx.subjects.Subject;
 
 import android.util.SparseArray;
@@ -21,7 +19,13 @@ public class DefaultEventBus implements EventBus {
     public <T> Subject<T, T> queue(Queue<T> queue) {
         Subject<T, T> subject = (Subject<T, T>) queues.get(queue.id);
         if (subject == null) {
-            subject = queue.defaultEvent == null ? EventSubject.<T>create() : BehaviorSubject.create(queue.defaultEvent);
+            if (queue.defaultEvent != null) {
+                subject = ReplayEventSubject.create(queue.defaultEvent);
+            } else if (queue.replayLast) {
+                subject = ReplayEventSubject.create();
+            } else {
+                subject = DefaultEventSubject.create();
+            }
             queues.put(queue.id, subject);
         }
         return subject;

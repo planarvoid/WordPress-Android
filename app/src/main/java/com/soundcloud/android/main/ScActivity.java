@@ -10,7 +10,7 @@ import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.NowPlayingActionBarController;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlaybackService;

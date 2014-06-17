@@ -28,7 +28,7 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestEventBus;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;

@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.service;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;

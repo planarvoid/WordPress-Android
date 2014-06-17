@@ -20,7 +20,7 @@ import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestEventBus;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.track.TrackOperations;
 import com.xtremelabs.robolectric.Robolectric;

@@ -16,7 +16,7 @@ import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;

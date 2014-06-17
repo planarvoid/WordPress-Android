@@ -14,7 +14,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.crop.Crop;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.model.User;

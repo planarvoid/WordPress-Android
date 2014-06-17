@@ -12,7 +12,7 @@ import com.soundcloud.android.model.PropertySet;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestEventBus;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import org.junit.Before;

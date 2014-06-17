@@ -8,7 +8,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestEventBus;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;

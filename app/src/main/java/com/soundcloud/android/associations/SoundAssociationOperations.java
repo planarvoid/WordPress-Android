@@ -7,7 +7,7 @@ import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Playable;

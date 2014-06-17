@@ -11,7 +11,7 @@ import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestEventBus;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.search.SearchActivity;
 import org.junit.Before;
 import org.junit.Test;

@@ -23,7 +23,7 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestEventBus;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import org.junit.Before;
 import org.junit.Test;

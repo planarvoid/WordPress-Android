@@ -10,7 +10,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Predicate;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -21,7 +20,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestEventBus;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;

@@ -27,7 +27,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestEventBus;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Scheduler;
-import rx.functions.Action1;
+import rx.functions.Action0;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Activity;
@@ -58,10 +58,13 @@ public class AnalyticsEngineTrackingTest {
     private AnalyticsProvider analyticsProviderTwo;
     @Mock
     private Scheduler scheduler;
+    @Mock
+    private Scheduler.Worker worker;
 
     @Before
     public void setUp() throws Exception {
-        when(scheduler.schedule(any(Action1.class), anyLong(), any(TimeUnit.class))).thenReturn(Subscriptions.empty());
+        when(scheduler.createWorker()).thenReturn(worker);
+        when(worker.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(Subscriptions.empty());
     }
 
     @Test

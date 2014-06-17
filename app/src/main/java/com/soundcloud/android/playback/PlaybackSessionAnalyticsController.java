@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;

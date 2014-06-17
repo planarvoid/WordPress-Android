@@ -1,5 +1,6 @@
 package com.soundcloud.android.rx;
 
+import org.jetbrains.annotations.NotNull;
 import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
@@ -16,8 +17,8 @@ public final class ScSchedulers {
     private static final int NUM_THREADS = 3;
 
     static {
-        STORAGE_SCHEDULER = Schedulers.executor(createExecutor("RxStorageThreadPool"));
-        API_SCHEDULER = Schedulers.executor(createExecutor("RxApiThreadPool"));
+        STORAGE_SCHEDULER = Schedulers.from(createExecutor("RxStorageThreadPool"));
+        API_SCHEDULER = Schedulers.from(createExecutor("RxApiThreadPool"));
     }
 
     private static Executor createExecutor(final String threadIdentifier) {
@@ -25,7 +26,7 @@ public final class ScSchedulers {
             final AtomicLong counter = new AtomicLong();
 
             @Override
-            public Thread newThread(Runnable r) {
+            public Thread newThread(@NotNull Runnable r) {
                 Thread t = new Thread(r, threadIdentifier + "-" + counter.incrementAndGet());
                 t.setDaemon(true);
                 return t;

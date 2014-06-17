@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;

@@ -12,7 +12,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;

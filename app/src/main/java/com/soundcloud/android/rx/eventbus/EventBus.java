@@ -1,4 +1,4 @@
-package com.soundcloud.android.events;
+package com.soundcloud.android.rx.eventbus;
 
 import rx.Observer;
 import rx.Subscription;

@@ -22,7 +22,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestEventBus;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.xtremelabs.robolectric.Robolectric;

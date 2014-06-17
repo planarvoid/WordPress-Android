@@ -1,0 +1,50 @@
+package com.soundcloud.android.rx.eventbus;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import rx.Observer;
+
+public class DefaultEventSubjectTest {
+
+    private DefaultEventSubject<Integer> subject = DefaultEventSubject.create();
+
+    @Mock private Observer<Integer> observer1;
+    @Mock private Observer<Integer> observer2;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void shouldBehaveLikePublishSubjectForOnNextAndOnError() {
+        subject.subscribe(observer1);
+        subject.onNext(1);
+        subject.subscribe(observer2);
+        subject.onNext(2);
+        final Exception e = new Exception();
+        subject.onError(e);
+
+        verify(observer1).onNext(1);
+        verify(observer1).onNext(2);
+        verify(observer1).onError(e);
+        verifyNoMoreInteractions(observer1);
+
+        verify(observer2).onNext(2);
+        verify(observer2).onError(e);
+        verifyNoMoreInteractions(observer2);
+    }
+
+    @Test
+    public void shouldNeverForwardOnCompleted() {
+        subject.subscribe(observer1);
+        subject.onCompleted();
+        verifyZeroInteractions(observer1);
+    }
+}

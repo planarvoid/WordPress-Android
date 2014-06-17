@@ -2,7 +2,7 @@ package com.soundcloud.android.stream;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayableChangedEvent;

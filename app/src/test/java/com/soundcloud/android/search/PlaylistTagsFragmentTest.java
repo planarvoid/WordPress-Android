@@ -15,7 +15,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.PlaylistTagsCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestEventBus;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.EmptyViewController;
 import com.xtremelabs.robolectric.Robolectric;

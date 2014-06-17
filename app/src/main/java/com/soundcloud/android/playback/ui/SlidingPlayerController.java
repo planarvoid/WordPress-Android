@@ -5,7 +5,7 @@ import static com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;

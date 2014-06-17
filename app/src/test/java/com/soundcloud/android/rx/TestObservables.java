@@ -3,6 +3,7 @@ package com.soundcloud.android.rx;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
+import rx.functions.Action1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
@@ -115,12 +116,11 @@ public class TestObservables {
         }
 
         @Override
-        public Subscription connect() {
+        public void connect(Action1<? super Subscription> connection) {
             connected = true;
             for (Subscriber s : subscribers()) {
                 capture.source.subscribe(s);
             }
-            return Subscriptions.empty();
         }
     }
 

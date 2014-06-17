@@ -5,7 +5,7 @@ import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpRespon
 import static com.soundcloud.android.robolectric.TestHelper.assertResolverNotified;
 
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.activities.Activities;

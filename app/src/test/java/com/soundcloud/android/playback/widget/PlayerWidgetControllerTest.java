@@ -21,7 +21,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestEventBus;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.track.LegacyTrackOperations;
 import com.tobedevoured.modelcitizen.CreateModelException;

@@ -6,7 +6,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;

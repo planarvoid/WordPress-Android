@@ -1,4 +1,4 @@
-package com.soundcloud.android.robolectric;
+package com.soundcloud.android.rx.eventbus;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -9,9 +9,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
-import com.soundcloud.android.events.DefaultEventBus;
-import com.soundcloud.android.events.EventBus;
-import com.soundcloud.android.events.Queue;
 import rx.Observer;
 import rx.Subscription;
 import rx.observers.TestObserver;

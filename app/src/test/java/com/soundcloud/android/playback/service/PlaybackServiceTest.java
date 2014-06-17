@@ -16,7 +16,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestEventBus;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.track.LegacyTrackOperations;

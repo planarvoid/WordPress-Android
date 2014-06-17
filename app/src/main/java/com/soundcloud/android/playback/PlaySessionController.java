@@ -3,7 +3,7 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;

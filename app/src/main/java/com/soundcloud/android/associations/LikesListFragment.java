@@ -7,7 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.collections.ScListView;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;

@@ -9,7 +9,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.c2dm.C2DMReceiver;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;

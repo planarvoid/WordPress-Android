@@ -21,7 +21,7 @@ import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.CollectionTask;
 import com.soundcloud.android.collections.tasks.ReturnData;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;

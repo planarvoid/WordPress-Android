@@ -20,7 +20,7 @@ import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.PlaylistSummaryCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestEventBus;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.TestObservables;

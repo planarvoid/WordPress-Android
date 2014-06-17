@@ -1,10 +1,10 @@
-package com.soundcloud.android.rx;
+package com.soundcloud.android.rx.eventbus;
 
 import rx.Subscriber;
 import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
 
-public class EventSubject<T> extends Subject<T, T> {
+class DefaultEventSubject<T> extends Subject<T, T> {
 
     private final PublishSubject<T> wrappedSubject;
 
@@ -18,11 +18,11 @@ public class EventSubject<T> extends Subject<T, T> {
         }
     }
 
-    public static <T> EventSubject<T> create() {
-        return new EventSubject<T>(new OnSubscribeFunc<T>());
+    public static <T> DefaultEventSubject<T> create() {
+        return new DefaultEventSubject<T>(new OnSubscribeFunc<T>());
     }
 
-    private EventSubject(OnSubscribeFunc<T> onSubscribeFunc) {
+    private DefaultEventSubject(OnSubscribeFunc<T> onSubscribeFunc) {
         super(onSubscribeFunc);
         wrappedSubject = onSubscribeFunc.subject;
     }

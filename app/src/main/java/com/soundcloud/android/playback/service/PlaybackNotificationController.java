@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.service;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.image.ApiImageSize;

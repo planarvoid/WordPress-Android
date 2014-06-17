@@ -20,7 +20,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestEventBus;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -37,7 +37,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)

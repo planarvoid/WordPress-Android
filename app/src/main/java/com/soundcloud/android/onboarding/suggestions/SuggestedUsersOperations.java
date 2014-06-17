@@ -12,7 +12,7 @@ import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
-import rx.util.functions.Func1;
+import rx.functions.Func1;
 
 import java.util.List;
 

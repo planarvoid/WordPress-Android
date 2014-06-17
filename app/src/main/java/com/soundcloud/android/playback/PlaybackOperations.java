@@ -8,7 +8,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Playable;

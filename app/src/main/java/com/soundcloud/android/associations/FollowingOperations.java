@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
-import rx.util.functions.Func1;
+import rx.functions.Func1;
 
 import android.content.Context;
 import android.os.SystemClock;

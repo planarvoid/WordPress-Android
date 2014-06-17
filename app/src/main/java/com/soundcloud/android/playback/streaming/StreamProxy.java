@@ -14,8 +14,8 @@ import org.apache.http.impl.cookie.DateUtils;
 import org.apache.http.message.BasicLineParser;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.functions.Func1;
 import rx.subjects.ReplaySubject;
-import rx.util.functions.Func1;
 
 import android.content.Context;
 import android.net.Uri;
