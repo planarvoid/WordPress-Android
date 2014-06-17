@@ -49,11 +49,9 @@ public class PlaybackProgress {
 
         PlaybackProgress that = (PlaybackProgress) o;
 
-        if (createdAt != that.createdAt) return false;
-        if (duration != that.duration) return false;
-        if (position != that.position) return false;
-
-        return true;
+        return createdAt == that.createdAt
+                && duration == that.duration
+                && position == that.position;
     }
 
     @Override
