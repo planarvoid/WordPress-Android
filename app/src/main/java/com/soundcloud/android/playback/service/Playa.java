@@ -12,21 +12,21 @@ import java.util.EnumSet;
 
 public interface Playa {
 
-    public void play(Track track);
-    public void play(Track track, long fromPos);
-    public boolean resume();
-    public void pause();
-    public long seek(long ms, boolean performSeek);
-    public long getProgress();
-    public void setVolume(float v);
-    public void stop();
-    public void destroy();
-    public void setListener(PlayaListener playaListener);
+    void play(Track track);
+    void play(Track track, long fromPos);
+    boolean resume();
+    void pause();
+    long seek(long ms, boolean performSeek);
+    long getProgress();
+    void setVolume(float v);
+    void stop();
+    void destroy();
+    void setListener(PlayaListener playaListener);
     // MediaPlayer specific. We can drop these when we drop mediaplayer, as they will be constant booleans in skippy
-    public boolean isSeekable();
-    public boolean isNotSeekablePastBuffer();
+    boolean isSeekable();
+    boolean isNotSeekablePastBuffer();
 
-    public static class StateTransition {
+    static class StateTransition {
         private final PlayaState newState;
         private final Reason reason;
         private final PlaybackProgress progressEvent;
