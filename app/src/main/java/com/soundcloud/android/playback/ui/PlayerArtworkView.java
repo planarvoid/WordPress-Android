@@ -4,7 +4,7 @@ import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlaybackProgress;
-import com.soundcloud.android.image.DefaultImageListener;
+import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
@@ -20,13 +20,12 @@ import android.widget.ImageView;
 
 import javax.annotation.Nullable;
 
-public class PlayerArtworkView extends FrameLayout implements ProgressAware {
+public class PlayerArtworkView extends FrameLayout implements ProgressAware, ImageListener {
 
     private static final int FADE_DURATION = 120;
 
     private AspectRatioImageView wrappedImageView;
     private ProgressController progressController;
-    private DefaultImageListener imageListener;
     private View artworkIdleOverlay;
     private ObjectAnimator overlayAnimator;
     private boolean isForcingDarkness;
@@ -40,16 +39,10 @@ public class PlayerArtworkView extends FrameLayout implements ProgressAware {
         wrappedImageView = (AspectRatioImageView) findViewById(R.id.artwork_image_view);
         artworkIdleOverlay = findViewById(R.id.artwork_overlay);
         progressController = new ProgressController(wrappedImageView);
-        imageListener = new DefaultImageListener() {
-            @Override
-            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                configureBounds();
-            }
-        };
     }
 
-    public DefaultImageListener getImageListener() {
-        return imageListener;
+    public ImageListener getImageListener() {
+        return this;
     }
 
     public void showPlayingState(@Nullable PlaybackProgress progress) {
@@ -124,4 +117,20 @@ public class PlayerArtworkView extends FrameLayout implements ProgressAware {
             progressController.setHelper(new TranslateXHelper(0, Math.min(0, -(imageViewWidth - width))));
         }
     }
+
+    @Override
+    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+        configureBounds();
+    }
+
+    @Override
+    public void onLoadingStarted(String imageUri, View view) {
+        // Nothing to do
+    }
+
+    @Override
+    public void onLoadingFailed(String imageUri, View view, String failedReason) {
+        // Nothing to do
+    }
+
 }
