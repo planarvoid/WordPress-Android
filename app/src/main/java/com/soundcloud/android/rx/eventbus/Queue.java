@@ -16,7 +16,7 @@ public final class Queue<T> {
 
     public static final class Builder<T> {
         private String name;
-        private Class<T> eventType;
+        private final Class<T> eventType;
         private boolean replayLast;
         private T defaultEvent;
 
