@@ -5,7 +5,6 @@ import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.observables.ConnectableObservable;
-import rx.subscriptions.Subscriptions;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -45,18 +44,6 @@ public class TestObservables {
 
     public static <T> MockConnectableObservable<T> connectableObservable(T result) {
         return new MockConnectableObservable<T>(new OnSubscribeCapture(Observable.just(result)));
-    }
-
-    public static <T> MockConnectableObservable<T> endlessConnectableObservable() {
-        return endlessConnectableObservable(Subscriptions.empty());
-    }
-
-    public static <T> MockObservable<T> endlessMockObservableFromSubscription(Subscription subscription) {
-        return new MockObservable<T>(new OnSubscribeCapture(endlessObservablefromSubscription(subscription)));
-    }
-
-    public static <T> MockConnectableObservable<T> endlessConnectableObservable(Subscription subscription) {
-        return new MockConnectableObservable<T>(new OnSubscribeCapture(endlessObservablefromSubscription(subscription)));
     }
 
     public static <T> MockConnectableObservable<T> emptyConnectableObservable(Subscription subscription) {

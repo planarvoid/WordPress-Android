@@ -16,6 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import rx.Observable;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 
@@ -95,7 +96,7 @@ public class EmptyViewControllerTest {
 
     @Test
     public void retryListenerShouldTriggerConnectOnNewObservable() {
-        ConnectableObservable retryObservable = TestObservables.endlessConnectableObservable();
+        ConnectableObservable retryObservable = Observable.empty().publish();
         when(reactiveComponent.buildObservable()).thenReturn(retryObservable);
         controller.onViewCreated(reactiveComponent, observable, layout);
         verify(emptyView).setOnRetryListener(retryListenerCaptor.capture());
