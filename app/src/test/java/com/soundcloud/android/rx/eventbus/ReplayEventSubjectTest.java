@@ -38,13 +38,6 @@ public class ReplayEventSubjectTest {
     }
 
     @Test
-    public void shouldNeverForwardOnCompleted() {
-        subject.subscribe(observer1);
-        subject.onCompleted();
-        verifyZeroInteractions(observer1);
-    }
-
-    @Test
     public void shouldReplayDefaultEventIfNoOtherEventsHaveFired() {
         ReplayEventSubject<Integer> subject = ReplayEventSubject.create(1);
         subject.subscribe(observer1);
@@ -59,5 +52,19 @@ public class ReplayEventSubjectTest {
         subject.subscribe(observer1);
         verify(observer1, never()).onNext(1);
         verify(observer1).onNext(2);
+    }
+
+    @Test
+    public void shouldNeverForwardOnCompletedToKeepTheQueueOpen() {
+        subject.subscribe(observer1);
+        subject.onCompleted();
+        verifyZeroInteractions(observer1);
+    }
+
+    @Test
+    public void shouldNeverForwardOnErrorToKeepTheQueueOpen() {
+        subject.subscribe(observer1);
+        subject.onError(new Exception());
+        verifyZeroInteractions(observer1);
     }
 }

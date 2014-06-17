@@ -42,7 +42,7 @@ class ReplayEventSubject<T> extends Subject<T, T> {
 
     @Override
     public void onError(Throwable e) {
-        wrappedSubject.onError(e);
+        // never process onError
     }
 
     @Override
