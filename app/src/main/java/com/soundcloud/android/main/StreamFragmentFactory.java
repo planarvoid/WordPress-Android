@@ -23,11 +23,11 @@ class StreamFragmentFactory {
         this.featureFlags = featureFlags;
     }
 
-    public Fragment create(boolean onboardingResult) {
+    public Fragment create(boolean onboardingSucceeded) {
         if (featureFlags.isEnabled(Feature.NEW_STREAM)) {
-            return new SoundStreamFragment();
+            return SoundStreamFragment.create(onboardingSucceeded);
         } else {
-            final Uri contentUri = onboardingResult ?
+            final Uri contentUri = onboardingSucceeded ?
                     Content.ME_SOUND_STREAM.uri :
                     Content.ME_SOUND_STREAM.uri.buildUpon()
                             .appendQueryParameter(Consts.Keys.ONBOARDING, Consts.StringValues.ERROR).build();

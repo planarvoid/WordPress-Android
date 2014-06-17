@@ -31,6 +31,7 @@ public class EmptyViewBuilder {
         return view;
     }
 
+    @Deprecated
     public EmptyViewBuilder forContent(final Context context, final Uri contentUri, @Nullable final User user) {
 
         switch (Content.match(contentUri)) {

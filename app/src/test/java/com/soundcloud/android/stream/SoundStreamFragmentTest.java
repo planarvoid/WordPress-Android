@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.PlayableProperty;
@@ -16,6 +17,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -29,9 +31,11 @@ import rx.android.OperatorPaged;
 import rx.observables.ConnectableObservable;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -56,12 +60,15 @@ public class SoundStreamFragmentTest {
     private PlaybackOperations playbackOperations;
     @Mock
     private Subscription subscription;
+    @Mock
+    private EmptyView emptyView;
 
     @Before
     public void setup() {
         streamItems = TestObservables.emptyConnectableObservable(subscription);
         when(soundStreamOperations.existingStreamItems()).thenReturn(streamItems);
         when(soundStreamOperations.updatedStreamItems()).thenReturn(streamItems);
+        when(listViewController.getEmptyView()).thenReturn(emptyView);
     }
 
     @Test
@@ -73,6 +80,7 @@ public class SoundStreamFragmentTest {
 
     @Test
     public void shouldAttachListViewControllerInOnViewCreated() {
+        createFragment();
         fragment.connectObservable(streamItems);
         createFragmentView();
         verify(listViewController).onViewCreated(refEq(fragment), refEq(streamItems),
@@ -81,7 +89,7 @@ public class SoundStreamFragmentTest {
 
     @Test
     public void shouldAttachPullToRefreshControllerInOnViewCreated() {
-        fragment.onCreate(null);
+        createFragment();
         fragment.connectObservable(streamItems);
         createFragmentView();
         verify(pullToRefreshController).onViewCreated(fragment, streamItems, adapter);
@@ -95,6 +103,7 @@ public class SoundStreamFragmentTest {
 
     @Test
     public void shouldForwardOnViewCreatedEventToAdapter() {
+        createFragment();
         createFragmentView();
         verify(adapter).onViewCreated();
     }
@@ -147,7 +156,32 @@ public class SoundStreamFragmentTest {
         expect(intent.getParcelableExtra(Playlist.EXTRA_URN)).toEqual(Urn.forPlaylist(123));
     }
 
+    @Test
+    public void shouldConfigureEmptyViewImage() {
+        createFragment();
+        createFragmentView();
+        verify(emptyView).setImage(R.drawable.empty_stream);
+    }
+
+    @Test
+    public void shouldConfigureDefaultEmptyViewIfOnboardingSucceeded() {
+        createFragment();
+        fragment.getArguments().putBoolean(SoundStreamFragment.ONBOARDING_RESULT_EXTRA, true);
+        createFragmentView();
+        verify(emptyView).setMessageText(R.string.list_empty_stream_message);
+        verify(emptyView).setActionText(R.string.list_empty_stream_action);
+    }
+
+    @Test
+    public void shouldConfigureErrorEmptyViewIfOnboardingFails() {
+        createFragment();
+        fragment.getArguments().putBoolean(SoundStreamFragment.ONBOARDING_RESULT_EXTRA, false);
+        createFragmentView();
+        verify(emptyView).setMessageText(R.string.error_onboarding_fail);
+    }
+
     private void createFragment() {
+        fragment.setArguments(new Bundle());
         Robolectric.shadowOf(fragment).setActivity(activity);
         fragment.onCreate(null);
     }

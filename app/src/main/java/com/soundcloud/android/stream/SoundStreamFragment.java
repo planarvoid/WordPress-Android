@@ -3,6 +3,8 @@ package com.soundcloud.android.stream;
 import static rx.android.OperatorPaged.Page;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
@@ -14,12 +16,14 @@ import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -32,6 +36,9 @@ import java.util.List;
 
 public class SoundStreamFragment extends Fragment
         implements RefreshableListComponent<ConnectableObservable<Page<List<PropertySet>>>> {
+
+    @VisibleForTesting
+    static final String ONBOARDING_RESULT_EXTRA = "onboarding.result";
 
     @Inject
     SoundStreamOperations soundStreamOperations;
@@ -46,6 +53,14 @@ public class SoundStreamFragment extends Fragment
 
     private ConnectableObservable<Page<List<PropertySet>>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
+
+    public static SoundStreamFragment create(boolean onboardingSucceeded) {
+        final Bundle args = new Bundle();
+        args.putBoolean(ONBOARDING_RESULT_EXTRA, onboardingSucceeded);
+        SoundStreamFragment fragment = new SoundStreamFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     public SoundStreamFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -88,6 +103,16 @@ public class SoundStreamFragment extends Fragment
         listViewController.onViewCreated(this, observable, view, adapter, adapter);
         pullToRefreshController.onViewCreated(this, observable, adapter);
         adapter.onViewCreated();
+
+        final EmptyView emptyView = listViewController.getEmptyView();
+        emptyView.setImage(R.drawable.empty_stream);
+        if (getArguments().getBoolean(ONBOARDING_RESULT_EXTRA)) {
+            emptyView.setMessageText(R.string.list_empty_stream_message);
+            emptyView.setActionText(R.string.list_empty_stream_action);
+            emptyView.setButtonActions(new Intent(Actions.WHO_TO_FOLLOW));
+        } else {
+            emptyView.setMessageText(R.string.error_onboarding_fail);
+        }
     }
 
     @Override

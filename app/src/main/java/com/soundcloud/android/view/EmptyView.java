@@ -270,6 +270,10 @@ public class EmptyView extends RelativeLayout {
         return this;
     }
 
+    public EmptyView setActionText(int actionTextResId) {
+        return setActionText(getResources().getString(actionTextResId));
+    }
+
     public EmptyView setActionListener(ActionListener listener) {
         buttonActionListener = listener;
         return this;
