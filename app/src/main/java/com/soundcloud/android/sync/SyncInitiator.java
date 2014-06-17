@@ -59,17 +59,20 @@ public class SyncInitiator {
         }
     }
 
-    public Observable<Boolean> syncSoundStream() {
+    public Observable<Boolean> refreshSoundStream() {
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
-                requestSoundStreamSync(new ResultReceiverAdapter(subscriber, Content.ME_SOUND_STREAM.uri));
+                requestSoundStreamSync(
+                        ApiSyncService.ACTION_HARD_REFRESH,
+                        new ResultReceiverAdapter(subscriber, Content.ME_SOUND_STREAM.uri));
             }
         });
     }
 
-    private void requestSoundStreamSync(ResultReceiverAdapter resultReceiver) {
+    private void requestSoundStreamSync(String action, ResultReceiverAdapter resultReceiver) {
         context.startService(new Intent(context, ApiSyncService.class)
+                .setAction(action)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .setData(Content.ME_SOUND_STREAM.uri));

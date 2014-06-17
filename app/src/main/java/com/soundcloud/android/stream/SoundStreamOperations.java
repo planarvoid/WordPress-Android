@@ -43,7 +43,7 @@ class SoundStreamOperations {
     }
 
     public Observable<Page<List<PropertySet>>> updatedStreamItems() {
-        return syncInitiator.syncSoundStream().mergeMap(handleSyncResult(
+        return syncInitiator.refreshSoundStream().mergeMap(handleSyncResult(
                 accountOperations.getLoggedInUserUrn(), INITIAL_TIMESTAMP));
     }
 
@@ -75,7 +75,7 @@ class SoundStreamOperations {
                     Log.d(TAG, "Received empty set from local storage");
                     if (timestamp == INITIAL_TIMESTAMP) {
                         Log.d(TAG, "First page; triggering full sync");
-                        return syncInitiator.syncSoundStream().mergeMap(handleSyncResult(userUrn, timestamp));
+                        return syncInitiator.refreshSoundStream().mergeMap(handleSyncResult(userUrn, timestamp));
                     } else {
                         Log.d(TAG, "Not on first page; triggering backfill sync");
                         return syncInitiator.backfillSoundStream().mergeMap(handleSyncResult(userUrn, timestamp));

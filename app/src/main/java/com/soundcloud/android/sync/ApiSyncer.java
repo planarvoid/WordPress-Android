@@ -174,7 +174,7 @@ public class ApiSyncer extends SyncStrategy {
 
     private ApiSyncResult syncActivities(Uri uri, String action) throws IOException {
         ApiSyncResult result = new ApiSyncResult(uri);
-        log("syncActivities(" + uri + ")");
+        log("syncActivities(" + uri + "); action=" + action);
 
         final Content c = Content.match(uri);
         final int inserted;
@@ -186,11 +186,19 @@ public class ApiSyncer extends SyncStrategy {
             activities = Activities.fetch(api, request);
             if (activities == null || activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(oldestActivity))) {
                 // this can happen at the end of the list
-                inserted = 0;
+                result.change = ApiSyncResult.UNCHANGED;
             } else {
                 inserted = activitiesStorage.insert(c, activities);
+                result.change = inserted > 0 ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
             }
+        } else if (ApiSyncService.ACTION_HARD_REFRESH.equals(action)) {
+            activities = Activities.fetchRecent(api, c.request(), MAX_LOOKUP_COUNT);
+            resolver.delete(c.uri, null, null);
+            activitiesStorage.insert(c, activities);
+            result.setSyncData(true, System.currentTimeMillis(), activities.size(), ApiSyncResult.CHANGED);
+
         } else {
+
             final Activity newestActivity = activitiesStorage.getLatestActivity(c);
             Request request = new Request(c.request());
             if (newestActivity != null) request.add("uuid[to]", newestActivity.toGUID());
@@ -211,10 +219,8 @@ public class ApiSyncer extends SyncStrategy {
                 inserted = activitiesStorage.insert(c, activities);
             }
             result.setSyncData(System.currentTimeMillis(), activities.size());
+            result.change = inserted > 0 ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
         }
-
-        result.change = inserted > 0 ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
-        log("activities: inserted " + inserted + " objects");
         return result;
     }
 

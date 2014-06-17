@@ -83,13 +83,13 @@ public class SoundStreamOperationsTest {
         when(soundStreamStorage.streamItemsBefore(123L, userUrn, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>never());
         // returning true means new items have been added to local storage
-        when(syncInitiator.syncSoundStream()).thenReturn(Observable.just(true));
+        when(syncInitiator.refreshSoundStream()).thenReturn(Observable.just(true));
 
         operations.existingStreamItems().subscribe(observer);
 
         InOrder inOrder = inOrder(observer, soundStreamStorage, syncInitiator);
         inOrder.verify(soundStreamStorage).streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE);
-        inOrder.verify(syncInitiator).syncSoundStream();
+        inOrder.verify(syncInitiator).refreshSoundStream();
         inOrder.verify(soundStreamStorage).streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE);
         inOrder.verify(observer).onNext(any(Page.class));
         inOrder.verify(observer).onCompleted();
@@ -171,7 +171,7 @@ public class SoundStreamOperationsTest {
 
     @Test
     public void shouldRequestSoundStreamSyncAndReloadFromLocalStorageWhenNewItemsAvailable() {
-        when(syncInitiator.syncSoundStream()).thenReturn(Observable.just(true));
+        when(syncInitiator.refreshSoundStream()).thenReturn(Observable.just(true));
         when(soundStreamStorage
                 .streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE))
                 .thenReturn(Observable.from(createItems(PAGE_SIZE, 123L)));
@@ -182,7 +182,7 @@ public class SoundStreamOperationsTest {
         operations.updatedStreamItems().subscribe(observer);
 
         InOrder inOrder = inOrder(soundStreamStorage, syncInitiator, observer);
-        inOrder.verify(syncInitiator).syncSoundStream();
+        inOrder.verify(syncInitiator).refreshSoundStream();
         inOrder.verify(soundStreamStorage).streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE);
         inOrder.verify(soundStreamStorage).streamItemsBefore(123L, userUrn, PAGE_SIZE); // next page observable
         inOrder.verify(observer).onNext(any(Page.class));
@@ -192,12 +192,12 @@ public class SoundStreamOperationsTest {
 
     @Test
     public void shouldRequestSoundStreamSyncAndCompleteWhenNoNewItemsAvailable() {
-        when(syncInitiator.syncSoundStream()).thenReturn(Observable.just(false));
+        when(syncInitiator.refreshSoundStream()).thenReturn(Observable.just(false));
 
         operations.updatedStreamItems().subscribe(observer);
 
         InOrder inOrder = inOrder(soundStreamStorage, syncInitiator, observer);
-        inOrder.verify(syncInitiator).syncSoundStream();
+        inOrder.verify(syncInitiator).refreshSoundStream();
         inOrder.verify(observer).onNext(OperatorPaged.emptyPage());
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();

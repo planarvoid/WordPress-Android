@@ -20,7 +20,6 @@ import rx.observers.TestSubscriber;
 
 import android.accounts.Account;
 import android.content.Intent;
-import android.content.SyncResult;
 import android.os.ResultReceiver;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -57,13 +56,13 @@ public class SyncInitiatorTest {
     }
 
     @Test
-    public void shouldCreateIntentForSyncingTheSoundStream() {
-        initiator.syncSoundStream().subscribe(syncSubscriber);
+    public void shouldCreateIntentForRefreshingTheSoundStream() {
+        initiator.refreshSoundStream().subscribe(syncSubscriber);
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedService();
         expect(intent).not.toBeNull();
         expect(intent.getData()).toBe(Content.ME_SOUND_STREAM.uri);
-        expect(intent.getAction()).toBeNull();
+        expect(intent.getAction()).toBe(ApiSyncService.ACTION_HARD_REFRESH);
         expect(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).toBeTrue();
         expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiver.class);
     }

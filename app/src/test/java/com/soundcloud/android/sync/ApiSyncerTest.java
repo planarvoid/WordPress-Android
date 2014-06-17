@@ -100,6 +100,25 @@ public class ApiSyncerTest {
     }
 
     @Test
+    public void syncStreamWithHardRefreshReplacesExistingActivities() throws Exception {
+        // initial sync
+        ApiSyncResult initialResult = sync(Content.ME_SOUND_STREAM.uri, "e1_stream.json", "e1_stream_oldest.json");
+
+        // hard refresh
+        addPendingHttpResponse(getClass(), "e1_stream_oldest.json");
+        ApiSyncer syncer = new ApiSyncer(Robolectric.application, Robolectric.application.getContentResolver(), eventBus);
+        ApiSyncResult result = syncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_HARD_REFRESH);
+
+        expect(result.success).toBeTrue();
+        expect(result.synced_at).toBeGreaterThan(initialResult.synced_at);
+        expect(result.change).toBe(ApiSyncResult.CHANGED);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(69);
+
+        Activities incoming = activitiesStorage.getCollectionSince(Content.ME_SOUND_STREAM.uri, -1);
+        expect(incoming.size()).toEqual(69);
+    }
+
+    @Test
     public void shouldSyncStreamWithTrackWithoutStats() throws Exception {
         // special case: track in stream doesn't contain some of the stats (per track basis):
         // playback_count, download_count, favoritings_count, comment_count, likes_count, reposts_count

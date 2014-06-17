@@ -119,11 +119,8 @@ public class PullToRefreshController {
 
         @Override
         public void onNext(Page<? extends Iterable<T>> page) {
-            //TODO: should we signal to the user that no items have been added?
-            if (page.getPagedCollection().iterator().hasNext()) {
-                adapter.clear();
-                adapter.onNext(page);
-            }
+            adapter.clear();
+            adapter.onNext(page);
         }
 
         @Override
@@ -134,7 +131,6 @@ public class PullToRefreshController {
 
         @Override
         public void onError(Throwable error) {
-            //TODO: should we signal to the user that an error occurred?
             stopRefreshing();
             super.onError(error);
         }

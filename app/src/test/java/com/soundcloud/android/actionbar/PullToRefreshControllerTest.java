@@ -5,7 +5,6 @@ import static com.soundcloud.android.rx.RxTestHelper.singlePage;
 import static com.soundcloud.android.rx.TestObservables.MockConnectableObservable;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -30,7 +29,6 @@ import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Subscription;
-import rx.android.OperatorPaged;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
@@ -40,7 +38,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.AdapterView;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -158,20 +156,11 @@ public class PullToRefreshControllerTest {
 
     @Test
     public void pageSubscriberShouldClearAdapterAndAddPageInOnCompleted() {
-        final Page<List<Parcelable>> page = singlePage(Arrays.asList(mock(Parcelable.class)));
+        final Page<List<Parcelable>> page = singlePage(Collections.<Parcelable>emptyList());
         observable = TestObservables.connectableObservable(page);
         moveToRefreshingState();
         verify(adapter).clear();
         verify(adapter).onNext(page);
-        verify(adapter).onCompleted();
-        verifyNoMoreInteractions(adapter);
-    }
-
-    @Test
-    public void pageSubscriberShouldNotClearAdapterWhenPageIsBlank() {
-        final Page<List<Parcelable>> page = OperatorPaged.emptyPage();
-        observable = TestObservables.connectableObservable(page);
-        moveToRefreshingState();
         verify(adapter).onCompleted();
         verifyNoMoreInteractions(adapter);
     }
