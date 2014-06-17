@@ -31,14 +31,14 @@ public class OnboardingOperationsTest {
     }
 
     @Test
-    public void shouldMakeAPostRequestOnEmailOptIn() {
+    public void shouldMakeAPutRequestOnEmailOptIn() {
         when(rxHttpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>empty());
 
         operations.sendEmailOptIn();
 
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(rxHttpClient).fetchResponse(argumentCaptor.capture());
-        expect(argumentCaptor.getValue().getMethod()).toEqual("POST");
+        expect(argumentCaptor.getValue().getMethod()).toEqual("PUT");
     }
 
     @Test
