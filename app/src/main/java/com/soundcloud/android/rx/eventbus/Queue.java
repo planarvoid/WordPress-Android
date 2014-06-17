@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 public final class Queue<T> {
 
-    private static int runningId = 0;
+    private static int runningId;
 
     @NotNull public final String name;
     @NotNull public final Class<T> eventType;
@@ -20,7 +20,7 @@ public final class Queue<T> {
         private boolean replayLast;
         private T defaultEvent;
 
-        private Builder(Class<T> eventType) {
+        Builder(Class<T> eventType) {
             this.eventType = eventType;
         }
 
