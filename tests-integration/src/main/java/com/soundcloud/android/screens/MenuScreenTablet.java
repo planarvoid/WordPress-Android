@@ -14,29 +14,29 @@ public class MenuScreenTablet extends MenuScreen{
     @Override
     public MyProfileScreen clickUserProfile() {
         userProfileMenuItem().click();
-        return new MyProfileScreen(solo);
+        return new MyProfileScreen(testDriver);
     }
 
     @Override
     public ExploreScreen clickExplore() {
         exploreMenuItem().click();
-        return new ExploreScreen(solo);
+        return new ExploreScreen(testDriver);
     }
 
     @Override
     public LikesScreen clickLikes() {
         likesMenuItem().click();
-        return new LikesScreen(solo);
+        return new LikesScreen(testDriver);
     }
 
     @Override
     public PlaylistScreen clickPlaylist() {
         playlistsMenuItem().click();
-        return new PlaylistScreen(solo);
+        return new PlaylistScreen(testDriver);
     }
 
     public boolean isOpened() {
-        return solo.findElement(With.id(R.id.fixed_navigation_fragment_id)).isVisible();
+        return testDriver.findElement(With.id(R.id.fixed_navigation_fragment_id)).isVisible();
     }
 
 }

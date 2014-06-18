@@ -25,10 +25,6 @@ public class ExploreScreen extends Screen {
 
     public ExploreScreen(Han solo) {
         super(solo);
-
-        waiter.waitForFragmentByTag("explore_fragment");
-
-        waiter.waitForActivity(ACTIVITY);
         viewPager = new ViewPagerElement(solo);
     }
 

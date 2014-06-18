@@ -8,39 +8,42 @@ import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Waiter;
 import com.soundcloud.android.tests.with.With;
+import com.soundcloud.android.utils.Log;
 
 import android.os.Build;
 
+import java.util.List;
+
 public class MenuScreen {
     private final ActionBarElement actionBar;
-    protected Han solo;
+    protected Han testDriver;
     protected Waiter waiter;
     protected final int username_selector = R.id.username;
 
     public MenuScreen(Han solo) {
-        this.solo = solo;
+        this.testDriver = solo;
         this.actionBar = new ActionBarElement(solo);
         this.waiter = new Waiter(solo);
     }
 
     public HomeScreen logout() {
-        solo.openSystemMenu();
-        solo.clickOnActionBarItem(R.id.action_settings);
-        new SettingsScreen(solo);
-        solo.findElement(With.text(solo.getString(R.string.pref_revoke_access))).click();
-        solo.assertText(R.string.menu_clear_user_title);
-        solo.clickOnText(android.R.string.ok);
-        return new HomeScreen(solo);
+        testDriver.openSystemMenu();
+        testDriver.clickOnActionBarItem(R.id.action_settings);
+        new SettingsScreen(testDriver);
+        testDriver.findElement(With.text(testDriver.getString(R.string.pref_revoke_access))).click();
+        testDriver.assertText(R.string.menu_clear_user_title);
+        testDriver.clickOnText(android.R.string.ok);
+        return new HomeScreen(testDriver);
     }
 
     //TODO: Move this to systemSettingsScreen
     public SettingsScreen clickSystemSettings() {
-        solo.clickOnActionBarItem(R.id.action_settings);
-        return new SettingsScreen(solo);
+        testDriver.clickOnActionBarItem(R.id.action_settings);
+        return new SettingsScreen(testDriver);
     }
 
     private ListElement menuContainer() {
-        return solo.findElement(With.id(R.id.nav_listview)).toListView();
+        return testDriver.findElement(With.id(R.id.nav_listview)).toListView();
     }
 
     protected ViewElement userProfileMenuItem() {
@@ -68,11 +71,11 @@ public class MenuScreen {
         if(Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             actionBar.clickHomeButton();
         } else {
-            solo.findElement(With.id(R.id.up)).click();
+            testDriver.findElement(With.id(R.id.up)).click();
         }
 
         waiter.waitForDrawerToOpen();
-        return new MenuScreen(solo);
+        return new MenuScreen(testDriver);
     }
 
     public String getUserName() {
@@ -80,30 +83,34 @@ public class MenuScreen {
     }
 
     public boolean isOpened() {
-        return solo.findElement(With.id(R.id.navigation_fragment_id)).isVisible();
+        List<ViewElement> menuDrawers = testDriver.findElements(With.id(R.id.navigation_fragment_id));
+        ViewElement menuDrawer = menuDrawers.isEmpty() ? null : menuDrawers.get(0);
+        return menuDrawer != null && menuDrawer.isVisible();
     }
 
     public ProfileScreen clickUserProfile() {
         userProfileMenuItem().click();
         waiter.waitForDrawerToClose();
-        return new MyProfileScreen(solo);
+        return new MyProfileScreen(testDriver);
     }
 
     public ExploreScreen clickExplore() {
         exploreMenuItem().click();
+        Log.i("asdf", "Clicked Explore");
         waiter.waitForDrawerToClose();
-        return new ExploreScreen(solo);
+        Log.i("asdf", "Closed Drawer");
+        return new ExploreScreen(testDriver);
     }
 
     public LikesScreen clickLikes() {
         likesMenuItem().click();
         waiter.waitForDrawerToClose();
-        return new LikesScreen(solo);
+        return new LikesScreen(testDriver);
     }
 
     public PlaylistScreen clickPlaylist() {
         playlistsMenuItem().click();
         waiter.waitForDrawerToClose();
-        return new PlaylistScreen(solo);
+        return new PlaylistScreen(testDriver);
     }
 }

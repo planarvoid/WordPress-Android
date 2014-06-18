@@ -13,6 +13,7 @@ import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Waiter;
+import com.soundcloud.android.utils.Log;
 
 public class Explore extends ActivityTestCase<MainActivity> {
     private Waiter waiter;

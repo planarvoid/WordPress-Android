@@ -14,8 +14,7 @@ public class ViewPagerElement extends Element {
 
     public ViewPagerElement(Han solo) {
         super(solo);
-        solo.getSolo().waitForView(ViewPager.class);
-        viewPager = solo.findElement(With.className(SafeViewPager.class)).toViewPager();
+        viewPager = solo.findElement(With.className(ViewPager.class)).toViewPager();
     }
 
     @Override
