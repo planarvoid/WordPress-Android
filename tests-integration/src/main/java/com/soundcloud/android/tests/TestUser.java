@@ -22,6 +22,10 @@ public class TestUser {
     private Token token;
     private User user;
 
+    public static String generateEmail() {
+        return "someemail-"+System.currentTimeMillis()+"@test.com";
+    }
+
     public TestUser(String username, String email, String password) {
         this.username = username;
         this.email = email;
