@@ -10,8 +10,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.preferences.SettingsActivity;
@@ -19,7 +19,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
+import rx.functions.Action0;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.SerialSubscription;
 import rx.subscriptions.Subscriptions;
@@ -52,9 +52,9 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private SerialSubscription flushSubscription = new SerialSubscription();
 
     // will be called by the Rx scheduler after a given delay, as long as events come in
-    private final Action1<Scheduler.Inner> flushAction = new Action1<Scheduler.Inner>() {
+    private final Action0 flushAction = new Action0() {
         @Override
-        public void call(Scheduler.Inner inner) {
+        public void call() {
             Log.d(AnalyticsEngine.this, "Flushing event data");
             for (AnalyticsProvider analyticsProvider : analyticsProviders) {
                 analyticsProvider.flush();
@@ -121,7 +121,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private void scheduleFlush() {
         if (flushSubscription.get() == Subscriptions.empty()) {
             Log.d(this, "Scheduling flush in " + FLUSH_DELAY_SECONDS + " secs");
-            flushSubscription.set(scheduler.schedule(flushAction, FLUSH_DELAY_SECONDS, TimeUnit.SECONDS));
+            flushSubscription.set(scheduler.createWorker().schedule(flushAction, FLUSH_DELAY_SECONDS, TimeUnit.SECONDS));
         } else {
             Log.d(this, "Ignoring flush event; already scheduled");
         }

@@ -103,7 +103,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
         mUriSubscription.unsubscribe();
         mUriSubscription = proxy.uriObservable(this.track.getStreamUrlWithAppendedId(), null)
-                .subscribe(new MediaPlayerDataSourceObserver(), AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new MediaPlayerDataSourceObserver());
     }
 
     private class MediaPlayerDataSourceObserver extends DefaultSubscriber<Uri> {
