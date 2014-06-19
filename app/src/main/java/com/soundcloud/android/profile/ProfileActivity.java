@@ -237,6 +237,12 @@ public class ProfileActivity extends ScActivity implements
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        playerController.storeState(outState);
+    }
+
+    @Override
     public void onBackPressed() {
         if (playerController.isExpanded()) {
             playerController.collapse();
