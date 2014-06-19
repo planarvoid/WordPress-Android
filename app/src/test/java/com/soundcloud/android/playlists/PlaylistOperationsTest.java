@@ -106,11 +106,7 @@ public class PlaylistOperationsTest {
 
         playlistOperations.loadPlaylist(playlist.getUrn()).subscribe(observer);
 
-        InOrder callbacks = inOrder(observer, syncInitiator);
-        callbacks.verify(syncInitiator).syncPlaylist(playlist.getUrn());
-        callbacks.verify(observer).onNext(playlist);
-        callbacks.verify(observer).onCompleted();
-        callbacks.verifyNoMoreInteractions();
+        verify(syncInitiator).syncPlaylist(playlist.getUrn());
     }
 
     @Test
