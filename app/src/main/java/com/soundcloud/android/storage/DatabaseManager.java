@@ -116,6 +116,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 24:
                             success = upgradeTo24(db, oldVersion);
                             break;
+                        case 25:
+                            success = upgradeTo25(db, oldVersion);
                         default:
                             break;
                     }
@@ -429,7 +431,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade21 " +
+            SoundCloudApplication.handleSilentException("error during upgrade23 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -443,6 +445,17 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade24 " +
                     "(from " + oldVersion + ")", e);
+        }
+        return false;
+    }
+
+    private static boolean upgradeTo25(SQLiteDatabase database, int oldVersion) {
+        try {
+            Table.ACTIVITIES.recreate(database);
+            return true;
+        } catch (SQLException exception) {
+            SoundCloudApplication.handleSilentException("error during upgrade25 " +
+                    "(from " + oldVersion + ")", exception);
         }
         return false;
     }

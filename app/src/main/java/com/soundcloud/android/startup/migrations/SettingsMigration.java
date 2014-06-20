@@ -3,9 +3,9 @@ package com.soundcloud.android.startup.migrations;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.preferences.SettingsActivity;
 
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+
+import javax.inject.Inject;
 
 class SettingsMigration implements Migration {
 
@@ -14,14 +14,9 @@ class SettingsMigration implements Migration {
 
     private final SharedPreferences sharedPreferences;
 
-    public SettingsMigration(Context context){
-        this(PreferenceManager.getDefaultSharedPreferences(context));
-    }
-
-    @VisibleForTesting
-    protected SettingsMigration(SharedPreferences defaultSharedPreferences) {
-        sharedPreferences = defaultSharedPreferences;
-
+    @Inject
+    SettingsMigration(SharedPreferences sharedPreferences){
+        this.sharedPreferences = sharedPreferences;
     }
 
     @Override

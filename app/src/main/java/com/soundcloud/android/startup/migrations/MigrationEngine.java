@@ -7,11 +7,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.soundcloud.android.utils.DeviceHelper;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.preference.PreferenceManager;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,13 +23,16 @@ public class MigrationEngine {
     private final int currentVersion;
     private final List<Migration> migrations;
 
-    public MigrationEngine(Context context) {
-        this(new DeviceHelper(context).getAppVersionCode(), PreferenceManager.getDefaultSharedPreferences(context),
-                new SettingsMigration(context));
+    @Inject
+    public MigrationEngine(DeviceHelper deviceHelper, SharedPreferences sharedPreferences,
+                           SettingsMigration settingsMigration) {
+        this(deviceHelper.getAppVersionCode(),
+                sharedPreferences,
+                settingsMigration);
     }
 
     @VisibleForTesting
-    protected MigrationEngine(int currentVersion, SharedPreferences sharedPreferences,
+    MigrationEngine(int currentVersion, SharedPreferences sharedPreferences,
                               Migration... migrationsToApply) {
         this.sharedPreferences = sharedPreferences;
         this.currentVersion = currentVersion;

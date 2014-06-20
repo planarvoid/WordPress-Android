@@ -67,32 +67,20 @@ public class SoundCloudApplication extends Application {
     @SuppressFBWarnings({ "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
     public static ScModelManager sModelManager;
 
-    @Inject
-    EventBus eventBus;
-    @Inject
-    ScModelManager modelManager;
-    @Inject
-    ImageOperations imageOperations;
-    @Inject
-    AccountOperations accountOperations;
-    @Inject
-    ExperimentOperations experimentOperations;
-    @Inject
-    ApplicationProperties applicationProperties;
-    @Inject
-    SharedPreferences sharedPreferences;
-    @Inject
-    PlayerWidgetController widgetController;
-    @Inject
-    PeripheralsController peripheralsController;
-    @Inject
-    PlaySessionController playSessionController;
-    @Inject
-    PlaybackSessionAnalyticsController playSessionAnalyticsController;
-    @Inject
-    PlaylistTagStorage playlistTagStorage;
-    @Inject
-    PlaybackNotificationController playbackNotificationController;
+    @Inject MigrationEngine migrationEngine;
+    @Inject EventBus eventBus;
+    @Inject ScModelManager modelManager;
+    @Inject ImageOperations imageOperations;
+    @Inject AccountOperations accountOperations;
+    @Inject ExperimentOperations experimentOperations;
+    @Inject ApplicationProperties applicationProperties;
+    @Inject SharedPreferences sharedPreferences;
+    @Inject PlayerWidgetController widgetController;
+    @Inject PeripheralsController peripheralsController;
+    @Inject PlaySessionController playSessionController;
+    @Inject PlaybackSessionAnalyticsController playSessionAnalyticsController;
+    @Inject PlaylistTagStorage playlistTagStorage;
+    @Inject PlaybackNotificationController playbackNotificationController;
 
     // we need this object to exist througout the life time of the app,
     // even if it appears to be unused
@@ -129,7 +117,7 @@ public class SoundCloudApplication extends Application {
         // reroute to a static field for legacy code
         sModelManager = modelManager;
 
-        new MigrationEngine(this).migrate();
+        migrationEngine.migrate();
 
         Log.i(TAG, "Application starting up in mode " + applicationProperties.getBuildType());
         Log.d(TAG, applicationProperties.toString());
