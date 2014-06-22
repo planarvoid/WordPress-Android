@@ -152,7 +152,8 @@ public class PlaybackOperations {
                 public Long call(TrackUrn trackUrn) {
                     return trackUrn.numericId;
                 }
-            }).toList().subscribe(trackListLoadedSubscriber(context, position, playSessionSource, initialTrack, null));
+            }).toList().observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(trackListLoadedSubscriber(context, position, playSessionSource, initialTrack, null));
         } else {
             showPlayer(context, initialTrack);
             return Subscriptions.empty();

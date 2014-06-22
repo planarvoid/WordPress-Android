@@ -2,8 +2,8 @@ package com.soundcloud.android.playback.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Preconditions;
 import com.soundcloud.android.analytics.OriginProvider;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Playable;
@@ -12,6 +12,7 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
@@ -22,6 +23,7 @@ import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Looper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -66,6 +68,9 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
+        Preconditions.checkState(Looper.getMainLooper().getThread() == Thread.currentThread(),
+            "Play queues must be set from the main thread only");
+
         setNewPlayQueueInternal(playQueue, playSessionSource);
         saveCurrentPosition(0L);
     }
