@@ -1,4 +1,4 @@
-package com.soundcloud.android.events;
+package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
 

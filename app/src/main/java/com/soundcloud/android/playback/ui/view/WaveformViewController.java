@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.ui.view;
 
 import static com.soundcloud.android.playback.ui.progress.ProgressController.ProgressAnimationControllerFactory;
 
-import com.soundcloud.android.events.PlaybackProgress;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;

@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
-import com.soundcloud.android.events.PlaybackProgress;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
 

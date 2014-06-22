@@ -8,12 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.PlaybackProgress;
-import com.soundcloud.android.playback.ui.progress.EmptyProgressHelper;
-import com.soundcloud.android.playback.ui.progress.ProgressAnimator;
-import com.soundcloud.android.playback.ui.progress.ProgressController;
-import com.soundcloud.android.playback.ui.progress.TranslateXAnimator;
-import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;

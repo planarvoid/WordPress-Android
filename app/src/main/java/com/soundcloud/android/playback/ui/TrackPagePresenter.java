@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.PlaybackProgress;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;

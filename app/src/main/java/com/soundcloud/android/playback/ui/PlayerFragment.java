@@ -5,12 +5,12 @@ import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlaybackProgress;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.subscriptions.CompositeSubscription;
 
@@ -99,9 +99,9 @@ public class PlayerFragment extends Fragment {
         }
     }
 
-    private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgress> {
+    private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
         @Override
-        public void onNext(PlaybackProgress progress) {
+        public void onNext(PlaybackProgressEvent progress) {
             if (presenter != null) {
                 presenter.onPlayerProgress(progress);
             }

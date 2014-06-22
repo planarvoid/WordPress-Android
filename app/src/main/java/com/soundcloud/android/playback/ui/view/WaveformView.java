@@ -4,7 +4,7 @@ import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.events.PlaybackProgress;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.waveform.WaveformResult;

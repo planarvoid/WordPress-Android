@@ -12,10 +12,11 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlaybackProgress;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -145,7 +146,7 @@ public class PlayerFragmentTest {
     @Test
     public void onPlaybackProgressEventSetsPlayerProgressOnPresenter() {
         createFragment();
-        PlaybackProgress progressEvent = new PlaybackProgress(5l, 10l);
+        PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(new PlaybackProgress(5l, 10l), Urn.forTrack(123L));
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, progressEvent);
         verify(presenter).onPlayerProgress(progressEvent);

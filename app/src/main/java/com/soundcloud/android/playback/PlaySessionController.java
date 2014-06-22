@@ -3,10 +3,10 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
-import com.soundcloud.android.rx.eventbus.EventBus;
+import com.google.common.collect.Maps;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlaybackProgress;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
@@ -14,6 +14,7 @@ import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.track.LegacyTrackOperations;
 import dagger.Lazy;
@@ -26,6 +27,7 @@ import android.graphics.Bitmap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Map;
 
 @Singleton
 public class PlaySessionController {
@@ -46,7 +48,7 @@ public class PlaySessionController {
     private TrackUrn currentPlayingUrn; // the track that is currently loaded in the playback service
     private Track currentPlayQueueTrack; // the track that is currently set in the queue
 
-    private PlaybackProgress currentProgress = PlaybackProgress.empty();
+    private Map<TrackUrn,PlaybackProgress> progressMap = Maps.newHashMap();
 
     @Inject
     public PlaySessionController(Resources resources, EventBus eventBus, PlaybackOperations playbackOperations,
@@ -76,8 +78,8 @@ public class PlaySessionController {
         return currentPlayingUrn != null && currentPlayingUrn.equals(trackUrn);
     }
 
-    public PlaybackProgress getCurrentProgress() {
-        return currentProgress;
+    public PlaybackProgress getCurrentProgress(TrackUrn trackUrn) {
+        return progressMap.get(trackUrn);
     }
 
     public boolean isPlaying() {
@@ -125,10 +127,10 @@ public class PlaySessionController {
         }
     }
 
-    private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgress> {
+    private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
         @Override
-        public void onNext(PlaybackProgress progress) {
-            currentProgress = progress;
+        public void onNext(PlaybackProgressEvent progress) {
+            progressMap.put(progress.getTrackUrn(), progress.getPlaybackProgress());
         }
     }
 

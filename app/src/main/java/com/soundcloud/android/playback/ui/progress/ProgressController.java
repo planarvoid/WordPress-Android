@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui.progress;
 
-import com.soundcloud.android.events.PlaybackProgress;
+import com.soundcloud.android.playback.PlaybackProgress;
 
 import android.view.View;
 

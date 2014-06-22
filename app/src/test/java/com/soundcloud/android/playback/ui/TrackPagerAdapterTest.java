@@ -6,7 +6,8 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.PlaybackProgress;
+import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -84,7 +85,7 @@ public class TrackPagerAdapterTest {
     public void getViewLoadsTrackWithProgressForGivenPlayQueuePositionIfPositionIsPlaying() {
         setupGetCurrentViewPreconditions();
         PlaybackProgress progressEvent = new PlaybackProgress(5l, 10l);
-        when(playSessionController.getCurrentProgress()).thenReturn(progressEvent);
+        when(playSessionController.getCurrentProgress(track.getUrn())).thenReturn(progressEvent);
         when(playSessionController.isPlayingTrack(track)).thenReturn(true);
 
         adapter.getView(3, view, container);
@@ -101,19 +102,20 @@ public class TrackPagerAdapterTest {
     @Test
     public void setProgressOnCurrentTrackSetsProgressOnPresenter() {
         setupGetCurrentViewPreconditions();
-        PlaybackProgress progressEvent = new PlaybackProgress(5l, 10l);
+        final PlaybackProgress playbackProgress = new PlaybackProgress(5l, 10l);
+        PlaybackProgressEvent progressEvent = new PlaybackProgressEvent(playbackProgress, track.getUrn());
 
         adapter.getView(3, view, container);
         adapter.setProgressOnCurrentTrack(progressEvent);
 
-        verify(trackPagePresenter).setProgress(view, progressEvent);
+        verify(trackPagePresenter).setProgress(view, playbackProgress);
     }
 
     @Test
     public void setProgressOnCurrentTrackWhenSetProgressOnAllViews() {
         setupGetCurrentViewPreconditions();
         PlaybackProgress progressEvent = new PlaybackProgress(5l, 10l);
-        when(playSessionController.getCurrentProgress()).thenReturn(progressEvent);
+        when(playSessionController.getCurrentProgress(track.getUrn())).thenReturn(progressEvent);
         when(playSessionController.isPlayingTrack(playQueueManager.getUrnAtPosition(4))).thenReturn(true);
         adapter.getView(3, view, container);
 

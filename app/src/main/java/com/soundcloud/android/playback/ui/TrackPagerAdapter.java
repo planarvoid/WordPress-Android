@@ -3,8 +3,9 @@ package com.soundcloud.android.playback.ui;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.soundcloud.android.events.PlaybackProgress;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
@@ -81,10 +82,10 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         return trackViewsByPosition.inverse().get(id);
     }
 
-    public void setProgressOnCurrentTrack(PlaybackProgress progress) {
+    public void setProgressOnCurrentTrack(PlaybackProgressEvent progressEvent) {
         View currentTrackView = trackViewsByPosition.inverse().get(playQueueManager.getCurrentPosition());
         if (currentTrackView != null) {
-            trackPagePresenter.setProgress(currentTrackView, progress);
+            trackPagePresenter.setProgress(currentTrackView, progressEvent.getPlaybackProgress());
         }
     }
 
@@ -92,8 +93,9 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         for (Map.Entry<View, Integer> entry : trackViewsByPosition.entrySet()) {
             View trackView = entry.getKey();
             Integer position = entry.getValue();
-            if (playSessionController.isPlayingTrack(playQueueManager.getUrnAtPosition(position))) {
-                trackPagePresenter.setProgress(trackView, playSessionController.getCurrentProgress());
+            final TrackUrn urnAtPosition = playQueueManager.getUrnAtPosition(position);
+            if (playSessionController.isPlayingTrack(urnAtPosition)) {
+                trackPagePresenter.setProgress(trackView, playSessionController.getCurrentProgress(urnAtPosition));
             } else {
                 trackPagePresenter.resetProgress(trackView);
             }
@@ -146,7 +148,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
                 final long idOfQueueView = playQueueManager.getIdAtPosition(position);
                 if (trackId == idOfQueueView) {
                     if (playSessionController.isPlayingTrack(track)){
-                        trackPagePresenter.populateTrackPage(trackView, track, playSessionController.getCurrentProgress());
+                        trackPagePresenter.populateTrackPage(trackView, track, playSessionController.getCurrentProgress(track.getUrn()));
                     } else {
                         trackPagePresenter.populateTrackPage(trackView, track);
                     }

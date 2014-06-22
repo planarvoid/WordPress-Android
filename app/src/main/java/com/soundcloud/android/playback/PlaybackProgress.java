@@ -1,4 +1,4 @@
-package com.soundcloud.android.events;
+package com.soundcloud.android.playback;
 
 import android.os.SystemClock;
 

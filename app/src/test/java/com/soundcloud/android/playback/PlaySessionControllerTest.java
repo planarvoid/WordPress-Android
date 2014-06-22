@@ -11,11 +11,12 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Predicate;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlaybackProgress;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
@@ -142,10 +143,11 @@ public class PlaySessionControllerTest {
     }
 
     @Test
-    public void returnsLastProgressEventFromEventQueue() throws Exception {
-        final PlaybackProgress playbackProgressEvent = new PlaybackProgress(1L, 2L);
+    public void returnsLastProgressEventByUrnFromEventQueue() throws Exception {
+        TrackUrn trackUrn = Urn.forTrack(123L);
+        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(new PlaybackProgress(1L, 2L), trackUrn);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
-        expect(controller.getCurrentProgress()).toBe(playbackProgressEvent);
+        expect(controller.getCurrentProgress(trackUrn)).toBe(playbackProgressEvent.getPlaybackProgress());
     }
 
     @Test

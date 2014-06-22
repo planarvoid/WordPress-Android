@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlaybackProgress;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
@@ -16,9 +16,9 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.track.LegacyTrackOperations;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
@@ -159,14 +159,18 @@ public class PlaybackServiceTest {
 
     @Test
     public void onProgressPublishesAProgressEventIfVisualPlayerEnabled() throws Exception {
+        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         playbackService.onCreate();
-        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
+        playbackService.openCurrent(track);
 
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
         playbackService.onProgressEvent(123L, 456L);
 
-        PlaybackProgress broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS);
-        expect(broadcasted.getPosition()).toEqual(123L);
-        expect(broadcasted.getDuration()).toEqual(456L);
+        PlaybackProgressEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS);
+        expect(broadcasted.getTrackUrn()).toEqual(track.getUrn());
+        expect(broadcasted.getPlaybackProgress().getPosition()).toEqual(123L);
+        expect(broadcasted.getPlaybackProgress().getDuration()).toEqual(456L);
     }
 
     @Test

@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.PlaybackProgress;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 
 import android.content.res.Resources;
 import android.support.v4.view.ViewPager;
@@ -52,7 +52,7 @@ class PlayerPresenter {
         adapter.setExpandedMode(isExpanded);
     }
 
-    public void onPlayerProgress(PlaybackProgress progress) {
+    public void onPlayerProgress(PlaybackProgressEvent progress) {
         adapter.setProgressOnCurrentTrack(progress);
     }
 
