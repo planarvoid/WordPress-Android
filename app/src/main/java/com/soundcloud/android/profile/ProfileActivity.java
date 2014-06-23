@@ -73,7 +73,6 @@ public class ProfileActivity extends ScActivity implements
     private ToggleButton toggleFollow;
     private View vrStats;
     private ImageView userImage;
-    private UserFragmentAdapter adapter;
     private FetchUserTask loadUserTask;
     protected ViewPager pager;
     protected SlidingTabLayout indicator;
@@ -131,9 +130,8 @@ public class ProfileActivity extends ScActivity implements
         });
         toggleFollow = (ToggleButton) findViewById(R.id.toggle_btn_follow);
 
-        adapter = new UserFragmentAdapter(getSupportFragmentManager());
         pager = (ViewPager) findViewById(R.id.pager);
-        pager.setAdapter(adapter);
+        pager.setAdapter(new UserFragmentAdapter(getSupportFragmentManager()));
         pager.setBackgroundColor(Color.WHITE);
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
