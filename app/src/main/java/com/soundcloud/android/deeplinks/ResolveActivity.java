@@ -20,7 +20,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -56,7 +55,7 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
                 finish();
             }
         } else {
-            showLaunchActivity();
+            showLaunchActivityWithMessage(R.string.error_toast_user_not_logged_in);
         }
     }
 
@@ -67,8 +66,8 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
         resolveTask.execute(data);
     }
 
-    private void showLaunchActivity() {
-        Toast.makeText(this, getString(R.string.error_toast_user_not_logged_in), Toast.LENGTH_SHORT).show();
+    private void showLaunchActivityWithMessage(int messageId) {
+        AndroidUtils.showToast(this, messageId);
         startActivity(new Intent(this, LauncherActivity.class));
         finish();
     }
@@ -76,18 +75,21 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
     @Override
     public void onError(Object context) {
         resolveTask = null;
+
+        if (shouldRedirectToWeb(context)) {
+            startActivity(new Intent(this, WebViewActivity.class).setData((Uri) context));
+        } else {
+            showLaunchActivityWithMessage(R.string.error_loading_url);
+        }
+    }
+
+    private boolean shouldRedirectToWeb(Object context) {
         if (context instanceof Uri) {
             Uri unresolved = (Uri) context;
             // resolved to a soundcloud.com url ?
-            if ("http".equals(unresolved.getScheme()) || "https".equals(unresolved.getScheme())) {
-                startActivity(new Intent(this, WebViewActivity.class).setData(unresolved));
-            } else {
-                AndroidUtils.showToast(this, R.string.error_loading_url);
-            }
-        } else {
-            AndroidUtils.showToast(this, R.string.error_loading_url);
+            return "http".equals(unresolved.getScheme()) || "https".equals(unresolved.getScheme());
         }
-        finish();
+        return false;
     }
 
     @Override
