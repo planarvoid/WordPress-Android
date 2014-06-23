@@ -222,7 +222,7 @@ public class ScTextUtils {
         } else if (!TextUtils.isEmpty(country)) {
             return country;
         } else {
-            return "";
+            return EMPTY_STRING;
         }
     }
 
