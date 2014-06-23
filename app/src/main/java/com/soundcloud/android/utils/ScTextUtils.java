@@ -50,7 +50,7 @@ public class ScTextUtils {
     }
 
     public static String safeToString(@Nullable Object object){
-        return object == null ? "" : object.toString();
+        return object == null ? EMPTY_STRING : object.toString();
     }
 
     /**
@@ -77,7 +77,7 @@ public class ScTextUtils {
      * @return spanned text
      */
     public static Spanned fromHtml(String source) {
-        if (source == null || TextUtils.isEmpty(source)) return new SpannedString("");
+        if (source == null || TextUtils.isEmpty(source)) return new SpannedString(EMPTY_STRING);
 
         source = source.replace(System.getProperty("line.separator"), "<br/>");
 
