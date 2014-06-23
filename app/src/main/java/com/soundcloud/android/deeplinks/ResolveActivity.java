@@ -2,9 +2,11 @@ package com.soundcloud.android.deeplinks;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.ScResource;
@@ -19,37 +21,54 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import javax.inject.Inject;
+
 public class ResolveActivity extends TrackedActivity implements FetchModelTask.Listener<ScResource> {
 
     @Nullable
     private ResolveFetchTask resolveTask;
     private PublicCloudAPI oldCloudAPI;
+    @Inject AccountOperations accountOperations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.resolve);
         oldCloudAPI = new PublicApi(this);
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        Intent intent = getIntent();
-        Uri data = intent.getData();
+        if (accountOperations.isUserLoggedIn()) {
+            Intent intent = getIntent();
+            Uri data = intent.getData();
 
-        final boolean shouldResolve = data != null &&
-                (Intent.ACTION_VIEW.equals(intent.getAction()) || FacebookSSOActivity.handleFacebookView(this, intent));
+            final boolean shouldResolve = data != null &&
+                    (Intent.ACTION_VIEW.equals(intent.getAction()) || FacebookSSOActivity.handleFacebookView(this, intent));
 
-        if (shouldResolve) {
-            findViewById(R.id.progress).setVisibility(View.VISIBLE);
-            resolveTask = new ResolveFetchTask(oldCloudAPI);
-            resolveTask.setListener(this);
-            resolveTask.execute(data);
+            if (shouldResolve) {
+                fetchData(data);
+            } else {
+                finish();
+            }
         } else {
-            finish();
+            showLaunchActivity();
         }
+    }
+
+    private void fetchData(Uri data) {
+        findViewById(R.id.progress).setVisibility(View.VISIBLE);
+        resolveTask = new ResolveFetchTask(oldCloudAPI);
+        resolveTask.setListener(this);
+        resolveTask.execute(data);
+    }
+
+    private void showLaunchActivity() {
+        startActivity(new Intent(this, LauncherActivity.class));
+        finish();
     }
 
     @Override
