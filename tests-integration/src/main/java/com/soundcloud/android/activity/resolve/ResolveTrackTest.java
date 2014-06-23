@@ -2,6 +2,7 @@ package com.soundcloud.android.activity.resolve;
 
 import static com.soundcloud.android.tests.hamcrest.IsVisible.Visible;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.TestConsts;
@@ -23,6 +24,7 @@ public class ResolveTrackTest extends ActivityTestCase<ResolveActivity> {
         // We are not logged in
 
         assertThat(new HomeScreen(solo), is(Visible()));
+        assertThat(solo.getToast().getText(), is(equalToIgnoringCase("Please log in to open this link")));
     }
 
     private Uri getUri() {

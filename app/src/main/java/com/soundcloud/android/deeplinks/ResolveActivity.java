@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -67,6 +68,7 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
     }
 
     private void showLaunchActivity() {
+        Toast.makeText(this, getString(R.string.error_toast_user_not_logged_in), Toast.LENGTH_SHORT).show();
         startActivity(new Intent(this, LauncherActivity.class));
         finish();
     }
