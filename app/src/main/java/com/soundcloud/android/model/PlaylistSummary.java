@@ -8,15 +8,15 @@ import java.util.List;
 
 public class PlaylistSummary extends ScModel {
 
-    private String mTitle;
-    private UserSummary mUser;
-    private List<String> mTags;
-    private int mTrackCount;
-    private String mArtworkUrl;
-    private Date mCreatedAt;
-    private PlayableStats mStats;
-    private int mDuration;
-    private Sharing mSharing;
+    private String title;
+    private UserSummary user;
+    private List<String> tags;
+    private int trackCount;
+    private String artworkUrl;
+    private Date createdAt;
+    private PlayableStats stats;
+    private int duration;
+    private Sharing sharing;
 
     /**
      * While we're still using the model hierarchy from public API, we need
@@ -45,93 +45,93 @@ public class PlaylistSummary extends ScModel {
     }
 
     public String getTitle() {
-        return mTitle;
+        return title;
     }
 
-    public void setTitle(String mTitle) {
-        this.mTitle = mTitle;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public UserSummary getUser() {
-        return mUser;
+        return user;
     }
 
     public String getUsername() {
-        return mUser.getUsername();
+        return user.getUsername();
     }
 
     public void setUser(UserSummary user) {
-        this.mUser = user;
+        this.user = user;
     }
 
     public List<String> getTags() {
-        return mTags;
+        return tags;
     }
 
     @JsonProperty("user_tags")
     public void setTags(List<String> tags) {
-        this.mTags = tags;
+        this.tags = tags;
     }
 
     public int getTrackCount() {
-        return mTrackCount;
+        return trackCount;
     }
 
     @JsonProperty("track_count")
     public void setTrackCount(int trackCount) {
-        this.mTrackCount = trackCount;
+        this.trackCount = trackCount;
     }
 
     public PlayableStats getStats() {
-        return mStats;
+        return stats;
     }
 
     public void setStats(PlayableStats stats) {
-        mStats = stats;
+        this.stats = stats;
     }
 
     public int getDuration() {
-        return mDuration;
+        return duration;
     }
 
     public void setDuration(int duration) {
-        mDuration = duration;
+        this.duration = duration;
     }
 
     public boolean isPublic() {
-        return mSharing.isPublic();
+        return sharing.isPublic();
     }
 
     public Sharing getSharing() {
-        return mSharing;
+        return sharing;
     }
 
     public void setSharing(Sharing sharing) {
-        mSharing = sharing;
+        this.sharing = sharing;
     }
 
     public String getArtworkUrl() {
-        return mArtworkUrl;
+        return artworkUrl;
     }
 
     @JsonProperty("artwork_url")
     public void setArtworkUrl(String artworkUrl) {
-        this.mArtworkUrl = artworkUrl;
+        this.artworkUrl = artworkUrl;
     }
 
     public Date getCreatedAt() {
-        return mCreatedAt;
+        return createdAt;
     }
 
     @JsonProperty("created_at")
     public void setCreatedAt(Date createdAt) {
-        this.mCreatedAt = createdAt;
+        this.createdAt = createdAt;
     }
 
     @JsonProperty("_embedded")
     public void setRelatedResources(RelatedResources relatedResources) {
-        this.mUser = relatedResources.user;
-        this.mStats = relatedResources.stats;
+        this.user = relatedResources.user;
+        this.stats = relatedResources.stats;
     }
 
     private static class RelatedResources {
