@@ -244,23 +244,23 @@ public class ScTextUtils {
     }
 
     public static class ClickSpan extends ClickableSpan {
-        private OnClickListener mListener;
-        private boolean mUnderline;
+        private OnClickListener listener;
+        private boolean underline;
 
         public ClickSpan(OnClickListener listener, boolean underline) {
-            mListener = listener;
-            mUnderline = underline;
+            this.listener = listener;
+            this.underline = underline;
         }
 
         @Override
         public void onClick(View widget) {
-            if (mListener != null) mListener.onClick();
+            if (listener != null) listener.onClick();
         }
 
         @Override
         public void updateDrawState(TextPaint ds) {
             super.updateDrawState(ds);
-            ds.setUnderlineText(mUnderline);
+            ds.setUnderlineText(underline);
         }
 
         public interface OnClickListener {
