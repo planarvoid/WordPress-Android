@@ -92,6 +92,11 @@ public class LoginScreen extends Screen {
     }
 
     @Override
+    public boolean isVisible() {
+        return loginButton().isVisible();
+    }
+
+    @Override
     protected Class getActivity() {
         return ACTIVITY;
     }

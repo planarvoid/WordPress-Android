@@ -150,6 +150,7 @@ public class PlayerElement extends Element {
         return (SlidingUpPanelLayout) solo.getView(R.id.sliding_layout);
     }
 
+    @Override
     public boolean isVisible() {
         return playerContainer().isVisible();
     }
