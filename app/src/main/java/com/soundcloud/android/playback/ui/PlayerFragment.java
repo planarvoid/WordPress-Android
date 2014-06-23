@@ -24,12 +24,9 @@ import javax.inject.Inject;
 
 public class PlayerFragment extends Fragment {
 
-    @Inject
-    EventBus eventBus;
-    @Inject
-    PlayQueueManager playQueueManager;
-    @Inject
-    PlayerPresenter.Factory playerPresenterFactory;
+    @Inject EventBus eventBus;
+    @Inject PlayQueueManager playQueueManager;
+    @Inject PlayerPresenter.Factory playerPresenterFactory;
 
     private PlayerPresenter presenter;
 

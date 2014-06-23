@@ -52,16 +52,11 @@ public class SearchResultsFragment extends Fragment
     private static final String KEY_QUERY = "query";
     private static final String KEY_TYPE = "type";
 
-    @Inject
-    SearchOperations searchOperations;
-    @Inject
-    PlaybackOperations playbackOperations;
-    @Inject
-    ListViewController listViewController;
-    @Inject
-    EventBus eventBus;
-    @Inject
-    SearchResultsAdapter adapter;
+    @Inject SearchOperations searchOperations;
+    @Inject PlaybackOperations playbackOperations;
+    @Inject ListViewController listViewController;
+    @Inject EventBus eventBus;
+    @Inject SearchResultsAdapter adapter;
 
     private int searchType;
     private ConnectableObservable<Page<SearchResultsCollection>> observable;

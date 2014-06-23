@@ -18,8 +18,7 @@ public abstract class ScSettingsActivity extends PreferenceActivity {
     private boolean onCreateCalled;
     private boolean isConfigurationChange;
 
-    @Inject
-    EventBus eventBus;
+    @Inject EventBus eventBus;
 
     public ScSettingsActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);

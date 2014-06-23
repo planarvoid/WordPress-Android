@@ -24,11 +24,9 @@ public class EmailOptInDialogFragment extends SimpleDialogFragment {
 
     private static final String TAG = "email_opt_in";
 
-    @Inject
-    OnboardingOperations onboardingOperations;
+    @Inject OnboardingOperations onboardingOperations;
 
-    @Inject
-    EventBus eventBus;
+    @Inject EventBus eventBus;
 
     public EmailOptInDialogFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);

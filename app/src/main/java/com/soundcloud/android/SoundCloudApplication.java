@@ -84,9 +84,7 @@ public class SoundCloudApplication extends Application {
 
     // we need this object to exist througout the life time of the app,
     // even if it appears to be unused
-    @Inject
-    @SuppressWarnings("unused")
-    AnalyticsEngine analyticsEngine;
+    @Inject @SuppressWarnings("unused") AnalyticsEngine analyticsEngine;
 
     protected ObjectGraph objectGraph;
 

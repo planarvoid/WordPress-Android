@@ -28,12 +28,9 @@ import java.util.List;
 
 public class LikesListFragment extends ScListFragment {
 
-    @Inject
-    EventBus eventBus;
-    @Inject
-    PlaybackOperations playbackOperations;
-    @Inject
-    SoundAssociationOperations soundAssociationOperations;
+    @Inject EventBus eventBus;
+    @Inject PlaybackOperations playbackOperations;
+    @Inject SoundAssociationOperations soundAssociationOperations;
 
     private ViewGroup headerView;
     private Subscription fetchIdsSubscription = Subscriptions.empty();

@@ -40,16 +40,11 @@ public class SoundStreamFragment extends Fragment
     @VisibleForTesting
     static final String ONBOARDING_RESULT_EXTRA = "onboarding.result";
 
-    @Inject
-    SoundStreamOperations soundStreamOperations;
-    @Inject
-    SoundStreamAdapter adapter;
-    @Inject
-    ListViewController listViewController;
-    @Inject
-    PullToRefreshController pullToRefreshController;
-    @Inject
-    PlaybackOperations playbackOperations;
+    @Inject SoundStreamOperations soundStreamOperations;
+    @Inject SoundStreamAdapter adapter;
+    @Inject ListViewController listViewController;
+    @Inject PullToRefreshController pullToRefreshController;
+    @Inject PlaybackOperations playbackOperations;
 
     private ConnectableObservable<Page<List<PropertySet>>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();

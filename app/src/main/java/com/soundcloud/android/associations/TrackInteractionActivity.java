@@ -18,8 +18,7 @@ import javax.inject.Inject;
 
 public class TrackInteractionActivity extends PlayableInteractionActivity {
 
-    @Inject
-    PlaybackOperations playbackOperations;
+    @Inject PlaybackOperations playbackOperations;
 
     @Override
     public void onCreate(Bundle bundle) {

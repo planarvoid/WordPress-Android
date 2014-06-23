@@ -22,10 +22,8 @@ import javax.inject.Inject;
 @SuppressLint("ValidFragment")
 public class LogoutFragment extends Fragment {
 
-    @Inject
-    EventBus eventBus;
-    @Inject
-    AccountOperations accountOperations;
+    @Inject EventBus eventBus;
+    @Inject AccountOperations accountOperations;
 
     private final CompositeSubscription subscription = new CompositeSubscription();
 

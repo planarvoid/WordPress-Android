@@ -60,10 +60,8 @@ public class SettingsActivity extends ScSettingsActivity {
     private int clicksToDebug = CLICKS_TO_DEBUG_MODE;
 
     private ProgressDialog deleteDialog;
-    @Inject
-    ApplicationProperties applicationProperties;
-    @Inject
-    DeveloperPreferences developerPreferences;
+    @Inject ApplicationProperties applicationProperties;
+    @Inject DeveloperPreferences developerPreferences;
 
     public SettingsActivity() {}
 

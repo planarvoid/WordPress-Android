@@ -16,11 +16,9 @@ import javax.inject.Inject;
 
 public class DefaultPlayableAdapter extends ScBaseAdapter<Playable> {
 
-    @Inject
-    ImageOperations imageOperations;
+    @Inject ImageOperations imageOperations;
 
-    @Inject
-    PlaybackOperations playbackOperations;
+    @Inject PlaybackOperations playbackOperations;
 
     public DefaultPlayableAdapter(Uri uri) {
         super(uri);

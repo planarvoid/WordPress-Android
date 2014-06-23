@@ -26,14 +26,10 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
     private static final String KEY_ORIGIN_SCREEN = "ORIGIN_SCREEN";
     private static final String KEY_TRACK_ID = "TRACK_ID";
 
-    @Inject
-    PlaylistOperations mPlaylistOperations;
-    @Inject
-    EventBus mEventBus;
-    @Inject
-    ApplicationProperties mApplicationProperties;
-    @Inject
-    AccountOperations accountOperations;
+    @Inject PlaylistOperations mPlaylistOperations;
+    @Inject EventBus mEventBus;
+    @Inject ApplicationProperties mApplicationProperties;
+    @Inject AccountOperations accountOperations;
 
     public static CreatePlaylistDialogFragment from(long trackId, String originScreen) {
         Bundle b = new Bundle();

@@ -10,8 +10,7 @@ import android.content.Intent;
 import javax.inject.Inject;
 
 public class PlaybackActionReceiver extends BroadcastReceiver {
-    @Inject
-    PlaybackActionController controller;
+    @Inject PlaybackActionController controller;
 
     @Override
     public void onReceive(Context context, Intent intent) {

@@ -16,8 +16,7 @@ import javax.inject.Inject;
  */
 public class PlayerAppWidgetProvider extends AppWidgetProvider {
 
-    @Inject
-    PlayerWidgetController controller;
+    @Inject PlayerWidgetController controller;
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {

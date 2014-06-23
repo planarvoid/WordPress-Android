@@ -67,8 +67,7 @@ public class NowPlayingProgressBar extends ProgressBar {
 
     private Subscription waveformSubscription = Subscriptions.empty();
 
-    @Inject
-    WaveformOperations waveformOperations;
+    @Inject WaveformOperations waveformOperations;
 
     private final Handler handler = new RefreshHandler(this);
 

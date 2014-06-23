@@ -39,8 +39,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     private ChangeObserver changeObserver;
     private ImageOperations imageOperations;
 
-    @Inject
-    PlaybackOperations playbackOperations;
+    @Inject PlaybackOperations playbackOperations;
 
     public MyTracksAdapter(ScActivity activity, ImageOperations imageOperations) {
         super(Content.ME_SOUNDS.uri);

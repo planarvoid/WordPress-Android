@@ -42,14 +42,10 @@ public class ExploreGenresFragment extends Fragment implements ReactiveListCompo
                 }
             };
 
-    @Inject
-    EventBus eventBus;
-    @Inject
-    ExploreTracksOperations exploreOperations;
-    @Inject
-    ExploreGenresAdapter adapter;
-    @Inject
-    ListViewController listViewController;
+    @Inject EventBus eventBus;
+    @Inject ExploreTracksOperations exploreOperations;
+    @Inject ExploreGenresAdapter adapter;
+    @Inject ListViewController listViewController;
 
     private ConnectableObservable<GenreSection<ExploreGenre>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();

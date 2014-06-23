@@ -107,10 +107,8 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
 
     private WaveformListener listener;
 
-    @Inject
-    WaveformOperations waveformOperations;
-    @Inject
-    ImageOperations imageOperations;
+    @Inject WaveformOperations waveformOperations;
+    @Inject ImageOperations imageOperations;
 
 
     public interface WaveformListener {

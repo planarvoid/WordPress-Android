@@ -52,10 +52,8 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
 
     private MyPlaylistsAdapter adapter;
 
-    @Inject
-    PlaylistOperations mPlaylistOperations;
-    @Inject
-    EventBus mEventBus;
+    @Inject PlaylistOperations mPlaylistOperations;
+    @Inject EventBus mEventBus;
 
     public static AddToPlaylistDialogFragment from(Track track, String originScreen) {
         Bundle b = new Bundle();

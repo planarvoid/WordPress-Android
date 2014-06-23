@@ -39,8 +39,7 @@ public class NavigationDrawerFragment extends NavigationFragment {
 
     private Subscription subscription = Subscriptions.empty();
 
-    @Inject
-    EventBus eventBus;
+    @Inject EventBus eventBus;
 
     public NavigationDrawerFragment() {
         // Android needs a default ctor.

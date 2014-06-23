@@ -61,8 +61,7 @@ public class WaveformView extends LinearLayout implements ProgressAware {
     private ObjectAnimator leftWaveformScaler;
     private ObjectAnimator rightWaveformScaler;
 
-    @Inject
-    WaveformViewControllerFactory waveformViewControllerFactory;
+    @Inject WaveformViewControllerFactory waveformViewControllerFactory;
 
     private final Runnable layoutWaveformsRunnable = new Runnable() {
         @Override

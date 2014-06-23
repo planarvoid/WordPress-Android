@@ -80,18 +80,12 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private boolean isFirstLoad;
     private boolean isTabletLandscapeLayout;
 
-    @Inject
-    PlayQueueManager playQueueManager;
-    @Inject
-    PlaybackStateProvider playbackStateProvider;
-    @Inject
-    PlaybackOperations playbackOperations;
-    @Inject
-    CommentingPlayerPagerAdapter trackPagerAdapter;
-    @Inject
-    SoundAssociationOperations soundAssocicationOps;
-    @Inject
-    EngagementsController engagementsController;
+    @Inject PlayQueueManager playQueueManager;
+    @Inject PlaybackStateProvider playbackStateProvider;
+    @Inject PlaybackOperations playbackOperations;
+    @Inject CommentingPlayerPagerAdapter trackPagerAdapter;
+    @Inject SoundAssociationOperations soundAssocicationOps;
+    @Inject EngagementsController engagementsController;
 
     @NotNull
     private PlayQueueView playQueue = PlayQueueView.EMPTY;

@@ -33,10 +33,8 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
 
     private final ActivitiesStorage activitiesStorage;
 
-    @Inject
-    ImageOperations imageOperations;
-    @Inject
-    PlaybackOperations playbackOperations;
+    @Inject ImageOperations imageOperations;
+    @Inject PlaybackOperations playbackOperations;
 
     public ActivitiesAdapter(Uri uri) {
         super(uri);

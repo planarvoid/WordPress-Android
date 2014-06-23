@@ -26,10 +26,8 @@ public class TabbedSearchFragment extends Fragment {
 
     private final static String KEY_QUERY = "query";
 
-    @Inject
-    EventBus eventBus;
-    @Inject
-    Resources resources;
+    @Inject EventBus eventBus;
+    @Inject Resources resources;
 
     private ViewPager pager;
 

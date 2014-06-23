@@ -39,10 +39,8 @@ public class NavigationFragment extends Fragment {
     static final String STATE_SELECTED_POSITION = "selected_navigation_position";
     private static final int NO_IMAGE = -1;
 
-    @Inject
-    ImageOperations imageOperations;
-    @Inject
-    AccountOperations accountOperations;
+    @Inject ImageOperations imageOperations;
+    @Inject AccountOperations accountOperations;
 
     private NavigationCallbacks callbacks;
 

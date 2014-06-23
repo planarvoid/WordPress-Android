@@ -17,11 +17,9 @@ import javax.inject.Inject;
 
 public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> {
 
-    @Inject
-    ImageOperations imageOperations;
+    @Inject ImageOperations imageOperations;
 
-    @Inject
-    PlaybackOperations playbackOperations;
+    @Inject PlaybackOperations playbackOperations;
 
     public SoundAssociationAdapter(Uri uri) {
         super(uri);

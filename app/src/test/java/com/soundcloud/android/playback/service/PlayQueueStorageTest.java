@@ -30,8 +30,7 @@ import javax.inject.Inject;
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueStorageTest {
 
-    @Inject
-    PlayQueueStorage playQueueStorage;
+    @Inject PlayQueueStorage playQueueStorage;
 
     @Mock
     ContentResolver contentResolver;

@@ -13,8 +13,7 @@ import javax.inject.Inject;
  */
 public class PlayerWidgetReceiver extends BroadcastReceiver {
 
-    @Inject
-    PlayerWidgetController controller;
+    @Inject PlayerWidgetController controller;
 
     @Override
     public void onReceive(Context context, Intent intent) {

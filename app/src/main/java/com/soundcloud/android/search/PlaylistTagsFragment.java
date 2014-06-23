@@ -40,14 +40,9 @@ public class PlaylistTagsFragment extends Fragment implements ListenableScrollVi
 
     public static final String TAG = "playlist_tags";
 
-    @Inject
-    SearchOperations searchOperations;
-
-    @Inject
-    EventBus eventBus;
-
-    @Inject
-    EmptyViewController emptyViewController;
+    @Inject SearchOperations searchOperations;
+    @Inject EventBus eventBus;
+    @Inject EmptyViewController emptyViewController;
 
     private Subscription connectionSubscription = Subscriptions.empty();
     private CompositeSubscription viewSubscriptions;

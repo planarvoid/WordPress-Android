@@ -42,24 +42,15 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Nullable
     static PlaybackService instance;
 
-    @Inject
-    EventBus eventBus;
-    @Inject
-    PlayQueueManager playQueueManager;
-    @Inject
-    LegacyTrackOperations trackOperations;
-    @Inject
-    AccountOperations accountOperations;
-    @Inject
-    StreamPlaya streamPlayer;
-    @Inject
-    PlaybackReceiver.Factory playbackReceiverFactory;
-    @Inject
-    Lazy<IRemoteAudioManager> remoteAudioManagerProvider;
-    @Inject
-    FeatureFlags featureFlags;
-    @Inject
-    PlaybackNotificationController playbackNotificationController;
+    @Inject EventBus eventBus;
+    @Inject PlayQueueManager playQueueManager;
+    @Inject LegacyTrackOperations trackOperations;
+    @Inject AccountOperations accountOperations;
+    @Inject StreamPlaya streamPlayer;
+    @Inject PlaybackReceiver.Factory playbackReceiverFactory;
+    @Inject Lazy<IRemoteAudioManager> remoteAudioManagerProvider;
+    @Inject FeatureFlags featureFlags;
+    @Inject PlaybackNotificationController playbackNotificationController;
 
     // XXX : would be great to not have these boolean states
     private boolean waitingForPlaylist;

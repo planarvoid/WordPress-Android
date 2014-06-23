@@ -21,10 +21,8 @@ import javax.inject.Inject;
 @SuppressLint("ValidFragment")
 public class ExploreFragment extends Fragment {
 
-    @Inject
-    EventBus eventBus;
-    @Inject
-    ExplorePagerAdapterFactory pagerAdapterFactory;
+    @Inject EventBus eventBus;
+    @Inject ExplorePagerAdapterFactory pagerAdapterFactory;
 
     private ExplorePagerAdapter pagerAdapter;
     private ViewPager pager;

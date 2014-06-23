@@ -55,22 +55,14 @@ import java.util.List;
 @SuppressLint("ValidFragment")
 public class PlaylistFragment extends Fragment implements AdapterView.OnItemClickListener, OnRefreshListener {
 
-    @Inject
-    PlaylistOperations playlistOperations;
-    @Inject
-    PlaybackOperations playbackOperations;
-    @Inject
-    PlaybackStateProvider playbackStateProvider;
-    @Inject
-    ImageOperations imageOperations;
-    @Inject
-    EngagementsController engagementsController;
-    @Inject
-    Provider<PlaylistDetailsController> controllerProvider;
-    @Inject
-    PullToRefreshController pullToRefreshController;
-    @Inject
-    PlayQueueManager playQueueManager;
+    @Inject PlaylistOperations playlistOperations;
+    @Inject PlaybackOperations playbackOperations;
+    @Inject PlaybackStateProvider playbackStateProvider;
+    @Inject ImageOperations imageOperations;
+    @Inject EngagementsController engagementsController;
+    @Inject Provider<PlaylistDetailsController> controllerProvider;
+    @Inject PullToRefreshController pullToRefreshController;
+    @Inject PlayQueueManager playQueueManager;
 
     private PlaylistDetailsController controller;
 

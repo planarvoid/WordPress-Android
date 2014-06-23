@@ -38,16 +38,11 @@ public class PlaylistResultsFragment extends Fragment
     public static final String TAG = "playlist_results";
     static final String KEY_PLAYLIST_TAG = "playlist_tag";
 
-    @Inject
-    SearchOperations searchOperations;
-    @Inject
-    ListViewController listViewController;
-    @Inject
-    PagingItemAdapter<PlaylistSummary> adapter;
-    @Inject
-    ScModelManager modelManager;
-    @Inject
-    EventBus eventBus;
+    @Inject SearchOperations searchOperations;
+    @Inject ListViewController listViewController;
+    @Inject PagingItemAdapter<PlaylistSummary> adapter;
+    @Inject ScModelManager modelManager;
+    @Inject EventBus eventBus;
 
     private ConnectableObservable<Page<PlaylistSummaryCollection>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();

@@ -37,16 +37,11 @@ public class ExploreTracksFragment extends Fragment
 
     private String trackingTag;
 
-    @Inject
-    PagingItemAdapter<TrackSummary> adapter;
-    @Inject
-    PlaybackOperations playbackOperations;
-    @Inject
-    ExploreTracksOperations exploreTracksOperations;
-    @Inject
-    PullToRefreshController pullToRefreshController;
-    @Inject
-    ListViewController listViewController;
+    @Inject PagingItemAdapter<TrackSummary> adapter;
+    @Inject PlaybackOperations playbackOperations;
+    @Inject ExploreTracksOperations exploreTracksOperations;
+    @Inject PullToRefreshController pullToRefreshController;
+    @Inject ListViewController listViewController;
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
