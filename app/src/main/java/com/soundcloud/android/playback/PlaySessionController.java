@@ -99,6 +99,7 @@ public class PlaySessionController {
             if (!StateTransition.DEFAULT.equals(stateTransition)){
                 lastStateTransition = stateTransition;
                 currentPlayingUrn = stateTransition.getTrackUrn();
+                progressMap.put(currentPlayingUrn, stateTransition.getProgress());
 
                 audioManager.setPlaybackState(stateTransition.playSessionIsActive());
 

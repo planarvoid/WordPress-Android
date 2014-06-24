@@ -87,6 +87,13 @@ public class PlaySessionControllerTest {
     }
 
     @Test
+    public void isGetCurrentProgressReturns0IfCurrentTrackDidNotStartPlaying() {
+        sendIdleStateEvent();
+
+        expect(controller.getCurrentProgress(TRACK_URN).getPosition()).toEqual(0L);
+    }
+
+    @Test
     public void playQueueChangedHandlerCallsPlayCurrentOnPlaybackOperationsIfThePlayerIsInPlaySession() {
         final Playa.StateTransition lastTransition = Mockito.mock(Playa.StateTransition.class);
         when(lastTransition.playSessionIsActive()).thenReturn(true);
