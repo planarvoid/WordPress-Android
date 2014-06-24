@@ -85,11 +85,11 @@ public class TrackItemPresenterTest {
     }
 
     @Test
-    public void shouldNotBindPlayCountToViewIfPlayCountNotSet() {
+    public void shouldHidePlayCountIfPlayCountNotSet() {
         propertySet.put(TrackProperty.PLAY_COUNT, Consts.NOT_SET);
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
+        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.INVISIBLE);
     }
 
     @Test
@@ -114,8 +114,8 @@ public class TrackItemPresenterTest {
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
         expect(textView(R.id.private_indicator).getVisibility()).toEqual(View.VISIBLE);
-        expect(textView(R.id.now_playing).getVisibility()).toEqual(View.GONE);
-        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
+        expect(textView(R.id.now_playing).getVisibility()).toEqual(View.INVISIBLE);
+        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.INVISIBLE);
     }
 
     @Test
@@ -124,7 +124,7 @@ public class TrackItemPresenterTest {
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
         expect(textView(R.id.private_indicator).getVisibility()).toEqual(View.GONE);
-        expect(textView(R.id.now_playing).getVisibility()).toEqual(View.GONE);
+        expect(textView(R.id.now_playing).getVisibility()).toEqual(View.INVISIBLE);
         expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.VISIBLE);
     }
 
@@ -133,7 +133,7 @@ public class TrackItemPresenterTest {
         presenter.setPlayingTrack(Urn.forTrack(123));
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
+        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.INVISIBLE);
         expect(textView(R.id.now_playing).getVisibility()).toEqual(View.VISIBLE);
     }
 
@@ -143,7 +143,7 @@ public class TrackItemPresenterTest {
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
         expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.VISIBLE);
-        expect(textView(R.id.now_playing).getVisibility()).toEqual(View.GONE);
+        expect(textView(R.id.now_playing).getVisibility()).toEqual(View.INVISIBLE);
     }
 
     @Test
