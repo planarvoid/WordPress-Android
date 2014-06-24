@@ -24,7 +24,7 @@ public class ErrorUtils {
      */
     public static void handleThrowable(Throwable t) {
         if (t instanceof OnErrorNotImplementedException) {
-            throw new RuntimeException(t.getCause());
+            throw new FatalException(t.getCause());
         } else if (t instanceof RuntimeException || t instanceof Error) {
             throw new OnErrorNotImplementedException(t);
         } else if (!excludeFromReports(t)) {
@@ -36,5 +36,12 @@ public class ErrorUtils {
 
     private static boolean excludeFromReports(Throwable t) {
         return t instanceof IOException || t instanceof APIRequestException || t instanceof SyncFailedException;
+    }
+
+    // we use this exception to signal fatal conditions that should crash the app
+    public static class FatalException extends RuntimeException {
+        public FatalException(Throwable throwable) {
+            super(throwable);
+        }
     }
 }
