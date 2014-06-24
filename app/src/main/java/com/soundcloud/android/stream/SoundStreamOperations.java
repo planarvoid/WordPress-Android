@@ -52,40 +52,49 @@ class SoundStreamOperations {
      * backfill sync in case it didn't find enough.
      */
     public Observable<Page<List<PropertySet>>> existingStreamItems() {
-        return pagedStreamItems(accountOperations.getLoggedInUserUrn(), INITIAL_TIMESTAMP);
+        return pagedStreamItems(accountOperations.getLoggedInUserUrn(), INITIAL_TIMESTAMP, false);
     }
 
     public Observable<TrackUrn> trackUrnsForPlayback() {
         return soundStreamStorage.trackUrns();
     }
 
-    private Observable<Page<List<PropertySet>>> pagedStreamItems(final Urn userUrn, final long timestamp) {
+    private Observable<Page<List<PropertySet>>> pagedStreamItems(final Urn userUrn, final long timestamp, boolean syncCompleted) {
         Log.d(TAG, "Loading page with user=" + userUrn + "; timestamp=" + timestamp);
         return soundStreamStorage
                 .streamItemsBefore(timestamp, userUrn, PAGE_SIZE).toList()
-                .mergeMap(handleLocalResult(userUrn, timestamp));
+                .mergeMap(handleLocalResult(userUrn, timestamp, syncCompleted));
     }
 
     private Func1<List<PropertySet>, Observable<Page<List<PropertySet>>>> handleLocalResult(
-            final Urn userUrn, final long timestamp) {
+            final Urn userUrn, final long timestamp, final boolean justSynced) {
         return new Func1<List<PropertySet>, Observable<Page<List<PropertySet>>>>() {
             @Override
             public Observable<Page<List<PropertySet>>> call(List<PropertySet> result) {
                 if (result.isEmpty()) {
-                    Log.d(TAG, "Received empty set from local storage");
-                    if (timestamp == INITIAL_TIMESTAMP) {
-                        Log.d(TAG, "First page; triggering full sync");
-                        return syncInitiator.refreshSoundStream().mergeMap(handleSyncResult(userUrn, timestamp));
-                    } else {
-                        Log.d(TAG, "Not on first page; triggering backfill sync");
-                        return syncInitiator.backfillSoundStream().mergeMap(handleSyncResult(userUrn, timestamp));
-                    }
+                    return handleEmptyResult(timestamp, userUrn, justSynced);
                 } else {
                     logPropertySet(result);
                     return Observable.just(result).lift(pagedWith(streamItemPager(userUrn)));
                 }
             }
         };
+    }
+
+    private Observable<Page<List<PropertySet>>> handleEmptyResult(long timestamp, Urn userUrn, boolean syncCompleted) {
+        Log.d(TAG, "Received empty set from local storage");
+        if (syncCompleted) {
+            Log.d(TAG, "No items after previous sync, return empty page");
+            return OperatorPaged.emptyObservable();
+        } else {
+            if (timestamp == INITIAL_TIMESTAMP) {
+                Log.d(TAG, "First page; triggering full sync");
+                return syncInitiator.refreshSoundStream().mergeMap(handleSyncResult(userUrn, timestamp));
+            } else {
+                Log.d(TAG, "Not on first page; triggering backfill sync");
+                return syncInitiator.backfillSoundStream().mergeMap(handleSyncResult(userUrn, timestamp));
+            }
+        }
     }
 
     // can remove this later, useful for debugging right now
@@ -107,7 +116,7 @@ class SoundStreamOperations {
                 // to implement paging, we move the timestamp down reverse chronologically
                 final long nextTimestamp = getLast(result).get(PlayableProperty.CREATED_AT).getTime();
                 Log.d(TAG, "Building next page observable for timestamp " + nextTimestamp);
-                return pagedStreamItems(userUrn, nextTimestamp);
+                return pagedStreamItems(userUrn, nextTimestamp, false);
             }
         };
     }
@@ -116,10 +125,10 @@ class SoundStreamOperations {
             final Urn userUrn, final long currentTimestamp) {
         return new Func1<Boolean, Observable<Page<List<PropertySet>>>>() {
             @Override
-            public Observable<Page<List<PropertySet>>> call(Boolean streamUpdated) {
-                Log.d(TAG, "Sync finished; new items added = " + streamUpdated);
-                if (streamUpdated) {
-                    return pagedStreamItems(userUrn, currentTimestamp);
+            public Observable<Page<List<PropertySet>>> call(Boolean syncSuccess) {
+                Log.d(TAG, "Sync finished; new items added = " + syncSuccess);
+                if (syncSuccess) {
+                    return pagedStreamItems(userUrn, currentTimestamp, true);
                 } else {
                     return OperatorPaged.emptyPageObservable();
                 }

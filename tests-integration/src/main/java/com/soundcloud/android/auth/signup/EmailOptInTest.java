@@ -18,7 +18,7 @@ public class EmailOptInTest extends SignUpTestCase {
         super();
     }
 
-    public void ShouldShowEmailOptInOnSignUp() {
+    public void testShouldShowEmailOptInOnSignUp() {
         signUpScreen = homeScreen.clickSignUpButton();
 
         // TODO : Re-use the same user

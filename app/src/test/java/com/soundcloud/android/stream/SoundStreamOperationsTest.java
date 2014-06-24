@@ -96,6 +96,28 @@ public class SoundStreamOperationsTest {
         inOrder.verifyNoMoreInteractions();
     }
 
+    @Test // this makes sure we don't run into sync cycles
+    public void whenItLoadsAnEmptyPageOfItemsOnPageOneEvenAfterAFullSyncItShouldNotSyncAgain() {
+        // 1st page comes back blank first, then as full page of items after sync
+        when(soundStreamStorage
+                .streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE))
+                .thenReturn(Observable.<PropertySet>empty(), Observable.<PropertySet>empty());
+        // stop call chain for test
+        when(soundStreamStorage.streamItemsBefore(123L, userUrn, PAGE_SIZE))
+                .thenReturn(Observable.<PropertySet>never());
+        // returning true means successful sync
+        when(syncInitiator.refreshSoundStream()).thenReturn(Observable.just(true));
+
+        operations.existingStreamItems().subscribe(observer);
+
+        InOrder inOrder = inOrder(observer, soundStreamStorage, syncInitiator);
+        inOrder.verify(soundStreamStorage).streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE);
+        inOrder.verify(syncInitiator).refreshSoundStream();
+        inOrder.verify(soundStreamStorage).streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE);
+        inOrder.verify(observer).onCompleted();
+        inOrder.verifyNoMoreInteractions();
+    }
+
     @Test
     public void whenItLoadsAFullPageOfItemsThenItLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() throws Exception {
         // 1st page is full page of items
