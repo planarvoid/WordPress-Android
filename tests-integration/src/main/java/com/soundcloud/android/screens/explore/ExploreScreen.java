@@ -94,11 +94,13 @@ public class ExploreScreen extends Screen {
         return (ViewPager) testDriver.getView(R.id.pager);
     }
 
-    public int getItemsOnTrendingMusicList(){
+    public int getItemsOnTrendingMusicList() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return musicPage().getAdapter().getCount();
     }
 
     public int getItemsOnTrendingAudioList(){
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return audioPage().getAdapter().getCount();
     }
 
