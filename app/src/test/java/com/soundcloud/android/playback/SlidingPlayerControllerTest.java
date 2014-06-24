@@ -16,16 +16,20 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SlidingPlayerControllerTest {
@@ -42,6 +46,10 @@ public class SlidingPlayerControllerTest {
     private SlidingUpPanelLayout slidingPanel;
     @Mock
     private View playerView;
+    @Mock
+    private Window window;
+    @Mock
+    private View decorView;
 
     private TestEventBus eventBus = new TestEventBus();
     private SlidingPlayerController controller;
@@ -49,9 +57,12 @@ public class SlidingPlayerControllerTest {
 
     @Before
     public void setUp() throws Exception {
+        TestHelper.setSdkVersion(Build.VERSION_CODES.ICE_CREAM_SANDWICH);
         controller = new SlidingPlayerController(playQueueManager, eventBus);
         when(activity.findViewById(R.id.sliding_layout)).thenReturn(slidingPanel);
         when(slidingPanel.findViewById(R.id.player_root)).thenReturn(playerView);
+        when(activity.getWindow()).thenReturn(window);
+        when(window.getDecorView()).thenReturn(decorView);
     }
 
     @Test
@@ -197,9 +208,7 @@ public class SlidingPlayerControllerTest {
     @Test
     public void setsCollapsedStateWhenPassingOverThreshold() {
         attachController();
-        controller.onPanelSlide(layout, 0.4f);
-        controller.onPanelSlide(layout, 0.6f);
-        controller.onPanelSlide(layout, 0.7f);
+        collapsePanel();
 
         verify(actionBarController, times(1)).setVisible(true);
         PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
@@ -209,17 +218,66 @@ public class SlidingPlayerControllerTest {
     @Test
     public void setsExpandedStateWhenPassingUnderThreshold() {
         attachController();
-        controller.onPanelSlide(layout, 0.6f);
-        controller.onPanelSlide(layout, 0.4f);
-        controller.onPanelSlide(layout, 0.3f);
+        expandPanel();
 
         verify(actionBarController, times(1)).setVisible(false);
         PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDED);
     }
 
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    @Test
+    public void dimsSystemBarsWhenExpanded() {
+        attachController();
+        expandPanel();
+
+        verify(decorView).setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+    }
+
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    @Test
+    public void clearsSystemUiFlagsWhenCollapsed() {
+        attachController();
+        collapsePanel();
+
+        verify(decorView).setSystemUiVisibility(0);
+    }
+
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    @Test
+    public void dimsSystemBarsWhenResumingToExpandedPlayer() {
+        when(slidingPanel.isExpanded()).thenReturn(true);
+        attachController();
+
+        controller.onResume();
+
+        verify(decorView).setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+    }
+
+    @Test
+    public void doesNotSetSystemUiBeforeICS() {
+        TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB_MR2);
+        attachController();
+
+        expandPanel();
+
+        verifyZeroInteractions(decorView);
+    }
+
     private void attachController() {
         controller.attach(activity, actionBarController);
+    }
+
+    private void expandPanel() {
+        controller.onPanelSlide(layout, 0.6f);
+        controller.onPanelSlide(layout, 0.4f);
+        controller.onPanelSlide(layout, 0.3f);
+    }
+
+    private void collapsePanel() {
+        controller.onPanelSlide(layout, 0.4f);
+        controller.onPanelSlide(layout, 0.6f);
+        controller.onPanelSlide(layout, 0.7f);
     }
 
 }

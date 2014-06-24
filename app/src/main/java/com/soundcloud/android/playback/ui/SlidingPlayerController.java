@@ -13,7 +13,9 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -24,11 +26,13 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
 
     private static final String EXTRA_PLAYER_EXPANDED = "player_expanded";
     private static final float EXPAND_THRESHOLD = 0.5f;
+    private static final int EMPTY_SYSTEM_UI_FLAGS = 0;
 
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
     private ActionBarController actionBarController;
     private SlidingUpPanelLayout slidingPanel;
+    private Activity activity;
 
     private Subscription subscription = Subscriptions.empty();
 
@@ -42,6 +46,7 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
 
     public void attach(Activity activity, ActionBarController actionBarController) {
         this.actionBarController = actionBarController;
+        this.activity = activity;
         slidingPanel = (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingPanel.setPanelSlideListener(this);
         slidingPanel.setEnableDragViewTouchEvents(true);
@@ -59,20 +64,12 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
 
     @Override
     public void onResume() {
-        startListening();
+        subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber());
         refreshVisibility();
     }
 
     @Override
     public void onPause() {
-        stopListening();
-    }
-
-    private void startListening() {
-        subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber());
-    }
-
-    private void stopListening() {
         subscription.unsubscribe();
     }
 
@@ -81,6 +78,9 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
             slidingPanel.findViewById(R.id.player_root).setVisibility(View.GONE);
         } else {
             slidingPanel.showPane();
+        }
+        if (slidingPanel.isExpanded()) {
+            dimSystemBars(true);
         }
     }
 
@@ -96,6 +96,7 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
         } else {
             boolean isExpanded = bundle.getBoolean(EXTRA_PLAYER_EXPANDED, false);
             actionBarController.setVisible(!isExpanded);
+            dimSystemBars(isExpanded);
             eventBus.publish(EventQueue.PLAYER_UI, isExpanded
                     ? PlayerUIEvent.fromPlayerExpanded()
                     : PlayerUIEvent.fromPlayerCollapsed());
@@ -106,24 +107,24 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
     public void onPanelSlide(View panel, float slideOffset) {
         if (slideOffset < EXPAND_THRESHOLD && !isExpanding) {
             actionBarController.setVisible(false);
+            dimSystemBars(true);
             eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
             isExpanding = true;
-
         } else if (slideOffset > EXPAND_THRESHOLD && isExpanding) {
             actionBarController.setVisible(true);
+            dimSystemBars(false);
             eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
             isExpanding = false;
         }
     }
 
-    @Override
-    public void onPanelCollapsed(View panel) {}
-
-    @Override
-    public void onPanelExpanded(View panel) {}
-
-    @Override
-    public void onPanelAnchored(View panel) {}
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    private void dimSystemBars(boolean shouldDim) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            View decorView = activity.getWindow().getDecorView();
+            decorView.setSystemUiVisibility(shouldDim ? View.SYSTEM_UI_FLAG_LOW_PROFILE : EMPTY_SYSTEM_UI_FLAGS);
+        }
+    }
 
     private class PlayerUISubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
@@ -150,5 +151,14 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
             }
         });
     }
+
+    @Override
+    public void onPanelCollapsed(View panel) {}
+
+    @Override
+    public void onPanelExpanded(View panel) {}
+
+    @Override
+    public void onPanelAnchored(View panel) {}
 
 }
