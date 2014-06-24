@@ -107,7 +107,7 @@ public class PlaylistItemPresenter implements CellPresenter<PropertySet> {
     }
 
     private boolean hasLike(int likesCount) {
-        return likesCount > 0 && likesCount != Consts.NOT_SET;
+        return likesCount > 0;
     }
 
     private TextView getTextView(final View convertView, final int id) {
