@@ -2,7 +2,7 @@ package com.soundcloud.android.tests;
 
 import com.soundcloud.android.tests.with.With;
 
-public class ToastElement {
+public class ToastElement implements ElementWithText {
     private final Han testDriver;
     private final Waiter waiter;
 
@@ -16,7 +16,6 @@ public class ToastElement {
     }
 
     public String getText() {
-        waiter.waitForTextInView(toastMessage());
         return toastMessage().getText();
     }
 }
