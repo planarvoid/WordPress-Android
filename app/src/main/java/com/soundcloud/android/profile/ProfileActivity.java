@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.associations.ToggleFollowSubscriber;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.EventQueue;
@@ -19,16 +20,12 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.playback.ui.PlayerController;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.tasks.FetchUserTask;
-import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.EmptyViewBuilder;
@@ -38,6 +35,7 @@ import com.soundcloud.android.view.screen.ScreenPresenter;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -69,9 +67,8 @@ public class ProfileActivity extends ScActivity implements
 
     /* package */ @Nullable User user;
 
-    private TextView username, fullName, followerCount, followerMessage, trackCount, location;
+    private TextView username, followerCount, followerMessage, location;
     private ToggleButton toggleFollow;
-    private View vrStats;
     private ImageView userImage;
     private FetchUserTask loadUserTask;
     protected ViewPager pager;
@@ -108,16 +105,12 @@ public class ProfileActivity extends ScActivity implements
         super.onCreate(savedInstanceState);
         userImage = (ImageView) findViewById(R.id.user_image);
         username = (TextView) findViewById(R.id.username);
-        fullName = (TextView) findViewById(R.id.fullname);
         location = (TextView) findViewById(R.id.location);
 
         followerCount = (TextView) findViewById(R.id.followers);
         followerMessage = (TextView) findViewById(R.id.followers_message);
-        trackCount = (TextView) findViewById(R.id.tracks);
-        vrStats = findViewById(R.id.vr_stats);
 
         setTitle(isLoggedInUser() ? R.string.side_menu_you : R.string.side_menu_profile);
-        AndroidUtils.setTextShadowForGrayBg(username, fullName, followerCount, trackCount);
 
         userImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,7 +153,7 @@ public class ProfileActivity extends ScActivity implements
             if (isLoggedInUser()){
                 toggleFollow.setVisibility(View.GONE);
             } else {
-                toggleFollow.setChecked(followingOperations.isFollowing(user));
+                toggleFollow.setChecked(followingOperations.isFollowing(user.getUrn()));
                 toggleFollow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -324,7 +317,7 @@ public class ProfileActivity extends ScActivity implements
 
     @Override
     public void onFollowChanged() {
-        toggleFollow.setChecked(followingOperations.isFollowing(user));
+        toggleFollow.setChecked(followingOperations.isFollowing(user.getUrn()));
         setFollowersMessage();
     }
 
@@ -333,18 +326,9 @@ public class ProfileActivity extends ScActivity implements
     }
 
     private void toggleFollowing(User user) {
-        final SyncInitiator syncInitiator = new SyncInitiator(this, accountOperations);
-        followingOperations.toggleFollowing(user).subscribe(new DefaultSubscriber<UserAssociation>() {
-            @Override
-            public void onCompleted() {
-                syncInitiator.pushFollowingsToApi();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                toggleFollow.setChecked(followingOperations.isFollowing(ProfileActivity.this.user));
-            }
-        });
+        followingOperations.toggleFollowing(user)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new ToggleFollowSubscriber(toggleFollow));
         setFollowersMessage();
     }
 
@@ -372,40 +356,18 @@ public class ProfileActivity extends ScActivity implements
 
         // Initial count prevents fluctuations from being reflected in followers message
         initialOtherFollowers = user.followers_count;
-        if (followingOperations.isFollowing(this.user)) {
+        if (followingOperations.isFollowing(this.user.getUrn())) {
             initialOtherFollowers--;
         }
 
         if (!isEmpty(user.username)) username.setText(user.username);
-
-        if (fullName != null){
-            if (isEmpty(user.full_name)) {
-                fullName.setVisibility(View.GONE);
-            } else {
-                fullName.setText(user.full_name);
-                fullName.setVisibility(View.VISIBLE);
-            }
-        }
-
-        if (vrStats != null){
-            vrStats.setVisibility((user.followers_count <= 0 || user.track_count <= 0) ? View.GONE : View.VISIBLE);
-        }
-
-        if (trackCount != null){
-            if (user.track_count <= 0) {
-                trackCount.setVisibility(View.GONE);
-            } else {
-                trackCount.setVisibility(View.VISIBLE);
-                trackCount.setText(String.valueOf(user.track_count));
-            }
-        }
 
         if (followerCount != null){
             if (user.followers_count <= 0) {
                 followerCount.setVisibility(View.GONE);
             } else {
                 followerCount.setVisibility(View.VISIBLE);
-                followerCount.setText(String.valueOf(user.followers_count));
+                followerCount.setText(ScTextUtils.formatNumberWithCommas(user.followers_count));
             }
         }
 

@@ -1,6 +1,9 @@
 package com.soundcloud.android.view.adapters;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ApiImageSize;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.TrackProperty;
@@ -13,20 +16,24 @@ import org.jetbrains.annotations.NotNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class TrackItemPresenter implements CellPresenter<PropertySet> {
 
     private final LayoutInflater layoutInflater;
+    private final ImageOperations imageOperations;
 
     private TrackUrn playingTrack = Urn.forTrack(ScModel.NOT_SET);
 
     @Inject
-    public TrackItemPresenter(LayoutInflater layoutInflater) {
+    public TrackItemPresenter(LayoutInflater layoutInflater, ImageOperations imageOperations) {
         this.layoutInflater = layoutInflater;
+        this.imageOperations = imageOperations;
     }
 
     @Override
@@ -37,13 +44,21 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
     @Override
     public void bindItemView(int position, View itemView, List<PropertySet> trackItems) {
         final PropertySet track = trackItems.get(position);
-        getTextView(itemView, R.id.title).setText(track.get(PlayableProperty.TITLE));
-        getTextView(itemView, R.id.username).setText(track.get(PlayableProperty.CREATOR));
-        final String formattedDuration = ScTextUtils.formatTimestamp(track.get(PlayableProperty.DURATION));
-        getTextView(itemView, R.id.duration).setText(formattedDuration);
+        getTextView(itemView, R.id.list_item_header).setText(track.get(PlayableProperty.CREATOR_NAME));
+        getTextView(itemView, R.id.list_item_subheader).setText(track.get(PlayableProperty.TITLE));
+        final String formattedDuration = ScTextUtils.formatTimestamp(track.get(PlayableProperty.DURATION), TimeUnit.MILLISECONDS);
+        getTextView(itemView, R.id.list_item_right_info).setText(formattedDuration);
 
-        togglePlayCountOrNowPlaying(itemView, track);
+        showRelevantAdditionalInformation(itemView, track);
         toggleReposterView(itemView, track);
+
+        loadArtwork(itemView, track);
+    }
+
+    private void loadArtwork(View itemView, PropertySet track) {
+        imageOperations.displayInAdapterView(
+                track.get(PlayableProperty.URN), ApiImageSize.getListItemImageSize(itemView.getContext()),
+                (ImageView) itemView.findViewById(R.id.image));
     }
 
     private void toggleReposterView(View itemView, PropertySet track) {
@@ -56,16 +71,41 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
         }
     }
 
-    private void togglePlayCountOrNowPlaying(View itemView, PropertySet track) {
-        final TextView playCountText = getTextView(itemView, R.id.play_count);
-        final TextView nowPlayingText = getTextView(itemView, R.id.now_playing);
+    private void showRelevantAdditionalInformation(View itemView, PropertySet track) {
+        hideAllAdditionalInformation(itemView);
         if (track.get(PlayableProperty.URN).equals(playingTrack)) {
-            playCountText.setVisibility(View.GONE);
-            nowPlayingText.setVisibility(View.VISIBLE);
+            showNowPlaying(itemView);
+        } else if (isPrivateTrack(track)) {
+            showPrivateIndicator(itemView);
         } else {
-            nowPlayingText.setVisibility(View.GONE);
+            showPlayCount(itemView, track);
+        }
+    }
+
+    private Boolean isPrivateTrack(PropertySet track) {
+        return track.contains(PlayableProperty.IS_PRIVATE) && track.get(PlayableProperty.IS_PRIVATE);
+    }
+
+    private void hideAllAdditionalInformation(View itemView) {
+        getTextView(itemView, R.id.list_item_counter).setVisibility(View.INVISIBLE);
+        getTextView(itemView, R.id.now_playing).setVisibility(View.INVISIBLE);
+        getTextView(itemView, R.id.private_indicator).setVisibility(View.GONE);
+    }
+
+    private void showNowPlaying(View itemView) {
+        getTextView(itemView, R.id.now_playing).setVisibility(View.VISIBLE);
+    }
+
+    private void showPrivateIndicator(View itemView) {
+        getTextView(itemView, R.id.private_indicator).setVisibility(View.VISIBLE);
+    }
+
+    private void showPlayCount(View itemView, PropertySet track) {
+        final int playCount = track.contains(TrackProperty.PLAY_COUNT) ? track.get(TrackProperty.PLAY_COUNT) : Consts.NOT_SET;
+        if (playCount > Consts.NOT_SET) {
+            final TextView playCountText = getTextView(itemView, R.id.list_item_counter);
             playCountText.setVisibility(View.VISIBLE);
-            playCountText.setText(Long.toString(track.get(TrackProperty.PLAY_COUNT)));
+            playCountText.setText(ScTextUtils.formatNumberWithCommas(playCount));
         }
     }
 

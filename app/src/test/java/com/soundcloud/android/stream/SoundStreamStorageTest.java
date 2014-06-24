@@ -194,7 +194,7 @@ public class SoundStreamStorageTest {
                 PlayableProperty.TITLE.bind(track.getTitle()),
                 PlayableProperty.DURATION.bind(track.getDuration()),
                 PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
-                PlayableProperty.CREATOR.bind(track.getUser().getUsername()),
+                PlayableProperty.CREATOR_NAME.bind(track.getUser().getUsername()),
                 TrackProperty.PLAY_COUNT.bind(track.getStats().getPlaybackCount()));
     }
 
@@ -204,7 +204,7 @@ public class SoundStreamStorageTest {
                 PlayableProperty.TITLE.bind(playlist.getTitle()),
                 PlayableProperty.DURATION.bind(playlist.getDuration()),
                 PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
-                PlayableProperty.CREATOR.bind(playlist.getUser().getUsername()),
+                PlayableProperty.CREATOR_NAME.bind(playlist.getUser().getUsername()),
                 PlayableProperty.LIKES_COUNT.bind(playlist.getStats().getLikesCount()),
                 PlayableProperty.IS_LIKED.bind(false),
                 PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()));

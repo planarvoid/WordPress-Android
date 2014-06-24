@@ -72,7 +72,7 @@ public class PlayQueueManagerTest {
 
         Playlist playlist = TestHelper.getModelFactory().createModel(Playlist.class);
         playSessionSource  = new PlaySessionSource(ORIGIN_PAGE);
-        playSessionSource.setPlaylist(playlist);
+        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
         playSessionSource.setExploreVersion("1.0");
     }
 
@@ -488,7 +488,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldReturnWhetherPlaylistIdIsCurrentPlayQueue() {
         Playlist playlist = new Playlist(6L);
-        playSessionSource.setPlaylist(playlist);
+        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
         expect(playQueueManager.isCurrentPlaylist(6L)).toBeTrue();
@@ -497,7 +497,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldReturnWhetherCurrentPlayQueueIsAPlaylist() {
         Playlist playlist = new Playlist(6L);
-        playSessionSource.setPlaylist(playlist);
+        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
         expect(playQueueManager.isPlaylist()).toBeTrue();

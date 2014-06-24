@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="liked">liked %s</string>
+    <string name="reposted">reposted %s</string>
+    <string name="commented_on">commented on %s</string>
+</resources>

@@ -9,6 +9,8 @@ import org.junit.runner.RunWith;
 
 import android.content.res.Resources;
 
+import java.util.concurrent.TimeUnit;
+
 @RunWith(DefaultTestRunner.class)
 public class ScTextUtilsTest {
 
@@ -42,9 +44,10 @@ public class ScTextUtilsTest {
 
     @Test
     public void shouldFormatTimeString() throws Exception {
-        expect(ScTextUtils.formatTimestamp(5 * 1000)).toEqual("0.05");
-        expect(ScTextUtils.formatTimestamp(60 * 1000 * 5)).toEqual("5.00");
-        expect(ScTextUtils.formatTimestamp(60 * 1000 * 60 * 3)).toEqual("3.00.00");
+        expect(ScTextUtils.formatTimestamp(5, TimeUnit.SECONDS)).toEqual("0:05");
+        expect(ScTextUtils.formatTimestamp(5, TimeUnit.MINUTES)).toEqual("5:00");
+        expect(ScTextUtils.formatTimestamp(3, TimeUnit.HOURS)).toEqual("3:00:00");
+        expect(ScTextUtils.formatTimestamp(3661, TimeUnit.SECONDS)).toEqual("1:01:01");
     }
 
     @Test
@@ -207,6 +210,16 @@ public class ScTextUtilsTest {
         expect(ScTextUtils.formatFollowersMessage(r, 0)).toEqual("Followed by 0 people");
         expect(ScTextUtils.formatFollowersMessage(r, 1)).toEqual("Followed by 1 person");
         expect(ScTextUtils.formatFollowersMessage(r, 100001)).toEqual("Followed by 100,001 people");
+    }
+
+    @Test
+    public void shouldShortenLargeNumbers() {
+        expect(ScTextUtils.shortenLargeNumber(999)).toEqual("999");
+        expect(ScTextUtils.shortenLargeNumber(1000)).toEqual("1k+");
+        expect(ScTextUtils.shortenLargeNumber(1999)).toEqual("1k+");
+        expect(ScTextUtils.shortenLargeNumber(2000)).toEqual("2k+");
+        expect(ScTextUtils.shortenLargeNumber(9999)).toEqual("9k+");
+        expect(ScTextUtils.shortenLargeNumber(10000)).toEqual("9k+"); // 4 chars would make the text spill over again
     }
 
     private void expectEmailValid(String string){

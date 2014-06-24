@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -15,11 +16,15 @@ import android.widget.TextView;
 import java.lang.ref.SoftReference;
 import java.util.Hashtable;
 
-public class CustomFontLoader {
+public final class CustomFontLoader {
     private static final Hashtable<String, SoftReference<Typeface>> fontCache;
 
     static {
         fontCache = new Hashtable<String, SoftReference<Typeface>>();
+    }
+
+    private CustomFontLoader() {
+        // not to be constructed.
     }
 
     @Nullable
@@ -48,6 +53,7 @@ public class CustomFontLoader {
         if (path != null && Consts.SdkSwitches.useCustomFonts) {
             Typeface typeface = CustomFontLoader.getFont(context, path);
             textView.setTypeface(typeface);
+            textView.setPaintFlags(textView.getPaintFlags() | Paint.SUBPIXEL_TEXT_FLAG);
         }
 
         array.recycle();

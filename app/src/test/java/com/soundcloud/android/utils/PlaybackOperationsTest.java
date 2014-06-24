@@ -58,6 +58,7 @@ public class PlaybackOperationsTest {
     private PlaybackOperations playbackOperations;
 
     private Track track;
+    private Playlist playlist;
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock
@@ -74,6 +75,7 @@ public class PlaybackOperationsTest {
         playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage, playQueueManager,
                 featureFlags, eventBus);
         track = TestHelper.getModelFactory().createModel(Track.class);
+        playlist = TestHelper.getModelFactory().createModel(Playlist.class);
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
     }
 
@@ -167,12 +169,12 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playPlaylistFromPositionOpensPlayerActivityWithInitialTrackIdIfVisualPlayerDisabled() {
-        Playlist playlist = new Playlist(3L);
         final Observable<List<Long>> trackIdList = Observable.<List<Long>>just(Lists.newArrayList(track.getId()));
         when(trackStorage.getTrackIdsForUriAsync(any(Uri.class))).thenReturn(trackIdList);
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(false);
 
-        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist, 0, track, Screen.YOUR_LIKES);
+        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist.toPropertySet(), Observable.just(track.getUrn()),
+                track.getUrn(), 0, Screen.YOUR_LIKES);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedActivity = application.getNextStartedActivity();
@@ -187,7 +189,8 @@ public class PlaybackOperationsTest {
         final Observable<List<Long>> trackIdList = Observable.<List<Long>>just(Lists.newArrayList(track.getId()));
         when(trackStorage.getTrackIdsForUriAsync(any(Uri.class))).thenReturn(trackIdList);
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
-        playbackOperations.playPlaylistFromPosition(Robolectric.application, new Playlist(3L), 0, track, Screen.YOUR_LIKES);
+        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist.toPropertySet(),
+                Observable.just(track.getUrn()), track.getUrn(), 0, Screen.YOUR_LIKES);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedActivity()).toBeNull();
@@ -198,7 +201,8 @@ public class PlaybackOperationsTest {
         final Observable<List<Long>> trackIdList = Observable.<List<Long>>just(Lists.newArrayList(track.getId()));
         when(trackStorage.getTrackIdsForUriAsync(any(Uri.class))).thenReturn(trackIdList);
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
-        playbackOperations.playPlaylistFromPosition(Robolectric.application, new Playlist(3L), 0, track, Screen.YOUR_LIKES);
+        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist.toPropertySet(),
+                Observable.just(track.getUrn()), track.getUrn(),0, Screen.YOUR_LIKES);
 
         PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(event.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
@@ -212,10 +216,16 @@ public class PlaybackOperationsTest {
         final ArrayList<Long> trackIds = Lists.newArrayList(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
         when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(trackIds));
 
-        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist, 1, tracks.get(1), ORIGIN_SCREEN);
+        playbackOperations.playPlaylistFromPosition(
+                Robolectric.application,
+                playlist.toPropertySet(),
+                Observable.from(tracks.get(0).getUrn(), tracks.get(1).getUrn(), tracks.get(2).getUrn()),
+                tracks.get(1).getUrn(),
+                1,
+                ORIGIN_SCREEN);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource.setPlaylist(playlist);
+        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
 
         checkSetNewPlayQueueArgs(1, playSessionSource, tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
     }
@@ -228,7 +238,9 @@ public class PlaybackOperationsTest {
         final ArrayList<Long> trackIds = Lists.newArrayList(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
         when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(trackIds));
 
-        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist, 1, tracks.get(1), ORIGIN_SCREEN);
+        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist.toPropertySet(),
+                Observable.just(tracks.get(1).getUrn()), tracks.get(1).getUrn(), 1, ORIGIN_SCREEN);
+
         checkLastStartedServiceForPlayCurrentAction();
     }
 
@@ -245,7 +257,8 @@ public class PlaybackOperationsTest {
         when(playQueueManager.isPlaylist()).thenReturn(true);
         when(playQueueManager.getPlaylistId()).thenReturn(playlist.getId() + 1); // different Playlist Id
 
-        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist, 1, tracks.get(1), Screen.EXPLORE_TRENDING_MUSIC);
+        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist.toPropertySet(),
+                Observable.just( tracks.get(1).getUrn()), tracks.get(1).getUrn(), 1, Screen.EXPLORE_TRENDING_MUSIC);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService()).not.toBeNull();
@@ -316,7 +329,7 @@ public class PlaybackOperationsTest {
         playbackOperations.playPlaylist(playlist, ORIGIN_SCREEN);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource.setPlaylist(playlist);
+        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
         checkSetNewPlayQueueArgs(0, playSessionSource, tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
     }
 
@@ -422,14 +435,14 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playFromAdapterDoesNotIncludeNonTracksWhenSettingPlayQueue() throws Exception {
-        List<Playable> playables = Lists.newArrayList(new Track(1L), new Playlist(), new Track(2L));
+        List<Playable> playables = Lists.newArrayList(new Track(1L), playlist, new Track(2L));
         playbackOperations.playFromAdapter(Robolectric.application, playables, 2, null, ORIGIN_SCREEN);
         checkSetNewPlayQueueArgs(1, new PlaySessionSource(ORIGIN_SCREEN.get()), 1L, 2L);
     }
 
     @Test
     public void playFromAdapterWithUriShouldAdjustPlayPositionWithUpdatedContent()  {
-        final List<Playable> playables = Lists.newArrayList(new Track(1L), new Playlist(), new Track(2L));
+        final List<Playable> playables = Lists.newArrayList(new Track(1L), playlist, new Track(2L));
         final ArrayList<Long> value = Lists.newArrayList(5L, 1L, 2L);
 
         when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(value));
@@ -438,10 +451,8 @@ public class PlaybackOperationsTest {
         checkSetNewPlayQueueArgs(2, new PlaySessionSource(ORIGIN_SCREEN.get()), 5L, 1L, 2L);
     }
 
-
     @Test
     public void playFromAdapterShouldStartPlaylistActivity() throws Exception {
-        final Playlist playlist = new Playlist(1L);
         List<Playable> playables = Lists.newArrayList(new Track(1L), playlist, new Track(2L));
 
         playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, ORIGIN_SCREEN);

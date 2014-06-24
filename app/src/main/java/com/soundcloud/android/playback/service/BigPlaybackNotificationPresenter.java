@@ -31,7 +31,7 @@ public class BigPlaybackNotificationPresenter extends RichNotificationPresenter 
         final NotificationPlaybackRemoteViews bigRemoteViews = getRemoteViewsFactory().create(packageName, R.layout.playback_status_large_v16);
         bigRemoteViews.linkButtonsNotification(getContext());
         bigRemoteViews.setCurrentTrackTitle(propertySet.get(PlayableProperty.TITLE));
-        bigRemoteViews.setCurrentUsername(propertySet.get(PlayableProperty.CREATOR));
+        bigRemoteViews.setCurrentUsername(propertySet.get(PlayableProperty.CREATOR_NAME));
         notification.bigContentView = bigRemoteViews;
         return notification;
     }

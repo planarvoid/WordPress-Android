@@ -55,7 +55,7 @@
                     android:layout_centerVertical="true"
                     android:layout_alignParentRight="true"
                     android:layout_marginLeft="13dp"
-                    style="@style/UserBrowser.ToggleButton.Follow.Large"/>
+                    style="@style/Profile.ToggleButton.Follow.Large"/>
         </RelativeLayout>
 
     </RelativeLayout>

@@ -18,6 +18,7 @@ import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
@@ -248,6 +249,14 @@ public class Track extends Playable {
 
     public String getWaveformUrl() {
         return waveform_url;
+    }
+
+    public PropertySet toPropertySet() {
+        return super.toPropertySet()
+                .put(PlayableProperty.DURATION, duration)
+                .put(PlayableProperty.TITLE, title)
+                .put(TrackProperty.URN, Urn.forTrack(getId()))
+                .put(TrackProperty.PLAY_COUNT, playback_count);
     }
 
     @JsonIgnoreProperties(ignoreUnknown=true)

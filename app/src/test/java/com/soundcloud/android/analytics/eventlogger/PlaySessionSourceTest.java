@@ -48,7 +48,7 @@ public class PlaySessionSourceTest {
     public void shouldCreatePlaySessionSourceFromOriginPageAndSetId() throws Exception {
 
         PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
-        playSessionSource.setPlaylist(playlist);
+        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
 
         expect(playSessionSource.getOriginScreen()).toBe(ORIGIN_PAGE);
         expect(playSessionSource.getPlaylistId()).toEqual(playlist.getId());
@@ -72,7 +72,7 @@ public class PlaySessionSourceTest {
     public void shouldCreatePlaySessionSourceFromOriginPageTrackSourceInfoAndSetId() throws Exception {
         PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
         playSessionSource.setExploreVersion(EXPLORE_TAG);
-        playSessionSource.setPlaylist(playlist);
+        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
 
         expect(playSessionSource.getOriginScreen()).toBe(ORIGIN_PAGE);
         expect(playSessionSource.getPlaylistId()).toEqual(playlist.getId());
@@ -85,7 +85,7 @@ public class PlaySessionSourceTest {
     public void shouldBeParcelable() throws Exception {
         PlaySessionSource original = new PlaySessionSource(ORIGIN_PAGE);
         original.setExploreVersion(EXPLORE_TAG);
-        original.setPlaylist(playlist);
+        original.setPlaylist(playlist.getId(), playlist.getUserId());
 
         Parcel parcel = Parcel.obtain();
         original.writeToParcel(parcel, 0);

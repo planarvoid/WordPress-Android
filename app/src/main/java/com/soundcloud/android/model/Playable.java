@@ -5,16 +5,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.image.ApiImageSize;
-import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.api.http.json.Views;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.model.behavior.RelatesToUser;
+import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
-import com.soundcloud.android.utils.images.ImageUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +30,7 @@ import android.text.TextUtils;
 
 import java.util.Date;
 
-public abstract class Playable extends ScResource implements PlayableHolder, RelatesToUser, Refreshable, Parcelable {
+public abstract class Playable extends ScResource implements PlayableHolder, RelatesToUser, Refreshable, Parcelable, PropertySetSource {
     public static final int DB_TYPE_TRACK    = 0; // TODO should not be exposed
     public static final int DB_TYPE_PLAYLIST = 1;
 
@@ -401,5 +403,18 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
 
     protected static boolean isTrackCursor(Cursor cursor){
         return cursor.getInt(cursor.getColumnIndex(TableColumns.Sounds._TYPE)) == DB_TYPE_TRACK;
+    }
+
+    @Override
+    public PropertySet toPropertySet() {
+        return PropertySet.from(PlayableProperty.DURATION.bind(duration),
+                PlayableProperty.TITLE.bind(title),
+                PlayableProperty.URN.bind(getUrn()),
+                PlayableProperty.CREATOR_URN.bind(user.getUrn()),
+                PlayableProperty.IS_PRIVATE.bind(sharing.isPrivate()),
+                // we may have null usernames if it is my like/sound that hasn't been lazily updated
+                PlayableProperty.CREATOR_NAME.bind(user.getUsername() != null ? user.getUsername()
+                        : ScTextUtils.EMPTY_STRING)
+        );
     }
 }

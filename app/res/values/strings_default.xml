@@ -47,9 +47,6 @@
   <string name="cloud_recorder_event_title">Recording in progress</string>
   <string name="cloud_recorder_playback_event_title">Playback in progress</string>
   <string name="cloud_upload_clear_artwork">Hold to clear artwork</string>
-  <string name="cloud_upload_currently_uploading">Uploading. You can check on progress in Notifications</string>
-  <string name="cloud_upload_not_yet_uploaded">not yet uploaded</string>
-  <string name="cloud_upload_upload_failed">upload failed</string>
   <string name="cloud_uploader_notification_error_message">There was an error uploading %s</string>
   <string name="cloud_uploader_notification_error_ticker">Upload Error</string>
   <string name="cloud_uploader_notification_error_title">Upload Error</string>
@@ -196,7 +193,6 @@
   <string name="facebook_authentication_error_no_connection_message">Please try again shortly or log in using your SoundCloud username and password.</string>
   <string name="facebook_authentication_failed_message">Please try again shortly or log in using your SoundCloud username and password.</string>
   <string name="facebook_authentication_failed_title">Hmm, we aren\'t able to connect to Facebook right now.</string>
-  <string name="follower_count">follower count</string>
   <string name="from">from</string>
   <string name="image_load_error">There was a problem loading the image</string>
   <string name="image_where">How would you like to add an image?</string>
@@ -304,7 +300,6 @@
   <string name="this_user">This user</string>
   <string name="track">sound</string>
   <string name="track_by">by</string>
-  <string name="track_count">number of sounds</string>
   <plurals name="track_info_commenters">
     <item quantity="one">1 comment on this sound</item>
     <item quantity="other">%d comments on this sound</item>

@@ -34,7 +34,7 @@ public class PlaybackNotificationPresenter {
         builder.setSmallIcon(R.drawable.ic_notification_cloud);
         builder.setContentIntent(createPendingIntent(context));
         builder.setContentTitle(propertySet.get(PlayableProperty.TITLE));
-        builder.setContentText(propertySet.get(PlayableProperty.CREATOR));
+        builder.setContentText(propertySet.get(PlayableProperty.CREATOR_NAME));
         return builder.build();
     }
 

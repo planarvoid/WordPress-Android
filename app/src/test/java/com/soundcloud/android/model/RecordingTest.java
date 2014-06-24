@@ -81,31 +81,29 @@ public class RecordingTest {
     }
 
     @Test
-    public void shouldGenerateStatusWithNotUploaded() throws Exception {
+    public void shouldGenerateStatusMessageWithNotUploaded() throws Exception {
         Recording r = createRecording();
-        expect(r.getStatus(res)).toMatch("1? years, 1\\.26, not yet uploaded");
+        expect(r.getStatusMessage(res)).toMatch("Pending Upload");
     }
 
     @Test
-    public void shouldGenerateStatusWithError() throws Exception {
+    public void shouldGenerateStatusMessageWithError() throws Exception {
         Recording r = createRecording();
         r.upload_status = Recording.Status.ERROR;
-        expect(r.getStatus(res)).toMatch("1? years, 1\\.26, upload failed");
+        expect(r.getStatusMessage(res)).toMatch("Upload Failed");
     }
 
     @Test
-    public void shouldGenerateStatusWithCurrentlyUploading() throws Exception {
+    public void shouldGenerateStatusMessageWithCurrentlyUploading() throws Exception {
         Recording r = createRecording();
         r.upload_status = Recording.Status.UPLOADING;
-        expect(
-                r.getStatus(res)).toEqual(
-                "Uploading. You can check on progress in Notifications");
+        expect(r.getStatusMessage(res)).toEqual("Uploading...");
     }
 
     @Test
     public void shouldHaveFormattedDuration() throws Exception {
         Recording r = createRecording();
-        expect(r.formattedDuration()).toEqual("1.26");
+        expect(r.formattedDuration()).toEqual("1:26");
     }
 
     @Test

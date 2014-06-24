@@ -25,6 +25,7 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -56,6 +57,8 @@ public class FollowingOperationsTest {
     @Mock
     private SoundCloudRxHttpClient soundCloudRxHttpClient;
     @Mock
+    private SyncInitiator syncInitiator;
+    @Mock
     private UserAssociation userAssociationOne;
     @Mock
     private UserAssociation userAssociationTwo;
@@ -71,11 +74,11 @@ public class FollowingOperationsTest {
     public void before() throws CreateModelException {
         when(scModelManager.cache(any(User.class), any(ScResource.CacheUpdateMode.class))).thenReturn(mock(User.class));
 
-        Observable<UserAssociation> observable = Observable.empty();
+        Observable<UserAssociation> observable = Observable.just(userAssociationOne);
         when(userAssociationStorage.follow(any(User.class))).thenReturn(observable);
         when(userAssociationStorage.unfollow(any(User.class))).thenReturn(observable);
 
-        ops = new FollowingOperations(soundCloudRxHttpClient, userAssociationStorage, syncStateManager, followStatus, scModelManager);
+        ops = new FollowingOperations(soundCloudRxHttpClient, userAssociationStorage, syncStateManager, followStatus, scModelManager, syncInitiator);
 
         user = TestHelper.getModelFactory().createModel(User.class);
 
@@ -87,8 +90,15 @@ public class FollowingOperationsTest {
 
     @Test
     public void shouldToggleFollowingOnAddition() throws CreateModelException {
-        ops.addFollowing(user);
+        ops.addFollowing(user).subscribe(observer);
         verify(followStatus).toggleFollowing(user.getId());
+        verify(observer).onNext(true);
+    }
+
+    @Test
+    public void shouldSyncFollowingsOnAddition() {
+        ops.addFollowing(user).subscribe(observer);
+        verify(syncInitiator).pushFollowingsToApi();
     }
 
     @Test
@@ -105,8 +115,15 @@ public class FollowingOperationsTest {
 
     @Test
     public void shouldToggleFollowingOnRemoval() throws CreateModelException {
-        ops.removeFollowing(user);
+        ops.removeFollowing(user).subscribe(observer);
         verify(followStatus).toggleFollowing(user.getId());
+        verify(observer).onNext(false);
+    }
+
+    @Test
+    public void shouldSyncFollowingsOnRemoval() {
+        ops.removeFollowing(user).subscribe(observer);
+        verify(syncInitiator).pushFollowingsToApi();
     }
 
     @Test

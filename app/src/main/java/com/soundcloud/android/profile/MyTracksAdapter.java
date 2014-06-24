@@ -1,21 +1,28 @@
-
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.collections.views.IconLayout;
-import com.soundcloud.android.collections.views.PlayableRow;
+import com.soundcloud.android.view.adapters.CellPresenter;
+import com.soundcloud.android.view.adapters.PendingRecordingItemPresenter;
+import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
+import com.soundcloud.android.view.adapters.TrackItemPresenter;
+import com.soundcloud.propeller.PropertySet;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -23,6 +30,8 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Handler;
+import android.view.View;
+import android.view.ViewGroup;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
@@ -35,22 +44,32 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     private List<Recording> recordingData;
 
     private static final int TYPE_PENDING_RECORDING = 0;
-    private static final int TYPE_TRACK = 1;
+    private static final int TYPE_NEW_TRACK = 1;
+    private static final int TYPE_NEW_PLAYLIST = 2;
     private ChangeObserver changeObserver;
-    private ImageOperations imageOperations;
 
+    private final ScActivity activity;
     @Inject PlaybackOperations playbackOperations;
+    @Inject TrackItemPresenter trackItemPresenter;
+    @Inject PlaylistItemPresenter playlistItemPresenter;
+    @Inject ImageOperations imageOperations;
+    @Inject PendingRecordingItemPresenter pendingRecordingItemPresenter;
 
-    public MyTracksAdapter(ScActivity activity, ImageOperations imageOperations) {
+    public MyTracksAdapter(ScActivity activity) {
         super(Content.ME_SOUNDS.uri);
+        this.activity = activity;
         ContentResolver contentResolver = activity.getApplicationContext().getContentResolver();
         refreshCursor(contentResolver);
 
         changeObserver = new ChangeObserver(activity);
-        this.imageOperations = imageOperations;
         contentResolver.registerContentObserver(Content.RECORDINGS.uri, true, changeObserver);
 
         SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 4;
     }
 
     @Override
@@ -58,18 +77,75 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
         int type = super.getItemViewType(position);
         if (type == IGNORE_ITEM_VIEW_TYPE) return type;
 
-        return (position < getPendingRecordingsCount()) ? TYPE_PENDING_RECORDING : TYPE_TRACK;
+        if (isPendingRecording(position)) {
+            return TYPE_PENDING_RECORDING;
+        } else if (isNewTrackPresenter(position)) {
+            return TYPE_NEW_TRACK;
+        } else {
+            return TYPE_NEW_PLAYLIST;
+        }
+    }
+
+    private boolean isPendingRecording(int position) {
+        return position < getPendingRecordingsCount();
+    }
+
+    private boolean isNewTrackPresenter(int position) {
+        final ScResource item = getItem(position);
+        if (item instanceof SoundAssociation) {
+            return ((SoundAssociation) item).getPlayable() instanceof Track;
+        }
+        return false;
     }
 
     @Override
-    public int getViewTypeCount() {
-        return 2;
+    protected View createRow(Context context, int position, ViewGroup parent) {
+        if (getItemViewType(position) == TYPE_PENDING_RECORDING) {
+            return pendingRecordingItemPresenter.createItemView(position, parent);
+        } else {
+            return getCellPresenter(position).createItemView(position, parent);
+        }
     }
 
     @Override
-    protected IconLayout createRow(Context context, int position) {
-        return getItemViewType(position) == TYPE_PENDING_RECORDING ?
-                new MyTracklistRow(context, imageOperations) : new PlayableRow(context, imageOperations);
+    protected void bindRow(int position, View rowView) {
+        if (getItemViewType(position) == TYPE_PENDING_RECORDING) {
+            pendingRecordingItemPresenter.bindItemView(position, rowView, recordingData);
+        } else {
+            getCellPresenter(position).bindItemView(position - getPendingRecordingsCount(), rowView, toPropertySet(getItems()));
+        }
+    }
+
+    private CellPresenter<PropertySet> getCellPresenter(final int position) {
+        if (isNewTrackPresenter(position)) {
+            return trackItemPresenter;
+        } else {
+            return playlistItemPresenter;
+        }
+    }
+
+    private List<PropertySet> toPropertySet(List<? extends ScResource> items) {
+        List<PropertySet> propertySets = new ArrayList<PropertySet>(items.size());
+        for (ScResource resource : items) {
+            final PropertySet propertySet;
+            if (resource instanceof SoundAssociation) {
+                Playable playable = ((SoundAssociation) resource).getPlayable();
+                propertySet = toPropertySet(playable);
+            } else {
+                throw new IllegalArgumentException("Items is not a SoundAssociation. Item : " + resource);
+            }
+            propertySets.add(propertySet);
+        }
+        return propertySets;
+    }
+
+    private PropertySet toPropertySet(Playable playable) {
+        PropertySet propertySet = playable.toPropertySet();
+        if (activity instanceof ProfileActivity) {
+            User reposter = ((ProfileActivity) activity).getUser();
+            propertySet.put(PlayableProperty.REPOSTER, reposter.getUsername());
+        }
+        return propertySet;
     }
 
     @Override
@@ -86,7 +162,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
         return getCount() == getPendingRecordingsCount();
     }
 
-    public int getPendingRecordingsCount(){
+    public int getPendingRecordingsCount() {
         return recordingData == null ? 0 : recordingData.size();
     }
 
@@ -131,6 +207,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
             return super.getCount();
         }
     }
+
     @Override
     public ScResource getItem(int position) {
         if (recordingData != null) {
@@ -149,8 +226,8 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
      * The default implementation provides the auto-requery logic, but may be overridden by
      * sub classes.
      *
-     * @see ContentObserver#onChange(boolean)
      * @param activity
+     * @see ContentObserver#onChange(boolean)
      */
     protected void onContentChanged(ScActivity activity) {
         dataValid = false;
@@ -169,12 +246,12 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
 
     @Override
     public int handleListItemClick(Context context, int position, long id, Screen screen) {
-        if (getItemViewType(position) == TYPE_PENDING_RECORDING){
+        if (getItemViewType(position) == TYPE_PENDING_RECORDING) {
             final Recording r = (Recording) getItem(position);
             if (r.upload_status == Recording.Status.UPLOADING) {
                 context.startActivity(r.getMonitorIntent());
             } else {
-                context.startActivity(new Intent(context,(r.external_upload ? UploadActivity.class : RecordActivity.class)).setData(r.toUri()));
+                context.startActivity(new Intent(context, (r.external_upload ? UploadActivity.class : RecordActivity.class)).setData(r.toUri()));
             }
         } else {
             playbackOperations.playFromAdapter(context, data, position - recordingData.size(), contentUri, screen);
@@ -184,7 +261,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
 
     public void onDestroy() {
         Context context = changeObserver.mContextRef.get();
-        if (context != null ) {
+        if (context != null) {
             context.getContentResolver().unregisterContentObserver(changeObserver);
         }
     }

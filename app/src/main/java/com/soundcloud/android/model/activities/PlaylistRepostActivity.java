@@ -2,10 +2,12 @@ package com.soundcloud.android.model.activities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.behavior.PlayableHolder;
-import com.soundcloud.android.model.behavior.Repost;
+import com.soundcloud.android.model.ActivityProperty;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.model.behavior.Repost;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
 import android.database.Cursor;
@@ -43,5 +45,12 @@ public class PlaylistRepostActivity extends PlaylistActivity implements Playable
     @Override
     public User getReposter() {
         return user;
+    }
+
+    @Override
+    public PropertySet toPropertySet() {
+        return super.toPropertySet()
+                .put(ActivityProperty.TYPE, ActivityProperty.TYPE_REPOST)
+                .put(ActivityProperty.SOUND_TITLE, playlist.getTitle());
     }
 }

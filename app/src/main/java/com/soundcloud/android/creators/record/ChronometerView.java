@@ -6,6 +6,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Simple chronometer that handles its own formatting and tries to minimize duplicate results
  */
@@ -53,7 +55,7 @@ public class ChronometerView extends TextView {
             progressSec = newProgressSec;
             mode = MODE_PLAYBACK;
             setText(new StringBuilder()
-                    .append(ScTextUtils.formatTimestamp(ms))
+                    .append(ScTextUtils.formatTimestamp(ms, TimeUnit.MILLISECONDS))
                     .append(" / ")
                     .append(durationString));
 
@@ -64,7 +66,7 @@ public class ChronometerView extends TextView {
         final long newDurationSec = ms / 1000;
         if (newDurationSec != durationSec) {
             durationSec = newDurationSec;
-            durationString = ScTextUtils.formatTimestamp(ms);
+            durationString = ScTextUtils.formatTimestamp(newDurationSec, TimeUnit.SECONDS);
             return true;
         } else {
             return false;

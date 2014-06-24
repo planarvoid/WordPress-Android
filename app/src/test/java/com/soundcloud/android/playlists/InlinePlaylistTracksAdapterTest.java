@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.adapters.CellPresenter;
+import com.soundcloud.propeller.PropertySet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -38,7 +39,7 @@ public class InlinePlaylistTracksAdapterTest {
 
     @Test
     public void hasContentItemsShouldBeTrueOnceItemsHaveBeenAdded() {
-        adapter.addItem(new Track(1));
+        adapter.addItem(PropertySet.create(1));
         expect(adapter.hasContentItems()).toBeTrue();
     }
 }

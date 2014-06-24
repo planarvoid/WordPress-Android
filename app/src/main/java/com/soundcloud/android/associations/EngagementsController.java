@@ -1,11 +1,9 @@
 package com.soundcloud.android.associations;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -13,9 +11,11 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import rx.android.schedulers.AndroidSchedulers;
@@ -186,11 +186,11 @@ public class EngagementsController {
         this.playable = playable;
 
         if (toggleLike != null) {
-            updateLikeButton((int) this.playable.likes_count, this.playable.user_like);
+            updateLikeButton(this.playable.likes_count, this.playable.user_like);
         }
 
         if (toggleRepost != null) {
-            updateRepostButton((int) this.playable.reposts_count, this.playable.user_repost);
+            updateRepostButton(this.playable.reposts_count, this.playable.user_repost);
         }
 
         boolean showRepost = this.playable.isPublic() && this.playable.getUserId() != accountOperations.getLoggedInUserId();
@@ -227,7 +227,7 @@ public class EngagementsController {
         if (button == null) return;
         Log.d(SoundAssociationOperations.TAG, Thread.currentThread().getName() + ": update button state: count = " + count + "; checked = " + checked);
         button.setEnabled(true);
-        final String buttonLabel = labelForCount(count);
+        final String buttonLabel = ScTextUtils.shortenLargeNumber(count);
         button.setTextOn(buttonLabel);
         button.setTextOff(buttonLabel);
         button.setChecked(checked);
@@ -253,30 +253,17 @@ public class EngagementsController {
         }
     }
 
-    @VisibleForTesting
-    String labelForCount(int count) {
-        if (count <= 0) {
-            return "";
-        } else if (count >= 10000) {
-            return "9k+"; // top out at 9k or text gets too long again
-        } else if (count >= 1000) {
-            return count / 1000 + "k+";
-        } else {
-            return String.valueOf(count);
-        }
-    }
-
     private static final class ResetToggleButton extends DefaultSubscriber<SoundAssociation> {
-        private final ToggleButton mToggleButton;
+        private final ToggleButton toggleButton;
 
         private ResetToggleButton(ToggleButton toggleButton) {
-            mToggleButton = toggleButton;
+            this.toggleButton = toggleButton;
         }
 
         @Override
         public void onError(Throwable e) {
-            mToggleButton.setChecked(!mToggleButton.isChecked());
-            mToggleButton.setEnabled(true);
+            toggleButton.setChecked(!toggleButton.isChecked());
+            toggleButton.setEnabled(true);
             super.onError(e);
         }
     }

@@ -8,10 +8,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
@@ -26,9 +26,11 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscriber;
@@ -103,15 +105,15 @@ public class PlaybackOperations {
      * From a uri with an initial track to show while loading the full playlist from the DB.
      * Used in {@link com.soundcloud.android.playlists.PlaylistFragment}
      */
-    public void playPlaylistFromPosition(Context activityContext, Playlist playlist, int startPosition, Track initialTrack, Screen screen) {
+    public void playPlaylistFromPosition(Context activityContext, PropertySet playlist, Observable<TrackUrn> allTracks, TrackUrn initialTrackUrn, int startPosition, Screen screen) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen.get());
-        playSessionSource.setPlaylist(playlist);
-        playFromUri(activityContext, playlist.toUri(), startPosition, initialTrack, playSessionSource);
+        playSessionSource.setPlaylist(playlist.get(PlayableProperty.URN).numericId, playlist.get(PlayableProperty.CREATOR_URN).numericId);
+        playTracks(activityContext, initialTrackUrn, allTracks, startPosition, playSessionSource);
     }
 
     public void playPlaylist(Playlist playlist, Screen screen) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen.get());
-        playSessionSource.setPlaylist(playlist);
+        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
         final List<Long> trackIds = Lists.transform(playlist.getTracks(), new Function<Track, Long>() {
             @Override
             public Long apply(Track track) {
@@ -147,7 +149,10 @@ public class PlaybackOperations {
     }
 
     public Subscription playTracks(Context context, TrackUrn initialTrack, Observable<TrackUrn> allTracks, int position, Screen screen) {
-        final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
+        return playTracks(context, initialTrack, allTracks, position, new PlaySessionSource(screen));
+    }
+
+    private Subscription playTracks(Context context, TrackUrn initialTrack, Observable<TrackUrn> allTracks, int position, PlaySessionSource playSessionSource) {
         if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
             return allTracks.map(new Func1<TrackUrn, Long>() {
                 @Override

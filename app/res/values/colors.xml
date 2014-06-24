@@ -9,15 +9,21 @@
     <color name="sc_dark_orange">#cce36711</color>
 
     <!-- List items -->
+    <!-- Legacy cells -->
     <color name="list_text_value">@color/black</color>
     <color name="list_text_value_inactive">#a9a9a9</color>
     <color name="list_text_secondary">#777777</color>
-    <color name="list_text_rec_secondary">#cccccc</color>
     <color name="list_text_created_at">#c9c9c9</color>
     <color name="list_text_track_user">#828282</color>
     <color name="list_text_dark_value">@color/white</color>
     <color name="list_text_header">#666666</color>
     <color name="stats_color">#828282</color>
+    <!-- New cells -->
+    <color name="list_primary">#333333</color>
+    <color name="list_secondary">#999999</color>
+    <color name="record_list_item_background">#e5e5e5</color>
+    <color name="record_list_item_background_pressed">#dadada</color>
+    <color name="record_list_item_text">#666666</color>
 
     <!-- Comments -->
     <color name="comment_line">#aad7d7d7</color>
@@ -42,7 +48,6 @@
 
     <!-- Creators -->
     <color name="record_upload_border">#525252</color>
-    <color name="record_list_item_background">#999999</color>
 
     <color name="btn_dark_flat">#242424</color>
     <color name="rec_button_bar_separator">@color/black</color>

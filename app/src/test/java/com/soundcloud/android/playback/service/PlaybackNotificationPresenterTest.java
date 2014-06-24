@@ -50,7 +50,7 @@ public class PlaybackNotificationPresenterTest extends TestCase {
         propertySet = PropertySet.from(
                 TrackProperty.URN.bind(TRACK_URN),
                 PlayableProperty.TITLE.bind(TITLE),
-                PlayableProperty.CREATOR.bind(CREATOR));
+                PlayableProperty.CREATOR_NAME.bind(CREATOR));
 
         presenter = new PlaybackNotificationPresenter(context, new Provider<NotificationCompat.Builder>() {
             @Override

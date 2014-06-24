@@ -2,14 +2,14 @@ package com.soundcloud.android.model.activities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ActivityProperty;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.propeller.PropertySet;
 
 import android.database.Cursor;
-
-import java.util.Date;
 
 public class AffiliationActivity extends Activity {
 
@@ -60,5 +60,10 @@ public class AffiliationActivity extends Activity {
         return user == null || user.isIncomplete();
     }
 
-
+    @Override
+    public PropertySet toPropertySet() {
+        return super.toPropertySet()
+                .put(ActivityProperty.TYPE, ActivityProperty.TYPE_FOLLOWER)
+                .put(ActivityProperty.USER_NAME, user.getUsername());
+    }
 }

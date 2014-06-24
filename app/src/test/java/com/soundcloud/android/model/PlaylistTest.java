@@ -6,10 +6,13 @@ import com.soundcloud.android.playlists.PlaylistApiCreateObject;
 import com.soundcloud.android.playlists.PlaylistApiUpdateObject;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.ContentValues;
 import android.os.Parcel;
 
 import java.util.ArrayList;
@@ -30,6 +33,23 @@ public class PlaylistTest {
         Playlist playlist = new Playlist();
         playlist.setId(1000L);
         expect(playlist.getUrn().toString()).toEqual("soundcloud:playlists:1000");
+    }
+
+    @Test
+    public void buildContentValuesShouldNotIncludeLastUpdatedWithNoUser() throws Exception {
+        Playlist playlist = new Playlist();
+        playlist.setId(1000L);
+        final ContentValues actual = playlist.buildContentValues();
+        expect(actual.containsKey(TableColumns.ResourceTable.LAST_UPDATED)).toBeFalse();
+    }
+
+    @Test
+    public void buildContentValuesShouldIncludeLastUpdatedWithUser() throws Exception {
+        Playlist playlist = new Playlist();
+        playlist.setId(1000L);
+        playlist.setUser(TestHelper.getModelFactory().createModel(User.class));
+        final ContentValues actual = playlist.buildContentValues();
+        expect(actual.containsKey(TableColumns.ResourceTable.LAST_UPDATED)).toBeTrue();
     }
 
     @Test
@@ -125,6 +145,22 @@ public class PlaylistTest {
         expect(playlist.duration).toEqual(source.getDuration());
         expect(playlist.getSharing()).toEqual(source.getSharing());
         expect(playlist.getTrackCount()).toEqual(source.getTrackCount());
+    }
+
+    @Test
+    public void shouldConcertToPropertySet() throws CreateModelException {
+        Playlist playlist = TestHelper.getModelFactory().createModel(Playlist.class);
+        PropertySet propertySet = playlist.toPropertySet();
+
+        expect(propertySet.get(PlayableProperty.DURATION)).toEqual(playlist.duration);
+        expect(propertySet.get(PlayableProperty.TITLE)).toEqual(playlist.title);
+        expect(propertySet.get(PlayableProperty.URN)).toEqual(playlist.getUrn());
+        expect(propertySet.get(PlayableProperty.CREATOR_URN)).toEqual(playlist.getUser().getUrn());
+        expect(propertySet.get(PlayableProperty.CREATOR_NAME)).toEqual(playlist.getUsername());
+        expect(propertySet.get(PlaylistProperty.TRACK_COUNT)).toEqual(playlist.getTrackCount());
+        expect(propertySet.get(PlayableProperty.LIKES_COUNT)).toEqual(playlist.likes_count);
+        expect(propertySet.get(PlayableProperty.IS_LIKED)).toEqual(playlist.user_like);
+        expect(propertySet.get(PlayableProperty.IS_PRIVATE)).toEqual(playlist.isPrivate());
     }
 
     private void comparePlaylists(Playlist playlist, Playlist playlist1) {

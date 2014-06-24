@@ -89,7 +89,7 @@ public class PlayQueueOperationsTest {
 
         playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
         playlist = TestHelper.getModelFactory().createModel(Playlist.class);
-        playSessionSource.setPlaylist(playlist);
+        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
     }
 
     @Test

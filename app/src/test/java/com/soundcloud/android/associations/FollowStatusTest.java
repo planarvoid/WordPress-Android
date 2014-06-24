@@ -3,6 +3,7 @@ package com.soundcloud.android.associations;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
@@ -55,9 +56,9 @@ public class FollowStatusTest {
             @Override
             public void onFollowChanged() {
                 called[0] = true;
-                expect(status.isFollowing(1)).toBeTrue();
-                expect(status.isFollowing(2)).toBeTrue();
-                expect(status.isFollowing(6)).toBeFalse();
+                expect(status.isFollowing(Urn.forUser(1))).toBeTrue();
+                expect(status.isFollowing(Urn.forUser(2))).toBeTrue();
+                expect(status.isFollowing(Urn.forUser(6))).toBeFalse();
 
             }
         });

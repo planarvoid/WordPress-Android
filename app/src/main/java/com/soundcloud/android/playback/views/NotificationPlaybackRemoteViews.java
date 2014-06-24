@@ -59,6 +59,10 @@ public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
         setOnClickPendingIntent(R.id.prev, createPendingIntent(context, PlaybackAction.PREVIOUS));
     }
 
+    public void setCurrentUsername(CharSequence username) {
+        setTextViewText(R.id.user_txt, username);
+    }
+
     private PendingIntent createPendingIntent(Context context, String playbackAction) {
         return PendingIntent.getBroadcast(context, PENDING_INTENT_REQUEST_CODE, createIntent(playbackAction), 0);
     }

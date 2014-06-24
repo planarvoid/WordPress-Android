@@ -32,7 +32,7 @@ public class RichNotificationPresenter extends PlaybackNotificationPresenter {
         final NotificationPlaybackRemoteViews playbackRemoteViews = remoteViewsFactory.create(getContext().getPackageName());
         playbackRemoteViews.linkButtonsNotification(getContext());
         playbackRemoteViews.setCurrentTrackTitle(propertySet.get(PlayableProperty.TITLE));
-        playbackRemoteViews.setCurrentUsername(propertySet.get(PlayableProperty.CREATOR));
+        playbackRemoteViews.setCurrentUsername(propertySet.get(PlayableProperty.CREATOR_NAME));
         notification.contentView = playbackRemoteViews;
         return notification;
     }

@@ -6,9 +6,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
@@ -17,7 +15,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
@@ -128,11 +126,13 @@ public class SearchResultsFragment extends Fragment
 
         listViewController.onViewCreated(this, observable, view, adapter, adapter);
         new EmptyViewBuilder().configureForSearch(listViewController.getEmptyView());
+        adapter.onViewCreated();
     }
 
     @Override
     public void onDestroyView() {
         listViewController.onDestroyView();
+        adapter.onDestroyView();
         super.onDestroyView();
     }
 
@@ -146,7 +146,6 @@ public class SearchResultsFragment extends Fragment
     public void onResume() {
         super.onResume();
         adapter.notifyDataSetChanged();
-        playEventSubscription = eventBus.subscribe(EventQueue.PLAY_CONTROL, new PlayEventSubscriber());
     }
 
     @Override
@@ -183,13 +182,6 @@ public class SearchResultsFragment extends Fragment
                 return Screen.SEARCH_USERS;
             default:
                 throw new IllegalArgumentException("Query type not valid");
-        }
-    }
-
-    private final class PlayEventSubscriber extends DefaultSubscriber<PlayControlEvent> {
-        @Override
-        public void onNext(PlayControlEvent event) {
-            adapter.notifyDataSetChanged();
         }
     }
 

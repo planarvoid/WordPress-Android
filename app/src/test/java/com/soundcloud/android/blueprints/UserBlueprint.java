@@ -28,4 +28,10 @@ public class UserBlueprint {
         }
     };
 
+    @Default
+    String avatarUrl = "http://i1.sndcdn.com/avatars-000001552142-pbw8yd-large.jpg?142a848";
+
+    @Default
+    String country = "Germany";
+
 }

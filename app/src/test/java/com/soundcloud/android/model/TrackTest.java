@@ -6,6 +6,9 @@ import com.soundcloud.android.playback.streaming.StreamItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.propeller.PropertySet;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -303,6 +306,28 @@ public class TrackTest {
         expect(t.comment_count).toEqual(suggestion.getStats().getCommentsCount());
     }
 
+    @Test
+    public void shouldConvertToPropertySet() throws CreateModelException {
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+
+        PropertySet propertySet = track.toPropertySet();
+        expect(propertySet.get(PlayableProperty.DURATION)).toEqual(track.duration);
+        expect(propertySet.get(PlayableProperty.TITLE)).toEqual(track.title);
+        expect(propertySet.get(PlayableProperty.URN)).toEqual(track.getUrn());
+        expect(propertySet.get(PlayableProperty.CREATOR_URN)).toEqual(track.getUser().getUrn());
+        expect(propertySet.get(PlayableProperty.CREATOR_NAME)).toEqual(track.getUsername());
+        expect(propertySet.get(PlayableProperty.IS_PRIVATE)).toEqual(track.isPrivate());
+        expect(propertySet.get(TrackProperty.PLAY_COUNT)).toEqual(track.playback_count);
+    }
+
+    @Test
+    public void shouldConvertToPropertySetWithBlankUsernameIfUsernameNull() throws CreateModelException {
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        track.setUser(new User());
+        PropertySet propertySet = track.toPropertySet();
+        expect(propertySet.get(PlayableProperty.CREATOR_NAME)).toEqual(ScTextUtils.EMPTY_STRING);
+    }
+
     private void compareTracks(Track t, Track t2) {
         expect(t2.getId()).toEqual(t.getId());
         expect(t2.title).toEqual(t.title);
@@ -327,4 +352,6 @@ public class TrackTest {
         expect(t2.user_id).toEqual(t.user_id);
         expect(t2.commentable).toEqual(t.commentable);
     }
+
+
 }

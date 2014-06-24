@@ -15,8 +15,7 @@ import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.associations.CommentAdapter;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.associations.SoundAssociationAdapter;
-import com.soundcloud.android.associations.UserAssociationAdapter;
+import com.soundcloud.android.view.adapters.SoundAdapter;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.CollectionTask;
 import com.soundcloud.android.collections.tasks.ReturnData;
@@ -28,6 +27,7 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playlists.PlaylistChangedReceiver;
 import com.soundcloud.android.profile.MyTracksAdapter;
 import com.soundcloud.android.properties.Feature;
@@ -41,6 +41,9 @@ import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
+import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
+import com.soundcloud.android.view.adapters.TrackItemPresenter;
+import com.soundcloud.android.view.adapters.UserAdapter;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -86,21 +89,19 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     private static final String EXTRA_TITLE_ID = "title";
     private static final String EXTRA_SCREEN = "screen";
 
-    @Nullable
-    private ScListView listView;
+    @Nullable private ScListView listView;
     private ScBaseAdapter<?> adapter;
     private final DetachableResultReceiver detachableReceiver = new DetachableResultReceiver(new Handler());
 
-    private @Nullable
-    EmptyView emptyView;
+    @Nullable private EmptyView emptyView;
     private EmptyViewBuilder emptyViewBuilder;
 
     private Content content;
     private Uri contentUri;
     private NetworkConnectivityListener connectivityListener;
     private Handler connectivityHandler;
-    private @Nullable CollectionTask refreshTask;
-    private @Nullable LocalCollection localCollection;
+    @Nullable private CollectionTask refreshTask;
+    @Nullable private LocalCollection localCollection;
     private ChangeObserver changeObserver;
     private boolean ignorePlaybackStatus, keepGoing, pendingSync;
     private boolean legacyPlayer;
@@ -109,7 +110,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
     protected int statusCode;
 
-    private @Nullable BroadcastReceiver playlistChangedReceiver;
+    @Nullable private BroadcastReceiver playlistChangedReceiver;
 
     private SyncStateManager syncStateManager;
 
@@ -117,6 +118,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
     private Subscription userEventSubscription = Subscriptions.empty();
 
+    @Inject FeatureFlags featureFlags;
     @Inject AccountOperations accountOperations;
     @Inject ImageOperations imageOperations;
     @Inject EventBus eventBus;
@@ -221,6 +223,12 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     }
 
     @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        adapter.onViewCreated();
+    }
+
+    @Override
     public void onEmptyViewRetry() {
         refresh(true);
     }
@@ -297,6 +305,9 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         if (content == Content.ME_SOUNDS && adapter != null) {
             ((MyTracksAdapter) adapter).onDestroy();
         }
+        if (adapter != null) {
+            adapter.onDestroyView();
+        }
         // null out view references to avoid leaking the current Context in case we detach/re-attach
         listView = null;
         emptyView = null;
@@ -351,19 +362,12 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                 case PLAYLIST_LIKERS:
                 case PLAYLIST_REPOSTERS:
                 case SUGGESTED_USERS:
-                    adapter = new UserAdapter(contentUri, getScreen(), imageOperations);
-                    break;
                 case ME_FOLLOWERS:
                 case ME_FOLLOWINGS:
-                    adapter = new UserAssociationAdapter(contentUri, getScreen(), imageOperations);
+                    adapter = new UserAdapter(contentUri);
                     break;
                 case ME_SOUNDS:
-                    adapter = new MyTracksAdapter(getScActivity(), imageOperations);
-                    break;
-                case ME_LIKES:
-                case USER_LIKES:
-                case USER_SOUNDS:
-                    adapter = new SoundAssociationAdapter(contentUri);
+                    adapter = new MyTracksAdapter(getScActivity());
                     break;
                 case TRACK_COMMENTS:
                     adapter = new CommentAdapter(contentUri, imageOperations);
@@ -371,7 +375,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                 case ME_PLAYLISTS:
                 case USER_PLAYLISTS:
                 default:
-                    adapter = new DefaultPlayableAdapter(contentUri);
+                    adapter = new SoundAdapter(contentUri);
             }
             setListAdapter(adapter);
             configureEmptyView();

@@ -130,6 +130,18 @@ public class SearchResultsFragmentTest {
     }
 
     @Test
+    public void shouldForwardOnViewCreatedToAdapter() {
+        createFragmentView();
+        verify(adapter).onViewCreated();
+    }
+
+    @Test
+    public void shouldForwardOnDestroyViewToAdapter() {
+        fragment.onDestroyView();
+        verify(adapter).onDestroyView();
+    }
+
+    @Test
     public void shouldStartPlaybackWhenClickingPlayableRow() throws Exception {
         when(searchOperations.getAllSearchResults(anyString()))
                 .thenReturn(Observable.<Page<SearchResultsCollection>>empty());

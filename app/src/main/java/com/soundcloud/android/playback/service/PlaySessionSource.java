@@ -6,7 +6,6 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
-import org.jetbrains.annotations.NotNull;
 
 import android.content.SharedPreferences;
 import android.os.Parcel;
@@ -70,9 +69,9 @@ public class PlaySessionSource implements Parcelable{
         return playlistOwnerId;
     }
 
-    public void setPlaylist(@NotNull Playlist playlist) {
-        playlistId = playlist.getId();
-        playlistOwnerId = playlist.getUserId();
+    public void setPlaylist(long playlistId, long playlistOwnerId) {
+        this.playlistId = playlistId;
+        this.playlistOwnerId = playlistOwnerId;
     }
 
     public void setExploreVersion(String exploreVersion) {

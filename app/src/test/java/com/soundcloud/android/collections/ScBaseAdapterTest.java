@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.Context;
+import android.view.ViewGroup;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -33,7 +34,7 @@ public class ScBaseAdapterTest {
     public void setup() throws Exception {
         adapter = new ScBaseAdapter<User>(Content.USER.uri) {
             @Override
-            protected IconLayout createRow(Context context, int position) {
+            protected IconLayout createRow(Context context, int position, ViewGroup parent) {
                 return null;
             }
 

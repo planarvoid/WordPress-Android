@@ -29,16 +29,16 @@ public class FeatureFlagsTest {
     public void shouldBeEnabledWhenResourceValueIsTrue() {
         when(resources.getBoolean(anyInt())).thenReturn(true);
 
-        expect(featureFlags.isEnabled(Feature.NEW_STREAM)).toBeTrue();
-        expect(featureFlags.isDisabled(Feature.NEW_STREAM)).toBeFalse();
+        expect(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).toBeTrue();
+        expect(featureFlags.isDisabled(Feature.VISUAL_PLAYER)).toBeFalse();
     }
 
     @Test
     public void shouldBeDisabledWhenResourceValueIsFalse() {
         when(resources.getBoolean(anyInt())).thenReturn(false);
 
-        expect(featureFlags.isEnabled(Feature.NEW_STREAM)).toBeFalse();
-        expect(featureFlags.isDisabled(Feature.NEW_STREAM)).toBeTrue();
+        expect(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).toBeFalse();
+        expect(featureFlags.isDisabled(Feature.VISUAL_PLAYER)).toBeTrue();
     }
 
 }

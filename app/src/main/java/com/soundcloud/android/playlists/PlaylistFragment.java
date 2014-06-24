@@ -10,11 +10,11 @@ import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.image.ApiImageSize;
-import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.PlaylistUrn;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackProperty;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -26,6 +26,8 @@ import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
@@ -51,10 +53,12 @@ import android.widget.ToggleButton;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @SuppressLint("ValidFragment")
 public class PlaylistFragment extends Fragment implements AdapterView.OnItemClickListener, OnRefreshListener {
 
+    @Inject LegacyPlaylistOperations legacyPlaylistOperations;
     @Inject PlaylistOperations playlistOperations;
     @Inject PlaybackOperations playbackOperations;
     @Inject PlaybackStateProvider playbackStateProvider;
@@ -115,7 +119,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
     @VisibleForTesting
     PlaylistFragment(PlaybackOperations playbackOperations,
-                     PlaylistOperations playlistOperations,
+                     LegacyPlaylistOperations legacyPlaylistOperations,
                      PlaybackStateProvider playbackStateProvider,
                      ImageOperations imageOperations,
                      EngagementsController engagementsController,
@@ -123,7 +127,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
                      PullToRefreshController pullToRefreshController,
                      PlayQueueManager playQueueManager) {
         this.playbackOperations = playbackOperations;
-        this.playlistOperations = playlistOperations;
+        this.legacyPlaylistOperations = legacyPlaylistOperations;
         this.playbackStateProvider = playbackStateProvider;
         this.imageOperations = imageOperations;
         this.engagementsController = engagementsController;
@@ -141,7 +145,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadPlaylist = playlistOperations.loadPlaylist(getPlaylistUrn())
+        loadPlaylist = legacyPlaylistOperations.loadPlaylist(getPlaylistUrn())
                 .observeOn(mainThread())
                 .cache();
     }
@@ -178,7 +182,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
     @Override
     public void onRefreshStarted(View view) {
-        subscription = playlistOperations.refreshPlaylist(getPlaylistUrn())
+        subscription = legacyPlaylistOperations.refreshPlaylist(getPlaylistUrn())
                 .observeOn(mainThread())
                 .subscribe(new RefreshSubscriber());
     }
@@ -281,10 +285,13 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final int trackPosition = position - listView.getHeaderViewsCount();
-        final Track initialTrack = controller.getAdapter().getItem(trackPosition);
         final Playlist playlist = (Playlist) playablePresenter.getPlayable();
-        playbackOperations.playPlaylistFromPosition(getActivity(), playlist, trackPosition, initialTrack,
-                Screen.fromBundle(getArguments()));
+        final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
+
+        playbackOperations.playPlaylistFromPosition(getActivity(), playlist.toPropertySet(),
+                playlistOperations.trackUrnsForPlayback(playlist.getUrn()),
+                initialTrack.get(TrackProperty.URN),
+                trackPosition, Screen.fromBundle(getArguments()));
     }
 
     protected void refreshMetaData(Playlist playlist) {
@@ -310,15 +317,15 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     private String createHeaderText(Playlist playlist) {
         final String trackCount = getResources().getQuantityString(
                 R.plurals.number_of_sounds, playlist.getTrackCount(), playlist.getTrackCount());
-        final String duration = ScTextUtils.formatTimestamp(playlist.duration);
+        final String duration = ScTextUtils.formatTimestamp(playlist.duration, TimeUnit.MILLISECONDS);
         return getString(R.string.playlist_info_header_text, trackCount, duration);
     }
 
     private void updateTracksAdapter(Playlist playlist) {
-        final ItemAdapter<Track> adapter = controller.getAdapter();
+        final ItemAdapter<PropertySet> adapter = controller.getAdapter();
         adapter.clear();
         for (Track track : playlist.getTracks()) {
-            adapter.addItem(track);
+            adapter.addItem(track.toPropertySet());
         }
         adapter.notifyDataSetChanged();
     }

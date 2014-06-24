@@ -8,6 +8,8 @@ import android.os.Environment;
 import java.io.File;
 
 public final class Consts {
+    public static final int NOT_SET = -1;
+
     // this directory will be preserved across re-installs - e.g. used for recordings
     public static final File EXTERNAL_STORAGE_DIRECTORY = new File(
             Environment.getExternalStorageDirectory(), "SoundCloud");

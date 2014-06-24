@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                style="@style/ListItemLayout">
+
+    <ImageView android:id="@+id/image"
+               android:layout_width="40dp"
+               android:layout_height="40dp"
+               android:layout_marginTop="20dp"
+               android:background="#ccc"/>
+
+    <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/username"
+            style="@style/ListItemText.SecondaryText"
+            android:layout_toRightOf="@id/image"
+            android:layout_alignTop="@id/image"
+            android:layout_marginTop="-4dp"
+            android:layout_marginLeft="12dp"/>
+
+    <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/title"
+            style="@style/ListItemText.PrimaryText"
+            android:drawablePadding="4dp"
+            android:singleLine="true"
+            android:maxLines="1"
+            android:layout_below="@id/username"
+            android:layout_toRightOf="@id/image"/>
+
+    <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/date"
+            style="@style/ListItemText.Numeric"
+            android:layout_alignBaseline="@id/username"
+            android:layout_alignParentRight="true"/>
+
+</RelativeLayout>

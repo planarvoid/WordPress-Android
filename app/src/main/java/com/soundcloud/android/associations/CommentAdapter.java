@@ -11,6 +11,7 @@ import com.soundcloud.android.collections.views.IconLayout;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.view.ViewGroup;
 
 public class CommentAdapter extends ScBaseAdapter<Comment> {
 
@@ -22,7 +23,7 @@ public class CommentAdapter extends ScBaseAdapter<Comment> {
     }
 
     @Override
-    protected IconLayout createRow(Context context, int position) {
+    protected IconLayout createRow(Context context, int position, ViewGroup parent) {
         return new CommentRow(context, imageOperations);
     }
 

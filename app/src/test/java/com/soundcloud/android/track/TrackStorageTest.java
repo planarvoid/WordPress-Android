@@ -55,7 +55,7 @@ public class TrackStorageTest {
                 TrackProperty.URN.bind(Urn.forTrack(track.getId())),
                 PlayableProperty.TITLE.bind(track.getTitle()),
                 PlayableProperty.DURATION.bind(track.getDuration()),
-                PlayableProperty.CREATOR.bind(track.getUser().getUsername()),
+                PlayableProperty.CREATOR_NAME.bind(track.getUser().getUsername()),
                 TrackProperty.PLAY_COUNT.bind(track.getStats().getPlaybackCount()),
                 PlayableProperty.LIKES_COUNT.bind(track.getStats().getLikesCount()));
     }

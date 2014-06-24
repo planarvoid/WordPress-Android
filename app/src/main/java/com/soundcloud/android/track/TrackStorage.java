@@ -14,6 +14,7 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
@@ -77,9 +78,13 @@ public class TrackStorage extends ScheduledOperations {
             propertySet.put(TrackProperty.URN, readSoundUrn(cursorReader));
             propertySet.put(PlayableProperty.TITLE, cursorReader.getString(TableColumns.SoundView.TITLE));
             propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(TableColumns.SoundView.DURATION));
-            propertySet.put(PlayableProperty.CREATOR, cursorReader.getString(TableColumns.SoundView.USERNAME));
             propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(TableColumns.SoundView.PLAYBACK_COUNT));
             propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
+
+            // synced tracks that might not have a user if they haven't been lazily updated yet
+            final String creator = cursorReader.getString(TableColumns.SoundView.USERNAME);
+            propertySet.put(PlayableProperty.CREATOR_NAME, creator == null ? ScTextUtils.EMPTY_STRING : creator);
+
             return propertySet;
         }
 

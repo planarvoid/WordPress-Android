@@ -1,17 +1,18 @@
 package com.soundcloud.android.playlists;
 
-import com.soundcloud.android.model.Track;
+
 import com.soundcloud.android.view.adapters.CellPresenter;
 import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.propeller.PropertySet;
 
 import javax.inject.Inject;
 
-class InlinePlaylistTracksAdapter extends ItemAdapter<Track> {
+class InlinePlaylistTracksAdapter extends ItemAdapter<PropertySet> {
 
     @Inject
-    InlinePlaylistTracksAdapter(CellPresenter<Track> trackPresenter, EmptyPlaylistTracksPresenter emptyViewPresenter) {
-        super(new CellPresenterEntity<Track>(DEFAULT_VIEW_TYPE, trackPresenter),
-                new CellPresenterEntity<Track>(IGNORE_ITEM_VIEW_TYPE, emptyViewPresenter));
+    InlinePlaylistTracksAdapter(CellPresenter<PropertySet> trackPresenter, EmptyPlaylistTracksPresenter emptyViewPresenter) {
+        super(new CellPresenterEntity<PropertySet>(DEFAULT_VIEW_TYPE, trackPresenter),
+                new CellPresenterEntity<PropertySet>(IGNORE_ITEM_VIEW_TYPE, emptyViewPresenter));
     }
 
     @Override

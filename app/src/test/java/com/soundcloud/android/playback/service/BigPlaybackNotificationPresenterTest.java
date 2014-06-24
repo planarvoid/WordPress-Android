@@ -53,7 +53,7 @@ public class BigPlaybackNotificationPresenterTest {
         propertySet = PropertySet.from(
                 TrackProperty.URN.bind(TRACK_URN),
                 PlayableProperty.TITLE.bind(TITLE),
-                PlayableProperty.CREATOR.bind(CREATOR));
+                PlayableProperty.CREATOR_NAME.bind(CREATOR));
 
         when(context.getPackageName()).thenReturn(PACKAGE_NAME);
         when(factory.create(PACKAGE_NAME)).thenReturn(Mockito.mock(NotificationPlaybackRemoteViews.class));

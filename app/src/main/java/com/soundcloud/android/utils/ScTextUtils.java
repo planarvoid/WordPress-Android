@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class ScTextUtils {
@@ -145,25 +146,25 @@ public class ScTextUtils {
     }
 
     /**
-     * @param msecs duration or time in ms
-     * @return formatted time string in the form of 0.05 or 2.12.04
+     * @return formatted time string in the form of 0:05 or 2:12:04
      */
-    public static String formatTimestamp(long msecs){
-        StringBuilder builder = new StringBuilder();
-        int secs = (int) (msecs / 1000);
-        int minutes = secs  / 60;
-        int hours = minutes / 60;
+    public static String formatTimestamp(long duration, TimeUnit unit) {
+        final StringBuilder builder = new StringBuilder();
+        final long hours = unit.toHours(duration);
         if (hours > 0) {
-            builder.append(hours);
-            builder.append('.');
+            builder.append(hours).append(':');
         }
-        minutes = minutes % 60;
-        if (hours > 0 && minutes < 10) builder.append('0');
-        secs = secs % 60;
-        builder.append(minutes).append('.');
-        if (secs < 10) builder.append('0');
-        builder.append(secs);
-        return builder.toString();
+        final long minutes = unit.toMinutes(duration) % 60;
+        if (hours > 0 && minutes < 10) {
+            builder.append('0');
+        }
+
+        builder.append(minutes).append(':');
+        final long seconds = unit.toSeconds(duration) % 60;
+        if (seconds < 10) {
+            builder.append('0');
+        }
+        return builder.append(seconds).toString();
     }
 
     public static CharSequence getElapsedTimeString(Resources r, long start, boolean longerText) {
@@ -291,6 +292,18 @@ public class ScTextUtils {
 
     public static String formatNumberWithCommas(long number){
         return DECIMAL_FORMAT.format(number);
+    }
+
+    public static String shortenLargeNumber(int number) {
+        if (number <= 0) {
+            return EMPTY_STRING;
+        } else if (number >= 10000) {
+            return "9k+"; // top out at 9k or text gets too long again
+        } else if (number >= 1000) {
+            return number / 1000 + "k+";
+        } else {
+            return String.valueOf(number);
+        }
     }
 
 }

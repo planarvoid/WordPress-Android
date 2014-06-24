@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.api.http.PublicApiWrapper;
+import com.soundcloud.android.model.ActivityProperty;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
@@ -19,6 +20,7 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.propeller.PropertySet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 
@@ -69,7 +71,7 @@ public abstract class Activity extends ScModel implements Parcelable,
     // cache human readable elapsed time
     private String _elapsedTime;
 
-    private Date createdAt;
+    protected Date createdAt;
 
     /** needed for Deserialization */
     public Activity() {
@@ -312,6 +314,13 @@ public abstract class Activity extends ScModel implements Parcelable,
             i++;
         }
         return types;
+    }
+
+    public PropertySet toPropertySet() {
+        return PropertySet.create(5)
+                .put(ActivityProperty.DATE, createdAt)
+                .put(ActivityProperty.USER_NAME, getUser().getUsername())
+                .put(ActivityProperty.USER_URN, getUser().getUrn());
     }
 
     @Override

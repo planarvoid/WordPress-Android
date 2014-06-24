@@ -70,6 +70,16 @@ public class DatabaseHelper {
         return id;
     }
 
+    public TrackSummary insertPlaylistTrack(PlaylistSummary playlist, int position) throws CreateModelException {
+        TrackSummary trackSummary = insertTrack();
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlist.getId());
+        cv.put(TableColumns.PlaylistTracks.TRACK_ID, trackSummary.getId());
+        cv.put(TableColumns.PlaylistTracks.POSITION, position);
+        insertInto(Table.PLAYLIST_TRACKS, cv);
+        return trackSummary;
+    }
+
     public UserSummary insertUser() throws CreateModelException {
         final UserSummary user = TestHelper.getModelFactory().createModel(UserSummary.class);
         insertUser(user);

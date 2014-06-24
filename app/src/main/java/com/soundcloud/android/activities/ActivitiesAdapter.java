@@ -1,15 +1,15 @@
 package com.soundcloud.android.activities;
 
 import static com.soundcloud.android.associations.PlayableInteractionActivity.EXTRA_INTERACTION_TYPE;
+import static com.soundcloud.android.model.activities.Activity.Type;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.PlaylistInteractionActivity;
 import com.soundcloud.android.associations.TrackInteractionActivity;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.collections.tasks.CollectionParams;
-import com.soundcloud.android.collections.views.IconLayout;
-import com.soundcloud.android.collections.views.PlayableRow;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
@@ -19,13 +19,17 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,6 +39,8 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
 
     @Inject ImageOperations imageOperations;
     @Inject PlaybackOperations playbackOperations;
+    @Inject ActivityItemPresenter activityItemPresenter;
+
 
     public ActivitiesAdapter(Uri uri) {
         super(uri);
@@ -42,9 +48,18 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
+    @VisibleForTesting
+    ActivitiesAdapter(Uri uri, ImageOperations imageOperations, PlaybackOperations playbackOperations, ActivityItemPresenter presenter) {
+        super(uri);
+        this.activitiesStorage = new ActivitiesStorage();
+        this.imageOperations = imageOperations;
+        this.playbackOperations = playbackOperations;
+        this.activityItemPresenter = presenter;
+    }
+
     @Override
     public int getViewTypeCount() {
-        return super.getViewTypeCount() + Activity.Type.values().length;
+        return super.getViewTypeCount() + Type.values().length;
     }
 
     @Override
@@ -69,41 +84,21 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     }
 
     @Override
-    protected IconLayout createRow(Context context, int position) {
-        Activity.Type type = Activity.Type.values()[getItemViewType(position)];
-        switch (type) {
-            case TRACK:
-            case TRACK_SHARING:
-                return new PlayableRow(context, imageOperations);
+    protected View createRow(Context context, int position, ViewGroup parent) {
+        return activityItemPresenter.createItemView(position, parent);
+    }
 
-            case TRACK_REPOST:
-            case PLAYLIST_REPOST:
-                return (content == Content.ME_ACTIVITIES) ?
-                        new RepostActivityRow(context, imageOperations) : new PlayableRow(context, imageOperations);
-
-            case PLAYLIST:
-            case PLAYLIST_SHARING:
-                // TODO, playlist view
-                return new PlayableRow(context, imageOperations);
-
-            case COMMENT:
-                return new CommentActivityRow(context, imageOperations);
-
-            case TRACK_LIKE:
-                return new LikeActivityRow(context, imageOperations);
-
-
-            case PLAYLIST_LIKE:
-                return new LikeActivityRow(context, imageOperations);
-
-
-            case AFFILIATION:
-                return new AffiliationActivityRow(context, imageOperations);
-
-
-            default:
-                throw new IllegalArgumentException("no view for " + type + " yet");
+    @Override
+    protected void bindRow(int index, View rowView) {
+        activityItemPresenter.bindItemView(index, rowView, toPropertySets(getItems()));
+    }
+    
+    private List<PropertySet> toPropertySets(List<Activity> activities) {
+        List<PropertySet> propertySets = new ArrayList<PropertySet>(activities.size());
+        for (Activity activity : activities) {
+            propertySets.add(activity.toPropertySet());
         }
+        return propertySets;
     }
 
     @Override
@@ -134,7 +129,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     @Override
     public int handleListItemClick(Context context, int position, long id, Screen screen) {
 
-        Activity.Type type = Activity.Type.values()[getItemViewType(position)];
+        Type type = Type.values()[getItemViewType(position)];
         switch (type) {
             case TRACK:
             case TRACK_SHARING:

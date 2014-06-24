@@ -28,7 +28,7 @@ public class PlayQueueTest {
     public void setUp() throws Exception {
         playlist = TestHelper.getModelFactory().createModel(Playlist.class);
         playSessionSource  = new PlaySessionSource(ORIGIN_PAGE);
-        playSessionSource.setPlaylist(playlist);
+        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
         playSessionSource.setExploreVersion("1.0");
     }
 

@@ -14,6 +14,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.EngagementsController;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playlist;
@@ -27,6 +28,7 @@ import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyView;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowToast;
 import org.junit.Before;
@@ -54,24 +56,15 @@ public class PlaylistFragmentTest {
     private FragmentActivity activity = new FragmentActivity();
     private Playlist playlist = new Playlist(1L);
 
-    @Mock
-    private PlaybackOperations playbackOperations;
-    @Mock
-    private PlaylistOperations playlistOperations;
-    @Mock
-    private PlaybackStateProvider playbackStateProvider;
-    @Mock
-    private ImageOperations imageOperations;
-    @Mock
-    private EngagementsController engagementsController;
-    @Mock
-    private ItemAdapter adapter;
-    @Mock
-    private PlaylistDetailsController controller;
-    @Mock
-    private PullToRefreshController ptrController;
-    @Mock
-    private PlayQueueManager playQueueManager;
+    @Mock private PlaybackOperations playbackOperations;
+    @Mock private LegacyPlaylistOperations playlistOperations;
+    @Mock private PlaybackStateProvider playbackStateProvider;
+    @Mock private ImageOperations imageOperations;
+    @Mock private EngagementsController engagementsController;
+    @Mock private ItemAdapter adapter;
+    @Mock private PlaylistDetailsController controller;
+    @Mock private PullToRefreshController ptrController;
+    @Mock private PlayQueueManager playQueueManager;
 
     private Provider<PlaylistDetailsController> controllerProvider = new Provider<PlaylistDetailsController>() {
         @Override
@@ -101,7 +94,8 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldHidePlayToggleButtonWithNoTracks() throws Exception {
-        playlist.tracks = Lists.newArrayList(new Track(1L));
+        final Track track = TestHelper.getModelFactory().createModel(Track.class);
+        playlist.tracks = Lists.newArrayList(track);
         View layout = createFragmentView();
 
         ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
@@ -111,7 +105,8 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldHidePlayToggleButtonOnSecondPlaylistEmissionWithNoTracks() throws Exception {
-        playlist.tracks = Lists.newArrayList(new Track(1L));
+        final Track track = TestHelper.getModelFactory().createModel(Track.class);
+        playlist.tracks = Lists.newArrayList(track);
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(Arrays.asList(playlist, new Playlist(playlist.getId()))));
         View layout = createFragmentView();
 
@@ -234,22 +229,23 @@ public class PlaylistFragmentTest {
 
     @Test
     public void clearsAndAddsAllItemsToAdapterWhenPlaylistIsReturned() throws Exception {
-        final Track track1 = mock(Track.class);
-        final Track track2 = mock(Track.class);
+        final Track track1 = createTrackWithTitle("Track 1");
+        final Track track2 = createTrackWithTitle("Track 2");
+
         playlist.tracks = Lists.newArrayList(track1, track2);
 
         createFragmentView();
 
         InOrder inOrder = Mockito.inOrder(adapter);
         inOrder.verify(adapter).clear();
-        inOrder.verify(adapter).addItem(track1);
-        inOrder.verify(adapter).addItem(track2);
+        inOrder.verify(adapter).addItem(track1.toPropertySet());
+        inOrder.verify(adapter).addItem(track2.toPropertySet());
     }
 
     @Test
     public void clearsAndAddsAllItemsToAdapterForEachPlaylistWhenPlaylistIsEmittedMultipleTimes() throws Exception {
-        final Track track1 = new Track(1L);
-        final Track track2 = new Track(2L);
+        final Track track1 = createTrackWithTitle("Track 1");
+        final Track track2 = createTrackWithTitle("Title 2");
         playlist.tracks = Lists.newArrayList(track1);
         Playlist playlist2 = new Playlist(playlist.getId());
         playlist2.tracks = Lists.newArrayList(track1, track2);
@@ -261,16 +257,16 @@ public class PlaylistFragmentTest {
 
         InOrder inOrder = Mockito.inOrder(adapter);
         inOrder.verify(adapter).clear();
-        inOrder.verify(adapter).addItem(track1);
+        inOrder.verify(adapter).addItem(track1.toPropertySet());
         inOrder.verify(adapter).clear();
-        inOrder.verify(adapter).addItem(track1);
-        inOrder.verify(adapter).addItem(track2);
+        inOrder.verify(adapter).addItem(track1.toPropertySet());
+        inOrder.verify(adapter).addItem(track2.toPropertySet());
     }
 
     @Test
-    public void updatesContentWhenRefreshIsSuccessful() {
-        final Track track1 = new Track(1L);
-        final Track track2 = new Track(2L);
+    public void updatesContentWhenRefreshIsSuccessful() throws CreateModelException {
+        final Track track1 = createTrackWithTitle("Track 1");
+        final Track track2 = createTrackWithTitle("Track 2");
         playlist.tracks = Lists.newArrayList(track1);
         Playlist playlist2 = new Playlist(playlist.getId());
         playlist2.tracks = Lists.newArrayList(track2);
@@ -281,9 +277,9 @@ public class PlaylistFragmentTest {
         fragment.onRefreshStarted(mock(View.class));
 
         InOrder inOrder = Mockito.inOrder(adapter);
-        inOrder.verify(adapter).addItem(track1);
+        inOrder.verify(adapter).addItem(track1.toPropertySet());
         inOrder.verify(adapter).clear();
-        inOrder.verify(adapter).addItem(track2);
+        inOrder.verify(adapter).addItem(track2.toPropertySet());
     }
 
     @Test
@@ -299,8 +295,9 @@ public class PlaylistFragmentTest {
     }
 
     @Test
-    public void doesNotShowInlineErrorWhenContentWhenAlreadyShownAndRefreshFails() {
-        playlist.tracks = Lists.newArrayList(new Track(1L));
+    public void doesNotShowInlineErrorWhenContentWhenAlreadyShownAndRefreshFails() throws CreateModelException {
+        final Track track = TestHelper.getModelFactory().createModel(Track.class);
+        playlist.tracks = Lists.newArrayList(track);
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
         when(playlistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
                 Observable.<Playlist>error(new Exception("cannot refresh")));
@@ -353,6 +350,12 @@ public class PlaylistFragmentTest {
 
         ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
         expect(toggleButton.isChecked()).toBeFalse();
+    }
+
+    private Track createTrackWithTitle(String title) throws com.tobedevoured.modelcitizen.CreateModelException {
+        final Track model = TestHelper.getModelFactory().createModel(Track.class);
+        model.setTitle(title);
+        return model;
     }
 
     private View createFragmentView() {

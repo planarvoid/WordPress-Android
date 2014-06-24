@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -214,5 +215,16 @@ public class UserTest {
         expect(user.getUsername()).toEqual(suggestedUser.getUsername());
         expect(user.getCity()).toEqual(suggestedUser.getCity());
         expect(user.getCountry()).toEqual(suggestedUser.getCountry());
+    }
+
+    @Test
+    public void shouldConvertToPropertySet() throws CreateModelException {
+        User user = TestHelper.getModelFactory().createModel(User.class);
+        PropertySet propertySet = user.toPropertySet();
+
+        expect(propertySet.get(UserProperty.URN)).toEqual(user.getUrn());
+        expect(propertySet.get(UserProperty.USERNAME)).toEqual(user.getUsername());
+        expect(propertySet.get(UserProperty.COUNTRY)).toEqual(user.getCountry());
+        expect(propertySet.get(UserProperty.FOLLOWERS_COUNT)).toEqual(user.followers_count);
     }
 }

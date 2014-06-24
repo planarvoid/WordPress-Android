@@ -12,6 +12,7 @@ import com.soundcloud.android.blueprints.CategoryBlueprint;
 import com.soundcloud.android.blueprints.PlaybackEventBlueprint;
 import com.soundcloud.android.blueprints.PlaylistBlueprint;
 import com.soundcloud.android.blueprints.PlaylistSummaryBlueprint;
+import com.soundcloud.android.blueprints.RecordingBlueprint;
 import com.soundcloud.android.blueprints.SuggestedUserBlueprint;
 import com.soundcloud.android.blueprints.TrackBlueprint;
 import com.soundcloud.android.blueprints.TrackStatsBlueprint;
@@ -97,6 +98,7 @@ public class TestHelper {
             modelFactory.registerBlueprint(UserUrnBlueprint.class);
             modelFactory.registerBlueprint(UserSummaryBlueprint.class);
             modelFactory.registerBlueprint(TrackBlueprint.class);
+            modelFactory.registerBlueprint(RecordingBlueprint.class);
             modelFactory.registerBlueprint(CategoryBlueprint.class);
             modelFactory.registerBlueprint(SuggestedUserBlueprint.class);
             modelFactory.registerBlueprint(TrackSummaryBlueprint.class);

@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class AddCommentDialog extends BaseDialogFragment {
 
@@ -87,11 +88,11 @@ public class AddCommentDialog extends BaseDialogFragment {
         if (comment.reply_to_id > 0) {
             input.setHint(getString(R.string.comment_hint_reply,
                     comment.reply_to_username,
-                    ScTextUtils.formatTimestamp(comment.timestamp)));
+                    ScTextUtils.formatTimestamp(comment.timestamp, TimeUnit.MILLISECONDS)));
         } else {
             input.setHint(comment.timestamp == -1 ?
                     getString(R.string.comment_hint_untimed) :
-                    getString(R.string.comment_hint_timed, ScTextUtils.formatTimestamp(comment.timestamp)));
+                    getString(R.string.comment_hint_timed, ScTextUtils.formatTimestamp(comment.timestamp, TimeUnit.MILLISECONDS)));
         }
     }
 

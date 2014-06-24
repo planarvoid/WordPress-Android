@@ -3,9 +3,9 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,14 +40,14 @@ public class EmptyPlaylistTracksPresenterTest {
 
     @Test
     public void bindsEmptyViewWithWaitingStateByDefault() throws Exception {
-        presenter.bindItemView(0, emptyView, Collections.<Track>emptyList());
+        presenter.bindItemView(0, emptyView, Collections.<PropertySet>emptyList());
         verify(emptyView).setStatus(EmptyView.Status.WAITING);
     }
 
     @Test
     public void bindsEmptyViewWithCustomState() throws Exception {
         presenter.setEmptyViewStatus(EmptyView.Status.ERROR);
-        presenter.bindItemView(0, emptyView, Collections.<Track>emptyList());
+        presenter.bindItemView(0, emptyView, Collections.<PropertySet>emptyList());
         verify(emptyView).setStatus(EmptyView.Status.ERROR);
     }
 }

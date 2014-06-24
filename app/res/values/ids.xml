@@ -3,4 +3,10 @@
     <item name="root_view_id" type="id" />
     <item name="navigation_fragment_id" type="id" />
     <item name="fixed_navigation_fragment_id" type="id" />
+
+    <!-- list item views -->
+    <item name="list_item_header" type="id" />
+    <item name="list_item_subheader" type="id" />
+    <item name="list_item_counter" type="id" />
+    <item name="list_item_right_info" type="id" />
 </resources>

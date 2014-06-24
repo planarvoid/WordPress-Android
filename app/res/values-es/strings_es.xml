@@ -47,9 +47,6 @@
   <string name="cloud_recorder_event_title">Grabación en curso</string>
   <string name="cloud_recorder_playback_event_title">Reproducción en curso</string>
   <string name="cloud_upload_clear_artwork">Pulsar para eliminar ilustraciones</string>
-  <string name="cloud_upload_currently_uploading">Subida en curso. Puede comprobar el progreso en Avisos</string>
-  <string name="cloud_upload_not_yet_uploaded">Aún no se ha subido</string>
-  <string name="cloud_upload_upload_failed">fallo en la subida</string>
   <string name="cloud_uploader_notification_error_message">Ocurrió un error al subir %s</string>
   <string name="cloud_uploader_notification_error_ticker">Error en la subida</string>
   <string name="cloud_uploader_notification_error_title">Error en la subida</string>
@@ -196,7 +193,6 @@
   <string name="facebook_authentication_error_no_connection_message">Por favor, inténtelo de nuevo en unos minutos o inicie sesión con su nombre de usuario y contraseña.</string>
   <string name="facebook_authentication_failed_message">Por favor, inténtelo de nuevo en unos minutos o inicie sesión utilizando el nombre de usuario y contraseña de SoundCloud.</string>
   <string name="facebook_authentication_failed_title">¡Vaya! No podemos conectar con Facebook en este momento.</string>
-  <string name="follower_count">recuento de seguidores</string>
   <string name="from">de</string>
   <string name="image_load_error">Ocurrió un error al cargar la imagen</string>
   <string name="image_where">¿Cómo le gustaría añadir una imagen?</string>
@@ -301,7 +297,6 @@
   <string name="this_user">este usuario</string>
   <string name="track">sonido</string>
   <string name="track_by">por</string>
-  <string name="track_count">número de sonidos</string>
   <plurals name="track_info_commenters">
     <item quantity="one">1 comentario sobre este sonido</item>
     <item quantity="other">%d comentarios sobre este sonido</item>

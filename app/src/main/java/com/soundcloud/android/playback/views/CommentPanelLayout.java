@@ -20,6 +20,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.concurrent.TimeUnit;
+
 public class CommentPanelLayout extends RelativeLayout {
 
     private final ImageView mIcon;
@@ -163,7 +165,7 @@ public class CommentPanelLayout extends RelativeLayout {
         if (mComment == null) return;
 
         mTxtUsername.setText(mComment.user.username);
-        mTxtTimestamp.setText(String.format(at_timestamp, ScTextUtils.formatTimestamp(mComment.timestamp)));
+        mTxtTimestamp.setText(String.format(at_timestamp, ScTextUtils.formatTimestamp(mComment.timestamp, TimeUnit.MILLISECONDS)));
         mTxtComment.setText(mComment.body);
         mTxtElapsed.setText(ScTextUtils.getElapsedTimeString(getResources(), mComment.getCreatedAt().getTime(), true));
         mTxtUsername.setVisibility(View.VISIBLE);

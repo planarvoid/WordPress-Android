@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.concurrent.TimeUnit;
+
 public class PlayerTimeView extends RelativeLayout {
     private TextView mCurrentTime;
     private TextView mTotalTime;
@@ -110,7 +112,7 @@ public class PlayerTimeView extends RelativeLayout {
     }
 
     public void setCurrentTime(long time) {
-        mCurrentTime.setText(ScTextUtils.formatTimestamp(time));
+        mCurrentTime.setText(ScTextUtils.formatTimestamp(time, TimeUnit.MILLISECONDS));
 
         if (getParent() == null) return;
 
@@ -178,7 +180,7 @@ public class PlayerTimeView extends RelativeLayout {
 
         setCurrentTime(0l);
         mDuration = time;
-        mTotalTime.setText(ScTextUtils.formatTimestamp(time));
+        mTotalTime.setText(ScTextUtils.formatTimestamp(time, TimeUnit.MILLISECONDS));
         invalidate();
     }
 

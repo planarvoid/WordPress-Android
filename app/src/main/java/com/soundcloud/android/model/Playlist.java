@@ -11,6 +11,7 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentValues;
@@ -151,6 +152,8 @@ public class Playlist extends Playable {
         tracks_uri = updatedItem.tracks_uri;
         track_count = updatedItem.track_count;
         playlist_type = updatedItem.playlist_type;
+        last_updated = updatedItem.last_updated;
+
         if (cacheUpdateMode == CacheUpdateMode.FULL) {
             tracks = updatedItem.tracks;
         }
@@ -174,6 +177,9 @@ public class Playlist extends Playable {
         ContentValues cv = super.buildContentValues();
         cv.put(TableColumns.Sounds.TRACKS_URI, tracks_uri);
         cv.put(TableColumns.Sounds.TRACK_COUNT, track_count);
+        if (!isIncomplete()){
+            cv.put(TableColumns.Sounds.LAST_UPDATED, System.currentTimeMillis());
+        }
         return cv;
     }
 
@@ -241,4 +247,10 @@ public class Playlist extends Playable {
         track_count = count;
     }
 
+    public PropertySet toPropertySet() {
+        return super.toPropertySet()
+                .put(PlaylistProperty.TRACK_COUNT, track_count)
+                .put(PlayableProperty.LIKES_COUNT, likes_count)
+                .put(PlayableProperty.IS_LIKED, user_like);
+    }
 }

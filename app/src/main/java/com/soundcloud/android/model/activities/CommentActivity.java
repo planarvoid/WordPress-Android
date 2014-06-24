@@ -2,12 +2,14 @@ package com.soundcloud.android.model.activities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ActivityProperty;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.propeller.PropertySet;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -73,5 +75,12 @@ public class CommentActivity extends Activity {
     @Override
     public boolean isIncomplete() {
         return false;
+    }
+
+    @Override
+    public PropertySet toPropertySet() {
+        return super.toPropertySet()
+                .put(ActivityProperty.TYPE, ActivityProperty.TYPE_COMMENT)
+                .put(ActivityProperty.SOUND_TITLE, comment.track.getTitle());
     }
 }

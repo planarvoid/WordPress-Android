@@ -8,14 +8,15 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.api.http.json.Views;
 import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +32,7 @@ import android.text.TextUtils;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
-public class User extends ScResource implements UserHolder {
+public class User extends ScResource implements UserHolder, PropertySetSource {
     public static final int     TYPE = 0;
     public static final String  EXTRA = "user";
 
@@ -252,6 +253,15 @@ public class User extends ScResource implements UserHolder {
         this.username = username;
     }
 
+    @Nullable
+    public String getAvatarUrl() {
+        return avatar_url;
+    }
+
+    public void setAvatarUrl(@Nullable String avatarUrl) {
+        this.avatar_url = avatarUrl;
+    }
+
     public String getPermalink(){
         return permalink;
     }
@@ -332,6 +342,19 @@ public class User extends ScResource implements UserHolder {
 
     public String getLocation() {
         return ScTextUtils.getLocation(city, country);
+    }
+
+    @Override
+    public PropertySet toPropertySet() {
+        final PropertySet propertySet = PropertySet.from(
+                UserProperty.URN.bind(getUrn()),
+                UserProperty.USERNAME.bind(username),
+                UserProperty.FOLLOWERS_COUNT.bind(followers_count)
+        );
+        if (country != null){
+            propertySet.put(UserProperty.COUNTRY, country);
+        }
+        return propertySet;
     }
 
     public static interface DataKeys {

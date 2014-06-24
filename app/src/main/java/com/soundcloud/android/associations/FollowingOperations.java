@@ -22,11 +22,13 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
+import com.soundcloud.android.model.UserUrn;
 import com.soundcloud.android.model.activities.Activities;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
@@ -41,6 +43,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -54,11 +57,13 @@ public class FollowingOperations {
     private final ScModelManager modelManager;
     private final UserAssociationStorage userAssociationStorage;
     private final RxHttpClient rxHttpClient;
+    private final SyncInitiator syncInitiator;
 
     public FollowingOperations() {
         this(new SoundCloudRxHttpClient(), new UserAssociationStorage(SoundCloudApplication.instance),
                 new SyncStateManager(SoundCloudApplication.instance),
-                FollowStatus.get(), SoundCloudApplication.sModelManager);
+                FollowStatus.get(), SoundCloudApplication.sModelManager,
+                new SyncInitiator(SoundCloudApplication.instance, SoundCloudApplication.instance.getAccountOperations()));
     }
 
     /**
@@ -68,26 +73,30 @@ public class FollowingOperations {
      *
      * @param scheduler the scheduler to use for all internal observables
      */
+    @Deprecated
     public FollowingOperations(Scheduler scheduler) {
         this(new SoundCloudRxHttpClient(scheduler), new UserAssociationStorage(scheduler, SoundCloudApplication.instance.getContentResolver()),
                 new SyncStateManager(SoundCloudApplication.instance),
-                FollowStatus.get(), SoundCloudApplication.sModelManager);
+                FollowStatus.get(), SoundCloudApplication.sModelManager,
+                new SyncInitiator(SoundCloudApplication.instance, SoundCloudApplication.instance.getAccountOperations()));
     }
 
     // TODO, rollback memory state on error
     @Inject
     protected FollowingOperations(RxHttpClient httpClient, UserAssociationStorage userAssociationStorage,
-                               SyncStateManager syncStateManager, FollowStatus followStatus, ScModelManager modelManager) {
-        rxHttpClient = httpClient;
+                                  SyncStateManager syncStateManager, FollowStatus followStatus,
+                                  ScModelManager modelManager, SyncInitiator syncInitiator) {
+        this.rxHttpClient = httpClient;
         this.userAssociationStorage = userAssociationStorage;
         this.syncStateManager = syncStateManager;
         this.followStatus = followStatus;
         this.modelManager = modelManager;
+        this.syncInitiator = syncInitiator;
     }
 
-    public Observable<UserAssociation> addFollowing(@NotNull final User user) {
+    public Observable<Boolean> addFollowing(@NotNull final User user) {
         updateLocalStatus(true, user.getId());
-        return userAssociationStorage.follow(user);
+        return userAssociationStorage.follow(user).lift(new ToggleFollowOperator(user.getUrn(), true));
     }
 
     public Observable<UserAssociation> addFollowingBySuggestedUser(@NotNull final SuggestedUser suggestedUser) {
@@ -95,9 +104,9 @@ public class FollowingOperations {
         return userAssociationStorage.followSuggestedUser(suggestedUser);
     }
 
-    public Observable<UserAssociation> removeFollowing(final User user) {
+    public Observable<Boolean> removeFollowing(final User user) {
         updateLocalStatus(false, user.getId());
-        return userAssociationStorage.unfollow(user);
+        return userAssociationStorage.unfollow(user).lift(new ToggleFollowOperator(user.getUrn(), false));
     }
 
     public Observable<UserAssociation> addFollowingsBySuggestedUsers(final List<SuggestedUser> suggestedUsers) {
@@ -119,7 +128,7 @@ public class FollowingOperations {
         return userAssociationStorage.unfollowList(users);
     }
 
-    public Observable<UserAssociation> toggleFollowing(User user) {
+    public Observable<Boolean> toggleFollowing(User user) {
         if (followStatus.isFollowing(user)) {
             return removeFollowing(user);
         } else {
@@ -128,8 +137,8 @@ public class FollowingOperations {
     }
 
     public Observable<UserAssociation> toggleFollowingBySuggestedUser(SuggestedUser suggestedUser) {
-        if (followStatus.isFollowing(suggestedUser.getId())) {
-            return removeFollowing(new User(suggestedUser));
+        if (followStatus.isFollowing(suggestedUser.getUrn())) {
+            return removeFollowingsBySuggestedUsers(Arrays.asList(suggestedUser));
         } else {
             return addFollowingBySuggestedUser(suggestedUser);
         }
@@ -224,8 +233,8 @@ public class FollowingOperations {
         return followStatus.getFollowedUserIds();
     }
 
-    public boolean isFollowing(User user) {
-        return followStatus.isFollowing(user);
+    public boolean isFollowing(UserUrn urn) {
+        return followStatus.isFollowing(urn);
     }
 
     public void requestUserFollowings(FollowStatusChangedListener listener) {
@@ -277,4 +286,35 @@ public class FollowingOperations {
         }
     }
 
+    private final class ToggleFollowOperator implements Observable.Operator<Boolean, UserAssociation> {
+
+        private final UserUrn userUrn;
+        private final boolean successState;
+
+        ToggleFollowOperator(UserUrn userUrn, boolean successState) {
+            this.userUrn = userUrn;
+            this.successState = successState;
+        }
+
+        @Override
+        public Subscriber<? super UserAssociation> call(final Subscriber<? super Boolean> subscriber) {
+            return new Subscriber<UserAssociation>() {
+                @Override
+                public void onCompleted() {
+                    syncInitiator.pushFollowingsToApi();
+                    subscriber.onCompleted();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    subscriber.onNext(isFollowing(userUrn));
+                }
+
+                @Override
+                public void onNext(UserAssociation userAssociation) {
+                    subscriber.onNext(successState);
+                }
+            };
+        }
+    }
 }

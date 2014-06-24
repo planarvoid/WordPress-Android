@@ -23,6 +23,7 @@ import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.stream.SoundStreamFragment;
 import com.soundcloud.android.view.screen.ScreenPresenter;
 import rx.subscriptions.CompositeSubscription;
 
@@ -54,7 +55,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject SoundCloudApplication application;
     @Inject ScreenPresenter presenter;
     @Inject UserOperations userOperations;
-    @Inject StreamFragmentFactory streamFragmentFactory;
     @Inject FeatureFlags featureFlags;
     @Inject PlayerController playerController;
 
@@ -309,10 +309,10 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     }
 
     private void displayStream() {
-         boolean onboardingResult = getIntent().getBooleanExtra(EXTRA_ONBOARDING_USERS_RESULT, true);
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(STREAM_FRAGMENT_TAG);
+        boolean onboardingSucceeded = getIntent().getBooleanExtra(EXTRA_ONBOARDING_USERS_RESULT, true);
         if (fragment == null) {
-            fragment = streamFragmentFactory.create(onboardingResult);
+            fragment = SoundStreamFragment.create(onboardingSucceeded);
             attachFragment(fragment, STREAM_FRAGMENT_TAG, R.string.side_menu_stream);
         }
     }

@@ -51,6 +51,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class Recording extends ScResource implements Comparable<Recording> {
@@ -126,6 +127,11 @@ public class Recording extends ScResource implements Comparable<Recording> {
         int UPLOADED            = 2; // successfully uploaded
         int ERROR               = 4; // network / api error
     }
+
+    public Recording() {
+        // No-op constr for the Blueprint
+    }
+
     public Recording(File f) {
         this(f, null);
     }
@@ -333,17 +339,15 @@ public class Recording extends ScResource implements Comparable<Recording> {
         return (external_upload && audio_path.getParentFile().equals(SoundRecorder.RECORD_DIR));
     }
 
-    public String getStatus(Resources resources) {
-        if (upload_status == Status.UPLOADING) {
-            return resources.getString(R.string.cloud_upload_currently_uploading);
-        } else {
-            return ScTextUtils.getTimeElapsed(resources, lastModified())
-                    + ", "
-                    + formattedDuration()
-                    + ", "
-                    + (upload_status == Status.ERROR ?
-                    resources.getString(R.string.cloud_upload_upload_failed) :
-                    resources.getString(R.string.cloud_upload_not_yet_uploaded));
+    public String getStatusMessage(Resources resources) {
+        switch (upload_status) {
+            case Status.UPLOADING:
+                return resources.getString(R.string.recording_uploading);
+            case Status.ERROR:
+                return resources.getString(R.string.recording_upload_failed);
+            case Status.NOT_YET_UPLOADED:
+            default:
+                return resources.getString(R.string.recording_pending_upload);
         }
     }
 
@@ -355,7 +359,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     public String formattedDuration() {
-        return ScTextUtils.formatTimestamp(duration);
+        return ScTextUtils.formatTimestamp(duration, TimeUnit.MILLISECONDS);
     }
 
     public void record(Context context) {
@@ -812,4 +816,37 @@ public class Recording extends ScResource implements Comparable<Recording> {
         return trimmed;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    // Model citizen requires this name...
+    public boolean getIsPrivate() {
+        return is_private;
+    }
+
+    public long getUserId() {
+        return user_id;
+    }
+
+    public void setUserId(long userId) {
+        this.user_id = userId;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
+    // Model citizen requires this name...
+    public void setIsPrivate(boolean isPrivate) {
+        this.is_private = isPrivate;
+    }
 }

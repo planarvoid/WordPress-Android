@@ -1,9 +1,6 @@
 package com.soundcloud.android.screens.search;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.collections.views.UserlistRow;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -14,8 +11,6 @@ import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.with.With;
 
-import android.view.View;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 public class SearchResultsScreen extends Screen {
@@ -35,21 +30,19 @@ public class SearchResultsScreen extends Screen {
 
     public LegacyPlayerScreen clickFirstTrackItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        View itemView = getFirstResultsItemByClass(Track.class);
-        testDriver.wrap(itemView).click();
+        testDriver.findElement(With.id(R.id.track_list_item)).click();
         return new LegacyPlayerScreen(testDriver);
     }
 
     public PlaylistDetailsScreen clickFirstPlaylistItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        View itemView = getFirstResultsItemByClass(Playlist.class);
-        testDriver.wrap(itemView).click();
+        testDriver.findElement(With.id(R.id.playlist_list_item)).click();
         return new PlaylistDetailsScreen(testDriver);
     }
 
     public ProfileScreen clickFirstUserItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver.findElement(With.className(UserlistRow.class)).click();
+        testDriver.findElement(With.id(R.id.user_list_item)).click();
         return new ProfileScreen(testDriver);
     }
 
@@ -100,18 +93,6 @@ public class SearchResultsScreen extends Screen {
 
     private ListView resultsList() {
         return (ListView) getViewPager().getCurrentPage(ListView.class);
-    }
-
-    private View getFirstResultsItemByClass(Class itemClass) {
-        ListAdapter adapter = resultsList().getAdapter();
-        waiter.waitForItemCountToIncrease(adapter, 0);
-        int numberOfItems = adapter.getCount();
-        for (int i = 0; i < numberOfItems; i++) {
-            if(itemClass.isInstance(adapter.getItem(i))) {
-                return resultsList().getChildAt(i);
-            }
-        }
-        return null;
     }
 
     private SlidingTabs tabs(){

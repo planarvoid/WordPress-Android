@@ -1,23 +1,26 @@
 
 package com.soundcloud.android.collections;
 
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.collections.tasks.CollectionParams;
+import com.soundcloud.android.collections.tasks.ReturnData;
+import com.soundcloud.android.collections.tasks.UpdateCollectionTask;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.behavior.Creation;
 import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.collections.tasks.CollectionParams;
-import com.soundcloud.android.collections.tasks.ReturnData;
-import com.soundcloud.android.collections.tasks.UpdateCollectionTask;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,6 +36,7 @@ import android.widget.BaseAdapter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Deprecated
@@ -81,10 +85,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         return data.get(location);
     }
 
-    public T getLastItem() {
-        return getItem(getItemCount() - 1);
-    }
-
     public @NotNull List<T> getItems() {
         return data;
     }
@@ -129,18 +129,23 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
 
         View rowView;
         if (row == null) {
-            rowView = createRow(parent.getContext(), index);
+            rowView = createRow(parent.getContext(), index, parent);
         } else {
             rowView = row;
         }
 
-        if (rowView instanceof ListRow) {
-            ((ListRow) rowView).display(index, getItem(index));
-        }
+        bindRow(index, rowView);
+
         return rowView;
     }
 
-    protected abstract View createRow(Context context, int position);
+    protected void bindRow(int index, View rowView) {
+        if (rowView instanceof ListRow) {
+            ((ListRow) rowView).display(index, getItem(index));
+        }
+    }
+
+    protected abstract View createRow(Context context, int position, ViewGroup parent);
 
     public void clearData() {
         data.clear();
@@ -159,9 +164,21 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         return getCount() == 0;
     }
 
+    public void updateItems(Map<Urn, ScResource> updatedItems){
+        notifyDataSetChanged();
+    }
+
 
     public void onResume(ScActivity activity) {
         refreshCreationStamps(activity);
+    }
+
+    public void onViewCreated() {
+        // hook for fragments
+    }
+
+    public void onDestroyView() {
+        // hook for fragments
     }
 
     public void refreshCreationStamps(@NotNull Activity activity) {
@@ -180,15 +197,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         boolean lastItemReached = itemCount > 0 && (itemCount - lookAheadSize <= firstVisibleItem);
 
         return !isLoadingData && lastItemReached;
-    }
-
-    public void insertItem(T item) {
-        int indexOfItem = data.indexOf(item);
-        if (indexOfItem  >= 0) {
-            data.set(indexOfItem, item);
-        } else {
-            data.add(item);
-        }
     }
 
     public void addItems(List<T> newItems) {

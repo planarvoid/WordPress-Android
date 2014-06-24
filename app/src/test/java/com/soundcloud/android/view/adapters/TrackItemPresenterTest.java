@@ -1,8 +1,12 @@
 package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ApiImageSize;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.TrackProperty;
 import com.soundcloud.android.model.Urn;
@@ -31,6 +35,8 @@ public class TrackItemPresenterTest {
 
     @Mock
     private LayoutInflater inflater;
+    @Mock
+    private ImageOperations imageOperations;
 
     private View itemView;
 
@@ -40,7 +46,7 @@ public class TrackItemPresenterTest {
     public void setUp() throws Exception {
         propertySet = PropertySet.from(
                 PlayableProperty.TITLE.bind("title"),
-                PlayableProperty.CREATOR.bind("creator"),
+                PlayableProperty.CREATOR_NAME.bind("creator"),
                 PlayableProperty.DURATION.bind(227000),
                 PlayableProperty.URN.bind(Urn.forTrack(123)),
                 TrackProperty.PLAY_COUNT.bind(870)
@@ -54,28 +60,36 @@ public class TrackItemPresenterTest {
     public void shouldBindTitleToView() {
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(textView(R.id.title).getText()).toEqual("title");
+        expect(textView(R.id.list_item_subheader).getText()).toEqual("title");
     }
 
     @Test
     public void shouldBindDurationToView() {
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(textView(R.id.duration).getText()).toEqual("3.47");
+        expect(textView(R.id.list_item_right_info).getText()).toEqual("3:47");
     }
 
     @Test
     public void shouldBindCreatorToView() {
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(textView(R.id.username).getText()).toEqual("creator");
+        expect(textView(R.id.list_item_header).getText()).toEqual("creator");
     }
 
     @Test
     public void shouldBindPlayCountToView() {
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(textView(R.id.play_count).getText()).toEqual("870");
+        expect(textView(R.id.list_item_counter).getText()).toEqual("870");
+    }
+
+    @Test
+    public void shouldNotBindPlayCountToViewIfPlayCountNotSet() {
+        propertySet.put(TrackProperty.PLAY_COUNT, Consts.NOT_SET);
+        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+
+        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
     }
 
     @Test
@@ -95,11 +109,31 @@ public class TrackItemPresenterTest {
     }
 
     @Test
+    public void shouldShowPrivateIndicatorIfTrackIsPrivate() {
+        propertySet.put(PlayableProperty.IS_PRIVATE, true);
+        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+
+        expect(textView(R.id.private_indicator).getVisibility()).toEqual(View.VISIBLE);
+        expect(textView(R.id.now_playing).getVisibility()).toEqual(View.GONE);
+        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
+    }
+
+    @Test
+    public void shouldHidePrivateIndicatorIfTrackIsPublic() {
+        propertySet.put(PlayableProperty.IS_PRIVATE, false);
+        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+
+        expect(textView(R.id.private_indicator).getVisibility()).toEqual(View.GONE);
+        expect(textView(R.id.now_playing).getVisibility()).toEqual(View.GONE);
+        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.VISIBLE);
+    }
+
+    @Test
     public void shouldHighlightCurrentlyPlayingTrack() {
         presenter.setPlayingTrack(Urn.forTrack(123));
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(textView(R.id.play_count).getVisibility()).toEqual(View.GONE);
+        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
         expect(textView(R.id.now_playing).getVisibility()).toEqual(View.VISIBLE);
     }
 
@@ -108,8 +142,17 @@ public class TrackItemPresenterTest {
         presenter.setPlayingTrack(Urn.forTrack(-1));
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(textView(R.id.play_count).getVisibility()).toEqual(View.VISIBLE);
+        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.VISIBLE);
         expect(textView(R.id.now_playing).getVisibility()).toEqual(View.GONE);
+    }
+
+    @Test
+    public void shouldLoadTrackArtwork() {
+        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        verify(imageOperations).displayInAdapterView(
+                Urn.forTrack(123),
+                ApiImageSize.getListItemImageSize(itemView.getContext()),
+                (android.widget.ImageView) itemView.findViewById(R.id.image));
     }
 
     private TextView textView(int id) {
