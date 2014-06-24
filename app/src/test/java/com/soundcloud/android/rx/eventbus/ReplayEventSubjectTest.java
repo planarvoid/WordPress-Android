@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import rx.Observer;
+import rx.exceptions.OnErrorNotImplementedException;
 
 public class ReplayEventSubjectTest {
 
@@ -68,12 +69,12 @@ public class ReplayEventSubjectTest {
         verifyZeroInteractions(observer1);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = OnErrorNotImplementedException.class)
     public void shouldRethrowRuntimeExceptions() {
         subject.onError(new RuntimeException());
     }
 
-    @Test(expected = StackOverflowError.class)
+    @Test(expected = OnErrorNotImplementedException.class)
     public void shouldRethrowFatalErrors() {
         subject.onError(new StackOverflowError());
     }

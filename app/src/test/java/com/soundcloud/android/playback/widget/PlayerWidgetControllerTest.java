@@ -16,6 +16,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -198,6 +199,7 @@ public class PlayerWidgetControllerTest {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class)))
                 .thenReturn(Observable.from(track));
+        when(soundAssocicationOps.toggleLike(false, track)).thenReturn(Observable.<SoundAssociation>never());
 
         controller.handleToggleLikeAction(true);
 
