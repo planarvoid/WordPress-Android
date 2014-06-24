@@ -110,7 +110,7 @@ public class SoundCloudApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        RxJavaPlugins.getInstance().registerErrorHandler(new RxGlobalErrorHandler());
+        registerRxGlobalErrorHandler();
 
         instance = this;
 
@@ -151,6 +151,13 @@ public class SoundCloudApplication extends Application {
         playSessionController.subscribe();
         playSessionAnalyticsController.subscribe();
         playbackNotificationController.subscribe();
+    }
+
+    private void registerRxGlobalErrorHandler() {
+        final RxJavaPlugins rxJavaPlugins = RxJavaPlugins.getInstance();
+        if (rxJavaPlugins.getErrorHandler() == null) {
+            rxJavaPlugins.registerErrorHandler(new RxGlobalErrorHandler());
+        }
     }
 
     private void setupCurrentUserAccount() {
