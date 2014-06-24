@@ -62,10 +62,12 @@
     </style>
     <style name="ListPrivateIndicator" parent="ListItemText.ThirdaryText">
         <item name="android:drawableLeft">@drawable/stats_private</item>
+        <item name="android:drawablePadding">3dp</item>
         <item name="android:background">@drawable/round_rect_orange</item>
+        <item name="android:paddingRight">10dp</item>
         <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:text">@string/private_indicator</item>
-
     </style>
 
     <!-- old list styles -->
