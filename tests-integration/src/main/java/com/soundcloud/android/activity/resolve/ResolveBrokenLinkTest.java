@@ -2,7 +2,6 @@ package com.soundcloud.android.activity.resolve;
 
 import static com.soundcloud.android.tests.hamcrest.IsVisible.Visible;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.TestConsts;
@@ -18,7 +17,7 @@ public class ResolveBrokenLinkTest extends ResolveBaseTest {
     }
 
     public void test_should_land_on_stream_if_cannot_resolve_deeplink() {
+        waiter.expect(solo.getToast()).toHaveText("There was a problem loading that url");
         assertThat(new StreamScreen(solo), is(Visible()));
-        assertThat(solo.getToast().getText(), is(equalToIgnoringCase("There was a problem loading that url")));
     }
 }

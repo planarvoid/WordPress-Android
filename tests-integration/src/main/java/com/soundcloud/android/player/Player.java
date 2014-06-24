@@ -7,15 +7,14 @@ import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.screens.elements.PlayerElement;
-import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TestUser;
 
 public class Player extends ActivityTestCase<MainActivity> {
 
-    private PlayerElement playerElement;
+    private VisualPlayerElement playerElement;
 
     public Player() {
         super(MainActivity.class);
@@ -31,7 +30,7 @@ public class Player extends ActivityTestCase<MainActivity> {
     }
 
     public void testPlayerShouldNotBeVisibleWhenPlayQueueIsEmpty() throws Exception {
-        playerElement = new PlayerElement(solo);
+        playerElement = new VisualPlayerElement(solo);
         assertThat(playerElement.isVisible(), is(false));
     }
 
@@ -141,14 +140,14 @@ public class Player extends ActivityTestCase<MainActivity> {
         ExploreScreen exploreScreen = openExploreFromMenu();
         waiter.waitForContentAndRetryIfLoadingFailed();
         exploreScreen.playFirstTrack();
-        playerElement = new PlayerElement(solo);
+        playerElement = new VisualPlayerElement(solo);
         waiter.waitForExpandedPlayer();
         playerElement.waitForContent();
     }
 
     private void playSingleTrack(){
         menuScreen.open().clickLikes().clickItem(2);
-        playerElement = new PlayerElement(solo);
+        playerElement = new VisualPlayerElement(solo);
     }
 
     private ExploreScreen openExploreFromMenu() {

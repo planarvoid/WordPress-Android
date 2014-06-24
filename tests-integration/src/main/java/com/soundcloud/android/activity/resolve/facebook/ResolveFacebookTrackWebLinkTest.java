@@ -7,7 +7,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.TestConsts;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.screens.LegacyPlayerScreen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 import android.net.Uri;
 
@@ -22,16 +25,24 @@ public class ResolveFacebookTrackWebLinkTest extends FacebookResolveBaseTest {
     }
 
     public void testFacebookTrackDeeplinkOpensPlayerScreenAndLoadRecommendations() {
-        playerScreen = new LegacyPlayerScreen(solo);
-        assertThat(playerScreen, is(Visible()));
+        FeatureFlags featureFlags = new FeatureFlags(getInstrumentation().getTargetContext().getResources());
+        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
+            VisualPlayerElement player = new VisualPlayerElement(solo);
+            assertThat(player.isVisible(), is(true));
+            assertThat(player.getTrackTitle(), is(equalToIgnoringCase(TRACK_NAME)));
+            // TODO : No recommendation for the visual player ?
+        } else {
+            playerScreen = new LegacyPlayerScreen(solo);
+            assertThat(playerScreen, is(Visible()));
 
-        playerScreen.stopPlayback();
-        waiter.expect(playerScreen.trackTitle())
-                .toHaveText(TRACK_NAME);
+            playerScreen.stopPlayback();
+            waiter.expect(playerScreen.trackTitle())
+                    .toHaveText(TRACK_NAME);
 
-        // make sure recommendations load
-        playerScreen.swipeLeft();
+            // make sure recommendations load
+            playerScreen.swipeLeft();
 
-        assertThat(TRACK_NAME, is(not(equalToIgnoringCase(playerScreen.getTrackTitle()))));
+            assertThat(TRACK_NAME, is(not(equalToIgnoringCase(playerScreen.getTrackTitle()))));
+        }
     }
 }

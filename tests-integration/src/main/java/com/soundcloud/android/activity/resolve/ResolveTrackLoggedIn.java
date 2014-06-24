@@ -8,12 +8,12 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.elements.PlayerElement;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 import android.net.Uri;
 
 public class ResolveTrackLoggedIn extends ResolveBaseTest {
-    private PlayerElement visualPlayer;
+    private VisualPlayerElement visualPlayer;
 
     public ResolveTrackLoggedIn() {
         setDependsOn(Feature.VISUAL_PLAYER);
@@ -23,7 +23,7 @@ public class ResolveTrackLoggedIn extends ResolveBaseTest {
     protected void setUp() throws Exception {
         // Note : ResolveBaseTest launch the Activity with the data provided by getUri()
         super.setUp();
-        visualPlayer = new PlayerElement(solo);
+        visualPlayer = new VisualPlayerElement(solo);
     }
 
     @Override

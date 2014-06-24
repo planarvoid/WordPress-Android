@@ -1,10 +1,8 @@
 package com.soundcloud.android.activity.resolve.facebook;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.profile.ProfileActivity;

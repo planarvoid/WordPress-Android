@@ -1,14 +1,12 @@
 package com.soundcloud.android.activity.resolve;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 
 import com.soundcloud.android.TestConsts;
-import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.screens.ProfileScreen;
 
 import android.net.Uri;
-import com.soundcloud.android.screens.ProfileScreen;
 
 public class ResolveClickTrackingUrl extends ResolveBaseTest {
 
@@ -18,8 +16,7 @@ public class ResolveClickTrackingUrl extends ResolveBaseTest {
     }
 
     public void testResolveUrl() throws Exception {
-        profileScreen = new ProfileScreen(solo);
-        solo.assertActivity(ProfileActivity.class, DEFAULT_WAIT);
+        ProfileScreen profileScreen = new ProfileScreen(solo);
         assertThat(profileScreen.getUserName(), equalToIgnoringCase("steveangello"));
     }
 }
