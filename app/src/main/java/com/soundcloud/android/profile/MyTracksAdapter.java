@@ -1,10 +1,15 @@
 package com.soundcloud.android.profile;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
@@ -14,15 +19,22 @@ import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.view.adapters.CellPresenter;
 import com.soundcloud.android.view.adapters.PendingRecordingItemPresenter;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
+import com.soundcloud.android.view.adapters.TrackChangedSubscriber;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import com.soundcloud.propeller.PropertySet;
+import rx.Subscription;
+import rx.subscriptions.CompositeSubscription;
+import rx.subscriptions.Subscriptions;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -37,6 +49,7 @@ import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
 
@@ -53,8 +66,12 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     @Inject PlaybackOperations playbackOperations;
     @Inject TrackItemPresenter trackItemPresenter;
     @Inject PlaylistItemPresenter playlistItemPresenter;
-    @Inject ImageOperations imageOperations;
     @Inject PendingRecordingItemPresenter pendingRecordingItemPresenter;
+    @Inject ImageOperations imageOperations;
+    @Inject EventBus eventBus;
+
+    private Subscription eventSubscriptions = Subscriptions.empty();
+    private final List<PropertySet> propertySets = new ArrayList<PropertySet>(Consts.LIST_PAGE_SIZE);
 
     public MyTracksAdapter(ScActivity activity) {
         super(Content.ME_SOUNDS.uri);
@@ -123,7 +140,6 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     }
 
     private List<PropertySet> toPropertySet(List<? extends ScResource> items) {
-        List<PropertySet> propertySets = new ArrayList<PropertySet>(items.size());
         for (ScResource resource : items) {
             final PropertySet propertySet;
             if (resource instanceof SoundAssociation) {
@@ -281,6 +297,53 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
         public void onChange(boolean selfChange) {
             ScActivity activity = contextRef.get();
             if (activity != null) onContentChanged(activity);
+        }
+    }
+
+    @Override
+    public void clearData() {
+        super.clearData();
+        this.propertySets.clear();
+    }
+
+    @Override
+    public void updateItems(Map<Urn, ScResource> updatedItems){
+        for (int i = 0; i < propertySets.size(); i++) {
+            final Urn key = propertySets.get(i).get(PlayableProperty.URN);
+            if (updatedItems.containsKey(key)){
+                propertySets.set(i, ((Playable) updatedItems.get(key)).toPropertySet());
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void onViewCreated() {
+        eventSubscriptions = new CompositeSubscription(
+                eventBus.subscribe(EventQueue.PLAY_QUEUE, new TrackChangedSubscriber(this, trackItemPresenter)),
+                eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new PlayableChangedSubscriber())
+        );
+    }
+
+    @Override
+    public void onDestroyView() {
+        eventSubscriptions.unsubscribe();
+    }
+
+    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableChangedEvent> {
+        @Override
+        public void onNext(final PlayableChangedEvent event) {
+            final int index = Iterables.indexOf(propertySets, new Predicate<PropertySet>() {
+                @Override
+                public boolean apply(PropertySet item) {
+                    return item.get(PlayableProperty.URN).equals(event.getUrn());
+                }
+            });
+
+            if (index > -1) {
+                propertySets.get(index).merge(event.getChangeSet());
+                notifyDataSetChanged();
+            }
         }
     }
 
