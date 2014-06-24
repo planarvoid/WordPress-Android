@@ -5,10 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import rx.exceptions.OnErrorNotImplementedException;
 
-@RunWith(JUnit4.class)
 public class ErrorUtilsTest {
 
     @Test
@@ -28,14 +26,18 @@ public class ErrorUtilsTest {
         verify(mockError).printStackTrace();
     }
 
-    @Test(expected = RuntimeException.class)
-    public void handleThrowableShouldRethrowJavaErrors() {
+    @Test(expected = OnErrorNotImplementedException.class)
+    public void handleThrowableShouldRethrowJavaErrorsAsOnErrorNotImplemented() {
         ErrorUtils.handleThrowable(new StackOverflowError());
     }
 
-    @Test(expected = RuntimeException.class)
-    public void handleThrowableShouldRethrowJavaUncheckedExceptions() {
+    @Test(expected = OnErrorNotImplementedException.class)
+    public void handleThrowableShouldRethrowJavaUncheckedExceptionsAsOnErrorNotImplemented() {
         ErrorUtils.handleThrowable(new RuntimeException());
     }
 
+    @Test(expected = RuntimeException.class)
+    public void handleThrowableShouldRethrowCauseFromOnErrorNotImplemented() {
+        ErrorUtils.handleThrowable(new OnErrorNotImplementedException(new RuntimeException()));
+    }
 }
