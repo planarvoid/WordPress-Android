@@ -109,15 +109,8 @@ public class SearchResultsAdapterTest {
     }
 
     @Test
-    public void shouldRegisterItselfWithUserPresenterAsToggleFollowListenerInOnViewCreated() {
-        adapter.onViewCreated();
+    public void shouldRegisterItselfWithUserPresenterAsToggleFollowListenerInConstructor() {
         verify(userPresenter).setToggleFollowListener(adapter);
-    }
-
-    @Test
-    public void shouldUnregisterItselfFromUserPresenterInOnDestroyView() {
-        adapter.onDestroyView();
-        verify(userPresenter).setToggleFollowListener(null);
     }
 
     @Test

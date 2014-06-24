@@ -53,6 +53,7 @@ class SearchResultsAdapter extends PagingItemAdapter<ScResource>
         this.trackPresenter = trackPresenter;
         this.userPresenter = userPresenter;
         followingOperations.requestUserFollowings(this);
+        userPresenter.setToggleFollowListener(this);
     }
 
     @Override
@@ -96,12 +97,10 @@ class SearchResultsAdapter extends PagingItemAdapter<ScResource>
                 eventBus.subscribe(EventQueue.PLAY_QUEUE, new TrackChangedSubscriber(this, trackPresenter)),
                 eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new PlayableChangedSubscriber())
         );
-        userPresenter.setToggleFollowListener(this);
     }
 
     void onDestroyView() {
         eventSubscriptions.unsubscribe();
-        userPresenter.setToggleFollowListener(null);
     }
 
     private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableChangedEvent> {
