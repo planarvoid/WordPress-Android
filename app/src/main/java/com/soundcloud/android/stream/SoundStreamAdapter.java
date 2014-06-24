@@ -23,18 +23,14 @@ class SoundStreamAdapter extends PagingItemAdapter<PropertySet> {
     @VisibleForTesting static final int PLAYLIST_ITEM_TYPE = 1;
 
     private final EventBus eventBus;
+    private final TrackItemPresenter trackPresenter;
     private Subscription eventSubscriptions = Subscriptions.empty();
-    private TrackItemPresenter trackPresenter;
 
     @Inject
     SoundStreamAdapter(TrackItemPresenter trackPresenter, PlaylistItemPresenter playlistPresenter, EventBus eventBus) {
         super(new CellPresenterEntity<PropertySet>(TRACK_ITEM_TYPE, trackPresenter),
                 new CellPresenterEntity<PropertySet>(PLAYLIST_ITEM_TYPE, playlistPresenter));
         this.eventBus = eventBus;
-        init(trackPresenter);
-    }
-
-    private void init(TrackItemPresenter trackPresenter) {
         this.trackPresenter = trackPresenter;
     }
 
