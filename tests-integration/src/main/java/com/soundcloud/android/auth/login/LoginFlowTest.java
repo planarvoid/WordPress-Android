@@ -196,6 +196,6 @@ public class LoginFlowTest extends LoginTestCase {
         loginScreen.clickOkButton();
 
         String message = solo.getString(R.string.authentication_error_incomplete_fields);
-        assertThat(solo.getToast().getText(), is(equalToIgnoringCase(message)));
+        waiter.expect(solo.getToast()).toHaveText(message);
     }
 }

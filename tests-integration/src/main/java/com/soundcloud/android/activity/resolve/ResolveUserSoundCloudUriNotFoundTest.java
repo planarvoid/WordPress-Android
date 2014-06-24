@@ -15,6 +15,6 @@ public class ResolveUserSoundCloudUriNotFoundTest extends ResolveBaseTest {
     }
 
     public void testResolveUnknownUrlShouldShowErrorLoadingUrl() throws Exception {
-        assertThat(solo.getToast().getText(), is(equalToIgnoringCase("There was a problem loading that url")));
+        waiter.expect(solo.getToast()).toHaveText("There was a problem loading that url");
     }
 }

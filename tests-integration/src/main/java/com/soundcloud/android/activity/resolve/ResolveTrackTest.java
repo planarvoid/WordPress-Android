@@ -24,7 +24,7 @@ public class ResolveTrackTest extends ActivityTestCase<ResolveActivity> {
         // We are not logged in
 
         assertThat(new HomeScreen(solo), is(Visible()));
-        assertThat(solo.getToast().getText(), is(equalToIgnoringCase("Please log in to open this link")));
+        waiter.expect(solo.getToast()).toHaveText("Please log in to open this link");
     }
 
     private Uri getUri() {
