@@ -107,11 +107,13 @@ public class SoundAdapter extends ScBaseAdapter<ScResource> {
         this.propertySets.clear();
     }
 
+    @Override
     public void addItems(List<ScResource> newItems) {
         super.addItems(newItems);
         this.propertySets.addAll(toPropertySets(newItems));
     }
 
+    @Override
     public void updateItems(Map<Urn, ScResource> updatedItems){
         for (int i = 0; i < propertySets.size(); i++) {
             final Urn key = propertySets.get(i).get(PlayableProperty.URN);
@@ -165,7 +167,7 @@ public class SoundAdapter extends ScBaseAdapter<ScResource> {
                 }
             });
 
-            if (index > - 1) {
+            if (index > -1) {
                 propertySets.get(index).merge(event.getChangeSet());
                 notifyDataSetChanged();
             }
