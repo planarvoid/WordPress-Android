@@ -20,7 +20,6 @@ import com.soundcloud.android.model.behavior.Creation;
 import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -194,7 +193,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         // if loading, subtract the loading item from total count
         int lookAheadSize = visibleItemCount * 2;
         int itemCount = isLoadingData ? totalItemCount - 1 : totalItemCount; // size without the loading spinner
-        boolean lastItemReached = itemCount > 0 && (itemCount - lookAheadSize <= firstVisibleItem);
+        boolean lastItemReached = itemCount > 0 && itemCount - lookAheadSize <= firstVisibleItem;
 
         return !isLoadingData && lastItemReached;
     }

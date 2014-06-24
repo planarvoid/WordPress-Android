@@ -27,7 +27,6 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playlists.PlaylistChangedReceiver;
 import com.soundcloud.android.profile.MyTracksAdapter;
 import com.soundcloud.android.properties.Feature;
@@ -41,8 +40,6 @@ import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
-import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
-import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import com.soundcloud.android.view.adapters.UserAdapter;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
@@ -98,8 +95,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
     private Content content;
     private Uri contentUri;
-    private NetworkConnectivityListener connectivityListener;
-    private Handler connectivityHandler;
     @Nullable private CollectionTask refreshTask;
     @Nullable private LocalCollection localCollection;
     private ChangeObserver changeObserver;
@@ -245,8 +240,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
             localCollection = syncStateManager.fromContentAsync(contentUri, this);
         }
 
-        connectivityListener = new NetworkConnectivityListener();
-        connectivityHandler = new ConnectivityHandler(this, connectivityListener);
+        NetworkConnectivityListener connectivityListener = new NetworkConnectivityListener();
+        Handler connectivityHandler = new ConnectivityHandler(this, connectivityListener);
         connectivityListener.registerHandler(connectivityHandler, CONNECTIVITY_MSG);
 
         IntentFilter playbackFilter = new IntentFilter();
