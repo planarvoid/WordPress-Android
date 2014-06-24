@@ -9,7 +9,7 @@ import android.view.ViewParent;
 
 import java.util.List;
 
-public interface ViewElement {
+public interface ViewElement extends ElementWithText {
     ViewElement findElement(With with);
 
     List<ViewElement> findElements(With with);

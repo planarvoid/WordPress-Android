@@ -4,10 +4,10 @@ import static junit.framework.Assert.assertEquals;
 
 public class ExpectedConditions {
 
-    private final ViewElement viewElement;
+    private final ElementWithText viewElement;
     private final Waiter waiter;
 
-    public ExpectedConditions(Waiter waiter, ViewElement element) {
+    public ExpectedConditions(Waiter waiter, ElementWithText element) {
         this.waiter = waiter;
         this.viewElement = element;
     }
