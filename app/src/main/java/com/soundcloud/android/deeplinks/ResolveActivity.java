@@ -1,5 +1,7 @@
 package com.soundcloud.android.deeplinks;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -7,10 +9,17 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.main.WebViewActivity;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
+import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.Nullable;
@@ -25,17 +34,28 @@ import javax.inject.Inject;
 
 public class ResolveActivity extends TrackedActivity implements FetchModelTask.Listener<ScResource> {
 
-    @Nullable
-    private ResolveFetchTask resolveTask;
-    private PublicCloudAPI oldCloudAPI;
+    @Inject PublicCloudAPI oldCloudAPI;
+    @Nullable private ResolveFetchTask resolveTask;
     @Inject AccountOperations accountOperations;
+    @Inject FeatureFlags featureFlags;
+    @Inject PlaybackOperations playbackOperations;
+
+    public ResolveActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @VisibleForTesting
+    ResolveActivity(PlaybackOperations playbackOperations, FeatureFlags featureFlags) {
+        SoundCloudApplication.getObjectGraph().inject(this);
+        this.playbackOperations = playbackOperations;
+        this.featureFlags = featureFlags;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.resolve);
         oldCloudAPI = new PublicApi(this);
-        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @Override
@@ -55,7 +75,7 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
                 finish();
             }
         } else {
-            showLaunchActivityWithMessage(R.string.error_toast_user_not_logged_in);
+            launchApplicationWithMessage(R.string.error_toast_user_not_logged_in);
         }
     }
 
@@ -66,24 +86,24 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
         resolveTask.execute(data);
     }
 
-    private void showLaunchActivityWithMessage(int messageId) {
+    @Override
+    public void onError(Object context) {
+        resolveTask = null;
+
+        if (shouldFallbackOnWebapp(context)) {
+            startActivity(new Intent(this, WebViewActivity.class).setData((Uri) context));
+        } else {
+            launchApplicationWithMessage(R.string.error_loading_url);
+        }
+    }
+
+    private void launchApplicationWithMessage(int messageId) {
         AndroidUtils.showToast(this, messageId);
         startActivity(new Intent(this, LauncherActivity.class));
         finish();
     }
 
-    @Override
-    public void onError(Object context) {
-        resolveTask = null;
-
-        if (shouldRedirectToWeb(context)) {
-            startActivity(new Intent(this, WebViewActivity.class).setData((Uri) context));
-        } else {
-            showLaunchActivityWithMessage(R.string.error_loading_url);
-        }
-    }
-
-    private boolean shouldRedirectToWeb(Object context) {
+    private boolean shouldFallbackOnWebapp(Object context) {
         if (context instanceof Uri) {
             Uri unresolved = (Uri) context;
             // resolved to a soundcloud.com url ?
@@ -94,17 +114,40 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
 
     @Override
     public void onSuccess(ScResource resource) {
-
         resolveTask = null;
-        Intent intent = resource.getViewIntent();
-        if (intent != null){
-            Screen.DEEPLINK.addToIntent(intent);
-            startActivity(intent);
-        } else {
-            Log.e(SoundCloudApplication.TAG,"Cannot find view intent for resource " + resource);
-        }
-
+        startActivityForResource(resource);
         finish();
+    }
+
+    private void startActivityForResource(ScResource resource) {
+        if (resource instanceof Playable && featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
+            startPlayback(resource);
+            startStreamScreenWithAnExpandedPlayer();
+        } else {
+            Intent intent = resource.getViewIntent();
+            if (intent != null) {
+                Screen.DEEPLINK.addToIntent(intent);
+                startActivity(intent);
+            } else {
+                Log.e(SoundCloudApplication.TAG, "Cannot find view intent for resource " + resource);
+            }
+        }
+    }
+
+    private void startStreamScreenWithAnExpandedPlayer() {
+        Intent intent = new Intent(Actions.STREAM);
+        intent.putExtra(MainActivity.EXPAND_PLAYER, true);
+        startActivity(intent);
+    }
+
+    private void startPlayback(ScResource resource) {
+        if (resource instanceof Playlist) {
+            playbackOperations.playPlaylist(((Playlist) resource), Screen.DEEPLINK);
+        } else if (resource instanceof Track) {
+            playbackOperations.playTrack(this, ((Track) resource), Screen.DEEPLINK);
+        } else {
+            throw new IllegalArgumentException("Unknown resource type : " + resource.getClass().getCanonicalName());
+        }
     }
 }
 
