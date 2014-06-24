@@ -258,18 +258,18 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     }
 
     public void onDestroy() {
-        Context context = changeObserver.mContextRef.get();
+        Context context = changeObserver.contextRef.get();
         if (context != null) {
             context.getContentResolver().unregisterContentObserver(changeObserver);
         }
     }
 
     private class ChangeObserver extends ContentObserver {
-        private WeakReference<ScActivity> mContextRef;
+        private WeakReference<ScActivity> contextRef;
 
         public ChangeObserver(ScActivity activity) {
             super(new Handler());
-            mContextRef = new WeakReference<ScActivity>(activity);
+            contextRef = new WeakReference<ScActivity>(activity);
         }
 
         @Override
@@ -279,7 +279,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
 
         @Override
         public void onChange(boolean selfChange) {
-            ScActivity activity = mContextRef.get();
+            ScActivity activity = contextRef.get();
             if (activity != null) onContentChanged(activity);
         }
     }
