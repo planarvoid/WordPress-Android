@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Deprecated
+@SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract")
 public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     protected final Content content;
     protected final Uri contentUri;
