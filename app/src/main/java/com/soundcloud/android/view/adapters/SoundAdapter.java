@@ -101,6 +101,12 @@ public class SoundAdapter extends ScBaseAdapter<ScResource> {
         }
     }
 
+    @Override
+    public void clearData() {
+        super.clearData();
+        this.propertySets.clear();
+    }
+
     public void addItems(List<ScResource> newItems) {
         super.addItems(newItems);
         this.propertySets.addAll(toPropertySets(newItems));

@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.refEq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.analytics.Screen;
@@ -93,6 +94,22 @@ public class SoundAdapterTest {
         expect(convertedTrack.get(PlayableProperty.CREATOR_URN)).toEqual(track.getUser().getUrn());
         expect(convertedTrack.get(PlayableProperty.CREATOR_NAME)).toEqual(track.getUser().getUsername());
         expect(convertedTrack.get(PlayableProperty.IS_PRIVATE)).toEqual(track.isPrivate());
+    }
+
+    @Test
+    public void clearItemsClearsInitialPropertySets() throws CreateModelException {
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        adapter.addItems(Arrays.<ScResource>asList(track));
+        adapter.bindRow(0, itemView);
+        adapter.clearData();
+
+        Track track2 = TestHelper.getModelFactory().createModel(Track.class);
+        adapter.addItems(Arrays.<ScResource>asList(track2));
+        adapter.bindRow(0, itemView);
+
+        verify(trackPresenter, times(2)).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
+        PropertySet convertedTrack = propSetCaptor.getAllValues().get(1).get(0);
+        expect(convertedTrack.get(TrackProperty.URN)).toEqual(track2.getUrn());
     }
 
     @Test
