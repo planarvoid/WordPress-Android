@@ -17,6 +17,7 @@ import android.content.Context;
 import android.database.Cursor;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +29,7 @@ import java.util.WeakHashMap;
  * support in our list loading.
  */
 @Deprecated
+@Singleton // global state required
 /* package */ class FollowStatus {
     private final Set<Long> followings = Collections.synchronizedSet(new HashSet<Long>());
     private static FollowStatus instance;
