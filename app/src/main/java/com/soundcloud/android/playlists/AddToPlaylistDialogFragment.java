@@ -38,8 +38,7 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
-public class AddToPlaylistDialogFragment extends BaseDialogFragment
-        implements LoaderManager.LoaderCallbacks<Cursor> {
+public class AddToPlaylistDialogFragment extends BaseDialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String KEY_ORIGIN_SCREEN = "ORIGIN_SCREEN";
     private static final String KEY_TRACK_ID = "TRACK_ID";
@@ -52,8 +51,8 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
 
     private MyPlaylistsAdapter adapter;
 
-    @Inject PlaylistOperations mPlaylistOperations;
-    @Inject EventBus mEventBus;
+    @Inject PlaylistOperations playlistOperations;
+    @Inject EventBus eventBus;
 
     public static AddToPlaylistDialogFragment from(Track track, String originScreen) {
         Bundle b = new Bundle();
@@ -106,11 +105,11 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
         long newTracksCount = ScTextUtils.safeParseLong(String.valueOf(txtTrackCount.getText())) + 1;
         txtTrackCount.setText(String.valueOf(newTracksCount));
 
-        fromFragment(this, mPlaylistOperations.addTrackToPlaylist(
+        fromFragment(this, playlistOperations.addTrackToPlaylist(
                 playlistId, trackId)).subscribe(new TrackAddedSubscriber());
 
         final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
-        mEventBus.publish(EventQueue.UI, UIEvent.fromAddToPlaylist(originScreen, false, trackId));
+        eventBus.publish(EventQueue.UI, UIEvent.fromAddToPlaylist(originScreen, false, trackId));
     }
 
     @Override
@@ -187,30 +186,30 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
     }
 
     private static class MyPlaylistsAdapter extends BaseAdapter {
-        private Context mContext;
-        private Cursor mCursor;
+        private Context context;
+        private Cursor cursor;
 
         public MyPlaylistsAdapter(Context c) {
-            mContext = c;
+            context = c;
         }
 
         @Override
         public int getCount() {
-            return mCursor == null ? 0 : mCursor.getCount();
+            return cursor == null ? 0 : cursor.getCount();
         }
 
         public Object getItem(int position) {
-            if (mCursor == null) {
+            if (cursor == null) {
                 return null;
             } else {
-                mCursor.moveToPosition(position);
-                return mCursor;
+                cursor.moveToPosition(position);
+                return cursor;
             }
         }
 
         public long getItemId(int position) {
-            if (mCursor != null && mCursor.moveToPosition(position)) {
-                return mCursor.getLong(mCursor.getColumnIndex(TableColumns.PlaylistTracksView._ID));
+            if (cursor != null && cursor.moveToPosition(position)) {
+                return cursor.getLong(cursor.getColumnIndex(TableColumns.PlaylistTracksView._ID));
             } else {
                 return 0;
             }
@@ -218,8 +217,8 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
 
         @Override
         public boolean isEnabled(int position) {
-            if (mCursor != null && mCursor.moveToPosition(position)) {
-                return mCursor.getInt(mCursor.getColumnIndex(COL_ALREADY_ADDED)) != 1;
+            if (cursor != null && cursor.moveToPosition(position)) {
+                return cursor.getInt(cursor.getColumnIndex(COL_ALREADY_ADDED)) != 1;
             } else {
                 return false;
             }
@@ -228,26 +227,26 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
-                convertView = View.inflate(mContext, R.layout.add_to_playlist_list_item, null);
+                convertView = View.inflate(context, R.layout.add_to_playlist_list_item, null);
             }
 
-            if (mCursor.moveToPosition(position)) {
+            if (cursor.moveToPosition(position)) {
                 final TextView txtTitle = (TextView) convertView.findViewById(R.id.title);
                 final TextView txtTrackCount = ((TextView) convertView.findViewById(R.id.trackCount));
 
                 // text colors
-                final boolean alreadyAdded = (mCursor.getInt(mCursor.getColumnIndex(COL_ALREADY_ADDED)) == 1);
+                final boolean alreadyAdded = (cursor.getInt(cursor.getColumnIndex(COL_ALREADY_ADDED)) == 1);
                 txtTitle.setEnabled(!alreadyAdded);
 
-                txtTitle.setText(mCursor.getString(mCursor.getColumnIndex(TableColumns.PlaylistTracksView.TITLE)));
-                final int trackCount = mCursor.getInt(mCursor.getColumnIndex(TableColumns.PlaylistTracksView.TRACK_COUNT));
+                txtTitle.setText(cursor.getString(cursor.getColumnIndex(TableColumns.PlaylistTracksView.TITLE)));
+                final int trackCount = cursor.getInt(cursor.getColumnIndex(TableColumns.PlaylistTracksView.TRACK_COUNT));
                 if (trackCount == -1) {
                     txtTrackCount.setCompoundDrawablesWithIntrinsicBounds(
-                            null, null, mContext.getResources().getDrawable(R.drawable.ic_plus), null);
+                            null, null, context.getResources().getDrawable(R.drawable.ic_plus), null);
                     txtTrackCount.setText(null);
                 } else {
                     txtTrackCount.setCompoundDrawablesWithIntrinsicBounds(
-                            mContext.getResources().getDrawable(R.drawable.stats_sounds), null, null, null);
+                            context.getResources().getDrawable(R.drawable.stats_sounds), null, null, null);
                     txtTrackCount.setText(String.valueOf(trackCount));
                 }
             }
@@ -255,7 +254,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment
         }
 
         public void setCursor(Cursor data) {
-            mCursor = data;
+            cursor = data;
             notifyDataSetChanged();
         }
     }

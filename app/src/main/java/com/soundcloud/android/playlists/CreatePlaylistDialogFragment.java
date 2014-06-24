@@ -26,9 +26,9 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
     private static final String KEY_ORIGIN_SCREEN = "ORIGIN_SCREEN";
     private static final String KEY_TRACK_ID = "TRACK_ID";
 
-    @Inject PlaylistOperations mPlaylistOperations;
-    @Inject EventBus mEventBus;
-    @Inject ApplicationProperties mApplicationProperties;
+    @Inject PlaylistOperations playlistOperations;
+    @Inject EventBus eventBus;
+    @Inject ApplicationProperties properties;
     @Inject AccountOperations accountOperations;
 
     public static CreatePlaylistDialogFragment from(long trackId, String originScreen) {
@@ -53,7 +53,7 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
         initialBuilder.setTitle(R.string.create_new_playlist);
         initialBuilder.setView(dialogView);
 
-        if (!mApplicationProperties.isDevBuildRunningOnDalvik()){
+        if (!properties.isDevBuildRunningOnDalvik()){
             privacy.setVisibility(View.GONE);
         }
 
@@ -70,7 +70,7 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
                 if (TextUtils.isEmpty(playlistTitle)) {
                     Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT).show();
                 } else {
-                    createPlaylist(playlistTitle, mApplicationProperties.isDevBuildRunningOnDalvik() && privacy.isChecked());
+                    createPlaylist(playlistTitle, properties.isDevBuildRunningOnDalvik() && privacy.isChecked());
                     getDialog().dismiss();
                 }
             }
@@ -82,7 +82,7 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
         final User currentUser = accountOperations.getLoggedInUser();
         final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
         final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
-        fireAndForget(mPlaylistOperations.createNewPlaylist(currentUser, title, isPrivate, firstTrackId));
-        mEventBus.publish(EventQueue.UI, UIEvent.fromAddToPlaylist(originScreen, true, firstTrackId));
+        fireAndForget(playlistOperations.createNewPlaylist(currentUser, title, isPrivate, firstTrackId));
+        eventBus.publish(EventQueue.UI, UIEvent.fromAddToPlaylist(originScreen, true, firstTrackId));
     }
 }
