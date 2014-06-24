@@ -9,7 +9,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.c2dm.C2DMReceiver;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
@@ -20,13 +19,15 @@ import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaybackSessionAnalyticsController;
 import com.soundcloud.android.playback.service.PlaybackNotificationController;
 import com.soundcloud.android.playback.service.PlaybackServiceModule;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
-import com.soundcloud.android.playback.PlaybackSessionAnalyticsController;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.rx.RxGlobalErrorHandler;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.storage.PlaylistTagStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -41,6 +42,7 @@ import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.plugins.RxJavaPlugins;
 
 import android.accounts.Account;
 import android.annotation.TargetApi;
@@ -107,6 +109,8 @@ public class SoundCloudApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        RxJavaPlugins.getInstance().registerErrorHandler(new RxGlobalErrorHandler());
 
         instance = this;
 

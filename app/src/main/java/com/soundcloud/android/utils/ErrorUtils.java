@@ -3,6 +3,7 @@ package com.soundcloud.android.utils;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.sync.SyncFailedException;
+import rx.exceptions.OnErrorNotImplementedException;
 
 import java.io.IOException;
 
@@ -17,14 +18,15 @@ public class ErrorUtils {
      * <p/>
      * This methods ensures that only checked exceptions make their way into an observer's
      * onError method, and also logs them silenty into Crashlytics (unless they're blacklisted.)
-     *
+     * <p/>
+     * see https://github.com/Netflix/RxJava/issues/969
      * @param t the Exception or Error that was raised
      */
     public static void handleThrowable(Throwable t) {
-        if (t instanceof RuntimeException) {
-            throw (RuntimeException) t;
-        } else if (t instanceof Error) {
-            throw (Error) t;
+        if (t instanceof OnErrorNotImplementedException) {
+            throw new RuntimeException(t.getCause());
+        } else if (t instanceof RuntimeException || t instanceof Error) {
+            throw new OnErrorNotImplementedException(t);
         } else if (!excludeFromReports(t)) {
             // don't rethrow checked exceptions
             SoundCloudApplication.handleSilentException(t.getMessage(), t);
