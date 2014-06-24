@@ -67,12 +67,12 @@ class SoundStreamOperations {
     }
 
     private Func1<List<PropertySet>, Observable<Page<List<PropertySet>>>> handleLocalResult(
-            final Urn userUrn, final long timestamp, final boolean justSynced) {
+            final Urn userUrn, final long timestamp, final boolean syncCompleted) {
         return new Func1<List<PropertySet>, Observable<Page<List<PropertySet>>>>() {
             @Override
             public Observable<Page<List<PropertySet>>> call(List<PropertySet> result) {
                 if (result.isEmpty()) {
-                    return handleEmptyResult(timestamp, userUrn, justSynced);
+                    return handleEmptyResult(timestamp, userUrn, syncCompleted);
                 } else {
                     logPropertySet(result);
                     return Observable.just(result).lift(pagedWith(streamItemPager(userUrn)));
