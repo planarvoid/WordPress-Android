@@ -1,5 +1,6 @@
 package com.soundcloud.android.rx.eventbus;
 
+import com.soundcloud.android.utils.ErrorUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscriber;
 import rx.subjects.ReplaySubject;
@@ -42,7 +43,7 @@ class ReplayEventSubject<T> extends Subject<T, T> {
 
     @Override
     public void onError(Throwable e) {
-        // never process onError
+        ErrorUtils.handleThrowable(e);
     }
 
     @Override

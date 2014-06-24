@@ -1,5 +1,6 @@
 package com.soundcloud.android.rx.eventbus;
 
+import com.soundcloud.android.utils.ErrorUtils;
 import rx.Subscriber;
 import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
@@ -34,7 +35,7 @@ class DefaultEventSubject<T> extends Subject<T, T> {
 
     @Override
     public void onError(Throwable e) {
-        // never process onError
+        ErrorUtils.handleThrowable(e);
     }
 
     @Override

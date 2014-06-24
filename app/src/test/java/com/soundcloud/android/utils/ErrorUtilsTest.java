@@ -5,10 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
-@RunWith(JUnit4.class)
 public class ErrorUtilsTest {
 
     @Test
@@ -28,7 +25,7 @@ public class ErrorUtilsTest {
         verify(mockError).printStackTrace();
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = StackOverflowError.class)
     public void handleThrowableShouldRethrowJavaErrors() {
         ErrorUtils.handleThrowable(new StackOverflowError());
     }

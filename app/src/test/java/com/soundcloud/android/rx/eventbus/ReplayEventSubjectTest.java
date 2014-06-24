@@ -62,9 +62,19 @@ public class ReplayEventSubjectTest {
     }
 
     @Test
-    public void shouldNeverForwardOnErrorToKeepTheQueueOpen() {
+    public void shouldNeverForwardOnErrorForNonFatalErrorsToKeepTheQueueOpen() {
         subject.subscribe(observer1);
         subject.onError(new Exception());
         verifyZeroInteractions(observer1);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void shouldRethrowRuntimeExceptions() {
+        subject.onError(new RuntimeException());
+    }
+
+    @Test(expected = StackOverflowError.class)
+    public void shouldRethrowFatalErrors() {
+        subject.onError(new StackOverflowError());
     }
 }

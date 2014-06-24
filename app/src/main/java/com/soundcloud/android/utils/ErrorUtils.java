@@ -10,7 +10,7 @@ public class ErrorUtils {
     /**
      * Use this handler to provide default handling of Throwables in RxJava Observers.
      * <p/>
-     * By default, RxJava wraps custom observers in a {@link rx.operators.SafeObserver}
+     * By default, RxJava wraps custom observers in a {@link rx.observers.SafeSubscriber}
      * which catches exceptions like NullPointerExceptions and forwards them to the
      * source observer. This is NOT what we want; we want a NPE to crash the app and be
      * reported as a crash into Crashlytics.
@@ -24,7 +24,7 @@ public class ErrorUtils {
         if (t instanceof RuntimeException) {
             throw (RuntimeException) t;
         } else if (t instanceof Error) {
-            throw new RuntimeException(t);
+            throw (Error) t;
         } else if (!excludeFromReports(t)) {
             // don't rethrow checked exceptions
             SoundCloudApplication.handleSilentException(t.getMessage(), t);
