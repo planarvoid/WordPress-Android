@@ -39,16 +39,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
-    private Cursor cursor;
-    private boolean dataValid;
-    private List<Recording> recordingData;
 
     private static final int TYPE_PENDING_RECORDING = 0;
     private static final int TYPE_NEW_TRACK = 1;
     private static final int TYPE_NEW_PLAYLIST = 2;
-    private ChangeObserver changeObserver;
 
+    private Cursor cursor;
+    private boolean dataValid;
+    private List<Recording> recordingData;
+    private ChangeObserver changeObserver;
     private final ScActivity activity;
+
     @Inject PlaybackOperations playbackOperations;
     @Inject TrackItemPresenter trackItemPresenter;
     @Inject PlaylistItemPresenter playlistItemPresenter;
@@ -92,10 +93,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
 
     private boolean isNewTrackPresenter(int position) {
         final ScResource item = getItem(position);
-        if (item instanceof SoundAssociation) {
-            return ((SoundAssociation) item).getPlayable() instanceof Track;
-        }
-        return false;
+        return item instanceof SoundAssociation && ((SoundAssociation) item).getPlayable() instanceof Track;
     }
 
     @Override
