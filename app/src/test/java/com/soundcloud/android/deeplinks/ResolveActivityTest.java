@@ -8,9 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -50,12 +48,6 @@ public class ResolveActivityTest {
         activity.onSuccess(playlist);
 
         verify(playbackOperations).playPlaylist(playlist, Screen.DEEPLINK);
-    }
-
-    @Test (expected = IllegalArgumentException.class)
-    public void shouldSendAnExceptionWhenIsNotPlayable() throws CreateModelException {
-        ScResource resource = TestHelper.getModelFactory().createModel(User.class);
-        activity.onSuccess(resource);
     }
 
     @Test
