@@ -12,6 +12,7 @@ import com.soundcloud.android.associations.LikesListFragment;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.model.User;
@@ -37,7 +38,7 @@ import android.view.Menu;
 import javax.inject.Inject;
 
 public class MainActivity extends ScActivity implements NavigationCallbacks {
-
+    public static final String EXPAND_PLAYER = "EXPAND_PLAYER";
     public static final String EXTRA_ONBOARDING_USERS_RESULT = "onboarding_users_result";
 
     private static final String EXTRA_ACTIONBAR_TITLE = "actionbar_title";
@@ -146,6 +147,16 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         if (!accountOperations.isUserLoggedIn()) {
             accountOperations.triggerLoginFlow(this);
             finish();
+        }
+
+        if (getIntent().getBooleanExtra(EXPAND_PLAYER, false) && playerController.isExpanded() == false) {
+            // TODO : change that to use direct call to playerController instead of UI events on bus.
+            //
+            // The /expandPanel/ call is ignored when we call it from here.
+            //
+            // Here we post the expand command on the Main Lopper. Then, the /expandPanel/ call
+            // occurs after the panel has been fully initialized, and it works.
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
         }
 
         if (shouldTrackScreen()) {

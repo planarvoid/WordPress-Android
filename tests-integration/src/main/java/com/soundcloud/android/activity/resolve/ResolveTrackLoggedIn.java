@@ -1,0 +1,40 @@
+package com.soundcloud.android.activity.resolve;
+
+import static com.soundcloud.android.tests.hamcrest.IsVisible.Visible;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.hamcrest.Matchers.is;
+
+import com.soundcloud.android.TestConsts;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.elements.PlayerElement;
+
+import android.net.Uri;
+
+public class ResolveTrackLoggedIn extends ResolveBaseTest {
+    private PlayerElement visualPlayer;
+
+    public ResolveTrackLoggedIn() {
+        setDependsOn(Feature.VISUAL_PLAYER);
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        // Note : ResolveBaseTest launch the Activity with the data provided by getUri()
+        super.setUp();
+        visualPlayer = new PlayerElement(solo);
+    }
+
+    @Override
+    protected Uri getUri() {
+        return TestConsts.CHE_FLUTE_URI;
+    }
+
+    public void test_should_open_player_from_deeplink() {
+        assertThat(new StreamScreen(solo), is(Visible()));
+        assertThat(visualPlayer.isExpanded(), is(true));
+        assertThat(visualPlayer.getTrackTitle(), is(equalToIgnoringCase("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]")));
+        // Assert track is playing
+    }
+}
