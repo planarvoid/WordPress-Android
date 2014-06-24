@@ -31,7 +31,7 @@ public class ResolveTrackLoggedIn extends ResolveBaseTest {
         return TestConsts.CHE_FLUTE_URI;
     }
 
-    public void test_should_open_player_from_deeplink() {
+    public void testShouldOpenPlayerFromDeeplink() {
         assertThat(new StreamScreen(solo), is(Visible()));
         assertThat(visualPlayer.isExpanded(), is(true));
         assertThat(visualPlayer.getTrackTitle(), is(equalToIgnoringCase("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]")));
