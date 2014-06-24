@@ -259,7 +259,6 @@ public class PlaybackOperationsTest {
         expect(application.getNextStartedService().getAction()).toBe(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION);
     }
 
-
     @Test
     public void shouldPlayCurrentQueueTrack() {
         playbackOperations.playCurrent();
@@ -287,6 +286,26 @@ public class PlaybackOperationsTest {
         playbackOperations.nextTrack();
 
         verify(playQueueManager).nextTrack();
+    }
+
+    @Test
+    public void shouldSeekToProvidedPosition() {
+        playbackOperations.seek(350L);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        Intent sentIntent = application.getNextStartedService();
+        expect(sentIntent.getAction()).toBe(PlaybackService.Actions.SEEK);
+        expect(sentIntent.getLongExtra(PlaybackService.ActionsExtras.SEEK_POSITION, 0L)).toEqual(350L);
+    }
+
+    @Test
+    public void shouldRestartPlayback() {
+        playbackOperations.restartPlayback();
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        Intent sentIntent = application.getNextStartedService();
+        expect(sentIntent.getAction()).toBe(PlaybackService.Actions.SEEK);
+        expect(sentIntent.getLongExtra(PlaybackService.ActionsExtras.SEEK_POSITION, 55L)).toEqual(0L);
     }
 
     @Test

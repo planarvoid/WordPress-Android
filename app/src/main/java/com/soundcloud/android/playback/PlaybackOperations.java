@@ -59,6 +59,8 @@ public class PlaybackOperations {
         }
     };
 
+    private static final long SEEK_POSITION_RESET = 0L;
+
     private final Context context;
     private final ScModelManager modelManager;
     private final TrackStorage trackStorage;
@@ -187,6 +189,16 @@ public class PlaybackOperations {
 
     public void nextTrack() {
         playQueueManager.nextTrack();
+    }
+
+    public void restartPlayback() {
+        seek(SEEK_POSITION_RESET);
+    }
+
+    public void seek(long position) {
+        Intent intent = new Intent(PlaybackService.Actions.SEEK);
+        intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, position);
+        context.startService(intent);
     }
 
     public void playFromIdListShuffled(final Context activityContext, List<Long> ids, Screen screen) {

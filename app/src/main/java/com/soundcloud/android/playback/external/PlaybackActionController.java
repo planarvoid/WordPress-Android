@@ -24,13 +24,21 @@ public class PlaybackActionController {
     public void handleAction(String action, String source) {
         if (PlaybackAction.PREVIOUS.equals(action)) {
             eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.previous(source));
-            playbackOperations.previousTrack();
+            previousTrackOnInitialPlaybackProgress();
         } else if (PlaybackAction.NEXT.equals(action)) {
             eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.skip(source));
             playbackOperations.nextTrack();
         } else if (PlaybackAction.TOGGLE_PLAYBACK.equals(action)) {
             eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.toggle(source, playSessionController.isPlaying()));
             playbackOperations.togglePlayback();
+        }
+    }
+
+    private void previousTrackOnInitialPlaybackProgress() {
+        if (playSessionController.isProgressWithinTrackChangeThreshold()) {
+            playbackOperations.previousTrack();
+        } else {
+            playbackOperations.restartPlayback();
         }
     }
 

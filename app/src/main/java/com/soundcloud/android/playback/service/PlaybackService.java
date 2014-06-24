@@ -92,6 +92,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private Subscription streamableTrackSubscription = Subscriptions.empty();
     private Subscription loadTrackSubscription = Subscriptions.empty();
 
+    @Deprecated
     public interface BroadcastExtras{
         String ID = "id";
         String USER_ID = "user_id";
@@ -105,8 +106,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         String PLAY_CURRENT             = "com.soundcloud.android.playback.playcurrent";
         String PLAY_ACTION              = "com.soundcloud.android.playback.playcurrent";
         String PAUSE_ACTION             = "com.soundcloud.android.playback.pause";
+        String SEEK                     = "com.soundcloud.android.playback.seek";
         String RESET_ALL                = "com.soundcloud.android.playback.reset"; // used on logout
         String STOP_ACTION              = "com.soundcloud.android.playback.stop"; // from the notification
+    }
+
+    public interface ActionsExtras {
+        String SEEK_POSITION = "seek_position";
     }
 
     // broadcast notifications
@@ -151,6 +157,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         playbackFilter.addAction(Actions.TOGGLEPLAYBACK_ACTION);
         playbackFilter.addAction(Actions.PLAY_CURRENT);
         playbackFilter.addAction(Actions.PAUSE_ACTION);
+        playbackFilter.addAction(Actions.SEEK);
         playbackFilter.addAction(Actions.RESET_ALL);
         playbackFilter.addAction(Actions.STOP_ACTION);
         playbackFilter.addAction(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION);

@@ -27,12 +27,14 @@ import android.graphics.Bitmap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.concurrent.TimeUnit;
 import java.util.Map;
 
 @Singleton
 public class PlaySessionController {
 
     private static final StateTransition PLAY_QUEUE_COMPLETE_EVENT = new StateTransition(PlayaState.IDLE, Playa.Reason.PLAY_QUEUE_COMPLETE);
+    private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
     private final Resources resources;
     private final EventBus eventBus;
     private final PlaybackOperations playbackOperations;
@@ -78,12 +80,16 @@ public class PlaySessionController {
         return currentPlayingUrn != null && currentPlayingUrn.equals(trackUrn);
     }
 
+    public boolean isPlaying() {
+        return lastStateTransition.playSessionIsActive();
+    }
+
     public PlaybackProgress getCurrentProgress(TrackUrn trackUrn) {
         return progressMap.get(trackUrn);
     }
 
-    public boolean isPlaying() {
-        return lastStateTransition.playSessionIsActive();
+    public boolean isProgressWithinTrackChangeThreshold() {
+        return getCurrentProgress(currentPlayingUrn).getPosition() < PROGRESS_THRESHOLD_FOR_TRACK_CHANGE;
     }
 
     private class PlayStateSubscriber extends DefaultSubscriber<StateTransition> {

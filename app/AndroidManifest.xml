@@ -378,6 +378,7 @@
                 <action android:name="com.soundcloud.android.playback.toggleplayback"/>
                 <action android:name="com.soundcloud.android.playback.playcurrent"/>
                 <action android:name="com.soundcloud.android.playback.pause"/>
+                <action android:name="com.soundcloud.android.playback.seek"/>
                 <action android:name="com.soundcloud.android.playback.close"/>
                 <action android:name="com.soundcloud.android.playback.reset"/>
                 <action android:name="com.soundcloud.android.playback.stop"/>

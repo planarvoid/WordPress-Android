@@ -112,6 +112,12 @@ public class PlaybackServiceTest {
     }
 
     @Test
+    public void onCreateRegistersPlaybackReceiverToListenForSeek() throws Exception {
+        playbackService.onCreate();
+        expect(getReceiversForAction(PlaybackService.Actions.SEEK)).toContain(playbackReceiver);
+    }
+
+    @Test
     public void onCreateRegistersPlaybackReceiverToListenForResetAllAction() throws Exception {
         playbackService.onCreate();
         expect(getReceiversForAction(PlaybackService.Actions.RESET_ALL)).toContain(playbackReceiver);

@@ -17,6 +17,8 @@ import javax.inject.Inject;
 
 class PlaybackReceiver extends BroadcastReceiver {
 
+    private static final long DEFAULT_SEEK_POSITION = 0L;
+
     private PlaybackService playbackService;
     private final AccountOperations accountOperations;
     private final PlayQueueManager playQueueManager;
@@ -52,6 +54,9 @@ class PlaybackReceiver extends BroadcastReceiver {
                 playbackService.play();
             } else if (Actions.PAUSE_ACTION.equals(action)) {
                 playbackService.pause();
+            } else if (Actions.SEEK.equals(action)) {
+                long seekPosition = intent.getLongExtra(PlaybackService.ActionsExtras.SEEK_POSITION, DEFAULT_SEEK_POSITION);
+                playbackService.seek(seekPosition, true);
             } else if (PlayQueueManager.PLAYQUEUE_CHANGED_ACTION.equals(action)) {
                 if (playbackService.isWaitingForPlaylist()) {
                     playbackService.openCurrent();

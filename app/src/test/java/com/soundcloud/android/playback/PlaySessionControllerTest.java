@@ -40,7 +40,7 @@ import android.graphics.Bitmap;
 public class PlaySessionControllerTest {
 
     private static final long TRACK_ID = 123L;
-    private static final TrackUrn TRACK_URN = TrackUrn.forTrack(TRACK_ID);
+    private static final TrackUrn TRACK_URN = Urn.forTrack(TRACK_ID);
     private static final Track TRACK = new Track(TRACK_ID);
 
     @Mock
@@ -81,9 +81,7 @@ public class PlaySessionControllerTest {
 
     @Test
     public void isPlayingTrackReturnsTrueIfLastTransitionHappenedOnTheTargetTrack() {
-        final Playa.StateTransition lastTransition = new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE);
-        lastTransition.setTrackUrn(TRACK_URN);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
+        sendIdleStateEvent();
 
         expect(controller.isPlayingTrack(TRACK)).toBeTrue();
     }
@@ -144,10 +142,43 @@ public class PlaySessionControllerTest {
 
     @Test
     public void returnsLastProgressEventByUrnFromEventQueue() throws Exception {
-        TrackUrn trackUrn = Urn.forTrack(123L);
-        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(new PlaybackProgress(1L, 2L), trackUrn);
+        
+        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(new PlaybackProgress(1L, 2L), TRACK_URN);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
-        expect(controller.getCurrentProgress(trackUrn)).toBe(playbackProgressEvent.getPlaybackProgress());
+        expect(controller.getCurrentProgress(TRACK_URN)).toBe(playbackProgressEvent.getPlaybackProgress());
+    }
+
+    @Test
+    public void isProgressInitialSecondsReturnsTrueIfProgressLessThatThreeSeconds() {
+        sendIdleStateEvent();
+        final PlaybackProgress playbackProgress = new PlaybackProgress(2999L, 42L);
+        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(playbackProgress, TRACK_URN);
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
+        expect(controller.isProgressWithinTrackChangeThreshold()).toBeTrue();
+    }
+
+    @Test
+    public void isProgressInitialSecondsReturnsFalseIfProgressEqualToThreeSeconds() {
+        sendIdleStateEvent();
+        final PlaybackProgress playbackProgress = new PlaybackProgress(3000L, 42L);
+        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(playbackProgress, TRACK_URN);
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
+        expect(controller.isProgressWithinTrackChangeThreshold()).toBeFalse();
+    }
+
+    @Test
+    public void isProgressInitialSecondsReturnsFalseIfProgressMoreThanThreeSeconds() {
+        sendIdleStateEvent();
+        final PlaybackProgress playbackProgress = new PlaybackProgress(3001L, 42L);
+        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(playbackProgress, TRACK_URN);
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
+        expect(controller.isProgressWithinTrackChangeThreshold()).toBeFalse();
+    }
+
+    private void sendIdleStateEvent() {
+        final Playa.StateTransition lastTransition = new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE);
+        lastTransition.setTrackUrn(TRACK_URN);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
     }
 
     @Test
@@ -213,4 +244,5 @@ public class PlaySessionControllerTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, 123, 456));
         verify(playQueueManager, never()).saveCurrentPosition(anyInt());
     }
+
 }

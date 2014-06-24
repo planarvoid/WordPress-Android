@@ -75,6 +75,16 @@ public class PlaybackReceiverTest {
     }
 
     @Test
+    public void seekActionShouldCallSeekOnService() {
+        Intent intent = new Intent(PlaybackService.Actions.SEEK);
+        intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, 63L);
+
+        playbackReceiver.onReceive(Robolectric.application, intent);
+
+        verify(playbackService).seek(63L, true);
+    }
+
+    @Test
     public void shouldCallResetAllOnServiceAndClearPlayqueueOnResetAllAction() {
         Intent intent = new Intent(PlaybackService.Actions.RESET_ALL);
         playbackReceiver.onReceive(Robolectric.application, intent);
