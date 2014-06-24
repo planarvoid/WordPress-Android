@@ -98,7 +98,7 @@ public class SoundStreamOperationsTest {
 
     @Test // this makes sure we don't run into sync cycles
     public void whenItLoadsAnEmptyPageOfItemsOnPageOneEvenAfterAFullSyncItShouldNotSyncAgain() {
-        // 1st page comes back blank first, then as full page of items after sync
+        // 1st page comes back blank first, then blank again even after syncing
         when(soundStreamStorage
                 .streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty(), Observable.<PropertySet>empty());
