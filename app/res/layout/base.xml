@@ -9,11 +9,20 @@
     sothree:panelHeight="@dimen/player_footer"
     sothree:dragView="@+id/player_layout">
 
-    <FrameLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="?attr/actionBarSize" />
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        <View android:layout_width="match_parent"
+              android:layout_height="?attr/actionBarSize"
+              android:background="@color/dark_bg" />
+
+        <FrameLayout
+                android:id="@+id/container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+    </LinearLayout>
 
     <fragment
         android:id="@+id/player_root"
