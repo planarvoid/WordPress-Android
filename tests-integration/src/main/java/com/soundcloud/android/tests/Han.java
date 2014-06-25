@@ -241,6 +241,9 @@ public class Han  {
         } catch(AssertionFailedError ignored) {
 
         }
+        if (view == null) {
+            throw new ViewNotFoundException();
+        }
         return view;
     }
 
