@@ -28,6 +28,11 @@ public class LegacyPlayerController implements PlayerController {
     }
 
     @Override
+    public void expand() {
+        // Do nothing
+    }
+
+    @Override
     public void collapse() {
         // Do nothing
     }

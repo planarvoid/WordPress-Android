@@ -5,10 +5,10 @@ import static com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
@@ -55,6 +55,11 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
     @Override
     public boolean isExpanded() {
         return slidingPanel.isExpanded();
+    }
+
+    @Override
+    public void expand() {
+        slidingPanel.expandPane();
     }
 
     @Override

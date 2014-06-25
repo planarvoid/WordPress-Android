@@ -21,4 +21,5 @@ public interface PlayerController {
 
     void restoreState(Bundle bundle);
 
+    void expand();
 }

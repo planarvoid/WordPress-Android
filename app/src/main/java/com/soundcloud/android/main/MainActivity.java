@@ -12,7 +12,6 @@ import com.soundcloud.android.associations.LikesListFragment;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.model.User;
@@ -149,16 +148,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             finish();
         }
 
-        if (getIntent().getBooleanExtra(EXPAND_PLAYER, false) && playerController.isExpanded() == false) {
-            // TODO : change that to use direct call to playerController instead of UI events on bus.
-            //
-            // The /expandPanel/ call is ignored when we call it from here.
-            //
-            // Here we post the expand command on the Main Lopper. Then, the /expandPanel/ call
-            // occurs after the panel has been fully initialized, and it works.
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
-        }
-
         if (shouldTrackScreen()) {
             publishContentChangeEvent();
         }
@@ -285,6 +274,13 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         if (position != NavigationFragment.NavItem.PROFILE.ordinal()) {
             lastSelection = position;
         }
+        /*
+         * Expand the player here to respect the following flow
+         * - Display collapsed player
+         * - Display content
+         * - Expand player
+         * */
+        expandPlayerIfNeeded();
     }
 
     private void displayProfile() {
@@ -325,6 +321,12 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         if (fragment == null) {
             fragment = SoundStreamFragment.create(onboardingSucceeded);
             attachFragment(fragment, STREAM_FRAGMENT_TAG, R.string.side_menu_stream);
+        }
+    }
+
+    private void expandPlayerIfNeeded() {
+        if (getIntent().getBooleanExtra(EXPAND_PLAYER, false) && playerController.isExpanded() == false) {;
+            playerController.expand();
         }
     }
 
