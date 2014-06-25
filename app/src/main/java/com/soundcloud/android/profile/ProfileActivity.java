@@ -206,13 +206,13 @@ public class ProfileActivity extends ScActivity implements
         filter.addAction(SoundRecorder.RECORD_STARTED);
         filter.addAction(SoundRecorder.RECORD_ERROR);
         filter.addAction(SoundRecorder.RECORD_FINISHED);
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRecordListener, filter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(recordListener, filter);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRecordListener);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(recordListener);
     }
 
     @Override
@@ -435,7 +435,7 @@ public class ProfileActivity extends ScActivity implements
         int pagerIndex;
     }
 
-    private final BroadcastReceiver mRecordListener = new BroadcastReceiver() {
+    private final BroadcastReceiver recordListener = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 supportInvalidateOptionsMenu();
