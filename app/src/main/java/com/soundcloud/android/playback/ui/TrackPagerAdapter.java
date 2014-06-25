@@ -7,6 +7,7 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -83,9 +84,11 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     }
 
     public void setProgressOnCurrentTrack(PlaybackProgressEvent progressEvent) {
-        View currentTrackView = trackViewsByPosition.inverse().get(playQueueManager.getCurrentPosition());
-        if (currentTrackView != null) {
-            trackPagePresenter.setProgress(currentTrackView, progressEvent.getPlaybackProgress());
+        if (playQueueManager.isCurrentTrack(progressEvent.getTrackUrn())){
+            View currentTrackView = trackViewsByPosition.inverse().get(playQueueManager.getCurrentPosition());
+            if (currentTrackView != null) {
+                trackPagePresenter.setProgress(currentTrackView, progressEvent.getPlaybackProgress());
+            }
         }
     }
 
@@ -94,11 +97,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
             View trackView = entry.getKey();
             Integer position = entry.getValue();
             final TrackUrn urnAtPosition = playQueueManager.getUrnAtPosition(position);
-            if (playSessionController.isPlayingTrack(urnAtPosition)) {
-                trackPagePresenter.setProgress(trackView, playSessionController.getCurrentProgress(urnAtPosition));
-            } else {
-                trackPagePresenter.resetProgress(trackView);
-            }
+            trackPagePresenter.setProgress(trackView, playSessionController.getCurrentProgress(urnAtPosition));
         }
     }
 
@@ -113,7 +112,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         trackPagePresenter.setExpandedMode(isExpanded);
         for (View view : trackViewsByPosition.keySet()) {
             if (isExpanded) {
-                trackPagePresenter.setExpandedState(view, playSessionController.isPlaying());
+                trackPagePresenter.setExpanded(view, playSessionController.isPlaying());
             } else {
                 trackPagePresenter.setCollapsed(view);
             }
@@ -147,11 +146,8 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
                 final Integer position = trackViewsByPosition.get(trackView);
                 final long idOfQueueView = playQueueManager.getIdAtPosition(position);
                 if (trackId == idOfQueueView) {
-                    if (playSessionController.isPlayingTrack(track)){
-                        trackPagePresenter.populateTrackPage(trackView, track, playSessionController.getCurrentProgress(track.getUrn()));
-                    } else {
-                        trackPagePresenter.populateTrackPage(trackView, track);
-                    }
+                    final PlaybackProgress currentProgress = playSessionController.getCurrentProgress(track.getUrn());
+                    trackPagePresenter.populateTrackPage(trackView, track, currentProgress);
                 }
             }
         }

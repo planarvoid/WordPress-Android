@@ -21,6 +21,10 @@ public abstract class ProgressHelper {
         return endPosition;
     }
 
+    public float getProgressFromPosition(int position) {
+        return ((float) position - startPosition)/(endPosition - startPosition);
+    }
+
     protected float getValueFromProportion(float proportion){
         return startPosition + ((endPosition - startPosition) * proportion);
     }

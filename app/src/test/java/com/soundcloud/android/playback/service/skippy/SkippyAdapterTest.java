@@ -200,6 +200,13 @@ public class SkippyAdapterTest {
     }
 
     @Test
+    public void seekCallsOnProgressWithSeekPosition(){
+        when(skippy.getDuration()).thenReturn(456L);
+        skippyAdapter.seek(123L, true);
+        verify(listener).onProgressEvent(123L, 456L);
+    }
+
+    @Test
     public void setVolumeCallsSetVolumeOnSkippy(){
         skippyAdapter.setVolume(123F);
         verify(skippy).setVolume(123F);

@@ -3,12 +3,9 @@ package com.soundcloud.android.playback.ui.view;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.model.WaveformData;
-import com.soundcloud.android.playback.ui.progress.ProgressAware;
-import com.soundcloud.android.waveform.WaveformResult;
-import rx.Observable;
+import com.soundcloud.android.view.FixedWidthView;
+import com.soundcloud.android.view.ListenableHorizontalScrollView;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -28,11 +25,8 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
-import javax.inject.Inject;
-
-public class WaveformView extends LinearLayout implements ProgressAware {
+public class WaveformView extends FrameLayout {
 
     private static final int DEFAULT_BAR_WIDTH_DP = 2;
     private static final int DEFAULT_BAR_SPACE_DP = 1;
@@ -50,33 +44,37 @@ public class WaveformView extends LinearLayout implements ProgressAware {
     private final Paint unplayedBelowPaint;
     private final int progressColor;
     private final int unplayedColor;
+    private final float waveformWidthRatio;
 
     private final ImageView leftWaveform;
     private final ImageView rightWaveform;
     private final ImageView leftLine;
     private final ImageView rightLine;
 
-    private final WaveformViewController waveformViewController;
-
     private ObjectAnimator leftWaveformScaler;
     private ObjectAnimator rightWaveformScaler;
 
-    @Inject WaveformViewControllerFactory waveformViewControllerFactory;
+    private FixedWidthView dragView;
+    private ListenableHorizontalScrollView dragViewHolder;
+    private OnWidthChangedListener onWidthChangedListener;
 
-    private final Runnable layoutWaveformsRunnable = new Runnable() {
+    private Runnable layoutWaveformsRunnable = new Runnable() {
         @Override
         public void run() {
             leftWaveform.requestLayout();
             rightWaveform.requestLayout();
             leftLine.requestLayout();
             rightLine.requestLayout();
+            dragView.requestLayout();
         }
     };
 
+    public interface OnWidthChangedListener{
+        void onWaveformViewWidthChanged(int newWidth);
+    }
+
     public WaveformView(Context context, AttributeSet attrs) {
         super(context, attrs);
-
-        SoundCloudApplication.getObjectGraph().inject(this);
 
         final float density = getResources().getDisplayMetrics().density;
 
@@ -86,7 +84,7 @@ public class WaveformView extends LinearLayout implements ProgressAware {
         final int progressBelow = a.getColor(R.styleable.WaveformView_progressBelow, Color.WHITE);
         final int unplayedAbove = a.getColor(R.styleable.WaveformView_unplayedAbove, Color.WHITE);
         final int unplayedBelow = a.getColor(R.styleable.WaveformView_unplayedBelow, Color.WHITE);
-        float waveformWidthRatio = a.getFloat(R.styleable.WaveformView_widthRatio, DEFAULT_WAVEFORM_WIDTH_RATIO);
+        waveformWidthRatio = a.getFloat(R.styleable.WaveformView_widthRatio, DEFAULT_WAVEFORM_WIDTH_RATIO);
         barWidth = a.getDimensionPixelSize(R.styleable.WaveformView_barWidth, (int) (DEFAULT_BAR_WIDTH_DP * density));
         spaceWidth = a.getDimensionPixelSize(R.styleable.WaveformView_spaceWidth, (int) (DEFAULT_BAR_SPACE_DP * density));
         baseline = a.getDimensionPixelSize(R.styleable.WaveformView_baseline, (int) (DEFAULT_BASELINE_DP * density));
@@ -114,6 +112,10 @@ public class WaveformView extends LinearLayout implements ProgressAware {
         leftWaveform = (ImageView) findViewById(R.id.waveform_left);
         rightWaveform = (ImageView) findViewById(R.id.waveform_right);
 
+        dragView = (FixedWidthView) findViewById(R.id.drag_view);
+        dragViewHolder = (ListenableHorizontalScrollView) findViewById(R.id.drag_view_holder);
+        dragViewHolder.setOverScrollMode(View.OVER_SCROLL_NEVER);
+
         ViewHelper.setScaleY(leftWaveform, 0);
         ViewHelper.setScaleY(rightWaveform, 0);
 
@@ -126,20 +128,18 @@ public class WaveformView extends LinearLayout implements ProgressAware {
 
         leftLine.setImageDrawable(createLoadingDrawable(progressColor));
         rightLine.setImageDrawable(createLoadingDrawable(unplayedColor));
-
-        waveformViewController = waveformViewControllerFactory.create(this, waveformWidthRatio);
     }
 
-    public void showPlayingState(PlaybackProgress progress) {
-        waveformViewController.showPlayingState(progress);
+    public void setOnWidthChangedListener(OnWidthChangedListener onWidthChangedListener) {
+        this.onWidthChangedListener = onWidthChangedListener;
     }
 
-    public void setProgress(PlaybackProgress progress) {
-        waveformViewController.setProgress(progress);
+    public ListenableHorizontalScrollView getDragViewHolder() {
+        return dragViewHolder;
     }
 
-    public void showIdleState() {
-        waveformViewController.showIdleState();
+    public float getWidthRatio() {
+        return waveformWidthRatio;
     }
 
     ImageView getLeftWaveform() {
@@ -150,6 +150,14 @@ public class WaveformView extends LinearLayout implements ProgressAware {
         return rightWaveform;
     }
 
+    ImageView getLeftLine() {
+        return leftLine;
+    }
+
+    ImageView getRightLine() {
+        return rightLine;
+    }
+
     void setWaveformTranslations(int leftTranslation, int rightTranslation) {
         ViewHelper.setTranslationX(leftWaveform, leftTranslation);
         ViewHelper.setTranslationX(rightWaveform, rightTranslation);
@@ -157,19 +165,7 @@ public class WaveformView extends LinearLayout implements ProgressAware {
         ViewHelper.setTranslationX(rightLine, rightTranslation);
     }
 
-    void showIdleLinesAtWaveformPositions() {
-        ViewHelper.setTranslationX(leftLine, ViewHelper.getTranslationX(leftWaveform));
-        ViewHelper.setTranslationX(rightLine, ViewHelper.getTranslationX(rightWaveform));
-        leftLine.setVisibility(View.VISIBLE);
-        rightLine.setVisibility(View.VISIBLE);
-    }
-
-    void hideIdleLines() {
-        leftLine.setVisibility(View.GONE);
-        rightLine.setVisibility(View.GONE);
-    }
-
-    void scaleUpWaveforms() {
+    void showExpandedWaveform() {
         clearScaleAnimations();
 
         leftWaveformScaler = createScaleUpAnimator(leftWaveform);
@@ -177,9 +173,16 @@ public class WaveformView extends LinearLayout implements ProgressAware {
 
         rightWaveformScaler = createScaleUpAnimator(rightWaveform);
         rightWaveformScaler.start();
+
+        hideIdleLines();
     }
 
-    void scaleDownWaveforms() {
+    private void hideIdleLines() {
+        leftLine.setVisibility(View.GONE);
+        rightLine.setVisibility(View.GONE);
+    }
+
+    void showCollapsedWaveform() {
         clearScaleAnimations();
 
         leftWaveformScaler = createScaleDownAnimator(leftWaveform);
@@ -187,6 +190,15 @@ public class WaveformView extends LinearLayout implements ProgressAware {
 
         rightWaveformScaler = createScaleDownAnimator(rightWaveform);
         rightWaveformScaler.start();
+
+        showIdleLinesAtWaveformPositions();
+    }
+
+    private void showIdleLinesAtWaveformPositions() {
+        ViewHelper.setTranslationX(leftLine, ViewHelper.getTranslationX(leftWaveform));
+        ViewHelper.setTranslationX(rightLine, ViewHelper.getTranslationX(rightWaveform));
+        leftLine.setVisibility(View.VISIBLE);
+        rightLine.setVisibility(View.VISIBLE);
     }
 
     private void clearScaleAnimations() {
@@ -199,24 +211,25 @@ public class WaveformView extends LinearLayout implements ProgressAware {
     }
 
     private ObjectAnimator createScaleUpAnimator(View animateView) {
-        final ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(animateView, "scaleY", ViewHelper.getScaleY(leftWaveform), 1f);
+        final ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(animateView, "scaleY", ViewHelper.getScaleY(animateView), 1f);
         objectAnimator.setDuration(SCALE_UP_DURATION);
         objectAnimator.setInterpolator(new OvershootInterpolator());
         return objectAnimator;
     }
 
     private ObjectAnimator createScaleDownAnimator(View animateView) {
-        final ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(animateView, "scaleY", ViewHelper.getScaleY(leftWaveform), 0f);
+        final ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(animateView, "scaleY", ViewHelper.getScaleY(animateView), 0f);
         objectAnimator.setDuration(SCALE_DOWN_DURATION);
         objectAnimator.setInterpolator(new DecelerateInterpolator());
         return objectAnimator;
     }
 
-    void setWaveformWidths(int width) {
-        leftWaveform.setLayoutParams(new FrameLayout.LayoutParams(width, ViewGroup.LayoutParams.MATCH_PARENT));
-        leftLine.setLayoutParams(new FrameLayout.LayoutParams(width, ViewGroup.LayoutParams.MATCH_PARENT));
-        rightWaveform.setLayoutParams(new FrameLayout.LayoutParams(width, ViewGroup.LayoutParams.MATCH_PARENT));
-        rightLine.setLayoutParams(new FrameLayout.LayoutParams(width, ViewGroup.LayoutParams.MATCH_PARENT));
+    void setWaveformWidths(int waveformWidth) {
+        leftWaveform.setLayoutParams(new FrameLayout.LayoutParams(waveformWidth, ViewGroup.LayoutParams.MATCH_PARENT));
+        leftLine.setLayoutParams(new FrameLayout.LayoutParams(waveformWidth, ViewGroup.LayoutParams.MATCH_PARENT));
+        rightWaveform.setLayoutParams(new FrameLayout.LayoutParams(waveformWidth, ViewGroup.LayoutParams.MATCH_PARENT));
+        rightLine.setLayoutParams(new FrameLayout.LayoutParams(waveformWidth, ViewGroup.LayoutParams.MATCH_PARENT));
+        dragView.setWidth(waveformWidth + getWidth());
 
         post(layoutWaveformsRunnable);
     }
@@ -224,11 +237,9 @@ public class WaveformView extends LinearLayout implements ProgressAware {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        waveformViewController.onWaveformViewWidthChanged(w);
-    }
-
-    public void displayWaveform(Observable<WaveformResult> waveformResultObservable) {
-        waveformViewController.displayWaveform(waveformResultObservable);
+        if (onWidthChangedListener != null){
+            onWidthChangedListener.onWaveformViewWidthChanged(w);
+        }
     }
 
     void showLoading() {

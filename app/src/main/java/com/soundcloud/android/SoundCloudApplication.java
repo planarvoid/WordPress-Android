@@ -109,7 +109,6 @@ public class SoundCloudApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
         registerRxGlobalErrorHandler();
 
         instance = this;

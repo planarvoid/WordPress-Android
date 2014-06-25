@@ -134,6 +134,9 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     public long seek(long position, boolean performSeek) {
         if (performSeek) {
             skippy.seek(position);
+            if (playaListener != null){
+                playaListener.onProgressEvent(position, skippy.getDuration());
+            }
         }
         return position;
     }

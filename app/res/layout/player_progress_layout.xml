@@ -3,30 +3,45 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
        android:layout_width="match_parent"
        android:layout_height="match_parent">
-    <FrameLayout
-            android:layout_width="0dp"
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+            <ImageView
+                    android:id="@+id/waveform_left"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" />
+            <ImageView
+                    android:id="@+id/line_left"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" />
+        </FrameLayout>
+        <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+            <ImageView
+                    android:id="@+id/waveform_right"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" />
+            <ImageView
+                    android:id="@+id/line_right"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" />
+        </FrameLayout>
+    </LinearLayout>
+    <com.soundcloud.android.view.ListenableHorizontalScrollView
+            android:id="@+id/drag_view_holder"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1">
-        <ImageView
-            android:id="@+id/waveform_left"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-        <ImageView
-            android:id="@+id/line_left"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-    </FrameLayout>
-    <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
-        <ImageView
-            android:id="@+id/waveform_right"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-        <ImageView
-            android:id="@+id/line_right"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-    </FrameLayout>
+            android:fillViewport="true"
+            android:scrollbars="none">
+        <com.soundcloud.android.view.FixedWidthView
+                android:id="@+id/drag_view"
+              android:layout_width="1800dp"
+              android:layout_height="100dp"/>
+    </com.soundcloud.android.view.ListenableHorizontalScrollView>
 </merge>

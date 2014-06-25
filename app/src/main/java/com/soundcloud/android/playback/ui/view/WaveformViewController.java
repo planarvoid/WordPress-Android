@@ -1,9 +1,14 @@
 package com.soundcloud.android.playback.ui.view;
 
 import static com.soundcloud.android.playback.ui.progress.ProgressController.ProgressAnimationControllerFactory;
+import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
+import static com.soundcloud.android.playback.ui.progress.ScrubController.ScrubControllerFactory;
 
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
+import com.soundcloud.android.playback.ui.progress.ScrollXHelper;
+import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.waveform.WaveformResult;
@@ -16,75 +21,92 @@ import rx.subscriptions.Subscriptions;
 
 import android.graphics.Bitmap;
 import android.util.Pair;
+import android.view.View;
 
 import javax.inject.Provider;
 
-class WaveformViewController {
+
+public class WaveformViewController implements ScrubController.OnScrubListener, ProgressAware, WaveformView.OnWidthChangedListener {
 
     private final WaveformView waveformView;
     private final float waveformWidthRatio;
     private final ProgressController leftProgressController;
     private final ProgressController rightProgressController;
+    private final ProgressController dragProgressController;
+
     private final Provider<Scheduler> waveformScheduler;
+    private final ScrubController scrubController;
+
+    private TranslateXHelper leftProgressHelper;
+    private TranslateXHelper rightProgressHelper;
 
     private Observable<WaveformResult> waveformResultObservable;
     private Subscription waveformSubscription = Subscriptions.empty();
 
-    private boolean inPlayingState;
     private int adjustedWidth;
+    private boolean suppressProgress;
+    private boolean playSessionIsActive;
 
     WaveformViewController(WaveformView waveform,
-                                   ProgressAnimationControllerFactory animationControllerFactory,
-                                   float waveformWidthRatio,
-                                   Provider<Scheduler> waveformScheduler){
+                           ProgressAnimationControllerFactory animationControllerFactory,
+                           Provider<Scheduler> waveformScheduler,
+                           final ScrubControllerFactory scrubControllerFactory){
         this.waveformView = waveform;
-        this.waveformWidthRatio = waveformWidthRatio;
+        this.waveformWidthRatio = waveform.getWidthRatio();
         this.waveformScheduler = waveformScheduler;
+        this.scrubController = scrubControllerFactory.create(waveformView.getDragViewHolder());
+
+        waveformView.setOnWidthChangedListener(this);
+        scrubController.addScrubListener(this);
+
         leftProgressController = animationControllerFactory.create(waveformView.getLeftWaveform());
         rightProgressController = animationControllerFactory.create(waveformView.getRightWaveform());
+        dragProgressController = animationControllerFactory.create(waveformView.getDragViewHolder());
+
         waveformView.showLoading();
     }
 
-    public void showPlayingState(PlaybackProgress progress) {
-        leftProgressController.startProgressAnimation(progress);
-        rightProgressController.startProgressAnimation(progress);
-        waveformView.hideIdleLines();
-
-        if (!inPlayingState){
-            inPlayingState = true;
-            waveformView.scaleUpWaveforms();
+    @Override
+    public void scrubStateChanged(int newScrubState) {
+        suppressProgress = newScrubState == SCRUB_STATE_SCRUBBING;
+        if (suppressProgress){
+            cancelProgressAnimations();
         }
-
     }
 
-    public void showIdleState() {
-        leftProgressController.cancelProgressAnimation();
-        rightProgressController.cancelProgressAnimation();
-        waveformView.showIdleLinesAtWaveformPositions();
-
-        if (inPlayingState){
-            inPlayingState = false;
-            waveformView.scaleDownWaveforms();
-        }
+    @Override
+    public void displayScrubPosition(float scrubPosition) {
+        leftProgressHelper.setValueFromProportion(playSessionIsActive ?
+                waveformView.getLeftWaveform() : waveformView.getLeftLine(), scrubPosition);
+        rightProgressHelper.setValueFromProportion(playSessionIsActive ?
+                waveformView.getRightWaveform() : waveformView.getRightLine(), scrubPosition);
     }
 
     public void setProgress(PlaybackProgress progress) {
-        leftProgressController.setPlaybackProgress(progress);
-        rightProgressController.setPlaybackProgress(progress);
+        if (!suppressProgress){
+            leftProgressController.setPlaybackProgress(progress);
+            rightProgressController.setPlaybackProgress(progress);
+            dragProgressController.setPlaybackProgress(progress);
+        }
     }
 
-    public void onWaveformViewWidthChanged(int w) {
-        adjustedWidth = (int) (waveformWidthRatio * w);
+    @Override
+    public void onWaveformViewWidthChanged(int newWidth) {
+        adjustedWidth = (int) (waveformWidthRatio * newWidth);
         waveformView.setWaveformWidths(adjustedWidth);
 
-        final int middle = w / 2;
+        final int middle = newWidth / 2;
         waveformView.setWaveformTranslations(middle, 0);
 
-        TranslateXHelper leftProgressHelper = new TranslateXHelper(middle, middle - adjustedWidth);
+        leftProgressHelper = new TranslateXHelper(middle, middle - adjustedWidth);
         leftProgressController.setHelper(leftProgressHelper);
 
-        TranslateXHelper rightProgressHelper = new TranslateXHelper(0, -adjustedWidth);
+        rightProgressHelper = new TranslateXHelper(0, -adjustedWidth);
         rightProgressController.setHelper(rightProgressHelper);
+
+        final ScrollXHelper dragProgressHelper = new ScrollXHelper(0, adjustedWidth);
+        dragProgressController.setHelper(dragProgressHelper);
+        scrubController.setProgressHelper(dragProgressHelper);
 
         if (waveformResultObservable != null) {
             createWaveforms(waveformResultObservable);
@@ -97,6 +119,47 @@ class WaveformViewController {
         if (adjustedWidth > 0) {
             createWaveforms(waveformResultObservable);
         }
+    }
+
+    public void showPlayingState(PlaybackProgress progress) {
+        playSessionIsActive = true;
+        waveformView.showExpandedWaveform();
+        if (!suppressProgress){
+            startProgressAnimations(progress);
+        }
+
+    }
+
+    public void showBufferingState(){
+        playSessionIsActive = true;
+        waveformView.showExpandedWaveform();
+        cancelProgressAnimations();
+    }
+
+    public void showIdleState(){
+        playSessionIsActive = false;
+        waveformView.showCollapsedWaveform();
+        cancelProgressAnimations();
+    }
+
+    public void setWaveformVisibility(boolean visible) {
+        waveformView.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    private void startProgressAnimations(PlaybackProgress progress) {
+        leftProgressController.startProgressAnimation(progress);
+        rightProgressController.startProgressAnimation(progress);
+        dragProgressController.startProgressAnimation(progress);
+    }
+
+    private void cancelProgressAnimations() {
+        leftProgressController.cancelProgressAnimation();
+        rightProgressController.cancelProgressAnimation();
+        dragProgressController.cancelProgressAnimation();
+    }
+
+    public void addScrubListener(ScrubController.OnScrubListener listener){
+        scrubController.addScrubListener(listener);
     }
 
     private void createWaveforms(Observable<WaveformResult> waveformResultObservable) {
@@ -121,8 +184,8 @@ class WaveformViewController {
         @Override
         public void onNext(Pair<Bitmap, Bitmap> bitmaps) {
             waveformView.setWaveformBitmaps(bitmaps);
-            if (inPlayingState){
-                waveformView.scaleUpWaveforms();
+            if (playSessionIsActive){
+                waveformView.showExpandedWaveform();
             }
         }
     }

@@ -1,6 +1,8 @@
 package com.soundcloud.android.playback.ui.view;
 
 import static com.soundcloud.android.playback.ui.progress.ProgressController.ProgressAnimationControllerFactory;
+import static com.soundcloud.android.playback.ui.progress.ScrubController.ScrubControllerFactory;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
@@ -11,20 +13,26 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
+import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.view.ListenableHorizontalScrollView;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.android.waveform.WaveformResult;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.util.Pair;
+import android.view.View;
 import android.widget.ImageView;
 
 import javax.inject.Provider;
@@ -37,6 +45,10 @@ public class WaveformViewControllerTest {
     private WaveformViewController waveformViewController;
 
     @Mock
+    private ScrubControllerFactory scrubControllerFactory;
+    @Mock
+    private ScrubController scrubController;
+    @Mock
     private ProgressAnimationControllerFactory progressAnimationControllerFactory;
     @Mock
     private WaveformView waveformView;
@@ -45,9 +57,17 @@ public class WaveformViewControllerTest {
     @Mock
     private ImageView rightWaveform;
     @Mock
+    private ImageView leftLine;
+    @Mock
+    private ImageView rightLine;
+    @Mock
+    private ListenableHorizontalScrollView dragViewHolder;
+    @Mock
     private ProgressController leftAnimationController;
     @Mock
     private ProgressController rightAnimationController;
+    @Mock
+    private ProgressController dragAnimationController;
     @Mock
     private PlaybackProgress playbackProgress;
     @Mock
@@ -61,18 +81,30 @@ public class WaveformViewControllerTest {
 
     @Before
     public void setUp() throws Exception {
+        // for nine-old-androids
+        Robolectric.Reflection.setFinalStaticField(Build.VERSION.class, "SDK", String.valueOf(Build.VERSION_CODES.HONEYCOMB));
+
         when(waveformView.getLeftWaveform()).thenReturn(leftWaveform);
         when(waveformView.getRightWaveform()).thenReturn(rightWaveform);
+        when(waveformView.getLeftLine()).thenReturn(leftLine);
+        when(waveformView.getRightLine()).thenReturn(rightLine);
+        when(waveformView.getDragViewHolder()).thenReturn(dragViewHolder);
+        when(waveformView.getWidthRatio()).thenReturn(WAVEFORM_WIDTH_RATIO);
+
         when(progressAnimationControllerFactory.create(same(leftWaveform))).thenReturn(leftAnimationController);
         when(progressAnimationControllerFactory.create(same(rightWaveform))).thenReturn(rightAnimationController);
+        when(progressAnimationControllerFactory.create(same(dragViewHolder))).thenReturn(dragAnimationController);
+        when(scrubControllerFactory.create(dragViewHolder)).thenReturn(scrubController);
+
         when(waveformResult.getWaveformData()).thenReturn(waveformData);
 
-        waveformViewController = new WaveformViewControllerFactory(progressAnimationControllerFactory, new Provider<Scheduler>() {
+        waveformViewController = new WaveformViewControllerFactory(scrubControllerFactory, progressAnimationControllerFactory,
+                new Provider<Scheduler>() {
             @Override
             public Scheduler get() {
                 return Schedulers.immediate();
             }
-        }).create(waveformView, WAVEFORM_WIDTH_RATIO);
+        }).create(waveformView);
     }
 
     @Test
@@ -84,28 +116,37 @@ public class WaveformViewControllerTest {
     public void showPlayingStateStartsProgressAnimations() {
         waveformViewController.showPlayingState(playbackProgress);
         verify(leftAnimationController).startProgressAnimation(playbackProgress);
-        verify(leftAnimationController).startProgressAnimation(playbackProgress);
+        verify(rightAnimationController).startProgressAnimation(playbackProgress);
+        verify(dragAnimationController).startProgressAnimation(playbackProgress);
     }
 
     @Test
-    public void showPlayingStateHidesIdleLines() {
+    public void showPlayingStateDoesNotStartsProgressAnimationsIfScrubbing() {
+        waveformViewController.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
         waveformViewController.showPlayingState(playbackProgress);
-        verify(waveformView).hideIdleLines();
+        verify(leftAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
+        verify(rightAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
+        verify(dragAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
     }
 
     @Test
-    public void showPlayingStateDoesNotScaleUpWaveformIfAlreadyPlaying() {
+    public void showPlayingStateCallsShowExpandedOnWaveform() {
         waveformViewController.showPlayingState(playbackProgress);
-        waveformViewController.showPlayingState(playbackProgress);
-        verify(waveformView).scaleUpWaveforms(); // only one time
+        verify(waveformView).showExpandedWaveform();
     }
 
     @Test
-    public void showPlayingStateScalesUpWaveformsIfIdle() {
-        waveformViewController.showPlayingState(playbackProgress);
-        waveformViewController.showIdleState();
-        waveformViewController.showPlayingState(playbackProgress);
-        verify(waveformView, times(2)).scaleUpWaveforms();
+    public void showBufferingStateCancelsProgressAnimations() {
+        waveformViewController.showBufferingState();
+        verify(leftAnimationController).cancelProgressAnimation();
+        verify(rightAnimationController).cancelProgressAnimation();
+        verify(dragAnimationController).cancelProgressAnimation();
+    }
+
+    @Test
+    public void showBufferingStateCallsShowExpandedOnWaveform() {
+        waveformViewController.showBufferingState();
+        verify(waveformView).showExpandedWaveform();
     }
 
     @Test
@@ -113,25 +154,14 @@ public class WaveformViewControllerTest {
         waveformViewController.showIdleState();
         verify(leftAnimationController).cancelProgressAnimation();
         verify(rightAnimationController).cancelProgressAnimation();
+        verify(dragAnimationController).cancelProgressAnimation();
     }
 
     @Test
-    public void showIdleStateCallsShowIdleLinesOnWaveformView() {
+    public void showIdleStateCallsShowCollapsedOnWaveform() {
         waveformViewController.showIdleState();
-        verify(waveformView).showIdleLinesAtWaveformPositions();
-    }
+        verify(waveformView).showCollapsedWaveform();
 
-    @Test
-    public void showIdleStateDoesNotCallScaleDownWaveformIfAlreadyIdle() {
-        waveformViewController.showIdleState();
-        verify(waveformView, never()).scaleDownWaveforms();
-    }
-
-    @Test
-    public void showIdleStateCallsScaleDownWaveform() {
-        waveformViewController.showPlayingState(playbackProgress);
-        waveformViewController.showIdleState();
-        verify(waveformView).scaleDownWaveforms();
     }
 
     @Test
@@ -139,6 +169,16 @@ public class WaveformViewControllerTest {
         waveformViewController.setProgress(playbackProgress);
         verify(leftAnimationController).setPlaybackProgress(playbackProgress);
         verify(rightAnimationController).setPlaybackProgress(playbackProgress);
+        verify(dragAnimationController).setPlaybackProgress(playbackProgress);
+    }
+
+    @Test
+    public void setProgressDoesNotSetProgressOnAnimationControllersIfScrubbing() {
+        waveformViewController.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
+        waveformViewController.setProgress(playbackProgress);
+        verify(leftAnimationController, never()).setPlaybackProgress(any(PlaybackProgress.class));
+        verify(rightAnimationController, never()).setPlaybackProgress(any(PlaybackProgress.class));
+        verify(dragAnimationController, never()).setPlaybackProgress(any(PlaybackProgress.class));
     }
 
     @Test
@@ -182,13 +222,13 @@ public class WaveformViewControllerTest {
     }
 
     @Test
-    public void displayWaveformAfterSettingWidthScalesUpWaveformViewIfPlaying() {
+    public void displayWaveformAfterSettingWidthShowsExpandedWaveformIfPlaySessionActive() {
         waveformViewController.showPlayingState(playbackProgress);
         waveformViewController.onWaveformViewWidthChanged(500);
         final Pair<Bitmap, Bitmap> bitmapPair = new Pair<Bitmap, Bitmap>(bitmap, bitmap);
         when(waveformView.createWaveforms(waveformData, 1000)).thenReturn(bitmapPair);
         waveformViewController.displayWaveform(Observable.just(waveformResult));
-        verify(waveformView, times(2)).scaleUpWaveforms(); // once for playing, once after loading
+        verify(waveformView, times(2)).showExpandedWaveform(); // once for playing, once after loading
     }
 
     @Test
@@ -199,5 +239,42 @@ public class WaveformViewControllerTest {
         when(waveformView.createWaveforms(waveformData, 1000)).thenReturn(bitmapPair);
         waveformViewController.onWaveformViewWidthChanged(500);
         verify(waveformView).setWaveformBitmaps(bitmapPair);
+    }
+
+    @Test
+    public void setWaveformVisibilityWithTrueSetsVisibilityToVisible() {
+        waveformViewController.setWaveformVisibility(true);
+        verify(waveformView).setVisibility(View.VISIBLE);
+    }
+
+    @Test
+    public void setWaveformVisibilityWithFalseSetsVisibilityToGone() {
+        waveformViewController.setWaveformVisibility(false);
+        verify(waveformView).setVisibility(View.GONE);
+    }
+
+    @Test
+    public void addScrubListenerAddsScrubListenerToController() {
+        final ScrubController.OnScrubListener listener = Mockito.mock(ScrubController.OnScrubListener.class);
+        waveformViewController.addScrubListener(listener);
+        verify(scrubController).addScrubListener(listener);
+    }
+
+    @Test
+    public void displayScrubPositionSetsScrubPositionOnWaveformsIfPlaySessionActive() {
+        waveformViewController.onWaveformViewWidthChanged(500);
+        waveformViewController.showPlayingState(playbackProgress);
+        waveformViewController.displayScrubPosition(.5f);
+        verify(leftWaveform).setTranslationX(-250f);
+        verify(rightWaveform).setTranslationX(-500f);
+    }
+
+    @Test
+    public void displayScrubPositionSetsScrubPositionOnLinesIfPlaySessionActive() {
+        waveformViewController.onWaveformViewWidthChanged(500);
+        waveformViewController.showIdleState();
+        waveformViewController.displayScrubPosition(.5f);
+        verify(leftLine).setTranslationX(-250f);
+        verify(rightLine).setTranslationX(-500f);
     }
 }
