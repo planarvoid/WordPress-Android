@@ -1,9 +1,6 @@
 package com.soundcloud.android.screens.search;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.screens.LegacyPlayerScreen;
-import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
@@ -28,27 +25,23 @@ public class SearchResultsScreen extends Screen {
         waiter.waitForFragmentByTag(FRAGMENT);
     }
 
-    public LegacyPlayerScreen clickFirstTrackItem() {
+    public void clickFirstTrackItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver.findElement(With.id(R.id.track_list_item)).click();
-        return new LegacyPlayerScreen(testDriver);
     }
 
-    public PlaylistDetailsScreen clickFirstPlaylistItem() {
+    public void clickFirstPlaylistItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver.findElement(With.id(R.id.playlist_list_item)).click();
-        return new PlaylistDetailsScreen(testDriver);
     }
 
-    public ProfileScreen clickFirstUserItem() {
+    public void clickFirstUserItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver.findElement(With.id(R.id.user_list_item)).click();
-        return new ProfileScreen(testDriver);
     }
 
-    public PlaylistTagsScreen pressBack() {
+    public void pressBack() {
         testDriver.goBack();
-        return new PlaylistTagsScreen(testDriver);
     }
 
     public void touchTracksTab() {
@@ -89,6 +82,10 @@ public class SearchResultsScreen extends Screen {
     public int getResultItemCount() {
         waiter.waitForItemCountToIncrease(resultsList().getAdapter(), 0);
         return resultsList().getAdapter().getCount();
+    }
+
+    public Object getResultItem(int position) {
+        return resultsList().getAdapter().getItem(position);
     }
 
     private ListView resultsList() {

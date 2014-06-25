@@ -49,14 +49,16 @@ public class Search extends ActivityTestCase<MainActivity> {
 
     public void testGoingBackFromSearchResultsReturnsToTagPage() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("dub");
-        playlistTagsScreen = resultsScreen.pressBack();
+        resultsScreen.pressBack();
+        playlistTagsScreen = new PlaylistTagsScreen(solo);
         assertEquals("Tags screen should be visible", true, playlistTagsScreen.isVisible());
         assertEquals("Search query should be empty", "", playlistTagsScreen.actionBar().getSearchQuery());
     }
 
     public void testGoingBackFromTagsScreenExitsSearch() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("dub");
-        playlistTagsScreen = resultsScreen.pressBack();
+        resultsScreen.pressBack();
+        playlistTagsScreen = new PlaylistTagsScreen(solo);
         mainScreen = playlistTagsScreen.pressBack();
         assertEquals("Main screen should be visible", true, mainScreen.isVisible());
     }
@@ -78,40 +80,46 @@ public class Search extends ActivityTestCase<MainActivity> {
 
     public void testTappingTrackOnAllTabOpensPlayer() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("track");
-        LegacyPlayerScreen playerScreen = resultsScreen.clickFirstTrackItem();
+        resultsScreen.clickFirstTrackItem();
+        LegacyPlayerScreen playerScreen = new LegacyPlayerScreen(solo);
         assertEquals("Player screen should be visible", true, playerScreen.isVisible());
     }
 
     public void testTappingPlaylistOnAllTabOpensPlaylistDetails() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("track playlist");
-        PlaylistDetailsScreen playlistScreen = resultsScreen.clickFirstPlaylistItem();
+        resultsScreen.clickFirstPlaylistItem();
+        PlaylistDetailsScreen playlistScreen = new PlaylistDetailsScreen(solo);
         assertEquals("Playlist screen should be visible", true, playlistScreen.isVisible());
     }
 
     public void testTappingUserOnAllTabOpensProfile() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("dub");
-        ProfileScreen profileScreen = resultsScreen.clickFirstUserItem();
+        resultsScreen.clickFirstUserItem();
+        ProfileScreen profileScreen = new ProfileScreen(solo);
         assertEquals("Profile screen should be visible", true, profileScreen.isVisible());
     }
 
     public void testTappingTrackOnTracksTabOpensPlayer() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("dub");
         resultsScreen.touchTracksTab();
-        LegacyPlayerScreen playerScreen = resultsScreen.clickFirstTrackItem();
+        resultsScreen.clickFirstTrackItem();
+        LegacyPlayerScreen playerScreen = new LegacyPlayerScreen(solo);
         assertEquals("Player screen should be visible", true, playerScreen.isVisible());
     }
 
     public void testTappingPlaylistOnPlaylistsTabOpensPlaylistDetails() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("dub");
         resultsScreen.touchPlaylistsTab();
-        PlaylistDetailsScreen playlistScreen = resultsScreen.clickFirstPlaylistItem();
-        assertEquals("Playlist screen should be visible", true, playlistScreen.isVisible());
+        resultsScreen.clickFirstPlaylistItem();
+        PlaylistDetailsScreen playlistDetailsScreen = new PlaylistDetailsScreen(solo);
+        assertEquals("Playlist screen should be visible", true, playlistDetailsScreen.isVisible());
     }
 
     public void testTappingUserOnPeopleTabOpensProfile() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("dub");
         resultsScreen.touchPeopleTab();
-        ProfileScreen profileScreen = resultsScreen.clickFirstUserItem();
+        resultsScreen.clickFirstUserItem();
+        ProfileScreen profileScreen = new ProfileScreen(solo);
         assertEquals("Profile screen should be visible", true, profileScreen.isVisible());
     }
 
@@ -127,7 +135,7 @@ public class Search extends ActivityTestCase<MainActivity> {
         assertEquals("Current tab should be PEOPLE", "PEOPLE", resultsScreen.currentTabTitle());
     }
 
-    public void testAllResultsLoadsNextPage(){
+    public void testAllResultsLoadsNextPage() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("dub");
         int initialItemCount = resultsScreen.getResultItemCount();
         resultsScreen.scrollToBottomOfTracksListAndLoadMoreItems();

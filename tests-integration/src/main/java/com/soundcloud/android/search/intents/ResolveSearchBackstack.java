@@ -21,8 +21,9 @@ public class ResolveSearchBackstack extends SearchIntentsBase {
 
     public void testGoingBackShowsPlaylistTagsScreen() {
         SearchResultsScreen resultsScreen = new SearchResultsScreen(solo);
-        PlaylistTagsScreen tagsScreen = resultsScreen.pressBack();
-        assertEquals("Search tags screen should be visible", true, tagsScreen.isVisible());
+        resultsScreen.pressBack();
+        PlaylistTagsScreen playlistTagsScreen = new PlaylistTagsScreen(solo);
+        assertEquals("Search tags screen should be visible", true, playlistTagsScreen.isVisible());
     }
 
 }
