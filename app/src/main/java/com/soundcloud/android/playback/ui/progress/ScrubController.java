@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ public class ScrubController {
     private static final int MSG_PERFORM_SEEK = 0;
     private static final int SEEK_DELAY = 250;
 
-    private final Handler seekHandler = new SeekHandler();
+    private final Handler seekHandler = new SeekHandler(this);
     private final PlaybackOperations playbackOperations;
     private final PlaySessionController playSessionController;
     private final Set<OnScrubListener> listeners = new HashSet<OnScrubListener>();
@@ -47,36 +48,8 @@ public class ScrubController {
         this.playbackOperations = playbackOperations;
         this.playSessionController = playSessionController;
 
-        scrubView.setOnScrollListener(new ListenableHorizontalScrollView.OnScrollListener() {
-            @Override
-            public void onScroll(int left, int oldLeft) {
-                if ((scrubState == SCRUB_STATE_SCRUBBING || seekHandler.hasMessages(MSG_PERFORM_SEEK)) && progressHelper != null) {
-                    final float seekTo = Math.max(0, Math.min(1, progressHelper.getProgressFromPosition(left)));
-                    seekHandler.removeMessages(MSG_PERFORM_SEEK);
-                    seekHandler.sendMessageDelayed(seekHandler.obtainMessage(MSG_PERFORM_SEEK, seekTo), SEEK_DELAY);
-
-                    for (OnScrubListener listener : listeners) {
-                        listener.displayScrubPosition(seekTo);
-                    }
-                }
-            }
-        });
-
-        scrubView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
-                    dragging = true;
-                    setScrubState(SCRUB_STATE_SCRUBBING);
-                } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    dragging = false;
-                    if (!seekHandler.hasMessages(MSG_PERFORM_SEEK) && pendingSeek != null) {
-                        finishSeek(pendingSeek);
-                    }
-                }
-                return false;
-            }
-        });
+        scrubView.setOnScrollListener(new ScrollListener());
+        scrubView.setOnTouchListener(new TouchListener());
     }
 
     private void setScrubState(int newState) {
@@ -95,13 +68,58 @@ public class ScrubController {
         listeners.add(listener);
     }
 
-    private class SeekHandler extends Handler {
+    private class ScrollListener implements ListenableHorizontalScrollView.OnScrollListener {
+        @Override
+        public void onScroll(int left, int oldLeft) {
+            if (isScrubbing() && progressHelper != null) {
+                final float seekTo = Math.max(0, Math.min(1, progressHelper.getProgressFromPosition(left)));
+                seekHandler.removeMessages(MSG_PERFORM_SEEK);
+                seekHandler.sendMessageDelayed(seekHandler.obtainMessage(MSG_PERFORM_SEEK, seekTo), SEEK_DELAY);
+
+                for (OnScrubListener listener : listeners) {
+                    listener.displayScrubPosition(seekTo);
+                }
+            }
+        }
+    }
+
+    private class TouchListener implements View.OnTouchListener {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
+                dragging = true;
+                setScrubState(SCRUB_STATE_SCRUBBING);
+            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                dragging = false;
+                if (!seekHandler.hasMessages(MSG_PERFORM_SEEK) && pendingSeek != null) {
+                    finishSeek(pendingSeek);
+                }
+            }
+            return false;
+        }
+    }
+
+    private boolean isScrubbing() {
+        return (scrubState == SCRUB_STATE_SCRUBBING || seekHandler.hasMessages(MSG_PERFORM_SEEK));
+    }
+
+    private static class SeekHandler extends Handler {
+
+        private WeakReference<ScrubController> scrubControllerRef;
+
+        private SeekHandler(ScrubController scrubController) {
+            this.scrubControllerRef = new WeakReference<ScrubController>(scrubController);
+        }
+
         @Override
         public void handleMessage(Message msg) {
-            if (!dragging) {
-                finishSeek((Float) msg.obj);
-            } else {
-                pendingSeek = (Float) msg.obj;
+            ScrubController scrubController = scrubControllerRef.get();
+            if (scrubController != null){
+                if (scrubController.dragging) {
+                    scrubController.pendingSeek = (Float) msg.obj;
+                } else {
+                    scrubController.finishSeek((Float) msg.obj);
+                }
             }
         }
     }
