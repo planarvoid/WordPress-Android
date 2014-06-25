@@ -22,7 +22,7 @@ public class ScrubController {
     private static final int MSG_PERFORM_SEEK = 0;
     private static final int SEEK_DELAY = 250;
 
-    private final Handler seekHandler = new SeekHandler(this);
+    private final Handler seekHandler;
     private final PlaybackOperations playbackOperations;
     private final PlaySessionController playSessionController;
     private final Set<OnScrubListener> listeners = new HashSet<OnScrubListener>();
@@ -47,6 +47,7 @@ public class ScrubController {
     ScrubController(ListenableHorizontalScrollView scrubView, PlaybackOperations playbackOperations, PlaySessionController playSessionController) {
         this.playbackOperations = playbackOperations;
         this.playSessionController = playSessionController;
+        this.seekHandler = new SeekHandler(this);
 
         scrubView.setOnScrollListener(new ScrollListener());
         scrubView.setOnTouchListener(new TouchListener());
@@ -100,12 +101,12 @@ public class ScrubController {
     }
 
     private boolean isScrubbing() {
-        return (scrubState == SCRUB_STATE_SCRUBBING || seekHandler.hasMessages(MSG_PERFORM_SEEK));
+        return scrubState == SCRUB_STATE_SCRUBBING || seekHandler.hasMessages(MSG_PERFORM_SEEK);
     }
 
     private static class SeekHandler extends Handler {
 
-        private WeakReference<ScrubController> scrubControllerRef;
+        private final WeakReference<ScrubController> scrubControllerRef;
 
         private SeekHandler(ScrubController scrubController) {
             this.scrubControllerRef = new WeakReference<ScrubController>(scrubController);

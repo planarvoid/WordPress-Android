@@ -2,19 +2,18 @@ package com.soundcloud.android.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
 
 import javax.annotation.Nullable;
 
 public class ListenableHorizontalScrollView extends HorizontalScrollView {
 
+    @Nullable
+    private OnScrollListener listener;
+
     public interface OnScrollListener {
         void onScroll(int left, int oldLeft);
     }
-
-    @Nullable
-    private OnScrollListener listener;
 
     public ListenableHorizontalScrollView(Context context) {
         super(context);
@@ -38,10 +37,5 @@ public class ListenableHorizontalScrollView extends HorizontalScrollView {
         if (listener != null) {
             listener.onScroll(l, oldl);
         }
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        return super.onTouchEvent(ev);
     }
 }

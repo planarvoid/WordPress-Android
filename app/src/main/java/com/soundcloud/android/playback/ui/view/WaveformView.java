@@ -51,14 +51,15 @@ public class WaveformView extends FrameLayout {
     private final ImageView leftLine;
     private final ImageView rightLine;
 
+    private final FixedWidthView dragView;
+    private final ListenableHorizontalScrollView dragViewHolder;
+
     private ObjectAnimator leftWaveformScaler;
     private ObjectAnimator rightWaveformScaler;
 
-    private FixedWidthView dragView;
-    private ListenableHorizontalScrollView dragViewHolder;
     private OnWidthChangedListener onWidthChangedListener;
 
-    private Runnable layoutWaveformsRunnable = new Runnable() {
+    private final Runnable layoutWaveformsRunnable = new Runnable() {
         @Override
         public void run() {
             leftWaveform.requestLayout();
