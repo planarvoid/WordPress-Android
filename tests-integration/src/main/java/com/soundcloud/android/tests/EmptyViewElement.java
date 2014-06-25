@@ -52,12 +52,12 @@ public class EmptyViewElement implements ViewElement {
 
     @Override
     public boolean isVisible() {
-        return false;
+        throw new ViewNotFoundException();
     }
 
     @Override
     public String getText() {
-        return "";
+        throw new ViewNotFoundException();
     }
 
     @Override
@@ -72,12 +72,12 @@ public class EmptyViewElement implements ViewElement {
 
     @Override
     public boolean isEnabled() {
-        return false;
+        throw new ViewNotFoundException();
     }
 
     @Override
     public boolean isChecked() {
-        return false;
+        throw new ViewNotFoundException();
     }
 
     @Override
