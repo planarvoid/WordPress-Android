@@ -6,6 +6,7 @@ import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActiv
 import com.soundcloud.android.screens.EmailConfirmScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import android.R.id;
@@ -24,7 +25,7 @@ public class SuggestedUsersScreen extends Screen {
 
     public boolean hasContent(){
         testDriver.scrollListToTop(0);
-        return testDriver.getView(R.id.list_section_header) != null;
+        return testDriver.findElement(With.id(R.id.list_section_header)).isVisible();
     }
 
     public boolean hasFacebookSection(){
@@ -50,8 +51,8 @@ public class SuggestedUsersScreen extends Screen {
     }
 
     public String subtextAtIndexEquals(int index) {
-        View categoryRow = getCategoryRow(index);
-        return ((TextView) categoryRow.findViewById(android.R.id.text2)).getText().toString();
+        ViewElement categoryRow = getCategoryRow(index);
+        return categoryRow.findElement(With.id(android.R.id.text2)).getText();
     }
 
     public SuggestedUsersScreen clickToggleCategoryCheckmark(int visibleIndex){
@@ -74,8 +75,8 @@ public class SuggestedUsersScreen extends Screen {
         testDriver.findElement(With.id(android.R.id.list)).toListView().getItemAt(index).findElement(With.id(elementId)).click();
     }
 
-    private View getCategoryRow(int index) {
-        return ((ViewGroup) testDriver.getView(android.R.id.list)).getChildAt(index);
+    private ViewElement getCategoryRow(int index) {
+        return testDriver.findElement(With.id(android.R.id.list)).toListView().getItemAt(index);
     }
 
     public EmailConfirmScreen finish() {

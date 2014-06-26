@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.crop.CropImageActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.tests.ActivityTestCase;
+import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import android.test.suitebuilder.annotation.Suppress;
@@ -225,8 +226,8 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
     private void performSignup(String email, String password) {
         solo.clickOnButtonResId(R.string.authentication_sign_up);
         solo.assertText(R.string.authentication_sign_up);
-        EditText emailField = (EditText) solo.getView(R.id.txt_email_address);
-        solo.typeText(emailField, email);
+        ViewElement emailField = solo.findElement(With.id(R.id.txt_email_address));
+        emailField.typeText(email);
         solo.assertText(email);
 
         solo.findElement(With.id(R.id.txt_choose_a_password)).typeText(password);

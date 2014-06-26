@@ -233,21 +233,8 @@ public class Han  {
         assertTrue(String.format("timeout waiting for activity %s, current=%s",
                 name, solo.getCurrentActivity()), solo.waitForActivity(name));
     }
-    
-    @Deprecated //Use findElement(With.id()) instead
-    public View getView(int id) {
-        View view = null;
-        try {
-            view = solo.getView(id);
-        } catch(AssertionFailedError ignored) {
 
-        }
-        if (view == null) {
-            throw new ViewNotFoundException();
-        }
-        return view;
-    }
-
+    @Deprecated
     public void clickOnButton(Integer resource) {
         solo.clickOnButton(getString(resource));
     }

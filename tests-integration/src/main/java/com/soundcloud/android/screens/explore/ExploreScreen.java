@@ -91,7 +91,7 @@ public class ExploreScreen extends Screen {
     }
 
     private ViewPager getViewPager() {
-        return (ViewPager) testDriver.getView(R.id.pager);
+        return testDriver.findElement(With.id(R.id.pager)).toViewPager();
     }
 
     public int getItemsOnTrendingMusicList() {

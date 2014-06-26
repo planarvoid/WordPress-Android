@@ -8,6 +8,8 @@ import com.soundcloud.android.screens.PlaylistResultsScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.with.With;
 
 import android.widget.TextView;
 
@@ -23,13 +25,8 @@ public class PlaylistTagsScreen extends Screen {
     }
 
     public PlaylistResultsScreen clickOnTag(int index) {
-        testDriver.getSolo().clickOnView(getTagViews(R.id.all_tags).get(index));
+        getTags().get(index).click();
         return new PlaylistResultsScreen(testDriver);
-    }
-
-    public List<String> getTags() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return getTagStringsFromContainer(R.id.all_tags);
     }
 
     public List<String> getRecentTags() {
@@ -42,7 +39,7 @@ public class PlaylistTagsScreen extends Screen {
     }
 
     public boolean isDisplayingTags() {
-        return !getTagViews(R.id.all_tags).isEmpty();
+        return tagsContainer().isVisible();
     }
 
     @Override
@@ -52,25 +49,37 @@ public class PlaylistTagsScreen extends Screen {
     }
 
     private List<String> getTagStringsFromContainer(int containerId) {
-        return Lists.transform(getTagViews(containerId), new Function<TextView, String>() {
+        return Lists.transform(getTags(), new Function<ViewElement, String>() {
             @Override
-            public String apply(TextView input) {
-                return input.getText().toString();
+            public String apply(ViewElement input) {
+                return input.getText();
             }
         });
     }
 
-    private List<TextView> getTagViews(int containerId) {
-        if (testDriver.getView(containerId) != null) {
+    public List<ViewElement> getTags() {
+        if (tagsContainer().isVisible()) {
             waiter.waitForContentAndRetryIfLoadingFailed();
-            return testDriver.getSolo().getCurrentViews(TextView.class, testDriver.getView(containerId));
+            return tagsContainer().findElements(With.className(TextView.class));
         }
         return null;
+    }
+
+    public List<ViewElement> getRecenjtTags() {
+        return recentTagsContainer().findElements(With.className(TextView.class));
     }
 
     public MainScreen pressBack() {
         testDriver.goBack();
         return new MainScreen(testDriver);
+    }
+
+    private ViewElement tagsContainer() {
+        return testDriver.findElement(With.id(R.id.all_tags));
+    }
+
+    private ViewElement recentTagsContainer() {
+        return testDriver.findElement(With.id(R.id.recent_tags));
     }
 
     @Override

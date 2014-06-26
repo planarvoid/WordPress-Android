@@ -1,11 +1,14 @@
 package com.soundcloud.android.tests;
 
+
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.tests.with.With;
 
 import android.support.v4.view.ViewPager;
+import android.view.View;
 import android.view.ViewParent;
+
 
 import java.util.List;
 

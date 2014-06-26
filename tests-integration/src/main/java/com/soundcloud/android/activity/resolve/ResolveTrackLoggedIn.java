@@ -9,6 +9,7 @@ import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.with.With;
 
 import android.net.Uri;
 
@@ -33,6 +34,7 @@ public class ResolveTrackLoggedIn extends ResolveBaseTest {
 
     public void testShouldOpenPlayerFromDeeplink() {
         assertThat(new StreamScreen(solo), is(Visible()));
+        waiter.waitForExpandedPlayer();
         assertThat(visualPlayer.isExpanded(), is(true));
         assertThat(visualPlayer.getTrackTitle(), is(equalToIgnoringCase("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]")));
         // Assert track is playing

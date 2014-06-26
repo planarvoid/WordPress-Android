@@ -5,6 +5,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.screens.MenuScreen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.with.With;
 import com.soundcloud.android.utils.Log;
 
@@ -179,9 +180,9 @@ public class Waiter {
 
         @Override
         public boolean isSatisfied() {
-            View view = solo.getView(viewId);
+            ViewElement view = solo.findElement(With.id(viewId));
             Log.i(TAG, "ViewID searched");
-            return ( view != null && solo.getView(viewId).isShown());
+            return (view.isVisible());
         }
     }
 
@@ -258,20 +259,20 @@ public class Waiter {
     }
 
     private class PlayerExpandedCondition implements Condition {
-        private final SlidingUpPanelLayout slidingPanel = (SlidingUpPanelLayout) solo.getView(R.id.sliding_layout);
+        private final VisualPlayerElement visualPlayer = new VisualPlayerElement(solo);
 
         @Override
         public boolean isSatisfied() {
-            return slidingPanel.isExpanded();
+            return visualPlayer.isExpanded();
         }
     }
 
     private class PlayerCollapsedCondition implements Condition {
-        private final SlidingUpPanelLayout slidingPanel = (SlidingUpPanelLayout) solo.getView(R.id.sliding_layout);
+        private final VisualPlayerElement visualPlayer = new VisualPlayerElement(solo);
 
         @Override
         public boolean isSatisfied() {
-            return !slidingPanel.isExpanded();
+            return visualPlayer.isCollapsed();
         }
 
     }

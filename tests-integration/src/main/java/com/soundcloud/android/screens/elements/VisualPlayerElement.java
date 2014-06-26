@@ -64,13 +64,11 @@ public class VisualPlayerElement extends Element implements PlayerElement {
     }
 
     public boolean isExpanded() {
-        waiter.waitForExpandedPlayer();
-        return getSlidingPanel().isExpanded();
+        return !footerPlayer().isVisible();
     }
 
     public boolean isCollapsed() {
-        waiter.waitForCollapsedPlayer();
-        return !getSlidingPanel().isExpanded();
+        return footerPlayer().isVisible();
     }
 
     public void tapFooter() {
@@ -129,7 +127,7 @@ public class VisualPlayerElement extends Element implements PlayerElement {
     }
 
     private ViewPager getViewPager() {
-        return (ViewPager) solo.getView(R.id.player_track_pager);
+        return solo.findElement(With.id(R.id.player_track_pager)).toViewPager();
     }
 
     public void toggleFooterPlay() {
@@ -146,10 +144,6 @@ public class VisualPlayerElement extends Element implements PlayerElement {
 
     public boolean isPlayControlsVisible() {
         return playButton().isVisible();
-    }
-
-    private SlidingUpPanelLayout getSlidingPanel() {
-        return (SlidingUpPanelLayout) solo.getView(R.id.sliding_layout);
     }
 
     @Override
