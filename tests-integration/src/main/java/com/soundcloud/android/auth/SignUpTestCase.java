@@ -14,7 +14,6 @@ public class SignUpTestCase extends AuthTestCase {
 
     @Override
     public void setUp() throws Exception {
-        AccountAssistant.logOut(getInstrumentation());
         super.setUp();
         homeScreen = new HomeScreen(solo);
     }
