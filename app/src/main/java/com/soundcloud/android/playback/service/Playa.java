@@ -49,7 +49,7 @@ public interface Playa {
             this(newState, reason, new PlaybackProgress(currentProgress, duration));
         }
 
-        public StateTransition(PlayaState newState, Reason reason, PlaybackProgress currentProgressEvent) {
+        private StateTransition(PlayaState newState, Reason reason, PlaybackProgress currentProgressEvent) {
             this.newState = newState;
             this.reason = reason;
             progressEvent = currentProgressEvent;
