@@ -25,7 +25,7 @@ public class TrackOperations {
         if (accountOperations.isUserLoggedIn()) {
             return trackStorage.track(trackUrn, accountOperations.getLoggedInUserUrn());
         }
-        return Observable.error(new RuntimeException("User is not logged in"));
+        return Observable.error(new IllegalStateException("User is not logged in"));
     }
 
 }
