@@ -32,7 +32,6 @@ public class PlaylistDetails extends ActivityTestCase<LauncherActivity> {
         //FIXME: This is a workaround for #1487
         waiter.waitForContentAndRetryIfLoadingFailed();
 
-        waiter.waitForItemCountToIncrease(solo.getCurrentListView().getAdapter(),0);
         playlistScreen = menuScreen.open().clickPlaylist();
         waiter.waitForContentAndRetryIfLoadingFailed();
         playlistScreen.clickPlaylistAt(0);

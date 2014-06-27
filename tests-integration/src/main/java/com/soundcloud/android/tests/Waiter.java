@@ -209,7 +209,7 @@ public class Waiter {
         private ArrayList<ProgressBar> progressBars;
 
         private NoProgressBarCondition() {
-            solo.waitForViewId(R.id.empty_view_progress, ELEMENT_TIMEOUT, false);
+            solo.findElement(With.id(R.id.empty_view_progress));
         }
 
         @Override

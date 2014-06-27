@@ -138,12 +138,6 @@ public class Han  {
         return solo.getCurrentActivity().getString(resId, args);
     }
 
-    public ListView getCurrentListView(){
-        solo.waitForView(ListView.class);
-        final ArrayList<ListView> currentListViews = solo.getCurrentViews(ListView.class);
-        return currentListViews == null || currentListViews.isEmpty() ? null : currentListViews.get(0);
-    }
-
     public GridView getCurrentGridView(){
         solo.waitForView(GridView.class);
         final ArrayList<GridView> currentGridViews = solo.getCurrentViews(GridView.class);
@@ -239,49 +233,6 @@ public class Han  {
         solo.clickOnButton(getString(resource));
     }
 
-    public View waitForViewId(int viewId, int timeout) {
-        long endTime = SystemClock.uptimeMillis() + timeout;
-        while (SystemClock.uptimeMillis() < endTime) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ignored) {}
-
-            Activity activity = getCurrentActivity();
-            if (activity != null) {
-                View view = activity.findViewById(viewId);
-                if (view != null) {
-                    return view;
-                }
-            }
-        }
-        fail("timeout waiting for view "+viewId);
-        return null;
-    }
-
-
-    public View waitForViewId(int viewId, int timeout, boolean failIfNotFound) {
-        long endTime = SystemClock.uptimeMillis() + timeout;
-        while (SystemClock.uptimeMillis() < endTime) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ignored) {}
-
-            Activity activity = getCurrentActivity();
-            if (activity != null) {
-                View view = activity.findViewById(viewId);
-                if (view != null) {
-                    return view;
-                }
-            }
-        }
-
-        if (failIfNotFound) {
-            fail("timeout waiting for view "+viewId);
-        }
-
-        return null;
-    }
-
     public void enterText(int index, String text) {
         solo.enterText(index, text);
     }
@@ -320,10 +271,6 @@ public class Han  {
 
     public boolean searchTextWithoutScrolling(String text){
         return solo.searchText(text,0,false,true);
-    }
-
-    public void typeText(EditText editText, String text) {
-        solo.typeText(editText, text);
     }
 
     public boolean waitForWebElement(By by) {
