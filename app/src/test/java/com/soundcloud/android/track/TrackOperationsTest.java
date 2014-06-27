@@ -1,6 +1,10 @@
 package com.soundcloud.android.track;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
@@ -14,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.Observer;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackOperationsTest {
@@ -36,9 +41,21 @@ public class TrackOperationsTest {
 
     @Test
     public void trackReturnsTrackPropertySetByUrnWithLoggedInUserUrn() {
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         when(trackStorage.track(trackUrn, userUrn)).thenReturn(Observable.just(propertySet));
         expect(trackOperations.track(trackUrn).toBlockingObservable().lastOrDefault(null)).toBe(propertySet);
 
+    }
+
+    @Test
+    public void shouldSendAnErrorIfTrackOperationsRaiseAnException() {
+        when(accountOperations.isUserLoggedIn()).thenReturn(false);
+        Observer<PropertySet> observer = mock(Observer.class);
+
+        trackOperations.track(trackUrn).subscribe(observer);
+
+        verify(observer).onError(any(RuntimeException.class));
+        verifyNoMoreInteractions(observer);
     }
 }
