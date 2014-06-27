@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service.skippy;
 
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
+import static com.soundcloud.android.skippy.Skippy.ErrorCategory;
 import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason.BUFFERING;
 import static com.soundcloud.android.skippy.Skippy.Reason.COMPLETE;
@@ -24,6 +25,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -262,11 +264,16 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     @Override
-    public void onErrorMessage(String category, String errorMsg, String uri, String cdn) {
-        SoundCloudApplication.handleSilentException(errorMsg, new SkippyException(category));
+    public void onErrorMessage(ErrorCategory category, String sourceFile, int line, String errorMsg, String uri, String cdn) {
+        SoundCloudApplication.handleSilentException(errorMsg, new SkippyException(category, line, sourceFile));
 
-        final PlaybackErrorEvent event = new PlaybackErrorEvent(category, PlaybackProtocol.HLS, cdn);
+        final PlaybackErrorEvent event = new PlaybackErrorEvent(category.getCategory().name(), PlaybackProtocol.HLS, cdn);
         eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
+    }
+
+    @Override
+    public void onInitializationError(Throwable throwable, String message) {
+        SoundCloudApplication.handleSilentException(message, throwable);
     }
 
     static class StateChangeHandler extends Handler {
@@ -304,22 +311,26 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
 
-    private class SkippyException extends Exception {
-        private String category;
+    private static class SkippyException extends Exception {
+        private ErrorCategory errorCategory;
+        private final int line;
+        private final String sourceFile;
 
-        public SkippyException(String category) {
-            this.category = category;
+        private SkippyException(ErrorCategory category, int line, String sourceFile) {
+            this.errorCategory = category;
+            this.line = line;
+            this.sourceFile = sourceFile;
         }
 
         @Override
         public String getMessage() {
-            return this.category;
+            return errorCategory.getCategory().name();
 
         }
 
         @Override
         public StackTraceElement[] getStackTrace() {
-            StackTraceElement[] stack = new StackTraceElement[]{new StackTraceElement(this.category.replace("/", "."), "", "skippy.c", 1)};
+            StackTraceElement[] stack = new StackTraceElement[]{new StackTraceElement(errorCategory.getCategory().name(), ScTextUtils.EMPTY_STRING, sourceFile, line)};
             return stack;
         }
     }

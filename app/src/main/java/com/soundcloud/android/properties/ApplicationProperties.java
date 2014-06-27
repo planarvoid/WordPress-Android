@@ -88,6 +88,6 @@ public class ApplicationProperties {
     }
 
     public static boolean shouldReportCrashes(){
-        return !IS_RUNNING_ON_EMULATOR && IS_RUNNING_ON_DALVIK && !BuildType.DEBUG.equals(BUILD_TYPE);
+        return !IS_RUNNING_ON_EMULATOR && IS_RUNNING_ON_DALVIK && !BuildType.DEBUG.equals(BUILD_TYPE) && BUILD_TYPE != null;
     }
 }

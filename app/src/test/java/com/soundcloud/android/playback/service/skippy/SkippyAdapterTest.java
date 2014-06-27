@@ -3,11 +3,13 @@ package com.soundcloud.android.playback.service.skippy;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
+import static com.soundcloud.android.skippy.Skippy.*;
 import static com.soundcloud.android.skippy.Skippy.Error;
 import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason;
 import static com.soundcloud.android.skippy.Skippy.State;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -76,7 +78,7 @@ public class SkippyAdapterTest {
 
     @Before
     public void setUp() throws Exception {
-        when(skippyFactory.create(any(Skippy.PlayListener.class))).thenReturn(skippy);
+        when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, playbackOperations,
                 stateChangeHandler, eventBus, connectionHelper, applicationProperties);
         skippyAdapter.setListener(listener);
@@ -384,14 +386,15 @@ public class SkippyAdapterTest {
     @Test
     public void onErrorPublishesPlaybackErrorEvent() throws Exception {
         EventMonitor eventMonitor = EventMonitor.on(eventBus);
-
-        skippyAdapter.onErrorMessage("category", "message", STREAM_URL, CDN_HOST);
+        ErrorCategory errorCategory = mock(ErrorCategory.class);
+        when(errorCategory.getCategory()).thenReturn(ErrorCategory.Category.CODEC_DECODER);
+        skippyAdapter.onErrorMessage(errorCategory, "sourceFile", 22, "message", STREAM_URL, CDN_HOST);
 
         final PlaybackErrorEvent event = eventMonitor.verifyEventOn(EventQueue.PLAYBACK_ERROR);
         expect(event.getBitrate()).toEqual("128");
         expect(event.getFormat()).toEqual("mp3");
         expect(event.getProtocol()).toEqual(PlaybackProtocol.HLS);
-        expect(event.getCategory()).toEqual("category");
+        expect(event.getCategory()).toEqual("CODEC_DECODER");
         expect(event.getCdnHost()).toEqual(CDN_HOST);
     }
 
