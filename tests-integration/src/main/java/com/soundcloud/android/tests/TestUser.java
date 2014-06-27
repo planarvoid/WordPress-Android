@@ -70,34 +70,6 @@ public class TestUser {
         return token;
     }
 
-    public void unfollowAll(Activity activity) {
-        final Context context =  activity.getApplicationContext();
-        try {
-            new UserAssociationSyncer(context).syncContent(Content.ME_FOLLOWINGS.uri, null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        final FollowingOperations followingOperations = new FollowingOperations(Schedulers.immediate());
-        activity.runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                for (long userId : followingOperations.getFollowedUserIds()){
-                    followingOperations.removeFollowing(new User(userId));
-                }
-
-                try {
-                    new UserAssociationSyncer(context).syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        });
-
-    }
-
     public static final TestUser defaultUser    = new TestUser("android-testing",       "",                             "android-testing");
     public static final TestUser scAccount      = new TestUser("Steven Testowy",        "soundcloudtestuser@gmail.com", "s0undcl0ud");
     public static final TestUser scTestAccount  = new TestUser("android-testing",       "",                             "android-testing");
