@@ -8,6 +8,7 @@ import com.soundcloud.android.tests.with.With;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewParent;
+import android.webkit.WebView;
 
 
 import java.util.List;
@@ -48,4 +49,6 @@ public interface ViewElement extends ElementWithText {
     Class getViewClass();
 
     ViewPager toViewPager();
+
+    WebView toWebView();
 }

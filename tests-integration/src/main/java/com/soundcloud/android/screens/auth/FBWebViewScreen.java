@@ -6,25 +6,27 @@ import com.robotium.solo.By;
 import com.soundcloud.android.onboarding.auth.FacebookWebFlowActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Waiter;
 import com.soundcloud.android.tests.with.With;
 
 import android.webkit.WebView;
 
 public class FBWebViewScreen {
+    private final ViewElement webview;
     public Han solo;
     private Waiter waiter;
 
     public FBWebViewScreen(Han driver) {
         solo = driver;
         waiter = new Waiter(solo);
+        waiter.waitForElement(com.soundcloud.android.R.id.webview);
+        webview = solo.findElement(With.id(com.soundcloud.android.R.id.webview));
+        waiter.waitForWebViewToLoad(webview.toWebView());
     }
 
     public boolean waitForContent(){
-        final FacebookWebFlowActivity facebookWebFlow = solo.assertActivity(FacebookWebFlowActivity.class);
-        WebView webView = facebookWebFlow.getWebView();
-        assertNotNull(webView);
-        return waiter.waitForWebViewToLoad(webView);
+        return waiter.waitForWebViewToLoad(webview.toWebView());
     }
 
     public void typeEmail(String text) {
@@ -43,7 +45,7 @@ public class FBWebViewScreen {
     public MainScreen submit() {
         solo.waitForWebElement(loginField());
         solo.clickOnWebElement(loginField());
-        if (solo.searchTextWithoutScrolling("Do you want the browser to remember this password?")) {
+        if (solo.findElement(With.text("Do you want the browser to remember this password?")).isVisible()) {
             solo.findElement(With.text("Never")).click();
         }
         waiter.waitForLogInDialog();

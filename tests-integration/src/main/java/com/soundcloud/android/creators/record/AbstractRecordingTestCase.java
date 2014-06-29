@@ -150,7 +150,6 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         assertState(IDLE_PLAYBACK);
 
         solo.clickOnText(R.string.btn_publish);
-        solo.assertActivity(UploadActivity.class);
 
         if (title != null) {
             solo.enterTextId(R.id.what, title);
@@ -158,13 +157,11 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
 
         if (location != null) {
             solo.findElement(With.id(R.id.where)).click();
-            solo.assertActivity(LocationPickerActivity.class);
 
             solo.findElement(With.id(R.id.where)).click();
             solo.enterTextId(R.id.where, location);
             solo.sendKey(Solo.ENTER);
 
-            solo.assertActivity(UploadActivity.class);
         }
 
         if (isPrivate) {

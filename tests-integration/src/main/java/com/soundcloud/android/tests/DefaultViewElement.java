@@ -11,6 +11,7 @@ import android.view.Display;
 import android.view.View;
 import android.view.ViewParent;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -130,6 +131,11 @@ public class DefaultViewElement implements ViewElement {
     @Override
     public ViewPager toViewPager() {
         return (ViewPager)view;
+    }
+
+    @Override
+    public WebView toWebView() {
+        return (WebView) view;
     }
 
     private boolean hasDimensions() {

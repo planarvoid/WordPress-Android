@@ -160,7 +160,7 @@ public class Waiter {
     }
 
     public boolean waitForElement(final int content) {
-        return solo.waitForCondition(new VisibleElementCondition(content), this.TIMEOUT);
+        return solo.waitForCondition(new VisibleElementCondition(content), this.NETWORK_TIMEOUT);
     }
 
     public boolean waitForElement(final Class<? extends View> viewClass) {
@@ -286,7 +286,7 @@ public class Waiter {
 
         @Override
         public boolean isSatisfied() {
-            return !solo.searchTextWithoutScrolling(searchedText);
+            return !solo.findElement(With.text(searchedText)).isVisible();
         }
     }
 

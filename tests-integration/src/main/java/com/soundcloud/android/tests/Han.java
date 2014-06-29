@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
  * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
  */
 public class Han  {
-    private static final int DEFAULT_TIMEOUT = 20 * 1000;
     private static ViewFetcher viewFetcher;
 
     private final Solo solo;
@@ -91,20 +90,6 @@ public class Han  {
     public void assertNoText(int resId, Object... args) {
         String text = getString(resId, args);
         assertFalse("Did not expect to find text: " + text, solo.searchText(Pattern.quote(text), true));
-    }
-
-    public <T extends Activity> T assertActivity(Class<T> a) {
-        return assertActivity(a, DEFAULT_TIMEOUT);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends Activity> T assertActivity(Class<T> a, int timeout) {
-        final boolean found = solo.waitForActivity(a.getSimpleName(), timeout);
-        Activity activity = solo.getCurrentActivity();
-        if (!found && !a.isAssignableFrom(activity.getClass())) {
-            fail("Current activity is " + activity.getClass().getSimpleName() + ", expected " + a.getSimpleName());
-        }
-        return (T) activity;
     }
 
     public void clickOnActionBarHomeButton() {
@@ -267,10 +252,6 @@ public class Han  {
 
     public boolean searchText(String text, boolean onlyVisible) {
         return solo.searchText(text, onlyVisible);
-    }
-
-    public boolean searchTextWithoutScrolling(String text){
-        return solo.searchText(text,0,false,true);
     }
 
     public boolean waitForWebElement(By by) {

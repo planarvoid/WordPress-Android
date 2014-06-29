@@ -16,7 +16,6 @@ public class ByFacebook extends SignUpTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        fbWebViewScreen = new FBWebViewScreen(solo);
     }
 
     public void testUserFollowSingleSuccess() throws Exception {
@@ -24,7 +23,8 @@ public class ByFacebook extends SignUpTestCase {
 
         signUpScreen.clickFacebookButton();
         signUpScreen.acceptTerms();
-        assertTrue(fbWebViewScreen.waitForContent());
+        fbWebViewScreen = new FBWebViewScreen(solo);
+        fbWebViewScreen.waitForContent();
 
         //otherwise field suggestions pop put and don't allow password field to be clicked
         fbWebViewScreen.typePassword(Facebook.getPassword());

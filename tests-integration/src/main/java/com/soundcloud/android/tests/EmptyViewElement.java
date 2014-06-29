@@ -6,6 +6,7 @@ import com.soundcloud.android.tests.with.With;
 
 import android.support.v4.view.ViewPager;
 import android.view.ViewParent;
+import android.webkit.WebView;
 
 import java.util.List;
 
@@ -97,6 +98,11 @@ public class EmptyViewElement implements ViewElement {
 
     @Override
     public ViewPager toViewPager() {
+        throw new ViewNotFoundException();
+    }
+
+    @Override
+    public WebView toWebView() {
         throw new ViewNotFoundException();
     }
 }

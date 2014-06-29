@@ -26,7 +26,7 @@ public class HomeScreen extends Screen {
     }
 
     public boolean hasItemByUsername(String username){
-        return testDriver.searchText(username, true);
+        return !testDriver.findElements(With.text(username)).isEmpty();
     }
 
     private ViewElement bottomBar() {

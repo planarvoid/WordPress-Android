@@ -37,7 +37,7 @@ public class ByEmail extends SignUpTestCase {
         EmailConfirmScreen confirmScreen = suggestedUsersScreen.finish();
         HomeScreen home = dismissDistractions(confirmScreen);
 
-        assert(home.hasItemByUsername(followedUsername));
+        assertTrue(home.hasItemByUsername(followedUsername));
     }
 
     private HomeScreen dismissDistractions(EmailConfirmScreen confirmScreen) {

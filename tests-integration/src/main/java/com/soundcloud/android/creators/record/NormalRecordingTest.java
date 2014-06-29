@@ -130,11 +130,9 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         record(recordingTime);
 
         solo.clickOnText(R.string.btn_publish);
-        solo.assertActivity(UploadActivity.class);
 
         solo.clickOnText(R.string.record_another_sound);
 
-        solo.assertActivity(RecordActivity.class);
         assertState(IDLE_RECORD); // should be read to record a new track
     }
 
@@ -142,14 +140,12 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         record(recordingTime);
 
         solo.clickOnText(R.string.btn_publish);
-        solo.assertActivity(UploadActivity.class);
 
         solo.goBack();
 
         // softkeyboard gets shown on some versions of android
         if (solo.getCurrentActivity() instanceof UploadActivity) solo.goBack();
 
-        solo.assertActivity(RecordActivity.class);
 
         assertState(IDLE_PLAYBACK); // should be old recording
     }
@@ -269,7 +265,6 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         Recording r = getActivity().getRecorder().getRecording();
 
         solo.clickOnText(R.string.btn_publish);
-        solo.assertActivity(UploadActivity.class);
 
         long tstamp = System.currentTimeMillis();
 
@@ -288,7 +283,6 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         solo.clickOnText(title);
 
-        solo.assertActivity(RecordActivity.class);
         uploadSound(null, null, true);
 
         assertSoundUploaded();
@@ -304,8 +298,6 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
         solo.findElement(With.id(R.id.home)).click();
         solo.clickOnText(TestUser.defaultUser.getUsername());
-        solo.assertActivity(MeActivity.class);
-
     }
 
     public void ignore_testShouldOnlyDisplayedSavedLocallyMessageOnce() throws Exception {
@@ -328,7 +320,6 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         final String name = "A test upload " + id;
         solo.enterText(0, name);
 
-        solo.assertActivity(UploadActivity.class);
 
         setActivity(reloadRecording(getActivity().getRecorder().getRecording()));
 

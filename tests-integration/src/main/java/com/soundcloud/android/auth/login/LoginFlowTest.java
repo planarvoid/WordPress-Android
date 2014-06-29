@@ -39,7 +39,6 @@ public class LoginFlowTest extends LoginTestCase {
         homeScreen = new HomeScreen(solo);
 
         menuScreen      = new MenuScreen(solo);
-        FBWebViewScreen = new FBWebViewScreen(solo);
         waiter          = new Waiter(solo);
     }
 
@@ -120,9 +119,7 @@ public class LoginFlowTest extends LoginTestCase {
 
         loginScreen.clickOnContinueButton();
 
-        WebView webView = solo.assertActivity(FacebookWebFlowActivity.class).getWebView();
-        assertNotNull(webView);
-        assertTrue(waiter.waitForWebViewToLoad(webView));
+        FBWebViewScreen = new FBWebViewScreen(solo);
 
         FBWebViewScreen.typePassword(scAccount.getPassword());
         FBWebViewScreen.typeEmail(scAccount.getEmail());
