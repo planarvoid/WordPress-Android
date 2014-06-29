@@ -5,6 +5,7 @@ import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.screens.EmailConfirmScreen;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
@@ -78,9 +79,9 @@ public class SuggestedUsersScreen extends Screen {
         return testDriver.findElement(With.id(android.R.id.list)).toListView().getItemAt(index);
     }
 
-    public EmailConfirmScreen finish() {
+    public StreamScreen finish() {
         testDriver.clickOnActionBarItem(R.id.finish);
-        return new EmailConfirmScreen(testDriver);
+        return new StreamScreen(testDriver);
     }
 
     @Override

@@ -49,7 +49,6 @@ public class Han  {
         return new DefaultViewElement(view, solo);
     }
 
-
     public ToastElement getToast() { return new ToastElement(this); }
 
     public ViewElement findElement(With findBy) {
@@ -83,10 +82,12 @@ public class Han  {
         assertTrue("Text '" + text + "' not found", solo.waitForText(Pattern.quote(text)));
     }
 
+    @Deprecated
     public void assertText(String text) {
         assertTrue("text " + text + " not found", solo.waitForText(text));
     }
 
+    @Deprecated
     public void assertNoText(int resId, Object... args) {
         String text = getString(resId, args);
         assertFalse("Did not expect to find text: " + text, solo.searchText(Pattern.quote(text), true));
