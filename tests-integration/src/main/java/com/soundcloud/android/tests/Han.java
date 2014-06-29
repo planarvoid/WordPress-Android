@@ -1,10 +1,13 @@
 package com.soundcloud.android.tests;
 
+import static com.google.common.collect.Collections2.filter;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Lists;
 import com.robotium.solo.By;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
@@ -19,6 +22,7 @@ import android.view.Display;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
@@ -143,18 +147,11 @@ public class Han  {
         drag(screenWidth / 4, screenWidth / 4, screenHeight / 4, screenHeight / 2, 10);
     }
 
-    public void enterTextId(int resId, String text) {
-        View v = solo.getCurrentActivity().findViewById(resId);
-        if (v instanceof EditText) {
-            solo.enterText((EditText) v, text);
-        } else fail("could not find edit text with id " + resId);
-    }
-
-    public void swipeHorizontal(int side) {
+    private void swipeHorizontal(int side) {
         swipeHorizontal(side, .5f);
     }
 
-    public void swipeHorizontal(int side, float verticalPosition){
+    private void swipeHorizontal(int side, float verticalPosition){
         Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
 
         final int screenHeight = display.getHeight();
@@ -184,13 +181,23 @@ public class Han  {
         solo.drag(fromX, toX, fromY, toY, stepCount);
     }
 
-    public void log(Object msg, Object... args) {
-        Log.d(getClass().getSimpleName(), msg == null ? null : String.format(msg.toString(), args));
-    }
 
     @Deprecated
-    public void clickOnButton(Integer resource) {
-        solo.clickOnButton(getString(resource));
+    public void clickOnButton(final Integer resource) {
+        ArrayList<ViewElement> buttonsWithText = findButtonsWithText(getString(resource));
+        if(!buttonsWithText.isEmpty()) {
+            buttonsWithText.get(0).click();
+        }
+    }
+
+    private ArrayList<ViewElement> findButtonsWithText(final String text) {
+        return Lists.newArrayList(filter(findElements(With.className(Button.class)), new Predicate<ViewElement>() {
+                    @Override
+                    public boolean apply(ViewElement viewElement) {
+                        return viewElement.findElement(With.text(text)).getText().equals(text);
+                    }
+               })
+        );
     }
 
     public void finishOpenedActivities() {
@@ -216,9 +223,6 @@ public class Han  {
 
     public void scrollToBottom(AbsListView view) {
         solo.scrollListToBottom(view);
-    }
-    public void assertTextFound(String text, boolean onlyVisible) {
-        assertTrue("Text " + text + " not found", solo.searchText(text, onlyVisible));
     }
 
     public boolean searchText(String text, boolean onlyVisible) {
@@ -270,5 +274,9 @@ public class Han  {
             inputMethodManager.showSoftInput(focusedView,  InputMethodManager.SHOW_IMPLICIT);
         }
         return canHideKeyboard;
+    }
+
+    private void log(Object msg, Object... args) {
+        Log.d(getClass().getSimpleName(), msg == null ? null : String.format(msg.toString(), args));
     }
 }

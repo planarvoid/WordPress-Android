@@ -268,7 +268,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         final String title ="testDeleteWavFileAndUpload-"+tstamp;
         // give it a title
-        solo.enterTextId(R.id.what, title);
+        solo.findElement(With.id(R.id.what)).typeText(title);
         solo.goBack();
 
         // doesn't exist any longer

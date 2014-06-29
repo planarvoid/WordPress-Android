@@ -77,7 +77,6 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
             solo.clickOnText("Save");
 
             // make sure add image prompt is gone
-            solo.assertTextFound(solo.getString(R.string.add_image), true);
 
             // clear image
             solo.findElement(With.id(R.id.artwork)).longClick();
@@ -101,7 +100,6 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
             solo.clickOnText("Save");
 
             // make sure add image prompt is gone
-            solo.assertTextFound(solo.getString(R.string.add_image), true);
 
             // clear image
             solo.findElement(With.id(R.id.artwork)).longClick();

@@ -152,14 +152,14 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         solo.clickOnText(R.string.btn_publish);
 
         if (title != null) {
-            solo.enterTextId(R.id.what, title);
+            solo.findElement(With.id(R.id.what)).typeText(title);
         }
 
         if (location != null) {
             solo.findElement(With.id(R.id.where)).click();
 
             solo.findElement(With.id(R.id.where)).click();
-            solo.enterTextId(R.id.where, location);
+            solo.findElement(With.id(R.id.what)).typeText(location);
             solo.sendKey(Solo.ENTER);
 
         }
