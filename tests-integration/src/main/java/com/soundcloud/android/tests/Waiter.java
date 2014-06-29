@@ -148,7 +148,7 @@ public class Waiter {
     }
 
     public void waitForActivity(Class<? extends Activity> activityClass) {
-        solo.waitForActivity(activityClass, TIMEOUT);
+        solo.waitForCondition(new CurrentActivityCondition(activityClass), this.TIMEOUT);
     }
 
     public void waitForTextInView(ViewElement viewElement) {
@@ -345,6 +345,20 @@ public class Waiter {
         @Override
         public boolean isSatisfied() {
             return !TextUtils.isEmpty(viewElement.getText());
+        }
+    }
+
+    private class CurrentActivityCondition implements Condition {
+
+        private final Class<? extends Activity> activity;
+
+        public CurrentActivityCondition(Class<? extends Activity> activityClass) {
+            activity = activityClass;
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            return solo.getCurrentActivity().getClass().getSimpleName().equals(activity);
         }
     }
 }

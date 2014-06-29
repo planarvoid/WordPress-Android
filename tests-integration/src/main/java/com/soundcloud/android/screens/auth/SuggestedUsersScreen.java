@@ -62,7 +62,6 @@ public class SuggestedUsersScreen extends Screen {
 
     public SuggestedUsersCategoryScreen clickCategory(int visibleIndex) {
         clickOnCategoryElement(visibleIndex, android.R.id.text1);
-        testDriver.waitForActivity(SuggestedUsersCategoryActivity.class);
         return new SuggestedUsersCategoryScreen(testDriver);
     }
 

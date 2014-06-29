@@ -109,12 +109,6 @@ public class Han  {
         solo.clickOnActionBarItem(itemId);
     }
 
-    public void assertActivityFinished() {
-        Activity a = solo.getCurrentActivity();
-        assertNotNull("activity is null", a);
-        assertTrue("Activity "+a+" not finished", a.isFinishing());
-    }
-
     public void clickOnButtonResId(int resId) {
         solo.clickOnButton(getString(resId));
     }
@@ -197,20 +191,6 @@ public class Han  {
 
     public void log(Object msg, Object... args) {
         Log.d(getClass().getSimpleName(), msg == null ? null : String.format(msg.toString(), args));
-    }
-
-    public void waitForActivity(Class<? extends Activity> name) {
-        waitForActivity(name.getSimpleName());
-    }
-
-    public void waitForActivity(Class<? extends Activity> name, int timeout) {
-        solo.waitForActivity(name.getSimpleName(), timeout);
-    }
-
-    @Deprecated
-    public void waitForActivity(String name) {
-        assertTrue(String.format("timeout waiting for activity %s, current=%s",
-                name, solo.getCurrentActivity()), solo.waitForActivity(name));
     }
 
     @Deprecated

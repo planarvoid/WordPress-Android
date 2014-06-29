@@ -73,7 +73,6 @@ public class SuggestedUsersCategoryScreen extends Screen {
     }
 
     public void waitForUsers() {
-        testDriver.waitForActivity(SuggestedUsersCategoryActivity.class);
         waiter.waitForElement(R.id.suggested_users_grid);
         waiter.waitForElement(R.id.username);
     }

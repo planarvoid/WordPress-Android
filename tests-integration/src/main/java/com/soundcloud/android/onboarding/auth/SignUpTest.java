@@ -74,7 +74,6 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
             // FakeCamera will provide an image
             solo.sleep(1000);
 
-            solo.waitForActivity(CropImageActivity.class);
             solo.clickOnText("Save");
 
             // make sure add image prompt is gone
@@ -99,7 +98,6 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
             // FakeGallery will provide an image
             solo.sleep(1000);
 
-            solo.waitForActivity(CropImageActivity.class);
             solo.clickOnText("Save");
 
             // make sure add image prompt is gone

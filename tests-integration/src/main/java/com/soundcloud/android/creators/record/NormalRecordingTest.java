@@ -96,7 +96,6 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
             assertTrackDuration(track, recordingTime + ROBO_SLEEP);
         }
 
-        solo.assertActivityFinished();
     }
 
     public void ignore_testRecordAndUploadWithLocation() throws Exception {
@@ -110,7 +109,6 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         if (track != null) {
             assertEquals("A test upload at "+location, track.title);
         }
-        solo.assertActivityFinished();
     }
 
     public void ignore_testRecordAndUploadRaw() throws Exception {
@@ -124,7 +122,6 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         assertSoundUploaded();
         assertSoundTranscoded();
-        solo.assertActivityFinished();
     }
 
     public void ignore_testRecordAndUploadThenRecordAnotherSound() throws Exception {
