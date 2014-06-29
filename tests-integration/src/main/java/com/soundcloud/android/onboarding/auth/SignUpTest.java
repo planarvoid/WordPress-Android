@@ -40,7 +40,7 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
         solo.assertText(R.string.authentication_add_info_msg);
 
         // username (max 25 characters)
-        solo.enterText(0, generateUsername());
+        solo.findElements(With.className(EditText.class)).get(0).typeText(generateUsername());
         solo.clickOnButtonResId(R.string.btn_save);
 
         solo.assertText(R.string.side_menu_stream);

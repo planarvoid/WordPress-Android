@@ -218,10 +218,6 @@ public class Han  {
         solo.clickOnButton(getString(resource));
     }
 
-    public void enterText(int index, String text) {
-        solo.enterText(index, text);
-    }
-
     public void finishOpenedActivities() {
         solo.finishOpenedActivities();
     }

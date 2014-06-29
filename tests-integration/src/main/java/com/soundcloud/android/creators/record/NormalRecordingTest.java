@@ -18,6 +18,7 @@ import com.soundcloud.android.tests.with.With;
 import android.content.Intent;
 import android.os.Build;
 import android.test.suitebuilder.annotation.Suppress;
+import android.widget.EditText;
 
 import java.io.File;
 
@@ -318,8 +319,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         long id = System.currentTimeMillis();
         final String name = "A test upload " + id;
-        solo.enterText(0, name);
-
+        solo.findElements(With.className(EditText.class)).get(0).typeText(name);
 
         setActivity(reloadRecording(getActivity().getRecorder().getRecording()));
 
