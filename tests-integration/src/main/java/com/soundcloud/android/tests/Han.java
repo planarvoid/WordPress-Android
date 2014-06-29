@@ -87,12 +87,6 @@ public class Han  {
         assertTrue("text " + text + " not found", solo.waitForText(text));
     }
 
-    @Deprecated
-    public void assertNoText(int resId, Object... args) {
-        String text = getString(resId, args);
-        assertFalse("Did not expect to find text: " + text, solo.searchText(Pattern.quote(text), true));
-    }
-
     public void clickOnActionBarHomeButton() {
         try {
             solo.getCurrentActivity().runOnUiThread(new Runnable() {

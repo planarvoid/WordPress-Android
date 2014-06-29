@@ -305,7 +305,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.findElement(With.id(R.id.btn_action)).click();
         solo.sleep(1000);
         solo.findElement(With.id(R.id.btn_action)).click();
-        solo.assertNoText(R.string.rec_your_sound_is_saved_locally_at);
+        solo.findElements(With.text(solo.getString(R.string.rec_your_sound_is_saved_locally_at))).isEmpty();
     }
 
     @Suppress

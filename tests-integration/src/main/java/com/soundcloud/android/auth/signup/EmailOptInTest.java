@@ -30,7 +30,7 @@ public class EmailOptInTest extends SignUpTestCase {
         signUpScreen.skipInfo();
         new SuggestedUsersScreen(solo).finish();
         optInScreen = new EmailOptInScreen(solo);
-        //TODO: Loading stream after signup takes awfuly long time, find a way to fix this 
+        //TODO: Loading stream after signup takes awfuly long time, find a way to fix this
         //assertThat(optInScreen, is(Visible()));
     }
 }
