@@ -22,10 +22,7 @@ public class TrackOperations {
     }
 
     public Observable<PropertySet> track(final TrackUrn trackUrn) {
-        if (accountOperations.isUserLoggedIn()) {
-            return trackStorage.track(trackUrn, accountOperations.getLoggedInUserUrn());
-        }
-        return Observable.error(new IllegalStateException("User is not logged in"));
+        return trackStorage.track(trackUrn, accountOperations.getLoggedInUserUrn());
     }
 
 }
