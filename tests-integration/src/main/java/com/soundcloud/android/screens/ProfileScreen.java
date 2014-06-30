@@ -13,6 +13,15 @@ public class ProfileScreen extends Screen {
         super(solo);
     }
 
+    public void playTrack(int index) {
+        tracks().get(index).click();
+        waiter.waitForExpandedPlayer();
+    }
+
+    private java.util.List<ViewElement> tracks() {
+        return testDriver.findElements(With.id(R.id.track_list_item));
+    }
+
     private ViewElement followButton() {
         return testDriver.findElement(With.id(R.id.toggle_btn_follow));
     }

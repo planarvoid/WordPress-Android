@@ -1,5 +1,6 @@
 package com.soundcloud.android.player;
 
+import static com.soundcloud.android.tests.hamcrest.IsVisible.Visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -52,11 +53,19 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(playerElement.isCollapsed(), is(true));
     }
 
-    public void ignoretestPlayerExpandsOnFooterTap() throws Exception {
+    public void testPlayerExpandsOnFooterTap() throws Exception {
         playExploreTrack();
         playerElement.pressBackToCollapse();
         playerElement.tapFooter();
         assertThat(playerElement.isExpanded(), is(true));
+    }
+
+    public void testPlayerCanBeStartedFromProfiles() {
+        menuScreen.open()
+                .clickUserProfile()
+                .playTrack(0);
+
+        assertThat(new VisualPlayerElement(solo), is(Visible()));
     }
 
     public void testPlayStateCanBeToggledFromPlayerFooter() throws Exception {
@@ -146,7 +155,7 @@ public class Player extends ActivityTestCase<MainActivity> {
     }
 
     private void playSingleTrack(){
-        menuScreen.open().clickLikes().clickItem(2);
+        menuScreen.open().clickLikes().clickItem(3);
         playerElement = new VisualPlayerElement(solo);
     }
 
