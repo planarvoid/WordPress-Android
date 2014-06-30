@@ -31,7 +31,7 @@ public class PlayerFragment extends Fragment {
     private PlayerPresenter presenter;
 
     private final CompositeSubscription viewLifetimeSubscription = new CompositeSubscription();
-    private CompositeSubscription foregroundLifetimeSubscription;
+    private CompositeSubscription foregroundSubscription;
 
     public PlayerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -55,12 +55,12 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        subscribeForegroundLifetimeEvents();
+        subscribeForegroundEvents();
     }
 
     @Override
     public void onPause() {
-        unsubscribeForegroundLifetimeEvents();
+        unsubscribeForegroundEvents();
         super.onPause();
     }
 
@@ -76,18 +76,18 @@ public class PlayerFragment extends Fragment {
         viewLifetimeSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber()));
     }
 
-    private void subscribeForegroundLifetimeEvents() {
-        foregroundLifetimeSubscription = new CompositeSubscription();
-        foregroundLifetimeSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber()));
-        foregroundLifetimeSubscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber()));
+    private void subscribeForegroundEvents() {
+        foregroundSubscription = new CompositeSubscription();
+        foregroundSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber()));
+        foregroundSubscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber()));
     }
 
     private void unsubscribeViewLifetimeEvents() {
         viewLifetimeSubscription.unsubscribe();
     }
 
-    private void unsubscribeForegroundLifetimeEvents() {
-        foregroundLifetimeSubscription.unsubscribe();
+    private void unsubscribeForegroundEvents() {
+        foregroundSubscription.unsubscribe();
     }
 
     private final class PlaybackStateSubscriber extends DefaultSubscriber<StateTransition> {

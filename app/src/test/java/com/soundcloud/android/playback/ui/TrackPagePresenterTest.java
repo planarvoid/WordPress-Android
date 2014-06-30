@@ -71,7 +71,7 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-     public void playingStateSetsToggleChecked() {
+    public void playingStateSetsToggleChecked() {
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true);
         expect(getHolder(trackView).footerPlayToggle.isChecked()).toBeTrue();
     }
@@ -308,7 +308,7 @@ public class TrackPagePresenterTest {
         verify(listener).onPlayerClose();
     }
 
-    @Test (expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void throwIllegalArgumentExceptionOnClickingUnexpectedView() {
         presenter.onClick(mock(View.class));
     }
