@@ -3,7 +3,6 @@ package com.soundcloud.android.activity.resolve.facebook;
 import static com.soundcloud.android.tests.hamcrest.IsVisible.Visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.activity.resolve.ResolveBaseTest;

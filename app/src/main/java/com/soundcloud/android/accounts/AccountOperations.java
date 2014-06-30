@@ -130,9 +130,7 @@ public class AccountOperations extends ScheduledOperations {
     }
 
     public UserUrn getLoggedInUserUrn() {
-        long loggedInUserId = getLoggedInUserId();
-        checkArgument(loggedInUserId != NOT_SET, "Logged in User Id should not be null");
-        return Urn.forUser(loggedInUserId);
+        return Urn.forUser(getLoggedInUserId());
     }
 
     public void loadLoggedInUser() {
