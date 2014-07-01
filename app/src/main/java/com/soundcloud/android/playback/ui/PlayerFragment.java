@@ -30,7 +30,7 @@ public class PlayerFragment extends Fragment {
 
     private PlayerPresenter presenter;
 
-    private final CompositeSubscription viewLifetimeSubscription = new CompositeSubscription();
+    private CompositeSubscription viewLifetimeSubscription;
     private CompositeSubscription foregroundSubscription;
 
     public PlayerFragment() {
@@ -72,6 +72,7 @@ public class PlayerFragment extends Fragment {
     }
 
     private void subscribeViewLifetimeEvents() {
+        viewLifetimeSubscription = new CompositeSubscription();
         viewLifetimeSubscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
         viewLifetimeSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber()));
     }
