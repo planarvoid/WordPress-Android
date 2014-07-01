@@ -69,7 +69,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     @Override
     public void scrubStateChanged(int newScrubState) {
         suppressProgress = newScrubState == SCRUB_STATE_SCRUBBING;
-        if (suppressProgress){
+        if (suppressProgress) {
             cancelProgressAnimations();
         }
     }
@@ -83,7 +83,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     }
 
     public void setProgress(PlaybackProgress progress) {
-        if (!suppressProgress){
+        if (!suppressProgress) {
             leftProgressController.setPlaybackProgress(progress);
             rightProgressController.setPlaybackProgress(progress);
             dragProgressController.setPlaybackProgress(progress);
@@ -124,19 +124,18 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     public void showPlayingState(PlaybackProgress progress) {
         playSessionIsActive = true;
         waveformView.showExpandedWaveform();
-        if (!suppressProgress){
+        if (!suppressProgress) {
             startProgressAnimations(progress);
         }
-
     }
 
-    public void showBufferingState(){
+    public void showBufferingState() {
         playSessionIsActive = true;
         waveformView.showExpandedWaveform();
         cancelProgressAnimations();
     }
 
-    public void showIdleState(){
+    public void showIdleState() {
         playSessionIsActive = false;
         waveformView.showCollapsedWaveform();
         cancelProgressAnimations();
