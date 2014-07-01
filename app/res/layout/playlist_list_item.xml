@@ -30,6 +30,7 @@
             android:id="@+id/private_indicator"
             style="@style/ListPrivateIndicator"
             android:layout_toRightOf="@id/image"
+            android:layout_below="@id/list_item_subheader"
             android:visibility="gone"/>
 
 </RelativeLayout>
