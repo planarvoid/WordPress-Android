@@ -4,10 +4,10 @@ import static com.soundcloud.android.associations.FollowingOperations.FollowStat
 
 import com.google.common.collect.ImmutableSet;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.UserUrn;
-import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserUrn;
+import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
@@ -16,8 +16,6 @@ import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.database.Cursor;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,7 +27,6 @@ import java.util.WeakHashMap;
  * support in our list loading.
  */
 @Deprecated
-@Singleton // global state required
 /* package */ class FollowStatus {
     private final Set<Long> followings = Collections.synchronizedSet(new HashSet<Long>());
     private static FollowStatus instance;
@@ -46,10 +43,9 @@ import java.util.WeakHashMap;
     private final Context context;
     private final SyncStateManager syncStateManager;
 
-    @Inject
-    protected FollowStatus(final Context context) {
+    FollowStatus(final Context context, SyncStateManager syncStateManager) {
         this.context = context;
-        syncStateManager = new SyncStateManager(context);
+        this.syncStateManager = syncStateManager;
 
         followingCollectionState = syncStateManager.fromContent(Content.ME_FOLLOWINGS);
         syncStateManager.addChangeListener(followingCollectionState, new LocalCollection.OnChangeListener() {
@@ -65,9 +61,10 @@ import java.util.WeakHashMap;
         });
     }
 
-    public synchronized static FollowStatus get() {
+    synchronized static FollowStatus get() {
         if (instance == null) {
-            instance = new FollowStatus(SoundCloudApplication.instance);
+            final Context context = SoundCloudApplication.instance;
+            instance = new FollowStatus(context, new SyncStateManager(context));
         }
         return instance;
     }

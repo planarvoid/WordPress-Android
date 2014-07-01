@@ -9,11 +9,13 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.sync.SyncStateManager;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import android.content.ContentValues;
 
@@ -25,11 +27,13 @@ public class FollowStatusTest {
 
     final static long USER_ID = 1L;
     public static final long ID = 10L;
-    FollowStatus status;
+    private FollowStatus status;
+
+    @Mock private SyncStateManager syncStateManager;
 
     @Before
     public void before() {
-        status = new FollowStatus(Robolectric.application);
+        status = new FollowStatus(Robolectric.application, syncStateManager);
     }
 
     @Test

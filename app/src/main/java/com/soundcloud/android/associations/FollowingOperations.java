@@ -42,7 +42,6 @@ import android.content.Context;
 import android.os.SystemClock;
 import android.util.Log;
 
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -59,6 +58,7 @@ public class FollowingOperations {
     private final RxHttpClient rxHttpClient;
     private final SyncInitiator syncInitiator;
 
+    @Deprecated
     public FollowingOperations() {
         this(new SoundCloudRxHttpClient(), new UserAssociationStorage(SoundCloudApplication.instance),
                 new SyncStateManager(SoundCloudApplication.instance),
@@ -81,11 +81,9 @@ public class FollowingOperations {
                 new SyncInitiator(SoundCloudApplication.instance, SoundCloudApplication.instance.getAccountOperations()));
     }
 
-    // TODO, rollback memory state on error
-    @Inject
-    protected FollowingOperations(RxHttpClient httpClient, UserAssociationStorage userAssociationStorage,
-                                  SyncStateManager syncStateManager, FollowStatus followStatus,
-                                  ScModelManager modelManager, SyncInitiator syncInitiator) {
+    public FollowingOperations(RxHttpClient httpClient, UserAssociationStorage userAssociationStorage,
+                               SyncStateManager syncStateManager, FollowStatus followStatus,
+                               ScModelManager modelManager, SyncInitiator syncInitiator) {
         this.rxHttpClient = httpClient;
         this.userAssociationStorage = userAssociationStorage;
         this.syncStateManager = syncStateManager;

@@ -3,6 +3,7 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.actionbar.NowPlayingProgressBar;
 import com.soundcloud.android.activities.ActivitiesAdapter;
+import com.soundcloud.android.associations.AssociationsModule;
 import com.soundcloud.android.associations.TrackInteractionActivity;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.playback.views.WaveformControllerLayout;
@@ -21,7 +22,7 @@ import dagger.Module;
                 MyTracksAdapter.class,
                 WaveformControllerLayout.class,
                 NowPlayingProgressBar.class
-        })
+        }, includes = AssociationsModule.class)
 
 /**
  * Module for legacy classes that need direct injection but are not currently part of injected activities/fragments.

@@ -2,6 +2,7 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
+import com.soundcloud.android.associations.AssociationsModule;
 import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.PlaylistGridPresenter;
@@ -14,7 +15,7 @@ import dagger.Provides;
                 SearchResultsFragment.class,
                 PlaylistTagsFragment.class,
                 PlaylistResultsFragment.class
-        })
+        }, includes = AssociationsModule.class)
 public class SearchModule {
 
     @Provides
