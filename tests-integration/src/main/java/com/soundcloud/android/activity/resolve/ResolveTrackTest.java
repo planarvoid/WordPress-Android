@@ -19,7 +19,7 @@ public class ResolveTrackTest extends ActivityTestCase<ResolveActivity> {
         super(ResolveActivity.class);
     }
 
-    public void test_should_land_on_login_screen_for_anonymous_users() {
+    public void testShouldLandOnLoginScreenForAnonymousUsers() {
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(getUri()));
         // We are not logged in
 

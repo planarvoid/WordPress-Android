@@ -43,4 +43,13 @@ public abstract class Screen implements UIView {
     }
 
     abstract protected Class getActivity();
+
+    @Override
+    public String toString() {
+        return String.format("Page: %s, Activity: %s, CurrentActivity: %s",
+                getClass().getSimpleName().toString(),
+                getActivity().getSimpleName().toString(),
+                testDriver.getCurrentActivity().toString()
+        );
+    }
 }

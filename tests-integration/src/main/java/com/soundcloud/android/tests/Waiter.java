@@ -358,7 +358,7 @@ public class Waiter {
 
         @Override
         public boolean isSatisfied() {
-            Log.i(TAG, String.format("Waiting for Activity: %s", activity.getSimpleName().toString()));
+            Log.i(TAG, String.format("Waiting for Activity: %s, current Activity: %s", activity.getSimpleName().toString(), solo.getCurrentActivity().toString()));
             return solo.getCurrentActivity().getClass().getSimpleName().equals(activity.getSimpleName());
         }
     }
