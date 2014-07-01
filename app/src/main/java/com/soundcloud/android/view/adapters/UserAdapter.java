@@ -46,8 +46,7 @@ public class UserAdapter extends ScBaseAdapter<ScResource> implements FollowingO
     }
 
     @VisibleForTesting
-    UserAdapter(Uri uri, UserItemPresenter userItemPresenter,
-                 FollowingOperations followingOperations) {
+    UserAdapter(Uri uri, UserItemPresenter userItemPresenter, FollowingOperations followingOperations) {
         super(uri);
         this.presenter = userItemPresenter;
         this.followingOperations = followingOperations;
@@ -88,10 +87,10 @@ public class UserAdapter extends ScBaseAdapter<ScResource> implements FollowingO
         users.clear();
     }
 
-    public void updateItems(Map<Urn, ScResource> updatedItems){
+    public void updateItems(Map<Urn, ScResource> updatedItems) {
         for (int i = 0; i < users.size(); i++) {
             final Urn key = users.get(i).get(UserProperty.URN);
-            if (updatedItems.containsKey(key)){
+            if (updatedItems.containsKey(key)) {
                 users.set(i, ((User) updatedItems.get(key)).toPropertySet());
             }
         }
