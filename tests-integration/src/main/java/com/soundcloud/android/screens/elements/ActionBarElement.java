@@ -11,6 +11,7 @@ import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
+import android.content.res.Resources;
 import android.os.Build;
 import android.view.KeyEvent;
 import android.widget.AutoCompleteTextView;
@@ -20,9 +21,15 @@ import java.util.List;
 public class ActionBarElement extends Element {
 
     private static final int SEARCH_SELECTOR = R.id.action_search;
+    private static final int TITLE = Resources.getSystem().getIdentifier( "action_bar_title", "id", "android");
+    private static final int CONTAINER = Resources.getSystem().getIdentifier( "action_bar_container", "id", "android");
 
     public ActionBarElement(Han solo) {
         super(solo);
+    }
+
+    public String getTitle() {
+        return title().getText();
     }
 
     @Override
@@ -68,12 +75,17 @@ public class ActionBarElement extends Element {
         searchInputField().typeText(query);
     }
 
+    private ViewElement title() {
+        return actionBarContainer().findElement(With.id(TITLE));
+    }
+
+    private ViewElement actionBarContainer() {
+        return solo.findElement(With.id(CONTAINER));
+    }
+
     private ViewElement searchInputField() {
         waiter.waitForElement(AutoCompleteTextView.class);
-        solo.getSolo().waitForView(AutoCompleteTextView.class);
-        List<AutoCompleteTextView> views = solo.getSolo().getCurrentViews(AutoCompleteTextView.class);
-        assertEquals("Expected to find just one search view", 1, views.size());
-        return solo.wrap(views.get(0));
+        return solo.findElement(With.className(AutoCompleteTextView.class));
     }
 
     public PlaylistTagsScreen dismissSearch() {

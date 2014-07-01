@@ -13,6 +13,15 @@ public class StreamScreen extends Screen {
         waiter.waitForFragmentByTag("stream_fragment");
     }
 
+    public String getTitle() {
+        return actionBar().getTitle();
+    }
+
+    public int getItemCount() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return streamList().getItemCount();
+    }
+
     @Override
     protected Class getActivity() {
         return ACTIVITY;

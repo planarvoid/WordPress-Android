@@ -19,4 +19,8 @@ public class ListElement {
     public ViewElement getItemAt(int index) {
         return new DefaultViewElement(absListView.getChildAt(index), testDriver);
     }
+
+    public int getItemCount() {
+        return absListView.getChildCount();
+    }
 }
