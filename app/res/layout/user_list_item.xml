@@ -9,20 +9,20 @@
             style="@style/ListItemImage"/>
 
     <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/list_item_header"
+            android:id="@id/list_item_header"
             style="@style/ListItemText.PrimaryText"
             android:layout_toRightOf="@id/image"
             android:layout_alignTop="@id/image"
             android:layout_marginTop="-4dp" />
 
     <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/list_item_subheader"
+            android:id="@id/list_item_subheader"
             style="@style/ListItemText.SecondaryText"
             android:layout_toRightOf="@id/image"
             android:layout_below="@id/list_item_header"/>
 
     <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/list_item_counter"
+            android:id="@id/list_item_counter"
             style="@style/ListItemText.Numeric.Stats"
             android:layout_toRightOf="@id/image"
             android:layout_below="@id/list_item_subheader"
