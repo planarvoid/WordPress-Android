@@ -8,11 +8,13 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.cache.Cache;
 import com.nostra13.universalimageloader.cache.disc.DiskCache;
 import com.nostra13.universalimageloader.cache.disc.naming.FileNameGenerator;
+import com.nostra13.universalimageloader.cache.memory.MemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -66,6 +68,8 @@ public class ImageOperationsTest {
     @Mock
     DiskCache diskCache;
     @Mock
+    MemoryCache memoryCache;
+    @Mock
     ImageListener imageListener;
     @Mock
     ImageView imageView;
@@ -107,6 +111,7 @@ public class ImageOperationsTest {
     public void setUp() throws Exception {
         imageOperations = new ImageOperations(imageLoader, imageEndpointBuilder, placeholderGenerator, viewlessLoadingAdapterFactory, cache, fileNameGenerator);
         when(imageLoader.getDiskCache()).thenReturn(diskCache);
+        when(imageLoader.getMemoryCache()).thenReturn(memoryCache);
         when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(RESOLVER_URL_LARGE);
         when(placeholderGenerator.generate(any(String.class))).thenReturn(drawable);
     }
@@ -125,6 +130,18 @@ public class ImageOperationsTest {
         imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
         inOrder.verify(imageLoader).displayImage((String) isNull(), any(ImageViewAware.class), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
         when(cache.get(anyString(), any(Callable.class))).thenReturn(drawable);
+    }
+
+    @Test
+    public void shouldReturnNullForCachedBitmapWhenPreviousAttemptToLoadFailedWithNotFound() {
+        when(failReason.getCause()).thenReturn(new FileNotFoundException());
+
+        imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
+        verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageViewAware.class), any(DisplayImageOptions.class), simpleImageLoadingListenerCaptor.capture());
+        simpleImageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL_LARGE, imageView, failReason);
+
+        expect(imageOperations.getCachedBitmap(URN, ApiImageSize.LARGE, 100, 100)).toBeNull();
+        verifyZeroInteractions(imageLoader);
     }
 
     @Test

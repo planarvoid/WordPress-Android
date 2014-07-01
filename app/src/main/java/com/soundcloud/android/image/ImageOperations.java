@@ -216,14 +216,15 @@ public class ImageOperations {
         });
     }
 
+    @Nullable
     public Bitmap getCachedBitmap(Urn resourceUrn, ApiImageSize apiImageSize, int targetWidth, int targetHeight){
-        return imageLoader.getMemoryCache().get(MemoryCacheUtils.generateKey(
-                buildUrlIfNotPreviouslyMissing(resourceUrn, apiImageSize),
-                new com.nostra13.universalimageloader.core.assist.ImageSize(
-                        targetWidth,
-                        targetHeight
-                )
-        ));
+        final String imageUrl = imageEndpointBuilder.imageUrl(resourceUrn, apiImageSize);
+        if (notFoundUris.contains(imageUrl)) {
+            return null;
+        }
+
+        final String key = MemoryCacheUtils.generateKey(imageUrl, new ImageSize(targetWidth, targetHeight));
+        return imageLoader.getMemoryCache().get(key);
     }
 
     public Uri getLocalImageUri(Urn resourceUrn, ApiImageSize apiImageSize){
