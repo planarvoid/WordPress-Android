@@ -2,6 +2,7 @@ package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.UserProperty;
@@ -23,12 +24,15 @@ public class UserItemPresenter implements CellPresenter<PropertySet> {
 
     private final LayoutInflater layoutInflater;
     private final ImageOperations imageOperations;
+    private final AccountOperations accountOperations;
     @Nullable private OnToggleFollowListener toggleFollowListener;
 
     @Inject
-    public UserItemPresenter(LayoutInflater layoutInflater, ImageOperations imageOperations) {
+    public UserItemPresenter(LayoutInflater layoutInflater, ImageOperations imageOperations,
+                             AccountOperations accountOperations) {
         this.layoutInflater = layoutInflater;
         this.imageOperations = imageOperations;
+        this.accountOperations = accountOperations;
     }
 
     @Override
@@ -54,17 +58,21 @@ public class UserItemPresenter implements CellPresenter<PropertySet> {
     }
 
     private void showFollowingStatus(final int position, View itemView, PropertySet user) {
-        final boolean isFollowing = user.contains(UserProperty.IS_FOLLOWED_BY_ME) && user.get(UserProperty.IS_FOLLOWED_BY_ME);
         final ToggleButton toggleButton = (ToggleButton) itemView.findViewById(R.id.toggle_btn_follow);
-        toggleButton.setChecked(isFollowing);
-        toggleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (toggleFollowListener != null) {
-                    toggleFollowListener.onToggleFollowClicked(position, (ToggleButton) v);
+        if (accountOperations.isLoggedInUser(user.get(UserProperty.URN))) {
+            toggleButton.setVisibility(View.GONE);
+        } else {
+            final boolean isFollowing = user.contains(UserProperty.IS_FOLLOWED_BY_ME) && user.get(UserProperty.IS_FOLLOWED_BY_ME);
+            toggleButton.setChecked(isFollowing);
+            toggleButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (toggleFollowListener != null) {
+                        toggleFollowListener.onToggleFollowClicked(position, (ToggleButton) v);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     private void setupFollowersCount(View itemView, PropertySet user) {

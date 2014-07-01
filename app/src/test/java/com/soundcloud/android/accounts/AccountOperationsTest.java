@@ -401,6 +401,18 @@ public class AccountOperationsTest {
     }
 
     @Test
+    public void shouldReturnTrueIfGivenUserIsLoggedInUser() {
+        mockSoundCloudAccount();
+        expect(accountOperations.isLoggedInUser(Urn.forUser(123))).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnFalseIfGivenUserIsNotTheLoggedInUser() {
+        mockSoundCloudAccount();
+        expect(accountOperations.isLoggedInUser(Urn.forUser(1))).toBeFalse();
+    }
+
+    @Test
     public void purgingUserDataShouldCallAccountCleanupAction() {
         accountOperations.purgeUserData().subscribe(observer);
         InOrder inOrder = inOrder(observer, accountCleanupAction);

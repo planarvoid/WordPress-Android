@@ -133,6 +133,10 @@ public class AccountOperations extends ScheduledOperations {
         return Urn.forUser(getLoggedInUserId());
     }
 
+    public boolean isLoggedInUser(UserUrn user) {
+        return user.equals(getLoggedInUserUrn());
+    }
+
     public void loadLoggedInUser() {
         final long id = getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
         if (id != AccountOperations.NOT_SET) {
