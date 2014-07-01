@@ -15,7 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.verification.VerificationMode;
 import rx.Observer;
 import rx.Subscription;
-import rx.util.functions.Action1;
+import rx.functions.Action1;
 
 public class EventMonitor {
 

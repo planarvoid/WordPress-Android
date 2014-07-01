@@ -68,8 +68,8 @@ public class PlaylistOperations {
     public Observable<Playlist> loadPlaylist(final PlaylistUrn playlistUrn) {
         Log.d(LOG_TAG, "Loading playlist " + playlistUrn);
         return playlistStorage.loadPlaylistWithTracksAsync(playlistUrn.numericId)
-                .mergeMap(syncIfNecessary)
-                .onErrorResumeNext(handlePlaylistNotFound(playlistUrn));
+                .onErrorResumeNext(handlePlaylistNotFound(playlistUrn))
+                .mergeMap(syncIfNecessary);
     }
 
     public Observable<Playlist> refreshPlaylist(final PlaylistUrn playlistUrn) {

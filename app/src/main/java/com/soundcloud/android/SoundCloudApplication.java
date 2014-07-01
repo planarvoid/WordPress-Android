@@ -21,6 +21,7 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.service.PlayerWidgetController;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.rx.RxGlobalErrorHandler;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -34,6 +35,7 @@ import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.plugins.RxJavaPlugins;
 
 import android.accounts.Account;
 import android.annotation.TargetApi;
@@ -104,6 +106,8 @@ public class SoundCloudApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        registerRxGlobalErrorHandler();
+
         instance = this;
 
         objectGraph.inject(this);
@@ -137,6 +141,13 @@ public class SoundCloudApplication extends Application {
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
 
         widgetController.subscribe();
+    }
+
+    private void registerRxGlobalErrorHandler() {
+        final RxJavaPlugins rxJavaPlugins = RxJavaPlugins.getInstance();
+        if (rxJavaPlugins.getErrorHandler() == null) {
+            rxJavaPlugins.registerErrorHandler(new RxGlobalErrorHandler());
+        }
     }
 
     private void setupCurrentUserAccount() {

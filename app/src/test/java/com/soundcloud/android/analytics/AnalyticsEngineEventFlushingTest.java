@@ -26,11 +26,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Scheduler;
 import rx.Subscription;
-import rx.functions.Action1;
+import rx.functions.Action0;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -57,11 +58,16 @@ public class AnalyticsEngineEventFlushingTest {
     private Subscription flushSubscription;
     @Mock
     private EventBus eventBus;
+    @Mock
+    private Scheduler.Worker worker;
+    @Captor
+    private ArgumentCaptor<Action0> flushAction;
 
     @Before
     public void setUp() throws Exception {
         eventMonitor = EventMonitor.on(eventBus);
-        when(scheduler.schedule(any(Action1.class), anyLong(), any(TimeUnit.class))).thenReturn(flushSubscription);
+        when(scheduler.createWorker()).thenReturn(worker);
+        when(worker.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(flushSubscription);
 
         when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
         when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(true);
@@ -74,7 +80,7 @@ public class AnalyticsEngineEventFlushingTest {
         eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen");
 
-        verify(scheduler).schedule(any(Action1.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
+        verify(worker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
     @Test
@@ -82,9 +88,8 @@ public class AnalyticsEngineEventFlushingTest {
         eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen");
 
-        ArgumentCaptor<Action1> flushAction = ArgumentCaptor.forClass(Action1.class);
-        verify(scheduler).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
-        flushAction.getValue().call(null);
+        verify(worker).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
+        flushAction.getValue().call();
         verify(analyticsProviderOne).flush();
         verify(analyticsProviderTwo).flush();
     }
@@ -94,9 +99,8 @@ public class AnalyticsEngineEventFlushingTest {
         eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen");
 
-        ArgumentCaptor<Action1> flushAction = ArgumentCaptor.forClass(Action1.class);
-        verify(scheduler).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
-        flushAction.getValue().call(null);
+        verify(worker).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
+        flushAction.getValue().call();
         verify(flushSubscription).unsubscribe();
     }
 
@@ -105,15 +109,14 @@ public class AnalyticsEngineEventFlushingTest {
         eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen1");
 
-        InOrder inOrder = inOrder(scheduler, scheduler);
+        InOrder inOrder = inOrder(worker);
 
-        ArgumentCaptor<Action1> flushAction = ArgumentCaptor.forClass(Action1.class);
-        inOrder.verify(scheduler).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
-        flushAction.getValue().call(null); // finishes the first flush
+        inOrder.verify(worker).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
+        flushAction.getValue().call(); // finishes the first flush
 
         eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen2");
         eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen3");
-        inOrder.verify(scheduler).schedule(any(Action1.class), anyLong(), any(TimeUnit.class));
+        inOrder.verify(worker).schedule(any(Action0.class), anyLong(), any(TimeUnit.class));
     }
 
     @Test
@@ -122,33 +125,33 @@ public class AnalyticsEngineEventFlushingTest {
         eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen1");
         eventMonitor.publish(EventQueue.SCREEN_ENTERED, "screen2");
 
-        verify(scheduler, times(1)).schedule(any(Action1.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
+        verify(worker, times(1)).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromOpenSessionEvents() {
         eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
 
-        verify(scheduler).schedule(any(Action1.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
+        verify(worker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromCloseSessionEvents() {
         eventMonitor.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
 
-        verify(scheduler).schedule(any(Action1.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
+        verify(worker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromPlaybackEvents() {
         eventMonitor.publish(EventQueue.PLAYBACK_SESSION, PlaybackSessionEvent.forPlay(new Track(), 1L, mock(TrackSourceInfo.class)));
-        verify(scheduler).schedule(any(Action1.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
+        verify(worker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromUIEvents() {
         eventMonitor.publish(EventQueue.UI, UIEvent.fromComment("screen", 1L));
 
-        verify(scheduler).schedule(any(Action1.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
+        verify(worker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 }

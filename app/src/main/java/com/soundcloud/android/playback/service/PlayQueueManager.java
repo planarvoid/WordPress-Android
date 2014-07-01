@@ -13,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
+import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Action1;
 
 import android.content.Context;
 import android.content.Intent;

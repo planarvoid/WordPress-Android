@@ -16,8 +16,8 @@ public final class ScSchedulers {
     private static final int NUM_THREADS = 3;
 
     static {
-        STORAGE_SCHEDULER = Schedulers.executor(createExecutor("RxStorageThreadPool"));
-        API_SCHEDULER = Schedulers.executor(createExecutor("RxApiThreadPool"));
+        STORAGE_SCHEDULER = Schedulers.from(createExecutor("RxStorageThreadPool"));
+        API_SCHEDULER = Schedulers.from(createExecutor("RxApiThreadPool"));
     }
 
     private static Executor createExecutor(final String threadIdentifier) {

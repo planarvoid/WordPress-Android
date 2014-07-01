@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observer;
 import rx.Subscription;
-import rx.util.functions.Func1;
+import rx.functions.Func1;
 
 @RunWith(SoundCloudTestRunner.class)
 public class EventBusTest {
