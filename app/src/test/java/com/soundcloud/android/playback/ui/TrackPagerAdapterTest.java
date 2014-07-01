@@ -30,22 +30,14 @@ import android.view.ViewGroup;
 @RunWith(SoundCloudTestRunner.class)
 public class TrackPagerAdapterTest {
 
-    @Mock
-    private PlayQueueManager playQueueManager;
-    @Mock
-    private PlaySessionController playSessionController;
-    @Mock
-    private LegacyTrackOperations trackOperations;
-    @Mock
-    private TrackPagePresenter trackPagePresenter;
-    @Mock
-    private PlaybackOperations playbackOperations;
-    @Mock
-    private View view;
-    @Mock
-    private ViewGroup container;
-    @Mock
-    private Track track;
+    @Mock private PlayQueueManager playQueueManager;
+    @Mock private PlaySessionController playSessionController;
+    @Mock private LegacyTrackOperations trackOperations;
+    @Mock private TrackPagePresenter trackPagePresenter;
+    @Mock private PlaybackOperations playbackOperations;
+    @Mock private View view;
+    @Mock private ViewGroup container;
+    @Mock private Track track;
 
     private TrackPagerAdapter adapter;
 
@@ -122,10 +114,12 @@ public class TrackPagerAdapterTest {
         when(playSessionController.isPlayingTrack(playQueueManager.getUrnAtPosition(4))).thenReturn(true);
         adapter.getView(3, view, container);
 
-        adapter.setProgressOnAllViews();
+        adapter.onCurrentPageChanged();
 
+        verify(trackPagePresenter).reset(view);
         verify(trackPagePresenter).setProgress(view, playbackProgress);
     }
+
     @Test
     public void setPlayStateSetsTrackPlayingStateForCurrentTrack() {
         setupGetCurrentViewPreconditions();

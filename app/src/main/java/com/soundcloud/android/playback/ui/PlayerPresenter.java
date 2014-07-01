@@ -34,7 +34,7 @@ class PlayerPresenter {
     void setQueuePosition(int position) {
         boolean isAdjacentTrack = Math.abs(trackPager.getCurrentItem() - position) <= 1;
         trackPager.setCurrentItem(position, isAdjacentTrack);
-        adapter.setProgressOnAllViews();
+        adapter.onCurrentPageChanged();
     }
 
     void onPlayQueueChanged() {

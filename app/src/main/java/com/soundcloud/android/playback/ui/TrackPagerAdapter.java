@@ -92,11 +92,12 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         }
     }
 
-    public void setProgressOnAllViews(){
+    public void onCurrentPageChanged() {
         for (Map.Entry<View, Integer> entry : trackViewsByPosition.entrySet()) {
             View trackView = entry.getKey();
             Integer position = entry.getValue();
             final TrackUrn urnAtPosition = playQueueManager.getUrnAtPosition(position);
+            trackPagePresenter.reset(trackView);
             trackPagePresenter.setProgress(trackView, playSessionController.getCurrentProgress(urnAtPosition));
         }
     }

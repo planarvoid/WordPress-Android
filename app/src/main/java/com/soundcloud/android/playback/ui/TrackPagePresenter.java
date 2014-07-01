@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.ui.PlayerArtworkController.PlayerArtworkControllerFactory;
 
+import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.view.WaveformViewControllerFactory;
 
 import com.soundcloud.android.R;
@@ -147,6 +148,10 @@ class TrackPagePresenter implements View.OnClickListener {
             holder.title.showBackground(false);
             holder.user.showBackground(false);
         }
+    }
+
+    public void reset(View trackView) {
+        getViewHolder(trackView).waveformController.scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
     }
 
     public void setProgress(View trackView, PlaybackProgress progress) {
