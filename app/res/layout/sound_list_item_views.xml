@@ -8,32 +8,36 @@
             android:id="@+id/image"
             style="@style/ListItemImage"/>
 
-    <com.soundcloud.android.view.CustomFontTextView
-            android:id="@id/list_item_header"
-            style="@style/ListItemText.SecondaryText"
-            android:layout_toRightOf="@id/image"
+    <LinearLayout
+            android:id="@+id/list_item_header_container"
             android:layout_alignTop="@id/image"
-            android:layout_marginTop="-4dp" />
-
-    <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/reposter"
-            style="@style/ListItemText.SecondaryText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/list_item_header"
-            android:layout_alignBaseline="@id/list_item_header"
+            android:layout_toRightOf="@id/image"
             android:layout_toLeftOf="@id/list_item_right_info"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="3dp"
-            android:visibility="gone"
-            android:gravity="center_vertical"
-            android:drawableLeft="@drawable/stats_repost"
-            android:drawablePadding="3dp"/>
+            android:layout_marginTop="-4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/list_item_header"
+                style="@style/ListItemText.SecondaryText"/>
+
+        <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/reposter"
+                style="@style/ListItemText.SecondaryText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="3dp"
+                android:gravity="center_vertical"
+                android:drawableLeft="@drawable/stats_repost"
+                android:drawablePadding="3dp"/>
+
+    </LinearLayout>
 
     <com.soundcloud.android.view.CustomFontTextView
-            android:id="@id/list_item_subheader"
+            android:id="@+id/list_item_subheader"
             style="@style/ListItemText.PrimaryText"
             android:layout_toRightOf="@id/image"
-            android:layout_below="@id/list_item_header"/>
+            android:layout_below="@id/list_item_header_container"/>
 
 </merge>
