@@ -8,17 +8,14 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
@@ -33,7 +30,6 @@ import android.widget.Adapter;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 

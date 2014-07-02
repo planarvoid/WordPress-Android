@@ -129,10 +129,9 @@ public class PostsAdapter extends ScBaseAdapter<ScResource> {
 
     private PropertySet toPropertySet(ScResource resource) {
         PropertySet propertySet = ((PlayableHolder) resource).getPlayable().toPropertySet();
-        if (resource instanceof SoundAssociation) {
-            if (((SoundAssociation) resource).associationType == CollectionStorage.CollectionItemTypes.REPOST) {
-                propertySet.put(PlayableProperty.REPOSTER, relatedUsername);
-            }
+        if (resource instanceof SoundAssociation &&
+                (((SoundAssociation) resource).associationType == CollectionStorage.CollectionItemTypes.REPOST)) {
+            propertySet.put(PlayableProperty.REPOSTER, relatedUsername);
         }
         return propertySet;
     }
