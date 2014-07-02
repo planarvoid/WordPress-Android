@@ -6,40 +6,30 @@ import static com.soundcloud.android.storage.TableColumns.ActivityView;
 import static com.soundcloud.android.storage.TableColumns.CollectionItems;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PlaylistProperty;
 import com.soundcloud.android.model.TrackProperty;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.Query;
+import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
-import rx.Scheduler;
 
 import javax.inject.Inject;
 
-class SoundStreamStorage extends ScheduledOperations {
+class SoundStreamStorage {
 
-    private final PropellerDatabase database;
+    private final DatabaseScheduler scheduler;
 
     @Inject
-    public SoundStreamStorage(PropellerDatabase database) {
-        this(database, ScSchedulers.STORAGE_SCHEDULER);
-    }
-
-    @VisibleForTesting
-    SoundStreamStorage(PropellerDatabase database, Scheduler scheduler) {
-        super(scheduler);
-        this.database = database;
+    public SoundStreamStorage(DatabaseScheduler scheduler) {
+        this.scheduler = scheduler;
     }
 
     public Observable<PropertySet> streamItemsBefore(final long timestamp, final Urn userUrn, final int limit) {
@@ -63,7 +53,7 @@ class SoundStreamStorage extends ScheduledOperations {
                 .whereLt(ActivityView.CREATED_AT, timestamp)
                 .limit(limit);
 
-        return schedule(Observable.from(database.query(query)).map(new StreamItemMapper()));
+        return scheduler.scheduleQuery(query).map(new StreamItemMapper());
     }
 
     public Observable<TrackUrn> trackUrns() {
@@ -71,7 +61,7 @@ class SoundStreamStorage extends ScheduledOperations {
                 .select(ActivityView.SOUND_ID)
                 .whereEq(ActivityView.CONTENT_ID, Content.ME_SOUND_STREAM.id)
                 .whereEq(ActivityView.SOUND_TYPE, Playable.DB_TYPE_TRACK);
-        return schedule(Observable.from(database.query(query)).map(new TrackUrnMapper()));
+        return scheduler.scheduleQuery(query).map(new TrackUrnMapper());
     }
 
     private Query soundAssociationQuery(int collectionType, long userId, String colName) {
