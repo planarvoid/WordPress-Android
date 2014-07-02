@@ -8,7 +8,6 @@ import rx.Scheduler;
 public abstract class ScheduledOperations {
 
     private Scheduler subscribeOn;
-    private Scheduler observeOn;
 
     protected ScheduledOperations() {
     }
@@ -17,26 +16,9 @@ public abstract class ScheduledOperations {
         this.subscribeOn = subscribeOn;
     }
 
-    protected ScheduledOperations(@Nullable Scheduler subscribeOn, @Nullable Scheduler observeOn) {
-        this.subscribeOn = subscribeOn;
-        this.observeOn = observeOn;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <R extends ScheduledOperations> R scheduleDefault() {
-        subscribeOn = observeOn = null;
-        return (R) this;
-    }
-
     @SuppressWarnings("unchecked")
     public <R extends ScheduledOperations> R subscribeOn(Scheduler scheduler) {
         subscribeOn = scheduler;
-        return (R) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <R extends ScheduledOperations> R observeOn(Scheduler scheduler) {
-        observeOn = scheduler;
         return (R) this;
     }
 
@@ -44,9 +26,6 @@ public abstract class ScheduledOperations {
         Observable<R> scheduledObservable = observable;
         if (subscribeOn != null) {
             scheduledObservable = scheduledObservable.subscribeOn(subscribeOn);
-        }
-        if (observeOn != null) {
-            scheduledObservable = scheduledObservable.observeOn(observeOn);
         }
         return scheduledObservable;
     }
