@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui.view;
 
 import static com.soundcloud.android.playback.ui.progress.ProgressController.ProgressAnimationControllerFactory;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
+import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.ScrubControllerFactory;
 
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -25,7 +26,6 @@ import android.view.View;
 
 import javax.inject.Provider;
 
-
 public class WaveformViewController implements ScrubController.OnScrubListener, ProgressAware, WaveformView.OnWidthChangedListener {
 
     private final WaveformView waveformView;
@@ -46,6 +46,8 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     private int adjustedWidth;
     private boolean suppressProgress;
     private boolean playSessionIsActive;
+
+    private PlaybackProgress latestProgress = PlaybackProgress.empty();
 
     WaveformViewController(WaveformView waveform,
                            ProgressAnimationControllerFactory animationControllerFactory,
@@ -72,6 +74,9 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         if (suppressProgress) {
             cancelProgressAnimations();
         }
+        if (newScrubState == SCRUB_STATE_CANCELLED && playSessionIsActive) {
+            startProgressAnimations(latestProgress);
+        }
     }
 
     @Override
@@ -83,6 +88,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     }
 
     public void setProgress(PlaybackProgress progress) {
+        latestProgress = progress;
         if (!suppressProgress) {
             leftProgressController.setPlaybackProgress(progress);
             rightProgressController.setPlaybackProgress(progress);

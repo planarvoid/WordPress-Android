@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.ui.PlayerArtworkController.PlayerArtworkControllerFactory;
 import static com.soundcloud.android.playback.ui.progress.ProgressController.ProgressAnimationControllerFactory;
+import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -12,12 +13,14 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.annotation.TargetApi;
 import android.os.Build;
 import android.view.View;
 import android.widget.ImageView;
@@ -26,22 +29,16 @@ import android.widget.ImageView;
 public class PlayerArtworkControllerTest {
     private PlayerArtworkController playerArtworkController;
 
-    @Mock
-    private ProgressAnimationControllerFactory animationControllerFactory;
-    @Mock
-    private PlayerArtworkView playerArtworkView;
-    @Mock
-    private ProgressController progressController;
-    @Mock
-    private ImageView wrappedImageView;
-    @Mock
-    private View artworkIdleOverlay;
-    @Mock
-    private PlaybackProgress playbackProgress;
+    @Mock private ProgressAnimationControllerFactory animationControllerFactory;
+    @Mock private PlayerArtworkView playerArtworkView;
+    @Mock private ProgressController progressController;
+    @Mock private ImageView wrappedImageView;
+    @Mock private View artworkIdleOverlay;
+    @Mock private PlaybackProgress playbackProgress;
 
     @Before
     public void setUp() throws Exception {
-        Robolectric.Reflection.setFinalStaticField(Build.VERSION.class, "SDK", String.valueOf(Build.VERSION_CODES.HONEYCOMB));
+        TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // 9 old Androids
         when(playerArtworkView.findViewById(R.id.artwork_image_view)).thenReturn(wrappedImageView);
         when(animationControllerFactory.create(wrappedImageView)).thenReturn(progressController);
         when(playerArtworkView.findViewById(R.id.artwork_overlay)).thenReturn(artworkIdleOverlay);
@@ -58,6 +55,23 @@ public class PlayerArtworkControllerTest {
     public void showPlayingStateDoesNotStartProgressAnimationIfScrubbing() {
         playerArtworkController.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
         playerArtworkController.showPlayingState(playbackProgress);
+        verify(progressController, never()).startProgressAnimation(any(PlaybackProgress.class));
+    }
+
+    @Test
+    public void scrubStateCancelledStartsProgressAnimationFromLastPositionIfPlaying() {
+        playerArtworkController.showPlayingState(playbackProgress);
+        PlaybackProgress latest = new PlaybackProgress(5, 10);
+
+        playerArtworkController.setProgress(latest);
+        playerArtworkController.scrubStateChanged(SCRUB_STATE_CANCELLED);
+
+        verify(progressController).startProgressAnimation(latest);
+    }
+
+    @Test
+    public void scrubStateCancelledDoesNotStartAnimationsIfNotPlaying() {
+        playerArtworkController.scrubStateChanged(SCRUB_STATE_CANCELLED);
         verify(progressController, never()).startProgressAnimation(any(PlaybackProgress.class));
     }
 
@@ -92,6 +106,7 @@ public class PlayerArtworkControllerTest {
         verify(progressController).cancelProgressAnimation();
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Test
     public void displayScrubPositionUsesHelperToSetImageViewPosition() {
         when(wrappedImageView.getMeasuredWidth()).thenReturn(20);

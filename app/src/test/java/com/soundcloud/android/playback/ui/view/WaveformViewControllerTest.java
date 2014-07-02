@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui.view;
 
 import static com.soundcloud.android.playback.ui.progress.ProgressController.ProgressAnimationControllerFactory;
+import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.ScrubControllerFactory;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -16,9 +17,11 @@ import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.android.waveform.WaveformResult;
+import com.sun.xml.internal.rngom.dt.builtin.BuiltinDatatypeLibrary;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +32,7 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
+import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.util.Pair;
@@ -44,45 +48,27 @@ public class WaveformViewControllerTest {
 
     private WaveformViewController waveformViewController;
 
-    @Mock
-    private ScrubControllerFactory scrubControllerFactory;
-    @Mock
-    private ScrubController scrubController;
-    @Mock
-    private ProgressAnimationControllerFactory progressAnimationControllerFactory;
-    @Mock
-    private WaveformView waveformView;
-    @Mock
-    private ImageView leftWaveform;
-    @Mock
-    private ImageView rightWaveform;
-    @Mock
-    private ImageView leftLine;
-    @Mock
-    private ImageView rightLine;
-    @Mock
-    private ListenableHorizontalScrollView dragViewHolder;
-    @Mock
-    private ProgressController leftAnimationController;
-    @Mock
-    private ProgressController rightAnimationController;
-    @Mock
-    private ProgressController dragAnimationController;
-    @Mock
-    private PlaybackProgress playbackProgress;
-    @Mock
-    private WaveformResult waveformResult;
-    @Mock
-    private WaveformData waveformData;
-    @Mock
-    private Bitmap bitmap;
-    @Mock
-    private WaveformOperations waveformOperations;
+    @Mock private ScrubControllerFactory scrubControllerFactory;
+    @Mock private ScrubController scrubController;
+    @Mock private ProgressAnimationControllerFactory progressAnimationControllerFactory;
+    @Mock private WaveformView waveformView;
+    @Mock private ImageView leftWaveform;
+    @Mock private ImageView rightWaveform;
+    @Mock private ImageView leftLine;
+    @Mock private ImageView rightLine;
+    @Mock private ListenableHorizontalScrollView dragViewHolder;
+    @Mock private ProgressController leftAnimationController;
+    @Mock private ProgressController rightAnimationController;
+    @Mock private ProgressController dragAnimationController;
+    @Mock private PlaybackProgress playbackProgress;
+    @Mock private WaveformResult waveformResult;
+    @Mock private WaveformData waveformData;
+    @Mock private Bitmap bitmap;
+    @Mock private WaveformOperations waveformOperations;
 
     @Before
     public void setUp() throws Exception {
-        // for nine-old-androids
-        Robolectric.Reflection.setFinalStaticField(Build.VERSION.class, "SDK", String.valueOf(Build.VERSION_CODES.HONEYCOMB));
+        TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // 9 old Androids
 
         when(waveformView.getLeftWaveform()).thenReturn(leftWaveform);
         when(waveformView.getRightWaveform()).thenReturn(rightWaveform);
@@ -121,9 +107,31 @@ public class WaveformViewControllerTest {
     }
 
     @Test
-    public void showPlayingStateDoesNotStartsProgressAnimationsIfScrubbing() {
+    public void showPlayingStateDoesNotStartProgressAnimationsIfScrubbing() {
         waveformViewController.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
         waveformViewController.showPlayingState(playbackProgress);
+        verify(leftAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
+        verify(rightAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
+        verify(dragAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
+    }
+
+    @Test
+    public void scrubStateCancelledStartsProgressAnimationsFromLastPositionIfPlaying() {
+        waveformViewController.showPlayingState(playbackProgress);
+        PlaybackProgress latest = new PlaybackProgress(5, 10);
+
+        waveformViewController.setProgress(latest);
+        waveformViewController.scrubStateChanged(SCRUB_STATE_CANCELLED);
+
+        verify(leftAnimationController).startProgressAnimation(latest);
+        verify(rightAnimationController).startProgressAnimation(latest);
+        verify(dragAnimationController).startProgressAnimation(latest);
+    }
+
+    @Test
+    public void scrubStateCancelledDoesNotStartAnimationsIfNotPlaying() {
+        waveformViewController.scrubStateChanged(SCRUB_STATE_CANCELLED);
+
         verify(leftAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
         verify(rightAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
         verify(dragAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
@@ -260,6 +268,7 @@ public class WaveformViewControllerTest {
         verify(scrubController).addScrubListener(listener);
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Test
     public void displayScrubPositionSetsScrubPositionOnWaveformsIfPlaySessionActive() {
         waveformViewController.onWaveformViewWidthChanged(500);
@@ -269,6 +278,7 @@ public class WaveformViewControllerTest {
         verify(rightWaveform).setTranslationX(-500f);
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Test
     public void displayScrubPositionSetsScrubPositionOnLinesIfPlaySessionActive() {
         waveformViewController.onWaveformViewWidthChanged(500);

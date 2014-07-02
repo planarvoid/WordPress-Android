@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.playback.ui.PlayerArtworkView.OnWidthChangedListener;
 import static com.soundcloud.android.playback.ui.progress.ProgressController.ProgressAnimationControllerFactory;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.OnScrubListener;
+import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
 
 import com.nineoldandroids.animation.ObjectAnimator;
@@ -34,6 +35,8 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     private boolean isForcingDarkness;
     private boolean isInPlayingState;
     private boolean suppressProgress;
+
+    private PlaybackProgress latestProgress = PlaybackProgress.empty();
 
     public PlayerArtworkController(PlayerArtworkView artworkView, ProgressAnimationControllerFactory animationControllerFactory) {
         this.artworkView = artworkView;
@@ -70,6 +73,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
 
     @Override
     public void setProgress(PlaybackProgress progress) {
+        latestProgress = progress;
         if (!suppressProgress) {
             progressController.setPlaybackProgress(progress);
         }
@@ -90,11 +94,14 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     @Override
     public void scrubStateChanged(int newScrubState) {
         suppressProgress = newScrubState == SCRUB_STATE_SCRUBBING;
-        if (suppressProgress){
+        if (suppressProgress) {
             progressController.cancelProgressAnimation();
             darken();
         } else {
             lighten();
+        }
+        if (newScrubState == SCRUB_STATE_CANCELLED && isInPlayingState) {
+            progressController.startProgressAnimation(latestProgress);
         }
     }
 

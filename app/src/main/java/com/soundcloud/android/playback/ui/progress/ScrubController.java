@@ -19,6 +19,7 @@ public class ScrubController {
 
     public static final int SCRUB_STATE_NONE = 0;
     public static final int SCRUB_STATE_SCRUBBING = 1;
+    public static final int SCRUB_STATE_CANCELLED = 2;
 
     static final int MSG_PERFORM_SEEK = 0;
     static final int SEEK_DELAY = 250;
@@ -120,7 +121,7 @@ public class ScrubController {
             if (pendingSeek != null){
                 finishSeek(pendingSeek);
             } else {
-                setScrubState(SCRUB_STATE_NONE);
+                setScrubState(SCRUB_STATE_CANCELLED);
             }
         }
     }
