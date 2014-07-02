@@ -8,6 +8,7 @@ import com.soundcloud.android.associations.TrackInteractionActivity;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.playback.views.WaveformControllerLayout;
 import com.soundcloud.android.profile.MyTracksAdapter;
+import com.soundcloud.android.view.adapters.PostsAdapter;
 import com.soundcloud.android.view.adapters.SoundAdapter;
 import com.soundcloud.android.view.adapters.UserAdapter;
 import dagger.Module;
@@ -18,6 +19,7 @@ import dagger.Module;
                 UserAdapter.class,
                 ActivitiesAdapter.class,
                 SoundAdapter.class,
+                PostsAdapter.class,
                 TrackInteractionActivity.class,
                 MyTracksAdapter.class,
                 WaveformControllerLayout.class,

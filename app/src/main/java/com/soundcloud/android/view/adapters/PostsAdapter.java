@@ -33,17 +33,18 @@ import android.widget.Adapter;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Temporarily used to adapt ScListFragment lists that use public API models to PropertySets and the new cell design
  */
-public class SoundAdapter extends ScBaseAdapter<ScResource> {
+public class PostsAdapter extends ScBaseAdapter<ScResource> {
 
     private static final int TRACK_VIEW_TYPE = 0;
     private static final int PLAYLIST_VIEW_TYPE = 1;
+
+    private final String relatedUsername;
 
     @Inject PlaybackOperations playbackOperations;
     @Inject TrackItemPresenter trackPresenter;
@@ -55,14 +56,16 @@ public class SoundAdapter extends ScBaseAdapter<ScResource> {
     private final List<PropertySet> propertySets = new ArrayList<PropertySet>(Consts.LIST_PAGE_SIZE);
 
     @Deprecated
-    public SoundAdapter(Uri uri) {
+    public PostsAdapter(Uri uri, String relatedUsername) {
         super(uri);
+        this.relatedUsername = relatedUsername;
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
-    SoundAdapter(Uri uri, PlaybackOperations playbackOperations, TrackItemPresenter trackPresenter,
+    PostsAdapter(Uri uri, String relatedUsername, PlaybackOperations playbackOperations, TrackItemPresenter trackPresenter,
                  PlaylistItemPresenter playlistPresenter, EventBus eventBus) {
         super(uri);
+        this.relatedUsername = relatedUsername;
         this.playbackOperations = playbackOperations;
         this.trackPresenter = trackPresenter;
         this.playlistPresenter = playlistPresenter;
@@ -117,11 +120,21 @@ public class SoundAdapter extends ScBaseAdapter<ScResource> {
     }
 
     private List<PropertySet> toPropertySets(List<ScResource> items) {
-        ArrayList<PropertySet> propSets = new ArrayList<PropertySet>(items.size());
+        final List<PropertySet> propertySets = new ArrayList<PropertySet>(items.size());
         for (ScResource resource : items) {
-            propSets.add(((PlayableHolder) resource).getPlayable().toPropertySet());
+            propertySets.add(toPropertySet(resource));
         }
-        return propSets;
+        return propertySets;
+    }
+
+    private PropertySet toPropertySet(ScResource resource) {
+        PropertySet propertySet = ((PlayableHolder) resource).getPlayable().toPropertySet();
+        if (resource instanceof SoundAssociation) {
+            if (((SoundAssociation) resource).associationType == CollectionStorage.CollectionItemTypes.REPOST) {
+                propertySet.put(PlayableProperty.REPOSTER, relatedUsername);
+            }
+        }
+        return propertySet;
     }
 
     @Override
@@ -130,10 +143,18 @@ public class SoundAdapter extends ScBaseAdapter<ScResource> {
             final PropertySet originalPropertySet = propertySets.get(i);
             final Urn key = originalPropertySet.get(PlayableProperty.URN);
             if (updatedItems.containsKey(key)){
-                propertySets.set(i, ((PlayableHolder) updatedItems.get(key)).getPlayable().toPropertySet());
+                propertySets.set(i, toPropertySetKeepingReposterInfo(updatedItems.get(key), originalPropertySet));
             }
         }
         notifyDataSetChanged();
+    }
+
+    private PropertySet toPropertySetKeepingReposterInfo(ScResource resource, PropertySet originalPropertySet) {
+        final PropertySet propertySet = ((Playable) resource).toPropertySet();
+        if (originalPropertySet.contains(PlayableProperty.REPOSTER)) {
+            propertySet.put(PlayableProperty.REPOSTER, originalPropertySet.get(PlayableProperty.REPOSTER));
+        }
+        return propertySet;
     }
 
     private boolean isTrack(int position) {

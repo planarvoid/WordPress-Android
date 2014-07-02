@@ -10,7 +10,6 @@ import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Playable;
@@ -24,6 +23,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.view.adapters.CellPresenter;
@@ -67,7 +67,6 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     @Inject TrackItemPresenter trackItemPresenter;
     @Inject PlaylistItemPresenter playlistItemPresenter;
     @Inject PendingRecordingItemPresenter pendingRecordingItemPresenter;
-    @Inject ImageOperations imageOperations;
     @Inject EventBus eventBus;
 
     private Subscription eventSubscriptions = Subscriptions.empty();
@@ -93,11 +92,13 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     @Override
     public int getItemViewType(int position) {
         int type = super.getItemViewType(position);
-        if (type == IGNORE_ITEM_VIEW_TYPE) return type;
+        if (type == IGNORE_ITEM_VIEW_TYPE) {
+            return type;
+        }
 
         if (isPendingRecording(position)) {
             return TYPE_PENDING_RECORDING;
-        } else if (isNewTrackPresenter(position)) {
+        } else if (isTrack(position)) {
             return TYPE_NEW_TRACK;
         } else {
             return TYPE_NEW_PLAYLIST;
@@ -108,7 +109,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
         return position < getPendingRecordingsCount();
     }
 
-    private boolean isNewTrackPresenter(int position) {
+    private boolean isTrack(int position) {
         final ScResource item = getItem(position);
         return item instanceof SoundAssociation && ((SoundAssociation) item).getPlayable() instanceof Track;
     }
@@ -127,37 +128,63 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
         if (getItemViewType(position) == TYPE_PENDING_RECORDING) {
             pendingRecordingItemPresenter.bindItemView(position, rowView, recordingData);
         } else {
-            getCellPresenter(position).bindItemView(position - getPendingRecordingsCount(), rowView, toPropertySet(getItems()));
+            getCellPresenter(position).bindItemView(position - getPendingRecordingsCount(), rowView, propertySets);
         }
     }
 
     private CellPresenter<PropertySet> getCellPresenter(final int position) {
-        if (isNewTrackPresenter(position)) {
+        if (isTrack(position)) {
             return trackItemPresenter;
         } else {
             return playlistItemPresenter;
         }
     }
 
-    private List<PropertySet> toPropertySet(List<? extends ScResource> items) {
+    private List<PropertySet> toPropertySets(List<? extends ScResource> items) {
         for (ScResource resource : items) {
-            final PropertySet propertySet;
             if (resource instanceof SoundAssociation) {
-                Playable playable = ((SoundAssociation) resource).getPlayable();
-                propertySet = toPropertySet(playable);
+                final PropertySet propertySet = toPropertySet((SoundAssociation) resource);
+                propertySets.add(propertySet);
             } else {
                 throw new IllegalArgumentException("Items is not a SoundAssociation. Item : " + resource);
             }
-            propertySets.add(propertySet);
         }
         return propertySets;
     }
 
-    private PropertySet toPropertySet(Playable playable) {
-        PropertySet propertySet = playable.toPropertySet();
-        if (activity instanceof ProfileActivity) {
+    private PropertySet toPropertySet(SoundAssociation soundAssociation) {
+        PropertySet propertySet = soundAssociation.getPlayable().toPropertySet();
+        if (soundAssociation.associationType == CollectionStorage.CollectionItemTypes.REPOST
+                && activity instanceof ProfileActivity) {
             User reposter = ((ProfileActivity) activity).getUser();
             propertySet.put(PlayableProperty.REPOSTER, reposter.getUsername());
+        }
+
+        return propertySet;
+    }
+
+    @Override
+    public void addItems(List<ScResource> newItems) {
+        super.addItems(newItems);
+        this.propertySets.addAll(toPropertySets(newItems));
+    }
+
+    @Override
+    public void updateItems(Map<Urn, ScResource> updatedItems){
+        for (int i = 0; i < propertySets.size(); i++) {
+            final PropertySet originalPropertySet = propertySets.get(i);
+            final Urn key = originalPropertySet.get(PlayableProperty.URN);
+            if (updatedItems.containsKey(key)){
+                propertySets.set(i, toPropertySetKeepingReposterInfo(updatedItems.get(key), originalPropertySet));
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+    private PropertySet toPropertySetKeepingReposterInfo(ScResource resource, PropertySet originalPropertySet) {
+        final PropertySet propertySet = ((Playable) resource).toPropertySet();
+        if (originalPropertySet.contains(PlayableProperty.REPOSTER)) {
+            propertySet.put(PlayableProperty.REPOSTER, originalPropertySet.get(PlayableProperty.REPOSTER));
         }
         return propertySet;
     }
@@ -304,17 +331,6 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     public void clearData() {
         super.clearData();
         this.propertySets.clear();
-    }
-
-    @Override
-    public void updateItems(Map<Urn, ScResource> updatedItems){
-        for (int i = 0; i < propertySets.size(); i++) {
-            final Urn key = propertySets.get(i).get(PlayableProperty.URN);
-            if (updatedItems.containsKey(key)){
-                propertySets.set(i, ((Playable) updatedItems.get(key)).toPropertySet());
-            }
-        }
-        notifyDataSetChanged();
     }
 
     @Override

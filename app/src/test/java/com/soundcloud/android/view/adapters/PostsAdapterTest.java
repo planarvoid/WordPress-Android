@@ -7,11 +7,11 @@ import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.google.common.collect.Maps;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayableChangedEvent;
-import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
@@ -24,6 +24,7 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -38,17 +39,19 @@ import org.mockito.Mock;
 import android.view.ViewGroup;
 
 import java.util.Arrays;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class SoundAdapterTest {
+public class PostsAdapterTest {
 
-    private SoundAdapter adapter;
+    private static final String RELATED_USERNAME = "related username";
+
+    private PostsAdapter adapter;
 
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock private PlaybackOperations playlistOperations;
+    @Mock private PlaybackOperations playbackOperations;
     @Mock private TrackItemPresenter trackPresenter;
     @Mock private PlaylistItemPresenter playlistPresenter;
     @Mock private ViewGroup itemView;
@@ -57,7 +60,7 @@ public class SoundAdapterTest {
 
     @Before
     public void setup() {
-        adapter = new SoundAdapter(Content.ME_LIKES.uri, playlistOperations,
+        adapter = new PostsAdapter(Content.ME_LIKES.uri, RELATED_USERNAME, playbackOperations,
                 trackPresenter, playlistPresenter, eventBus);
     }
 
@@ -75,18 +78,6 @@ public class SoundAdapterTest {
     public void shouldBindPlaylistRowViaPresenter() throws CreateModelException {
         Playlist playlist = TestHelper.getModelFactory().createModel(Playlist.class);
         adapter.addItems(Arrays.<ScResource>asList(playlist));
-
-        adapter.bindRow(0, itemView);
-
-        verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), anyList());
-    }
-
-    @Test
-    public void shouldBindWrappedPlaylistRowViaPresenter() throws CreateModelException {
-        Playlist playlist = TestHelper.getModelFactory().createModel(Playlist.class);
-        SoundAssociation likedPlaylist = new SoundAssociation(playlist, new Date(), Association.Type.PLAYLIST_LIKE);
-
-        adapter.addItems(Arrays.<ScResource>asList(likedPlaylist));
 
         adapter.bindRow(0, itemView);
 
@@ -134,7 +125,7 @@ public class SoundAdapterTest {
 
         adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES);
 
-        verify(playlistOperations).playFromAdapter(Robolectric.application, adapter.getItems(), 0, Content.ME_LIKES.uri, Screen.YOUR_LIKES);
+        verify(playbackOperations).playFromAdapter(Robolectric.application, adapter.getItems(), 0, Content.ME_LIKES.uri, Screen.YOUR_LIKES);
     }
 
     @Test
@@ -169,6 +160,56 @@ public class SoundAdapterTest {
     }
 
     @Test
+    public void shouldPresentRepostedTrackWithRelatedUsername() throws CreateModelException {
+        final Track track = TestHelper.getModelFactory().createModel(Track.class);
+        adapter.addItems(Arrays.<ScResource>asList(getRepostedTrackSoundAssociation(track)));
+
+        adapter.bindRow(0, itemView);
+
+        verify(trackPresenter).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
+        PropertySet respostedTrackPropertySet = propSetCaptor.getValue().get(0);
+        expect(respostedTrackPropertySet.get(PlayableProperty.REPOSTER)).toEqual(RELATED_USERNAME);
+    }
+
+    @Test
+    public void shouldKeepRepostInformationAfterUpdatingTrack() throws CreateModelException {
+        final Track track = TestHelper.getModelFactory().createModel(Track.class);
+        adapter.addItems(Arrays.<ScResource>asList(getRepostedTrackSoundAssociation(track)));
+        adapter.updateItems(getResourceHashMap(track));
+
+        adapter.bindRow(0, itemView);
+
+        verify(trackPresenter).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
+        PropertySet respostedTrackPropertySet = propSetCaptor.getValue().get(0);
+        expect(respostedTrackPropertySet.get(PlayableProperty.REPOSTER)).toEqual(RELATED_USERNAME);
+    }
+
+    @Test
+    public void shouldKeepRepostInformationAfterUpdatingPlaylist() throws CreateModelException {
+        final Playlist playlist = TestHelper.getModelFactory().createModel(Playlist.class);
+        adapter.addItems(Arrays.<ScResource>asList(getRepostedPlaylistSoundAssociation(playlist)));
+        adapter.updateItems(getResourceHashMap(playlist));
+
+        adapter.bindRow(0, itemView);
+
+        verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
+        PropertySet respostedTrackPropertySet = propSetCaptor.getValue().get(0);
+        expect(respostedTrackPropertySet.get(PlayableProperty.REPOSTER)).toEqual(RELATED_USERNAME);
+    }
+
+    @Test
+    public void shouldPresentRepostedPlaylistWithRelatedUsername() throws CreateModelException {
+        final Playlist playlist = TestHelper.getModelFactory().createModel(Playlist.class);
+        adapter.addItems(Arrays.<ScResource>asList(getRepostedPlaylistSoundAssociation(playlist)));
+
+        adapter.bindRow(0, itemView);
+
+        verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
+        PropertySet respostedTrackPropertySet = propSetCaptor.getValue().get(0);
+        expect(respostedTrackPropertySet.get(PlayableProperty.REPOSTER)).toEqual(RELATED_USERNAME);
+    }
+
+    @Test
     public void shouldUnsubscribeFromEventBusInOnDestroyView() {
         adapter.onViewCreated();
         adapter.onDestroyView();
@@ -180,5 +221,25 @@ public class SoundAdapterTest {
         playlist.user_like = true;
         playlist.likes_count = 1;
         eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(playlist, true));
+    }
+
+    private SoundAssociation getRepostedTrackSoundAssociation(Track track) throws CreateModelException {
+        final SoundAssociation respostedSound = new SoundAssociation(track);
+        respostedSound.associationType = CollectionStorage.CollectionItemTypes.REPOST;
+        return respostedSound;
+    }
+
+    private SoundAssociation getRepostedPlaylistSoundAssociation(Playlist playlist) throws CreateModelException {
+        final SoundAssociation respostedSound = new SoundAssociation(playlist);
+        respostedSound.associationType = CollectionStorage.CollectionItemTypes.REPOST;
+        return respostedSound;
+    }
+
+    private HashMap<Urn, ScResource> getResourceHashMap(ScResource... resources) {
+        HashMap<Urn, ScResource> updatedItems = Maps.newHashMap();
+        for (ScResource resource : resources) {
+            updatedItems.put(resource.getUrn(), resource);
+        }
+        return updatedItems;
     }
 }

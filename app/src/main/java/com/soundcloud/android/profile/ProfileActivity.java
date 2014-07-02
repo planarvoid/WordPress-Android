@@ -512,7 +512,7 @@ public class ProfileActivity extends ScActivity implements
                     contentUri = content.forId(user.getId());
                     screen = currentTab.userScreen;
                 }
-                ScListFragment listFragment = ScListFragment.newInstance(contentUri, screen);
+                ScListFragment listFragment = ScListFragment.newInstance(contentUri, user.getUsername(), screen);
                 listFragment.setEmptyViewFactory(new EmptyViewBuilder().forContent(ProfileActivity.this, contentUri, user));
                 return listFragment;
             }

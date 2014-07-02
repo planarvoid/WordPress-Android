@@ -13,7 +13,6 @@ import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.propeller.PropertySet;
@@ -271,7 +270,7 @@ public class User extends ScResource implements UserHolder, PropertySetSource {
         } else if (!TextUtils.isEmpty(permalink)){
             return permalink;
         } else {
-            return "";
+            return ScTextUtils.EMPTY_STRING;
         }
     }
 

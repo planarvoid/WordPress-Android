@@ -15,6 +15,8 @@ import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.associations.CommentAdapter;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.adapters.PostsAdapter;
 import com.soundcloud.android.view.adapters.SoundAdapter;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.CollectionTask;
@@ -84,6 +86,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     public static final String TAG = ScListFragment.class.getSimpleName();
     private static final String EXTRA_CONTENT_URI = "contentUri";
     private static final String EXTRA_TITLE_ID = "title";
+    private static final String EXTRA_USERNAME = "username";
     private static final String EXTRA_SCREEN = "screen";
 
     @Nullable private ScListView listView;
@@ -95,6 +98,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
     private Content content;
     private Uri contentUri;
+
     @Nullable private CollectionTask refreshTask;
     @Nullable private LocalCollection localCollection;
     private ChangeObserver changeObserver;
@@ -129,6 +133,16 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         ScListFragment fragment = new ScListFragment();
         Bundle args = new Bundle();
         args.putParcelable(EXTRA_CONTENT_URI, contentUri);
+        args.putSerializable(EXTRA_SCREEN, screen);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static ScListFragment newInstance(Uri contentUri, String username, Screen screen){
+        ScListFragment fragment = new ScListFragment();
+        Bundle args = new Bundle();
+        args.putParcelable(EXTRA_CONTENT_URI, contentUri);
+        args.putString(EXTRA_USERNAME, username);
         args.putSerializable(EXTRA_SCREEN, screen);
         fragment.setArguments(args);
         return fragment;
@@ -339,6 +353,10 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         }
     }
 
+    protected String getRelatedUsername() {
+        return ScTextUtils.safeToString(getArguments().getString(EXTRA_USERNAME));
+    }
+
     protected Screen getScreen(){
         return (Screen) getArguments().getSerializable(EXTRA_SCREEN);
     }
@@ -363,6 +381,9 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                     break;
                 case ME_SOUNDS:
                     adapter = new MyTracksAdapter(getScActivity());
+                    break;
+                case USER_SOUNDS:
+                    adapter = new PostsAdapter(contentUri, getRelatedUsername());
                     break;
                 case TRACK_COMMENTS:
                     adapter = new CommentAdapter(contentUri, imageOperations);
