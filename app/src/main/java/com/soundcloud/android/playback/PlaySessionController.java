@@ -43,14 +43,13 @@ public class PlaySessionController {
     private final IRemoteAudioManager audioManager;
     private final ImageOperations imageOperations;
 
-
     private Subscription currentTrackSubscription = Subscriptions.empty();
     private StateTransition lastStateTransition = StateTransition.DEFAULT;
 
     private TrackUrn currentPlayingUrn; // the track that is currently loaded in the playback service
     private Track currentPlayQueueTrack; // the track that is currently set in the queue
 
-    private Map<TrackUrn,PlaybackProgress> progressMap = Maps.newHashMap();
+    private final Map<TrackUrn, PlaybackProgress> progressMap = Maps.newHashMap();
 
     @Inject
     public PlaySessionController(Resources resources, EventBus eventBus, PlaybackOperations playbackOperations,
@@ -72,11 +71,11 @@ public class PlaySessionController {
         eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber());
     }
 
-    public boolean isPlayingTrack(Track track){
+    public boolean isPlayingTrack(Track track) {
         return isPlayingTrack(track.getUrn());
     }
 
-    public boolean isPlayingTrack(TrackUrn trackUrn){
+    public boolean isPlayingTrack(TrackUrn trackUrn) {
         return currentPlayingUrn != null && currentPlayingUrn.equals(trackUrn);
     }
 
@@ -101,7 +100,7 @@ public class PlaySessionController {
         @Override
         public void onNext(StateTransition stateTransition) {
 
-            if (!StateTransition.DEFAULT.equals(stateTransition)){
+            if (!StateTransition.DEFAULT.equals(stateTransition)) {
                 lastStateTransition = stateTransition;
                 currentPlayingUrn = stateTransition.getTrackUrn();
                 progressMap.put(currentPlayingUrn, stateTransition.getProgress());
@@ -146,7 +145,7 @@ public class PlaySessionController {
         }
     }
 
-    private class CurrentTrackSubscriber extends DefaultSubscriber<Track> {
+    private final class CurrentTrackSubscriber extends DefaultSubscriber<Track> {
         @Override
         public void onNext(Track track) {
             currentPlayQueueTrack = track;
@@ -154,16 +153,18 @@ public class PlaySessionController {
         }
     }
 
+    private final class ArtworkSubscriber extends DefaultSubscriber<Bitmap> {
+        @Override
+        public void onNext(Bitmap bitmap) {
+            audioManager.onTrackChanged(currentPlayQueueTrack, bitmap);
+        }
+    }
+
     private void updateRemoteAudioManager() {
         if (audioManager.isTrackChangeSupported()) {
             audioManager.onTrackChanged(currentPlayQueueTrack, null); // set initial data without bitmap so it doesn't have to wait
             currentTrackSubscription = imageOperations.image(currentPlayQueueTrack.getUrn(), ApiImageSize.getFullImageSize(resources), true)
-                    .subscribe(new DefaultSubscriber<Bitmap>() {
-                        @Override
-                        public void onNext(Bitmap bitmap) {
-                            audioManager.onTrackChanged(currentPlayQueueTrack, bitmap);
-                        }
-                    });
+                    .subscribe(new ArtworkSubscriber());
         }
     }
 }
