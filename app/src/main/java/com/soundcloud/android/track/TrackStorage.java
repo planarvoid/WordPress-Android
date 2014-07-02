@@ -3,41 +3,31 @@ package com.soundcloud.android.track;
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.LIKE;
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.TrackProperty;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserUrn;
-import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.Query;
+import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
-import rx.Scheduler;
 
 import javax.inject.Inject;
 
-public class TrackStorage extends ScheduledOperations {
+public class TrackStorage {
 
-    private final PropellerDatabase database;
+    private final DatabaseScheduler scheduler;
 
     @Inject
-    public TrackStorage(PropellerDatabase database) {
-        this(database, ScSchedulers.STORAGE_SCHEDULER);
-    }
-
-    @VisibleForTesting
-    TrackStorage(PropellerDatabase database, Scheduler scheduler) {
-        super(scheduler);
-        this.database = database;
+    public TrackStorage(DatabaseScheduler scheduler) {
+        this.scheduler = scheduler;
     }
 
     public Observable<PropertySet> track(final TrackUrn trackUrn, final UserUrn loggedInUserUrn) {
@@ -53,7 +43,7 @@ public class TrackStorage extends ScheduledOperations {
                         soundAssociationQuery(LIKE, loggedInUserUrn.numericId, TableColumns.SoundView.USER_LIKE),
                         soundAssociationQuery(REPOST, loggedInUserUrn.numericId, TableColumns.SoundView.USER_REPOST)
                 ).whereEq(TableColumns.SoundView._ID, trackUrn.numericId);
-        return schedule(Observable.from(database.query(query)).map(new TrackItemMapper()));
+        return scheduler.scheduleQuery(query).map(new TrackItemMapper());
     }
 
     /**

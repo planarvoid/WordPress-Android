@@ -6,43 +6,33 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.TrackProperty;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.DatabaseHelper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.storage.DatabaseManager;
-import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.android.robolectric.StorageIntegrationTest;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observer;
-import rx.schedulers.Schedulers;
-
-import android.database.sqlite.SQLiteDatabase;
 
 @RunWith(SoundCloudTestRunner.class)
-public class TrackStorageTest {
+public class TrackStorageTest extends StorageIntegrationTest {
 
     private TrackStorage storage;
 
     @Mock
     private Observer<PropertySet> observer;
 
-    private SQLiteDatabase sqliteDatabase = new DatabaseManager(Robolectric.application).getWritableDatabase();
-    private PropellerDatabase database = new PropellerDatabase(sqliteDatabase);
-    private DatabaseHelper helper = new DatabaseHelper(sqliteDatabase);
-
     @Before
     public void setup() {
-        storage = new TrackStorage(database, Schedulers.immediate());
+        storage = new TrackStorage(testScheduler());
     }
 
     @Test
     public void trackByUrnEmitsInsertedTrack() throws CreateModelException {
 
-        final TrackSummary track = helper.insertTrack();
+        final TrackSummary track = testHelper().insertTrack();
         storage.track(track.getUrn(), Urn.forUser(123)).subscribe(observer);
         final PropertySet trackPropertySet = createTrackPropertySet(track);
 
