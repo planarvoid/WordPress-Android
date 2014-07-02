@@ -2,11 +2,14 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -15,6 +18,7 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.track.LegacyTrackOperations;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,12 +42,14 @@ public class TrackPagerAdapterTest {
     @Mock private View view;
     @Mock private ViewGroup container;
     @Mock private Track track;
+    private TestEventBus eventBus;
 
     private TrackPagerAdapter adapter;
 
     @Before
     public void setUp() throws Exception {
-        adapter = new TrackPagerAdapter(playQueueManager, playSessionController, trackOperations, trackPagePresenter);
+        eventBus = new TestEventBus();
+        adapter = new TrackPagerAdapter(playQueueManager, playSessionController, trackOperations, trackPagePresenter, eventBus);
     }
 
     @Test
@@ -73,6 +79,19 @@ public class TrackPagerAdapterTest {
 
         adapter.getView(3, view, container);
         verify(trackPagePresenter).populateTrackPage(view, track, playbackProgress);
+    }
+
+    @Test
+    public void getViewLoadsCurrentPlayState() {
+        setupGetCurrentViewPreconditions();
+        final Playa.StateTransition transitionBeforeGettingView = createStateTransition();
+
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, transitionBeforeGettingView);
+        adapter.getView(3, view, container);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition());
+
+        verify(trackPagePresenter, times(1)).setPlayState(any(View.class), any(Playa.StateTransition.class), anyBoolean());
+        verify(trackPagePresenter).setPlayState(view, transitionBeforeGettingView, false);
     }
 
     @Test
@@ -126,9 +145,9 @@ public class TrackPagerAdapterTest {
         when(playQueueManager.isCurrentPosition(3)).thenReturn(true);
 
         adapter.getView(3, view, container);
-        adapter.setPlayState(new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE));
+        adapter.setPlayState(createStateTransition());
 
-        verify(trackPagePresenter).setPlayState(view, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true);
+        verify(trackPagePresenter).setPlayState(view, createStateTransition(), true);
     }
 
     @Test
@@ -137,9 +156,9 @@ public class TrackPagerAdapterTest {
         when(playQueueManager.isCurrentPosition(3)).thenReturn(false);
 
         adapter.getView(3, view, container);
-        adapter.setPlayState(new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE));
+        adapter.setPlayState(createStateTransition());
 
-        verify(trackPagePresenter).setPlayState(view, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), false);
+        verify(trackPagePresenter).setPlayState(view, createStateTransition(), false);
     }
 
     @Test
@@ -168,4 +187,7 @@ public class TrackPagerAdapterTest {
         when(trackOperations.loadTrack(123L, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
     }
 
+    private Playa.StateTransition createStateTransition() {
+        return new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE);
+    }
 }

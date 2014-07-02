@@ -103,7 +103,6 @@ class TrackPagePresenter implements View.OnClickListener {
                 holder.artworkController.getImageView(), holder.artworkController.getImageListener());
         holder.waveformController.displayWaveform(waveformOperations.waveformDataFor(track));
 
-        holder.footerPlayToggle.setChecked(false); // Reset to paused state
         holder.footerUser.setText(track.getUserName());
         holder.footerTitle.setText(track.getTitle());
 
