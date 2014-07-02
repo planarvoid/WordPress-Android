@@ -11,7 +11,7 @@ public class EmptyProgressHelper extends ProgressHelper {
     }
 
     @Override
-    public void setValueFromProportion(View progressView, float value) {
+    public void setValue(View progressView, float value) {
         // no-op
     }
 

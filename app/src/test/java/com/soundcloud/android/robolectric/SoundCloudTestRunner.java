@@ -42,6 +42,11 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
     }
 
     @Override
+    protected void resetStaticState() {
+        TestHelper.setSdkVersion(robolectricConfig.getSdkVersion());
+    }
+
+    @Override
     protected void bindShadowClasses() {
         Robolectric.bindShadowClass(ScShadowParcel.class);
         Robolectric.bindShadowClass(ShadowV4Fragment.class);

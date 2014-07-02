@@ -12,8 +12,8 @@ public class TranslateXHelper extends ProgressHelper {
     }
 
     @Override
-    public void setValueFromProportion(View progressView, float proportion) {
-        ViewHelper.setTranslationX(progressView, getValueFromProportion(proportion));
+    public void setValue(View progressView, float value) {
+        ViewHelper.setTranslationX(progressView, value);
     }
 
     @Override

@@ -18,7 +18,6 @@ import org.mockito.AdditionalMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import android.os.Build;
 import android.view.View;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -39,7 +38,6 @@ public class ProgressControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        Robolectric.Reflection.setFinalStaticField(Build.VERSION.class, "SDK", String.valueOf(Build.VERSION_CODES.HONEYCOMB));
         progressView = new View(Robolectric.application);
         controller = new ProgressController(progressView, helper);
 

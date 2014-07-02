@@ -10,12 +10,9 @@ import android.view.View;
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class TranslateXAnimatorHC extends TranslateXAnimator {
 
-    private final View progressView;
-
     public TranslateXAnimatorHC(final View progressView, float startX, float endX) {
         super(progressView, startX, endX);
 
-        this.progressView = progressView;
         addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {

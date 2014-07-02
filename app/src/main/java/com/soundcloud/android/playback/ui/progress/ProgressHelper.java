@@ -14,7 +14,7 @@ public abstract class ProgressHelper {
         this.endPosition = endPosition;
     }
 
-    public abstract void setValueFromProportion(View progressView, float value);
+    public abstract void setValue(View progressView, float value);
     public abstract @Nullable ProgressAnimator createAnimator(View progressView, float startProportion);
 
     public int getEndPosition() {
@@ -23,6 +23,10 @@ public abstract class ProgressHelper {
 
     public float getProgressFromPosition(int position) {
         return ((float) position - startPosition)/(endPosition - startPosition);
+    }
+
+    public void setValueFromProportion(View progressView, float value){
+        setValue(progressView, getValueFromProportion(value));
     }
 
     protected float getValueFromProportion(float proportion){

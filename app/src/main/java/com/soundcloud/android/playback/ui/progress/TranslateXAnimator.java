@@ -12,7 +12,7 @@ public class TranslateXAnimator extends ProgressAnimator {
     }
 
     @Override
-    protected ObjectAnimator createAnimator(View progressView, float startX, float endX) {
+    protected ObjectAnimator createAnimator(float startX, float endX) {
         final ObjectAnimator translationX = ObjectAnimator.ofFloat(progressView, "translationX", startX, endX);
         translationX.setInterpolator(new LinearInterpolator());
         return translationX;

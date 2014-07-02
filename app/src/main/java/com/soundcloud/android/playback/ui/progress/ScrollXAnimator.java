@@ -12,7 +12,7 @@ public class ScrollXAnimator extends ProgressAnimator {
     }
 
     @Override
-    protected ObjectAnimator createAnimator(View progressView, float startX, float endX) {
+    protected ObjectAnimator createAnimator(float startX, float endX) {
         final ObjectAnimator translationX = ObjectAnimator.ofInt(progressView, "scrollX", (int) startX, (int) endX);
         translationX.setInterpolator(new LinearInterpolator());
         return translationX;

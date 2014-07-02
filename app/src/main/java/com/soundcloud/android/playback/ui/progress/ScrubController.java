@@ -1,16 +1,16 @@
 package com.soundcloud.android.playback.ui.progress;
 
+import static com.soundcloud.android.playback.ui.progress.SeekHandler.SeekHandlerFactory;
+
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 
 import android.os.Handler;
-import android.os.Message;
 import android.view.MotionEvent;
 import android.view.View;
 
 import javax.inject.Inject;
-import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,8 +19,8 @@ public class ScrubController {
     public static final int SCRUB_STATE_NONE = 0;
     public static final int SCRUB_STATE_SCRUBBING = 1;
 
-    private static final int MSG_PERFORM_SEEK = 0;
-    private static final int SEEK_DELAY = 250;
+    static final int MSG_PERFORM_SEEK = 0;
+    static final int SEEK_DELAY = 250;
 
     private final Handler seekHandler;
     private final PlaybackOperations playbackOperations;
@@ -32,22 +32,32 @@ public class ScrubController {
     private int scrubState;
     private boolean dragging;
 
+    public boolean isDragging() {
+        return dragging;
+    }
+
+    public void setPendingSeek(Float seekPos) {
+        pendingSeek = seekPos;
+    }
+
     public interface OnScrubListener {
         void scrubStateChanged(int newScrubState);
         void displayScrubPosition(float scrubPosition);
     }
 
-    private void finishSeek(Float seekPercentage) {
+    void finishSeek(Float seekPercentage) {
         final long position = (long) (seekPercentage * playSessionController.getCurrentProgress().getDuration());
         playbackOperations.seek(position);
         setScrubState(SCRUB_STATE_NONE);
         pendingSeek = null;
     }
 
-    ScrubController(ListenableHorizontalScrollView scrubView, PlaybackOperations playbackOperations, PlaySessionController playSessionController) {
+    ScrubController(ListenableHorizontalScrollView scrubView, PlaybackOperations playbackOperations,
+                    PlaySessionController playSessionController, SeekHandlerFactory seekHandlerFactory) {
+
         this.playbackOperations = playbackOperations;
         this.playSessionController = playSessionController;
-        this.seekHandler = new SeekHandler(this);
+        this.seekHandler = seekHandlerFactory.create(this);
 
         scrubView.setOnScrollListener(new ScrollListener());
         scrubView.setOnTouchListener(new TouchListener());
@@ -92,11 +102,19 @@ public class ScrubController {
                 setScrubState(SCRUB_STATE_SCRUBBING);
             } else if (event.getAction() == MotionEvent.ACTION_UP) {
                 dragging = false;
-                if (!seekHandler.hasMessages(MSG_PERFORM_SEEK) && pendingSeek != null) {
-                    finishSeek(pendingSeek);
-                }
+                onRelease();
             }
             return false;
+        }
+    }
+
+    private void onRelease() {
+        if (!seekHandler.hasMessages(MSG_PERFORM_SEEK)) {
+            if (pendingSeek != null){
+                finishSeek(pendingSeek);
+            } else {
+                setScrubState(SCRUB_STATE_NONE);
+            }
         }
     }
 
@@ -104,40 +122,22 @@ public class ScrubController {
         return scrubState == SCRUB_STATE_SCRUBBING || seekHandler.hasMessages(MSG_PERFORM_SEEK);
     }
 
-    private static class SeekHandler extends Handler {
-
-        private final WeakReference<ScrubController> scrubControllerRef;
-
-        private SeekHandler(ScrubController scrubController) {
-            this.scrubControllerRef = new WeakReference<ScrubController>(scrubController);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            ScrubController scrubController = scrubControllerRef.get();
-            if (scrubController != null){
-                if (scrubController.dragging) {
-                    scrubController.pendingSeek = (Float) msg.obj;
-                } else {
-                    scrubController.finishSeek((Float) msg.obj);
-                }
-            }
-        }
-    }
-
     public static class ScrubControllerFactory {
 
         private final PlaybackOperations playbackOperations;
         private final PlaySessionController playSessionController;
+        private final SeekHandlerFactory seekHandlerFactory;
 
         @Inject
-        public ScrubControllerFactory(PlaybackOperations playbackOperations, PlaySessionController playSessionController) {
+        public ScrubControllerFactory(PlaybackOperations playbackOperations, PlaySessionController playSessionController,
+                                      SeekHandlerFactory seekHandlerFactory) {
             this.playbackOperations = playbackOperations;
             this.playSessionController = playSessionController;
+            this.seekHandlerFactory = seekHandlerFactory;
         }
 
         public ScrubController create(ListenableHorizontalScrollView scrubView) {
-            return new ScrubController(scrubView, playbackOperations, playSessionController);
+            return new ScrubController(scrubView, playbackOperations, playSessionController, seekHandlerFactory);
         }
 
     }

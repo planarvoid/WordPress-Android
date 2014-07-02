@@ -1,20 +1,25 @@
 package com.soundcloud.android.playback.ui.progress;
 
+import static com.nineoldandroids.animation.Animator.AnimatorListener;
+
+import com.google.common.annotations.VisibleForTesting;
 import com.nineoldandroids.animation.AnimatorListenerAdapter;
 import com.nineoldandroids.animation.ObjectAnimator;
 
 import android.view.View;
 
+import java.util.List;
+
 public abstract class ProgressAnimator {
-    private final View progressView;
+    protected final View progressView;
     protected final ObjectAnimator wrappedAnimator;
 
     public ProgressAnimator(final View progressView, float startX, float endX) {
-        wrappedAnimator = createAnimator(progressView, startX, endX);
         this.progressView = progressView;
+        wrappedAnimator = createAnimator(startX, endX);
     }
 
-    protected abstract ObjectAnimator createAnimator(View progressView, float startX, float endX);
+    protected abstract ObjectAnimator createAnimator(float startX, float endX);
 
     public abstract float getDifferenceFromCurrentValue(float targetValue);
 
@@ -41,5 +46,10 @@ public abstract class ProgressAnimator {
 
     protected void addListener(AnimatorListenerAdapter listenerAdapter) {
         wrappedAnimator.addListener(listenerAdapter);
+    }
+
+    @VisibleForTesting
+    List<AnimatorListener> getWrappedAnimationListeners(){
+        return wrappedAnimator.getListeners();
     }
 }

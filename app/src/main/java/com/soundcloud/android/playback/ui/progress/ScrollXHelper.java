@@ -12,8 +12,8 @@ public class ScrollXHelper extends ProgressHelper {
     }
 
     @Override
-    public void setValueFromProportion(View progressView, float proportion) {
-        ViewHelper.setScrollX(progressView, (int) getValueFromProportion(proportion));
+    public void setValue(View progressView, float value) {
+        ViewHelper.setScrollX(progressView, (int) value);
     }
 
     @Nullable
