@@ -118,10 +118,10 @@ public class ScrubController {
 
     private void onRelease() {
         if (!seekHandler.hasMessages(MSG_PERFORM_SEEK)) {
-            if (pendingSeek != null){
-                finishSeek(pendingSeek);
-            } else {
+            if (pendingSeek == null) {
                 setScrubState(SCRUB_STATE_CANCELLED);
+            } else {
+                finishSeek(pendingSeek);
             }
         }
     }
