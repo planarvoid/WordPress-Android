@@ -398,4 +398,44 @@ public class SkippyAdapterTest {
         expect(event.getCdnHost()).toEqual(CDN_HOST);
     }
 
+    @Test
+    public void newInstanceOfSkippyAdapterShouldHaveZeroAttemptedPlaybackAttempts() {
+        expect(skippyAdapter.getNumberOfAttemptedPlaysBeforeDecoderError()).toBe(0);
+    }
+
+    @Test
+    public void shouldIncrementNumberOfAttemptedPlaysWhenPlayingNewTrack() {
+        skippyAdapter.play(track);
+        expect(skippyAdapter.getNumberOfAttemptedPlaysBeforeDecoderError()).toBe(1);
+    }
+
+    @Test
+    public void shouldIncrementNumberOfAttemptedPlaysWhenPlayingNewTrackMultipleTimes() {
+        when(playbackOperations.buildHLSUrlForTrack(track)).thenReturn("track1");
+        skippyAdapter.play(track);
+        when(playbackOperations.buildHLSUrlForTrack(track)).thenReturn("track2");
+        skippyAdapter.play(track);
+        expect(skippyAdapter.getNumberOfAttemptedPlaysBeforeDecoderError()).toBe(2);
+    }
+
+    @Test
+    public void shouldResetNumberOfSuccessfulPlaysAfterADecoderError() {
+        ErrorCategory errorCategory = mock(ErrorCategory.class);
+        when(errorCategory.getCategory()).thenReturn(ErrorCategory.Category.GENERIC_DECODER);
+        skippyAdapter.play(track);
+        expect(skippyAdapter.getNumberOfAttemptedPlaysBeforeDecoderError()).toBe(1);
+        skippyAdapter.onErrorMessage(errorCategory,"sourceFile", 1,"errormsg","uri", "cdn");
+        expect(skippyAdapter.getNumberOfAttemptedPlaysBeforeDecoderError()).toBe(0);
+    }
+
+    @Test
+    public void shouldNotResetNumberOfSuccessfulPlaysAfterIfErrorIsNotADecoderError() {
+        ErrorCategory errorCategory = mock(ErrorCategory.class);
+        when(errorCategory.getCategory()).thenReturn(ErrorCategory.Category.CODEC_DECODER);
+        skippyAdapter.play(track);
+        expect(skippyAdapter.getNumberOfAttemptedPlaysBeforeDecoderError()).toBe(1);
+        skippyAdapter.onErrorMessage(errorCategory,"sourceFile", 1,"errormsg","uri", "cdn");
+        expect(skippyAdapter.getNumberOfAttemptedPlaysBeforeDecoderError()).toBe(1);
+    }
+
 }

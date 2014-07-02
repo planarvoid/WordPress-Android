@@ -41,6 +41,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private static final String TAG = "SkippyAdapter";
     private static final String DEBUG_EXTRA = "Experimental Player";
+    private int numberOfAttemptedPlaysBeforeDecoderError;
 
     private final EventBus eventBus;
     private final Skippy skippy;
@@ -65,6 +66,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         this.eventBus = eventBus;
         this.connectionHelper = connectionHelper;
         this.applicationProperties = applicationProperties;
+        numberOfAttemptedPlaysBeforeDecoderError = 0;
     }
 
     public boolean init(Context context) {
@@ -104,13 +106,13 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             skippy.resume();
         } else {
             logPlayCount(track);
-
+            numberOfAttemptedPlaysBeforeDecoderError++;
             currentStreamUrl = trackUrl;
             skippy.play(currentStreamUrl, fromPos);
         }
     }
 
-    protected void logPlayCount(Track track) {
+    private void logPlayCount(Track track) {
         playbackOperations.logPlay(track.getUrn()).subscribe(new DefaultSubscriber<TrackUrn>() {
             @Override
             public void onNext(TrackUrn trackUrn) {
@@ -180,14 +182,14 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     @Override
-    public void onStateChanged(Skippy.State state, Skippy.Reason reason, Skippy.Error errorcode, long position, long duration, String uri) {
-        Log.i(TAG, "State = " + state + " : " + reason + " : " + errorcode);
+    public void onStateChanged(Skippy.State state, Skippy.Reason reason, Skippy.Error errorCode, long position, long duration, String uri) {
+        Log.i(TAG, "State = " + state + " : " + reason + " : " + errorCode);
 
         if (uri.equals(currentStreamUrl)) {
             lastStateChangeProgress = position;
 
             final PlayaState translatedState = getTranslatedState(state, reason);
-            final Reason translatedReason = getTranslatedReason(reason, errorcode);
+            final Reason translatedReason = getTranslatedReason(reason, errorCode);
             final StateTransition transition = new StateTransition(translatedState, translatedReason);
 
             if (transition.playbackHasStopped()){
@@ -265,7 +267,13 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void onErrorMessage(ErrorCategory category, String sourceFile, int line, String errorMsg, String uri, String cdn) {
-        SoundCloudApplication.handleSilentException(errorMsg, new SkippyException(category, line, sourceFile));
+        String errorMessage = errorMsg + "\n" + "currentNumberOfAttemptedPlaysBeforeDecoderError=" + numberOfAttemptedPlaysBeforeDecoderError;
+
+        SoundCloudApplication.handleSilentException(errorMessage, new SkippyException(category, line, sourceFile));
+
+        if(ErrorCategory.Category.GENERIC_DECODER.equals(category.getCategory())) {
+            numberOfAttemptedPlaysBeforeDecoderError = 0;
+        }
 
         final PlaybackErrorEvent event = new PlaybackErrorEvent(category.getCategory().name(), PlaybackProtocol.HLS, cdn);
         eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
@@ -274,6 +282,11 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     @Override
     public void onInitializationError(Throwable throwable, String message) {
         SoundCloudApplication.handleSilentException(message, throwable);
+    }
+
+    @VisibleForTesting
+    public int getNumberOfAttemptedPlaysBeforeDecoderError(){
+        return numberOfAttemptedPlaysBeforeDecoderError;
     }
 
     static class StateChangeHandler extends Handler {
