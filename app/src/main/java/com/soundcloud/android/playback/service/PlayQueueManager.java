@@ -173,8 +173,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         if (playQueueObservable != null) {
             playQueueSubscription = playQueueObservable.subscribe(new DefaultSubscriber<PlayQueue>() {
                 @Override
-                public void onNext(PlayQueue args) {
-                    setNewPlayQueueInternal(playQueue, playQueueOperations.getLastStoredPlaySessionSource());
+                public void onNext(PlayQueue savedQueue) {
+                    setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
                 }
             });
             // return so player can have the resume information while load is in progress
