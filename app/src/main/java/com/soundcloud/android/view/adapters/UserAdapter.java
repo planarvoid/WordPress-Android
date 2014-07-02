@@ -1,11 +1,12 @@
 package com.soundcloud.android.view.adapters;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.associations.ToggleFollowSubscriber;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Urn;
@@ -15,7 +16,6 @@ import com.soundcloud.android.model.UserHolder;
 import com.soundcloud.android.model.UserProperty;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.propeller.PropertySet;
-import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
 import android.content.Intent;
@@ -60,9 +60,7 @@ public class UserAdapter extends ScBaseAdapter<ScResource> implements FollowingO
 
     @Override
     public void onToggleFollowClicked(int position, ToggleButton toggleButton) {
-        followingOperations.toggleFollowing(((UserHolder) getItem(position)).getUser())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new ToggleFollowSubscriber(toggleButton));
+        fireAndForget(followingOperations.toggleFollowing(((UserHolder) getItem(position)).getUser()));
     }
 
     @Override
@@ -120,6 +118,9 @@ public class UserAdapter extends ScBaseAdapter<ScResource> implements FollowingO
 
     @Override
     public void onFollowChanged() {
+        for (PropertySet propertySet : users){
+            propertySet.put(UserProperty.IS_FOLLOWED_BY_ME, followingOperations.isFollowing(propertySet.get(UserProperty.URN)));
+        }
         notifyDataSetChanged();
     }
 }

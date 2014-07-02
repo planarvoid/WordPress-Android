@@ -1,9 +1,10 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.associations.ToggleFollowSubscriber;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.Playlist;
@@ -19,7 +20,6 @@ import com.soundcloud.android.view.adapters.TrackChangedSubscriber;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import com.soundcloud.android.view.adapters.UserItemPresenter;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 
@@ -81,15 +81,13 @@ class SearchResultsAdapter extends PagingItemAdapter<ScResource>
     }
 
     @Override
-    public void onFollowChanged() {
-        notifyDataSetChanged();
+    public void onToggleFollowClicked(int position, ToggleButton toggleButton) {
+        fireAndForget(followingOperations.toggleFollowing((User) getItem(position)));
     }
 
     @Override
-    public void onToggleFollowClicked(int position, ToggleButton toggleButton) {
-        followingOperations.toggleFollowing((User) getItem(position))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new ToggleFollowSubscriber(toggleButton));
+    public void onFollowChanged() {
+        notifyDataSetChanged();
     }
 
     void onViewCreated() {

@@ -1,7 +1,6 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.verify;
@@ -19,6 +18,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
@@ -32,7 +32,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import rx.Observable;
 
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -114,14 +113,15 @@ public class SearchResultsAdapterTest {
     }
 
     @Test
-    public void shouldUpdateFollowStatusWhenToggleFollowIsClicked() {
-        when(followingOperations.toggleFollowing(any(User.class))).thenReturn(Observable.just(true));
-        adapter.addItem(new User(123));
+    public void subscribesToFollowObservableWhenToggleFollowClicked() {
+        final User user = new User(123);
+        adapter.addItem(user);
+        final TestObservables.MockObservable<Boolean> observable = TestObservables.emptyObservable();
+        when(followingOperations.toggleFollowing(user)).thenReturn(observable);
 
         ToggleButton toggleButton = new ToggleButton(Robolectric.application);
-        expect(toggleButton.isChecked()).toBeFalse();
         adapter.onToggleFollowClicked(0, toggleButton);
-        expect(toggleButton.isChecked()).toBeTrue();
+        expect(observable.subscribedTo()).toBeTrue();
     }
 
     private void publishPlaylistLikeEvent(long id) throws CreateModelException {

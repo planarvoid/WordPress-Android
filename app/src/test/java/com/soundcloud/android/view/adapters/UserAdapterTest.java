@@ -21,6 +21,7 @@ import com.soundcloud.android.model.UserProperty;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.propeller.PropertySet;
@@ -33,7 +34,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import rx.Observable;
 
 import android.content.Intent;
 import android.view.ViewGroup;
@@ -120,18 +120,18 @@ public class UserAdapterTest {
     }
 
     @Test
-    public void toggleFollowingSubscribesToFollowingOpWithToggleButton() throws CreateModelException {
+    public void toggleFollowingSubscribesToFollowObservable() throws CreateModelException {
         User user = TestHelper.getModelFactory().createModel(User.class);
         adapter.addItems(Arrays.<ScResource>asList(user));
 
-        when(followingOperations.toggleFollowing(user)).thenReturn(Observable.just(true));
+        final TestObservables.MockObservable<Boolean> observable = TestObservables.emptyObservable();
+        when(followingOperations.toggleFollowing(user)).thenReturn(observable);
 
         ArgumentCaptor<OnToggleFollowListener> captor = ArgumentCaptor.forClass(OnToggleFollowListener.class);
         verify(userPresenter).setToggleFollowListener(captor.capture());
 
-        final ToggleButton mockToggleButton = Mockito.mock(ToggleButton.class);
-        captor.getValue().onToggleFollowClicked(0, mockToggleButton);
-        verify(mockToggleButton).setChecked(true);
+        captor.getValue().onToggleFollowClicked(0, Mockito.mock(ToggleButton.class));
+        expect(observable.subscribedTo()).toBeTrue();
     }
 
     @Test
