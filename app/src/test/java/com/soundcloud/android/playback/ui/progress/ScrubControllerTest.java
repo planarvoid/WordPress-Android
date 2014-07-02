@@ -144,6 +144,17 @@ public class ScrubControllerTest {
     }
 
     @Test
+    public void motionEventChangesStateToNoneIfOutsideViewBounds() {
+        when(scrollView.getLeft()).thenReturn(0);
+        when(scrollView.getRight()).thenReturn(20);
+        when(scrollView.getTop()).thenReturn(0);
+        when(scrollView.getBottom()).thenReturn(20);
+
+        touchListener.onTouch(scrollView, MotionEvent.obtain(0, 0, MotionEvent.ACTION_MOVE, 50, 50, 0));
+        verify(scrubListener).scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
+    }
+
+    @Test
     public void onActionUpDoesNotChangeStateWithSeekMessages() {
         scrubController.setPendingSeek(.3f);
         when(seekHandler.hasMessages(ScrubController.MSG_PERFORM_SEEK)).thenReturn(true);

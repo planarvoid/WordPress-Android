@@ -6,6 +6,7 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 
+import android.graphics.Rect;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,6 +27,7 @@ public class ScrubController {
     private final PlaybackOperations playbackOperations;
     private final PlaySessionController playSessionController;
     private final Set<OnScrubListener> listeners = new HashSet<OnScrubListener>();
+    private final Rect scrubViewBounds = new Rect();
 
     private ProgressHelper progressHelper;
     private Float pendingSeek;
@@ -100,12 +102,17 @@ public class ScrubController {
             if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
                 dragging = true;
                 setScrubState(SCRUB_STATE_SCRUBBING);
-            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            } else if (event.getAction() == MotionEvent.ACTION_UP || isOutsideBounds(v, event)) {
                 dragging = false;
                 onRelease();
             }
             return false;
         }
+    }
+
+    private boolean isOutsideBounds(View v, MotionEvent event) {
+        scrubViewBounds.set(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
+        return !scrubViewBounds.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY());
     }
 
     private void onRelease() {
