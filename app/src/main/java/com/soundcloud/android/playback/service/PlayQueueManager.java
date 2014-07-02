@@ -13,12 +13,12 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
@@ -171,9 +171,9 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     public void loadPlayQueue() {
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
         if (playQueueObservable != null) {
-            playQueueSubscription = playQueueObservable.subscribe(new Action1<PlayQueue>() {
+            playQueueSubscription = playQueueObservable.subscribe(new DefaultSubscriber<PlayQueue>() {
                 @Override
-                public void call(PlayQueue playQueue) {
+                public void onNext(PlayQueue args) {
                     setNewPlayQueueInternal(playQueue, playQueueOperations.getLastStoredPlaySessionSource());
                 }
             });
