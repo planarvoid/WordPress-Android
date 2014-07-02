@@ -15,11 +15,11 @@ import java.util.List;
 
 public class PlayQueue {
 
-    private List<PlayQueueItem> playQueueItems;
+    private final List<PlayQueueItem> playQueueItems;
     private int position;
     private boolean currentTrackIsUserTriggered;
 
-    public static PlayQueue empty(){
+    public static PlayQueue empty() {
         return new PlayQueue(Collections.<PlayQueueItem>emptyList(), -1);
     }
 
@@ -70,13 +70,15 @@ public class PlayQueue {
         return position > 0;
     }
 
-    public boolean hasNextTrack(){
+    public boolean hasNextTrack() {
         return position < playQueueItems.size() - 1;
     }
 
     @Nullable
     TrackSourceInfo getCurrentTrackSourceInfo(PlaySessionSource playSessionSource) {
-        if (isEmpty()) return null;
+        if (isEmpty()) {
+            return null;
+        }
 
         final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(playSessionSource.getOriginScreen(), currentTrackIsUserTriggered);
         trackSourceInfo.setSource(getCurrentTrackSource(), getCurrentTrackSourceVersion());
@@ -107,7 +109,7 @@ public class PlayQueue {
         }
     }
 
-    private static List<PlayQueueItem> getPlayQueueItemsFromIds(List<Long> trackIds, final PlaySessionSource playSessionSource){
+    private static List<PlayQueueItem> getPlayQueueItemsFromIds(List<Long> trackIds, final PlaySessionSource playSessionSource) {
         return Lists.newArrayList(Lists.transform(trackIds, new Function<Long, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(Long input) {
@@ -119,11 +121,12 @@ public class PlayQueue {
     String getCurrentTrackSource() {
         return playQueueItems.get(position).getSource();
     }
+
     String getCurrentTrackSourceVersion() {
         return playQueueItems.get(position).getSourceVersion();
     }
 
-    private List<Long> getTrackIds(){
+    private List<Long> getTrackIds() {
         List<Long> trackIds = Lists.transform(playQueueItems, new Function<PlayQueueItem, Long>() {
             @Override
             public Long apply(PlayQueueItem input) {

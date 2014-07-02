@@ -69,7 +69,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     public void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         Preconditions.checkState(Looper.getMainLooper().getThread() == Thread.currentThread(),
-            "Play queues must be set from the main thread only");
+                "Play queues must be set from the main thread only");
 
         setNewPlayQueueInternal(playQueue, playSessionSource);
         saveCurrentPosition(0L);
@@ -112,8 +112,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public void setPosition(int position) {
-        if (position != playQueue.getPosition()
-                && position < playQueue.getItems().size()) {
+        if (position != playQueue.getPosition() && position < playQueue.getItems().size()) {
             playQueue.setPosition(position);
             eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackId()));
         }
@@ -126,7 +125,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         }
     }
 
-    public boolean autoNextTrack(){
+    public boolean autoNextTrack() {
         return nextTrackInternal(false);
     }
 
@@ -170,7 +169,6 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
      * @return last stored seek pos of the current track in queue, or -1 if there is no reload
      */
     public void loadPlayQueue() {
-
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
         if (playQueueObservable != null) {
             playQueueSubscription = playQueueObservable.subscribe(new Action1<PlayQueue>() {
