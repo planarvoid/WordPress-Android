@@ -9,6 +9,7 @@ import com.robotium.solo.Solo;
 import com.soundcloud.android.tests.with.With;
 
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.View;
 
 import java.util.Collections;
@@ -19,6 +20,7 @@ class ViewFetcher {
     private Solo testDriver;
     private View parentView;
     private ElementWaiter elementWaiter = new ElementWaiter();
+    private String TAG = getClass().getSimpleName().toString();
 
     public ViewFetcher(Solo driver){
         testDriver = driver;
@@ -92,6 +94,7 @@ class ViewFetcher {
                 try {
                     List<ViewElement> viewElements = callable.call();
                     if (viewElements.size() > 0) {
+                        Log.i(TAG, String.format("Number of views with ID found: %d", viewElements.size()));
                         return viewElements.get(0);
                     }
                 } catch (Exception e) {
