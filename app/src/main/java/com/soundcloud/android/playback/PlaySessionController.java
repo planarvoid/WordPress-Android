@@ -62,7 +62,6 @@ public class PlaySessionController {
         this.trackOperations = trackOperations;
         this.audioManager = audioManager.get();
         this.imageOperations = imageOperations;
-
     }
 
     public void subscribe() {
@@ -81,6 +80,10 @@ public class PlaySessionController {
 
     public boolean isPlaying() {
         return lastStateTransition.playSessionIsActive();
+    }
+
+    public StateTransition getPlayState() {
+        return lastStateTransition;
     }
 
     public PlaybackProgress getCurrentProgress() {

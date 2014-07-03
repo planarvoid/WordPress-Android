@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,14 +43,12 @@ public class TrackPagerAdapterTest {
     @Mock private View view;
     @Mock private ViewGroup container;
     @Mock private Track track;
-    private TestEventBus eventBus;
 
     private TrackPagerAdapter adapter;
 
     @Before
     public void setUp() throws Exception {
-        eventBus = new TestEventBus();
-        adapter = new TrackPagerAdapter(playQueueManager, playSessionController, trackOperations, trackPagePresenter, eventBus);
+        adapter = new TrackPagerAdapter(playQueueManager, playSessionController, trackOperations, trackPagePresenter);
     }
 
     @Test
@@ -82,16 +81,14 @@ public class TrackPagerAdapterTest {
     }
 
     @Test
-    public void getViewLoadsCurrentPlayState() {
+    public void setCurrentPlayStateOnTrackViewWhenBindingTrack() {
         setupGetCurrentViewPreconditions();
-        final Playa.StateTransition transitionBeforeGettingView = createStateTransition();
+        final Playa.StateTransition transition = createStateTransition();
+        when(playSessionController.getPlayState()).thenReturn(transition);
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, transitionBeforeGettingView);
         adapter.getView(3, view, container);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition());
 
-        verify(trackPagePresenter, times(1)).setPlayState(any(View.class), any(Playa.StateTransition.class), anyBoolean());
-        verify(trackPagePresenter).setPlayState(view, transitionBeforeGettingView, false);
+        verify(trackPagePresenter, times(1)).setPlayState(any(View.class), eq(transition), anyBoolean());
     }
 
     @Test

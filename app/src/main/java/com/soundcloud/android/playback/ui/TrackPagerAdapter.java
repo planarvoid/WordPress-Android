@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.ui;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
@@ -11,7 +10,6 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.track.LegacyTrackOperations;
 import com.soundcloud.android.view.RecyclingPager.RecyclingPagerAdapter;
@@ -34,7 +32,6 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     private final PlayQueueManager playQueueManager;
     private final PlaySessionController playSessionController;
-    private final EventBus eventBus;
     private final LegacyTrackOperations trackOperations;
     private final TrackPagePresenter trackPagePresenter;
 
@@ -43,12 +40,11 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     @Inject
     TrackPagerAdapter(PlayQueueManager playQueueManager, PlaySessionController playSessionController,
-                      LegacyTrackOperations trackOperations, TrackPagePresenter trackPagePresenter, EventBus eventBus) {
+                      LegacyTrackOperations trackOperations, TrackPagePresenter trackPagePresenter) {
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.trackPagePresenter = trackPagePresenter;
         this.playSessionController = playSessionController;
-        this.eventBus = eventBus;
     }
 
     @Override
@@ -130,10 +126,6 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     private void loadPlayerItem(long id) {
         getTrackObservable(id).subscribe(new TrackSubscriber(id));
-        eventBus
-                .queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                .first()
-                .subscribe(new PlaybackStateSubscriber(id));
     }
 
     public Observable<Track> getTrackObservable(long id) {
@@ -181,23 +173,9 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
             if (trackView != null) {
                 final PlaybackProgress currentProgress = playSessionController.getCurrentProgress(track.getUrn());
                 trackPagePresenter.populateTrackPage(trackView, track, currentProgress);
+                trackPagePresenter.setPlayState(trackView, playSessionController.getPlayState(), playQueueManager.isCurrentTrack(track.getUrn()));
             }
         }
     }
 
-    private class PlaybackStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {
-        private final long trackId;
-
-        public PlaybackStateSubscriber(long trackId) {
-            this.trackId = trackId;
-        }
-
-        @Override
-        public void onNext(Playa.StateTransition stateTransition) {
-            final View trackView = getViewForTrackId(trackId);
-            if (trackView != null) {
-                setPlayState(stateTransition, trackView, trackViewsByPosition.get(trackView));
-            }
-        }
-    }
 }

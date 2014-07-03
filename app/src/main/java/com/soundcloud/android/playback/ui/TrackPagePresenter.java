@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import static com.soundcloud.android.playback.ui.PlayerArtworkController.PlayerArtworkControllerFactory;
 
 import com.soundcloud.android.playback.ui.progress.ScrubController;
@@ -110,7 +111,7 @@ class TrackPagePresenter implements View.OnClickListener {
         setProgress(trackView, playbackProgress);
     }
 
-    public void setPlayState(View trackView, Playa.StateTransition stateTransition, boolean isCurrentTrack) {
+    public void setPlayState(View trackView, StateTransition stateTransition, boolean isCurrentTrack) {
         final TrackPageHolder holder = getViewHolder(trackView);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
 
@@ -120,7 +121,7 @@ class TrackPagePresenter implements View.OnClickListener {
         setArtworkPlayState(holder, stateTransition, isCurrentTrack);
     }
 
-    private void setWaveformPlayState(TrackPageHolder holder, Playa.StateTransition state, boolean isCurrentTrack) {
+    private void setWaveformPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
         if (isCurrentTrack && state.playSessionIsActive()) {
             if (state.isPlayerPlaying()) {
                 holder.waveformController.showPlayingState(state.getProgress());
@@ -132,7 +133,7 @@ class TrackPagePresenter implements View.OnClickListener {
         }
     }
 
-    private void setArtworkPlayState(TrackPageHolder holder, Playa.StateTransition stateTransition, boolean isCurrentTrack) {
+    private void setArtworkPlayState(TrackPageHolder holder, StateTransition stateTransition, boolean isCurrentTrack) {
         if (stateTransition.playSessionIsActive()){
             if (isCurrentTrack && stateTransition.isPlayerPlaying()){
                 holder.artworkController.showPlayingState(stateTransition.getProgress());
