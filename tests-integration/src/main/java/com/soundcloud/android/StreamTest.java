@@ -31,6 +31,6 @@ public class StreamTest extends ActivityTestCase<LauncherActivity> {
 
     public void testStreamContainsItems() {
         streamScreen = new StreamScreen(solo);
-        assertThat(streamScreen.getItemCount(),is(greaterThan(0)));
+        assertThat(streamScreen.getItemCount(), is(greaterThan(0)));
     }
 }
