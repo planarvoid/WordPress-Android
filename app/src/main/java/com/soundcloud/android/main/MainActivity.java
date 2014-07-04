@@ -201,6 +201,8 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     @Override
     protected void onDestroy() {
+        // make sure we do not let "show fragment" messages propagate when the activity gets destroyed
+        drawerHandler.removeCallbacksAndMessages(null);
         subscription.unsubscribe();
         super.onDestroy();
     }
@@ -224,6 +226,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             }
         }
 
+        // delay showing the fragment to make for smoother transitions when swapping content
         drawerHandler.removeCallbacksAndMessages(null);
         drawerHandler.postDelayed(new Runnable() {
             @Override
