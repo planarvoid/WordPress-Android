@@ -21,8 +21,6 @@ public class DefaultControllerTest {
     @Mock
     private InlinePlaylistTracksAdapter adapter;
     @Mock
-    private EmptyPlaylistTracksPresenter presenter;
-    @Mock
     private ListView listView;
     @Mock
     private Resources resources;
@@ -31,7 +29,7 @@ public class DefaultControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new DefaultController(adapter, presenter);
+        controller = new DefaultController(adapter);
         when(layout.findViewById(android.R.id.list)).thenReturn(listView);
         controller.onViewCreated(layout, resources);
     }
@@ -51,7 +49,7 @@ public class DefaultControllerTest {
     @Test
     public void setEmptyViewStatusSetsStateOnPresenterAndUpdatesAdapter() throws Exception {
         controller.setEmptyViewStatus(100);
-        verify(presenter).setEmptyViewStatus(100);
+        verify(adapter).setEmptyViewStatus(100);
         verify(adapter).notifyDataSetChanged();
     }
 

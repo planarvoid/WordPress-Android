@@ -14,8 +14,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.EngagementsController;
-import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.PlaylistUrn;
@@ -27,7 +25,9 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowToast;
@@ -46,7 +46,6 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.ToggleButton;
 
-import javax.inject.Provider;
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -56,27 +55,20 @@ public class PlaylistFragmentTest {
     private FragmentActivity activity = new FragmentActivity();
     private Playlist playlist = new Playlist(1L);
 
+    @Mock private PlaylistDetailsController controller;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private LegacyPlaylistOperations playlistOperations;
     @Mock private PlaybackStateProvider playbackStateProvider;
     @Mock private ImageOperations imageOperations;
     @Mock private EngagementsController engagementsController;
     @Mock private ItemAdapter adapter;
-    @Mock private PlaylistDetailsController controller;
     @Mock private PullToRefreshController ptrController;
     @Mock private PlayQueueManager playQueueManager;
 
-    private Provider<PlaylistDetailsController> controllerProvider = new Provider<PlaylistDetailsController>() {
-        @Override
-        public PlaylistDetailsController get() {
-            return controller;
-        }
-    };
-
     @Before
     public void setUp() throws Exception {
-        fragment = new PlaylistFragment(playbackOperations, playlistOperations, playbackStateProvider,
-                imageOperations, engagementsController, controllerProvider, ptrController, playQueueManager);
+        fragment = new PlaylistFragment(controller, playbackOperations, playlistOperations, playbackStateProvider,
+                imageOperations, engagementsController, ptrController, playQueueManager);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
 

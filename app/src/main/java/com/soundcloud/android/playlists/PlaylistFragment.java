@@ -51,24 +51,21 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @SuppressLint("ValidFragment")
 public class PlaylistFragment extends Fragment implements AdapterView.OnItemClickListener, OnRefreshListener {
 
+    @Inject PlaylistDetailsController controller;
     @Inject LegacyPlaylistOperations legacyPlaylistOperations;
     @Inject PlaylistOperations playlistOperations;
     @Inject PlaybackOperations playbackOperations;
     @Inject PlaybackStateProvider playbackStateProvider;
     @Inject ImageOperations imageOperations;
     @Inject EngagementsController engagementsController;
-    @Inject Provider<PlaylistDetailsController> controllerProvider;
     @Inject PullToRefreshController pullToRefreshController;
     @Inject PlayQueueManager playQueueManager;
-
-    private PlaylistDetailsController controller;
 
     private ListView listView;
     private View progressView;
@@ -118,20 +115,20 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     }
 
     @VisibleForTesting
-    PlaylistFragment(PlaybackOperations playbackOperations,
+    PlaylistFragment(PlaylistDetailsController controller,
+                     PlaybackOperations playbackOperations,
                      LegacyPlaylistOperations legacyPlaylistOperations,
                      PlaybackStateProvider playbackStateProvider,
                      ImageOperations imageOperations,
                      EngagementsController engagementsController,
-                     Provider<PlaylistDetailsController> adapterProvider,
                      PullToRefreshController pullToRefreshController,
                      PlayQueueManager playQueueManager) {
+        this.controller = controller;
         this.playbackOperations = playbackOperations;
         this.legacyPlaylistOperations = legacyPlaylistOperations;
         this.playbackStateProvider = playbackStateProvider;
         this.imageOperations = imageOperations;
         this.engagementsController = engagementsController;
-        this.controllerProvider = adapterProvider;
         this.pullToRefreshController = pullToRefreshController;
         this.playQueueManager = playQueueManager;
     }
@@ -159,7 +156,6 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     public void onViewCreated(View layout, Bundle savedInstanceState) {
         super.onViewCreated(layout, savedInstanceState);
 
-        controller = controllerProvider.get();
         controller.onViewCreated(layout, getResources());
 
         playablePresenter = new PlayablePresenter(getActivity());
@@ -220,7 +216,6 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     public void onDestroyView() {
         pullToRefreshController.onDestroyView();
         subscription.unsubscribe();
-        controller = null;
         super.onDestroyView();
     }
 
@@ -271,9 +266,9 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     }
 
     private void addInfoHeader() {
-        View mInfoHeader = View.inflate(getActivity(), R.layout.playlist_header, null);
-        infoHeaderText = (TextView) mInfoHeader.findViewById(android.R.id.text1);
-        listView.addHeaderView(mInfoHeader, null, false);
+        View infoHeader = View.inflate(getActivity(), R.layout.playlist_header, null);
+        infoHeaderText = (TextView) infoHeader.findViewById(android.R.id.text1);
+        listView.addHeaderView(infoHeader, null, false);
     }
 
     private void showContent(boolean show) {

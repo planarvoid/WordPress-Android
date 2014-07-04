@@ -13,13 +13,11 @@ import javax.inject.Inject;
 class DefaultController implements PlaylistDetailsController {
 
     private final InlinePlaylistTracksAdapter adapter;
-    private final EmptyPlaylistTracksPresenter presenter;
     private ListView listView;
 
     @Inject
-    DefaultController(InlinePlaylistTracksAdapter itemAdapter, EmptyPlaylistTracksPresenter presenter) {
+    DefaultController(InlinePlaylistTracksAdapter itemAdapter) {
         this.adapter = itemAdapter;
-        this.presenter = presenter;
     }
 
     @Override
@@ -44,7 +42,7 @@ class DefaultController implements PlaylistDetailsController {
 
     @Override
     public void setEmptyViewStatus(int status) {
-        presenter.setEmptyViewStatus(status);
+        adapter.setEmptyViewStatus(status);
         adapter.notifyDataSetChanged();
     }
 }
