@@ -3,9 +3,11 @@ package com.soundcloud.android.storage;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.soundcloud.android.model.PlaylistTagsCollection;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.ScTextUtils;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscriber;
 
 import android.content.SharedPreferences;
@@ -26,6 +28,12 @@ public class PlaylistTagStorage extends ScheduledOperations {
 
     @Inject
     public PlaylistTagStorage(@Named("PlaylistTags") SharedPreferences sharedPreferences) {
+        this(sharedPreferences, ScSchedulers.STORAGE_SCHEDULER);
+    }
+
+    @VisibleForTesting
+    PlaylistTagStorage(SharedPreferences sharedPreferences, Scheduler scheduler) {
+        super(scheduler);
         this.sharedPreferences = sharedPreferences;
     }
 

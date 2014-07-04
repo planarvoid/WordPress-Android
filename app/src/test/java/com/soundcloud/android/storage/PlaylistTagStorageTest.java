@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import rx.Observable;
 import rx.Observer;
+import rx.schedulers.Schedulers;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -32,7 +33,9 @@ public class PlaylistTagStorageTest {
     @Before
     public void setUp() throws Exception {
         Context context = Robolectric.application.getApplicationContext();
-        tagStorage = new PlaylistTagStorage(ShadowPreferenceManager.getDefaultSharedPreferences(context));
+        tagStorage = new PlaylistTagStorage(
+                ShadowPreferenceManager.getDefaultSharedPreferences(context),
+                Schedulers.immediate());
     }
 
     @Test
