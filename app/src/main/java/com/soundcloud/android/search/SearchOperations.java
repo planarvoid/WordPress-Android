@@ -24,7 +24,6 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SearchResultsCollection;
 import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.storage.BulkStorage;
-import com.soundcloud.android.storage.PlaylistTagStorage;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;

@@ -29,7 +29,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.RxGlobalErrorHandler;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
-import com.soundcloud.android.storage.PlaylistTagStorage;
+import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;

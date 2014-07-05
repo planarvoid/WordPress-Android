@@ -9,7 +9,7 @@ import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
-import com.soundcloud.android.storage.PlaylistTagStorage;
+import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.Log;

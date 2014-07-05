@@ -17,7 +17,7 @@ import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.storage.PlaylistTagStorage;
+import com.soundcloud.android.search.PlaylistTagStorage;
 import dagger.Module;
 import dagger.Provides;
 

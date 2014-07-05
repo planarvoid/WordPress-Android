@@ -1,4 +1,4 @@
-package com.soundcloud.android.storage;
+package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyString;

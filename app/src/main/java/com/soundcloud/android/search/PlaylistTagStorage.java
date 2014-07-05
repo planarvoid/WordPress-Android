@@ -1,4 +1,4 @@
-package com.soundcloud.android.storage;
+package com.soundcloud.android.search;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
