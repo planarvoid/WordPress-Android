@@ -11,9 +11,10 @@ import com.soundcloud.android.model.Track;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
-public class PlayQueue {
+public class PlayQueue implements Iterable<PlayQueueItem> {
 
     private final List<PlayQueueItem> playQueueItems;
     private int position;
@@ -72,6 +73,15 @@ public class PlayQueue {
 
     public boolean hasNextTrack() {
         return position < playQueueItems.size() - 1;
+    }
+
+    @Override
+    public Iterator<PlayQueueItem> iterator() {
+        return playQueueItems.iterator();
+    }
+
+    public int size() {
+        return playQueueItems.size();
     }
 
     @Nullable
