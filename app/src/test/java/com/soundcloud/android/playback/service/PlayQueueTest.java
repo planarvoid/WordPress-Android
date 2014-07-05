@@ -54,6 +54,12 @@ public class PlayQueueTest {
     }
 
     @Test
+    public void shouldReportCorrectSize() {
+        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), 2, playSessionSource);
+        expect(playQueue.size()).toEqual(3);
+    }
+
+    @Test
     public void shouldSuccessfullyMoveToNextTrack() {
         PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 0);
         expect(playQueue.moveToNext(false)).toBeTrue();
