@@ -40,9 +40,9 @@ public class PlaySessionSource implements Parcelable{
         playlistOwnerId = in.readLong();
     }
 
-    public PlaySessionSource(SharedPreferences mSharedPreferences) {
-        originScreen = mSharedPreferences.getString(PREF_KEY_ORIGIN_SCREEN_TAG, ScTextUtils.EMPTY_STRING);
-        playlistId = mSharedPreferences.getLong(PREF_KEY_PLAYLIST_ID, ScModel.NOT_SET);
+    public PlaySessionSource(SharedPreferences sharedPreferences) {
+        originScreen = sharedPreferences.getString(PREF_KEY_ORIGIN_SCREEN_TAG, ScTextUtils.EMPTY_STRING);
+        playlistId = sharedPreferences.getLong(PREF_KEY_PLAYLIST_ID, ScModel.NOT_SET);
     }
 
     private PlaySessionSource() {
