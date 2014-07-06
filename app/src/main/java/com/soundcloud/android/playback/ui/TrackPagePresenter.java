@@ -11,7 +11,6 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
@@ -19,6 +18,7 @@ import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
 
 import android.content.res.Resources;
+import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -225,6 +225,15 @@ class TrackPagePresenter implements View.OnClickListener {
         holder.waveformController = waveformControllerFactory.create(waveform);
         holder.artworkController = artworkControllerFactory.create(holder.artworkView);
         holder.waveformController.addScrubListener(holder.artworkController);
+
+        final PopupMenu popupMenu = new PopupMenu(trackView.getContext(), holder.more);
+        popupMenu.inflate(R.menu.player_page_actions);
+        holder.more.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupMenu.show();
+            }
+        });
         trackView.setTag(holder);
     }
 
