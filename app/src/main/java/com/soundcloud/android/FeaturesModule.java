@@ -10,6 +10,7 @@ import com.soundcloud.android.playlists.PlaylistsModule;
 import com.soundcloud.android.profile.ProfileModule;
 import com.soundcloud.android.search.SearchModule;
 import com.soundcloud.android.stream.SoundStreamModule;
+import com.soundcloud.android.tracks.TrackModule;
 import dagger.Module;
 
 @Module(includes = {
@@ -22,6 +23,7 @@ import dagger.Module;
         PlayerModule.class,
         PlaylistsModule.class,
         ProfileModule.class,
-        SoundStreamModule.class
+        SoundStreamModule.class,
+        TrackModule.class
 })
 public class FeaturesModule { }

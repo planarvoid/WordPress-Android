@@ -21,6 +21,7 @@ public final class Actions {
     public static final String ACCOUNT_PREF = "com.soundcloud.android.action.ACCOUNT_PREF";
     public static final String USER_BROWSER = "com.soundcloud.android.action.USER_BROWSER";
     public static final String PLAYLIST     = "com.soundcloud.android.action.PLAYLIST";
+    public static final String TRACK        = "com.soundcloud.android.action.TRACK";
     public static final String EXPLORE     = "com.soundcloud.android.action.EXPLORE";
     public static final String LIKES     = "com.soundcloud.android.action.LIKES";
 
