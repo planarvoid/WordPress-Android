@@ -27,7 +27,8 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.BulkStorage;
-import com.soundcloud.android.storage.PlayQueueStorage;
+import com.soundcloud.propeller.BulkInsertResult;
+import com.soundcloud.propeller.ChangeResult;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +44,7 @@ import android.content.SharedPreferences;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -82,7 +84,7 @@ public class PlayQueueOperationsTest {
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
-        when(playQueueStorage.storeCollectionAsync(any(Collection.class))).thenReturn(Observable.<Collection<PlayQueueItem>>empty());
+        when(playQueueStorage.storeAsync(any(PlayQueue.class))).thenReturn(Observable.<BulkInsertResult>empty());
         when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG), anyString())).thenReturn("origin:page");
         when(sharedPreferences.getLong(eq(PlaySessionSource.PREF_KEY_PLAYLIST_ID), anyLong())).thenReturn(123L);
         when(sharedPreferences.getInt(eq(PlayQueueOperations.Keys.PLAY_POSITION.name()), anyInt())).thenReturn(1);
@@ -105,8 +107,8 @@ public class PlayQueueOperationsTest {
         PlayQueueItem playQueueItem = new PlayQueueItem(1L, "source1", "version1");
         when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
 
-        Observable<List<PlayQueueItem>> itemObservable = Observable.just(Arrays.asList(playQueueItem));
-        when(playQueueStorage.getPlayQueueItemsAsync()).thenReturn(itemObservable);
+        Observable<PlayQueueItem> itemObservable = Observable.just(playQueueItem);
+        when(playQueueStorage.loadAsync()).thenReturn(itemObservable);
 
         ArgumentCaptor<PlayQueue> captor = ArgumentCaptor.forClass(PlayQueue.class);
         playQueueOperations.getLastStoredPlayQueue().subscribe(observer);
@@ -120,10 +122,9 @@ public class PlayQueueOperationsTest {
 
         PlayQueueItem playQueueItem1 = new PlayQueueItem(1L, "source1", "version1");
         PlayQueueItem playQueueItem2 = new PlayQueueItem(2L, "source2", "version2");
-        List<PlayQueueItem> items = Lists.newArrayList(playQueueItem1, playQueueItem2);
-        Observable<List<PlayQueueItem>> itemObservable = Observable.just(items);
+        Observable<PlayQueueItem> itemObservable = Observable.from(Lists.newArrayList(playQueueItem1, playQueueItem2));
 
-        when(playQueueStorage.getPlayQueueItemsAsync()).thenReturn(itemObservable);
+        when(playQueueStorage.loadAsync()).thenReturn(itemObservable);
 
         PlayQueue playQueue = playQueueOperations.getLastStoredPlayQueue().toBlockingObservable().lastOrDefault(null);
         expect(playQueue.getItems()).toContainExactly(playQueueItem1, playQueueItem2);
@@ -153,9 +154,8 @@ public class PlayQueueOperationsTest {
     @Test
     public void saveShouldStoreAllPlayQueueItems() throws Exception {
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
-        final List<PlayQueueItem> list = Mockito.mock(List.class);
-        when(playQueue.getItems()).thenReturn(list);
-        when(playQueueStorage.storeCollectionAsync(list)).thenReturn(observable);
+        when(playQueue.getItems()).thenReturn(Collections.<PlayQueueItem>emptyList());
+        when(playQueueStorage.storeAsync(playQueue)).thenReturn(observable);
 
         playQueueOperations.saveQueue(playQueue, playSessionSource, 200L);
 
@@ -163,13 +163,15 @@ public class PlayQueueOperationsTest {
     }
 
     @Test
-    public void clearShouldRemovePreferences() throws Exception {
+    public void clearShouldRemovePreferencesAndDeleteFromDatabase() throws Exception {
+        when(playQueueStorage.clearAsync()).thenReturn(Observable.<ChangeResult>empty());
         playQueueOperations.clear();
         verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.SEEK_POSITION.name());
         verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.TRACK_ID.name());
         verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.PLAY_POSITION.name());
         verify(sharedPreferencesEditor).remove(PlaySessionSource.PREF_KEY_PLAYLIST_ID);
         verify(sharedPreferencesEditor).remove(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG);
+        verify(playQueueStorage).clearAsync();
     }
 
     @Test

@@ -4,18 +4,16 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.model.PlayQueueItem;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.RecommendedTracksCollection;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.BulkStorage;
-import com.soundcloud.android.storage.PlayQueueStorage;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -66,7 +64,7 @@ public class PlayQueueOperations {
     }
 
     public long getLastStoredPlayingTrackId() {
-        return sharedPreferences.getLong(Keys.TRACK_ID.name(), Playable.NOT_SET);
+        return sharedPreferences.getLong(Keys.TRACK_ID.name(), Consts.NOT_SET);
     }
 
     public PlaySessionSource getLastStoredPlaySessionSource() {
@@ -74,14 +72,14 @@ public class PlayQueueOperations {
     }
 
     public Observable<PlayQueue> getLastStoredPlayQueue() {
-        if (getLastStoredPlayingTrackId() != Playable.NOT_SET) {
-            return playQueueStorage.getPlayQueueItemsAsync()
-                    .observeOn(AndroidSchedulers.mainThread()).map(new Func1<List<PlayQueueItem>, PlayQueue>() {
+        if (getLastStoredPlayingTrackId() != Consts.NOT_SET) {
+            return playQueueStorage.loadAsync().toList()
+                    .map(new Func1<List<PlayQueueItem>, PlayQueue>() {
                         @Override
                         public PlayQueue call(List<PlayQueueItem> playQueueItems) {
                             return new PlayQueue(playQueueItems, getLastStoredPlayPosition());
                         }
-                    });
+                    }).observeOn(AndroidSchedulers.mainThread());
         }
         return null;
     }
@@ -97,7 +95,7 @@ public class PlayQueueOperations {
 
         editor.apply();
 
-        return DefaultSubscriber.fireAndForget(playQueueStorage.storeCollectionAsync(playQueue.getItems()));
+        return fireAndForget(playQueueStorage.storeAsync(playQueue));
     }
 
     public void clear() {
@@ -107,7 +105,7 @@ public class PlayQueueOperations {
         editor.remove(Keys.SEEK_POSITION.name());
         PlaySessionSource.clearPreferenceKeys(editor);
         editor.apply();
-        playQueueStorage.clearState();
+        fireAndForget(playQueueStorage.clearAsync());
     }
 
     public Observable<RecommendedTracksCollection> getRelatedTracks(long trackId) {

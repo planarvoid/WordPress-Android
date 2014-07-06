@@ -3,6 +3,7 @@ package com.soundcloud.android.robolectric;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlaylistSummary;
 import com.soundcloud.android.model.TrackSummary;
@@ -191,6 +192,14 @@ public class DatabaseHelper {
         AffiliationActivity affiliation = TestHelper.getModelFactory().createModel(AffiliationActivity.class);
         insertAffiliation(affiliation);
         return affiliation;
+    }
+
+    public long insertPlayQueueItem(PlayQueueItem playQueueItem) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.PlayQueue.TRACK_ID, playQueueItem.getTrackId());
+        cv.put(TableColumns.PlayQueue.SOURCE, playQueueItem.getSource());
+        cv.put(TableColumns.PlayQueue.SOURCE_VERSION, playQueueItem.getSourceVersion());
+        return insertInto(Table.PLAY_QUEUE, cv);
     }
 
     private long insertInto(Table table, ContentValues cv) {
