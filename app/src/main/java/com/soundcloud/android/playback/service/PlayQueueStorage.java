@@ -31,7 +31,7 @@ public class PlayQueueStorage {
     }
 
     public Observable<ChangeResult> clearAsync() {
-        return scheduler.scheduleDeletion(TABLE);
+        return scheduler.scheduleTruncate(TABLE);
     }
 
     public Observable<BulkInsertResult> storeAsync(final PlayQueue playQueue) {
@@ -47,7 +47,7 @@ public class PlayQueueStorage {
         return clearAsync().mergeMap(new Func1<ChangeResult, Observable<BulkInsertResult>>() {
             @Override
             public Observable<BulkInsertResult> call(ChangeResult changeResult) {
-                return scheduler.scheduleInsertion(TABLE, newItems);
+                return scheduler.scheduleInsert(TABLE, newItems);
             }
         });
     }
