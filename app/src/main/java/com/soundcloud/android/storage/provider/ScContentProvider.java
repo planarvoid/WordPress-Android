@@ -119,12 +119,6 @@ public class ScContentProvider extends ContentProvider {
             case USER_ASSOCIATIONS:
                 qb.setTables(content.table.name);
                 break;
-            case PLAY_QUEUE:
-                qb.setTables(content.table.name);
-                if (_sortOrder == null){
-                    _sortOrder = TableColumns.PlayQueue._ID + " ASC";
-                }
-                break;
 
             case ME_SOUNDS :
                 qb.setTables(Table.SOUND_ASSOCIATION_VIEW.name);
@@ -316,10 +310,6 @@ public class ScContentProvider extends ContentProvider {
             case COMMENTS:
                 qb.setTables(content.table.name);
                 break;
-            case PLAY_QUEUE_ITEM:
-                qb.setTables(content.table.name);
-                qb.appendWhere("_id = " + userId);
-                break;
 
             case ANDROID_SEARCH_SUGGEST:
             case ANDROID_SEARCH_SUGGEST_PATH:
@@ -501,7 +491,6 @@ public class ScContentProvider extends ContentProvider {
             case COLLECTIONS:
             case COLLECTION_PAGES:
             case RECORDINGS:
-            case PLAY_QUEUE:
             case ME_CONNECTIONS:
             case PLAYLISTS:
             case ME_ALL_ACTIVITIES:
@@ -739,9 +728,6 @@ public class ScContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return values.length;
 
-            case PLAY_QUEUE:
-                recreateTable = true;
-                // fall through
             case COMMENTS:
             case ME_SOUND_STREAM:
             case ME_ACTIVITIES:
