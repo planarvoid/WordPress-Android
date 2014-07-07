@@ -134,14 +134,14 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
 
     private void showOverlay() {
         stopOverlayAnimation();
-        overlayAnimator = ObjectAnimator.ofFloat(artworkIdleOverlay, "alpha", ViewHelper.getAlpha(artworkIdleOverlay), 1);
+        overlayAnimator = ObjectAnimator.ofFloat(artworkIdleOverlay, "alpha", ViewHelper.getAlpha(artworkIdleOverlay), 1f);
         overlayAnimator.setDuration(FADE_DURATION);
         overlayAnimator.start();
     }
 
     private void hideOverlay() {
         stopOverlayAnimation();
-        overlayAnimator = ObjectAnimator.ofFloat(artworkIdleOverlay, "alpha", ViewHelper.getAlpha(artworkIdleOverlay), 0);
+        overlayAnimator = ObjectAnimator.ofFloat(artworkIdleOverlay, "alpha", ViewHelper.getAlpha(artworkIdleOverlay), 0f);
         overlayAnimator.setDuration(FADE_DURATION);
         overlayAnimator.start();
     }
