@@ -9,7 +9,6 @@ import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.xtremelabs.robolectric.Robolectric;
 import rx.schedulers.Schedulers;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 // use as a test base class when writing database integration tests
@@ -36,15 +35,6 @@ public abstract class StorageIntegrationTest {
         return propeller;
     }
 
-    protected int rowCount(String table) {
-        Cursor cursor = database.rawQuery("select count(*) from " + table, null);
-        if (cursor.moveToNext()) {
-            return cursor.getInt(0);
-        } else {
-            return -1;
-        }
-    }
-
     protected boolean exists(Query query) {
         return count(query) > 0;
     }
@@ -62,10 +52,6 @@ public abstract class StorageIntegrationTest {
     }
 
     protected int count(String table) {
-        final QueryResult result = propeller.query(Query.from(table).count());
-        for (CursorReader cursor : result) {
-            return cursor.getInt("count(*)");
-        }
-        return -1;
+        return count(Query.from(table));
     }
 }

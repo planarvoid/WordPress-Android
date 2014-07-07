@@ -28,7 +28,10 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void shouldInsertPlayQueue() {
+    public void shouldInsertPlayQueueAndReplaceExistingItems() {
+        testHelper().insertPlayQueueItem(new PlayQueueItem(1L, "existing", "existing_version"));
+        expect(count(Table.PLAY_QUEUE.name)).toBe(1);
+
         TestObserver<BulkInsertResult> observer = new TestObserver<BulkInsertResult>();
         PlayQueueItem playQueueItem1 = new PlayQueueItem(123L, "source1", "version1");
         PlayQueueItem playQueueItem2 = new PlayQueueItem(456L, "source2", "version2");
@@ -40,7 +43,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
         BulkInsertResult insertResult = observer.getOnNextEvents().get(0);
         expect(insertResult.success()).toBeTrue();
-        expect(rowCount(Table.PLAY_QUEUE.name)).toBe(2);
+        expect(count(Table.PLAY_QUEUE.name)).toBe(2);
         expect(exists(Query.from(Table.PLAY_QUEUE.name)
                 .whereEq(TableColumns.PlayQueue.TRACK_ID, 123L)
                 .whereEq(TableColumns.PlayQueue.SOURCE, "source1")
