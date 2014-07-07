@@ -23,6 +23,7 @@ import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -318,6 +319,17 @@ public class ImageOperationsTest {
         expect(imageViewAwareCaptor.getValue().getWrappedView()).toBe(imageView);
         verifyFallbackDrawableOptions(RES_ID);
         verifyFullCacheOptions();
+    }
+
+    @Test
+    public void displayPlaceholderSetsPlaceholderOnImageView() throws ExecutionException {
+        TrackUrn urn = Urn.forTrack(123L);
+        when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
+        when(cache.get(eq("soundcloud:sounds:123_100_100"), any(Callable.class))).thenReturn(drawable);
+
+        imageOperations.displayPlaceholder(urn, imageView);
+
+        verify(imageView).setImageDrawable(drawable);
     }
 
     @Test

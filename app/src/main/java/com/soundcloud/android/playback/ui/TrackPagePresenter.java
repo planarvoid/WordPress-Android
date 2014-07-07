@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import static com.soundcloud.android.playback.ui.PlayerArtworkController.PlayerArtworkControllerFactory;
 
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.view.WaveformViewControllerFactory;
 
@@ -14,6 +15,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
 
@@ -35,8 +37,6 @@ class TrackPagePresenter implements View.OnClickListener {
     private final Listener listener;
     private final WaveformViewControllerFactory waveformControllerFactory;
     private final PlayerArtworkControllerFactory artworkControllerFactory;
-
-    private boolean isExpanded;
 
     interface Listener {
         void onTogglePlay();
@@ -88,15 +88,10 @@ class TrackPagePresenter implements View.OnClickListener {
     public View createTrackPage(ViewGroup container) {
         final View trackView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_track_page, container, false);
         setupHolder(trackView);
-        if (isExpanded) {
-            setExpanded(trackView, false);
-        } else {
-            setCollapsed(trackView);
-        }
         return trackView;
     }
 
-    void populateTrackPage(View trackView, Track track, PlaybackProgress playbackProgress) {
+    void populateTrackPage(View trackView, Track track) {
         final TrackPageHolder holder = getViewHolder(trackView);
         holder.user.setText(track.getUserName());
         holder.title.setText(track.getTitle());
@@ -108,7 +103,19 @@ class TrackPagePresenter implements View.OnClickListener {
         holder.footerTitle.setText(track.getTitle());
 
         setClickListener(holder.getOnClickViews(), this);
-        setProgress(trackView, playbackProgress);
+    }
+
+    public View clearView(View view, TrackUrn urn) {
+        final TrackPageHolder holder = getViewHolder(view);
+        holder.user.setText(ScTextUtils.EMPTY_STRING);
+        holder.title.setText(ScTextUtils.EMPTY_STRING);
+
+        imageOperations.displayPlaceholder(urn, holder.artworkController.getImageView());
+        holder.waveformController.reset();
+
+        holder.footerUser.setText(ScTextUtils.EMPTY_STRING);
+        holder.footerTitle.setText(ScTextUtils.EMPTY_STRING);
+        return view;
     }
 
     public void setPlayState(View trackView, StateTransition stateTransition, boolean isCurrentTrack) {
@@ -150,7 +157,7 @@ class TrackPagePresenter implements View.OnClickListener {
         }
     }
 
-    public void reset(View trackView) {
+    public void clearScrubState(View trackView) {
         getViewHolder(trackView).waveformController.scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
     }
 
@@ -158,14 +165,6 @@ class TrackPagePresenter implements View.OnClickListener {
         for (ProgressAware view : getViewHolder(trackView).getProgressAwareViews()){
             view.setProgress(progress);
         }
-    }
-
-    public void resetProgress(View trackView) {
-        setProgress(trackView, PlaybackProgress.empty());
-    }
-
-    public void setExpandedMode(boolean isExpanded) {
-        this.isExpanded = isExpanded;
     }
 
     public void setExpanded(View trackView, boolean isPlaying) {
@@ -258,7 +257,6 @@ class TrackPagePresenter implements View.OnClickListener {
         ToggleButton footerPlayToggle;
         TextView footerTitle;
         TextView footerUser;
-
 
         public View[] getOnClickViews() {
             return new View[] { artworkView, close, bottomClose, nextTouch, previousTouch, playButton, footer, footerPlayToggle };

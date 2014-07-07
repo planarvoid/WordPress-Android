@@ -82,10 +82,6 @@ public class PlaySessionController {
         return lastStateTransition.playSessionIsActive();
     }
 
-    public StateTransition getPlayState() {
-        return lastStateTransition;
-    }
-
     public PlaybackProgress getCurrentProgress() {
         return getCurrentProgress(currentPlayingUrn);
     }

@@ -1,30 +1,37 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.playback.service.Playa.PlayaState;
+import static com.soundcloud.android.playback.service.Playa.Reason;
+import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.track.LegacyTrackOperations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
@@ -40,15 +47,18 @@ public class TrackPagerAdapterTest {
     @Mock private LegacyTrackOperations trackOperations;
     @Mock private TrackPagePresenter trackPagePresenter;
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private View view;
     @Mock private ViewGroup container;
-    @Mock private Track track;
 
+    private TestEventBus eventBus;
     private TrackPagerAdapter adapter;
 
     @Before
     public void setUp() throws Exception {
-        adapter = new TrackPagerAdapter(playQueueManager, playSessionController, trackOperations, trackPagePresenter);
+        eventBus = new TestEventBus();
+        adapter = new TrackPagerAdapter(playQueueManager, playSessionController, trackOperations, trackPagePresenter, eventBus);
+        final View mockedView1 = mock(View.class);
+        final View mockedView2 = mock(View.class);
+        when(trackPagePresenter.createTrackPage(container)).thenReturn(mockedView1, mockedView2);
     }
 
     @Test
@@ -59,132 +69,168 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void getViewReturnsConvertViewWhenNotNull() {
+        View view = mock(View.class);
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
+        when(playQueueManager.getUrnAtPosition(0)).thenReturn(Urn.forTrack(123L));
+        when(trackPagePresenter.clearView(any(View.class), any(TrackUrn.class))).thenReturn(view);
         expect(adapter.getView(0, view, container)).toBe(view);
     }
 
     @Test
     public void getViewReturnsCreatedViewWhenConvertViewIsNull() {
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
-        when(trackPagePresenter.createTrackPage(container)).thenReturn(view);
-        expect(adapter.getView(0, null, container)).toBe(view);
+
+        getPageView();
+
+        verify(trackPagePresenter).createTrackPage(container);
     }
 
     @Test
-    public void getViewLoadsTrackWithProgressForGivenPlayQueuePosition() {
-        setupGetCurrentViewPreconditions();
-        final PlaybackProgress playbackProgress = new PlaybackProgress(5l, 10l);
-        when(playSessionController.getCurrentProgress(track.getUrn())).thenReturn(playbackProgress);
+    public void onPlayingStateEventCallsSetPlayStateOnPresenter() {
+        final View currentTrackView = getPageView();
+        StateTransition state = new StateTransition(PlayaState.PLAYING, Reason.NONE);
 
-        adapter.getView(3, view, container);
-        verify(trackPagePresenter).populateTrackPage(view, track, playbackProgress);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
+
+        verify(trackPagePresenter).setPlayState(currentTrackView, state, true);
     }
 
     @Test
-    public void setCurrentPlayStateOnTrackViewWhenBindingTrack() {
-        setupGetCurrentViewPreconditions();
-        final Playa.StateTransition transition = createStateTransition();
-        when(playSessionController.getPlayState()).thenReturn(transition);
+    public void onPlayingStateEventCallsSetPlayStateForOtherPage() {
+        setCurrentTrackState(3, Urn.forTrack(123L), true);
+        setCurrentTrackState(4, Urn.forTrack(234L), false);
+        final View viewForCurrentTrack = getPageView(3, Urn.forTrack(123L));
+        final View viewForOtherTrack = getPageView(4, Urn.forTrack(234L));
 
-        adapter.getView(3, view, container);
+        Mockito.reset(trackPagePresenter);
+        StateTransition state = new StateTransition(PlayaState.PLAYING, Reason.NONE);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
-        verify(trackPagePresenter, times(1)).setPlayState(any(View.class), eq(transition), anyBoolean());
+        verify(trackPagePresenter).setPlayState(viewForCurrentTrack, state, true);
+        verify(trackPagePresenter).setPlayState(viewForOtherTrack, state, false);
+    }
+
+    @Test
+    public void onPlaybackProgressEventSetsProgressOnCurrentPlayingTrackPage() {
+        View currentPageView = getPageView();
+        PlaybackProgressEvent event = new PlaybackProgressEvent(new PlaybackProgress(5l, 10l), Urn.forTrack(123L));
+
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
+
+        verify(trackPagePresenter).setProgress(currentPageView, event.getPlaybackProgress());
+    }
+
+    @Test
+    public void onPlaybackProgressEventDoNotSetProgressOnOtherTrackPage() {
+        View currentPageView = getPageView();
+        PlaybackProgressEvent event = new PlaybackProgressEvent(new PlaybackProgress(5l, 10l), Urn.forTrack(234L));
+
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
+
+        verify(trackPagePresenter, never()).setProgress(currentPageView, event.getPlaybackProgress());
+    }
+
+    @Test
+    public void onPlaybackProgressEventDoesNotSetProgressOnNotPlayingTrackPage() {
+        View currentPageView = getPageView();
+        PlaybackProgressEvent event = new PlaybackProgressEvent(new PlaybackProgress(5l, 10l), Urn.forTrack(999L));
+
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
+
+        verify(trackPagePresenter, never()).setProgress(currentPageView, event.getPlaybackProgress());
+    }
+
+    @Test
+    public void shouldSetExpandModeOnSubscribe() {
+        View currentTrackView = getPageView();
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
+
+        verify(trackPagePresenter).setCollapsed(currentTrackView);
+    }
+
+    @Test
+    public void onPlayerExpandedEventSetsFullScreenPlayerMode() {
+        View currentTrackView = getPageView();
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+
+        InOrder inOrder = Mockito.inOrder(trackPagePresenter);
+        inOrder.verify(trackPagePresenter).setCollapsed(currentTrackView);
+        inOrder.verify(trackPagePresenter).setExpanded(eq(currentTrackView), anyBoolean());
+    }
+
+    @Test
+    public void creatingNewTrackViewSetThePlayState() {
+        View currentPageView = getPageView();
+
+        verify(trackPagePresenter).setPlayState(eq(currentPageView), any(StateTransition.class), eq(true));
+    }
+
+    @Test
+    public void recyclingTrackViewDoesNotSetThePlayState() {
+        final View view = getPageView();
+        Mockito.reset(trackPagePresenter);
+        when(trackPagePresenter.clearView(view, Urn.forTrack(123L))).thenReturn(view);
+        View currentPageView = adapter.getView(3, view, container);
+
+        verify(trackPagePresenter, never()).setPlayState(eq(currentPageView), any(StateTransition.class), eq(true));
+    }
+
+    @Test
+    public void getViewClearsRecycledViewWithUrnForCurrentPosition() {
+        final View view = getPageView();
+        TrackUrn trackUrn = Urn.forTrack(123L);
+        when(playQueueManager.getUrnAtPosition(2)).thenReturn(trackUrn);
+        when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
+
+        adapter.getView(2, view, container);
+
+        verify(trackPagePresenter).clearView(view, trackUrn);
     }
 
     @Test
     public void getViewUsesCachedObservableIfAlreadyInCache() {
-        setupGetCurrentViewPreconditions();
-        adapter.getView(3, view, container);
+        getPageView();
         verify(trackOperations).loadTrack(anyLong(), any(Scheduler.class));
     }
 
     @Test
-    public void setProgressOnCurrentTrackSetsProgressOnPresenter() {
-        setupGetCurrentViewPreconditions();
-        final PlaybackProgress playbackProgress = new PlaybackProgress(5l, 10l);
+    public void resetAllScrubStateWhenTrackChange() {
+        View currentPageView = getPageView();
 
-        when(playQueueManager.isCurrentTrack(track.getUrn())).thenReturn(true);
+        adapter.onTrackChange();
 
-        adapter.getView(3, view, container);
-        adapter.setProgressOnCurrentTrack(new PlaybackProgressEvent(playbackProgress, track.getUrn()));
-
-        verify(trackPagePresenter).setProgress(view, playbackProgress);
-    }
-
-    @Test
-    public void setProgressOnCurrentTrackDoesNothingIfNotPlayingPlayQueueTrack() {
-        setupGetCurrentViewPreconditions();
-        final PlaybackProgress playbackProgress = new PlaybackProgress(5l, 10l);
-
-        adapter.getView(3, view, container);
-        adapter.setProgressOnCurrentTrack(new PlaybackProgressEvent(playbackProgress, track.getUrn()));
-
-        verify(trackPagePresenter, never()).setProgress(any(View.class), any(PlaybackProgress.class));
-    }
-
-    @Test
-    public void setProgressOnCurrentTrackWhenSetProgressOnAllViews() {
-        setupGetCurrentViewPreconditions();
-        PlaybackProgress playbackProgress = new PlaybackProgress(5l, 10l);
-        when(playSessionController.getCurrentProgress(track.getUrn())).thenReturn(playbackProgress);
-        when(playSessionController.isPlayingTrack(playQueueManager.getUrnAtPosition(4))).thenReturn(true);
-        adapter.getView(3, view, container);
-
-        adapter.onCurrentPageChanged();
-
-        verify(trackPagePresenter).reset(view);
-        verify(trackPagePresenter).setProgress(view, playbackProgress);
-    }
-
-    @Test
-    public void setPlayStateSetsTrackPlayingStateForCurrentTrack() {
-        setupGetCurrentViewPreconditions();
-        when(playQueueManager.isCurrentPosition(3)).thenReturn(true);
-
-        adapter.getView(3, view, container);
-        adapter.setPlayState(createStateTransition());
-
-        verify(trackPagePresenter).setPlayState(view, createStateTransition(), true);
-    }
-
-    @Test
-    public void setPlayStateSetsNotPlayingStateForOtherTrack() {
-        setupGetCurrentViewPreconditions();
-        when(playQueueManager.isCurrentPosition(3)).thenReturn(false);
-
-        adapter.getView(3, view, container);
-        adapter.setPlayState(createStateTransition());
-
-        verify(trackPagePresenter).setPlayState(view, createStateTransition(), false);
-    }
-
-    @Test
-    public void setTrackPagePresenterFullScreenMode() {
-        setupGetCurrentViewPreconditions();
-        adapter.getView(3, view, container);
-
-        adapter.setExpandedMode(true);
-
-        verify(trackPagePresenter).setExpanded(view, false);
+        verify(trackPagePresenter).clearScrubState(currentPageView);
     }
 
     @Test
     public void clearsOutTrackViewMapWhenDataSetIsChanged() {
-        setupGetCurrentViewPreconditions();
-
-        adapter.getView(3, view, container);
+        getPageView();
         adapter.notifyDataSetChanged();
 
         expect(adapter.getTrackViewByPosition(3)).toBeNull();
     }
 
-    private void setupGetCurrentViewPreconditions() {
-        when(playQueueManager.getIdAtPosition(3)).thenReturn(123L);
-        when(playQueueManager.getCurrentPosition()).thenReturn(3);
-        when(trackOperations.loadTrack(123L, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
+    private View getPageView() {
+        setCurrentTrackState(3, Urn.forTrack(123L), true);
+        return getPageView(3, Urn.forTrack(123L));
     }
 
-    private Playa.StateTransition createStateTransition() {
-        return new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE);
+    private View getPageView(int position, TrackUrn trackUrn) {
+        setupGetCurrentViewPreconditions(position, trackUrn);
+        return adapter.getView(position, null, container);
+    }
+
+    private void setupGetCurrentViewPreconditions(int position, TrackUrn trackUrn) {
+        when(playQueueManager.getIdAtPosition(position)).thenReturn(trackUrn.numericId);
+        when(trackOperations.loadTrack(trackUrn.numericId, AndroidSchedulers.mainThread())).thenReturn(Observable.just(new Track(trackUrn.numericId)));
+    }
+
+    private void setCurrentTrackState(int position, TrackUrn trackUrn, boolean isCurrentTrack) {
+        if (isCurrentTrack) {
+            when(playQueueManager.getCurrentPosition()).thenReturn(position);
+        }
+        when(playQueueManager.isCurrentPosition(position)).thenReturn(isCurrentTrack);
+        when(playQueueManager.isCurrentTrack(trackUrn)).thenReturn(isCurrentTrack);
+        when(playQueueManager.getUrnAtPosition(position)).thenReturn(trackUrn);
     }
 }
