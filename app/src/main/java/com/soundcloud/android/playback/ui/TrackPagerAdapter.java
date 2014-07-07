@@ -35,7 +35,8 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     private final LegacyTrackOperations trackOperations;
     private final TrackPagePresenter trackPagePresenter;
 
-    private final LruCache<Long, Observable<Track>> trackObservableCache = new LruCache<Long, Observable<Track>>(TRACK_CACHE_SIZE);
+    private final LruCache<Long, ReplaySubject<Track>> trackObservableCache =
+            new LruCache<Long, ReplaySubject<Track>>(TRACK_CACHE_SIZE);
     private final BiMap<View, Integer> trackViewsByPosition = HashBiMap.create(EXPECTED_TRACKVIEW_COUNT);
 
     @Inject
@@ -129,10 +130,10 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     }
 
     public Observable<Track> getTrackObservable(long id) {
-        Observable<Track> trackSubject = trackObservableCache.get(id);
+        ReplaySubject<Track> trackSubject = trackObservableCache.get(id);
         if (trackSubject == null) {
             trackSubject = ReplaySubject.create();
-            trackOperations.loadTrack(id, AndroidSchedulers.mainThread()).subscribe((ReplaySubject<Track>) trackSubject);
+            trackOperations.loadTrack(id, AndroidSchedulers.mainThread()).subscribe(trackSubject);
             trackObservableCache.put(id, trackSubject);
         }
         return trackSubject;
