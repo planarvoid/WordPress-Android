@@ -10,15 +10,15 @@
         <ImageView
                 android:id="@+id/status_icon"
                 android:scaleType="center"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:src="@drawable/ic_notification_cloud"/>
         <ImageView
                 android:id="@+id/icon"
                 android:layout_gravity="left"
                 android:scaleType="fitXY"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"/>
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
     </FrameLayout>
     <LinearLayout
             android:layout_width="0dp"
@@ -49,24 +49,23 @@
             android:layout_weight="1.5"
             android:layout_gravity="center_vertical"
             android:layout_width="0dp"
-            android:background="@null"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:background="?android:selectableItemBackground"
             android:src="@drawable/notifications_pause"/>
     <ImageButton
+            android:id="@+id/next"
             android:layout_weight="1.5"
             android:layout_gravity="center_vertical"
             android:layout_width="0dp"
-            android:background="@null"
-            android:id="@+id/next"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:background="?android:selectableItemBackground"
             android:src="@drawable/notifications_next"/>
     <ImageButton
+            android:id="@+id/close"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1.5"
             android:layout_gravity="center_vertical"
-            android:layout_marginRight="5dp"
-            android:layout_width="0dp"
-            android:background="@null"
-            android:id="@+id/close"
-            android:layout_height="wrap_content"
+            android:background="?android:selectableItemBackground"
             android:src="@drawable/notification_close"/>
 </LinearLayout>
