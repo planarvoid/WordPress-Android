@@ -179,40 +179,20 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void pageCreatedInFullScreenModeHasFooterControlsHidden() {
-        presenter.setExpandedMode(true);
-        trackView = presenter.createTrackPage(container);
+    public void setExpandedShouldHideFooterControl() {
+        presenter.setExpanded(trackView, true);
         expect(getHolder(trackView).footer.getVisibility()).toEqual(View.GONE);
     }
 
     @Test
-    public void pageCreatedInFooterModeHasVisibleFooterControls() {
-        presenter.setExpandedMode(false);
-        trackView = presenter.createTrackPage(container);
-        expect(getHolder(trackView).footer.getVisibility()).toEqual(View.VISIBLE);
-    }
-
-    @Test
-    public void settingFooterModeUpdatesFooterControlVisibility() {
-        presenter.setExpandedMode(true);
-        trackView = presenter.createTrackPage(container);
-        TrackPageHolder holder = getHolder(trackView);
-        expect(holder.footer.getVisibility()).toEqual(View.GONE);
-
+    public void setCollapsedShouldShowFooterControl() {
         presenter.setCollapsed(trackView);
-
-        expect(holder.footer.getVisibility()).toEqual(View.VISIBLE);
+        expect(getHolder(trackView).footer.getVisibility()).toEqual(View.VISIBLE);
     }
 
     @Test
     public void createTrackPageSetsArtworkAsScrubListenerOnWaveformController() {
         verify(waveformViewController).addScrubListener(artworkController);
-    }
-
-    @Test
-    public void populateTrackViewSetsProgressOnWaveformController() throws CreateModelException {
-        populateTrackPage();
-        verify(waveformViewController).setProgress(playbackProgress);
     }
 
     @Test
@@ -222,27 +202,9 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void resetProgressResetsProgressOnWaveformController() throws CreateModelException {
-        presenter.resetProgress(trackView);
-        verify(waveformViewController).setProgress(eq(PlaybackProgress.empty()));
-    }
-
-    @Test
-    public void populateTrackViewSetsProgressOnArtwork() throws CreateModelException {
-        populateTrackPage();
-        verify(artworkController).setProgress(playbackProgress);
-    }
-
-    @Test
     public void setProgressSetsProgressOnArtworkController() throws CreateModelException {
         presenter.setProgress(trackView, playbackProgress);
         verify(artworkController).setProgress(playbackProgress);
-    }
-
-    @Test
-    public void resetProgressResetsProgressOnArtworkController() throws CreateModelException {
-        presenter.resetProgress(trackView);
-        verify(artworkController).setProgress(eq(PlaybackProgress.empty()));
     }
 
     @Test
@@ -318,7 +280,7 @@ public class TrackPagePresenterTest {
     }
 
     private void populateTrackPage() throws CreateModelException {
-        presenter.populateTrackPage(trackView, buildPlayerTrack(), playbackProgress);
+        presenter.populateTrackPage(trackView, buildPlayerTrack());
     }
 
     private PlayerTrack buildPlayerTrack() {

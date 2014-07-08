@@ -93,6 +93,10 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
             leftProgressController.setPlaybackProgress(progress);
             rightProgressController.setPlaybackProgress(progress);
             dragProgressController.setPlaybackProgress(progress);
+
+            if (!playSessionIsActive){
+                waveformView.showIdleLinesAtWaveformPositions();
+            }
         }
     }
 
@@ -125,6 +129,12 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         if (adjustedWidth > 0) {
             createWaveforms(waveformResultObservable);
         }
+    }
+
+    public void reset() {
+        waveformSubscription.unsubscribe(); // Matthias, help test this
+        waveformResultObservable = null;
+        waveformView.showLoading();
     }
 
     public void showPlayingState(PlaybackProgress progress) {

@@ -1,11 +1,13 @@
 package com.soundcloud.android.playback.ui.view;
 
+import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.ui.progress.ProgressController.ProgressAnimationControllerFactory;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.ScrubControllerFactory;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,6 +20,7 @@ import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.android.waveform.WaveformResult;
@@ -28,6 +31,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 import rx.Scheduler;
+import rx.Subscription;
 import rx.schedulers.Schedulers;
 
 import android.annotation.TargetApi;
@@ -179,6 +183,19 @@ public class WaveformViewControllerTest {
     }
 
     @Test
+    public void setProgressCallsShowIdleLinesAtWaveformPositionWhenPlaystateNotActive() {
+        waveformViewController.setProgress(playbackProgress);
+        verify(waveformView).showIdleLinesAtWaveformPositions();
+    }
+
+    @Test
+    public void setProgressDoesNotCallShowIdleLinesAtWaveformPositionWhenPlaystateActive() {
+        waveformViewController.showBufferingState();
+        waveformViewController.setProgress(playbackProgress);
+        verify(waveformView, never()).showIdleLinesAtWaveformPositions();
+    }
+
+    @Test
     public void setProgressDoesNotSetProgressOnAnimationControllersIfScrubbing() {
         waveformViewController.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
         waveformViewController.setProgress(playbackProgress);
@@ -238,6 +255,24 @@ public class WaveformViewControllerTest {
     }
 
     @Test
+    public void resetRemovesReferenceToPreviousObservable() {
+        TestObservables.MockObservable<WaveformResult> waveformResultObservable = TestObservables.emptyObservable();
+        waveformViewController.displayWaveform(waveformResultObservable);
+
+        waveformViewController.reset();
+        waveformViewController.onWaveformViewWidthChanged(500);
+
+        expect(waveformResultObservable.subscribedTo()).toBeFalse();
+    }
+
+    @Test
+    public void resetCallsShowLoadingOnWaveformView() {
+        waveformViewController.reset();
+
+        verify(waveformView, times(2)).showLoading(); // once in the constructor
+    }
+
+    @Test
     public void onWaveformWidthWithWaveformResultSetsWaveformOnWaveformView() {
         waveformViewController.displayWaveform(Observable.just(waveformResult));
 
@@ -261,7 +296,7 @@ public class WaveformViewControllerTest {
 
     @Test
     public void addScrubListenerAddsScrubListenerToController() {
-        final ScrubController.OnScrubListener listener = Mockito.mock(ScrubController.OnScrubListener.class);
+        final ScrubController.OnScrubListener listener = mock(ScrubController.OnScrubListener.class);
         waveformViewController.addScrubListener(listener);
         verify(scrubController).addScrubListener(listener);
     }

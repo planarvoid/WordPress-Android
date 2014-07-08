@@ -195,7 +195,7 @@ public class WaveformView extends FrameLayout {
         showIdleLinesAtWaveformPositions();
     }
 
-    private void showIdleLinesAtWaveformPositions() {
+    void showIdleLinesAtWaveformPositions() {
         ViewHelper.setTranslationX(leftLine, ViewHelper.getTranslationX(leftWaveform));
         ViewHelper.setTranslationX(rightLine, ViewHelper.getTranslationX(rightWaveform));
         leftLine.setVisibility(View.VISIBLE);

@@ -51,4 +51,9 @@ public class PlayQueueEvent {
     public TrackUrn getCurrentTrackUrn() {
         return currentTrackUrn;
     }
+
+    public boolean isContentChange() {
+        return kind == NEW_QUEUE || kind == QUEUE_UPDATE;
+    }
+
 }
