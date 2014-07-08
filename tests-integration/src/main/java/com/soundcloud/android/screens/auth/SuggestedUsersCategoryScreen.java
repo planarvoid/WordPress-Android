@@ -37,7 +37,7 @@ public class SuggestedUsersCategoryScreen extends Screen {
         if (gridViewCompat == null) {
             throw new RuntimeException("No Gridview present when trying to follow random user");
         }
-        ViewGroup viewGroup = (ViewGroup) gridViewCompat.getChildAt((int) (Math.random() * gridViewCompat.getChildCount()));
+        ViewGroup viewGroup = (ViewGroup) gridViewCompat.getChildAt((int) (Math.random() * gridViewCompat.getChildCount() -1));
         TextView textView = (TextView) viewGroup.findViewById(R.id.username);
         testDriver.wrap(textView).click();
         return textView.getText().toString();
