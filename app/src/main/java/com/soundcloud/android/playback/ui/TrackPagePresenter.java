@@ -3,17 +3,15 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import static com.soundcloud.android.playback.ui.PlayerArtworkController.PlayerArtworkControllerFactory;
 
-import com.soundcloud.android.playback.ui.progress.ScrubController;
-import com.soundcloud.android.playback.ui.view.WaveformViewControllerFactory;
-
 import com.soundcloud.android.R;
-import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
+import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.playback.ui.view.WaveformViewControllerFactory;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
 
@@ -96,13 +94,13 @@ class TrackPagePresenter implements View.OnClickListener {
         return trackView;
     }
 
-    void populateTrackPage(View trackView, Track track, PlaybackProgress playbackProgress) {
+    void populateTrackPage(View trackView, PlayerTrack track, PlaybackProgress playbackProgress) {
         final TrackPageHolder holder = getViewHolder(trackView);
         holder.user.setText(track.getUserName());
         holder.title.setText(track.getTitle());
         imageOperations.displayInVisualPlayer(track.getUrn(), ApiImageSize.getFullImageSize(resources),
                 holder.artworkController.getImageView(), holder.artworkController.getImageListener());
-        holder.waveformController.displayWaveform(waveformOperations.waveformDataFor(track));
+        holder.waveformController.displayWaveform(waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()));
 
         holder.footerUser.setText(track.getUserName());
         holder.footerTitle.setText(track.getTitle());

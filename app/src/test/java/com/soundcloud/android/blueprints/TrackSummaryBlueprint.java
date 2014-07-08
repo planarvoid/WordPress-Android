@@ -37,4 +37,7 @@ public class TrackSummaryBlueprint {
     @Default(force = true)
     int duration = 12345;
 
+    @Default
+    String waveformUrl = "http://waveform.url";
+
 }

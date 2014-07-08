@@ -1,6 +1,5 @@
 package com.soundcloud.android.waveform;
 
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.WaveformData;
 import rx.Observable;
@@ -24,13 +23,12 @@ public class WaveformOperations {
         this.waveformFetcher = waveformFetcher;
     }
 
-    public Observable<WaveformResult> waveformDataFor(final Track track){
-        final TrackUrn trackUrn = track.getUrn();
+    public Observable<WaveformResult> waveformDataFor(final TrackUrn trackUrn, final String waveformUrl) {
         final WaveformData cachedWaveform = waveformCache.get(trackUrn);
         if (cachedWaveform != null){
             return Observable.just(WaveformResult.fromCache(cachedWaveform));
         } else {
-            return waveformFetcher.fetch(track.getWaveformUrl()).doOnNext(new Action1<WaveformData>() {
+            return waveformFetcher.fetch(waveformUrl).doOnNext(new Action1<WaveformData>() {
                 @Override
                 public void call(WaveformData waveformData) {
                     waveformCache.put(trackUrn, waveformData);

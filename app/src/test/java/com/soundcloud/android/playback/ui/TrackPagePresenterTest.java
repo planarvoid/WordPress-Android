@@ -10,15 +10,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.TrackProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.playback.ui.view.WaveformViewControllerFactory;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.waveform.WaveformOperations;
+import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -42,8 +44,6 @@ public class TrackPagePresenterTest {
     private WaveformOperations waveformOperations;
     @Mock
     private TrackPageListener listener;
-    @Mock
-    private Track track;
     @Mock
     private ViewGroup container;
     @Mock
@@ -318,7 +318,16 @@ public class TrackPagePresenterTest {
     }
 
     private void populateTrackPage() throws CreateModelException {
-        presenter.populateTrackPage(trackView, TestHelper.getModelFactory().createModel(Track.class), playbackProgress);
+        presenter.populateTrackPage(trackView, buildPlayerTrack(), playbackProgress);
     }
 
+    private PlayerTrack buildPlayerTrack() {
+        return new PlayerTrack(PropertySet.from(
+                TrackProperty.URN.bind(Urn.forTrack(123L)),
+                TrackProperty.WAVEFORM_URL.bind("http://waveform.url"),
+                PlayableProperty.TITLE.bind("someone's favorite song"),
+                PlayableProperty.CREATOR_NAME.bind("someone's favorite band"),
+                PlayableProperty.DURATION.bind(123456)
+        ));
+    }
 }

@@ -39,8 +39,9 @@ public class DatabaseHelper {
         cv.put(TableColumns.Sounds.TITLE, track.getTitle());
         cv.put(TableColumns.Sounds._TYPE, Playable.DB_TYPE_TRACK);
         cv.put(TableColumns.Sounds.USER_ID, track.getUser().getId());
-        cv.put(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount());
         cv.put(TableColumns.Sounds.DURATION, track.getDuration());
+        cv.put(TableColumns.Sounds.WAVEFORM_URL, track.getWaveformUrl());
+        cv.put(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount());
         cv.put(TableColumns.Sounds.PLAYBACK_COUNT, track.getStats().getPlaybackCount());
 
         final long id = insertInto(Table.SOUNDS, cv);

@@ -99,12 +99,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return playQueue.getItems().size();
     }
 
-    public long getIdAtPosition(int position) {
-        return playQueue.getItems().get(position).getTrackId();
-    }
-
     public TrackUrn getUrnAtPosition(int position) {
-        return TrackUrn.forTrack(getIdAtPosition(position));
+        return TrackUrn.forTrack(playQueue.getItems().get(position).getTrackId());
     }
 
     public PlaybackProgressInfo getPlayProgressInfo() {

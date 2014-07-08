@@ -53,41 +53,41 @@ public class WaveformOperationsTest {
     @Test
     public void emitsWaveformDataInResultFromWaveformFetcher() throws Exception {
         when(waveformFetcher.fetch(waveformUrl)).thenReturn(Observable.just(waveformData));
-        final WaveformResult actual = waveformOperations.waveformDataFor(track).toBlockingObservable().lastOrDefault(null);
+        final WaveformResult actual = waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()).toBlockingObservable().lastOrDefault(null);
         expect(actual.getWaveformData()).toBe(waveformData);
     }
 
     @Test
     public void emitsWaveformResultWithIsFromCacheFalseFromWaveformFetcher() throws Exception {
         when(waveformFetcher.fetch(waveformUrl)).thenReturn(Observable.just(waveformData));
-        final WaveformResult actual = waveformOperations.waveformDataFor(track).toBlockingObservable().lastOrDefault(null);
+        final WaveformResult actual = waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()).toBlockingObservable().lastOrDefault(null);
         expect(actual.isFromCache()).toBeFalse();
     }
 
     @Test
     public void emitsWaveformDataFromCacheOnConsecutiveFetch() throws Exception {
         when(waveformFetcher.fetch(waveformUrl)).thenReturn(Observable.just(waveformData));
-        waveformOperations.waveformDataFor(track).subscribe(observer);
+        waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()).subscribe(observer);
 
-        waveformOperations.waveformDataFor(track).toBlockingObservable().lastOrDefault(null);
+        waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()).toBlockingObservable().lastOrDefault(null);
         verify(waveformFetcher).fetch(waveformUrl); // only happens once, second time is cached
     }
 
     @Test
     public void emitsWaveformResultWithWaveformDataFromCacheOnConsecutiveFetch() throws Exception {
         when(waveformFetcher.fetch(waveformUrl)).thenReturn(Observable.just(waveformData));
-        waveformOperations.waveformDataFor(track).subscribe(observer);
+        waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()).subscribe(observer);
 
-        final WaveformResult actual = waveformOperations.waveformDataFor(track).toBlockingObservable().lastOrDefault(null);
+        final WaveformResult actual = waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()).toBlockingObservable().lastOrDefault(null);
         expect(actual.getWaveformData()).toBe(waveformData);
     }
 
     @Test
     public void emitsWaveformResultWithIsFromCacheTrueOnConsecutiveFetch() throws Exception {
         when(waveformFetcher.fetch(waveformUrl)).thenReturn(Observable.just(waveformData));
-        waveformOperations.waveformDataFor(track).subscribe(observer);
+        waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()).subscribe(observer);
 
-        final WaveformResult actual = waveformOperations.waveformDataFor(track).toBlockingObservable().lastOrDefault(null);
+        final WaveformResult actual = waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()).toBlockingObservable().lastOrDefault(null);
         expect(actual.isFromCache()).toBeTrue();
     }
 
@@ -96,7 +96,7 @@ public class WaveformOperationsTest {
         when(waveformFetcher.fetch(waveformUrl)).thenReturn(Observable.<WaveformData>error(new IOException("WaveformError")));
         when(waveformFetcher.fetchDefault()).thenReturn(Observable.just(waveformData));
 
-        final WaveformResult actual = waveformOperations.waveformDataFor(track).toBlockingObservable().lastOrDefault(null);
+        final WaveformResult actual = waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()).toBlockingObservable().lastOrDefault(null);
         expect(actual.getWaveformData()).toBe(waveformData);
     }
 
@@ -105,7 +105,7 @@ public class WaveformOperationsTest {
         when(waveformFetcher.fetch(waveformUrl)).thenReturn(Observable.<WaveformData>error(new IOException("WaveformError")));
         when(waveformFetcher.fetchDefault()).thenReturn(Observable.just(waveformData));
 
-        final WaveformResult actual = waveformOperations.waveformDataFor(track).toBlockingObservable().lastOrDefault(null);
+        final WaveformResult actual = waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()).toBlockingObservable().lastOrDefault(null);
         expect(actual.isFromCache()).toBeFalse();
     }
 

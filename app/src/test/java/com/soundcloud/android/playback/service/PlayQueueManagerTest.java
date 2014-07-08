@@ -123,10 +123,10 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void getIdAtPositionReturnsIdFromPlayQueueItem() {
+    public void getUrnAtPositionReturnsTrackUrnForPlayQueueItem() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 0, playSessionSource), playSessionSource);
 
-        expect(playQueueManager.getIdAtPosition(2)).toBe(3L);
+        expect(playQueueManager.getUrnAtPosition(2)).toEqual(Urn.forTrack(3L));
     }
 
     @Test

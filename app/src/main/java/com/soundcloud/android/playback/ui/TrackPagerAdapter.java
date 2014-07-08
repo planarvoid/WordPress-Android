@@ -4,18 +4,19 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.LegacyTrackOperations;
+import com.soundcloud.android.track.TrackOperations;
 import com.soundcloud.android.view.RecyclingPager.RecyclingPagerAdapter;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.subjects.ReplaySubject;
 
 import android.support.v4.util.LruCache;
@@ -32,16 +33,22 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     private final PlayQueueManager playQueueManager;
     private final PlaySessionController playSessionController;
-    private final LegacyTrackOperations trackOperations;
+    private final TrackOperations trackOperations;
     private final TrackPagePresenter trackPagePresenter;
 
-    private final LruCache<Long, ReplaySubject<Track>> trackObservableCache =
-            new LruCache<Long, ReplaySubject<Track>>(TRACK_CACHE_SIZE);
+    private final LruCache<TrackUrn, ReplaySubject<PlayerTrack>> trackObservableCache =
+            new LruCache<TrackUrn, ReplaySubject<PlayerTrack>>(TRACK_CACHE_SIZE);
     private final BiMap<View, Integer> trackViewsByPosition = HashBiMap.create(EXPECTED_TRACKVIEW_COUNT);
+    private final Func1<PropertySet, PlayerTrack> toPlayerTrack = new Func1<PropertySet, PlayerTrack>() {
+        @Override
+        public PlayerTrack call(PropertySet source) {
+            return new PlayerTrack(source);
+        }
+    };
 
     @Inject
     TrackPagerAdapter(PlayQueueManager playQueueManager, PlaySessionController playSessionController,
-                      LegacyTrackOperations trackOperations, TrackPagePresenter trackPagePresenter) {
+                      TrackOperations trackOperations, TrackPagePresenter trackPagePresenter) {
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.trackPagePresenter = trackPagePresenter;
@@ -65,7 +72,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
                 : convertView;
 
         trackViewsByPosition.forcePut(contentView, position); // forcePut to remove existing entry
-        loadPlayerItem(playQueueManager.getIdAtPosition(position));
+        loadPlayerItem(playQueueManager.getUrnAtPosition(position));
         return contentView;
     }
 
@@ -125,16 +132,16 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         }
     }
 
-    private void loadPlayerItem(long id) {
-        getTrackObservable(id).subscribe(new TrackSubscriber(id));
+    private void loadPlayerItem(TrackUrn urn) {
+        getTrackObservable(urn).subscribe(new TrackSubscriber(urn));
     }
 
-    public Observable<Track> getTrackObservable(long id) {
-        ReplaySubject<Track> trackSubject = trackObservableCache.get(id);
+    public Observable<PlayerTrack> getTrackObservable(TrackUrn urn) {
+        ReplaySubject<PlayerTrack> trackSubject = trackObservableCache.get(urn);
         if (trackSubject == null) {
             trackSubject = ReplaySubject.create();
-            trackOperations.loadTrack(id, AndroidSchedulers.mainThread()).subscribe(trackSubject);
-            trackObservableCache.put(id, trackSubject);
+            trackOperations.track(urn).map(toPlayerTrack).observeOn(AndroidSchedulers.mainThread()).subscribe(trackSubject);
+            trackObservableCache.put(urn, trackSubject);
         }
         return trackSubject;
     }
@@ -150,27 +157,26 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     }
 
     @Nullable
-    private View getViewForTrackId(long trackId) {
+    private View getViewForTrackUrn(TrackUrn trackUrn) {
         for (View trackView : trackViewsByPosition.keySet()) {
             final Integer position = trackViewsByPosition.get(trackView);
-            final long idOfQueueView = playQueueManager.getIdAtPosition(position);
-            if (trackId == idOfQueueView) {
+            if (trackUrn.equals(playQueueManager.getUrnAtPosition(position))) {
                 return trackView;
             }
         }
         return null;
     }
 
-    private class TrackSubscriber extends DefaultSubscriber<Track> {
-        private final long trackId;
+    private class TrackSubscriber extends DefaultSubscriber<PlayerTrack> {
+        private final TrackUrn trackUrn;
 
-        private TrackSubscriber(long trackId) {
-            this.trackId = trackId;
+        private TrackSubscriber(TrackUrn trackUrn) {
+            this.trackUrn = trackUrn;
         }
 
         @Override
-        public void onNext(Track track) {
-            final View trackView = getViewForTrackId(trackId);
+        public void onNext(PlayerTrack track) {
+            final View trackView = getViewForTrackUrn(trackUrn);
             if (trackView != null) {
                 final PlaybackProgress currentProgress = playSessionController.getCurrentProgress(track.getUrn());
                 trackPagePresenter.populateTrackPage(trackView, track, currentProgress);
