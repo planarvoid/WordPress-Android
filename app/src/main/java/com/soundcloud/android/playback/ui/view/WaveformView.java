@@ -179,6 +179,9 @@ public class WaveformView extends FrameLayout {
     }
 
     private void hideIdleLines() {
+        // clear animations do clear transformation logic from nine-old-androids on pre HC
+        leftLine.clearAnimation();
+        rightLine.clearAnimation();
         leftLine.setVisibility(View.GONE);
         rightLine.setVisibility(View.GONE);
     }
@@ -191,8 +194,6 @@ public class WaveformView extends FrameLayout {
 
         rightWaveformScaler = createScaleDownAnimator(rightWaveform);
         rightWaveformScaler.start();
-
-        showIdleLinesAtWaveformPositions();
     }
 
     void showIdleLinesAtWaveformPositions() {

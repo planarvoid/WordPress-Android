@@ -118,7 +118,8 @@ public class ProgressControllerTest {
         controller.startProgressAnimation(progress);
 
         when(progress.getProgressProportion()).thenReturn(.3f);
-        when(progressAnimator.getDifferenceFromCurrentValue(AdditionalMatchers.eq(.3f, FLOAT_DELTA))).thenReturn(2f);
+        when(helper.getValueFromProportion(AdditionalMatchers.eq(.3f, FLOAT_DELTA))).thenReturn(100f);
+        when(progressAnimator.getDifferenceFromCurrentValue(AdditionalMatchers.eq(100f, FLOAT_DELTA))).thenReturn(2f);
         final ProgressAnimator secondAnimator = Mockito.mock(TranslateXAnimator.class);
         when(helper.createAnimator(same(progressView), AdditionalMatchers.eq(.3f, FLOAT_DELTA)))
                 .thenReturn(secondAnimator);
@@ -133,7 +134,8 @@ public class ProgressControllerTest {
         when(progressAnimator.isRunning()).thenReturn(true);
         controller.startProgressAnimation(progress);
 
-        when(progressAnimator.getDifferenceFromCurrentValue(AdditionalMatchers.eq(.3f, FLOAT_DELTA))).thenReturn(2f);
+        when(helper.getValueFromProportion(AdditionalMatchers.eq(.3f, FLOAT_DELTA))).thenReturn(100f);
+        when(progressAnimator.getDifferenceFromCurrentValue(AdditionalMatchers.eq(100f, FLOAT_DELTA))).thenReturn(2f);
         when(progress.getProgressProportion()).thenReturn(.3f);
         when(helper.createAnimator(same(progressView), AdditionalMatchers.eq(.3f, FLOAT_DELTA)))
                 .thenReturn(Mockito.mock(TranslateXAnimator.class));

@@ -59,8 +59,8 @@ public class ProgressController {
         this.playbackProgress = playbackProgress;
         final float progressProportion = playbackProgress.getProgressProportion();
         if (hasRunningAnimation()) {
-            final float difference = progressAnimator.getDifferenceFromCurrentValue(progressProportion);
-            if (difference > PROGRESS_SYNC_TOLERANCE) {
+            final float expectedValue = helper.getValueFromProportion(progressProportion);
+            if (progressAnimator.getDifferenceFromCurrentValue(expectedValue) > PROGRESS_SYNC_TOLERANCE) {
                 restartAnimation();
             }
         } else {

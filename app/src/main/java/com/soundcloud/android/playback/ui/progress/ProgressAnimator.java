@@ -37,7 +37,6 @@ public abstract class ProgressAnimator {
 
     public void cancel() {
         wrappedAnimator.cancel();
-        progressView.clearAnimation();
     }
 
     public boolean isRunning() {

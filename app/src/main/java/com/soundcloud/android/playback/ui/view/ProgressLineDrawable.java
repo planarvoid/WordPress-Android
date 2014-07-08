@@ -22,7 +22,7 @@ public class ProgressLineDrawable extends Drawable {
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawRect(0, baseline, canvas.getWidth(), baseline + thickness, paint);
+        canvas.drawRect(getBounds().left, baseline, getBounds().right, baseline + thickness, paint);
     }
 
     @Override

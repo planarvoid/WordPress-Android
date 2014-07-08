@@ -13,8 +13,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.model.WaveformData;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
@@ -27,11 +27,11 @@ import com.soundcloud.android.waveform.WaveformResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscription;
 import rx.schedulers.Schedulers;
 
 import android.annotation.TargetApi;
@@ -160,7 +160,23 @@ public class WaveformViewControllerTest {
     }
 
     @Test
-    public void showIdleStateCancelsProgressAnimations() {
+    public void showIdleStateCancelsProgressAnimationsAfterShowingIdleLines() {
+        waveformViewController.showIdleState();
+
+        InOrder leftInOrder = Mockito.inOrder(waveformView, leftAnimationController);
+        InOrder rightInOrder = Mockito.inOrder(waveformView, rightAnimationController);
+
+        leftInOrder.verify(waveformView).showIdleLinesAtWaveformPositions();
+        leftInOrder.verify(leftAnimationController).cancelProgressAnimation();
+
+        rightInOrder.verify(waveformView).showIdleLinesAtWaveformPositions();
+        rightInOrder.verify(rightAnimationController).cancelProgressAnimation();
+
+        verify(dragAnimationController).cancelProgressAnimation();
+    }
+
+    @Test
+    public void showIdleStateShowsWaveformsAtPositions() {
         waveformViewController.showIdleState();
         verify(leftAnimationController).cancelProgressAnimation();
         verify(rightAnimationController).cancelProgressAnimation();

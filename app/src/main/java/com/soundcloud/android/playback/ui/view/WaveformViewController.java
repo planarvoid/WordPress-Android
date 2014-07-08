@@ -153,6 +153,8 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     public void showIdleState() {
         playSessionIsActive = false;
+        // must happen in order to retain translation values for nine-old-androids on pre-honeycomb
+        waveformView.showIdleLinesAtWaveformPositions();
         waveformView.showCollapsedWaveform();
         cancelProgressAnimations();
     }
