@@ -108,12 +108,12 @@ public class VisualPlayerElement extends Element implements PlayerElement {
 
     @Override
     public void swipeNext() {
-        solo.swipeLeft(.7f);
+        solo.swipeLeft(0.4f);
         waiter.waitForPlayerPage();
     }
 
     public void swipePrevious() {
-        solo.swipeRight(.7f);
+        solo.swipeRight(0.4f);
         waiter.waitForPlayerPage();
     }
 
