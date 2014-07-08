@@ -5,7 +5,6 @@ import static com.soundcloud.android.playback.service.PlayQueueManager.FetchReco
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +36,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return new PlayQueueView(getTrackIds(), position, fetchState);
     }
 
-    public List<PlayQueueItem> getItems() {
+    List<PlayQueueItem> getItems() {
         return playQueueItems;
     }
 

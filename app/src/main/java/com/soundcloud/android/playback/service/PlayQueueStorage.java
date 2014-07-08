@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.service;
 
-import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.BulkInsertResult;

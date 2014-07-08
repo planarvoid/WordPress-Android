@@ -1,8 +1,8 @@
-package com.soundcloud.android.model;
+package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Objects;
 
-public class PlayQueueItem {
+class PlayQueueItem {
 
     private final long trackId;
     private final String source;

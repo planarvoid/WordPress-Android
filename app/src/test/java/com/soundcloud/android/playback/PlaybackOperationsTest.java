@@ -1,4 +1,4 @@
-package com.soundcloud.android.utils;
+package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
@@ -7,13 +7,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
@@ -28,8 +26,8 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -45,7 +43,6 @@ import rx.Observable;
 import android.content.Intent;
 import android.net.Uri;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -358,14 +355,13 @@ public class PlaybackOperationsTest {
 
         verify(playQueueManager).setNewPlayQueue(playQueueCaptor.capture(), eq(playSessionSource));
 
-        final PlayQueue value = playQueueCaptor.getValue();
-        expect(Lists.transform(value.getItems(), new Function<PlayQueueItem, Long>() {
-            @Nullable
-            @Override
-            public Long apply(@Nullable PlayQueueItem input) {
-                return input.getTrackId();
-            }
-        })).toContainExactlyInAnyOrder(1L, 2L, 3L);
+        final PlayQueue playQueue = playQueueCaptor.getValue();
+        expect(playQueue.size()).toEqual(3);
+        List<Long> shuffledIds = new ArrayList<Long>(3);
+        do {
+            shuffledIds.add(playQueue.getCurrentTrackId());
+        } while (playQueue.moveToNext(true));
+        expect(shuffledIds).toContainExactlyInAnyOrder(1L, 2L, 3L);
     }
 
     @Test

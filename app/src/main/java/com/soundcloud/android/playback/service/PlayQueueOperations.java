@@ -9,7 +9,6 @@ import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
-import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.RecommendedTracksCollection;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.Urn;

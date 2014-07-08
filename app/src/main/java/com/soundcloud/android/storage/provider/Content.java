@@ -8,7 +8,6 @@ import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTyp
 import com.soundcloud.android.api.TempEndpoints;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;

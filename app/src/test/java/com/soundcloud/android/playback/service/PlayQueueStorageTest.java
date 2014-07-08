@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.StorageIntegrationTest;
 import com.soundcloud.android.storage.Table;
@@ -14,6 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import rx.observers.TestObserver;
+
+import android.content.ContentValues;
 
 import java.util.Arrays;
 
@@ -29,7 +30,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldInsertPlayQueueAndReplaceExistingItems() {
-        testHelper().insertPlayQueueItem(new PlayQueueItem(1L, "existing", "existing_version"));
+        insertPlayQueueItem(new PlayQueueItem(1L, "existing", "existing_version"));
         expect(count(Table.PLAY_QUEUE.name)).toBe(1);
 
         TestObserver<BulkInsertResult> observer = new TestObserver<BulkInsertResult>();
@@ -57,7 +58,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldDeleteAllPlayQueueItems() {
         TestObserver<ChangeResult> observer = new TestObserver<ChangeResult>();
-        testHelper().insertPlayQueueItem(new PlayQueueItem(123L, "source", "source_version"));
+        insertPlayQueueItem(new PlayQueueItem(123L, "source", "source_version"));
         expect(count(Table.PLAY_QUEUE.name)).toBe(1);
 
         storage.clearAsync().subscribe(observer);
@@ -71,7 +72,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     public void shouldLoadAllPlayQueueItems() {
         TestObserver<PlayQueueItem> observer = new TestObserver<PlayQueueItem>();
         final PlayQueueItem expectedItem = new PlayQueueItem(123L, "source", "source_version");
-        testHelper().insertPlayQueueItem(expectedItem);
+        insertPlayQueueItem(expectedItem);
         expect(count(Table.PLAY_QUEUE.name)).toBe(1);
 
         storage.loadAsync().subscribe(observer);
@@ -79,5 +80,13 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         expect(observer.getOnNextEvents()).toNumber(1);
         PlayQueueItem item = observer.getOnNextEvents().get(0);
         expect(item).toEqual(expectedItem);
+    }
+
+    private long insertPlayQueueItem(PlayQueueItem playQueueItem) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.PlayQueue.TRACK_ID, playQueueItem.getTrackId());
+        cv.put(TableColumns.PlayQueue.SOURCE, playQueueItem.getSource());
+        cv.put(TableColumns.PlayQueue.SOURCE_VERSION, playQueueItem.getSourceVersion());
+        return testHelper().insertInto(Table.PLAY_QUEUE, cv);
     }
 }
