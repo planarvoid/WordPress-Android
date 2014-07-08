@@ -4,14 +4,20 @@ import com.google.common.base.Objects;
 
 public class PlayQueueItem {
 
-    private long trackId;
-    private String source;
-    private String sourceVersion;
+    private final long trackId;
+    private final String source;
+    private final String sourceVersion;
+    private final boolean isAudioAd;
 
     public PlayQueueItem(long trackId, String source, String sourceVersion) {
+        this(trackId, source, sourceVersion, false);
+    }
+
+    public PlayQueueItem(long trackId, String source, String sourceVersion, boolean isAudioAd) {
         this.trackId = trackId;
         this.source = source;
         this.sourceVersion = sourceVersion;
+        this.isAudioAd = isAudioAd;
     }
 
     public long getTrackId() {
@@ -24,6 +30,10 @@ public class PlayQueueItem {
 
     public String getSourceVersion() {
         return sourceVersion;
+    }
+
+    public boolean isAudioAd() {
+        return isAudioAd;
     }
 
     @Override

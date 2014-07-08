@@ -527,6 +527,13 @@ public class PlayQueueManagerTest {
         expect(observable.subscribers()).toNumber(2);
     }
 
+    @Test
+    public void shouldReturnTrueOnIsAudioAdForPosition() {
+        when(playQueue.isAudioAd(0)).thenReturn(true);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        expect(playQueueManager.isAudioAdAtPosition(0)).toBeTrue();
+    }
+
     private void expectBroadcastPlayqueueChanged() {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).sendBroadcast(captor.capture());

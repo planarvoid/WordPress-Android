@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -183,7 +184,20 @@ public class PlayQueueTest {
     @Test
     public void returnsNotSetIDWithEmptyQueue() throws Exception {
         expect(PlayQueue.empty().getCurrentTrackId()).toEqual(Long.valueOf(Playable.NOT_SET));
+    }
 
+    @Test
+    public void shouldReturnTrueIfCurrentItemIsAudioAd() {
+        final PlayQueue playQueue = new PlayQueue(Arrays.asList(new PlayQueueItem(2L, "", "", true)), 0);
+
+        expect(playQueue.isAudioAd(0)).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnFalseIfCurrentItemIsNotAudioAd() {
+        final PlayQueue playQueue = new PlayQueue(Arrays.asList(new PlayQueueItem(2L, "", "", false)), 0);
+
+        expect(playQueue.isAudioAd(0)).toBeFalse();
     }
 
     private PlayQueue createPlayQueue(List<Long> idList, int startPosition, PlaySessionSource source) {

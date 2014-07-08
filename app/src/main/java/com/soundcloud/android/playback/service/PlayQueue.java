@@ -136,6 +136,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return playQueueItems.get(position).getSourceVersion();
     }
 
+    boolean isAudioAd(int position) {
+        return playQueueItems.get(position).isAudioAd();
+    }
+
     private List<Long> getTrackIds() {
         List<Long> trackIds = Lists.transform(playQueueItems, new Function<PlayQueueItem, Long>() {
             @Override

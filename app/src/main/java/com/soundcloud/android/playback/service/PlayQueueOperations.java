@@ -38,7 +38,7 @@ public class PlayQueueOperations {
     private final BulkStorage bulkStorage;
     private final RxHttpClient rxHttpClient;
 
-    private final Action1<RecommendedTracksCollection> mCacheRelatedTracks = new Action1<RecommendedTracksCollection>() {
+    private final Action1<RecommendedTracksCollection> cacheRelatedTracks = new Action1<RecommendedTracksCollection>() {
         @Override
         public void call(RecommendedTracksCollection collection) {
             fireAndForget(bulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), TrackSummary.TO_TRACK)));
@@ -115,6 +115,6 @@ public class PlayQueueOperations {
                 .forPrivateAPI(1)
                 .forResource(TypeToken.of(RecommendedTracksCollection.class)).build();
 
-        return rxHttpClient.<RecommendedTracksCollection>fetchModels(request).doOnNext(mCacheRelatedTracks);
+        return rxHttpClient.<RecommendedTracksCollection>fetchModels(request).doOnNext(cacheRelatedTracks);
     }
 }

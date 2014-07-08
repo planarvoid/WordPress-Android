@@ -202,6 +202,10 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return getPlaylistId() == playlistId;
     }
 
+    public boolean isAudioAdAtPosition(int position) {
+        return playQueue.isAudioAd(position);
+    }
+
     @Override
     public String getScreenTag() {
         return playSessionSource.getOriginScreen();
