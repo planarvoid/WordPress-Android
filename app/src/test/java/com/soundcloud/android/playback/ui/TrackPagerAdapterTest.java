@@ -207,7 +207,7 @@ public class TrackPagerAdapterTest {
         getPageView();
         adapter.notifyDataSetChanged();
 
-        expect(adapter.getTrackViewByPosition(3)).toBeNull();
+        expect(adapter.isPositionByViewMapEmpty()).toBeTrue();
     }
 
     private View getPageView() {
