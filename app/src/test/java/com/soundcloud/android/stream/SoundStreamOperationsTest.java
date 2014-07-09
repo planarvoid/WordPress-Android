@@ -28,6 +28,8 @@ import rx.Observable;
 import rx.Observer;
 import rx.android.OperatorPaged;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -41,24 +43,17 @@ public class SoundStreamOperationsTest {
     private SoundStreamOperations operations;
     private UserUrn userUrn = Urn.forUser(123L);
 
-    @Mock
-    private SoundStreamStorage soundStreamStorage;
+    @Mock private SoundStreamStorage soundStreamStorage;
+    @Mock private SyncInitiator syncInitiator;
+    @Mock private AccountOperations accountOperations;
+    @Mock private Observer<Page> observer;
+    @Mock private Context context;
 
-    @Mock
-    private SyncInitiator syncInitiator;
-
-    @Mock
-    private AccountOperations accountOperations;
-
-    @Mock
-    private Observer<Page> observer;
-
-    @Captor
-    private ArgumentCaptor<Page> pageCaptor;
+    @Captor private ArgumentCaptor<Page> pageCaptor;
 
     @Before
     public void setUp() throws Exception {
-        operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, accountOperations);
+        operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, accountOperations, context);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
     }
 

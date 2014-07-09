@@ -48,20 +48,13 @@ public class SoundStreamFragmentTest {
     @InjectMocks
     private SoundStreamFragment fragment;
 
-    @Mock
-    private SoundStreamOperations soundStreamOperations;
-    @Mock
-    private SoundStreamAdapter adapter;
-    @Mock
-    private ListViewController listViewController;
-    @Mock
-    private PullToRefreshController pullToRefreshController;
-    @Mock
-    private PlaybackOperations playbackOperations;
-    @Mock
-    private Subscription subscription;
-    @Mock
-    private EmptyView emptyView;
+    @Mock private SoundStreamOperations soundStreamOperations;
+    @Mock private SoundStreamAdapter adapter;
+    @Mock private ListViewController listViewController;
+    @Mock private PullToRefreshController pullToRefreshController;
+    @Mock private PlaybackOperations playbackOperations;
+    @Mock private Subscription subscription;
+    @Mock private EmptyView emptyView;
 
     @Before
     public void setup() {
@@ -131,6 +124,12 @@ public class SoundStreamFragmentTest {
         fragment.onCreate(null);
         fragment.onDestroy();
         verify(subscription).unsubscribe();
+    }
+
+    @Test
+    public void shouldUpdateLastSeenOnResume() {
+        fragment.onResume();
+        verify(soundStreamOperations).updateLastSeen();
     }
 
     @Test

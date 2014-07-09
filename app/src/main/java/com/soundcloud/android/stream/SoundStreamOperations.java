@@ -8,15 +8,19 @@ import static rx.android.OperatorPaged.pagedWith;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.android.OperatorPaged;
 import rx.functions.Func1;
+
+import android.content.Context;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -33,13 +37,15 @@ class SoundStreamOperations {
     private final SoundStreamStorage soundStreamStorage;
     private final SyncInitiator syncInitiator;
     private final AccountOperations accountOperations;
+    private final Context appContext;
 
     @Inject
     SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
-                          AccountOperations accountOperations) {
+                          AccountOperations accountOperations, Context appContext) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
         this.accountOperations = accountOperations;
+        this.appContext = appContext;
     }
 
     public Observable<Page<List<PropertySet>>> updatedStreamItems() {
@@ -57,6 +63,11 @@ class SoundStreamOperations {
 
     public Observable<TrackUrn> trackUrnsForPlayback() {
         return soundStreamStorage.trackUrns();
+    }
+
+    public void updateLastSeen() {
+        ContentStats.updateCount(appContext, Content.ME_SOUND_STREAM, 0);
+        ContentStats.setLastSeen(appContext, Content.ME_SOUND_STREAM, System.currentTimeMillis());
     }
 
     private Observable<Page<List<PropertySet>>> pagedStreamItems(final Urn userUrn, final long timestamp, boolean syncCompleted) {

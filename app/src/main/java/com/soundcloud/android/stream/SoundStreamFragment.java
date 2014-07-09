@@ -88,6 +88,12 @@ public class SoundStreamFragment extends Fragment
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        soundStreamOperations.updateLastSeen();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.sound_stream_fragment, container, false);
     }
