@@ -59,7 +59,7 @@ public class StatsView extends View {
         likedIcon = r.getDrawable(R.drawable.stats_liked);
         repostsIcon = r.getDrawable(R.drawable.stats_stream_repost);
         repostedIcon = r.getDrawable(R.drawable.stats_stream_repost_done);
-        commentsIcon = r.getDrawable(R.drawable.stats_comments);
+        commentsIcon = r.getDrawable(R.drawable.stats_comments_legacy);
         icons = new Drawable[]{playsIcon, likesIcon, repostsIcon, commentsIcon};
 
         separator = r.getDrawable(R.drawable.stat_divider);
