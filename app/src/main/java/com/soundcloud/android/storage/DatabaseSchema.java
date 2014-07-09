@@ -39,6 +39,7 @@ final class DatabaseSchema {
             "track_count INTEGER DEFAULT -1," +
             "playlist_type VARCHAR(255)," +
             "user_id INTEGER," +
+            "monetizable BOOLEAN DEFAULT 0," +
             "PRIMARY KEY (_id, _type) ON CONFLICT IGNORE" +
             ");";
 
@@ -253,6 +254,7 @@ final class DatabaseSchema {
             ",Sounds." + TableColumns.Sounds.SHARED_TO_COUNT + " as " + TableColumns.SoundView.SHARED_TO_COUNT +
             ",Sounds." + TableColumns.Sounds.TRACKS_URI + " as " + TableColumns.SoundView.TRACKS_URI +
             ",Sounds." + TableColumns.Sounds.TRACK_COUNT + " as " + TableColumns.SoundView.TRACK_COUNT +
+            ",Sounds." + TableColumns.Sounds.MONETIZABLE + " as " + TableColumns.SoundView.MONETIZABLE +
             ",Users." + TableColumns.Users._ID + " as " + TableColumns.SoundView.USER_ID +
             ",Users." + TableColumns.Users.USERNAME + " as " + TableColumns.SoundView.USERNAME +
             ",Users." + TableColumns.Users.PERMALINK + " as " + TableColumns.SoundView.USER_PERMALINK +
