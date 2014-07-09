@@ -27,7 +27,7 @@
 
     <!-- SoundCloud resource plurals -->
     <plurals name="number_of_sounds">
-        <item quantity="one">one track</item>
+        <item quantity="one">1 track</item>
         <item quantity="other">%d tracks</item>
     </plurals>
     <plurals name="number_of_others">

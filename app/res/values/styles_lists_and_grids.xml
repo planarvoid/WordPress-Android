@@ -26,7 +26,7 @@
         <item name="android:antialias">true</item>
     </style>
     <style name="ListItemText.PrimaryText">
-        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginTop">2dp</item>
         <item name="android:layout_marginLeft">12dp</item>
         <item name="android:textColor">@color/list_primary</item>
         <item name="android:ellipsize">end</item>
@@ -45,22 +45,23 @@
         <item name="android:textColor">@color/list_secondary</item>
         <item name="android:textSize">12sp</item>
         <item name="android:gravity">center</item>
-        <item name="android:drawablePadding">5dp</item>
+        <item name="android:drawablePadding">6dp</item>
     </style>
     <style name="ListItemText.Numeric.Stats">
         <item name="android:layout_marginLeft">12dp</item>
-        <item name="android:layout_marginTop">3dp</item>
+        <item name="android:layout_marginTop">6dp</item>
     </style>
-    <style name="ListItemText.ThirdaryText">
+    <style name="ListItemText.TertiaryText">
+        <item name="android:textSize">12sp</item>
         <item name="android:layout_marginLeft">12dp</item>
-        <item name="android:layout_marginTop">3dp</item>
+        <item name="android:layout_marginTop">6dp</item>
     </style>
     <style name="ListItemImage">
         <item name="android:layout_width">60dp</item>
         <item name="android:layout_height">60dp</item>
         <item name="android:layout_marginTop">20dp</item>
     </style>
-    <style name="ListPrivateIndicator" parent="ListItemText.ThirdaryText">
+    <style name="ListPrivateIndicator" parent="ListItemText.TertiaryText">
         <item name="android:drawableLeft">@drawable/stats_private</item>
         <item name="android:drawablePadding">3dp</item>
         <item name="android:background">@drawable/round_rect_orange</item>
