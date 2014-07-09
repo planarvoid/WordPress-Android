@@ -18,7 +18,7 @@
               android:layout_height="wrap_content"
               android:layout_alignParentTop="true"
               android:layout_toRightOf="@id/user_image"
-              android:layout_marginBottom="4dp"
+              android:layout_marginBottom="2dp"
               style="@style/Profile.Text.Primary" />
 
     <com.soundcloud.android.view.CustomFontTextView
@@ -35,8 +35,9 @@
               android:id="@+id/followers"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_below="@id/location"
+              android:layout_alignBottom="@id/user_image"
               android:layout_toRightOf="@id/user_image"
+              android:visibility="gone"
               style="@style/Profile.Text.Followers" />
 
     <ToggleButton
