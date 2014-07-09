@@ -22,6 +22,7 @@ public class TrackSummary extends ScModel {
     private Date            mCreatedAt;
     private String          mArtworkUrl;
     private String          mPermalinkUrl;
+    private boolean         monetizable;
 
     private Sharing         mSharing = Sharing.UNDEFINED;
 
@@ -37,6 +38,7 @@ public class TrackSummary extends ScModel {
             return new Track(input);
         }
     };
+
 
     public TrackSummary() { /* for Deserialization */ }
 
@@ -54,6 +56,7 @@ public class TrackSummary extends ScModel {
         in.readStringList(this.mUserTags);
         this.mCreatedAt = (Date) in.readSerializable();
         this.mPermalinkUrl = in.readString();
+        this.monetizable = in.readByte() != 0;
     }
 
     public TrackSummary(String urn) {
@@ -174,6 +177,11 @@ public class TrackSummary extends ScModel {
         this.mArtworkUrl = mArtworkUrl;
     }
 
+    @JsonProperty("monetizable")
+    public boolean isMonetizable() {
+        return monetizable;
+    }
+
     @JsonProperty("created_at")
     private void setCreatedAt(Date createdAt) {
         this.mCreatedAt = createdAt;
@@ -197,7 +205,7 @@ public class TrackSummary extends ScModel {
         dest.writeString(this.mTitle);
         dest.writeString(this.mGenre);
         dest.writeParcelable(this.mUser, flags);
-        dest.writeByte(mCommentable ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.mCommentable ? (byte) 1 : (byte) 0);
         dest.writeInt(this.mDuration);
         dest.writeString(this.mStreamUrl);
         dest.writeString(this.mWaveformUrl);
@@ -205,6 +213,7 @@ public class TrackSummary extends ScModel {
         dest.writeStringList(this.mUserTags);
         dest.writeSerializable(this.mCreatedAt);
         dest.writeString(this.mPermalinkUrl);
+        dest.writeByte(this.monetizable ? (byte) 1 : (byte) 0);
     }
 
     public static Creator<TrackSummary> CREATOR = new Creator<TrackSummary>() {

@@ -48,6 +48,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
                 PlayableProperty.CREATOR_NAME.bind(track.getUser().getUsername()),
                 TrackProperty.WAVEFORM_URL.bind(track.getWaveformUrl()),
                 TrackProperty.PLAY_COUNT.bind(track.getStats().getPlaybackCount()),
-                PlayableProperty.LIKES_COUNT.bind(track.getStats().getLikesCount()));
+                PlayableProperty.LIKES_COUNT.bind(track.getStats().getLikesCount()),
+                TrackProperty.MONETIZABLE.bind(track.isMonetizable()));
     }
 }

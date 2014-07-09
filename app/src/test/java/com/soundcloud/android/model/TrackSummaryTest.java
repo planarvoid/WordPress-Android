@@ -34,6 +34,7 @@ public class TrackSummaryTest {
         expect(trackSummary.getSharing()).toBe(Sharing.PRIVATE);
         expect(trackSummary.getStats().getPlaybackCount()).toEqual(4901);
         expect(trackSummary.getPermalinkUrl()).toEqual("http://soundcloud.com/asdffdsa");
+        expect(trackSummary.isMonetizable()).toBeTrue();
 
     }
 
@@ -61,6 +62,7 @@ public class TrackSummaryTest {
         expect(track1.getUserTags()).toEqual(track2.getUserTags());
         expect(track1.getCreatedAt()).toEqual(track2.getCreatedAt());
         expect(track1.getPermalinkUrl()).toEqual(track2.getPermalinkUrl());
+        expect(track1.isMonetizable()).toEqual(track2.isMonetizable());
     }
 
 }

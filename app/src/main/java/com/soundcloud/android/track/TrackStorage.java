@@ -40,6 +40,7 @@ public class TrackStorage {
                         TableColumns.SoundView.PLAYBACK_COUNT,
                         TableColumns.SoundView.LIKES_COUNT,
                         TableColumns.SoundView.WAVEFORM_URL,
+                        TableColumns.SoundView.MONETIZABLE,
                         soundAssociationQuery(LIKE, loggedInUserUrn.numericId, TableColumns.SoundView.USER_LIKE),
                         soundAssociationQuery(REPOST, loggedInUserUrn.numericId, TableColumns.SoundView.USER_REPOST)
                 ).whereEq(TableColumns.SoundView._ID, trackUrn.numericId);
@@ -71,6 +72,7 @@ public class TrackStorage {
             propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(TableColumns.SoundView.PLAYBACK_COUNT));
             propertySet.put(TrackProperty.WAVEFORM_URL, cursorReader.getString(TableColumns.SoundView.WAVEFORM_URL));
             propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
+            propertySet.put(TrackProperty.MONETIZABLE, cursorReader.getBoolean(TableColumns.SoundView.MONETIZABLE));
 
             // synced tracks that might not have a user if they haven't been lazily updated yet
             final String creator = cursorReader.getString(TableColumns.SoundView.USERNAME);
