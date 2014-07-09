@@ -5,8 +5,10 @@ import static com.soundcloud.android.playback.service.PlayQueueManager.FetchReco
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -20,7 +22,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     private boolean currentTrackIsUserTriggered;
 
     public static PlayQueue empty() {
-        return new PlayQueue(Collections.<PlayQueueItem>emptyList(), -1);
+        return new PlayQueue(Collections.<PlayQueueItem>emptyList(), Consts.NOT_SET);
     }
 
     public static PlayQueue fromIdList(List<Long> trackIds, int startPosition, PlaySessionSource playSessionSource) {
@@ -97,8 +99,13 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return trackSourceInfo;
     }
 
+    @Deprecated
     public long getCurrentTrackId() {
-        return position < 0 || position >= playQueueItems.size() ? Track.NOT_SET : playQueueItems.get(position).getTrackId();
+        return position < 0 || position >= playQueueItems.size() ? Consts.NOT_SET : playQueueItems.get(position).getTrackId();
+    }
+
+    public TrackUrn getCurrentTrackUrn() {
+        return Urn.forTrack(getCurrentTrackId());
     }
 
     public boolean isEmpty() {

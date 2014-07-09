@@ -430,7 +430,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     /* package */ void play() {
         if (!streamPlayer.isPlaying() && currentTrack != null && audioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
-            if (currentTrack.getId() != playQueueManager.getCurrentTrackId() || !streamPlayer.playbackHasPaused() || !streamPlayer.resume()){
+            if (!(currentTrack.getUrn().equals(playQueueManager.getCurrentTrackUrn()) && streamPlayer.playbackHasPaused() && streamPlayer.resume())) {
                 openCurrent();
             } else {
                 suppressNotifications = false;

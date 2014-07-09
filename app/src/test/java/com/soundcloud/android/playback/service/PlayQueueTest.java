@@ -3,8 +3,9 @@ package com.soundcloud.android.playback.service;
 import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Before;
@@ -181,8 +182,15 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void returnsNotSetIDWithEmptyQueue() throws Exception {
-        expect(PlayQueue.empty().getCurrentTrackId()).toEqual(Long.valueOf(Playable.NOT_SET));
+    public void getCurrentTrackUrnReturnsUrnForCurrentPlayQueueItem() throws Exception {
+        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), 0);
+        playQueue.moveToNext(false);
+        expect(playQueue.getCurrentTrackUrn()).toEqual(Urn.forTrack(2L));
+    }
+
+    @Test
+    public void getCurrentTrackUrnReturnsNotSetUrnWithEmptyQueue() throws Exception {
+        expect(PlayQueue.empty().getCurrentTrackUrn()).toEqual(Urn.forTrack(Consts.NOT_SET));
     }
 
     @Test

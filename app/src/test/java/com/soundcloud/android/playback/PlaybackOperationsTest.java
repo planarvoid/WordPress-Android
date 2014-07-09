@@ -161,7 +161,7 @@ public class PlaybackOperationsTest {
     public void playExploreTrackCallsFetchRelatedTracksOnPlayQueueManager() {
         playbackOperations.playExploreTrack(Robolectric.application, track, EXPLORE_VERSION, ORIGIN_SCREEN.get());
 
-        verify(playQueueManager).fetchRelatedTracks(track.getId());
+        verify(playQueueManager).fetchRelatedTracks(track.getUrn());
     }
 
     @Test
@@ -249,7 +249,6 @@ public class PlaybackOperationsTest {
         final ArrayList<Long> trackIds = Lists.newArrayList(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
         when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(trackIds));
 
-        when(playQueueManager.getCurrentTrackId()).thenReturn(tracks.get(1).getId()); // same track
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get()); // same screen origin
         when(playQueueManager.isPlaylist()).thenReturn(true);
         when(playQueueManager.getPlaylistId()).thenReturn(playlist.getId() + 1); // different Playlist Id
@@ -492,7 +491,7 @@ public class PlaybackOperationsTest {
     public void startPlaybackWithRecommendationsByTrackCallsFetchRecommendationsOnPlayQueueManager() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN);
-        verify(playQueueManager).fetchRelatedTracks(track.getId());
+        verify(playQueueManager).fetchRelatedTracks(track.getUrn());
     }
 
     @Test
@@ -510,7 +509,7 @@ public class PlaybackOperationsTest {
     @Test
     public void startPlaybackWithRecommendationsByIdCallsFetchRelatedOnPlayQueueManager() throws Exception {
         playbackOperations.startPlaybackWithRecommendations(123L, ORIGIN_SCREEN);
-        verify(playQueueManager).fetchRelatedTracks(123L);
+        verify(playQueueManager).fetchRelatedTracks(Urn.forTrack(123L));
     }
 
     @Test

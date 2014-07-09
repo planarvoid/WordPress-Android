@@ -9,6 +9,7 @@ public class PlaybackProgressInfo {
         this.time = time;
     }
 
+    @Deprecated // use URNs
     public long getTrackId() {
         return trackId;
     }

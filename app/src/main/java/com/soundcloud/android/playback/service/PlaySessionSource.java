@@ -61,14 +61,17 @@ public class PlaySessionSource implements Parcelable{
         return originScreen;
     }
 
+    @Deprecated // use URNs
     public long getPlaylistId() {
         return playlistId;
     }
 
+    @Deprecated // use URNs
     public long getPlaylistOwnerId() {
         return playlistOwnerId;
     }
 
+    @Deprecated // use URNs
     public void setPlaylist(long playlistId, long playlistOwnerId) {
         this.playlistId = playlistId;
         this.playlistOwnerId = playlistOwnerId;

@@ -22,7 +22,7 @@ import com.soundcloud.android.model.RecommendedTracksCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.BulkStorage;
@@ -47,7 +47,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class PlayQueueOperationsTest {
 
     private static final String ORIGIN_PAGE = "origin:page";
@@ -139,7 +139,7 @@ public class PlayQueueOperationsTest {
 
     @Test
     public void saveShouldWritePlayQueueMetaDataToPreferences() throws Exception {
-        when(playQueue.getCurrentTrackId()).thenReturn(123L);
+        when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
         when(playQueue.getPosition()).thenReturn(4);
 
         expect(playQueueOperations.saveQueue(playQueue, playSessionSource, 200L)).not.toBeNull();
@@ -153,6 +153,7 @@ public class PlayQueueOperationsTest {
     @Test
     public void saveShouldStoreAllPlayQueueItems() throws Exception {
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
+        when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
         when(playQueue.getItems()).thenReturn(Collections.<PlayQueueItem>emptyList());
         when(playQueueStorage.storeAsync(playQueue)).thenReturn(observable);
 
@@ -176,7 +177,7 @@ public class PlayQueueOperationsTest {
     @Test
     public void getRelatedTracksShouldMakeGetRequestToRelatedTracksEndpoint() {
         when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
-        playQueueOperations.getRelatedTracks(123L).subscribe(observer);
+        playQueueOperations.getRelatedTracks(Urn.forTrack(123)).subscribe(observer);
 
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(rxHttpClient).fetchModels(argumentCaptor.capture());
@@ -195,7 +196,7 @@ public class PlayQueueOperationsTest {
         when(rxHttpClient.<RecommendedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
         when(bulkStorage.bulkInsertAsync(anyCollection())).thenReturn(Observable.<Collection>empty());
 
-        playQueueOperations.getRelatedTracks(123L).subscribe(relatedObserver);
+        playQueueOperations.getRelatedTracks(Urn.forTrack(123)).subscribe(relatedObserver);
 
         ArgumentCaptor<ModelCollection> argumentCaptor = ArgumentCaptor.forClass(ModelCollection.class);
         verify(relatedObserver).onNext(argumentCaptor.capture());
@@ -212,7 +213,7 @@ public class PlayQueueOperationsTest {
                 TestHelper.getModelFactory().createModel(TrackSummary.class));
         when(rxHttpClient.<RecommendedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
 
-        playQueueOperations.getRelatedTracks(1L).subscribe(observer);
+        playQueueOperations.getRelatedTracks(Urn.forTrack(1)).subscribe(observer);
 
         final List<Track> resources = Arrays.asList(new Track(collection.getCollection().get(0)));
         verify(bulkStorage).bulkInsertAsync(resources);

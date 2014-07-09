@@ -11,6 +11,7 @@ import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.model.RecommendedTracksCollection;
 import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.BulkStorage;
 import rx.Observable;
@@ -86,7 +87,8 @@ public class PlayQueueOperations {
     public Subscription saveQueue(PlayQueue playQueue, PlaySessionSource playSessionSource, long seekPosition) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.putLong(Keys.TRACK_ID.name(), playQueue.getCurrentTrackId());
+        // TODO: migrate the preferences to store the URN, not the ID
+        editor.putLong(Keys.TRACK_ID.name(), playQueue.getCurrentTrackUrn().numericId);
         editor.putInt(Keys.PLAY_POSITION.name(), playQueue.getPosition());
         editor.putLong(Keys.SEEK_POSITION.name(), seekPosition);
 
@@ -107,8 +109,7 @@ public class PlayQueueOperations {
         fireAndForget(playQueueStorage.clearAsync());
     }
 
-    public Observable<RecommendedTracksCollection> getRelatedTracks(long trackId) {
-        final Urn urn = Urn.forTrack(trackId);
+    public Observable<RecommendedTracksCollection> getRelatedTracks(TrackUrn urn) {
         final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), urn.toEncodedString());
         final APIRequest<RecommendedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<RecommendedTracksCollection>get(endpoint)
                 .forPrivateAPI(1)

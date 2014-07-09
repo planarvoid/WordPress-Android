@@ -18,6 +18,7 @@ import com.soundcloud.android.model.RecommendedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -96,9 +97,9 @@ public class PlayQueueManagerTest {
 
     @Test
     public void getCurrentTrackIdReturnsCurrentTrackIdFromPlayQueue() {
-        when(playQueue.getCurrentTrackId()).thenReturn(5L);
+        when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(5L));
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        expect(playQueueManager.getCurrentTrackId()).toEqual(5L);
+        expect(playQueueManager.getCurrentTrackUrn()).toEqual(Urn.forTrack(5L));
     }
 
     @Test
@@ -143,18 +144,19 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldPublishPlayQueueChangedEventOnSetNewPlayQueue() {
+        when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(3L));
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
         expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).toNumber(1);
         expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.NEW_QUEUE);
         expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getCurrentTrackUrn())
-                .toEqual(Urn.forTrack(playQueue.getCurrentTrackId()));
+                .toEqual(playQueue.getCurrentTrackUrn());
     }
 
     @Test
     public void shouldSaveCurrentPositionWhenSettingNonEmptyPlayQueue(){
         when(playQueue.isEmpty()).thenReturn(false);
-        when(playQueue.getCurrentTrackId()).thenReturn(3L);
+        when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(3L));
 
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         verify(playQueueOperations).saveQueue(playQueue, playSessionSource, 0);
@@ -388,33 +390,33 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldGetRelatedTracksObservableWhenFetchingRelatedTracks(){
-        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(Observable.<RecommendedTracksCollection>empty());
+        when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(Observable.<RecommendedTracksCollection>empty());
 
-        playQueueManager.fetchRelatedTracks(123L);
-        verify(playQueueOperations).getRelatedTracks(123L);
+        playQueueManager.fetchRelatedTracks(Urn.forTrack(123L));
+        verify(playQueueOperations).getRelatedTracks(Urn.forTrack(123L));
     }
 
     @Test
     public void shouldSubscribeToRelatedTracksObservableWhenFetchingRelatedTracks(){
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
-        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(observable);
+        when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(observable);
 
-        playQueueManager.fetchRelatedTracks(123L);
+        playQueueManager.fetchRelatedTracks(Urn.forTrack(123L));
         expect(observable.subscribedTo()).toBeTrue();
     }
 
     @Test
     public void shouldSetLoadingStateOnQueueAndBroadcastWhenFetchingRelatedTracks(){
-        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(Observable.<RecommendedTracksCollection>never());
-        playQueueManager.fetchRelatedTracks(123L);
+        when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(Observable.<RecommendedTracksCollection>never());
+        playQueueManager.fetchRelatedTracks(Urn.forTrack(123L));
         expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.LOADING);
         expectBroadcastRelatedLoadChanges();
     }
 
     @Test
     public void shouldPublishPlayQueueRelatedTracksEventOnRelatedLoadingStateChange() throws CreateModelException {
-        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(Observable.<RecommendedTracksCollection>never());
-        playQueueManager.fetchRelatedTracks(123L);
+        when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(Observable.<RecommendedTracksCollection>never());
+        playQueueManager.fetchRelatedTracks(Urn.forTrack(123L));
 
         expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
     }
@@ -505,14 +507,14 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldReturnTrueIfGivenTrackIsCurrentTrack() {
-        when(playQueue.getCurrentTrackId()).thenReturn(123L);
+        when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expect(playQueueManager.isCurrentTrack(Urn.forTrack(123))).toBeTrue();
     }
 
     @Test
     public void shouldReturnFalseIfGivenTrackIsNotCurrentTrack() {
-        when(playQueue.getCurrentTrackId()).thenReturn(123L);
+        when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expect(playQueueManager.isCurrentTrack(Urn.forTrack(456))).toBeFalse();
     }
@@ -520,9 +522,9 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldRetryWithSameObservable() {
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
-        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(observable);
+        when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(observable);
 
-        playQueueManager.fetchRelatedTracks(123L);
+        playQueueManager.fetchRelatedTracks(Urn.forTrack(123L));
         playQueueManager.retryRelatedTracksFetch();
         expect(observable.subscribers()).toNumber(2);
     }

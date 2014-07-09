@@ -14,6 +14,7 @@ import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
@@ -75,12 +76,17 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         saveCurrentPosition(0L);
     }
 
+    @Deprecated // use URNs instead
     public long getCurrentTrackId() {
         return playQueue.getCurrentTrackId();
     }
 
-    public boolean isCurrentTrack(TrackUrn trackUrn) {
-        return playQueue.getCurrentTrackId() == trackUrn.numericId;
+    public TrackUrn getCurrentTrackUrn() {
+        return playQueue.getCurrentTrackUrn();
+    }
+
+    public boolean isCurrentTrack(@NotNull TrackUrn trackUrn) {
+        return trackUrn.equals(playQueue.getCurrentTrackUrn());
     }
 
     public int getCurrentPosition() {
@@ -110,14 +116,14 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     public void setPosition(int position) {
         if (position != playQueue.getPosition() && position < playQueue.getItems().size()) {
             playQueue.setPosition(position);
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackId()));
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackUrn()));
         }
     }
 
     public void previousTrack() {
         if (playQueue.hasPreviousTrack()) {
             playQueue.moveToPrevious();
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackId()));
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackUrn()));
         }
     }
 
@@ -136,7 +142,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     private boolean nextTrackInternal(boolean manual) {
         if (playQueue.hasNextTrack()) {
             playQueue.moveToNext(manual);
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackId()));
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackUrn()));
             return true;
         } else {
             return false;
@@ -211,8 +217,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return playQueue.isEmpty();
     }
 
-    public void fetchRelatedTracks(long trackId) {
-        recommendedTracksObservable = playQueueOperations.getRelatedTracks(trackId).observeOn(AndroidSchedulers.mainThread());
+    public void fetchRelatedTracks(TrackUrn trackUrn) {
+        recommendedTracksObservable = playQueueOperations.getRelatedTracks(trackUrn).observeOn(AndroidSchedulers.mainThread());
         loadRecommendedTracks();
     }
 
@@ -267,14 +273,14 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         final Intent intent = new Intent(RELATED_LOAD_STATE_CHANGED_ACTION)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(fetchState));
         context.sendBroadcast(intent);
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackId()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackUrn()));
     }
 
     private void broadcastPlayQueueChanged() {
         Intent intent = new Intent(PLAYQUEUE_CHANGED_ACTION)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(fetchState));
         context.sendBroadcast(intent);
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(playQueue.getCurrentTrackId()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(playQueue.getCurrentTrackUrn()));
     }
 
     private void stopLoadingOperations() {

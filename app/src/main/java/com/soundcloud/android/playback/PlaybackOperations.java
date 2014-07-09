@@ -309,7 +309,7 @@ public class PlaybackOperations {
         playCurrent();
 
         if (loadRecommended) {
-            playQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
+            playQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackUrn());
         }
     }
 
