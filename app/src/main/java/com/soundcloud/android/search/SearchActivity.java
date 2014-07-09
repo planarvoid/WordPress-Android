@@ -119,11 +119,6 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     private void addContent(Fragment fragment, String tag) {
         FragmentManager manager = getSupportFragmentManager();
 
-        // Clear the backstack before adding new content Fragment
-        if (manager.getBackStackEntryCount() > 0) {
-            manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        }
-
         manager.beginTransaction()
                 .replace(R.id.holder, fragment, tag)
                 .addToBackStack(tag)
