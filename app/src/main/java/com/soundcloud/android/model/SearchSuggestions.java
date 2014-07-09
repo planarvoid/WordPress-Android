@@ -205,7 +205,7 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         }
 
         public Urn getClientUri() {
-            return Urn.parse(Urn.SCHEME + ":" + kind + "s:" + id);
+            return Urn.parse(Urn.SOUNDCLOUD_SCHEME + ":" + kind + "s:" + id);
         }
 
         @Override

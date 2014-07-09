@@ -23,6 +23,7 @@ public enum APIEndpoints {
     HLS_STREAM("/tracks/%s/streams/hls"),
     SUBSCRIPTIONS("/subscriptions"),
     LOG_PLAY("/tracks/%s/plays"),
+    AUDIO_AD("/tracks/%s/ads/audio"),
 
     // public API (DEPRECATED)
     CURRENT_USER("/me"),

@@ -1,0 +1,63 @@
+
+{
+   "urn":"adswizz:ad:263",
+   "track":{
+      "duration":44541,
+      "genre":null,
+      "waveform_url":"https://wis.sndcdn.com/4JsFgIOUvzBo_m.png",
+      "_embedded":{
+         "user":{
+            "urn":"soundcloud:users:11765939",
+            "username":"garriguv",
+            "avatar_url":"https://i1.sndcdn.com/avatars-000024646682-29ry9p-large.jpg?2aaad5e",
+            "_links":{
+               "self":{
+                  "href":"http://api-staging-mobile.soundcloud.com/users/soundcloud%3Ausers%3A11765939"
+               }
+            }
+         },
+         "stats":{
+            "reposts_count":0,
+            "playback_count":42,
+            "comments_count":0,
+            "likes_count":3,
+            "_links":{
+               "self":{
+                  "href":"http://api-staging-mobile.soundcloud.com/tracks/soundcloud%3Asounds%3A96416915/stats"
+               }
+            }
+         }
+      },
+      "user_tags":[],
+      "commentable":true,
+      "urn":"soundcloud:sounds:96416915",
+      "sharing":"public",
+      "stream_url":"https://api.soundcloud.com/tracks/96416915/stream",
+      "created_at":"2013/06/11 14:41:40 +0000",
+      "title":"Wake up call at Holiday Inn",
+      "artwork_url":null,
+      "permalink_url":"https://soundcloud.com/garriguv/wake-up-call-at-holiday-inn",
+      "monetizable":true,
+      "_links":{
+         "self":{
+            "href":"http://api-staging-mobile.soundcloud.com/tracks/soundcloud%3Asounds%3A96416915"
+         },
+         "related":{
+            "href":"http://api-staging-mobile.soundcloud.com/tracks/soundcloud%3Asounds%3A96416915/related"
+         }
+      }
+   },
+   "_embedded":{
+       "visual_ad":{
+          "urn":"adswizz:ad:82",
+          "image_url":"https://va.sndcdn.com/da/ad_user-likes_v3.jpg",
+          "clickthrough_url":"https://www.soundcloud.com/you/likes",
+          "tracking_impression_url":"https://promoted.soundcloud.com/impression?adData=instance%3Asoundcloud%3Bad_id%3A263%3Bview_key%3A1401441272790582%3Bzone_id%3A19&loc=&listenerId=38cfbf01fa3450d214e1cc37548d18&sessionId=3e89b0ad42cff51ed4de13fd8ec97497&ip=%3A%3Affff%3A62.72.64.50&user_agent=http.async.client%2F0.5.2&cbs=5346259",
+          "tracking_click_url":"https://promoted.soundcloud.com/track?reqType=SCAdClicked&protocolVersion=2.0&adId=263&zoneId=19&cb=7a76b73c420c4cb8b171f083b1f59a05"
+       }
+   },
+   "tracking_impression_url":"https://promoted.soundcloud.com/impression?adData=instance%3Asoundcloud%3Bad_id%3A82%3Bview_key%3A1401441272728730%3Bzone_id%3A6&loc=&listenerId=38cfbf01fa3450d214e1cc37548d18&sessionId=7a9cb38dc0b93f35a2c1ee36de75c54b&ip=%3A%3Affff%3A62.72.64.50&user_agent=http.async.client%2F0.5.2&cbs=4354567",
+   "tracking_play_url":"https://promoted.soundcloud.com/track?reqType=SCSoundPlayed&protocolVersion=2.0&adId=82&zoneId=6&cb=9fdb6c5778784758b2f064907b7b3485",
+   "tracking_finish_url":"https://promoted.soundcloud.com/track?reqType=SCSoundFinished&protocolVersion=2.0&adId=82&zoneId=6&cb=c34180f2e5d7433f8357879e355a58e0",
+   "tracking_skip_url":"https://promoted.soundcloud.com/track?reqType=SCSoundSkipped&protocolVersion=2.0&adId=82&zoneId=6&cb=882f90b95de847f9bfa8684943cf761f"
+}

@@ -20,19 +20,22 @@ import java.util.regex.Pattern;
  */
 public abstract class Urn implements Parcelable {
 
-    public static final String SCHEME = "soundcloud";
+    public static final String SOUNDCLOUD_SCHEME = "soundcloud";
     public static final String SOUNDS_TYPE = "sounds";
     public static final String TRACKS_TYPE = "tracks";
     public static final String PLAYLISTS_TYPE = "playlists";
     public static final String USERS_TYPE = "users";
 
-    private static final Pattern URN_PATTERN = Pattern.compile("^soundcloud:(" + SOUNDS_TYPE +
-            "|" + TRACKS_TYPE + "|" + PLAYLISTS_TYPE + "|" + USERS_TYPE + "):-?\\d+");
+    public static final String ADSWIZZ_SCHEME = "adswizz";
+    public static final String AD_TYPE = "ad";
+
+    private static final Pattern URN_PATTERN = Pattern.compile("^("+SOUNDCLOUD_SCHEME + "|" + ADSWIZZ_SCHEME + "):(" + SOUNDS_TYPE +
+            "|" + TRACKS_TYPE + "|" + PLAYLISTS_TYPE + "|" + USERS_TYPE + "|" + AD_TYPE + "):-?\\d+");
 
     public static final Creator<Urn> CREATOR = new Creator<Urn>() {
         @Override
         public Urn createFromParcel(Parcel source) {
-            return Urn.parse(urnString(source.readString(), source.readLong()));
+            return Urn.parse(urnString(source.readString(), source.readString(), source.readLong()));
         }
 
         @Override
@@ -40,6 +43,10 @@ public abstract class Urn implements Parcelable {
             return new Urn[size];
         }
     };
+
+    @NotNull
+    @Deprecated
+    public final String scheme;
 
     @NotNull
     @Deprecated
@@ -69,11 +76,13 @@ public abstract class Urn implements Parcelable {
         }
 
         final String type = fixType(components[0]);
-        if (SOUNDS_TYPE.equals(type) || TRACKS_TYPE.equals(type)) {
+         if (SOUNDS_TYPE.equals(type) || TRACKS_TYPE.equals(type)) {
             return forTrack(id);
         } else if (PLAYLISTS_TYPE.equals(type)) {
             return forPlaylist(id);
-        } else {
+        } else if (AD_TYPE.equals(type)){
+             return forAd(id);
+         } else {
             return forUser(id);
         }
     }
@@ -94,11 +103,17 @@ public abstract class Urn implements Parcelable {
         return new UserUrn(normalizedId);
     }
 
-    private static String urnString(String type, long id) {
-        return SCHEME + ":" + type + ":" + id;
+    @NotNull
+    public static AdUrn forAd(long id) {
+        return new AdUrn(id);
     }
 
-    protected Urn(@NotNull String type, long numericId) {
+    private static String urnString(String scheme, String type, long id) {
+        return scheme + ":" + type + ":" + id;
+    }
+
+    protected Urn(@NotNull String scheme, @NotNull String type, long numericId) {
+        this.scheme = scheme;
         this.type = type;
         this.numericId = numericId;
     }
@@ -121,7 +136,7 @@ public abstract class Urn implements Parcelable {
 
     @Override
     public String toString() {
-        return urnString(type, numericId);
+        return urnString(scheme, type, numericId);
     }
 
     public String toEncodedString() {
@@ -158,6 +173,7 @@ public abstract class Urn implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(scheme);
         dest.writeString(type);
         dest.writeLong(numericId);
     }

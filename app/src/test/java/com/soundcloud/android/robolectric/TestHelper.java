@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.PublicApiWrapper;
+import com.soundcloud.android.blueprints.AudioAdBlueprint;
 import com.soundcloud.android.blueprints.CategoryBlueprint;
 import com.soundcloud.android.blueprints.PlaybackEventBlueprint;
 import com.soundcloud.android.blueprints.PlaylistBlueprint;
@@ -109,6 +110,7 @@ public class TestHelper {
             modelFactory.registerBlueprint(AssignmentBlueprint.class);
             modelFactory.registerBlueprint(CommentBlueprint.class);
             modelFactory.registerBlueprint(AffiliationBlueprint.class);
+            modelFactory.registerBlueprint(AudioAdBlueprint.class);
         } catch (RegisterBlueprintException e) {
             throw new RuntimeException(e);
         }
