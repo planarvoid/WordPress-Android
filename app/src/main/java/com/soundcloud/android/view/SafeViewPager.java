@@ -32,6 +32,6 @@ public class SafeViewPager extends ViewPager {
     }
 
     protected boolean customCanScroll(View v) {
-        return (v instanceof HorizontalScrollView);
+        return v instanceof HorizontalScrollView;
     }
 }

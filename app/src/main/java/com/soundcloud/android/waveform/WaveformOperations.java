@@ -25,9 +25,7 @@ public class WaveformOperations {
 
     public Observable<WaveformResult> waveformDataFor(final TrackUrn trackUrn, final String waveformUrl) {
         final WaveformData cachedWaveform = waveformCache.get(trackUrn);
-        if (cachedWaveform != null){
-            return Observable.just(WaveformResult.fromCache(cachedWaveform));
-        } else {
+        if (cachedWaveform == null) {
             return waveformFetcher.fetch(waveformUrl).doOnNext(new Action1<WaveformData>() {
                 @Override
                 public void call(WaveformData waveformData) {
@@ -44,6 +42,8 @@ public class WaveformOperations {
                     return WaveformResult.fromError(waveformData);
                 }
             }));
+        } else {
+            return Observable.just(WaveformResult.fromCache(cachedWaveform));
         }
     }
 

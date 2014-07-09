@@ -12,7 +12,6 @@ import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.model.RecommendedTracksCollection;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.TrackUrn;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.BulkStorage;
 import rx.Observable;
 import rx.Subscription;
@@ -29,14 +28,15 @@ import java.util.List;
 public class PlayQueueOperations {
 
     static final String SHARED_PREFERENCES_KEY = "playlistPos";
-    enum Keys {
-        PLAY_POSITION, SEEK_POSITION, TRACK_ID
-    }
 
     private final SharedPreferences sharedPreferences;
     private final PlayQueueStorage playQueueStorage;
     private final BulkStorage bulkStorage;
     private final RxHttpClient rxHttpClient;
+
+    enum Keys {
+        PLAY_POSITION, SEEK_POSITION, TRACK_ID
+    }
 
     private final Action1<RecommendedTracksCollection> cacheRelatedTracks = new Action1<RecommendedTracksCollection>() {
         @Override
@@ -44,7 +44,6 @@ public class PlayQueueOperations {
             fireAndForget(bulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), TrackSummary.TO_TRACK)));
         }
     };
-
 
     @Inject
     public PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage,
