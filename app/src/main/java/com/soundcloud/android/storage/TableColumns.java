@@ -58,6 +58,9 @@ public final class TableColumns {
         public static final String PLAYLIST_TYPE = "playlist_type";
         public static final String MONETIZABLE = "monetizable";
 
+        public static final int TYPE_TRACK    = 0;
+        public static final int TYPE_PLAYLIST = 1;
+
         public static final String[] ALL_FIELDS = {
                 _ID, _TYPE, ORIGINAL_CONTENT_SIZE, DURATION, GENRE, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL,
                 ARTWORK_URL, WAVEFORM_URL, DOWNLOADABLE, DOWNLOAD_URL, STREAM_URL, STREAM_URL, STREAMABLE,

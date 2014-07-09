@@ -1,5 +1,6 @@
 package com.soundcloud.android.blueprints;
 
+import com.soundcloud.android.model.Sharing;
 import com.soundcloud.android.model.TrackStats;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.UserSummary;
@@ -8,6 +9,8 @@ import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.annotation.Mapped;
 import com.tobedevoured.modelcitizen.annotation.NewInstance;
 import com.tobedevoured.modelcitizen.field.ConstructorCallback;
+
+import java.util.Date;
 
 @Blueprint(TrackSummary.class)
 public class TrackSummaryBlueprint {
@@ -40,4 +43,15 @@ public class TrackSummaryBlueprint {
     @Default
     String waveformUrl = "http://waveform.url";
 
+    @Default
+    String permalinkUrl = "https://soundcloud.com/bismakarisma/kuatkitabersinar";
+
+    @Default
+    Sharing sharing = Sharing.PUBLIC;
+
+    @Default
+    Date createdAt = new Date();
+
+    @Default
+    String genre = "Clownstep";
 }

@@ -213,7 +213,7 @@
         <dependency>
             <groupId>com.soundcloud.propeller</groupId>
             <artifactId>propeller</artifactId>
-            <version>0.11</version>
+            <version>0.12</version>
         </dependency>
         <dependency>
             <groupId>com.soundcloud</groupId>

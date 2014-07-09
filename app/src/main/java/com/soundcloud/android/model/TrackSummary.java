@@ -152,6 +152,10 @@ public class TrackSummary extends ScModel {
         this.mDuration = duration;
     }
 
+    public boolean isMonetizable() {
+        return monetizable;
+    }
+
     @JsonProperty("stream_url")
     public void setStreamUrl(String streamUrl) {
         this.mStreamUrl = streamUrl;
@@ -178,12 +182,12 @@ public class TrackSummary extends ScModel {
     }
 
     @JsonProperty("monetizable")
-    public boolean isMonetizable() {
-        return monetizable;
+    public void setMonetizable(boolean monetizable) {
+        this.monetizable = monetizable;
     }
 
     @JsonProperty("created_at")
-    private void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.mCreatedAt = createdAt;
     }
 
