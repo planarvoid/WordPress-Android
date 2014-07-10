@@ -26,11 +26,8 @@ public abstract class Urn implements Parcelable {
     public static final String PLAYLISTS_TYPE = "playlists";
     public static final String USERS_TYPE = "users";
 
-    public static final String ADSWIZZ_SCHEME = "adswizz";
-    public static final String AD_TYPE = "ads";
-
-    private static final Pattern URN_PATTERN = Pattern.compile("^("+SOUNDCLOUD_SCHEME + "|" + ADSWIZZ_SCHEME + "):(" + SOUNDS_TYPE +
-            "|" + TRACKS_TYPE + "|" + PLAYLISTS_TYPE + "|" + USERS_TYPE + "|" + AD_TYPE + "):-?\\d+");
+    private static final Pattern URN_PATTERN = Pattern.compile("^("+SOUNDCLOUD_SCHEME  + "):(" + SOUNDS_TYPE +
+            "|" + TRACKS_TYPE + "|" + PLAYLISTS_TYPE + "|" + USERS_TYPE + "):-?\\d+");
 
     public static final Creator<Urn> CREATOR = new Creator<Urn>() {
         @Override
@@ -74,8 +71,6 @@ public abstract class Urn implements Parcelable {
             return forTrack(id);
         } else if (PLAYLISTS_TYPE.equals(type)) {
             return forPlaylist(id);
-        } else if (AD_TYPE.equals(type)) {
-            return forAd(id);
         } else {
             return forUser(id);
         }
@@ -95,11 +90,6 @@ public abstract class Urn implements Parcelable {
     public static UserUrn forUser(long id) {
         final long normalizedId = Math.max(0, id); // to account for anonymous users
         return new UserUrn(normalizedId);
-    }
-
-    @NotNull
-    public static AdUrn forAd(long id) {
-        return new AdUrn(id);
     }
 
     private static String urnString(String scheme, String type, long id) {

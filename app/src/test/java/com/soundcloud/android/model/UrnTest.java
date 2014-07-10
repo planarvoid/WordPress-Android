@@ -58,16 +58,6 @@ public class UrnTest {
         expect(urn.isSound()).toBeTrue();
     }
 
-    @Test
-    public void shouldParseAdUrns() throws Exception {
-        Urn urn = Urn.parse("adswizz:ads:123");
-        expect(urn).toBeInstanceOf(AdUrn.class);
-        expect(urn.scheme).toEqual("adswizz");
-        expect(urn.type).toEqual("ads");
-        expect(urn.numericId).toEqual(123L);
-        expect(urn.isSound()).toBeFalse();
-    }
-
     // Eventually we shouldn't have to do it anymore, but this is how we currently represent local playlists
     @Test
     public void shouldParseNegativePlaylistUrns() throws Exception {

@@ -2,7 +2,6 @@ package com.soundcloud.android.model.ads;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
@@ -16,7 +15,6 @@ public class VisualAdTest {
         VisualAd visualAd = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("visual_ad.json"), VisualAd.class);
 
-        expect(visualAd.getUrn()).toEqual(Urn.forAd(82));
         expect(visualAd.getImageUrl()).toEqual("https://va.sndcdn.com/da/ad_user-likes_v3.jpg");
         expect(visualAd.getClickthroughUrl()).toEqual("https://www.soundcloud.com/you/likes");
         expect(visualAd.getTrackingClickUrl()).toEqual("https://promoted.soundcloud.com/track?reqType=SCAdClicked&protocolVersion=2.0&adId=263&zoneId=19&cb=7a76b73c420c4cb8b171f083b1f59a05");

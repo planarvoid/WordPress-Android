@@ -1,24 +1,13 @@
 package com.soundcloud.android.model.ads;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.model.AdUrn;
-import com.soundcloud.android.model.Urn;
 
 public class VisualAd {
 
-    private AdUrn urn;
     private String imageUrl;
     private String clickthroughUrl;
     private String trackingImpressionUrl;
     private String trackingClickUrl;
-
-    public AdUrn getUrn() {
-        return urn;
-    }
-
-    public void setUrn(String urn) {
-        this.urn = (AdUrn) Urn.parse(urn);
-    }
 
     public String getImageUrl() {
         return imageUrl;
