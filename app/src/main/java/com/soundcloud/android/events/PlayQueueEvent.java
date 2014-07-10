@@ -13,7 +13,7 @@ public class PlayQueueEvent {
     private final int kind;
     private final TrackUrn currentTrackUrn;
 
-    public static Func1<PlayQueueEvent, Boolean> TRACK_HAS_CHANGED_FILTER = new Func1<PlayQueueEvent, Boolean>() {
+    public static final Func1<PlayQueueEvent, Boolean> TRACK_HAS_CHANGED_FILTER = new Func1<PlayQueueEvent, Boolean>() {
         @Override
         public Boolean call(PlayQueueEvent playQueueEvent) {
             return playQueueEvent.kind == NEW_QUEUE || playQueueEvent.kind == TRACK_CHANGE;
