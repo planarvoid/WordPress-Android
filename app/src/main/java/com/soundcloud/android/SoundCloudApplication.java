@@ -6,6 +6,7 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.enableSy
 import com.crashlytics.android.Crashlytics;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.c2dm.C2DMReceiver;
@@ -80,6 +81,7 @@ public class SoundCloudApplication extends Application {
     @Inject PlayerWidgetController widgetController;
     @Inject PeripheralsController peripheralsController;
     @Inject PlaySessionController playSessionController;
+    @Inject AdsController adsController;
     @Inject PlaybackSessionAnalyticsController playSessionAnalyticsController;
     @Inject PlaylistTagStorage playlistTagStorage;
     @Inject PlaybackNotificationController playbackNotificationController;
@@ -148,6 +150,7 @@ public class SoundCloudApplication extends Application {
         widgetController.subscribe();
         peripheralsController.subscribe();
         playSessionController.subscribe();
+        adsController.subscribe();
         playSessionAnalyticsController.subscribe();
         playbackNotificationController.subscribe();
     }

@@ -1,6 +1,8 @@
 package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Objects;
+import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.utils.ScTextUtils;
 
 class PlayQueueItem {
 
@@ -9,11 +11,16 @@ class PlayQueueItem {
     private final String sourceVersion;
     private final boolean isAudioAd;
 
-    public PlayQueueItem(long trackId, String source, String sourceVersion) {
-        this(trackId, source, sourceVersion, false);
+    public static PlayQueueItem fromTrack(long trackId, String source, String sourceVersion){
+        return new PlayQueueItem(trackId, source, sourceVersion, false);
     }
 
-    public PlayQueueItem(long trackId, String source, String sourceVersion, boolean isAudioAd) {
+    public static PlayQueueItem fromAudioAd(AudioAd audioAd){
+        // TODO : Proper source + version?
+        return new PlayQueueItem(audioAd.getTrackSummary().getId(), ScTextUtils.EMPTY_STRING, ScTextUtils.EMPTY_STRING, true);
+    }
+
+    private PlayQueueItem(long trackId, String source, String sourceVersion, boolean isAudioAd) {
         this.trackId = trackId;
         this.source = source;
         this.sourceVersion = sourceVersion;

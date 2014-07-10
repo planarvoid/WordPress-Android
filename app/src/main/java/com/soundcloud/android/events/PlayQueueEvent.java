@@ -2,6 +2,7 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
+import rx.functions.Func1;
 
 public class PlayQueueEvent {
 
@@ -11,6 +12,13 @@ public class PlayQueueEvent {
 
     private final int kind;
     private final TrackUrn currentTrackUrn;
+
+    public static Func1<PlayQueueEvent, Boolean> TRACK_HAS_CHANGED_FILTER = new Func1<PlayQueueEvent, Boolean>() {
+        @Override
+        public Boolean call(PlayQueueEvent playQueueEvent) {
+            return playQueueEvent.kind == NEW_QUEUE || playQueueEvent.kind == TRACK_CHANGE;
+        }
+    };
 
     public PlayQueueEvent(int kind, TrackUrn currentTrackUrn) {
         this.kind = kind;
@@ -41,11 +49,6 @@ public class PlayQueueEvent {
 
     public static PlayQueueEvent fromQueueUpdate(TrackUrn currentTrackUrn) {
         return new PlayQueueEvent(QUEUE_UPDATE, currentTrackUrn);
-    }
-
-    @Deprecated
-    public static PlayQueueEvent fromQueueUpdate(long currentTrackId) {
-        return fromQueueUpdate(Urn.forTrack(currentTrackId));
     }
 
     public TrackUrn getCurrentTrackUrn() {

@@ -4,10 +4,12 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,8 +21,8 @@ import java.util.List;
 public class PlayQueueTest {
 
     private static final String ORIGIN_PAGE = "explore:music:techno";
-    private static final PlayQueueItem PLAY_QUEUE_ITEM_1 = new PlayQueueItem(1L, "source1", "version1");
-    private static final PlayQueueItem PLAY_QUEUE_ITEM_2 = new PlayQueueItem(2L, "source2", "version2");
+    private static final PlayQueueItem PLAY_QUEUE_ITEM_1 = PlayQueueItem.fromTrack(1L, "source1", "version1");
+    private static final PlayQueueItem PLAY_QUEUE_ITEM_2 = PlayQueueItem.fromTrack(2L, "source2", "version2");
 
     private PlaySessionSource playSessionSource;
     private Playlist playlist;
@@ -52,6 +54,16 @@ public class PlayQueueTest {
         final TrackSourceInfo trackSourceInfo = playQueue.getCurrentTrackSourceInfo(playSessionSource);
         expect(trackSourceInfo.getSource()).toEqual("source3");
         expect(trackSourceInfo.getSourceVersion()).toEqual("version3");
+    }
+
+    @Test
+    public void insertsAudioAdAtPosition() throws Exception {
+        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), 2, playSessionSource);
+
+        final AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        playQueue.insertAudioAdAtPosition(audioAd, 1);
+        expect(playQueue.getItems().get(1).getTrackId()).toBe(audioAd.getTrackSummary().getId());
+        expect(playQueue.size()).toBe(4);
     }
 
     @Test
@@ -194,15 +206,16 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void shouldReturnTrueIfCurrentItemIsAudioAd() {
-        final PlayQueue playQueue = new PlayQueue(Arrays.asList(new PlayQueueItem(2L, "", "", true)), 0);
+    public void shouldReturnTrueIfCurrentItemIsAudioAd() throws CreateModelException {
+        final AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        final PlayQueue playQueue = new PlayQueue(Arrays.asList(PlayQueueItem.fromAudioAd(audioAd)), 0);
 
         expect(playQueue.isAudioAd(0)).toBeTrue();
     }
 
     @Test
     public void shouldReturnFalseIfCurrentItemIsNotAudioAd() {
-        final PlayQueue playQueue = new PlayQueue(Arrays.asList(new PlayQueueItem(2L, "", "", false)), 0);
+        final PlayQueue playQueue = new PlayQueue(Arrays.asList(PlayQueueItem.fromTrack(2L, "", "")), 0);
 
         expect(playQueue.isAudioAd(0)).toBeFalse();
     }

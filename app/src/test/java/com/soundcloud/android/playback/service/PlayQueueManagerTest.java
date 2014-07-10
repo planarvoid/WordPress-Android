@@ -4,13 +4,16 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Playlist;
@@ -21,9 +24,9 @@ import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +41,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -139,7 +144,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldBroadcastPlayQueueChangedWhenSettingNewPlayqueue() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        expectBroadcastPlayqueueChanged();
+        expectBroadcastNewPlayQueue();
     }
 
     @Test
@@ -291,6 +296,41 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void getNextTrackUrnReturnsNextTrackUrn() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), 0, playSessionSource), playSessionSource);
+        expect(playQueueManager.getNextTrackUrn()).toEqual(Urn.forTrack(2L));
+    }
+
+    @Test
+    public void getNextTrackUrnReturnsNotSetTrackUrnIfNoNextTrack() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), 1, playSessionSource), playSessionSource);
+        expect(playQueueManager.getNextTrackUrn()).toEqual(TrackUrn.NOT_SET);
+    }
+
+    @Test
+    public void insertsAudioAdAtPosition() throws CreateModelException {
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        when(playQueue.getPosition()).thenReturn(1);
+
+        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        playQueueManager.insertAd(audioAd);
+
+        verify(playQueue).insertAudioAdAtPosition(audioAd, 2);
+    }
+
+    @Test
+    public void broadcastsQueueChangeEventWhenAudioAdIsInserted() throws CreateModelException {
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        when(playQueue.getPosition()).thenReturn(1);
+
+        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        playQueueManager.insertAd(audioAd);
+
+        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
+        expectBroadcastPlayQueueUpdate();
+    }
+
+    @Test
     public void shouldMoveToNextTrackWithManualSetToFalse() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         when(playQueue.hasNextTrack()).thenReturn(true);
@@ -410,7 +450,7 @@ public class PlayQueueManagerTest {
         when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(Observable.<RecommendedTracksCollection>never());
         playQueueManager.fetchRelatedTracks(Urn.forTrack(123L));
         expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.LOADING);
-        expectBroadcastRelatedLoadChanges();
+        expectBroadcastPlayQueueUpdate();
     }
 
     @Test
@@ -439,21 +479,21 @@ public class PlayQueueManagerTest {
         playQueueManager.onNext(new RecommendedTracksCollection(Collections.<TrackSummary>emptyList(), "123"));
         playQueueManager.onCompleted();
         expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.IDLE);
-        expectBroadcastRelatedLoadChanges();
+        expectBroadcastPlayQueueUpdate();
     }
 
     @Test
     public void shouldSetEmptyStateOnQueueAndBroadcastWhenDoneEmptyRelatedLoad(){
         playQueueManager.onCompleted();
         expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.EMPTY);
-        expectBroadcastRelatedLoadChanges();
+        expectBroadcastPlayQueueUpdate();
     }
 
     @Test
     public void shouldSetErrorStateOnQueueAndBroadcastWhenOnErrorCalled(){
         playQueueManager.onError(new Throwable());
         expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.ERROR);
-        expectBroadcastRelatedLoadChanges();
+        expectBroadcastPlayQueueUpdate();
     }
 
     @Test
@@ -536,15 +576,20 @@ public class PlayQueueManagerTest {
         expect(playQueueManager.isAudioAdAtPosition(0)).toBeTrue();
     }
 
-    private void expectBroadcastPlayqueueChanged() {
+    private void expectBroadcastNewPlayQueue() {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).sendBroadcast(captor.capture());
         expect(captor.getValue().getAction()).toEqual(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION);
     }
 
-    private void expectBroadcastRelatedLoadChanges() {
+    private void expectBroadcastPlayQueueUpdate() {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
-        verify(context).sendBroadcast(captor.capture());
-        expect(captor.getValue().getAction()).toEqual(PlayQueueManager.RELATED_LOAD_STATE_CHANGED_ACTION);
+        verify(context, atLeastOnce()).sendBroadcast(captor.capture());
+        expect(Iterables.find(captor.getAllValues(), new Predicate<Intent>() {
+            @Override
+            public boolean apply(@Nullable Intent input) {
+                return input.getAction().equals(PlayQueueManager.RELATED_LOAD_STATE_CHANGED_ACTION);
+            }
+        })).not.toBeNull();
     }
 }

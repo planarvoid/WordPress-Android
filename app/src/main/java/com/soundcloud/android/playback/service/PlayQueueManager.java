@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.service;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -49,7 +50,6 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     private Observable<RecommendedTracksCollection> recommendedTracksObservable;
 
     private PlaybackProgressInfo playbackProgressInfo;
-
     private boolean gotRecommendedTracks;
     private FetchRecommendedState fetchState = FetchRecommendedState.IDLE;
 
@@ -91,6 +91,10 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     public int getCurrentPosition() {
         return playQueue.getPosition();
+    }
+
+    private int getNextPosition() {
+        return getCurrentPosition() + 1;
     }
 
     public boolean isCurrentPosition(int position) {
@@ -139,6 +143,10 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return playQueue.hasNextTrack();
     }
 
+    public TrackUrn getNextTrackUrn() {
+        return hasNextTrack() ? getUrnAtPosition(getNextPosition()) : TrackUrn.NOT_SET;
+    }
+
     private boolean nextTrackInternal(boolean manual) {
         if (playQueue.hasNextTrack()) {
             playQueue.moveToNext(manual);
@@ -157,7 +165,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         this.playQueue.setCurrentTrackToUserTriggered();
         this.playSessionSource = playSessionSource;
 
-        broadcastPlayQueueChanged();
+        broadcastNewPlayQueue();
     }
 
     public void saveCurrentPosition(long currentTrackProgress) {
@@ -183,7 +191,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
             playbackProgressInfo = new PlaybackProgressInfo(playQueueOperations.getLastStoredPlayingTrackId(), playQueueOperations.getLastStoredSeekPosition());
         } else {
             // this is so the player can finish() instead of display waiting to the user
-            broadcastPlayQueueChanged();
+            broadcastNewPlayQueue();
         }
     }
 
@@ -240,6 +248,11 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return playQueue.getViewWithAppendState(fetchState);
     }
 
+    public void insertAd(AudioAd audioAd) {
+        playQueue.insertAudioAdAtPosition(audioAd, getNextPosition());
+        broadcastQueueUpdate();
+    }
+
     private void loadRecommendedTracks() {
         setNewRelatedLoadingState(FetchRecommendedState.LOADING);
         gotRecommendedTracks = false;
@@ -270,13 +283,17 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     private void setNewRelatedLoadingState(FetchRecommendedState fetchState) {
         this.fetchState = fetchState;
+        broadcastQueueUpdate();
+    }
+
+    private void broadcastQueueUpdate() {
         final Intent intent = new Intent(RELATED_LOAD_STATE_CHANGED_ACTION)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(fetchState));
         context.sendBroadcast(intent);
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackUrn()));
     }
 
-    private void broadcastPlayQueueChanged() {
+    private void broadcastNewPlayQueue() {
         Intent intent = new Intent(PLAYQUEUE_CHANGED_ACTION)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(fetchState));
         context.sendBroadcast(intent);

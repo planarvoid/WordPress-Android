@@ -10,16 +10,18 @@ import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.TrackUrn;
-import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.storage.BulkStorage;
 import rx.Observable;
 import rx.functions.Action1;
+
+import javax.inject.Inject;
 
 class AdsOperations {
 
     private final RxHttpClient rxHttpClient;
     private final BulkStorage bulkStorage;
 
+    @Inject
     AdsOperations(RxHttpClient rxHttpClient, BulkStorage bulkStorage) {
         this.rxHttpClient = rxHttpClient;
         this.bulkStorage = bulkStorage;

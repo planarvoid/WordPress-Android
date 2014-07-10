@@ -55,7 +55,7 @@ public class PlayQueueStorage {
         return scheduler.scheduleQuery(Query.from(TABLE)).map(new RxResultMapper<PlayQueueItem>() {
             @Override
             public PlayQueueItem map(CursorReader reader) {
-                return new PlayQueueItem(
+                return PlayQueueItem.fromTrack(
                         reader.getLong(TableColumns.PlayQueue.TRACK_ID),
                         reader.getString(TableColumns.PlayQueue.SOURCE),
                         reader.getString(TableColumns.PlayQueue.SOURCE_VERSION)

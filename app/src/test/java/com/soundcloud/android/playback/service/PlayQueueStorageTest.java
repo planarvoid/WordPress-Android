@@ -30,12 +30,12 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldInsertPlayQueueAndReplaceExistingItems() {
-        insertPlayQueueItem(new PlayQueueItem(1L, "existing", "existing_version"));
+        insertPlayQueueItem(PlayQueueItem.fromTrack(1L, "existing", "existing_version"));
         expect(count(Table.PLAY_QUEUE.name)).toBe(1);
 
         TestObserver<BulkInsertResult> observer = new TestObserver<BulkInsertResult>();
-        PlayQueueItem playQueueItem1 = new PlayQueueItem(123L, "source1", "version1");
-        PlayQueueItem playQueueItem2 = new PlayQueueItem(456L, "source2", "version2");
+        PlayQueueItem playQueueItem1 = PlayQueueItem.fromTrack(123L, "source1", "version1");
+        PlayQueueItem playQueueItem2 = PlayQueueItem.fromTrack(456L, "source2", "version2");
         PlayQueue playQueue = new PlayQueue(Arrays.asList(playQueueItem1, playQueueItem2), 0);
 
         storage.storeAsync(playQueue).subscribe(observer);
@@ -58,7 +58,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldDeleteAllPlayQueueItems() {
         TestObserver<ChangeResult> observer = new TestObserver<ChangeResult>();
-        insertPlayQueueItem(new PlayQueueItem(123L, "source", "source_version"));
+        insertPlayQueueItem(PlayQueueItem.fromTrack(123L, "source", "source_version"));
         expect(count(Table.PLAY_QUEUE.name)).toBe(1);
 
         storage.clearAsync().subscribe(observer);
@@ -71,7 +71,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldLoadAllPlayQueueItems() {
         TestObserver<PlayQueueItem> observer = new TestObserver<PlayQueueItem>();
-        final PlayQueueItem expectedItem = new PlayQueueItem(123L, "source", "source_version");
+        final PlayQueueItem expectedItem = PlayQueueItem.fromTrack(123L, "source", "source_version");
         insertPlayQueueItem(expectedItem);
         expect(count(Table.PLAY_QUEUE.name)).toBe(1);
 

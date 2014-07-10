@@ -6,6 +6,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
@@ -47,7 +48,11 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     public void addTrack(long id, String source, String sourceVersion) {
-        playQueueItems.add(new PlayQueueItem(id, source, sourceVersion));
+        playQueueItems.add(PlayQueueItem.fromTrack(id, source, sourceVersion));
+    }
+
+    public void insertAudioAdAtPosition(AudioAd audioAd, int position) {
+        playQueueItems.add(position, PlayQueueItem.fromAudioAd(audioAd));
     }
 
     public boolean moveToPrevious() {
@@ -129,7 +134,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return Lists.newArrayList(Lists.transform(trackIds, new Function<Long, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(Long input) {
-                return new PlayQueueItem(input, playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion());
+                return PlayQueueItem.fromTrack(input, playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion());
             }
         }));
     }
