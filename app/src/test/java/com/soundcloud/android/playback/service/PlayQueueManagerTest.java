@@ -95,7 +95,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void getPlayQueuePositionReturnsCurrentPositionFromPlayQueue() {
-        when(playQueue.getPosition()).thenReturn(5);
+        when(playQueue.getCurrentPosition()).thenReturn(5);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expect(playQueueManager.getCurrentPosition()).toEqual(5);
     }
@@ -310,7 +310,7 @@ public class PlayQueueManagerTest {
     @Test
     public void insertsAudioAdAtPosition() throws CreateModelException {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        when(playQueue.getPosition()).thenReturn(1);
+        when(playQueue.getCurrentPosition()).thenReturn(1);
 
         AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
         playQueueManager.insertAd(audioAd);
@@ -321,7 +321,7 @@ public class PlayQueueManagerTest {
     @Test
     public void broadcastsQueueChangeEventWhenAudioAdIsInserted() throws CreateModelException {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        when(playQueue.getPosition()).thenReturn(1);
+        when(playQueue.getCurrentPosition()).thenReturn(1);
 
         AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
         playQueueManager.insertAd(audioAd);

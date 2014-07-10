@@ -8,7 +8,6 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
@@ -333,7 +332,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             .putExtra(BroadcastExtras.ID, getTrackId())
             .putExtra(BroadcastExtras.USER_ID, getTrackUserId())
             .putExtra(BroadcastExtras.PROGRESS_POSITION, getProgress())
-            .putExtra(BroadcastExtras.QUEUE_POSITION, getPlayQueueInternal().getPosition());
+            .putExtra(BroadcastExtras.QUEUE_POSITION, getPlayQueueInternal().getCurrentPosition());
 
         stateTransition.addToIntent(intent);
         sendBroadcast(intent);

@@ -9,7 +9,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.TrackUrn;
-import com.soundcloud.android.model.Urn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -19,7 +18,7 @@ import java.util.List;
 public class PlayQueue implements Iterable<PlayQueueItem> {
 
     private final List<PlayQueueItem> playQueueItems;
-    private int position;
+    private int currentPosition;
     private boolean currentTrackIsUserTriggered;
 
     public static PlayQueue empty() {
@@ -32,15 +31,12 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     public PlayQueue(List<PlayQueueItem> playQueueItems, int startPosition) {
         this.playQueueItems = playQueueItems;
-        position = startPosition;
+        currentPosition = startPosition;
     }
 
+    @Deprecated
     public PlayQueueView getViewWithAppendState(FetchRecommendedState fetchState) {
-        return new PlayQueueView(getTrackIds(), position, fetchState);
-    }
-
-    List<PlayQueueItem> getItems() {
-        return playQueueItems;
+        return new PlayQueueView(getTrackIds(), currentPosition, fetchState);
     }
 
     public void setCurrentTrackToUserTriggered() {
@@ -57,7 +53,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     public boolean moveToPrevious() {
         if (hasPreviousTrack()) {
-            position--;
+            currentPosition--;
             currentTrackIsUserTriggered = true;
             return true;
         }
@@ -66,7 +62,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     public boolean moveToNext(boolean userTriggered) {
         if (hasNextTrack()) {
-            position++;
+            currentPosition++;
             currentTrackIsUserTriggered = userTriggered;
             return true;
         }
@@ -74,11 +70,11 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     public boolean hasPreviousTrack() {
-        return position > 0;
+        return currentPosition > 0;
     }
 
     public boolean hasNextTrack() {
-        return position < playQueueItems.size() - 1;
+        return currentPosition < playQueueItems.size() - 1;
     }
 
     @Override
@@ -99,35 +95,39 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(playSessionSource.getOriginScreen(), currentTrackIsUserTriggered);
         trackSourceInfo.setSource(getCurrentTrackSource(), getCurrentTrackSourceVersion());
         if (playSessionSource.getPlaylistId() != Playlist.NOT_SET) {
-            trackSourceInfo.setOriginPlaylist(playSessionSource.getPlaylistId(), getPosition(), playSessionSource.getPlaylistOwnerId());
+            trackSourceInfo.setOriginPlaylist(playSessionSource.getPlaylistId(), getCurrentPosition(), playSessionSource.getPlaylistOwnerId());
         }
         return trackSourceInfo;
     }
 
     @Deprecated
     public long getCurrentTrackId() {
-        return position < 0 || position >= playQueueItems.size() ? Consts.NOT_SET : playQueueItems.get(position).getTrackId();
+        return currentPosition < 0 || currentPosition >= playQueueItems.size() ? Consts.NOT_SET : playQueueItems.get(currentPosition).getTrackId();
     }
 
     public TrackUrn getCurrentTrackUrn() {
-        return Urn.forTrack(getCurrentTrackId());
+        return getUrnAtPosition(currentPosition);
     }
 
     public boolean isEmpty() {
         return playQueueItems.isEmpty();
     }
 
-    public int getPosition() {
-        return position;
+    public int getCurrentPosition() {
+        return currentPosition;
     }
 
     public boolean setPosition(int position) {
         if (position < playQueueItems.size()) {
-            this.position = position;
+            this.currentPosition = position;
             return true;
         } else {
             return false;
         }
+    }
+
+    public TrackUrn getUrnAtPosition(int position){
+        return position >= 0 && position < size() ? playQueueItems.get(position).getTrackUrn() : TrackUrn.NOT_SET;
     }
 
     private static List<PlayQueueItem> getPlayQueueItemsFromIds(List<Long> trackIds, final PlaySessionSource playSessionSource) {
@@ -140,11 +140,11 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     String getCurrentTrackSource() {
-        return playQueueItems.get(position).getSource();
+        return playQueueItems.get(currentPosition).getSource();
     }
 
     String getCurrentTrackSourceVersion() {
-        return playQueueItems.get(position).getSourceVersion();
+        return playQueueItems.get(currentPosition).getSourceVersion();
     }
 
     boolean isAudioAd(int position) {
@@ -169,7 +169,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         PlayQueue playQueue = (PlayQueue) o;
 
         return Objects.equal(currentTrackIsUserTriggered, playQueue.currentTrackIsUserTriggered) &&
-                Objects.equal(position, playQueue.position) &&
+                Objects.equal(currentPosition, playQueue.currentPosition) &&
                 Objects.equal(playQueueItems, playQueue.playQueueItems);
     }
 
@@ -177,7 +177,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     public int hashCode() {
         int result = (currentTrackIsUserTriggered ? 1 : 0);
         result = 31 * result + playQueueItems.hashCode();
-        result = 31 * result + position;
+        result = 31 * result + currentPosition;
         return result;
     }
 }

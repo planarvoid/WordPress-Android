@@ -90,7 +90,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public int getCurrentPosition() {
-        return playQueue.getPosition();
+        return playQueue.getCurrentPosition();
     }
 
     private int getNextPosition() {
@@ -106,11 +106,11 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public int getQueueSize() {
-        return playQueue.getItems().size();
+        return playQueue.size();
     }
 
     public TrackUrn getUrnAtPosition(int position) {
-        return TrackUrn.forTrack(playQueue.getItems().get(position).getTrackId());
+        return playQueue.getUrnAtPosition(position);
     }
 
     public PlaybackProgressInfo getPlayProgressInfo() {
@@ -118,7 +118,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public void setPosition(int position) {
-        if (position != playQueue.getPosition() && position < playQueue.getItems().size()) {
+        if (position != playQueue.getCurrentPosition() && position < playQueue.size()) {
             playQueue.setPosition(position);
             eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackUrn()));
         }

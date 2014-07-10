@@ -43,7 +43,6 @@ import android.content.SharedPreferences;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -112,7 +111,7 @@ public class PlayQueueOperationsTest {
         ArgumentCaptor<PlayQueue> captor = ArgumentCaptor.forClass(PlayQueue.class);
         playQueueOperations.getLastStoredPlayQueue().subscribe(observer);
         verify(observer).onNext(captor.capture());
-        expect(captor.getValue().getItems()).toContainExactly(playQueueItem);
+        expect(captor.getValue()).toContainExactly(playQueueItem);
     }
 
     @Test
@@ -126,8 +125,8 @@ public class PlayQueueOperationsTest {
         when(playQueueStorage.loadAsync()).thenReturn(itemObservable);
 
         PlayQueue playQueue = playQueueOperations.getLastStoredPlayQueue().toBlockingObservable().lastOrDefault(null);
-        expect(playQueue.getItems()).toContainExactly(playQueueItem1, playQueueItem2);
-        expect(playQueue.getPosition()).toEqual(1);
+        expect(playQueue).toContainExactly(playQueueItem1, playQueueItem2);
+        expect(playQueue.getCurrentPosition()).toEqual(1);
     }
 
     @Test
@@ -140,7 +139,7 @@ public class PlayQueueOperationsTest {
     @Test
     public void saveShouldWritePlayQueueMetaDataToPreferences() throws Exception {
         when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
-        when(playQueue.getPosition()).thenReturn(4);
+        when(playQueue.getCurrentPosition()).thenReturn(4);
 
         expect(playQueueOperations.saveQueue(playQueue, playSessionSource, 200L)).not.toBeNull();
         verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.SEEK_POSITION.name(), 200L);
@@ -154,7 +153,6 @@ public class PlayQueueOperationsTest {
     public void saveShouldStoreAllPlayQueueItems() throws Exception {
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
         when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
-        when(playQueue.getItems()).thenReturn(Collections.<PlayQueueItem>emptyList());
         when(playQueueStorage.storeAsync(playQueue)).thenReturn(observable);
 
         playQueueOperations.saveQueue(playQueue, playSessionSource, 200L);

@@ -2,11 +2,13 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 
 final class PlayQueueItem {
 
-    private final long trackId;
+    private final TrackUrn trackUrn;
     private final String source;
     private final String sourceVersion;
     private final boolean isAudioAd;
@@ -21,14 +23,19 @@ final class PlayQueueItem {
     }
 
     private PlayQueueItem(long trackId, String source, String sourceVersion, boolean isAudioAd) {
-        this.trackId = trackId;
+        this.trackUrn = Urn.forTrack(trackId);
         this.source = source;
         this.sourceVersion = sourceVersion;
         this.isAudioAd = isAudioAd;
     }
 
+    @Deprecated
     public long getTrackId() {
-        return trackId;
+        return trackUrn.numericId;
+    }
+
+    public TrackUrn getTrackUrn() {
+        return trackUrn;
     }
 
     public String getSource() {
@@ -53,15 +60,12 @@ final class PlayQueueItem {
         }
 
         PlayQueueItem that = (PlayQueueItem) o;
-        if (trackId != that.trackId) {
-            return false;
-        } else {
-            return Objects.equal(source, that.source) && Objects.equal(sourceVersion, that.sourceVersion);
-        }
+        return Objects.equal(trackUrn, that.trackUrn) && Objects.equal(source, that.source)
+                && Objects.equal(sourceVersion, that.sourceVersion);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(trackId, source, sourceVersion);
+        return Objects.hashCode(trackUrn, source, sourceVersion);
     }
 }

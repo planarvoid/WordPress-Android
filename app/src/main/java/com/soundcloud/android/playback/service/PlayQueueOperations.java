@@ -88,7 +88,7 @@ public class PlayQueueOperations {
 
         // TODO: migrate the preferences to store the URN, not the ID
         editor.putLong(Keys.TRACK_ID.name(), playQueue.getCurrentTrackUrn().numericId);
-        editor.putInt(Keys.PLAY_POSITION.name(), playQueue.getPosition());
+        editor.putInt(Keys.PLAY_POSITION.name(), playQueue.getCurrentPosition());
         editor.putLong(Keys.SEEK_POSITION.name(), seekPosition);
 
         playSessionSource.saveToPreferences(editor);

@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -38,7 +39,8 @@ public class PlayQueueTest {
     @Test
     public void shouldCreatePlayQueueWithItems() {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2), 0);
-        expect(playQueue.getItems()).toContainExactly(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2);
+        expect(playQueue.getUrnAtPosition(0)).toEqual(PLAY_QUEUE_ITEM_1.getTrackUrn());
+        expect(playQueue.getUrnAtPosition(1)).toEqual(PLAY_QUEUE_ITEM_2.getTrackUrn());
     }
 
     @Test
@@ -47,7 +49,7 @@ public class PlayQueueTest {
 
         playQueue.addTrack(123L, "source3", "version3");
 
-        expect(playQueue.getItems().size()).toEqual(4);
+        expect(playQueue.size()).toEqual(4);
         expect(playQueue.setPosition(3)).toBeTrue();
         expect(playQueue.getCurrentTrackId()).toEqual(123L);
 
@@ -58,11 +60,12 @@ public class PlayQueueTest {
 
     @Test
     public void insertsAudioAdAtPosition() throws Exception {
-        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), 2, playSessionSource);
+        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), 0, playSessionSource);
 
         final AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
         playQueue.insertAudioAdAtPosition(audioAd, 1);
-        expect(playQueue.getItems().get(1).getTrackId()).toBe(audioAd.getTrackSummary().getId());
+
+        expect(playQueue.getUrnAtPosition(1)).toEqual(audioAd.getTrackSummary().getUrn());
         expect(playQueue.size()).toBe(4);
     }
 
@@ -76,14 +79,14 @@ public class PlayQueueTest {
     public void shouldSuccessfullyMoveToNextTrack() {
         PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 0);
         expect(playQueue.moveToNext(false)).toBeTrue();
-        expect(playQueue.getPosition()).toBe(1);
+        expect(playQueue.getCurrentPosition()).toBe(1);
     }
 
     @Test
     public void shouldNotMoveToNextTrackIfAtEndOfQueue() {
         PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 1);
         expect(playQueue.moveToNext(false)).toBeFalse();
-        expect(playQueue.getPosition()).toBe(1);
+        expect(playQueue.getCurrentPosition()).toBe(1);
     }
 
     @Test
@@ -174,14 +177,14 @@ public class PlayQueueTest {
     public void shouldSuccessfullyMoveToPreviousTrack() {
         PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 1);
         expect(playQueue.moveToPrevious()).toBeTrue();
-        expect(playQueue.getPosition()).toBe(0);
+        expect(playQueue.getCurrentPosition()).toBe(0);
     }
 
     @Test
     public void shouldNotMoveToPreviousTrackIfAtHeadOfQueue() {
         PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 0);
         expect(playQueue.moveToPrevious()).toBeFalse();
-        expect(playQueue.getPosition()).toBe(0);
+        expect(playQueue.getCurrentPosition()).toBe(0);
     }
 
     @Test
@@ -218,6 +221,24 @@ public class PlayQueueTest {
         final PlayQueue playQueue = new PlayQueue(Arrays.asList(PlayQueueItem.fromTrack(2L, "", "")), 0);
 
         expect(playQueue.isAudioAd(0)).toBeFalse();
+    }
+
+    @Test
+    public void getUrnAtPositionReturnsNotSetForEmptyQueue() throws Exception {
+        expect(PlayQueue.empty().getUrnAtPosition(0)).toBe(TrackUrn.NOT_SET);
+    }
+
+    @Test
+    public void getUrnAtInvalidPositionReturnsNotSet() throws Exception {
+        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), 0);
+        expect(playQueue.getUrnAtPosition(-1)).toBe(TrackUrn.NOT_SET);
+        expect(playQueue.getUrnAtPosition(3)).toBe(TrackUrn.NOT_SET);
+    }
+
+    @Test
+    public void getUrnAtPositionReturnsUrnAtPosition() throws Exception {
+        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), 0);
+        expect(playQueue.getUrnAtPosition(2)).toEqual(Urn.forTrack(3));
     }
 
     private PlayQueue createPlayQueue(List<Long> idList, int startPosition, PlaySessionSource source) {
