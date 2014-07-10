@@ -26,28 +26,28 @@ public class AdsController {
 
     private Subscription audioAdSubscription = Subscriptions.empty();
 
-    private Func1<PlayQueueEvent, Boolean> hasNextTrackFilter = new Func1<PlayQueueEvent, Boolean>() {
+    private final Func1<PlayQueueEvent, Boolean> hasNextTrackFilter = new Func1<PlayQueueEvent, Boolean>() {
         @Override
         public Boolean call(PlayQueueEvent playQueueEvent) {
             return playQueueManager.getNextTrackUrn() != TrackUrn.NOT_SET;
         }
     };
 
-    private Func1<PropertySet, Boolean> isMonetizeableFilter = new Func1<PropertySet, Boolean>() {
+    private final Func1<PropertySet, Boolean> isMonetizeableFilter = new Func1<PropertySet, Boolean>() {
         @Override
         public Boolean call(PropertySet propertySet) {
             return propertySet.get(TrackProperty.MONETIZABLE);
         }
     };
 
-    private Action1<PlayQueueEvent> unsubscriberFromPreviousAdOp = new Action1<PlayQueueEvent>() {
+    private final Action1<PlayQueueEvent> unsubscriberFromPreviousAdOp = new Action1<PlayQueueEvent>() {
         @Override
         public void call(PlayQueueEvent playQueueEvent) {
             audioAdSubscription.unsubscribe();
         }
     };
 
-    private Func1<PropertySet, Observable<AudioAd>> fetchAudioAdFunction = new Func1<PropertySet, Observable<AudioAd>>() {
+    private final Func1<PropertySet, Observable<AudioAd>> fetchAudioAdFunction = new Func1<PropertySet, Observable<AudioAd>>() {
         @Override
         public Observable<AudioAd> call(PropertySet propertySet) {
             return adsOperations.audioAd(propertySet.get(TrackProperty.URN));
