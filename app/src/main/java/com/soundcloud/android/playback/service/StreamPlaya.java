@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.service;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
 import com.soundcloud.android.preferences.DeveloperPreferences;
@@ -188,11 +189,11 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
         return playaListener.requestAudioFocus();
     }
 
-    public void startBufferingMode(){
+    public void startBufferingMode(TrackUrn trackUrn){
         lastPlaya = currentPlaya;
         currentPlaya = bufferingPlayaDelegate;
 
-        lastStateTransition = new StateTransition(PlayaState.BUFFERING, Reason.NONE);
+        lastStateTransition = new StateTransition(PlayaState.BUFFERING, Reason.NONE, trackUrn);
         onPlaystateChanged(lastStateTransition);
 
         if (lastPlaya != null) {

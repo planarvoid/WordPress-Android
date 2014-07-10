@@ -2,9 +2,9 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
-import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.playback.PlaybackProgress;
 
 import android.content.Intent;
 
@@ -33,6 +33,7 @@ public interface Playa {
 
         @VisibleForTesting
         private static final String DEBUG_EXTRA = "DEBUG_EXTRA";
+        private static final String TRACK_URN_EXTRA = "TRACK_URN_EXTRA";
         private static final String PROGRESS_EXTRA = "PROGRESS_EXTRA";
         private static final String DURATION_EXTRA = "DURATION_EXTRA";
 
@@ -41,32 +42,32 @@ public interface Playa {
 
         public static final StateTransition DEFAULT = new StateTransition(PlayaState.IDLE, Reason.NONE);
 
+        @Deprecated
         public StateTransition(PlayaState newState, Reason reason) {
-            this(newState, reason, 0, 1);
+            this(newState, reason, TrackUrn.NOT_SET);
         }
 
-        public StateTransition(PlayaState newState, Reason reason, long currentProgress, long duration) {
-            this(newState, reason, new PlaybackProgress(currentProgress, duration));
+        public StateTransition(PlayaState newState, Reason reason, TrackUrn trackUrn) {
+            this(newState, reason, trackUrn, 0, 1);
         }
 
-        private StateTransition(PlayaState newState, Reason reason, PlaybackProgress currentProgressEvent) {
+        public StateTransition(PlayaState newState, Reason reason, TrackUrn trackUrn, long currentProgress, long duration) {
             this.newState = newState;
             this.reason = reason;
-            progressEvent = currentProgressEvent;
+            this.trackUrn = trackUrn;
+            progressEvent = new PlaybackProgress(currentProgress, duration);
         }
 
         public void setDebugExtra(String debugExtra){
             this.debugExtra = debugExtra;
         }
 
-        @Deprecated
         public TrackUrn getTrackUrn() {
             return trackUrn;
         }
 
-        @Deprecated
-        public void setTrackUrn(TrackUrn trackUrn) {
-            this.trackUrn = trackUrn;
+        public boolean isForTrack(TrackUrn trackUrn) {
+            return this.trackUrn != null && this.trackUrn.equals(trackUrn);
         }
 
         public PlayaState getNewState() {
@@ -101,6 +102,10 @@ public interface Playa {
             return newState.isBuffering();
         }
 
+        public boolean isPlayQueueComplete(){
+            return reason == Reason.PLAY_QUEUE_COMPLETE;
+        }
+
         public boolean playbackHasStopped(){
             return Reason.PLAYBACK_STOPPED.contains(reason);
         }
@@ -124,6 +129,7 @@ public interface Playa {
         public void addToIntent(Intent intent) {
             newState.addToIntent(intent);
             reason.addToIntent(intent);
+            intent.putExtra(TRACK_URN_EXTRA, getTrackUrn());
             intent.putExtra(PROGRESS_EXTRA, progressEvent.getPosition());
             intent.putExtra(DURATION_EXTRA, progressEvent.getDuration());
             intent.putExtra(DEBUG_EXTRA, debugExtra);
@@ -131,7 +137,8 @@ public interface Playa {
 
         public static StateTransition fromIntent(Intent intent) {
             final StateTransition stateTransition = new StateTransition(PlayaState.fromIntent(intent), Reason.fromIntent(intent),
-                    intent.getLongExtra(PROGRESS_EXTRA, 0), intent.getLongExtra(DURATION_EXTRA, 0));
+                    (TrackUrn) intent.getParcelableExtra(TRACK_URN_EXTRA), intent.getLongExtra(PROGRESS_EXTRA, 0),
+                    intent.getLongExtra(DURATION_EXTRA, 0));
 
             stateTransition.setDebugExtra(intent.getStringExtra(DEBUG_EXTRA));
             return stateTransition;

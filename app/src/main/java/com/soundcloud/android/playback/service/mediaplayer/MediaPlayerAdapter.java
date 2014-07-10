@@ -4,13 +4,15 @@ import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.streaming.StreamProxy;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import rx.Subscription;
@@ -336,8 +338,12 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         internalState = playbackState;
 
         if (playaListener != null) {
-            playaListener.onPlaystateChanged( new StateTransition(getTranslatedState(), getTranslatedReason(), progress, duration));
+            playaListener.onPlaystateChanged( new StateTransition(getTranslatedState(), getTranslatedReason(), getTrackUrn(), progress, duration));
         }
+    }
+
+    private TrackUrn getTrackUrn() {
+        return track == null ? TrackUrn.NOT_SET : track.getUrn();
     }
 
     boolean isInErrorState(){

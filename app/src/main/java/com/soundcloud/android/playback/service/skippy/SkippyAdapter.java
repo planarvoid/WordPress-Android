@@ -50,6 +50,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final ApplicationProperties applicationProperties;
 
     private volatile String currentStreamUrl;
+    private TrackUrn currentTrackUrn;
     private PlayaListener playaListener;
     private long lastStateChangeProgress;
 
@@ -77,6 +78,8 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void play(Track track, long fromPos) {
+        currentTrackUrn = track.getUrn();
+
         if (!accountOperations.isUserLoggedIn()) {
             throw new IllegalStateException("Cannot play a track if no soundcloud account exists");
         }
@@ -89,12 +92,13 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
         if (!playaListener.requestAudioFocus()){
             Log.e(TAG,"Unable to acquire audio focus, aborting playback");
-            playaListener.onPlaystateChanged(new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, fromPos, track.duration));
+            playaListener.onPlaystateChanged(new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, currentTrackUrn, fromPos, track.duration));
             return;
         }
 
         stateHandler.removeMessages(0);
         lastStateChangeProgress = 0;
+
 
         final String trackUrl = playbackOperations.buildHLSUrlForTrack(track);
         if (trackUrl.equals(currentStreamUrl)) {
@@ -190,7 +194,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
             final PlayaState translatedState = getTranslatedState(state, reason);
             final Reason translatedReason = getTranslatedReason(reason, errorcode);
-            final StateTransition transition = new StateTransition(translatedState, translatedReason, position, duration);
+            final StateTransition transition = new StateTransition(translatedState, translatedReason, currentTrackUrn, position, duration);
 
             if (transition.playbackHasStopped()){
                 currentStreamUrl = null;

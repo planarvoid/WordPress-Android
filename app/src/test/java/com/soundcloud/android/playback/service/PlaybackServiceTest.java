@@ -219,12 +219,12 @@ public class PlaybackServiceTest {
         when(applicationProperties.shouldUseRichNotifications()).thenReturn(true);
         playbackService.onCreate();
 
-        when(streamPlayer.getLastStateTransition()).thenReturn(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE));
+        when(streamPlayer.getLastStateTransition()).thenReturn(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, track.getUrn()));
         when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
         playbackService.openCurrent(new Track());
 
         playbackService.stop();
-        playbackService.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE));
+        playbackService.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, track.getUrn()));
 
         ShadowService service = Robolectric.shadowOf(playbackService);
         expect(service.getLastForegroundNotification()).toBeNull();
@@ -236,14 +236,15 @@ public class PlaybackServiceTest {
         when(applicationProperties.shouldUseRichNotifications()).thenReturn(true);
         playbackService.onCreate();
 
-        when(streamPlayer.getLastStateTransition()).thenReturn(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE));
+        when(streamPlayer.getLastStateTransition()).thenReturn(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, track.getUrn()));
         when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<Track>empty());
         when(playbackNotificationController.playingNotification()).thenReturn(Observable.just(Mockito.mock(Notification.class)));
-        playbackService.openCurrent(new Track());
+        playbackService.openCurrent(track);
 
+        final Track track2 = TestHelper.getModelFactory().createModel(Track.class);
         playbackService.stop();
-        playbackService.openCurrent(new Track());
-        playbackService.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE));
+        playbackService.openCurrent(track2);
+        playbackService.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, track2.getUrn()));
 
         ShadowService service = Robolectric.shadowOf(playbackService);
         final Notification lastForegroundNotification = service.getLastForegroundNotification();

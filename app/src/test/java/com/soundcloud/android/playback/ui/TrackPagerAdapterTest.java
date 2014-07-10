@@ -49,6 +49,7 @@ public class TrackPagerAdapterTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ViewGroup container;
 
+    private TrackUrn trackUrn = Urn.forTrack(123L);
     private TestEventBus eventBus;
     private TrackPagerAdapter adapter;
 
@@ -88,7 +89,7 @@ public class TrackPagerAdapterTest {
     @Test
     public void onPlayingStateEventCallsSetPlayStateOnPresenter() {
         final View currentTrackView = getPageView();
-        StateTransition state = new StateTransition(PlayaState.PLAYING, Reason.NONE);
+        StateTransition state = new StateTransition(PlayaState.PLAYING, Reason.NONE, trackUrn);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
@@ -103,7 +104,7 @@ public class TrackPagerAdapterTest {
         final View viewForOtherTrack = getPageView(4, Urn.forTrack(234L));
 
         Mockito.reset(trackPagePresenter);
-        StateTransition state = new StateTransition(PlayaState.PLAYING, Reason.NONE);
+        StateTransition state = new StateTransition(PlayaState.PLAYING, Reason.NONE, trackUrn);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
         verify(trackPagePresenter).setPlayState(viewForCurrentTrack, state, true);

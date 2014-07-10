@@ -20,6 +20,8 @@ import java.util.List;
 public class ScModel implements Parcelable, Identifiable {
 
     public static final String EXTRA_ID = "id";
+
+    @Deprecated
     public static final int NOT_SET = -1;
 
     private long mID = NOT_SET;

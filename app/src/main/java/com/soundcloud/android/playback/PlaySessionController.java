@@ -27,13 +27,12 @@ import android.graphics.Bitmap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.concurrent.TimeUnit;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class PlaySessionController {
 
-    private static final StateTransition PLAY_QUEUE_COMPLETE_EVENT = new StateTransition(PlayaState.IDLE, Playa.Reason.PLAY_QUEUE_COMPLETE);
     private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
     private final Resources resources;
     private final EventBus eventBus;
@@ -100,18 +99,22 @@ public class PlaySessionController {
         public void onNext(StateTransition stateTransition) {
 
             if (!StateTransition.DEFAULT.equals(stateTransition)) {
+
+                final boolean saveQueueAfterTrackChange = currentPlayingUrn != null &&
+                        !stateTransition.isForTrack(currentPlayingUrn);
+
                 lastStateTransition = stateTransition;
                 currentPlayingUrn = stateTransition.getTrackUrn();
                 progressMap.put(currentPlayingUrn, stateTransition.getProgress());
 
                 audioManager.setPlaybackState(stateTransition.playSessionIsActive());
 
-                if (stateTransition.isPlayerIdle() && !stateTransition.equals(PLAY_QUEUE_COMPLETE_EVENT)) {
+                if (saveQueueAfterTrackChange || (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete())) {
                     if (stateTransition.trackEnded()) {
                         if (playQueueManager.autoNextTrack()) {
                             playbackOperations.playCurrent();
                         } else {
-                            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, PLAY_QUEUE_COMPLETE_EVENT);
+                            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(currentPlayingUrn));
                         }
                     }
                     saveProgress(stateTransition);
@@ -165,5 +168,9 @@ public class PlaySessionController {
             currentTrackSubscription = imageOperations.image(currentPlayQueueTrack.getUrn(), ApiImageSize.getFullImageSize(resources), true)
                     .subscribe(new ArtworkSubscriber());
         }
+    }
+
+    private StateTransition createPlayQueueCompleteEvent(TrackUrn trackUrn){
+        return new StateTransition(PlayaState.IDLE, Playa.Reason.PLAY_QUEUE_COMPLETE, trackUrn);
     }
 }

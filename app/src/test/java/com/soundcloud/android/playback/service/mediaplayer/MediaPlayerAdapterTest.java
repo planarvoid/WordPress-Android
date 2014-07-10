@@ -123,7 +123,7 @@ public class MediaPlayerAdapterTest {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
         when(mediaPlayer.getDuration()).thenReturn(DURATION);
         mediaPlayerAdapter.play(track);
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 0, 0)));
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.getUrn(), 0, 0)));
         verifyNoMoreInteractions(listener);
     }
 
@@ -150,8 +150,8 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
         InOrder inOrder = Mockito.inOrder(listener);
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 0, 0)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.getUrn(), 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, track.getUrn(), 0, 0)));
     }
 
     @Test
@@ -191,8 +191,8 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.pause();
 
         InOrder inOrder = Mockito.inOrder(listener);
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 0, 0)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE, 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.getUrn(), 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE, track.getUrn(), 0, 0)));
     }
 
     @Test
@@ -348,8 +348,8 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.play(track);
 
         InOrder inOrder = inOrder(listener);
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 0, 0)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.getUrn(), 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, track.getUrn(), 0, 0)));
     }
 
     @Test
@@ -359,8 +359,8 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.play(track);
 
         InOrder inOrder = inOrder(listener);
-        inOrder.verify(listener, times(4)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 0, 0)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, 0, 0)));
+        inOrder.verify(listener, times(4)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.getUrn(), 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, track.getUrn(), 0, 0)));
     }
 
     @Test
@@ -436,8 +436,8 @@ public class MediaPlayerAdapterTest {
         }
 
         InOrder inOrder = inOrder(listener);
-        inOrder.verify(listener, times(4)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 0, 0)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, 0, 0)));
+        inOrder.verify(listener, times(4)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.getUrn(), 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, track.getUrn(), 0, 0)));
     }
 
     @Test
@@ -519,7 +519,7 @@ public class MediaPlayerAdapterTest {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, 123, DURATION)));
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.getUrn(), 123, DURATION)));
     }
 
     @Test
@@ -554,7 +554,7 @@ public class MediaPlayerAdapterTest {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_END, 0);
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, 123, DURATION)));
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, track.getUrn(), 123, DURATION)));
     }
 
     @Test
@@ -576,7 +576,7 @@ public class MediaPlayerAdapterTest {
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.stop();
         verify(mediaPlayer).stop();
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE, 123, DURATION)));
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE, track.getUrn(), 123, DURATION)));
     }
 
     @Test

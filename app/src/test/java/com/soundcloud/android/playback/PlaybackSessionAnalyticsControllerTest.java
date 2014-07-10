@@ -71,8 +71,8 @@ public class PlaybackSessionAnalyticsControllerTest {
     }
 
     @Test
-    public void stateChangeEventDoesNotPublishEventWithNoTrackUrn() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE));
+    public void stateChangeEventDoesNotPublishEventWithInvalidTrackUrn() throws Exception {
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, TrackUrn.NOT_SET));
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
     }
 
@@ -161,14 +161,12 @@ public class PlaybackSessionAnalyticsControllerTest {
     protected void publishPlayingEvent() {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
 
-        final Playa.StateTransition startEvent = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE);
-        startEvent.setTrackUrn(TRACK_URN);
+        final Playa.StateTransition startEvent = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, startEvent);
     }
 
     protected void publishStopEvent(Playa.PlayaState newState, Playa.Reason reason) {
-        final Playa.StateTransition stopEvent = new Playa.StateTransition(newState, reason);
-        stopEvent.setTrackUrn(TRACK_URN);
+        final Playa.StateTransition stopEvent = new Playa.StateTransition(newState, reason, TRACK_URN);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stopEvent);
     }
 

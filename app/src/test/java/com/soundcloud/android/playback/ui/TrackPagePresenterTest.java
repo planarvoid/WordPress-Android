@@ -13,6 +13,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.TrackProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.WaveformView;
@@ -108,25 +109,25 @@ public class TrackPagePresenterTest {
 
     @Test
     public void playingStateWithCurrentTrackShowsPlayingStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, 10, 20), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET, 10, 20), true);
         verify(waveformViewController).showPlayingState(eq(new PlaybackProgress(10, 20)));
     }
 
     @Test
     public void playingStateWithCurrentTrackShowsPlayingStateWithProgressOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, 10, 20), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), true);
         verify(artworkController).showPlayingState(eq(new PlaybackProgress(10, 20)));
     }
 
     @Test
     public void playingStateWithOtherTrackShowsIdleStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, 10, 20), false);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), false);
         verify(waveformViewController).showIdleState();
     }
 
     @Test
     public void playingStateWithOtherTrackShowsPlayingStateWithoutProgressOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, 10, 20), false);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), false);
         verify(artworkController).showSessionActiveState();
     }
 

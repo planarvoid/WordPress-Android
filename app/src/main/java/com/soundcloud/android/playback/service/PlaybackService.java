@@ -3,16 +3,18 @@ package com.soundcloud.android.playback.service;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.track.LegacyTrackOperations;
@@ -295,10 +297,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             onIdleState();
         }
 
-        if (currentTrack != null) {
-            stateTransition.setTrackUrn(currentTrack.getUrn());
-        }
-
         notifyChange(Broadcasts.PLAYSTATE_CHANGED, stateTransition);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
     }
@@ -354,12 +352,11 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     // TODO : Handle tracks that are not in local storage (quicksearch)
     /* package */ void openCurrent() {
         if (!getPlayQueueInternal().isEmpty()) {
+            streamPlayer.startBufferingMode(getPlayQueueInternal().getCurrentTrackUrn());
 
-            streamPlayer.startBufferingMode();
 
-            final long currentTrackId = getPlayQueueInternal().getCurrentTrackId();
             loadTrackSubscription.unsubscribe();
-            loadTrackSubscription = trackOperations.loadTrack(currentTrackId, AndroidSchedulers.mainThread())
+            loadTrackSubscription = trackOperations.loadTrack(getPlayQueueInternal().getCurrentTrackId(), AndroidSchedulers.mainThread())
                     .subscribe(new TrackInformationSubscriber());
         }
     }
@@ -367,14 +364,18 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private class TrackInformationSubscriber extends DefaultSubscriber<Track> {
         @Override
         public void onError(Throwable throwable) {
-            onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED));
+            onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED, getCurrentTrackUrn()));
         }
 
         @Override
         public void onNext(Track track) {
             openCurrent(track);
         }
-    };
+    }
+
+    private TrackUrn getCurrentTrackUrn() {
+        return currentTrack == null ? TrackUrn.NOT_SET : currentTrack.getUrn();
+    }
 
     /* package */ void openCurrent(Track track) {
         if (track != null) {
@@ -403,7 +404,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private class StreamableTrackInformationSubscriber extends DefaultSubscriber<Track> {
         @Override
         public void onError(Throwable e) {
-            onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED));
+            onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED, getCurrentTrackUrn()));
         }
 
         @Override
