@@ -27,7 +27,7 @@ public abstract class Urn implements Parcelable {
     public static final String USERS_TYPE = "users";
 
     public static final String ADSWIZZ_SCHEME = "adswizz";
-    public static final String AD_TYPE = "ad";
+    public static final String AD_TYPE = "ads";
 
     private static final Pattern URN_PATTERN = Pattern.compile("^("+SOUNDCLOUD_SCHEME + "|" + ADSWIZZ_SCHEME + "):(" + SOUNDS_TYPE +
             "|" + TRACKS_TYPE + "|" + PLAYLISTS_TYPE + "|" + USERS_TYPE + "|" + AD_TYPE + "):-?\\d+");
@@ -44,15 +44,9 @@ public abstract class Urn implements Parcelable {
         }
     };
 
-    @NotNull
-    @Deprecated
-    public final String scheme;
-
-    @NotNull
-    @Deprecated
-    public final String type;
-    @Deprecated
-    public final long numericId;
+    @NotNull @Deprecated public final String scheme;
+    @NotNull @Deprecated public final String type;
+    @Deprecated public final long numericId;
 
     public static boolean isValidUrn(Uri uri) {
         return isValidUrn(uri.toString());
@@ -76,13 +70,13 @@ public abstract class Urn implements Parcelable {
         }
 
         final String type = fixType(components[0]);
-         if (SOUNDS_TYPE.equals(type) || TRACKS_TYPE.equals(type)) {
+        if (SOUNDS_TYPE.equals(type) || TRACKS_TYPE.equals(type)) {
             return forTrack(id);
         } else if (PLAYLISTS_TYPE.equals(type)) {
             return forPlaylist(id);
-        } else if (AD_TYPE.equals(type)){
-             return forAd(id);
-         } else {
+        } else if (AD_TYPE.equals(type)) {
+            return forAd(id);
+        } else {
             return forUser(id);
         }
     }

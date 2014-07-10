@@ -39,6 +39,6 @@ class UrnResolver {
     }
 
     private Urn getUrn(Matcher matcher) {
-        return Urn.parse(Urn.SOUNDCLOUD_SCHEME + ":" + matcher.group(1).toLowerCase(Locale.ENGLISH) + ":" + matcher.group(2));
+        return Urn.parse(Urn.SOUNDCLOUD_SCHEME + ":" + matcher.group(1).toLowerCase(Locale.US) + ":" + matcher.group(2));
     }
 }

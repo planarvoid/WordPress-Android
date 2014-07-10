@@ -1,6 +1,6 @@
 
 {
-   "urn":"adswizz:ad:263",
+   "urn":"adswizz:ads:263",
    "track":{
       "duration":44541,
       "genre":null,
@@ -30,7 +30,7 @@
       },
       "user_tags":[],
       "commentable":true,
-      "urn":"soundcloud:sounds:96416915",
+      "urn":"soundcloud:tracks:96416915",
       "sharing":"public",
       "stream_url":"https://api.soundcloud.com/tracks/96416915/stream",
       "created_at":"2013/06/11 14:41:40 +0000",
@@ -49,7 +49,7 @@
    },
    "_embedded":{
        "visual_ad":{
-          "urn":"adswizz:ad:82",
+          "urn":"adswizz:ads:82",
           "image_url":"https://va.sndcdn.com/da/ad_user-likes_v3.jpg",
           "clickthrough_url":"https://www.soundcloud.com/you/likes",
           "tracking_impression_url":"https://promoted.soundcloud.com/impression?adData=instance%3Asoundcloud%3Bad_id%3A263%3Bview_key%3A1401441272790582%3Bzone_id%3A19&loc=&listenerId=38cfbf01fa3450d214e1cc37548d18&sessionId=3e89b0ad42cff51ed4de13fd8ec97497&ip=%3A%3Affff%3A62.72.64.50&user_agent=http.async.client%2F0.5.2&cbs=5346259",

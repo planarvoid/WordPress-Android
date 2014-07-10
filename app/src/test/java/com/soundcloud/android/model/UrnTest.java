@@ -60,10 +60,10 @@ public class UrnTest {
 
     @Test
     public void shouldParseAdUrns() throws Exception {
-        Urn urn = Urn.parse("adswizz:ad:123");
+        Urn urn = Urn.parse("adswizz:ads:123");
         expect(urn).toBeInstanceOf(AdUrn.class);
         expect(urn.scheme).toEqual("adswizz");
-        expect(urn.type).toEqual("ad");
+        expect(urn.type).toEqual("ads");
         expect(urn.numericId).toEqual(123L);
         expect(urn.isSound()).toBeFalse();
     }

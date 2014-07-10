@@ -15,12 +15,12 @@ import com.soundcloud.android.storage.BulkStorage;
 import rx.Observable;
 import rx.functions.Action1;
 
-public class AdOperations {
+class AdOperations {
 
     private final RxHttpClient rxHttpClient;
     private final BulkStorage bulkStorage;
 
-    public AdOperations(RxHttpClient rxHttpClient, BulkStorage bulkStorage) {
+    AdOperations(RxHttpClient rxHttpClient, BulkStorage bulkStorage) {
         this.rxHttpClient = rxHttpClient;
         this.bulkStorage = bulkStorage;
     }
