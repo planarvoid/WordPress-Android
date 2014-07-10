@@ -50,7 +50,7 @@ public class AdsController {
     private Func1<PropertySet, Observable<AudioAd>> fetchAudioAdFunction = new Func1<PropertySet, Observable<AudioAd>>() {
         @Override
         public Observable<AudioAd> call(PropertySet propertySet) {
-            return adsOperations.getAudioAd(propertySet.get(TrackProperty.URN));
+            return adsOperations.audioAd(propertySet.get(TrackProperty.URN));
         }
     };
 
