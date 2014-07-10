@@ -54,6 +54,7 @@ public class AdsControllerTest {
 
     @Test
     public void trackChangeEventInsertsAudioAdIntoPlayQueue() throws CreateModelException {
+        when(playQueueManager.hasNextTrack()).thenReturn(true);
         when(playQueueManager.getNextTrackUrn()).thenReturn(NEXT_TRACK_URN);
         when(trackOperations.track(NEXT_TRACK_URN)).thenReturn(Observable.just(MONETIZEABLE_PROPERTY_SET));
         when(adsOperations.audioAd(NEXT_TRACK_URN)).thenReturn(Observable.just(audioAd));
@@ -65,7 +66,7 @@ public class AdsControllerTest {
 
     @Test
     public void trackChangeEventDoesNothingIfNoNextTrack() {
-        when(playQueueManager.getNextTrackUrn()).thenReturn(TrackUrn.NOT_SET);
+        when(playQueueManager.hasNextTrack()).thenReturn(false);
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(CURRENT_TRACK_URN));
 
@@ -73,7 +74,18 @@ public class AdsControllerTest {
     }
 
     @Test
+    public void trackChangeEventDoesNothingIfNextTrackIsAudioAd() {
+        when(playQueueManager.hasNextTrack()).thenReturn(true);
+        when(playQueueManager.isNextTrackAudioAd()).thenReturn(true);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(CURRENT_TRACK_URN));
+
+        verify(playQueueManager, never()).insertAd(any(AudioAd.class));
+    }
+
+    @Test
     public void trackChangeEventDoesNothingIfNextTrackIsNotMonetizeable() {
+        when(playQueueManager.hasNextTrack()).thenReturn(true);
         when(playQueueManager.getNextTrackUrn()).thenReturn(NEXT_TRACK_URN);
         when(trackOperations.track(NEXT_TRACK_URN)).thenReturn(Observable.just(NON_MONETIZEABLE_PROPERTY_SET));
 
@@ -84,6 +96,7 @@ public class AdsControllerTest {
 
     @Test
     public void trackChangeEventDoesNothingIfAudioAdFetchEmitsError() {
+        when(playQueueManager.hasNextTrack()).thenReturn(true);
         when(playQueueManager.getNextTrackUrn()).thenReturn(NEXT_TRACK_URN);
         when(trackOperations.track(NEXT_TRACK_URN)).thenReturn(Observable.just(MONETIZEABLE_PROPERTY_SET));
         when(adsOperations.audioAd(NEXT_TRACK_URN)).thenReturn(Observable.<AudioAd>error(new IOException("Ad fetch error")));
@@ -97,6 +110,7 @@ public class AdsControllerTest {
     public void unsubscribesFromCurrentAdFetchOnPlayQueueEvent() throws Exception {
         Subscription adFetchSubscription = mock(Subscription.class);
 
+        when(playQueueManager.hasNextTrack()).thenReturn(true);
         when(playQueueManager.getNextTrackUrn()).thenReturn(NEXT_TRACK_URN);
         when(trackOperations.track(NEXT_TRACK_URN)).thenReturn(Observable.just(MONETIZEABLE_PROPERTY_SET));
         when(adsOperations.audioAd(NEXT_TRACK_URN)).thenReturn(TestObservables.<AudioAd>endlessObservablefromSubscription(adFetchSubscription));

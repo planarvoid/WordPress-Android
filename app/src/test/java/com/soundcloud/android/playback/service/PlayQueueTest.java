@@ -224,6 +224,14 @@ public class PlayQueueTest {
     }
 
     @Test
+    public void isAudioAdReturnsFalseAtInvalidPopsition() {
+        final PlayQueue playQueue = new PlayQueue(Arrays.asList(PlayQueueItem.fromTrack(2L, "", "")), 0);
+
+        expect(playQueue.isAudioAd(1)).toBeFalse();
+        expect(playQueue.isAudioAd(-1)).toBeFalse();
+    }
+
+    @Test
     public void getUrnAtPositionReturnsNotSetForEmptyQueue() throws Exception {
         expect(PlayQueue.empty().getUrnAtPosition(0)).toBe(TrackUrn.NOT_SET);
     }

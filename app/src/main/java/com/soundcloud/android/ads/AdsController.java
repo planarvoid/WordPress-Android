@@ -3,7 +3,6 @@ package com.soundcloud.android.ads;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.TrackProperty;
-import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -26,10 +25,10 @@ public class AdsController {
 
     private Subscription audioAdSubscription = Subscriptions.empty();
 
-    private final Func1<PlayQueueEvent, Boolean> hasNextTrackFilter = new Func1<PlayQueueEvent, Boolean>() {
+    private final Func1<PlayQueueEvent, Boolean> hasNextNonAudioAdTrackFilter = new Func1<PlayQueueEvent, Boolean>() {
         @Override
         public Boolean call(PlayQueueEvent playQueueEvent) {
-            return playQueueManager.getNextTrackUrn() != TrackUrn.NOT_SET;
+            return playQueueManager.hasNextTrack() && !playQueueManager.isNextTrackAudioAd();
         }
     };
 
@@ -64,9 +63,8 @@ public class AdsController {
 
     public void subscribe() {
         eventBus.queue(EventQueue.PLAY_QUEUE)
-                .filter(PlayQueueEvent.TRACK_HAS_CHANGED_FILTER)
                 .doOnNext(unsubscriberFromPreviousAdOp)
-                .filter(hasNextTrackFilter)
+                .filter(hasNextNonAudioAdTrackFilter)
                 .subscribe(new PlayQueueSubscriber());
     }
 

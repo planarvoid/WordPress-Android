@@ -216,6 +216,10 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return playQueue.isAudioAd(position);
     }
 
+    public boolean isNextTrackAudioAd() {
+        return playQueue.isAudioAd(getNextPosition());
+    }
+
     @Override
     public String getScreenTag() {
         return playSessionSource.getOriginScreen();
@@ -251,6 +255,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     public void insertAd(AudioAd audioAd) {
         playQueue.insertAudioAdAtPosition(audioAd, getNextPosition());
         broadcastQueueUpdate();
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackUrn()));
     }
 
     private void loadRecommendedTracks() {
@@ -273,7 +278,13 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     @Override
     public void onCompleted() {
         // TODO, save new tracks to database
-        setNewRelatedLoadingState(gotRecommendedTracks ? FetchRecommendedState.IDLE : FetchRecommendedState.EMPTY);
+        if (gotRecommendedTracks){
+            setNewRelatedLoadingState(FetchRecommendedState.IDLE);
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackUrn()));
+        } else {
+            setNewRelatedLoadingState(FetchRecommendedState.EMPTY);
+        }
+
     }
 
     @Override
@@ -290,7 +301,6 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         final Intent intent = new Intent(RELATED_LOAD_STATE_CHANGED_ACTION)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(fetchState));
         context.sendBroadcast(intent);
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackUrn()));
     }
 
     private void broadcastNewPlayQueue() {

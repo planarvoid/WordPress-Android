@@ -148,7 +148,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     boolean isAudioAd(int position) {
-        return playQueueItems.get(position).isAudioAd();
+        return position >= 0 && position < size() && playQueueItems.get(position).isAudioAd();
     }
 
     private List<Long> getTrackIds() {
