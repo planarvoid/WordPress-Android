@@ -4,7 +4,7 @@ import com.google.common.base.Objects;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.utils.ScTextUtils;
 
-class PlayQueueItem {
+final class PlayQueueItem {
 
     private final long trackId;
     private final String source;
