@@ -5,11 +5,11 @@
 Make sure the [Android SDK][] and Maven (3.1+ required) are installed.
 
     $ brew tap homebrew/versions
-    $ brew install android-sdk android-ndk homebrew/versions/maven30 # OSX - you'll also need XCode CLI tools
+    $ brew install android-sdk android-ndk homebrew/versions/maven # OSX - you'll also need XCode CLI tools
     $ mv /usr/bin/mvn{,.old}
     $ mvn -version
-    Apache Maven 3.0.4 (r1232337; 2012-01-17 09:44:56+0100)
-
+    Apache Maven 3.2.2 (45f7c067; 2014-06-17T15:51:42+02:00)
+    
 
 Add thess lines to your .zshrc (or bash's .bash_profile or whatever)
 
@@ -46,6 +46,10 @@ Select Next and confirm the import of the parent project.
 
 IDEA will automatically download and manage dependencies. 
 
+To set up shared codestyle settings for Intellij:
+
+    $ rake setup_codestyle 
+    
 ## Running tests
 
 ### Robolectric tests on command line
