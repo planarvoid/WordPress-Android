@@ -2,15 +2,13 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
-import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.TrackUrn;
-import com.soundcloud.android.storage.BulkStorage;
+import com.soundcloud.android.track.TrackWriteStorage;
 import rx.Observable;
 import rx.functions.Action1;
 
@@ -19,25 +17,22 @@ import javax.inject.Inject;
 class AdsOperations {
 
     private final RxHttpClient rxHttpClient;
-    private final BulkStorage bulkStorage;
+    private final TrackWriteStorage trackWriteStorage;
 
     @Inject
-    AdsOperations(RxHttpClient rxHttpClient, BulkStorage bulkStorage) {
+    AdsOperations(RxHttpClient rxHttpClient, TrackWriteStorage trackWriteStorage) {
         this.rxHttpClient = rxHttpClient;
-        this.bulkStorage = bulkStorage;
+        this.trackWriteStorage = trackWriteStorage;
     }
 
-    @Deprecated
-    // matthias is working on write architecture for api-mobile models. This is temporary
     private final Action1<AudioAd> cacheAudioAdTrack = new Action1<AudioAd>() {
         @Override
         public void call(AudioAd audioAd) {
-            final TrackSummary trackSummary = audioAd.getTrackSummary();
-            fireAndForget(bulkStorage.bulkInsertAsync(Lists.transform(Lists.newArrayList(trackSummary), TrackSummary.TO_TRACK)));
+            fireAndForget(trackWriteStorage.storeTrackAsync(audioAd.getTrackSummary()));
         }
     };
 
-    public Observable<AudioAd> getAudioAd(TrackUrn sourceUrn) {
+    public Observable<AudioAd> audioAd(TrackUrn sourceUrn) {
         final String endpoint = String.format(APIEndpoints.AUDIO_AD.path(), sourceUrn.toEncodedString());
         final APIRequest<AudioAd> request = SoundCloudAPIRequest.RequestBuilder.<AudioAd>get(endpoint)
                 .forPrivateAPI(1)

@@ -1,11 +1,14 @@
 package com.soundcloud.android.track;
 
 import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
-import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.Where;
+import com.soundcloud.propeller.WhereBuilder;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import rx.Observable;
 
@@ -22,14 +25,24 @@ public class TrackWriteStorage {
         this.scheduler = scheduler;
     }
 
-    public Observable<InsertResult> storeTrack(final TrackSummary track) {
-        return scheduler.scheduleTransaction(new PropellerDatabase.Transaction<InsertResult>() {
+    public Observable<ChangeResult> storeTrackAsync(final TrackSummary track) {
+        return scheduler.scheduleTransaction(new PropellerDatabase.Transaction<ChangeResult>() {
             @Override
-            public InsertResult execute(PropellerDatabase propeller) {
-                if (!propeller.insert(Table.USERS.name, buildUserContentValues(track)).success()) {
+            public ChangeResult execute(PropellerDatabase propeller) {
+                if (!upsertUser(propeller)) {
                     fail();
                 }
-                return propeller.insert(Table.SOUNDS.name, buildTrackContentValues(track));
+                return upsertTrack(propeller);
+            }
+
+            private boolean upsertUser(PropellerDatabase propeller) {
+                Where matchUserId = new WhereBuilder().whereEq(TableColumns.Users._ID, track.getUser().getId());
+                return propeller.upsert(Table.USERS.name, buildUserContentValues(track.getUser()), matchUserId).getNumRowsAffected() == 1;
+            }
+
+            private ChangeResult upsertTrack(PropellerDatabase propeller) {
+                Where matchTrackId = new WhereBuilder().whereEq(TableColumns.Sounds._ID, track.getId());
+                return propeller.upsert(Table.SOUNDS.name, buildTrackContentValues(track), matchTrackId);
             }
         });
     }
@@ -56,10 +69,10 @@ public class TrackWriteStorage {
                 .get();
     }
 
-    private ContentValues buildUserContentValues(TrackSummary track) {
+    private ContentValues buildUserContentValues(UserSummary user) {
         return ContentValuesBuilder.values()
-                .put(TableColumns.Users._ID, track.getUser().getId())
-                .put(TableColumns.Users.USERNAME, track.getUser().getUsername())
+                .put(TableColumns.Users._ID, user.getId())
+                .put(TableColumns.Users.USERNAME, user.getUsername())
                 .get();
     }
 

@@ -4,27 +4,23 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.storage.BulkStorage;
+import com.soundcloud.android.track.TrackWriteStorage;
+import com.soundcloud.propeller.ChangeResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
-
-import java.util.Collection;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AdsOperationsTest {
@@ -35,12 +31,12 @@ public class AdsOperationsTest {
     private AudioAd audioAd;
 
     @Mock private RxHttpClient rxHttpClient;
-    @Mock private BulkStorage bulkStorage;
+    @Mock private TrackWriteStorage trackWriteStorage;
 
 
     @Before
     public void setUp() throws Exception {
-        adsOperations = new AdsOperations(rxHttpClient, bulkStorage);
+        adsOperations = new AdsOperations(rxHttpClient, trackWriteStorage);
         audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
     }
 
@@ -48,18 +44,18 @@ public class AdsOperationsTest {
     public void audioAdReturnsAudioAdFromMobileApi() throws Exception {
         final String endpoint = String.format(APIEndpoints.AUDIO_AD.path(), TRACK_URN.toEncodedString());
         when(rxHttpClient.<AudioAd>fetchModels(argThat(isMobileApiRequestTo("GET", endpoint)))).thenReturn(Observable.just(audioAd));
-        when(bulkStorage.bulkInsertAsync(any(Collection.class))).thenReturn(Observable.<Collection>empty());
+        when(trackWriteStorage.storeTrackAsync(audioAd.getTrackSummary())).thenReturn(Observable.<ChangeResult>empty());
 
-        expect(adsOperations.getAudioAd(TRACK_URN).toBlocking().first()).toBe(audioAd);
+        expect(adsOperations.audioAd(TRACK_URN).toBlocking().first()).toBe(audioAd);
     }
 
     @Test
     public void audioAdWritesEmbeddedTrackToStorage() throws Exception {
         when(rxHttpClient.<AudioAd>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(audioAd));
-        when(bulkStorage.bulkInsertAsync(any(Collection.class))).thenReturn(Observable.<Collection>empty());
+        when(trackWriteStorage.storeTrackAsync(audioAd.getTrackSummary())).thenReturn(Observable.<ChangeResult>empty());
 
-        adsOperations.getAudioAd(TRACK_URN).subscribe();
+        adsOperations.audioAd(TRACK_URN).subscribe();
 
-        verify(bulkStorage).bulkInsertAsync(eq(Lists.newArrayList(new Track(audioAd.getTrackSummary()))));
+        verify(trackWriteStorage).storeTrackAsync(audioAd.getTrackSummary());
     }
 }

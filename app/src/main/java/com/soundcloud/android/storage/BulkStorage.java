@@ -12,6 +12,7 @@ import android.content.ContentResolver;
 
 import javax.inject.Inject;
 
+@Deprecated
 public class BulkStorage extends ScheduledOperations {
 
     private final ContentResolver contentResolver;
