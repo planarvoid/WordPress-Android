@@ -164,7 +164,7 @@ public class PlaybackSessionAnalyticsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(track.getUrn()));
 
-        expect(eventBus.lastEventOn(EventQueue.PLAYBACK_SESSION).isPlayEvent());
+        expect(eventBus.lastEventOn(EventQueue.PLAYBACK_SESSION).isPlayEvent()).toBeTrue();
     }
 
     protected void publishPlayingEvent() {
