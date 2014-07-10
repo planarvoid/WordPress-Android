@@ -100,6 +100,14 @@ public class PlaybackNotificationControllerTest {
     }
 
     @Test
+    public void playQueueEventDoesNotCreateNewNotificationFromQueueUpdateEvent() {
+        controller.subscribe();
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(TRACK_URN));
+
+        verify(notificationManager, never()).notify(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID, notification);
+    }
+
+    @Test
     public void playQueueEventDoesNotCheckBitmapCacheIfPresenterNotArtworkCapable() {
         when(playbackNotificationPresenter.artworkCapable()).thenReturn(false);
 

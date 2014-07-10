@@ -87,7 +87,7 @@ public class PlayerWidgetControllerTest {
     }
 
     @Test
-    public void shouldUpdatePresenterPlayableInformationOnPlayQueueEvent() throws CreateModelException {
+    public void shouldUpdatePresenterPlayableInformationOnNewQueuePlayQueueEvent() throws CreateModelException {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
         controller.subscribe();
@@ -96,6 +96,18 @@ public class PlayerWidgetControllerTest {
 
         verify(playerWidgetPresenter).updatePlayableInformation(any(Context.class), eq(track));
     }
+
+    @Test
+    public void shouldNotUpdatePresenterPlayableInformationOnPlayQueueUpdateEvent() throws CreateModelException {
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
+        controller.subscribe();
+
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(track.getUrn()));
+
+        verify(playerWidgetPresenter, never()).updatePlayableInformation(any(Context.class), eq(track));
+    }
+
 
     @Test
     public void shouldKeepObservingPlayQueueEventsAfterAnError() throws CreateModelException {

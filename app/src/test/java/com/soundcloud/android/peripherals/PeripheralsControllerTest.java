@@ -87,6 +87,12 @@ public class PeripheralsControllerTest {
     }
 
     @Test
+    public void shouldNotBroadcastTrackInformationOnPlayQueueUpdate() throws Exception {
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(createTrack().getUrn()));
+        verify(context).sendBroadcast(any(Intent.class)); // once to account for PLAY_STATE_CHANGED subscription (replay queue)
+    }
+
+    @Test
     public void shouldBroadcastTrackInformationWhenThePlayQueueChanges() {
         final long currentTrackId = 3L;
         when(playQueueManager.getCurrentTrackId()).thenReturn(currentTrackId);

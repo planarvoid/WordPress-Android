@@ -104,6 +104,16 @@ public class PlaySessionControllerTest {
     }
 
     @Test
+    public void playQueueChangedEventForUpdateDoesNotCallPlayCurrentOnPlaybackOperationsIfThePlayerIsInPlaySession() {
+        final Playa.StateTransition lastTransition = Mockito.mock(Playa.StateTransition.class);
+        when(lastTransition.playSessionIsActive()).thenReturn(true);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(TRACK.getUrn()));
+
+        verify(playbackOperations, never()).playCurrent();
+    }
+
+    @Test
     public void playQueueChangedHandlerDoesNotCallPlayCurrentIfPlaySessionIsNotActive() {
         final Playa.StateTransition lastTransition = Mockito.mock(Playa.StateTransition.class);
         when(lastTransition.playSessionIsActive()).thenReturn(false);

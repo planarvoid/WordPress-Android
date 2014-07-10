@@ -87,7 +87,8 @@ public class PlaybackNotificationController {
     }
 
     public void subscribe() {
-        eventBus.queue(EventQueue.PLAY_QUEUE).mergeMap(onPlayQueueEventFunc).doOnNext(notifyAction).subscribe();
+        eventBus.queue(EventQueue.PLAY_QUEUE).filter(PlayQueueEvent.TRACK_HAS_CHANGED_FILTER)
+                .mergeMap(onPlayQueueEventFunc).doOnNext(notifyAction).subscribe();
     }
 
     Observable<Notification> playingNotification() {

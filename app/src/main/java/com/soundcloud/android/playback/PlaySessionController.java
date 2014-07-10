@@ -65,7 +65,7 @@ public class PlaySessionController {
 
     public void subscribe() {
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlayStateSubscriber());
-        eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
+        eventBus.queue(EventQueue.PLAY_QUEUE).filter(PlayQueueEvent.TRACK_HAS_CHANGED_FILTER).subscribe(new PlayQueueSubscriber());
         eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber());
     }
 

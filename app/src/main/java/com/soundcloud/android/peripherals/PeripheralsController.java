@@ -40,7 +40,7 @@ public class PeripheralsController {
     public void subscribe() {
         eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlayStateChangedSubscriber());
-        eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueChangedSubscriber());
+        eventBus.queue(EventQueue.PLAY_QUEUE).filter(PlayQueueEvent.TRACK_HAS_CHANGED_FILTER).subscribe(new PlayQueueChangedSubscriber());
     }
 
     private void notifyPlayStateChanged(boolean isPlaying) {

@@ -158,6 +158,15 @@ public class PlaybackSessionAnalyticsControllerTest {
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_SKIP);
     }
 
+    @Test
+    public void playQueueEventForQueueUpdateDoesNotSendStopEvent() throws Exception {
+        publishPlayingEvent();
+
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(track.getUrn()));
+
+        expect(eventBus.lastEventOn(EventQueue.PLAYBACK_SESSION).isPlayEvent());
+    }
+
     protected void publishPlayingEvent() {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
 

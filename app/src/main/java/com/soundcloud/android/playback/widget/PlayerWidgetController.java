@@ -56,7 +56,9 @@ public class PlayerWidgetController {
         eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new PlayableChangedSubscriber());
         eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
-        eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
+
+        eventBus.queue(EventQueue.PLAY_QUEUE).filter(PlayQueueEvent.TRACK_HAS_CHANGED_FILTER)
+                .subscribe(new PlayQueueSubscriber());
     }
 
     public void update() {
