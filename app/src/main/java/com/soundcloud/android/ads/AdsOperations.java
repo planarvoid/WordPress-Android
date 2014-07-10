@@ -1,4 +1,4 @@
-package com.soundcloud.android.playback;
+package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
@@ -10,17 +10,17 @@ import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.TrackUrn;
-import com.soundcloud.android.model.ads.AudioAd;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.storage.BulkStorage;
 import rx.Observable;
 import rx.functions.Action1;
 
-class AdOperations {
+class AdsOperations {
 
     private final RxHttpClient rxHttpClient;
     private final BulkStorage bulkStorage;
 
-    AdOperations(RxHttpClient rxHttpClient, BulkStorage bulkStorage) {
+    AdsOperations(RxHttpClient rxHttpClient, BulkStorage bulkStorage) {
         this.rxHttpClient = rxHttpClient;
         this.bulkStorage = bulkStorage;
     }

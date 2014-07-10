@@ -1,4 +1,4 @@
-package com.soundcloud.android.playback;
+package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
@@ -15,7 +15,6 @@ import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.ads.AudioAd;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.BulkStorage;
@@ -28,11 +27,11 @@ import rx.Observable;
 import java.util.Collection;
 
 @RunWith(SoundCloudTestRunner.class)
-public class AdOperationsTest {
+public class AdsOperationsTest {
 
     private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
 
-    private AdOperations adOperations;
+    private AdsOperations adsOperations;
     private AudioAd audioAd;
 
     @Mock private RxHttpClient rxHttpClient;
@@ -41,7 +40,7 @@ public class AdOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        adOperations = new AdOperations(rxHttpClient, bulkStorage);
+        adsOperations = new AdsOperations(rxHttpClient, bulkStorage);
         audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
     }
 
@@ -51,7 +50,7 @@ public class AdOperationsTest {
         when(rxHttpClient.<AudioAd>fetchModels(argThat(isMobileApiRequestTo("GET", endpoint)))).thenReturn(Observable.just(audioAd));
         when(bulkStorage.bulkInsertAsync(any(Collection.class))).thenReturn(Observable.<Collection>empty());
 
-        expect(adOperations.getAudioAd(TRACK_URN).toBlocking().first()).toBe(audioAd);
+        expect(adsOperations.getAudioAd(TRACK_URN).toBlocking().first()).toBe(audioAd);
     }
 
     @Test
@@ -59,7 +58,7 @@ public class AdOperationsTest {
         when(rxHttpClient.<AudioAd>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(audioAd));
         when(bulkStorage.bulkInsertAsync(any(Collection.class))).thenReturn(Observable.<Collection>empty());
 
-        adOperations.getAudioAd(TRACK_URN).subscribe();
+        adsOperations.getAudioAd(TRACK_URN).subscribe();
 
         verify(bulkStorage).bulkInsertAsync(eq(Lists.newArrayList(new Track(audioAd.getTrackSummary()))));
     }

@@ -1,4 +1,4 @@
-package com.soundcloud.android.model.ads;
+package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.Expect.expect;
 
