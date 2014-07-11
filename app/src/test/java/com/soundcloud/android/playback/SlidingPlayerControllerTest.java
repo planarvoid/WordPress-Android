@@ -268,13 +268,13 @@ public class SlidingPlayerControllerTest {
         controller.attach(activity, actionBarController);
     }
 
-    private void expandPanel() {
+    private void collapsePanel() {
         controller.onPanelSlide(layout, 0.6f);
         controller.onPanelSlide(layout, 0.4f);
         controller.onPanelSlide(layout, 0.3f);
     }
 
-    private void collapsePanel() {
+    private void expandPanel() {
         controller.onPanelSlide(layout, 0.4f);
         controller.onPanelSlide(layout, 0.6f);
         controller.onPanelSlide(layout, 0.7f);
