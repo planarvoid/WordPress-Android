@@ -15,7 +15,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.track.TrackWriteStorage;
-import com.soundcloud.propeller.ChangeResult;
+import com.soundcloud.propeller.TxnResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +44,7 @@ public class AdsOperationsTest {
     public void audioAdReturnsAudioAdFromMobileApi() throws Exception {
         final String endpoint = String.format(APIEndpoints.AUDIO_AD.path(), TRACK_URN.toEncodedString());
         when(rxHttpClient.<AudioAd>fetchModels(argThat(isMobileApiRequestTo("GET", endpoint)))).thenReturn(Observable.just(audioAd));
-        when(trackWriteStorage.storeTrackAsync(audioAd.getTrackSummary())).thenReturn(Observable.<ChangeResult>empty());
+        when(trackWriteStorage.storeTrackAsync(audioAd.getTrackSummary())).thenReturn(Observable.<TxnResult>empty());
 
         expect(adsOperations.audioAd(TRACK_URN).toBlocking().first()).toBe(audioAd);
     }
@@ -52,7 +52,7 @@ public class AdsOperationsTest {
     @Test
     public void audioAdWritesEmbeddedTrackToStorage() throws Exception {
         when(rxHttpClient.<AudioAd>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(audioAd));
-        when(trackWriteStorage.storeTrackAsync(audioAd.getTrackSummary())).thenReturn(Observable.<ChangeResult>empty());
+        when(trackWriteStorage.storeTrackAsync(audioAd.getTrackSummary())).thenReturn(Observable.<TxnResult>empty());
 
         adsOperations.audioAd(TRACK_URN).subscribe();
 

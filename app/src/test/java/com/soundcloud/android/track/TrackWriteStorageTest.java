@@ -9,9 +9,9 @@ import com.soundcloud.android.robolectric.StorageIntegrationTest;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.propeller.BulkResult;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.Query;
+import com.soundcloud.propeller.TxnResult;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreTrackMetadataFromApiMobileTrack() throws CreateModelException {
-        TestObserver<ChangeResult> observer = new TestObserver<ChangeResult>();
+        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
         TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
 
         storage.storeTrackAsync(track).subscribe(observer);
@@ -43,7 +43,7 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreUserMetadataFromApiMobileTrack() throws CreateModelException {
-        TestObserver<ChangeResult> observer = new TestObserver<ChangeResult>();
+        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
         TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
 
         storage.storeTrackAsync(track).subscribe(observer);
@@ -52,21 +52,22 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void storingApiMobileTrackEmitsInsertResult() throws CreateModelException {
-        TestObserver<ChangeResult> observer = new TestObserver<ChangeResult>();
+    public void storingApiMobileTrackEmitsTransactionResult() throws CreateModelException {
+        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
         TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
 
         storage.storeTrackAsync(track).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnCompletedEvents()).toNumber(1);
-        ChangeResult result = observer.getOnNextEvents().get(0);
-        expect(result.getNumRowsAffected()).toEqual(1);
+        TxnResult result = observer.getOnNextEvents().get(0);
+        expect(result.success()).toBeTrue();
+        expect(((ChangeResult) result.getResults().get(0)).getNumRowsAffected()).toEqual(1);
     }
 
     @Test
     public void shouldStoreTrackMetadataFromListOfApiMobileTracks() throws CreateModelException {
-        TestObserver<BulkResult<ChangeResult>> observer = new TestObserver<BulkResult<ChangeResult>>();
+        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
         final List<TrackSummary> tracks = Arrays.asList(
                 TestHelper.getModelFactory().createModel(TrackSummary.class),
                 TestHelper.getModelFactory().createModel(TrackSummary.class));
@@ -79,7 +80,7 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreUserMetadataFromListOfApiMobileTracks() throws CreateModelException {
-        TestObserver<BulkResult<ChangeResult>> observer = new TestObserver<BulkResult<ChangeResult>>();
+        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
         final List<TrackSummary> tracks = Arrays.asList(
                 TestHelper.getModelFactory().createModel(TrackSummary.class),
                 TestHelper.getModelFactory().createModel(TrackSummary.class));
@@ -91,8 +92,8 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void storingListOfApiMobileTracksEmitsBulkChangeResult() throws CreateModelException {
-        TestObserver<BulkResult<ChangeResult>> observer = new TestObserver<BulkResult<ChangeResult>>();
+    public void storingListOfApiMobileTracksEmitsTransactionResult() throws CreateModelException {
+        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
         final List<TrackSummary> tracks = Arrays.asList(
                 TestHelper.getModelFactory().createModel(TrackSummary.class),
                 TestHelper.getModelFactory().createModel(TrackSummary.class));
@@ -101,7 +102,7 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnCompletedEvents()).toNumber(1);
-        BulkResult<ChangeResult> result = observer.getOnNextEvents().get(0);
+        TxnResult result = observer.getOnNextEvents().get(0);
         expect(result.success()).toBeTrue();
         expect(result.getResults()).toNumber(4);
     }

@@ -4,16 +4,16 @@ import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.propeller.BulkResult;
-import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import rx.Observable;
 
 import android.content.ContentValues;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Collection;
 
 public class TrackWriteStorage {
@@ -25,29 +25,24 @@ public class TrackWriteStorage {
         this.scheduler = scheduler;
     }
 
-    public Observable<ChangeResult> storeTrackAsync(final TrackSummary track) {
-        return scheduler.scheduleTransaction(new PropellerDatabase.Transaction<ChangeResult>() {
-            @Override
-            public ChangeResult execute(PropellerDatabase propeller) {
-                step(propeller.upsert(Table.USERS.name, TableColumns.Users._ID, buildUserContentValues(track.getUser())));
-                return step(propeller.upsert(Table.SOUNDS.name, TableColumns.Sounds._ID, buildTrackContentValues(track)));
-            }
-
-        });
+    public Observable<TxnResult> storeTrackAsync(final TrackSummary track) {
+        return scheduler.scheduleTransaction(storeTracksTransaction(Arrays.asList(track)));
     }
 
-    public Observable<BulkResult<ChangeResult>> storeTracksAsync(final Collection<TrackSummary> tracks) {
-        return scheduler.scheduleTransaction(new PropellerDatabase.Transaction<BulkResult<ChangeResult>>() {
+    public Observable<TxnResult> storeTracksAsync(final Collection<TrackSummary> tracks) {
+        return scheduler.scheduleTransaction(storeTracksTransaction(tracks));
+    }
+
+    private PropellerDatabase.Transaction storeTracksTransaction(final Collection<TrackSummary> tracks) {
+        return new PropellerDatabase.Transaction() {
             @Override
-            public BulkResult<ChangeResult> execute(PropellerDatabase propeller) {
-                final BulkResult<ChangeResult> result = new BulkResult<ChangeResult>(tracks.size() * 2);
+            public void steps(PropellerDatabase propeller) {
                 for (TrackSummary track : tracks) {
-                    result.add(step(propeller.upsert(Table.USERS.name, TableColumns.Users._ID, buildUserContentValues(track.getUser()))));
-                    result.add(step(propeller.upsert(Table.SOUNDS.name, TableColumns.Sounds._ID, buildTrackContentValues(track))));
+                    step(propeller.upsert(Table.USERS.name, TableColumns.Users._ID, buildUserContentValues(track.getUser())));
+                    step(propeller.upsert(Table.SOUNDS.name, TableColumns.Sounds._ID, buildTrackContentValues(track)));
                 }
-                return result;
             }
-        });
+        };
     }
 
     private ContentValues buildTrackContentValues(TrackSummary track) {

@@ -19,16 +19,14 @@ import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.RecommendedTracksCollection;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.track.TrackWriteStorage;
-import com.soundcloud.propeller.BulkResult;
 import com.soundcloud.propeller.ChangeResult;
-import com.soundcloud.propeller.InsertResult;
+import com.soundcloud.propeller.TxnResult;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +41,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -75,7 +72,7 @@ public class PlayQueueOperationsTest {
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
-        when(playQueueStorage.storeAsync(any(PlayQueue.class))).thenReturn(Observable.<BulkResult<InsertResult>>empty());
+        when(playQueueStorage.storeAsync(any(PlayQueue.class))).thenReturn(Observable.<TxnResult>empty());
         when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG), anyString())).thenReturn("origin:page");
         when(sharedPreferences.getLong(eq(PlaySessionSource.PREF_KEY_PLAYLIST_ID), anyLong())).thenReturn(123L);
         when(sharedPreferences.getInt(eq(PlayQueueOperations.Keys.PLAY_POSITION.name()), anyInt())).thenReturn(1);
@@ -185,7 +182,7 @@ public class PlayQueueOperationsTest {
         RecommendedTracksCollection collection = createCollection(suggestion1, suggestion2);
 
         when(rxHttpClient.<RecommendedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
-        when(trackWriteStorage.storeTracksAsync(anyCollection())).thenReturn(Observable.<BulkResult<ChangeResult>>empty());
+        when(trackWriteStorage.storeTracksAsync(anyCollection())).thenReturn(Observable.<TxnResult>empty());
 
         playQueueOperations.getRelatedTracks(Urn.forTrack(123)).subscribe(relatedObserver);
 
