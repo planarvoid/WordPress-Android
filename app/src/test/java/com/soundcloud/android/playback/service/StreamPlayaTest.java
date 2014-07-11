@@ -112,6 +112,15 @@ public class StreamPlayaTest {
     }
 
     @Test
+    public void playUrlCallsPlayUrlOnSkippyPlayerIfConsecutiveMPPlaysAt0() throws Exception {
+        instantiateStreamPlaya();
+        when(sharedPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false)).thenReturn(false);
+        when(playerSwitcherInfo.getMaxConsecutiveMpPlays()).thenReturn(0);
+        streamPlayerWrapper.play(track);
+        verify(skippyAdapter).play(track);
+    }
+
+    @Test
     public void playUrlSetsPlayListenerOnSkippyPlayerIfPreferenceSet() throws Exception {
         instantiateStreamPlaya();
         when(sharedPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false)).thenReturn(true);

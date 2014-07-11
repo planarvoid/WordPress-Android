@@ -256,7 +256,8 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
     private boolean isInForceSkippyMode() {
         return featureFlags.isEnabled(Feature.VISUAL_PLAYER) ||
-                playbackPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false);
+                playbackPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false) ||
+                playerSwitcherInfo.getMaxConsecutiveMpPlays() <= 0;
     }
 
     public static class PlayerSwitcherInfo {
