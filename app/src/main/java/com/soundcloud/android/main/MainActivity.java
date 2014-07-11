@@ -91,10 +91,8 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     }
 
     private void setupEmailOptIn() {
-        if (featureFlags.isEnabled(Feature.EMAIL_OPT_IN)) {
-            if (getIntent().hasExtra(EXTRA_ONBOARDING_USERS_RESULT)) {
-                EmailOptInDialogFragment.show(this);
-            }
+        if (getIntent().hasExtra(EXTRA_ONBOARDING_USERS_RESULT)) {
+            EmailOptInDialogFragment.show(this);
         }
     }
 

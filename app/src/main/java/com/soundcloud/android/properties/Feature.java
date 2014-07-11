@@ -4,8 +4,7 @@ import com.soundcloud.android.R;
 
 public enum Feature {
 
-    VISUAL_PLAYER(R.bool.feature_visual_player),
-    EMAIL_OPT_IN(R.bool.feature_email_opt_in);
+    VISUAL_PLAYER(R.bool.feature_visual_player);
 
     private final int resourceId;
 
