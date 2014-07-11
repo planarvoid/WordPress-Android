@@ -19,7 +19,6 @@ import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.playback.ui.PlayerController;
 import com.soundcloud.android.profile.MeActivity;
-import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
@@ -326,7 +325,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     }
 
     private void expandPlayerIfNeeded() {
-        if (getIntent().getBooleanExtra(EXPAND_PLAYER, false) && playerController.isExpanded() == false) {;
+        if (getIntent().getBooleanExtra(EXPAND_PLAYER, false) && !playerController.isExpanded()) {
             playerController.expand();
         }
     }
@@ -371,7 +370,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     }
 
     private void updateUser(User user) {
-                navigationFragment.updateProfileItem(user);
+        navigationFragment.updateProfileItem(user);
         if (!user.isPrimaryEmailConfirmed()) {
                     startActivityForResult(new Intent(this, EmailConfirmationActivity.class)
             .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);

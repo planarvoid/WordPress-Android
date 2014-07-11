@@ -80,7 +80,7 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
 
     private void refreshVisibility() {
         if (playQueueManager.isQueueEmpty()) {
-            slidingPanel.findViewById(R.id.player_root).setVisibility(View.GONE);
+            slidingPanel.hidePanel();
         } else {
             slidingPanel.showPanel();
         }
@@ -135,26 +135,11 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
         @Override
         public void onNext(PlayerUIEvent event) {
             if (event.getKind() == PlayerUIEvent.EXPAND_PLAYER) {
-                if (!slidingPanel.isPanelHidden()) {
-                    slidingPanel.expandPanel();
-                } else {
-                    expandFromHidden();
-                }
+                slidingPanel.expandPanel();
             } else if (event.getKind() == PlayerUIEvent.COLLAPSE_PLAYER) {
                 slidingPanel.collapsePanel();
             }
         }
-    }
-
-    private void expandFromHidden() {
-        slidingPanel.showPanel();
-        slidingPanel.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                slidingPanel.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                slidingPanel.expandPanel();
-            }
-        });
     }
 
     @Override

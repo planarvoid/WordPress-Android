@@ -34,26 +34,17 @@ import android.view.Window;
 @RunWith(SoundCloudTestRunner.class)
 public class SlidingPlayerControllerTest {
 
-    @Mock
-    private PlayQueueManager playQueueManager;
-    @Mock
-    private ActionBarController actionBarController;
-    @Mock
-    private View layout;
-    @Mock
-    private Activity activity;
-    @Mock
-    private SlidingUpPanelLayout slidingPanel;
-    @Mock
-    private View playerView;
-    @Mock
-    private Window window;
-    @Mock
-    private View decorView;
+    @Mock private PlayQueueManager playQueueManager;
+    @Mock private ActionBarController actionBarController;
+    @Mock private View layout;
+    @Mock private Activity activity;
+    @Mock private SlidingUpPanelLayout slidingPanel;
+    @Mock private View playerView;
+    @Mock private Window window;
+    @Mock private View decorView;
 
     private TestEventBus eventBus = new TestEventBus();
     private SlidingPlayerController controller;
-
 
     @Before
     public void setUp() throws Exception {
@@ -80,7 +71,7 @@ public class SlidingPlayerControllerTest {
 
         controller.onResume();
 
-        verify(playerView).setVisibility(View.GONE);
+        verify(slidingPanel).hidePanel();
     }
 
     @Test
@@ -123,7 +114,7 @@ public class SlidingPlayerControllerTest {
 
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
 
-        verify(slidingPanel).showPanel();
+        verify(slidingPanel).expandPanel();
     }
 
     @Test
