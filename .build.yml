@@ -45,6 +45,7 @@ debug:
         <<: *defaults_unittests
         profiles:
           - debug
+          - coverage
       phone_test:
         phase: install
         project: tests-integration

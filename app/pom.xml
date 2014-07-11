@@ -126,7 +126,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
     <dependencies>
@@ -448,38 +447,62 @@
 
     <profiles>
             <profile>
-                <id>cobertura</id>
+                <id>coverage</id>
                 <build>
                     <plugins>
                         <plugin>
-                            <groupId>com.github.goldin</groupId>
-                            <artifactId>copy-maven-plugin</artifactId>
-                            <version>0.2.5</version>
+                            <groupId>org.jacoco</groupId>
+                            <artifactId>jacoco-maven-plugin</artifactId>
+                            <version>0.7.1.201405082137</version>
+                            <configuration>
+                                <includes>
+                                    <include>com/soundcloud/android/**/*</include>
+                                </includes>
+                            </configuration>
                             <executions>
                                 <execution>
-                                    <id>copy-cobertura-data-from-project-under-test</id>
-                                    <phase>compile</phase>
+                                    <id>default-prepare-agent</id>
                                     <goals>
-                                        <goal>copy</goal>
+                                        <goal>prepare-agent</goal>
+                                    </goals>
+                                </execution>
+                                <execution>
+                                    <id>default-report</id>
+                                    <phase>test</phase>
+                                    <goals>
+                                        <goal>report</goal>
+                                    </goals>
+                                </execution>
+                                <execution>
+                                    <id>default-check</id>
+                                    <goals>
+                                        <goal>check</goal>
                                     </goals>
                                     <configuration>
-                                        <resources>
-                                            <resource>
-                                                <directory>${project.basedir}/../app/target/cobertura</directory>
-                                                <targetPath>${project.basedir}/target/cobertura</targetPath>
-                                                <includes>
-                                                    <include>*.ser</include>
-                                                </includes>
-                                            </resource>
-                                            <resource>
-                                                <directory>${project.basedir}/../app/target/generated-classes/cobertura/</directory>
-                                                <targetPath>${project.basedir}/target/generated-classes/cobertura</targetPath>
-                                                <preservePath>true</preservePath>
-                                            </resource>
-                                        </resources>
+                                        <rules>
+                                            <!-- implmentation is needed only for Maven 2 -->
+                                            <rule implementation="org.jacoco.maven.RuleConfiguration">
+                                                <element>BUNDLE</element>
+                                                <limits>
+                                                    <!-- implmentation is needed only for Maven 2 -->
+                                                    <limit implementation="org.jacoco.report.check.Limit">
+                                                        <counter>COMPLEXITY</counter>
+                                                        <value>COVEREDRATIO</value>
+                                                        <minimum>0.50</minimum>
+                                                    </limit>
+                                                </limits>
+                                            </rule>
+                                        </rules>
                                     </configuration>
                                 </execution>
                             </executions>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-surefire-plugin</artifactId>
+                            <configuration>
+                                <argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=512m ${argLine}</argLine>
+                            </configuration>
                         </plugin>
                     </plugins>
                 </build>
