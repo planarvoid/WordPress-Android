@@ -11,11 +11,10 @@ import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.SuggestedTracksCollection;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.storage.BulkStorage;
+import com.soundcloud.android.track.TrackWriteStorage;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +24,6 @@ import rx.Observable;
 import rx.Observer;
 
 import java.util.Arrays;
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreTracksOperationsTest {
@@ -35,13 +33,13 @@ public class ExploreTracksOperationsTest {
     @Mock
     private SoundCloudRxHttpClient rxHttpClient;
     @Mock
-    private BulkStorage bulkStorage;
+    private TrackWriteStorage trackWriteStorage;
     @Mock
     private Observer observer;
 
     @Before
     public void setUp() {
-        exploreTracksOperations = new ExploreTracksOperations(rxHttpClient, bulkStorage);
+        exploreTracksOperations = new ExploreTracksOperations(rxHttpClient, trackWriteStorage);
     }
 
     @Test
@@ -85,8 +83,7 @@ public class ExploreTracksOperationsTest {
 
         exploreTracksOperations.getSuggestedTracks(ExploreGenre.POPULAR_MUSIC_CATEGORY).subscribe(observer);
 
-        final List<Track> resources = Arrays.asList(new Track(collection.getCollection().get(0)));
-        verify(bulkStorage).bulkInsertAsync(resources);
+        verify(trackWriteStorage).storeTracksAsync(collection.getCollection());
     }
 
     private SuggestedTracksCollection buildSuggestedTracksResponse() throws CreateModelException {
