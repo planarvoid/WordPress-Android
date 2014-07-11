@@ -20,15 +20,15 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-public class UserDetailsFragment extends Fragment {
+public class UserInfoFragment extends Fragment {
 
     private long userId;
     private EmptyViewBuilder emptyViewFactory;
     private int emptyViewStatus = EmptyView.Status.WAITING;
     private boolean displayedInfo;
 
-    public static UserDetailsFragment newInstance(long userId) {
-        UserDetailsFragment fragment = new UserDetailsFragment();
+    public static UserInfoFragment newInstance(long userId) {
+        UserInfoFragment fragment = new UserInfoFragment();
         Bundle args = new Bundle();
         args.putLong("userId", userId);
         fragment.setArguments(args);
@@ -45,7 +45,7 @@ public class UserDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         userId = getArguments().getLong("userId");
-        ViewGroup fragmentLayout = (ViewGroup) inflater.inflate(R.layout.user_browser_details_view, null);
+        ViewGroup fragmentLayout = (ViewGroup) inflater.inflate(R.layout.user_info_view, null);
         User user = SoundCloudApplication.sModelManager.getUser(userId);
         if (user != null) {
             updateViews(fragmentLayout, user);
@@ -80,7 +80,6 @@ public class UserDetailsFragment extends Fragment {
         displayedInfo = setupWebsite(fragmentLayout, user)
                 | setupDiscogs(fragmentLayout, user)
                 | setupMyspace(fragmentLayout, user)
-                | setupLocation(fragmentLayout, user)
                 | setupDescription(fragmentLayout, user);
     }
 
@@ -140,19 +139,6 @@ public class UserDetailsFragment extends Fragment {
             return true;
         } else {
             description.setVisibility(View.GONE);
-            return false;
-        }
-    }
-
-    private boolean setupLocation(ViewGroup fragmentLayout, User user) {
-        final String location = user.getLocation();
-        TextView locationView = (TextView) fragmentLayout.findViewById(R.id.location);
-        if (!isEmpty(location)) {
-            locationView.setText(getString(R.string.from) + " " + location);
-            locationView.setVisibility(View.VISIBLE);
-            return true;
-        } else {
-            locationView.setVisibility(View.GONE);
             return false;
         }
     }

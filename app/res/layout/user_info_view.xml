@@ -31,12 +31,6 @@
                   android:drawableLeft="@drawable/favicon_myspace" />
 
         <com.soundcloud.android.view.CustomFontTextView
-                  android:id="@+id/location"
-                  style="@style/Profile.Info"
-                  android:visibility="gone"
-                  android:padding="4dp" />
-
-        <com.soundcloud.android.view.CustomFontTextView
                   android:id="@+id/description"
                   style="@style/Profile.Info"
                   android:visibility="gone"

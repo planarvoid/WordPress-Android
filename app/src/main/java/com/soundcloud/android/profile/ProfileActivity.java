@@ -73,7 +73,7 @@ public class ProfileActivity extends ScActivity implements
     private FetchUserTask loadUserTask;
     protected ViewPager pager;
     protected SlidingTabLayout indicator;
-    private UserDetailsFragment userDetailsFragment;
+    private UserInfoFragment userInfoFragment;
     private int initialOtherFollowers;
 
     @Inject ImageOperations imageOperations;
@@ -148,7 +148,7 @@ public class ProfileActivity extends ScActivity implements
         }
 
         if (user != null) {
-            userDetailsFragment = UserDetailsFragment.newInstance(user.getId());
+            userInfoFragment = UserInfoFragment.newInstance(user.getId());
 
             if (isLoggedInUser()){
                 toggleFollow.setVisibility(View.GONE);
@@ -342,12 +342,12 @@ public class ProfileActivity extends ScActivity implements
 
         // TODO: move to a *Operations class to decouple from storage layer
         fireAndForget(userStorage.storeAsync(this.user));
-        userDetailsFragment.onSuccess(this.user);
+        userInfoFragment.onSuccess(this.user);
     }
 
     @Override
     public void onError(Object context) {
-        userDetailsFragment.onError();
+        userInfoFragment.onError();
     }
 
     private void setUser(final User user) {
@@ -498,7 +498,7 @@ public class ProfileActivity extends ScActivity implements
         public Fragment getItem(int position) {
             Tab currentTab = Tab.values()[position];
             if (currentTab == Tab.details){
-                return userDetailsFragment;
+                return userInfoFragment;
             } else {
                 Content content;
                 Uri contentUri;
