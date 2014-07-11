@@ -7,54 +7,40 @@
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:orientation="vertical"
-                  android:padding="16dp">
+                  android:padding="12dp">
 
-        <TextView android:id="@+id/website"
+        <com.soundcloud.android.view.CustomFontTextView
+                  android:id="@+id/website"
+                  style="@style/Profile.Info.Link"
                   android:visibility="gone"
-                  android:layout_width="wrap_content"
                   android:text="@string/website"
-                  android:padding="3dip"
-                  android:layout_height="wrap_content"
-                  android:gravity="center_vertical|left"
-                  android:drawableLeft="@drawable/favicon_website"
-                  android:drawablePadding="10dip"
-                  android:textColor="@drawable/txt_dark_states"/>
+                  android:drawableLeft="@drawable/favicon_website" />
 
-        <TextView android:id="@+id/discogs_name"
+        <com.soundcloud.android.view.CustomFontTextView
+                  android:id="@+id/discogs_name"
+                  style="@style/Profile.Info.Link"
                   android:visibility="gone"
-                  android:layout_width="wrap_content"
                   android:text="@string/discogs"
-                  android:padding="3dip"
-                  android:layout_height="wrap_content"
-                  android:gravity="center_vertical"
-                  android:drawableLeft="@drawable/favicon_discogs"
-                  android:drawablePadding="10dip"
-                  android:textColor="@drawable/txt_dark_states"/>
+                  android:drawableLeft="@drawable/favicon_discogs" />
 
-        <TextView android:id="@+id/myspace_name"
+        <com.soundcloud.android.view.CustomFontTextView
+                  android:id="@+id/myspace_name"
+                  style="@style/Profile.Info.Link"
                   android:visibility="gone"
-                  android:layout_width="wrap_content"
                   android:text="@string/myspace"
-                  android:padding="3dip"
-                  android:layout_height="wrap_content"
-                  android:gravity="center_vertical"
-                  android:drawableLeft="@drawable/favicon_myspace"
-                  android:drawablePadding="10dip"
-                  android:textColor="@drawable/txt_dark_states"/>
+                  android:drawableLeft="@drawable/favicon_myspace" />
 
-        <TextView android:id="@+id/location"
+        <com.soundcloud.android.view.CustomFontTextView
+                  android:id="@+id/location"
+                  style="@style/Profile.Info"
                   android:visibility="gone"
-                  android:layout_width="wrap_content"
-                  android:gravity="left"
-                  android:padding="3dip"
-                  android:layout_height="wrap_content"
-                  android:textStyle="bold"/>
+                  android:padding="4dp" />
 
-        <TextView android:id="@+id/description"
+        <com.soundcloud.android.view.CustomFontTextView
+                  android:id="@+id/description"
+                  style="@style/Profile.Info"
                   android:visibility="gone"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:padding="3dip" />
+                  android:padding="4dp" />
     </LinearLayout>
 </ScrollView>
 
