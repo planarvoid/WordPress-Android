@@ -63,7 +63,7 @@ public class ActivityItemPresenter implements CellPresenter<PropertySet> {
                 break;
             case ActivityProperty.TYPE_LIKE :
                 titleText = String.format(resources.getString(R.string.liked), propertySet.get(ActivityProperty.SOUND_TITLE));
-                iconId = R.drawable.stats_likes;
+                iconId = R.drawable.stats_likes_grey;
                 break;
             case ActivityProperty.TYPE_REPOST :
                 titleText = String.format(resources.getString(R.string.reposted), propertySet.get(ActivityProperty.SOUND_TITLE));
