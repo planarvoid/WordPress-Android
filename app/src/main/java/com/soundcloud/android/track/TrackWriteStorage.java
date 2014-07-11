@@ -4,17 +4,17 @@ import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.propeller.BulkResult;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.Where;
-import com.soundcloud.propeller.WhereBuilder;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import rx.Observable;
 
 import android.content.ContentValues;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class TrackWriteStorage {
 
@@ -29,20 +29,23 @@ public class TrackWriteStorage {
         return scheduler.scheduleTransaction(new PropellerDatabase.Transaction<ChangeResult>() {
             @Override
             public ChangeResult execute(PropellerDatabase propeller) {
-                if (!upsertUser(propeller)) {
-                    fail();
+                step(propeller.upsert(Table.USERS.name, TableColumns.Users._ID, buildUserContentValues(track.getUser())));
+                return step(propeller.upsert(Table.SOUNDS.name, TableColumns.Sounds._ID, buildTrackContentValues(track)));
+            }
+
+        });
+    }
+
+    public Observable<BulkResult<ChangeResult>> storeTracksAsync(final List<TrackSummary> tracks) {
+        return scheduler.scheduleTransaction(new PropellerDatabase.Transaction<BulkResult<ChangeResult>>() {
+            @Override
+            public BulkResult<ChangeResult> execute(PropellerDatabase propeller) {
+                final BulkResult<ChangeResult> result = new BulkResult<ChangeResult>(tracks.size() * 2);
+                for (TrackSummary track : tracks) {
+                    result.add(step(propeller.upsert(Table.USERS.name, TableColumns.Users._ID, buildUserContentValues(track.getUser()))));
+                    result.add(step(propeller.upsert(Table.SOUNDS.name, TableColumns.Sounds._ID, buildTrackContentValues(track))));
                 }
-                return upsertTrack(propeller);
-            }
-
-            private boolean upsertUser(PropellerDatabase propeller) {
-                Where matchUserId = new WhereBuilder().whereEq(TableColumns.Users._ID, track.getUser().getId());
-                return propeller.upsert(Table.USERS.name, buildUserContentValues(track.getUser()), matchUserId).getNumRowsAffected() == 1;
-            }
-
-            private ChangeResult upsertTrack(PropellerDatabase propeller) {
-                Where matchTrackId = new WhereBuilder().whereEq(TableColumns.Sounds._ID, track.getId());
-                return propeller.upsert(Table.SOUNDS.name, buildTrackContentValues(track), matchTrackId);
+                return result;
             }
         });
     }

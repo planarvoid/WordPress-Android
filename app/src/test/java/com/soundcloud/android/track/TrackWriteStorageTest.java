@@ -3,11 +3,13 @@ package com.soundcloud.android.track;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.StorageIntegrationTest;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.propeller.BulkResult;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.Query;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -15,6 +17,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import rx.observers.TestObserver;
+
+import java.util.Arrays;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackWriteStorageTest extends StorageIntegrationTest {
@@ -33,6 +38,75 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
 
         storage.storeTrackAsync(track).subscribe(observer);
 
+        expectTrackInserted(track);
+    }
+
+    @Test
+    public void shouldStoreUserMetadataFromApiMobileTrack() throws CreateModelException {
+        TestObserver<ChangeResult> observer = new TestObserver<ChangeResult>();
+        TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
+
+        storage.storeTrackAsync(track).subscribe(observer);
+
+        expectUserInserted(track.getUser());
+    }
+
+    @Test
+    public void storingApiMobileTrackEmitsInsertResult() throws CreateModelException {
+        TestObserver<ChangeResult> observer = new TestObserver<ChangeResult>();
+        TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
+
+        storage.storeTrackAsync(track).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnCompletedEvents()).toNumber(1);
+        ChangeResult result = observer.getOnNextEvents().get(0);
+        expect(result.getNumRowsAffected()).toEqual(1);
+    }
+
+    @Test
+    public void shouldStoreTrackMetadataFromListOfApiMobileTracks() throws CreateModelException {
+        TestObserver<BulkResult<ChangeResult>> observer = new TestObserver<BulkResult<ChangeResult>>();
+        final List<TrackSummary> tracks = Arrays.asList(
+                TestHelper.getModelFactory().createModel(TrackSummary.class),
+                TestHelper.getModelFactory().createModel(TrackSummary.class));
+
+        storage.storeTracksAsync(tracks).subscribe(observer);
+
+        expectTrackInserted(tracks.get(0));
+        expectTrackInserted(tracks.get(1));
+    }
+
+    @Test
+    public void shouldStoreUserMetadataFromListOfApiMobileTracks() throws CreateModelException {
+        TestObserver<BulkResult<ChangeResult>> observer = new TestObserver<BulkResult<ChangeResult>>();
+        final List<TrackSummary> tracks = Arrays.asList(
+                TestHelper.getModelFactory().createModel(TrackSummary.class),
+                TestHelper.getModelFactory().createModel(TrackSummary.class));
+
+        storage.storeTracksAsync(tracks).subscribe(observer);
+
+        expectUserInserted(tracks.get(0).getUser());
+        expectUserInserted(tracks.get(1).getUser());
+    }
+
+    @Test
+    public void storingListOfApiMobileTracksEmitsBulkChangeResult() throws CreateModelException {
+        TestObserver<BulkResult<ChangeResult>> observer = new TestObserver<BulkResult<ChangeResult>>();
+        final List<TrackSummary> tracks = Arrays.asList(
+                TestHelper.getModelFactory().createModel(TrackSummary.class),
+                TestHelper.getModelFactory().createModel(TrackSummary.class));
+
+        storage.storeTracksAsync(tracks).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnCompletedEvents()).toNumber(1);
+        BulkResult<ChangeResult> result = observer.getOnNextEvents().get(0);
+        expect(result.success()).toBeTrue();
+        expect(result.getResults()).toNumber(4);
+    }
+
+    private void expectTrackInserted(TrackSummary track) {
         expect(exists(Query.from(Table.SOUNDS.name)
                         .whereEq(TableColumns.Sounds._ID, track.getId())
                         .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
@@ -47,17 +121,6 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
                         .whereEq(TableColumns.Sounds.USER_ID, track.getUser().getId())
                         .whereEq(TableColumns.Sounds.COMMENTABLE, track.isCommentable())
                         .whereEq(TableColumns.Sounds.MONETIZABLE, track.isMonetizable())
-        )).toBeTrue();
-    }
-
-    @Test
-    public void shouldStoreTrackStatsFromApiMobileTrack() throws CreateModelException {
-        TestObserver<ChangeResult> observer = new TestObserver<ChangeResult>();
-        TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
-
-        storage.storeTrackAsync(track).subscribe(observer);
-
-        expect(exists(Query.from(Table.SOUNDS.name)
                         .whereEq(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount())
                         .whereEq(TableColumns.Sounds.REPOSTS_COUNT, track.getStats().getRepostsCount())
                         .whereEq(TableColumns.Sounds.PLAYBACK_COUNT, track.getStats().getPlaybackCount())
@@ -65,29 +128,10 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
         )).toBeTrue();
     }
 
-    @Test
-    public void shouldStoreUserMetadataFromApiMobileTrack() throws CreateModelException {
-        TestObserver<ChangeResult> observer = new TestObserver<ChangeResult>();
-        TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
-
-        storage.storeTrackAsync(track).subscribe(observer);
-
+    private void expectUserInserted(UserSummary user) {
         expect(exists(Query.from(Table.SOUND_VIEW.name)
-                        .whereEq(TableColumns.SoundView.USER_ID, track.getUser().getId())
-                        .whereEq(TableColumns.SoundView.USERNAME, track.getUser().getUsername())
+                        .whereEq(TableColumns.SoundView.USER_ID, user.getId())
+                        .whereEq(TableColumns.SoundView.USERNAME, user.getUsername())
         )).toBeTrue();
-    }
-
-    @Test
-    public void storingApiMobileTrackEmitsInsertResult() throws CreateModelException {
-        TestObserver<ChangeResult> observer = new TestObserver<ChangeResult>();
-        TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
-
-        storage.storeTrackAsync(track).subscribe(observer);
-
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnCompletedEvents()).toNumber(1);
-        ChangeResult result = observer.getOnNextEvents().get(0);
-        expect(result.getNumRowsAffected()).toEqual(1);
     }
 }

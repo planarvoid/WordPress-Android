@@ -26,8 +26,9 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.BulkStorage;
-import com.soundcloud.propeller.BulkInsertResult;
+import com.soundcloud.propeller.BulkResult;
 import com.soundcloud.propeller.ChangeResult;
+import com.soundcloud.propeller.InsertResult;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,7 +83,7 @@ public class PlayQueueOperationsTest {
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
-        when(playQueueStorage.storeAsync(any(PlayQueue.class))).thenReturn(Observable.<BulkInsertResult>empty());
+        when(playQueueStorage.storeAsync(any(PlayQueue.class))).thenReturn(Observable.<BulkResult<InsertResult>>empty());
         when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG), anyString())).thenReturn("origin:page");
         when(sharedPreferences.getLong(eq(PlaySessionSource.PREF_KEY_PLAYLIST_ID), anyLong())).thenReturn(123L);
         when(sharedPreferences.getInt(eq(PlayQueueOperations.Keys.PLAY_POSITION.name()), anyInt())).thenReturn(1);

@@ -6,8 +6,9 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.StorageIntegrationTest;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.propeller.BulkInsertResult;
+import com.soundcloud.propeller.BulkResult;
 import com.soundcloud.propeller.ChangeResult;
+import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.Query;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +34,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         insertPlayQueueItem(PlayQueueItem.fromTrack(1L, "existing", "existing_version"));
         expect(count(Table.PLAY_QUEUE.name)).toBe(1);
 
-        TestObserver<BulkInsertResult> observer = new TestObserver<BulkInsertResult>();
+        TestObserver<BulkResult<InsertResult>> observer = new TestObserver<BulkResult<InsertResult>>();
         PlayQueueItem playQueueItem1 = PlayQueueItem.fromTrack(123L, "source1", "version1");
         PlayQueueItem playQueueItem2 = PlayQueueItem.fromTrack(456L, "source2", "version2");
         PlayQueue playQueue = new PlayQueue(Arrays.asList(playQueueItem1, playQueueItem2), 0);
@@ -42,7 +43,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
         expect(observer.getOnNextEvents()).toNumber(1);
 
-        BulkInsertResult insertResult = observer.getOnNextEvents().get(0);
+        BulkResult<InsertResult> insertResult = observer.getOnNextEvents().get(0);
         expect(insertResult.success()).toBeTrue();
         expect(count(Table.PLAY_QUEUE.name)).toBe(2);
         expect(exists(Query.from(Table.PLAY_QUEUE.name)

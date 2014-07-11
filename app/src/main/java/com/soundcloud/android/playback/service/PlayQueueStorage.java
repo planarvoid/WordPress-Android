@@ -2,10 +2,11 @@ package com.soundcloud.android.playback.service;
 
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.propeller.BulkInsertResult;
+import com.soundcloud.propeller.BulkResult;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
+import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.Query;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.soundcloud.propeller.rx.RxResultMapper;
@@ -33,7 +34,7 @@ public class PlayQueueStorage {
         return scheduler.scheduleTruncate(TABLE);
     }
 
-    public Observable<BulkInsertResult> storeAsync(final PlayQueue playQueue) {
+    public Observable<BulkResult<InsertResult>> storeAsync(final PlayQueue playQueue) {
         final List<ContentValues> newItems = new ArrayList<ContentValues>(playQueue.size());
         for (PlayQueueItem item : playQueue) {
             newItems.add(ContentValuesBuilder.values(3)
@@ -43,10 +44,10 @@ public class PlayQueueStorage {
                     .get());
         }
 
-        return clearAsync().mergeMap(new Func1<ChangeResult, Observable<BulkInsertResult>>() {
+        return clearAsync().mergeMap(new Func1<ChangeResult, Observable<BulkResult<InsertResult>>>() {
             @Override
-            public Observable<BulkInsertResult> call(ChangeResult changeResult) {
-                return scheduler.scheduleInsert(TABLE, newItems);
+            public Observable<BulkResult<InsertResult>> call(ChangeResult changeResult) {
+                return scheduler.scheduleBulkInsert(TABLE, newItems);
             }
         });
     }
