@@ -25,7 +25,7 @@
     </indentOptions>
   </codeStyleSettings>
   <codeStyleSettings language="JAVA">
-  <option name="FIELD_ANNOTATION_WRAP" value="0" />
+    <option name="FIELD_ANNOTATION_WRAP" value="0" />
     <arrangement>
       <rules>
         <rule>
