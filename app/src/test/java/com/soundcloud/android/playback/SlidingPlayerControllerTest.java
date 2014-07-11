@@ -106,24 +106,24 @@ public class SlidingPlayerControllerTest {
     public void expandsPlayerWhenVisiblePlayTriggeredEventIsReceived() {
         attachController();
         controller.onResume();
-        when(slidingPanel.isPaneVisible()).thenReturn(true);
+        when(slidingPanel.isPanelHidden()).thenReturn(false);
 
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
 
-        verify(slidingPanel).expandPane();
+        verify(slidingPanel).expandPanel();
     }
 
     @Test
     public void showsFooterPlayerWhenHiddenAndPlayTriggeredEventIsReceived() throws Exception {
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
-        when(slidingPanel.isPaneVisible()).thenReturn(false);
+        when(slidingPanel.isPanelHidden()).thenReturn(true);
         when(slidingPanel.getViewTreeObserver()).thenReturn(mock(ViewTreeObserver.class));
         attachController();
         controller.onResume();
 
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
 
-        verify(slidingPanel).showPane();
+        verify(slidingPanel).showPanel();
     }
 
     @Test
@@ -132,7 +132,7 @@ public class SlidingPlayerControllerTest {
         controller.onResume();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
 
-        verify(slidingPanel).collapsePane();
+        verify(slidingPanel).collapsePanel();
     }
 
     @Test
@@ -141,7 +141,7 @@ public class SlidingPlayerControllerTest {
         controller.onResume();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
-        verify(slidingPanel, times(0)).expandPane();
+        verify(slidingPanel, times(0)).expandPanel();
     }
 
     @Test
@@ -165,7 +165,7 @@ public class SlidingPlayerControllerTest {
     @Test
     public void storesExpandedStateInBundle() {
         attachController();
-        when(slidingPanel.isExpanded()).thenReturn(true);
+        when(slidingPanel.isPanelExpanded()).thenReturn(true);
         Bundle bundle = new Bundle();
 
         controller.storeState(bundle);
@@ -246,7 +246,7 @@ public class SlidingPlayerControllerTest {
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void dimsSystemBarsWhenResumingToExpandedPlayer() {
-        when(slidingPanel.isExpanded()).thenReturn(true);
+        when(slidingPanel.isPanelExpanded()).thenReturn(true);
         attachController();
 
         controller.onResume();

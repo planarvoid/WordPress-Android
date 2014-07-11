@@ -10,6 +10,7 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.Log;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
@@ -54,17 +55,17 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
 
     @Override
     public boolean isExpanded() {
-        return slidingPanel.isExpanded();
+        return slidingPanel.isPanelExpanded();
     }
 
     @Override
     public void expand() {
-        slidingPanel.expandPane();
+        slidingPanel.expandPanel();
     }
 
     @Override
     public void collapse() {
-        slidingPanel.collapsePane();
+        slidingPanel.collapsePanel();
     }
 
     @Override
@@ -82,16 +83,16 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
         if (playQueueManager.isQueueEmpty()) {
             slidingPanel.findViewById(R.id.player_root).setVisibility(View.GONE);
         } else {
-            slidingPanel.showPane();
+            slidingPanel.showPanel();
         }
-        if (slidingPanel.isExpanded()) {
+        if (slidingPanel.isPanelExpanded()) {
             dimSystemBars(true);
         }
     }
 
     @Override
     public void storeState(Bundle bundle) {
-        bundle.putBoolean(EXTRA_PLAYER_EXPANDED, slidingPanel.isExpanded());
+        bundle.putBoolean(EXTRA_PLAYER_EXPANDED, slidingPanel.isPanelExpanded());
     }
 
     @Override
@@ -110,12 +111,13 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
 
     @Override
     public void onPanelSlide(View panel, float slideOffset) {
-        if (slideOffset < EXPAND_THRESHOLD && !isExpanding) {
+        Log.i("asdf", "On Panel Slide " + slideOffset);
+        if (slideOffset > EXPAND_THRESHOLD && !isExpanding) {
             actionBarController.setVisible(false);
             dimSystemBars(true);
             eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
             isExpanding = true;
-        } else if (slideOffset > EXPAND_THRESHOLD && isExpanding) {
+        } else if (slideOffset < EXPAND_THRESHOLD && isExpanding) {
             actionBarController.setVisible(true);
             dimSystemBars(false);
             eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
@@ -135,24 +137,24 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
         @Override
         public void onNext(PlayerUIEvent event) {
             if (event.getKind() == PlayerUIEvent.EXPAND_PLAYER) {
-                if (slidingPanel.isPaneVisible()) {
-                    slidingPanel.expandPane();
+                if (!slidingPanel.isPanelHidden()) {
+                    slidingPanel.expandPanel();
                 } else {
                     expandFromHidden();
                 }
             } else if (event.getKind() == PlayerUIEvent.COLLAPSE_PLAYER) {
-                slidingPanel.collapsePane();
+                slidingPanel.collapsePanel();
             }
         }
     }
 
     private void expandFromHidden() {
-        slidingPanel.showPane();
+        slidingPanel.showPanel();
         slidingPanel.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 slidingPanel.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                slidingPanel.expandPane();
+                slidingPanel.expandPanel();
             }
         });
     }
@@ -165,5 +167,10 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
 
     @Override
     public void onPanelAnchored(View panel) {}
+
+    @Override
+    public void onPanelHidden(View view) {
+
+    }
 
 }
