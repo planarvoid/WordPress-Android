@@ -75,8 +75,24 @@ public class AdsControllerTest {
 
     @Test
     public void trackChangeEventDoesNothingIfNextTrackIsAudioAd() {
+        when(playQueueManager.getNextTrackUrn()).thenReturn(NEXT_TRACK_URN);
+        when(trackOperations.track(NEXT_TRACK_URN)).thenReturn(Observable.just(MONETIZEABLE_PROPERTY_SET));
+        when(adsOperations.audioAd(NEXT_TRACK_URN)).thenReturn(Observable.just(audioAd));
         when(playQueueManager.hasNextTrack()).thenReturn(true);
         when(playQueueManager.isNextTrackAudioAd()).thenReturn(true);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(CURRENT_TRACK_URN));
+
+        verify(playQueueManager, never()).insertAd(any(AudioAd.class));
+    }
+
+    @Test
+    public void trackChangeEventDoesNothingIfAlreadyPlayingAd() {
+        when(playQueueManager.getNextTrackUrn()).thenReturn(NEXT_TRACK_URN);
+        when(trackOperations.track(NEXT_TRACK_URN)).thenReturn(Observable.just(MONETIZEABLE_PROPERTY_SET));
+        when(adsOperations.audioAd(NEXT_TRACK_URN)).thenReturn(Observable.just(audioAd));
+        when(playQueueManager.hasNextTrack()).thenReturn(true);
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(CURRENT_TRACK_URN));
 

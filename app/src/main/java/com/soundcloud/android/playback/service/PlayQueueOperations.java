@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.APIEndpoints;
@@ -10,9 +9,9 @@ import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.model.RecommendedTracksCollection;
-import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.TrackUrn;
-import com.soundcloud.android.storage.BulkStorage;
+import com.soundcloud.android.track.TrackWriteStorage;
+import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -31,7 +30,7 @@ public class PlayQueueOperations {
 
     private final SharedPreferences sharedPreferences;
     private final PlayQueueStorage playQueueStorage;
-    private final BulkStorage bulkStorage;
+    private final TrackWriteStorage trackWriteStorage;
     private final RxHttpClient rxHttpClient;
 
     enum Keys {
@@ -41,16 +40,16 @@ public class PlayQueueOperations {
     private final Action1<RecommendedTracksCollection> cacheRelatedTracks = new Action1<RecommendedTracksCollection>() {
         @Override
         public void call(RecommendedTracksCollection collection) {
-            fireAndForget(bulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), TrackSummary.TO_TRACK)));
+            fireAndForget(trackWriteStorage.storeTracksAsync(collection.getCollection()));
         }
     };
 
     @Inject
     public PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage,
-                               BulkStorage bulkStorage, RxHttpClient rxHttpClient) {
+                               TrackWriteStorage trackWriteStorage, RxHttpClient rxHttpClient) {
         sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         this.playQueueStorage = playQueueStorage;
-        this.bulkStorage = bulkStorage;
+        this.trackWriteStorage = trackWriteStorage;
         this.rxHttpClient = rxHttpClient;
     }
 
@@ -70,6 +69,7 @@ public class PlayQueueOperations {
         return new PlaySessionSource(sharedPreferences);
     }
 
+    @Nullable
     public Observable<PlayQueue> getLastStoredPlayQueue() {
         if (getLastStoredPlayingTrackId() != Consts.NOT_SET) {
             return playQueueStorage.loadAsync().toList()

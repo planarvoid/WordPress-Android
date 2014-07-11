@@ -10,12 +10,15 @@ import com.soundcloud.android.track.TrackOperations;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class AdsController {
 
     private final EventBus eventBus;
@@ -28,7 +31,9 @@ public class AdsController {
     private final Func1<PlayQueueEvent, Boolean> hasNextNonAudioAdTrackFilter = new Func1<PlayQueueEvent, Boolean>() {
         @Override
         public Boolean call(PlayQueueEvent playQueueEvent) {
-            return playQueueManager.hasNextTrack() && !playQueueManager.isNextTrackAudioAd();
+            return playQueueManager.hasNextTrack()
+                    && !playQueueManager.isNextTrackAudioAd()
+                    && !playQueueManager.isCurrentTrackAudioAd();
         }
     };
 
@@ -39,7 +44,7 @@ public class AdsController {
         }
     };
 
-    private final Action1<PlayQueueEvent> unsubscriberFromPreviousAdOp = new Action1<PlayQueueEvent>() {
+    private final Action1<PlayQueueEvent> unsubscribeFromPreviousAdOp = new Action1<PlayQueueEvent>() {
         @Override
         public void call(PlayQueueEvent playQueueEvent) {
             audioAdSubscription.unsubscribe();
@@ -63,7 +68,7 @@ public class AdsController {
 
     public void subscribe() {
         eventBus.queue(EventQueue.PLAY_QUEUE)
-                .doOnNext(unsubscriberFromPreviousAdOp)
+                .doOnNext(unsubscribeFromPreviousAdOp)
                 .filter(hasNextNonAudioAdTrackFilter)
                 .subscribe(new PlayQueueSubscriber());
     }
@@ -74,6 +79,7 @@ public class AdsController {
             audioAdSubscription = trackOperations.track(playQueueManager.getNextTrackUrn())
                     .filter(isMonetizeableFilter)
                     .mergeMap(fetchAudioAdFunction)
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new AudioAdSubscriber());
 
         }

@@ -14,7 +14,7 @@ import rx.Observable;
 import android.content.ContentValues;
 
 import javax.inject.Inject;
-import java.util.List;
+import java.util.Collection;
 
 public class TrackWriteStorage {
 
@@ -36,7 +36,7 @@ public class TrackWriteStorage {
         });
     }
 
-    public Observable<BulkResult<ChangeResult>> storeTracksAsync(final List<TrackSummary> tracks) {
+    public Observable<BulkResult<ChangeResult>> storeTracksAsync(final Collection<TrackSummary> tracks) {
         return scheduler.scheduleTransaction(new PropellerDatabase.Transaction<BulkResult<ChangeResult>>() {
             @Override
             public BulkResult<ChangeResult> execute(PropellerDatabase propeller) {

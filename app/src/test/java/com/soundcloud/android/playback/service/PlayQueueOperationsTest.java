@@ -25,7 +25,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.storage.BulkStorage;
+import com.soundcloud.android.track.TrackWriteStorage;
 import com.soundcloud.propeller.BulkResult;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.InsertResult;
@@ -55,22 +55,14 @@ public class PlayQueueOperationsTest {
 
     private PlayQueueOperations playQueueOperations;
 
-    @Mock
-    private Context context;
-    @Mock
-    private PlayQueueStorage playQueueStorage;
-    @Mock
-    private BulkStorage bulkStorage;
-    @Mock
-    private SharedPreferences sharedPreferences;
-    @Mock
-    private SharedPreferences.Editor sharedPreferencesEditor;
-    @Mock
-    private PlayQueue playQueue;
-    @Mock
-    private RxHttpClient rxHttpClient;
-    @Mock
-    private Observer observer;
+    @Mock private Context context;
+    @Mock private PlayQueueStorage playQueueStorage;
+    @Mock private TrackWriteStorage trackWriteStorage;
+    @Mock private SharedPreferences sharedPreferences;
+    @Mock private SharedPreferences.Editor sharedPreferencesEditor;
+    @Mock private PlayQueue playQueue;
+    @Mock private RxHttpClient rxHttpClient;
+    @Mock private Observer observer;
 
     private PlaySessionSource playSessionSource;
     private Playlist playlist;
@@ -79,7 +71,7 @@ public class PlayQueueOperationsTest {
     public void before() throws CreateModelException {
         when(context.getSharedPreferences(PlayQueueOperations.SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE)).thenReturn(sharedPreferences);
 
-        playQueueOperations = new PlayQueueOperations(context, playQueueStorage, bulkStorage, rxHttpClient);
+        playQueueOperations = new PlayQueueOperations(context, playQueueStorage, trackWriteStorage, rxHttpClient);
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
@@ -193,7 +185,7 @@ public class PlayQueueOperationsTest {
         RecommendedTracksCollection collection = createCollection(suggestion1, suggestion2);
 
         when(rxHttpClient.<RecommendedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
-        when(bulkStorage.bulkInsertAsync(anyCollection())).thenReturn(Observable.<Collection>empty());
+        when(trackWriteStorage.storeTracksAsync(anyCollection())).thenReturn(Observable.<BulkResult<ChangeResult>>empty());
 
         playQueueOperations.getRelatedTracks(Urn.forTrack(123)).subscribe(relatedObserver);
 
@@ -214,8 +206,8 @@ public class PlayQueueOperationsTest {
 
         playQueueOperations.getRelatedTracks(Urn.forTrack(1)).subscribe(observer);
 
-        final List<Track> resources = Arrays.asList(new Track(collection.getCollection().get(0)));
-        verify(bulkStorage).bulkInsertAsync(resources);
+        final List<TrackSummary> resources = Arrays.asList(collection.getCollection().get(0));
+        verify(trackWriteStorage).storeTracksAsync(resources);
     }
 
     private RecommendedTracksCollection createCollection(TrackSummary... suggestions) {
