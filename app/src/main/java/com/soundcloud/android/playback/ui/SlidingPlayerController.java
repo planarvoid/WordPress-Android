@@ -10,7 +10,6 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.Log;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
@@ -111,7 +110,6 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
 
     @Override
     public void onPanelSlide(View panel, float slideOffset) {
-        Log.i("asdf", "On Panel Slide " + slideOffset);
         if (slideOffset > EXPAND_THRESHOLD && !isExpanding) {
             actionBarController.setVisible(false);
             dimSystemBars(true);
