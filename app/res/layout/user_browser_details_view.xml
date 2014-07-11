@@ -1,66 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:id="@+id/user_details_root"
-             android:layout_width="fill_parent"
-             android:layout_height="fill_parent"
-             android:orientation="vertical"
-             android:padding="5dip">
 
-    <ScrollView android:id="@+id/user_details_scrollview"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <LinearLayout android:orientation="vertical"
-                      android:layout_width="fill_parent"
-                      android:layout_height="wrap_content">
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical"
+                  android:padding="16dp">
 
-            <TextView android:id="@+id/website"
-                      android:visibility="gone"
-                      android:layout_width="wrap_content"
-                      android:text="@string/website"
-                      android:padding="3dip"
-                      android:layout_height="wrap_content"
-                      android:gravity="center_vertical|left"
-                      android:drawableLeft="@drawable/favicon_website"
-                      android:drawablePadding="10dip"
-                      android:textColor="@drawable/txt_dark_states"/>
+        <TextView android:id="@+id/website"
+                  android:visibility="gone"
+                  android:layout_width="wrap_content"
+                  android:text="@string/website"
+                  android:padding="3dip"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical|left"
+                  android:drawableLeft="@drawable/favicon_website"
+                  android:drawablePadding="10dip"
+                  android:textColor="@drawable/txt_dark_states"/>
 
-            <TextView android:id="@+id/discogs_name"
-                      android:visibility="gone"
-                      android:layout_width="wrap_content"
-                      android:text="@string/discogs"
-                      android:padding="3dip"
-                      android:layout_height="wrap_content"
-                      android:gravity="center_vertical"
-                      android:drawableLeft="@drawable/favicon_discogs"
-                      android:drawablePadding="10dip"
-                      android:textColor="@drawable/txt_dark_states"/>
+        <TextView android:id="@+id/discogs_name"
+                  android:visibility="gone"
+                  android:layout_width="wrap_content"
+                  android:text="@string/discogs"
+                  android:padding="3dip"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:drawableLeft="@drawable/favicon_discogs"
+                  android:drawablePadding="10dip"
+                  android:textColor="@drawable/txt_dark_states"/>
 
-            <TextView android:id="@+id/myspace_name"
-                      android:visibility="gone"
-                      android:layout_width="wrap_content"
-                      android:text="@string/myspace"
-                      android:padding="3dip"
-                      android:layout_height="wrap_content"
-                      android:gravity="center_vertical"
-                      android:drawableLeft="@drawable/favicon_myspace"
-                      android:drawablePadding="10dip"
-                      android:textColor="@drawable/txt_dark_states"/>
+        <TextView android:id="@+id/myspace_name"
+                  android:visibility="gone"
+                  android:layout_width="wrap_content"
+                  android:text="@string/myspace"
+                  android:padding="3dip"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:drawableLeft="@drawable/favicon_myspace"
+                  android:drawablePadding="10dip"
+                  android:textColor="@drawable/txt_dark_states"/>
 
-            <TextView android:id="@+id/location"
-                      android:visibility="gone"
-                      android:layout_width="wrap_content"
-                      android:gravity="left"
-                      android:padding="3dip"
-                      android:layout_height="wrap_content"
-                      android:textStyle="bold"/>
+        <TextView android:id="@+id/location"
+                  android:visibility="gone"
+                  android:layout_width="wrap_content"
+                  android:gravity="left"
+                  android:padding="3dip"
+                  android:layout_height="wrap_content"
+                  android:textStyle="bold"/>
 
-            <TextView android:id="@+id/description"
-                      android:visibility="gone"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:padding="3dip"
-                      />
-        </LinearLayout>
-    </ScrollView>
-</FrameLayout>
+        <TextView android:id="@+id/description"
+                  android:visibility="gone"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:padding="3dip" />
+    </LinearLayout>
+</ScrollView>
+
