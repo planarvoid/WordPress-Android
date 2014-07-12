@@ -142,11 +142,19 @@ public abstract class Association extends PublicApiResource implements PlayableH
 
     @Override
     public boolean isStale() {
-        return getRefreshableResource().isStale();
+        final Refreshable refreshableResource = getRefreshableResource();
+        if (refreshableResource == null) {
+            return true;
+        }
+        return refreshableResource.isStale();
     }
 
     @Override
     public boolean isIncomplete() {
-        return getRefreshableResource().isIncomplete();
+        final Refreshable refreshableResource = getRefreshableResource();
+        if (refreshableResource == null) {
+            return true;
+        }
+        return refreshableResource.isIncomplete();
     }
 }
