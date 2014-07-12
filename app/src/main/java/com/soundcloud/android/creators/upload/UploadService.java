@@ -481,7 +481,7 @@ public class UploadService extends Service {
             n.contentView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
 
             if (Consts.SdkSwitches.useRichNotifications && recording.hasArtwork()){
-                Bitmap b = ImageUtils.getConfiguredBitmap(recording.artwork_path,
+                Bitmap b = ImageUtils.getConfiguredBitmap(recording.getArtwork(),
                         (int) getResources().getDimension(R.dimen.notification_image_width),
                         (int) getResources().getDimension(R.dimen.notification_image_height));
                 if (b != null){
