@@ -6,14 +6,14 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylistCollection;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.PlaylistSummary;
-import com.soundcloud.android.model.PlaylistSummaryCollection;
-import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyViewBuilder;
@@ -33,18 +33,18 @@ import android.widget.AdapterView;
 import javax.inject.Inject;
 
 public class PlaylistResultsFragment extends Fragment
-        implements ReactiveListComponent<ConnectableObservable<Page<PlaylistSummaryCollection>>> {
+        implements ReactiveListComponent<ConnectableObservable<Page<ApiPlaylistCollection>>> {
 
     public static final String TAG = "playlist_results";
     static final String KEY_PLAYLIST_TAG = "playlist_tag";
 
     @Inject SearchOperations searchOperations;
     @Inject ListViewController listViewController;
-    @Inject PagingItemAdapter<PlaylistSummary> adapter;
+    @Inject PagingItemAdapter<ApiPlaylist> adapter;
     @Inject ScModelManager modelManager;
     @Inject EventBus eventBus;
 
-    private ConnectableObservable<Page<PlaylistSummaryCollection>> observable;
+    private ConnectableObservable<Page<ApiPlaylistCollection>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
 
     public static PlaylistResultsFragment newInstance(String tag) {
@@ -68,13 +68,13 @@ public class PlaylistResultsFragment extends Fragment
     }
 
     @Override
-    public ConnectableObservable<Page<PlaylistSummaryCollection>> buildObservable() {
+    public ConnectableObservable<Page<ApiPlaylistCollection>> buildObservable() {
         String playlistTag = getArguments().getString(KEY_PLAYLIST_TAG);
         return searchOperations.getPlaylistResults(playlistTag).observeOn(mainThread()).replay();
     }
 
     @Override
-    public Subscription connectObservable(ConnectableObservable<Page<PlaylistSummaryCollection>> observable) {
+    public Subscription connectObservable(ConnectableObservable<Page<ApiPlaylistCollection>> observable) {
         this.observable = observable;
         this.observable.subscribe(adapter);
         connectionSubscription = observable.connect();
@@ -108,8 +108,8 @@ public class PlaylistResultsFragment extends Fragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        PlaylistSummary playlist = adapter.getItem(position);
-        PlaylistDetailActivity.start(getActivity(), new Playlist(playlist), modelManager, Screen.SEARCH_PLAYLIST_DISCO);
+        ApiPlaylist playlist = adapter.getItem(position);
+        PlaylistDetailActivity.start(getActivity(), new PublicApiPlaylist(playlist), modelManager, Screen.SEARCH_PLAYLIST_DISCO);
         eventBus.publish(EventQueue.SEARCH, SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_PLAYLIST_DISCO));
     }
 }

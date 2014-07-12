@@ -16,6 +16,7 @@ public class UnauthorisedRequestRegistry {
     private static final long TIME_LIMIT_IN_MILLISECONDS = TimeUnit.SECONDS.toMillis(5);
     private static UnauthorisedRequestRegistry instance;
     private final Context context;
+    private final AtomicLong lastObservedTime;
 
     public static synchronized UnauthorisedRequestRegistry getInstance(Context context) {
         if (instance == null) {
@@ -26,25 +27,23 @@ public class UnauthorisedRequestRegistry {
 
     @VisibleForTesting
     protected UnauthorisedRequestRegistry(Context context, AtomicLong lastObservedTime) {
-        mLastObservedTime = lastObservedTime;
         this.context = context.getApplicationContext();
+        this.lastObservedTime = lastObservedTime;
     }
 
-    private final AtomicLong mLastObservedTime;
-
     public void updateObservedUnauthorisedRequestTimestamp() {
-        boolean updated = mLastObservedTime.compareAndSet(NO_OBSERVED_TIME, System.currentTimeMillis());
+        boolean updated = lastObservedTime.compareAndSet(NO_OBSERVED_TIME, System.currentTimeMillis());
         Log.d(TAG, "Observed Unauthorised request timestamp update result = " + updated);
         context.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
     }
 
     public void clearObservedUnauthorisedRequestTimestamp() {
         Log.d(TAG, "Clearing Observed Unauthorised request timestamp");
-        mLastObservedTime.set(NO_OBSERVED_TIME);
+        lastObservedTime.set(NO_OBSERVED_TIME);
     }
 
     public Boolean timeSinceFirstUnauthorisedRequestIsBeyondLimit() {
-        long lastObservedTime = mLastObservedTime.get();
+        long lastObservedTime = this.lastObservedTime.get();
         if (lastObservedTime == NO_OBSERVED_TIME) {
             return false;
         }
@@ -57,12 +56,12 @@ public class UnauthorisedRequestRegistry {
 
     @VisibleForTesting
     public long getLastObservedTime() {
-        return mLastObservedTime.get();
+        return lastObservedTime.get();
     }
 
     @VisibleForTesting
     public void setLastObservedTime(long value) {
-        mLastObservedTime.set(value);
+        lastObservedTime.set(value);
     }
 
 }

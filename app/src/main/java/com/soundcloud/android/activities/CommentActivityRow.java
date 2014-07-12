@@ -3,12 +3,12 @@ package com.soundcloud.android.activities;
 import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.ActivityRow;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.api.legacy.model.Comment;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.activities.CommentActivity;
+import com.soundcloud.android.api.legacy.model.activities.CommentActivity;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -28,7 +28,7 @@ public class CommentActivityRow extends ActivityRow {
     }
 
     @Override
-    protected User getOriginUser() {
+    protected PublicApiUser getOriginUser() {
         return comment.user;
     }
 

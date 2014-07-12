@@ -2,14 +2,14 @@ package com.soundcloud.android.peripherals;
 
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.LegacyTrackOperations;
+import com.soundcloud.android.tracks.LegacyTrackOperations;
 import com.soundcloud.android.utils.ScTextUtils;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -49,7 +49,7 @@ public class PeripheralsController {
         context.sendBroadcast(intent);
     }
 
-    private void notifyPlayQueueChanged(Track track) {
+    private void notifyPlayQueueChanged(PublicApiTrack track) {
         Intent intent = new Intent(AVRCP_META_CHANGED);
         intent.putExtra("id", track.getId());
         intent.putExtra("track", ScTextUtils.getClippedString(track.getTitle(), 40));
@@ -72,7 +72,7 @@ public class PeripheralsController {
         context.sendBroadcast(intent);
     }
 
-    private Observable<Track> loadCurrentTrack() {
+    private Observable<PublicApiTrack> loadCurrentTrack() {
         return trackOperations.loadTrack(playQueueManager.getCurrentTrackId(), AndroidSchedulers.mainThread());
     }
 
@@ -97,9 +97,9 @@ public class PeripheralsController {
         }
     }
 
-    private class CurrentTrackSubscriber extends DefaultSubscriber<Track> {
+    private class CurrentTrackSubscriber extends DefaultSubscriber<PublicApiTrack> {
         @Override
-        public void onNext(Track track) {
+        public void onNext(PublicApiTrack track) {
             notifyPlayQueueChanged(track);
         }
     }

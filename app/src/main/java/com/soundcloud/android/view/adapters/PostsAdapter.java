@@ -5,16 +5,16 @@ import com.google.common.collect.Iterables;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -39,7 +39,7 @@ import java.util.Map;
 /**
  * Temporarily used to adapt ScListFragment lists that use public API models to PropertySets and the new cell design
  */
-public class PostsAdapter extends ScBaseAdapter<ScResource> {
+public class PostsAdapter extends ScBaseAdapter<PublicApiResource> {
 
     private static final int TRACK_VIEW_TYPE = 0;
     private static final int PLAYLIST_VIEW_TYPE = 1;
@@ -114,20 +114,20 @@ public class PostsAdapter extends ScBaseAdapter<ScResource> {
     }
 
     @Override
-    public void addItems(List<ScResource> newItems) {
+    public void addItems(List<PublicApiResource> newItems) {
         super.addItems(newItems);
         this.propertySets.addAll(toPropertySets(newItems));
     }
 
-    private List<PropertySet> toPropertySets(List<ScResource> items) {
+    private List<PropertySet> toPropertySets(List<PublicApiResource> items) {
         final List<PropertySet> propertySets = new ArrayList<PropertySet>(items.size());
-        for (ScResource resource : items) {
+        for (PublicApiResource resource : items) {
             propertySets.add(toPropertySet(resource));
         }
         return propertySets;
     }
 
-    private PropertySet toPropertySet(ScResource resource) {
+    private PropertySet toPropertySet(PublicApiResource resource) {
         PropertySet propertySet = ((PlayableHolder) resource).getPlayable().toPropertySet();
         if (resource instanceof SoundAssociation &&
                 (((SoundAssociation) resource).associationType == CollectionStorage.CollectionItemTypes.REPOST)) {
@@ -137,7 +137,7 @@ public class PostsAdapter extends ScBaseAdapter<ScResource> {
     }
 
     @Override
-    public void updateItems(Map<Urn, ScResource> updatedItems){
+    public void updateItems(Map<Urn, PublicApiResource> updatedItems){
         for (int i = 0; i < propertySets.size(); i++) {
             final PropertySet originalPropertySet = propertySets.get(i);
             final Urn key = originalPropertySet.get(PlayableProperty.URN);
@@ -148,7 +148,7 @@ public class PostsAdapter extends ScBaseAdapter<ScResource> {
         notifyDataSetChanged();
     }
 
-    private PropertySet toPropertySetKeepingReposterInfo(ScResource resource, PropertySet originalPropertySet) {
+    private PropertySet toPropertySetKeepingReposterInfo(PublicApiResource resource, PropertySet originalPropertySet) {
         final PropertySet propertySet = ((Playable) resource).toPropertySet();
         if (originalPropertySet.contains(PlayableProperty.REPOSTER)) {
             propertySet.put(PlayableProperty.REPOSTER, originalPropertySet.get(PlayableProperty.REPOSTER));

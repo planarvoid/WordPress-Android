@@ -10,8 +10,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.tester.android.database.TestCursor;
@@ -27,7 +27,7 @@ import android.provider.BaseColumns;
 import java.util.Arrays;
 
 @RunWith(DefaultTestRunner.class)
-public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
+public class BaseDAOTest extends AbstractDAOTest<BaseDAO<PublicApiTrack>> {
 
     public BaseDAOTest() {
         super(new TestDAO(mock(ContentResolver.class)));
@@ -37,8 +37,8 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
     @Test
     public void shouldStoreSingleRecord() {
         ContentResolver resolverMock = getDAO().getContentResolver();
-        Track record = new Track();
-        record.user = new User(); // should not be auto-inserted
+        PublicApiTrack record = new PublicApiTrack();
+        record.user = new PublicApiUser(); // should not be auto-inserted
 
         when(resolverMock.insert(any(Uri.class), any(ContentValues.class))).thenReturn(record.toUri());
 
@@ -51,8 +51,8 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
     @Test
     public void shouldStoreSingleRecordWithDependencies() {
         ContentResolver resolverMock = getDAO().getContentResolver();
-        Track record = new Track();
-        record.user = new User();
+        PublicApiTrack record = new PublicApiTrack();
+        record.user = new PublicApiUser();
 
         when(resolverMock.insert(any(Uri.class), any(ContentValues.class))).thenReturn(record.toUri());
 
@@ -65,7 +65,7 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
     @Test
     public void shouldSetRecordIdForNewRecords() {
         ContentResolver resolverMock = getDAO().getContentResolver();
-        Track record = new Track(0); // 0 is not a valid record ID
+        PublicApiTrack record = new PublicApiTrack(0); // 0 is not a valid record ID
 
         Uri newResourceUri = Uri.parse("http://com.soundcloud.android.provider.ScContentProvider/tracks/123");
         when(resolverMock.insert(any(Uri.class), any(ContentValues.class))).thenReturn(newResourceUri);
@@ -79,8 +79,8 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
     public void shouldStoreCollectionOfRecords() {
         ContentResolver resolverMock = getDAO().getContentResolver();
 
-        Track track1 = new Track();
-        Track track2 = new Track();
+        PublicApiTrack track1 = new PublicApiTrack();
+        PublicApiTrack track2 = new PublicApiTrack();
         getDAO().createCollection(Arrays.asList(track1, track2));
 
         verify(resolverMock).bulkInsert(eq(getDAO().getContent().uri), any(ContentValues[].class));
@@ -161,7 +161,7 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
                 isNull(String.class));
 
         when(query).thenReturn(new CursorStub(1));
-        expect(getDAO().buildQuery().first()).toBeInstanceOf(Track.class);
+        expect(getDAO().buildQuery().first()).toBeInstanceOf(PublicApiTrack.class);
     }
 
     @Test
@@ -235,7 +235,7 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
     @Test
     public void shouldDeleteSingleRecord() {
         ContentResolver resolverMock = getDAO().getContentResolver();
-        Track track = new Track(1);
+        PublicApiTrack track = new PublicApiTrack(1);
 
         getDAO().delete(track, "title = ?", "new track");
 
@@ -251,7 +251,7 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
         verify(resolverMock).delete(eq(Content.TRACKS.uri), isNull(String.class), eq(new String[]{}));
     }
 
-    private static class TestDAO extends BaseDAO<Track> {
+    private static class TestDAO extends BaseDAO<PublicApiTrack> {
 
         protected TestDAO(ContentResolver contentResolver) {
             super(contentResolver);
@@ -263,8 +263,8 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
         }
 
         @Override
-        protected Track objFromCursor(Cursor cursor) {
-            return new Track();
+        protected PublicApiTrack objFromCursor(Cursor cursor) {
+            return new PublicApiTrack();
         }
     }
 

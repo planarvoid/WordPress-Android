@@ -1,7 +1,7 @@
 package com.soundcloud.android.blueprints;
 
         import com.soundcloud.android.model.Urn;
-        import com.soundcloud.android.model.UserUrn;
+        import com.soundcloud.android.users.UserUrn;
         import com.tobedevoured.modelcitizen.annotation.Blueprint;
         import com.tobedevoured.modelcitizen.annotation.NewInstance;
         import com.tobedevoured.modelcitizen.field.ConstructorCallback;

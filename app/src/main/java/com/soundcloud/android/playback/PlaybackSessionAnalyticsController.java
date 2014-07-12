@@ -1,17 +1,17 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.LegacyTrackOperations;
+import com.soundcloud.android.tracks.LegacyTrackOperations;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -76,9 +76,9 @@ public class PlaybackSessionAnalyticsController {
 
     private void createDurationObservable(long trackId) {
         durationObservable = ReplaySubject.create(1);
-        trackOperations.loadTrack(trackId, AndroidSchedulers.mainThread()).map(new Func1<Track, Integer>() {
+        trackOperations.loadTrack(trackId, AndroidSchedulers.mainThread()).map(new Func1<PublicApiTrack, Integer>() {
             @Override
-            public Integer call(Track track) {
+            public Integer call(PublicApiTrack track) {
                 return track.duration;
             }
         }).subscribe(durationObservable);

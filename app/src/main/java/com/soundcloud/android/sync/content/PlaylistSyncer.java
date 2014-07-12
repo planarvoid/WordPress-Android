@@ -3,9 +3,9 @@ package com.soundcloud.android.sync.content;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
@@ -78,7 +78,7 @@ public class PlaylistSyncer extends SyncStrategy {
         log("Syncing playlist " + contentUri);
         ApiSyncResult result = new ApiSyncResult(contentUri);
         try {
-            Playlist playlist = playlistSyncHelper.syncPlaylist(contentUri, api);
+            PublicApiPlaylist playlist = playlistSyncHelper.syncPlaylist(contentUri, api);
             if (playlist != null) {
                 log("inserted " + playlist.toString());
                 result.setSyncData(true, System.currentTimeMillis(), 1, ApiSyncResult.CHANGED);

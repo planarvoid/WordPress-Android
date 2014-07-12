@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,37 +32,37 @@ public class ItemAdapterTest {
     @Mock
     private CellPresenter cellPresenter;
 
-    private ItemAdapter<Track> adapter;
+    private ItemAdapter<PublicApiTrack> adapter;
 
     @Before
     public void setup() {
-        adapter = new ItemAdapter<Track>(cellPresenter) {};
+        adapter = new ItemAdapter<PublicApiTrack>(cellPresenter) {};
     }
 
     @Test
     public void shouldAddItems() {
         expect(adapter.getCount()).toBe(0);
-        adapter.addItem(new Track());
+        adapter.addItem(new PublicApiTrack());
         expect(adapter.getCount()).toBe(1);
     }
 
     @Test
     public void shouldGetItem() {
-        Track item = new Track();
+        PublicApiTrack item = new PublicApiTrack();
         adapter.addItem(item);
         expect(adapter.getItem(0)).toBe(item);
     }
 
     @Test
     public void shouldGetItems() {
-        adapter.addItem(new Track(1));
-        adapter.addItem(new Track(2));
+        adapter.addItem(new PublicApiTrack(1));
+        adapter.addItem(new PublicApiTrack(2));
 
-        List<Track> items = adapter.getItems();
+        List<PublicApiTrack> items = adapter.getItems();
 
         expect(items.size()).toEqual(2);
-        expect(items.get(0)).toEqual(new Track(1));
-        expect(items.get(1)).toEqual(new Track(2));
+        expect(items.get(0)).toEqual(new PublicApiTrack(1));
+        expect(items.get(1)).toEqual(new PublicApiTrack(2));
     }
 
     @Test
@@ -73,7 +73,7 @@ public class ItemAdapterTest {
     @Test
     public void shouldCreateItemViewWithPresenter() {
         FrameLayout parent = mock(FrameLayout.class);
-        adapter.addItem(new Track());
+        adapter.addItem(new PublicApiTrack());
         adapter.getView(0, null, parent);
         verify(cellPresenter).createItemView(0, parent);
     }
@@ -83,7 +83,7 @@ public class ItemAdapterTest {
         FrameLayout parent = mock(FrameLayout.class);
         CellPresenter presenterOne = mock(CellPresenter.class);
         CellPresenter presenterTwo = mock(CellPresenter.class);
-        adapter = new ItemAdapter<Track>(
+        adapter = new ItemAdapter<PublicApiTrack>(
                 new ItemAdapter.CellPresenterEntity(0, presenterOne),
                 new ItemAdapter.CellPresenterEntity(1, presenterTwo)) {
             @Override
@@ -104,7 +104,7 @@ public class ItemAdapterTest {
         FrameLayout parent = mock(FrameLayout.class);
         View itemView = mock(View.class);
         when(cellPresenter.createItemView(0, parent)).thenReturn(itemView);
-        Track item = new Track();
+        PublicApiTrack item = new PublicApiTrack();
         adapter.addItem(item);
 
         adapter.getView(0, null, parent);
@@ -115,7 +115,7 @@ public class ItemAdapterTest {
     public void shouldConvertItemView() {
         FrameLayout parent = mock(FrameLayout.class);
         View convertView = mock(View.class);
-        Track item = new Track();
+        PublicApiTrack item = new PublicApiTrack();
         adapter.addItem(item);
 
         View itemView = adapter.getView(0, convertView, parent);
@@ -143,7 +143,7 @@ public class ItemAdapterTest {
         expect(adapter.getCount()).toBe(0);
 
         Bundle bundle = new Bundle();
-        ArrayList<Track> tracks = Lists.newArrayList(new Track(1), new Track(2));
+        ArrayList<PublicApiTrack> tracks = Lists.newArrayList(new PublicApiTrack(1), new PublicApiTrack(2));
         bundle.putParcelableArrayList(ItemAdapter.EXTRA_KEY_ITEMS, tracks);
 
         adapter.restoreInstanceState(bundle);

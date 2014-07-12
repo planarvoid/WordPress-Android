@@ -6,11 +6,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserProperty;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.propeller.PropertySet;
@@ -29,7 +29,7 @@ import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PropertySetSourceProxyPresenterTest {
-    @Mock private Track track;
+    @Mock private PublicApiTrack track;
     @Mock private View itemView;
 
     @Mock private TrackItemPresenter trackItemPresenter;
@@ -41,7 +41,7 @@ public class PropertySetSourceProxyPresenterTest {
 
     @Test
     public void shouldConvertTracksToPropertySets() {
-        presenter.bindItemView(0, itemView, Arrays.asList((ScResource) track));
+        presenter.bindItemView(0, itemView, Arrays.asList((PublicApiResource) track));
 
         verify(trackItemPresenter).bindItemView(eq(0), eq(itemView), captor.capture());
         expect(captor.getValue().size()).toEqual(1);
@@ -50,10 +50,10 @@ public class PropertySetSourceProxyPresenterTest {
 
     @Test
     public void shouldPutIsFollowerPropertyOnUserItems() throws CreateModelException {
-        User user = TestHelper.getModelFactory().createModel(User.class);
+        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
         when(followingOperations.isFollowing(user.getUrn())).thenReturn(true);
 
-        presenter.bindItemView(0, itemView, Arrays.asList((ScResource) user));
+        presenter.bindItemView(0, itemView, Arrays.asList((PublicApiResource) user));
 
         verify(trackItemPresenter).bindItemView(eq(0), eq(itemView), captor.capture());
         PropertySet propertySet = captor.getValue().get(0);
@@ -62,6 +62,6 @@ public class PropertySetSourceProxyPresenterTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldSendIllegalArgumentExceptionWhenResourceDoNotImplementPropertySetSource() {
-        presenter.bindItemView(0, itemView, Arrays.asList(mock(ScResource.class)));
+        presenter.bindItemView(0, itemView, Arrays.asList(mock(PublicApiResource.class)));
     }
 }

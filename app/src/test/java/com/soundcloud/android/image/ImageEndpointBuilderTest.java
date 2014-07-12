@@ -3,7 +3,7 @@ package com.soundcloud.android.image;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.http.HttpProperties;
+import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;

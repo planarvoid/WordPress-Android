@@ -8,7 +8,7 @@ import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.apache.http.HttpStatus;
 import org.junit.Before;

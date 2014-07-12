@@ -17,10 +17,10 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.UserUrn;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.StreamPlaya;
@@ -71,7 +71,7 @@ public class MediaPlayerAdapterTest {
     @Mock
     private StreamPlaya.PlayaListener listener;
     @Mock
-    private Track track;
+    private PublicApiTrack track;
     @Mock
     private NetworkConnectionHelper networkConnectionHelper;
     @Mock

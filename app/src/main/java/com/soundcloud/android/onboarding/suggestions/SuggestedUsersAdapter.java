@@ -3,7 +3,6 @@ package com.soundcloud.android.onboarding.suggestions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.view.GridViewCompat;
 
 import android.annotation.TargetApi;

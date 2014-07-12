@@ -6,11 +6,10 @@ import static com.soundcloud.android.creators.record.RecordActivity.CreateState.
 import static com.soundcloud.android.creators.record.RecordActivity.CreateState.RECORD;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.creators.upload.UploadActivity;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.preferences.DeveloperPreferences;
-import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.tests.SlowTest;
 import com.soundcloud.android.tests.TestUser;
 import com.soundcloud.android.tests.with.With;
@@ -87,7 +86,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         uploadSound("A test upload", null, true);
 
         assertSoundUploaded();
-        Track track = assertSoundTranscoded();
+        PublicApiTrack track = assertSoundTranscoded();
 
         if (track != null) {
             assertEquals("A test upload", track.title);
@@ -105,7 +104,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         uploadSound("A test upload", location, true);
 
         assertSoundUploaded();
-        Track track = assertSoundTranscoded();
+        PublicApiTrack track = assertSoundTranscoded();
         if (track != null) {
             assertEquals("A test upload at "+location, track.title);
         }
@@ -190,7 +189,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         uploadSound("An appended playable", null, true);
 
         assertSoundUploaded();
-        Track track = assertSoundTranscoded();
+        PublicApiTrack track = assertSoundTranscoded();
         assertTrackDuration(track, 2 * (recordingTime + ROBO_SLEEP));
     }
 
@@ -207,7 +206,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         assertSoundEncoded(recordingTime * 3 * 4);
         assertSoundUploaded();
-        Track track = assertSoundTranscoded();
+        PublicApiTrack track = assertSoundTranscoded();
         assertTrackDuration(track, 3 * (recordingTime + ROBO_SLEEP));
     }
 
@@ -284,7 +283,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         uploadSound(null, null, true);
 
         assertSoundUploaded();
-        Track t = assertSoundTranscoded();
+        PublicApiTrack t = assertSoundTranscoded();
 
         if (t != null) {
             assertEquals(title, t.title);

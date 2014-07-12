@@ -3,8 +3,8 @@ package com.soundcloud.android.creators.upload;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.creators.upload.tasks.FoursquareVenueTask;
-import com.soundcloud.android.model.FoursquareVenue;
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.api.legacy.model.FoursquareVenue;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 

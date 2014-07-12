@@ -2,20 +2,20 @@ package com.soundcloud.android.playback.widget;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayableChangedEvent;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.LegacyTrackOperations;
+import com.soundcloud.android.tracks.LegacyTrackOperations;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -86,20 +86,20 @@ public class PlayerWidgetController {
                 .observeOn(AndroidSchedulers.mainThread()));
     }
 
-    private Func1<Track, Observable<SoundAssociation>> toggleLike(final boolean isLiked) {
-        return new Func1<Track, Observable<SoundAssociation>>() {
+    private Func1<PublicApiTrack, Observable<SoundAssociation>> toggleLike(final boolean isLiked) {
+        return new Func1<PublicApiTrack, Observable<SoundAssociation>>() {
             @Override
-            public Observable<SoundAssociation> call(Track track) {
+            public Observable<SoundAssociation> call(PublicApiTrack track) {
                 return soundAssociationOps.toggleLike(!isLiked, track);
             }
         };
     }
 
-    private Observable<Track> loadCurrentTrack() {
+    private Observable<PublicApiTrack> loadCurrentTrack() {
         return loadTrack(playQueueManager.getCurrentTrackId());
     }
 
-    private Observable<Track> loadTrack(long trackId) {
+    private Observable<PublicApiTrack> loadTrack(long trackId) {
         return trackOperations.loadTrack(trackId, AndroidSchedulers.mainThread());
     }
 
@@ -144,9 +144,9 @@ public class PlayerWidgetController {
         }
     }
 
-    private class CurrentTrackSubscriber extends DefaultSubscriber<Track> {
+    private class CurrentTrackSubscriber extends DefaultSubscriber<PublicApiTrack> {
         @Override
-        public void onNext(Track track) {
+        public void onNext(PublicApiTrack track) {
             presenter.updatePlayableInformation(context, track);
         }
 

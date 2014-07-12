@@ -1,8 +1,8 @@
 package com.soundcloud.android.onboarding.auth;
 
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.Nullable;

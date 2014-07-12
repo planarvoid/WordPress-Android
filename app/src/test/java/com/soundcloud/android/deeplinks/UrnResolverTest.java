@@ -1,6 +1,8 @@
 package com.soundcloud.android.deeplinks;
 
 import android.net.Uri;
+
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;

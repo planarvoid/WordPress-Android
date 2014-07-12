@@ -3,15 +3,15 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.api.http.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.PlaylistStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.UserStorage;
-import com.soundcloud.android.model.ContentStats;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.utils.DebugUtils;
@@ -265,7 +265,7 @@ public class SyncAdapterService extends Service {
 
             final long id = PushEvent.getIdFromUri(extras.getString(SyncAdapterService.EXTRA_C2DM_EVENT_URI));
             if (id != -1) {
-                User u = userStorage.getUser(id);
+                PublicApiUser u = userStorage.getUser(id);
 
                 if (u != null && !u.isStale()) {
                     NotificationMessage.showNewFollower(app, u);

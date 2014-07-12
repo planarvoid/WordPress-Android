@@ -1,8 +1,8 @@
 
 package com.soundcloud.android.associations;
 
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 

@@ -3,7 +3,7 @@ package com.soundcloud.android.image;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
@@ -26,7 +26,7 @@ public class ImageLoaderUtils {
     /**
      * Get an instance of a list sized bitmap for a particular track (for player image substitution)
      */
-    public Bitmap getCachedTrackListIcon(Track track) {
+    public Bitmap getCachedTrackListIcon(PublicApiTrack track) {
         final String listArtworkUrl = track.getListArtworkUrl(context);
         if (ScTextUtils.isBlank(listArtworkUrl)) {
             return null;

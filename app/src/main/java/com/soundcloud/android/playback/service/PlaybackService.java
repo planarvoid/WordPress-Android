@@ -3,11 +3,11 @@ package com.soundcloud.android.playback.service;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
@@ -16,7 +16,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
-import com.soundcloud.android.track.LegacyTrackOperations;
+import com.soundcloud.android.tracks.LegacyTrackOperations;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -57,7 +57,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     // XXX : would be great to not have these boolean states
     private boolean waitingForPlaylist;
 
-    private @Nullable Track currentTrack;
+    private @Nullable PublicApiTrack currentTrack;
 
     private int serviceStartId = -1;
     private boolean serviceInUse;
@@ -362,14 +362,14 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         }
     }
 
-    private class TrackInformationSubscriber extends DefaultSubscriber<Track> {
+    private class TrackInformationSubscriber extends DefaultSubscriber<PublicApiTrack> {
         @Override
         public void onError(Throwable throwable) {
             onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED, getCurrentTrackUrn()));
         }
 
         @Override
-        public void onNext(Track track) {
+        public void onNext(PublicApiTrack track) {
             openCurrent(track);
         }
     }
@@ -378,7 +378,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         return currentTrack == null ? TrackUrn.NOT_SET : currentTrack.getUrn();
     }
 
-    /* package */ void openCurrent(Track track) {
+    /* package */ void openCurrent(PublicApiTrack track) {
         if (track != null) {
             suppressNotifications = false;
             waitingForPlaylist = false;
@@ -391,7 +391,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 currentTrack = track;
 
                 notifyChange(Broadcasts.META_CHANGED);
-                final Observable<Track> trackObservable = trackOperations.loadStreamableTrack(currentTrack.getId(), AndroidSchedulers.mainThread());
+                final Observable<PublicApiTrack> trackObservable = trackOperations.loadStreamableTrack(currentTrack.getId(), AndroidSchedulers.mainThread());
 
                 streamableTrackSubscription.unsubscribe();
                 streamableTrackSubscription = trackObservable
@@ -402,20 +402,20 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         }
     }
 
-    private class StreamableTrackInformationSubscriber extends DefaultSubscriber<Track> {
+    private class StreamableTrackInformationSubscriber extends DefaultSubscriber<PublicApiTrack> {
         @Override
         public void onError(Throwable e) {
             onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED, getCurrentTrackUrn()));
         }
 
         @Override
-        public void onNext(Track track) {
+        public void onNext(PublicApiTrack track) {
             fireAndForget(trackOperations.markTrackAsPlayed(track));
             startTrack(track);
         }
     };
 
-    private void startTrack(Track track) {
+    private void startTrack(PublicApiTrack track) {
         // set current track again as it may have been fetched from the api. This is not necessary with modelmanager, but will be going forward
         currentTrack = track;
         Log.d(TAG, "startTrack("+track.title+")");
@@ -523,7 +523,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         return currentTrack != null ? currentTrack.user_id : -1;
     }
 
-    Track getCurrentTrack() {
+    PublicApiTrack getCurrentTrack() {
         return currentTrack;
     }
 

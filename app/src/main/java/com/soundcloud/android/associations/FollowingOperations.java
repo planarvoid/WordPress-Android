@@ -10,20 +10,20 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.api.TempEndpoints;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.APIResponse;
-import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.api.http.SoundCloudAPIRequest;
-import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.TempEndpoints;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.APIResponse;
+import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.SoundCloudAPIRequest;
+import com.soundcloud.android.api.SoundCloudRxHttpClient;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.SuggestedUser;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserAssociation;
-import com.soundcloud.android.model.UserUrn;
-import com.soundcloud.android.model.activities.Activities;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
+import com.soundcloud.android.api.legacy.model.UserAssociation;
+import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.UserAssociationStorage;
@@ -92,7 +92,7 @@ public class FollowingOperations {
         this.syncInitiator = syncInitiator;
     }
 
-    public Observable<Boolean> addFollowing(@NotNull final User user) {
+    public Observable<Boolean> addFollowing(@NotNull final PublicApiUser user) {
         updateLocalStatus(true, user.getId());
         return userAssociationStorage.follow(user).lift(new ToggleFollowOperator(user.getUrn(), true));
     }
@@ -102,7 +102,7 @@ public class FollowingOperations {
         return userAssociationStorage.followSuggestedUser(suggestedUser);
     }
 
-    public Observable<Boolean> removeFollowing(final User user) {
+    public Observable<Boolean> removeFollowing(final PublicApiUser user) {
         updateLocalStatus(false, user.getId());
         return userAssociationStorage.unfollow(user).lift(new ToggleFollowOperator(user.getUrn(), false));
     }
@@ -113,20 +113,20 @@ public class FollowingOperations {
     }
 
     public Observable<UserAssociation> removeFollowingsBySuggestedUsers(List<SuggestedUser> suggestedUsers) {
-        return removeFollowings(Lists.transform(suggestedUsers, new Function<SuggestedUser, User>() {
+        return removeFollowings(Lists.transform(suggestedUsers, new Function<SuggestedUser, PublicApiUser>() {
             @Override
-            public User apply(SuggestedUser input) {
-                return new User(input);
+            public PublicApiUser apply(SuggestedUser input) {
+                return new PublicApiUser(input);
             }
         }));
     }
 
-    private Observable<UserAssociation> removeFollowings(final List<User> users) {
+    private Observable<UserAssociation> removeFollowings(final List<PublicApiUser> users) {
         updateLocalStatus(false, ScModel.getIdList(users));
         return userAssociationStorage.unfollowList(users);
     }
 
-    public Observable<Boolean> toggleFollowing(User user) {
+    public Observable<Boolean> toggleFollowing(PublicApiUser user) {
         if (followStatus.isFollowing(user)) {
             return removeFollowing(user);
         } else {
@@ -254,7 +254,7 @@ public class FollowingOperations {
         followStatus.toggleFollowing(userIds);
         // make sure the cache reflects the new state of each following
         for (long userId : userIds) {
-            final User cachedUser = modelManager.getCachedUser(userId);
+            final PublicApiUser cachedUser = modelManager.getCachedUser(userId);
             if (cachedUser != null) cachedUser.user_following = shouldFollow;
         }
         // invalidate stream SyncState if necessary

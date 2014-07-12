@@ -2,8 +2,8 @@ package com.soundcloud.android.c2dm;
 
 import static com.soundcloud.android.c2dm.C2DMReceiver.TAG;
 
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.api.AsyncApiTask;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.AsyncApiTask;
 import com.soundcloud.api.Request;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;

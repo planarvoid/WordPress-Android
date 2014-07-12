@@ -6,11 +6,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
-import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.storage.UserStorage;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Token;
 import org.junit.Before;
@@ -27,7 +25,7 @@ public class AuthTaskTest {
     AuthTask authTask;
 
     @Mock private SoundCloudApplication application;
-    @Mock private User user;
+    @Mock private PublicApiUser user;
     @Mock private Token token;
     @Mock private UserStorage userStorage;
 

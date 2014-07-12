@@ -8,13 +8,13 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.UserOperations;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.LikesListFragment;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.playback.ui.PlayerController;
@@ -118,7 +118,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     private void handleLoggedInUser() {
         boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
-        User currentUser = accountOperations.getLoggedInUser();
+        PublicApiUser currentUser = accountOperations.getLoggedInUser();
         if (!justAuthenticated && accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)) {
             subscription.add(bindActivity(this, userOperations.refreshCurrentUser()).subscribe(new UserSubscriber()));
         }
@@ -362,14 +362,14 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         }
     }
 
-    private class UserSubscriber extends DefaultSubscriber<User> {
+    private class UserSubscriber extends DefaultSubscriber<PublicApiUser> {
         @Override
-        public void onNext(User user) {
+        public void onNext(PublicApiUser user) {
             updateUser(user);
         }
     }
 
-    private void updateUser(User user) {
+    private void updateUser(PublicApiUser user) {
         navigationFragment.updateProfileItem(user);
         if (!user.isPrimaryEmailConfirmed()) {
                     startActivityForResult(new Intent(this, EmailConfirmationActivity.class)

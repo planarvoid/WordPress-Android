@@ -13,11 +13,11 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Maps;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserProperty;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -68,8 +68,8 @@ public class UserAdapterTest {
 
     @Test
     public void bindsUserToRowViaPresenter() throws CreateModelException {
-        User user = TestHelper.getModelFactory().createModel(User.class);
-        adapter.addItems(Arrays.<ScResource>asList(user));
+        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        adapter.addItems(Arrays.<PublicApiResource>asList(user));
 
         adapter.bindRow(0, itemView);
 
@@ -78,9 +78,9 @@ public class UserAdapterTest {
 
     @Test
     public void convertsUserToPropertySet() throws CreateModelException {
-        User user = TestHelper.getModelFactory().createModel(User.class);
+        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
         when(followingOperations.isFollowing(user.getUrn())).thenReturn(true);
-        adapter.addItems(Arrays.<ScResource>asList(user));
+        adapter.addItems(Arrays.<PublicApiResource>asList(user));
         adapter.bindRow(0, itemView);
 
         verify(userPresenter).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
@@ -93,13 +93,13 @@ public class UserAdapterTest {
 
     @Test
     public void clearItemsClearsInitialPropertySets() throws CreateModelException {
-        User user = TestHelper.getModelFactory().createModel(User.class);
-        adapter.addItems(Arrays.<ScResource>asList(user));
+        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        adapter.addItems(Arrays.<PublicApiResource>asList(user));
         adapter.bindRow(0, itemView);
         adapter.clearData();
 
-        User user2 = TestHelper.getModelFactory().createModel(User.class);
-        adapter.addItems(Arrays.<ScResource>asList(user2));
+        PublicApiUser user2 = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        adapter.addItems(Arrays.<PublicApiResource>asList(user2));
         adapter.bindRow(0, itemView);
 
         verify(userPresenter, times(2)).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
@@ -109,8 +109,8 @@ public class UserAdapterTest {
 
     @Test
     public void itemClickStartsProfileActivityWithUserArgument() throws CreateModelException {
-        User user = TestHelper.getModelFactory().createModel(User.class);
-        adapter.addItems(Arrays.<ScResource>asList(user));
+        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        adapter.addItems(Arrays.<PublicApiResource>asList(user));
 
         adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES);
 
@@ -121,8 +121,8 @@ public class UserAdapterTest {
 
     @Test
     public void toggleFollowingSubscribesToFollowObservable() throws CreateModelException {
-        User user = TestHelper.getModelFactory().createModel(User.class);
-        adapter.addItems(Arrays.<ScResource>asList(user));
+        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        adapter.addItems(Arrays.<PublicApiResource>asList(user));
 
         final TestObservables.MockObservable<Boolean> observable = TestObservables.emptyObservable();
         when(followingOperations.toggleFollowing(user)).thenReturn(observable);
@@ -136,14 +136,14 @@ public class UserAdapterTest {
 
     @Test
     public void updateItemsReplacesCurrentItem() throws CreateModelException {
-        User user = TestHelper.getModelFactory().createModel(User.class);
-        User user2 = TestHelper.getModelFactory().createModel(User.class);
-        adapter.addItems(Arrays.<ScResource>asList(user, user2));
+        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        PublicApiUser user2 = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        adapter.addItems(Arrays.<PublicApiResource>asList(user, user2));
 
-        User user3 = TestHelper.getModelFactory().createModel(User.class);
+        PublicApiUser user3 = TestHelper.getModelFactory().createModel(PublicApiUser.class);
         user3.setUrn(user2.getUrn().toString());
 
-        final HashMap<Urn, ScResource> updatedItems = Maps.newHashMap();
+        final HashMap<Urn, PublicApiResource> updatedItems = Maps.newHashMap();
         updatedItems.put(user3.getUrn(), user3);
         adapter.updateItems(updatedItems);
 

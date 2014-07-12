@@ -1,8 +1,8 @@
 package com.soundcloud.android.events;
 
 import com.google.common.base.Objects;
-import com.soundcloud.android.model.TrackUrn;
-import com.soundcloud.android.model.UserUrn;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import org.jetbrains.annotations.NotNull;
 

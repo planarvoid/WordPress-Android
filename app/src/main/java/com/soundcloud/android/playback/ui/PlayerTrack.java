@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.TrackProperty;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 
 class PlayerTrack {

@@ -7,7 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.creators.upload.tasks.FoursquareVenueTask;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.FoursquareVenue;
+import com.soundcloud.android.api.legacy.model.FoursquareVenue;
 import com.soundcloud.android.utils.Capitalizer;
 
 import android.app.AlertDialog;

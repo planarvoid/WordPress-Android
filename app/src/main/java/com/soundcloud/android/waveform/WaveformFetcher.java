@@ -1,6 +1,5 @@
 package com.soundcloud.android.waveform;
 
-import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.IOUtils;

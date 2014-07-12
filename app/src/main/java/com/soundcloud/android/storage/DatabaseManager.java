@@ -1,7 +1,7 @@
 package com.soundcloud.android.storage;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.api.legacy.model.LocalCollection;
 
 import android.content.Context;
 import android.database.SQLException;

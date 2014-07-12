@@ -5,14 +5,14 @@ import com.google.common.collect.Iterables;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -36,7 +36,7 @@ import java.util.Map;
 /**
  * Temporarily used to adapt ScListFragment lists that use public API models to PropertySets and the new cell design
  */
-public class SoundAdapter extends ScBaseAdapter<ScResource> {
+public class SoundAdapter extends ScBaseAdapter<PublicApiResource> {
 
     private static final int TRACK_VIEW_TYPE = 0;
     private static final int PLAYLIST_VIEW_TYPE = 1;
@@ -107,21 +107,21 @@ public class SoundAdapter extends ScBaseAdapter<ScResource> {
     }
 
     @Override
-    public void addItems(List<ScResource> newItems) {
+    public void addItems(List<PublicApiResource> newItems) {
         super.addItems(newItems);
         this.propertySets.addAll(toPropertySets(newItems));
     }
 
-    private List<PropertySet> toPropertySets(List<ScResource> items) {
+    private List<PropertySet> toPropertySets(List<PublicApiResource> items) {
         ArrayList<PropertySet> propSets = new ArrayList<PropertySet>(items.size());
-        for (ScResource resource : items) {
+        for (PublicApiResource resource : items) {
             propSets.add(((PlayableHolder) resource).getPlayable().toPropertySet());
         }
         return propSets;
     }
 
     @Override
-    public void updateItems(Map<Urn, ScResource> updatedItems){
+    public void updateItems(Map<Urn, PublicApiResource> updatedItems){
         for (int i = 0; i < propertySets.size(); i++) {
             final PropertySet originalPropertySet = propertySets.get(i);
             final Urn key = originalPropertySet.get(PlayableProperty.URN);

@@ -4,7 +4,7 @@ import static com.soundcloud.android.creators.upload.UploadService.TAG;
 
 import com.soundcloud.android.creators.record.jni.EncoderException;
 import com.soundcloud.android.creators.record.jni.VorbisEncoder;
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.api.legacy.model.Recording;
 
 import android.content.Context;
 import android.content.Intent;

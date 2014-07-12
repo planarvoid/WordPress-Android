@@ -3,7 +3,7 @@ package com.soundcloud.android.collections.views;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collections.ListRow;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.api.legacy.model.Comment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 

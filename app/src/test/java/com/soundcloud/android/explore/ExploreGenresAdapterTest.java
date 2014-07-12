@@ -2,7 +2,6 @@ package com.soundcloud.android.explore;
 
 import static org.mockito.Mockito.inOrder;
 
-import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;

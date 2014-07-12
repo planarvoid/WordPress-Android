@@ -6,16 +6,16 @@ import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
@@ -60,9 +60,9 @@ public class SearchResultsAdapterTest {
 
     @Test
     public void shouldDifferentiateItemViewTypes() {
-        adapter.addItem(new User());
-        adapter.addItem(new Track());
-        adapter.addItem(new Playlist());
+        adapter.addItem(new PublicApiUser());
+        adapter.addItem(new PublicApiTrack());
+        adapter.addItem(new PublicApiPlaylist());
 
         expect(adapter.getItemViewType(0)).toEqual(SearchResultsAdapter.TYPE_USER);
         expect(adapter.getItemViewType(1)).toEqual(SearchResultsAdapter.TYPE_TRACK);
@@ -87,7 +87,7 @@ public class SearchResultsAdapterTest {
 
     @Test
     public void playableChangedEventShouldUpdateAdapterToReflectTheLatestLikeStatus() throws CreateModelException {
-        final Playlist unlikedPlaylist = TestHelper.getModelFactory().createModel(Playlist.class);
+        final PublicApiPlaylist unlikedPlaylist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         unlikedPlaylist.user_like = false;
 
         adapter.addItem(unlikedPlaylist);
@@ -114,7 +114,7 @@ public class SearchResultsAdapterTest {
 
     @Test
     public void subscribesToFollowObservableWhenToggleFollowClicked() {
-        final User user = new User(123);
+        final PublicApiUser user = new PublicApiUser(123);
         adapter.addItem(user);
         final TestObservables.MockObservable<Boolean> observable = TestObservables.emptyObservable();
         when(followingOperations.toggleFollowing(user)).thenReturn(observable);
@@ -125,7 +125,7 @@ public class SearchResultsAdapterTest {
     }
 
     private void publishPlaylistLikeEvent(long id) throws CreateModelException {
-        Playlist playlist = TestHelper.getModelFactory().createModel(Playlist.class);
+        PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         playlist.setId(id);
         playlist.user_like = true;
         playlist.likes_count = 1;

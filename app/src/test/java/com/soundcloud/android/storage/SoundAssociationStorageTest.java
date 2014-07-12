@@ -3,13 +3,13 @@ package com.soundcloud.android.storage;
 import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Sets;
-import com.soundcloud.android.model.Association;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.SoundAssociationHolder;
-import com.soundcloud.android.model.SoundAssociationTest;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.Association;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.api.legacy.model.SoundAssociationHolder;
+import com.soundcloud.android.api.legacy.model.SoundAssociationTest;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -38,7 +38,7 @@ public class SoundAssociationStorageTest {
     
     @Test
     public void shouldStoreLikeAndUpdateLikesCount() {
-        Track track = new Track(1);
+        PublicApiTrack track = new PublicApiTrack(1);
         track.likes_count = 0;
         track.user_like = false;
         expect(Content.ME_LIKES).toHaveCount(0);
@@ -46,27 +46,27 @@ public class SoundAssociationStorageTest {
         storage.addLike(track);
 
         expect(Content.ME_LIKES).toHaveCount(1);
-        final Track storedTrack = TestHelper.reload(track);
+        final PublicApiTrack storedTrack = TestHelper.reload(track);
         expect(storedTrack.likes_count).toBe(1);
         expect(storedTrack.user_like).toBeTrue();
     }
 
     @Test
     public void shouldStoreLikeAndUpdateLikesCountForUninitializedTrack() {
-        Track track = new Track(1);
+        PublicApiTrack track = new PublicApiTrack(1);
         expect(Content.ME_LIKES).toHaveCount(0);
 
         storage.addLike(track);
 
         expect(Content.ME_LIKES).toHaveCount(1);
-        final Track storedTrack = TestHelper.reload(track);
+        final PublicApiTrack storedTrack = TestHelper.reload(track);
         expect(storedTrack.likes_count).toBe(1);
         expect(storedTrack.user_like).toBeTrue();
     }
 
     @Test
     public void shouldRemoveLikeAndUpdateLikesCount() {
-        Track track = new Track(1);
+        PublicApiTrack track = new PublicApiTrack(1);
         track.likes_count = 1;
         track.user_like = true;
         TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_LIKE);
@@ -75,28 +75,28 @@ public class SoundAssociationStorageTest {
         storage.removeLike(track);
 
         expect(Content.ME_LIKES).toHaveCount(0);
-        final Track storedTrack = TestHelper.reload(track);
+        final PublicApiTrack storedTrack = TestHelper.reload(track);
         expect(storedTrack.likes_count).toBe(0);
         expect(storedTrack.user_like).toBeFalse();
     }
 
     @Test
     public void shouldRemoveLikeAndUpdateLikesCountForUninitializedTrack() {
-        Track track = new Track(1);
+        PublicApiTrack track = new PublicApiTrack(1);
         TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_LIKE);
         expect(Content.ME_LIKES).toHaveCount(1);
 
         storage.removeLike(track);
 
         expect(Content.ME_LIKES).toHaveCount(0);
-        final Track storedTrack = TestHelper.reload(track);
+        final PublicApiTrack storedTrack = TestHelper.reload(track);
         expect(storedTrack.likes_count).toBe(0);
         expect(storedTrack.user_like).toBeFalse();
     }
 
     @Test
     public void shouldStoreRepostAndUpdateRepostsCount() {
-        Track track = new Track(1);
+        PublicApiTrack track = new PublicApiTrack(1);
         track.reposts_count = 0;
         track.user_repost = true;
         expect(Content.ME_REPOSTS).toHaveCount(0);
@@ -104,27 +104,27 @@ public class SoundAssociationStorageTest {
         storage.addRepost(track);
 
         expect(Content.ME_REPOSTS).toHaveCount(1);
-        final Track storedTrack = TestHelper.reload(track);
+        final PublicApiTrack storedTrack = TestHelper.reload(track);
         expect(storedTrack.reposts_count).toBe(1);
         expect(storedTrack.user_repost).toBeTrue();
     }
 
     @Test
     public void shouldStoreRepostAndUpdateRepostsCountForUninitializedTrack() {
-        Track track = new Track(1);
+        PublicApiTrack track = new PublicApiTrack(1);
         expect(Content.ME_REPOSTS).toHaveCount(0);
 
         storage.addRepost(track);
 
         expect(Content.ME_REPOSTS).toHaveCount(1);
-        final Track storedTrack = TestHelper.reload(track);
+        final PublicApiTrack storedTrack = TestHelper.reload(track);
         expect(storedTrack.reposts_count).toBe(1);
         expect(storedTrack.user_repost).toBeTrue();
     }
 
     @Test
     public void shouldRemoveRepostAndUpdateLikesCount() {
-        Track track = new Track(1);
+        PublicApiTrack track = new PublicApiTrack(1);
         track.reposts_count = 1;
         track.user_repost = true;
         TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_REPOST);
@@ -133,29 +133,29 @@ public class SoundAssociationStorageTest {
         storage.removeRepost(track);
 
         expect(Content.ME_REPOSTS).toHaveCount(0);
-        final Track storedTrack = TestHelper.reload(track);
+        final PublicApiTrack storedTrack = TestHelper.reload(track);
         expect(storedTrack.reposts_count).toBe(0);
         expect(storedTrack.user_repost).toBeFalse();
     }
 
     @Test
     public void shouldRemoveRepostAndUpdateLikesCountForUninitializedTrack() {
-        Track track = new Track(1);
+        PublicApiTrack track = new PublicApiTrack(1);
         TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_REPOST);
         expect(Content.ME_REPOSTS).toHaveCount(1);
 
         storage.removeRepost(track);
 
         expect(Content.ME_REPOSTS).toHaveCount(0);
-        final Track storedTrack = TestHelper.reload(track);
+        final PublicApiTrack storedTrack = TestHelper.reload(track);
         expect(storedTrack.reposts_count).toBe(0);
         expect(storedTrack.user_repost).toBeFalse();
     }
 
     @Test
     public void shouldPersistPlaylistCreation() throws Exception {
-        final List<Track> tracks = createTracks(2);
-        Playlist p = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
+        final List<PublicApiTrack> tracks = createTracks(2);
+        PublicApiPlaylist p = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
         SoundAssociation playlistCreation = storage.addCreation(p);
         expect(playlistCreation).not.toBeNull();
@@ -214,8 +214,8 @@ public class SoundAssociationStorageTest {
 
     @Test
     public void shouldLoadSoundStreamItemsForUser() {
-        Track track = new Track(1);
-        Playlist playlist = new Playlist(1);
+        PublicApiTrack track = new PublicApiTrack(1);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1);
 
         insertSoundAssociations(track, playlist);
 
@@ -230,8 +230,8 @@ public class SoundAssociationStorageTest {
 
     @Test
     public void shouldLoadLikesForUser() {
-        Track track = new Track(1);
-        Playlist playlist = new Playlist(1);
+        PublicApiTrack track = new PublicApiTrack(1);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1);
 
         insertSoundAssociations(track, playlist);
 
@@ -244,8 +244,8 @@ public class SoundAssociationStorageTest {
 
     @Test
     public void shouldLoadPlaylistCreationsForUser() {
-        Track track = new Track(1);
-        Playlist playlist = new Playlist(1);
+        PublicApiTrack track = new PublicApiTrack(1);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1);
 
         insertSoundAssociations(track, playlist);
 
@@ -258,7 +258,7 @@ public class SoundAssociationStorageTest {
     public void shouldNotifyContentObserverWhenAddingLikes() {
         ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
 
-        storage.addLike(new Playlist(1));
+        storage.addLike(new PublicApiPlaylist(1));
 
         expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/likes/1");
     }
@@ -267,7 +267,7 @@ public class SoundAssociationStorageTest {
     public void shouldNotifyContentObserverWhenRemovingLikes() {
         ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
 
-        storage.removeLike(new Playlist(1L));
+        storage.removeLike(new PublicApiPlaylist(1L));
 
         expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/likes");
     }
@@ -276,7 +276,7 @@ public class SoundAssociationStorageTest {
     public void shouldNotifyContentObserverWhenAddingReposts() {
         ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
 
-        storage.addRepost(new Playlist(1L));
+        storage.addRepost(new PublicApiPlaylist(1L));
 
         expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/reposts/1");
     }
@@ -285,7 +285,7 @@ public class SoundAssociationStorageTest {
     public void shouldNotifyContentObserverWhenRemovingReposts() {
         ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
 
-        storage.removeRepost(new Playlist(1L));
+        storage.removeRepost(new PublicApiPlaylist(1L));
 
         expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/reposts");
     }
@@ -294,7 +294,7 @@ public class SoundAssociationStorageTest {
     public void shouldNotifyContentObserverWhenAddingTrackCreation() {
         ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
 
-        Track track = new Track(1L);
+        PublicApiTrack track = new PublicApiTrack(1L);
         track.created_at = new Date();
         storage.addCreation(track);
 
@@ -305,7 +305,7 @@ public class SoundAssociationStorageTest {
     public void shouldNotifyContentObserverWhenAddingPlaylistCreation() {
         ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
 
-        Playlist playlist = Playlist.newUserPlaylist(new User(1L), "playlist", false, Collections.<Track>emptyList());
+        PublicApiPlaylist playlist = PublicApiPlaylist.newUserPlaylist(new PublicApiUser(1L), "playlist", false, Collections.<PublicApiTrack>emptyList());
         storage.addCreation(playlist);
 
         expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/playlists/1");
@@ -313,9 +313,9 @@ public class SoundAssociationStorageTest {
 
     @Test
     public void shouldReturnTrackLikesIds() throws CreateModelException {
-        Track track1 = TestHelper.getModelFactory().createModel(Track.class);
-        Track track2 = TestHelper.getModelFactory().createModel(Track.class);
-        Playlist playlist = TestHelper.getModelFactory().createModel(Playlist.class);
+        PublicApiTrack track1 = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiTrack track2 = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
 
         TestHelper.insertAsSoundAssociation(track1, SoundAssociation.Type.TRACK_LIKE);
         TestHelper.insertAsSoundAssociation(track2, SoundAssociation.Type.TRACK_LIKE);
@@ -324,7 +324,7 @@ public class SoundAssociationStorageTest {
         expect(Sets.newHashSet(storage.getTrackLikesAsIds())).toContainExactly(track1.getId(), track2.getId());
     }
 
-    private void insertSoundAssociations(Track track, Playlist playlist) {
+    private void insertSoundAssociations(PublicApiTrack track, PublicApiPlaylist playlist) {
         TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK);
         TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_REPOST);
         TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_LIKE);
@@ -335,21 +335,21 @@ public class SoundAssociationStorageTest {
 
     private SoundAssociation createAssociation(long id, Association.Type type) {
         SoundAssociation soundAssociation1 = new SoundAssociation();
-        soundAssociation1.playable = new Track(id);
+        soundAssociation1.playable = new PublicApiTrack(id);
         soundAssociation1.setType(type.name());
         soundAssociation1.created_at = new Date(System.currentTimeMillis());
         return soundAssociation1;
     }
 
-    private List<Track> createTracks(int n) {
-        List<Track> items = new ArrayList<Track>(n);
+    private List<PublicApiTrack> createTracks(int n) {
+        List<PublicApiTrack> items = new ArrayList<PublicApiTrack>(n);
 
         for (int i=0; i<n; i++) {
-            User user = new User();
+            PublicApiUser user = new PublicApiUser();
             user.permalink = "u"+i;
             user.setId(i);
 
-            Track track = new Track();
+            PublicApiTrack track = new PublicApiTrack();
             track.setId(i);
             track.user = user;
             items.add(track);

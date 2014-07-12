@@ -2,11 +2,11 @@ package com.soundcloud.android.onboarding.auth.tasks;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.http.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.onboarding.auth.AuthTaskFragment;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.tasks.ParallelAsyncTask;
@@ -50,7 +50,7 @@ public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskR
         fragment.onTaskResult(result);
     }
 
-    protected Boolean addAccount(User user, Token token, SignupVia via) {
+    protected Boolean addAccount(PublicApiUser user, Token token, SignupVia via) {
         if (app.addUserAccountAndEnableSync(user, token, via)) {
             userStorage.createOrUpdate(user);
             if (via != SignupVia.NONE) {

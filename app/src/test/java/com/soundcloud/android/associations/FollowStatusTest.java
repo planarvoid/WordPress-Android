@@ -2,9 +2,9 @@ package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -71,7 +71,7 @@ public class FollowStatusTest {
 
     @Test
     public void testToggleFollowing() throws Exception {
-        final User user = new User(ID);
+        final PublicApiUser user = new PublicApiUser(ID);
         expect(status.isFollowing(user)).toBeFalse();
         status.toggleFollowing(user.getId());
         expect(status.isFollowing(user)).toBeTrue();
@@ -81,7 +81,7 @@ public class FollowStatusTest {
 
     @Test
     public void testToggleMultipleFollowings() throws Exception {
-        List<User> users = TestHelper.createUsers(3);
+        List<PublicApiUser> users = TestHelper.createUsers(3);
         expect(status.isFollowing(users.get(0))).toBeFalse();
 
         status.toggleFollowing(users.get(0).getId());

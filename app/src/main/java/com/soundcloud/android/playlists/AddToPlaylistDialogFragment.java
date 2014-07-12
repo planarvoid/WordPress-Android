@@ -4,11 +4,11 @@ import static rx.android.observables.AndroidObservable.fromFragment;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.android.storage.TableColumns;
@@ -54,7 +54,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
     @Inject LegacyPlaylistOperations playlistOperations;
     @Inject EventBus eventBus;
 
-    public static AddToPlaylistDialogFragment from(Track track, String originScreen) {
+    public static AddToPlaylistDialogFragment from(PublicApiTrack track, String originScreen) {
         Bundle b = new Bundle();
         b.putLong(KEY_TRACK_ID, track.getId());
         b.putString(KEY_TRACK_TITLE, track.title);
@@ -154,15 +154,15 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
         adapter.setCursor(null);
     }
 
-    private final class TrackAddedSubscriber extends DefaultSubscriber<Playlist> {
+    private final class TrackAddedSubscriber extends DefaultSubscriber<PublicApiPlaylist> {
 
         @Override
-        public void onNext(Playlist playlist) {
+        public void onNext(PublicApiPlaylist playlist) {
             // TODO: move to an Rx event
             // broadcast the information that the number of tracks changed
-            Intent intent = new Intent(Playlist.ACTION_CONTENT_CHANGED);
-            intent.putExtra(Playlist.EXTRA_ID, playlist.getId());
-            intent.putExtra(Playlist.EXTRA_TRACKS_COUNT, playlist.getTrackCount());
+            Intent intent = new Intent(PublicApiPlaylist.ACTION_CONTENT_CHANGED);
+            intent.putExtra(PublicApiPlaylist.EXTRA_ID, playlist.getId());
+            intent.putExtra(PublicApiPlaylist.EXTRA_TRACKS_COUNT, playlist.getTrackCount());
 
             LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
 

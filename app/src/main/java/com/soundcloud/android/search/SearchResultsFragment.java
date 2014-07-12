@@ -6,13 +6,13 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SearchResultsCollection;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -156,15 +156,15 @@ public class SearchResultsFragment extends Fragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        ScResource item = adapter.getItem(position);
+        PublicApiResource item = adapter.getItem(position);
         Context context = getActivity();
-        if (item instanceof Track) {
+        if (item instanceof PublicApiTrack) {
             eventBus.publish(EventQueue.SEARCH, SearchEvent.tapTrackOnScreen(getTrackingScreen()));
             playbackOperations.playFromAdapter(context, adapter.getItems(), position, null, getTrackingScreen());
-        } else if (item instanceof Playlist) {
+        } else if (item instanceof PublicApiPlaylist) {
             eventBus.publish(EventQueue.SEARCH, SearchEvent.tapPlaylistOnScreen(getTrackingScreen()));
             playbackOperations.playFromAdapter(context, adapter.getItems(), position, null, getTrackingScreen());
-        } else if (item instanceof User) {
+        } else if (item instanceof PublicApiUser) {
             eventBus.publish(EventQueue.SEARCH, SearchEvent.tapUserOnScreen(getTrackingScreen()));
             context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, item));
         }

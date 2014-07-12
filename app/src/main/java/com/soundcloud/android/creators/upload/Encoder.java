@@ -7,7 +7,7 @@ import com.soundcloud.android.creators.record.PlaybackStream;
 import com.soundcloud.android.creators.record.jni.EncoderOptions;
 import com.soundcloud.android.creators.record.jni.ProgressListener;
 import com.soundcloud.android.creators.record.jni.VorbisEncoder;
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.content.BroadcastReceiver;

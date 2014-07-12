@@ -2,8 +2,8 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.PlaybackProgress;
 
 import android.content.Intent;
@@ -12,8 +12,8 @@ import java.util.EnumSet;
 
 public interface Playa {
 
-    void play(Track track);
-    void play(Track track, long fromPos);
+    void play(PublicApiTrack track);
+    void play(PublicApiTrack track, long fromPos);
     boolean resume();
     void pause();
     long seek(long ms, boolean performSeek);

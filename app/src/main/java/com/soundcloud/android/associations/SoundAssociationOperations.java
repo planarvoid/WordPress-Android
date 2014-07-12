@@ -1,20 +1,20 @@
 package com.soundcloud.android.associations;
 
-import static com.soundcloud.android.api.http.SoundCloudAPIRequest.RequestBuilder;
+import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
 
 import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.APIRequestException;
-import com.soundcloud.android.api.http.APIResponse;
-import com.soundcloud.android.api.http.RxHttpClient;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.APIRequestException;
+import com.soundcloud.android.api.APIResponse;
+import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.utils.Log;
 import org.apache.http.HttpStatus;
@@ -119,7 +119,7 @@ public class SoundAssociationOperations {
     }
 
     private APIRequest buildRequestForLike(final Playable playable, final boolean likeAdded) {
-        APIEndpoints endpoint = playable instanceof Track ? APIEndpoints.MY_TRACK_LIKES : APIEndpoints.MY_PLAYLIST_LIKES;
+        APIEndpoints endpoint = playable instanceof PublicApiTrack ? APIEndpoints.MY_TRACK_LIKES : APIEndpoints.MY_PLAYLIST_LIKES;
         final String path = endpoint.path() + "/" + playable.getId();
         RequestBuilder builder = likeAdded ? RequestBuilder.put(path) : RequestBuilder.delete(path);
         return builder.forPublicAPI().build();
@@ -147,7 +147,7 @@ public class SoundAssociationOperations {
     }
 
     private APIRequest buildRequestForReposts(final Playable playable, final boolean likeAdded) {
-        APIEndpoints endpoint = playable instanceof Track ? APIEndpoints.MY_TRACK_REPOSTS : APIEndpoints.MY_PLAYLIST_REPOSTS;
+        APIEndpoints endpoint = playable instanceof PublicApiTrack ? APIEndpoints.MY_TRACK_REPOSTS : APIEndpoints.MY_PLAYLIST_REPOSTS;
         final String path = endpoint.path() + "/" + playable.getId();
         RequestBuilder builder = likeAdded ? RequestBuilder.put(path) : RequestBuilder.delete(path);
         return builder.forPublicAPI().build();
@@ -180,7 +180,7 @@ public class SoundAssociationOperations {
             @Override
             public void call() {
                 logPlayable("CACHE/PUBLISH", playable);
-                modelManager.cache(playable, ScResource.CacheUpdateMode.NONE);
+                modelManager.cache(playable, PublicApiResource.CacheUpdateMode.NONE);
                 Log.d(TAG, "publishing playable change event");
                 eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(playable, isSet));
             }
@@ -194,7 +194,7 @@ public class SoundAssociationOperations {
             @Override
             public void call() {
                 logPlayable("CACHE/PUBLISH", playable);
-                modelManager.cache(playable, ScResource.CacheUpdateMode.NONE);
+                modelManager.cache(playable, PublicApiResource.CacheUpdateMode.NONE);
                 Log.d(TAG, "publishing playable change event");
                 eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forRepost(playable, isSet));
             }

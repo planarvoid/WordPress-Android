@@ -5,7 +5,7 @@ import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.collections.views.CommentRow;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.api.legacy.model.Comment;
 import com.soundcloud.android.collections.views.IconLayout;
 
 import android.content.Context;

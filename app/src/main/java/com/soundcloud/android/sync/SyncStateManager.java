@@ -1,6 +1,6 @@
 package com.soundcloud.android.sync;
 
-import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.LocalCollectionDAO;

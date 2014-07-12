@@ -4,13 +4,13 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes;
 import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
-import com.soundcloud.android.model.Like;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.SoundAssociationHolder;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.Like;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.api.legacy.model.SoundAssociationHolder;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -65,13 +65,13 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     public void shouldQueryForAll() {
         expect(getDAO().queryAll()).toNumber(0);
 
-        TestHelper.insertAsSoundAssociation(new Track(TRACK_ID), SoundAssociation.Type.TRACK);
-        TestHelper.insertAsSoundAssociation(new Track(TRACK_ID), SoundAssociation.Type.TRACK_LIKE);
-        TestHelper.insertAsSoundAssociation(new Track(TRACK_ID), SoundAssociation.Type.TRACK_REPOST);
+        TestHelper.insertAsSoundAssociation(new PublicApiTrack(TRACK_ID), SoundAssociation.Type.TRACK);
+        TestHelper.insertAsSoundAssociation(new PublicApiTrack(TRACK_ID), SoundAssociation.Type.TRACK_LIKE);
+        TestHelper.insertAsSoundAssociation(new PublicApiTrack(TRACK_ID), SoundAssociation.Type.TRACK_REPOST);
 
-        TestHelper.insertAsSoundAssociation(new Playlist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST);
-        TestHelper.insertAsSoundAssociation(new Playlist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_LIKE);
-        TestHelper.insertAsSoundAssociation(new Playlist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_REPOST);
+        TestHelper.insertAsSoundAssociation(new PublicApiPlaylist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST);
+        TestHelper.insertAsSoundAssociation(new PublicApiPlaylist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_LIKE);
+        TestHelper.insertAsSoundAssociation(new PublicApiPlaylist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_REPOST);
 
         expect(getDAO().queryAll()).toNumber(6);
     }
@@ -80,9 +80,9 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     public void shouldInsertOwnTrack() {
         expect(Content.ME_SOUNDS).toHaveCount(0);
 
-        Track track = new Track(1);
+        PublicApiTrack track = new PublicApiTrack(1);
         SoundAssociation sa = new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK);
-        sa.owner = new User(USER_ID);
+        sa.owner = new PublicApiUser(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_SOUNDS).toHaveCount(1);
@@ -96,9 +96,9 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     public void shouldInsertOwnPlaylist() {
         expect(Content.ME_SOUNDS).toHaveCount(0);
 
-        Playlist playlist = new Playlist(1);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1);
         SoundAssociation sa = new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST);
-        sa.owner = new User(USER_ID);
+        sa.owner = new PublicApiUser(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_SOUNDS).toHaveCount(1);
@@ -112,9 +112,9 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     public void shouldInsertLikeForTrack() {
         expect(Content.ME_LIKES).toHaveCount(0);
 
-        Track track = new Track(1);
+        PublicApiTrack track = new PublicApiTrack(1);
         SoundAssociation sa = new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK_LIKE);
-        sa.owner = new User(USER_ID);
+        sa.owner = new PublicApiUser(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_LIKES).toHaveCount(1);
@@ -128,9 +128,9 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     public void shouldInsertRepostForTrack() {
         expect(Content.ME_REPOSTS).toHaveCount(0);
 
-        Track track = new Track(1);
+        PublicApiTrack track = new PublicApiTrack(1);
         SoundAssociation sa = new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK_REPOST);
-        sa.owner = new User(USER_ID);
+        sa.owner = new PublicApiUser(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_REPOSTS).toHaveCount(1);
@@ -144,9 +144,9 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     public void shouldInsertLikeForPlaylist() {
         expect(Content.ME_LIKES).toHaveCount(0);
 
-        Playlist playlist = new Playlist(1);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1);
         SoundAssociation sa = new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST_LIKE);
-        sa.owner = new User(USER_ID);
+        sa.owner = new PublicApiUser(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_LIKES).toHaveCount(1);
@@ -160,9 +160,9 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     public void shouldInsertRepostForPlaylist() {
         expect(Content.ME_REPOSTS).toHaveCount(0);
 
-        Playlist playlist = new Playlist(1);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1);
         SoundAssociation sa = new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST_REPOST);
-        sa.owner = new User(USER_ID);
+        sa.owner = new PublicApiUser(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_REPOSTS).toHaveCount(1);
@@ -174,8 +174,8 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
     @Test
     public void shouldRemoveLikeForTrack() {
-        SoundAssociation trackLike = TestHelper.insertAsSoundAssociation(new Track(TRACK_ID), SoundAssociation.Type.TRACK_LIKE);
-        TestHelper.insertAsSoundAssociation(new Playlist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_LIKE);
+        SoundAssociation trackLike = TestHelper.insertAsSoundAssociation(new PublicApiTrack(TRACK_ID), SoundAssociation.Type.TRACK_LIKE);
+        TestHelper.insertAsSoundAssociation(new PublicApiPlaylist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_LIKE);
         expect(Content.ME_LIKES).toHaveCount(2);
 
         expect(getDAO().delete(trackLike)).toBeTrue();
@@ -187,8 +187,8 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
     @Test
     public void shouldRemoveRepostForTrack() {
-        SoundAssociation trackRepost = TestHelper.insertAsSoundAssociation(new Track(TRACK_ID), SoundAssociation.Type.TRACK_REPOST);
-        TestHelper.insertAsSoundAssociation(new Playlist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_REPOST);
+        SoundAssociation trackRepost = TestHelper.insertAsSoundAssociation(new PublicApiTrack(TRACK_ID), SoundAssociation.Type.TRACK_REPOST);
+        TestHelper.insertAsSoundAssociation(new PublicApiPlaylist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_REPOST);
         expect(Content.ME_REPOSTS).toHaveCount(2);
 
         expect(getDAO().delete(trackRepost)).toBeTrue();
@@ -200,8 +200,8 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
     @Test
     public void shouldRemoveLikeForPlaylist() {
-        SoundAssociation playlistLike = TestHelper.insertAsSoundAssociation(new Playlist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_LIKE);
-        TestHelper.insertAsSoundAssociation(new Track(TRACK_ID), SoundAssociation.Type.TRACK_LIKE);
+        SoundAssociation playlistLike = TestHelper.insertAsSoundAssociation(new PublicApiPlaylist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_LIKE);
+        TestHelper.insertAsSoundAssociation(new PublicApiTrack(TRACK_ID), SoundAssociation.Type.TRACK_LIKE);
         expect(Content.ME_LIKES).toHaveCount(2);
 
         expect(getDAO().delete(playlistLike)).toBeTrue();
@@ -213,8 +213,8 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
     @Test
     public void shouldRemoveRepostForPlaylist() {
-        SoundAssociation playlistRepost = TestHelper.insertAsSoundAssociation(new Playlist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_REPOST);
-        TestHelper.insertAsSoundAssociation(new Track(TRACK_ID), SoundAssociation.Type.TRACK_REPOST);
+        SoundAssociation playlistRepost = TestHelper.insertAsSoundAssociation(new PublicApiPlaylist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_REPOST);
+        TestHelper.insertAsSoundAssociation(new PublicApiTrack(TRACK_ID), SoundAssociation.Type.TRACK_REPOST);
         expect(Content.ME_REPOSTS).toHaveCount(2);
 
         expect(getDAO().delete(playlistRepost)).toBeTrue();
@@ -336,14 +336,14 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     */
 
     private void insertTrack() {
-        Track track = new Track(TRACK_ID);
+        PublicApiTrack track = new PublicApiTrack(TRACK_ID);
         track.user_id = USER_ID;
         TestHelper.insertWithDependencies(track);
         expect(Content.TRACKS).toHaveCount(1);
     }
 
     private void insertPlaylist() {
-        Playlist playlist = new Playlist(PLAYLIST_ID);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(PLAYLIST_ID);
         playlist.user_id = USER_ID;
         TestHelper.insertWithDependencies(playlist);
         expect(Content.PLAYLISTS).toHaveCount(1);

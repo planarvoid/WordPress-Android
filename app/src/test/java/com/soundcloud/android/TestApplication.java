@@ -1,9 +1,9 @@
 package com.soundcloud.android;
 
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.api.http.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.creators.record.WavHeader;
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.api.Token;
 import dagger.ObjectGraph;
 

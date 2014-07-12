@@ -5,21 +5,21 @@ import com.google.common.collect.Iterables;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.DeprecatedRecordingProfile;
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.api.legacy.model.DeprecatedRecordingProfile;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -51,7 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
+public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
 
     private static final int TYPE_PENDING_RECORDING = 0;
     private static final int TYPE_NEW_TRACK = 1;
@@ -110,8 +110,8 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     }
 
     private boolean isTrack(int position) {
-        final ScResource item = getItem(position);
-        return item instanceof SoundAssociation && ((SoundAssociation) item).getPlayable() instanceof Track;
+        final PublicApiResource item = getItem(position);
+        return item instanceof SoundAssociation && ((SoundAssociation) item).getPlayable() instanceof PublicApiTrack;
     }
 
     @Override
@@ -140,8 +140,8 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
         }
     }
 
-    private List<PropertySet> toPropertySets(List<? extends ScResource> items) {
-        for (ScResource resource : items) {
+    private List<PropertySet> toPropertySets(List<? extends PublicApiResource> items) {
+        for (PublicApiResource resource : items) {
             if (resource instanceof SoundAssociation) {
                 final PropertySet propertySet = toPropertySet((SoundAssociation) resource);
                 propertySets.add(propertySet);
@@ -156,7 +156,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
         PropertySet propertySet = soundAssociation.getPlayable().toPropertySet();
         if (soundAssociation.associationType == CollectionStorage.CollectionItemTypes.REPOST
                 && activity instanceof ProfileActivity) {
-            User reposter = ((ProfileActivity) activity).getUser();
+            PublicApiUser reposter = ((ProfileActivity) activity).getUser();
             propertySet.put(PlayableProperty.REPOSTER, reposter.getUsername());
         }
 
@@ -164,13 +164,13 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     }
 
     @Override
-    public void addItems(List<ScResource> newItems) {
+    public void addItems(List<PublicApiResource> newItems) {
         super.addItems(newItems);
         this.propertySets.addAll(toPropertySets(newItems));
     }
 
     @Override
-    public void updateItems(Map<Urn, ScResource> updatedItems){
+    public void updateItems(Map<Urn, PublicApiResource> updatedItems){
         for (int i = 0; i < propertySets.size(); i++) {
             final PropertySet originalPropertySet = propertySets.get(i);
             final Urn key = originalPropertySet.get(PlayableProperty.URN);
@@ -181,7 +181,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
         notifyDataSetChanged();
     }
 
-    private PropertySet toPropertySetKeepingReposterInfo(ScResource resource, PropertySet originalPropertySet) {
+    private PropertySet toPropertySetKeepingReposterInfo(PublicApiResource resource, PropertySet originalPropertySet) {
         final PropertySet propertySet = ((Playable) resource).toPropertySet();
         if (originalPropertySet.contains(PlayableProperty.REPOSTER)) {
             propertySet.put(PlayableProperty.REPOSTER, originalPropertySet.get(PlayableProperty.REPOSTER));
@@ -250,7 +250,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     }
 
     @Override
-    public ScResource getItem(int position) {
+    public PublicApiResource getItem(int position) {
         if (recordingData != null) {
             if (position < recordingData.size()) {
                 return recordingData.get(position);

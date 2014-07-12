@@ -2,10 +2,10 @@ package com.soundcloud.android.onboarding.auth.tasks;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.storage.UserStorage;
@@ -50,7 +50,7 @@ public class LoginTask extends AuthTask {
             Token token = tokenUtils.getToken(data);
             Log.d("LoginTask[Token](" + token + ")");
 
-            final User user = fetchUserTask.resolve(Request.to(Endpoints.MY_DETAILS));
+            final PublicApiUser user = fetchUserTask.resolve(Request.to(Endpoints.MY_DETAILS));
             if (user == null) {
                 return AuthTaskResult.failure(app.getString(R.string.authentication_error_no_connection_message));
             }

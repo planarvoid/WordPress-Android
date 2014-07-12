@@ -5,10 +5,10 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.annotation.SuppressLint;
@@ -212,7 +212,7 @@ public class NavigationFragment extends Fragment {
         return view;
     }
 
-    public void updateProfileItem(User user) {
+    public void updateProfileItem(PublicApiUser user) {
         profileViewHolder.username.setText(user.getUsername());
         int followersCount = user.followers_count < 0 ? 0 : user.followers_count;
         profileViewHolder.followers.setText(getResources().getQuantityString(

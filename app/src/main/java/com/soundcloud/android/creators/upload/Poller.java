@@ -3,10 +3,10 @@ package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.creators.upload.UploadService.TAG;
 
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -52,7 +52,7 @@ public class Poller extends Handler {
 
     @Override
     public void handleMessage(Message msg) {
-        Track track = null;
+        PublicApiTrack track = null;
         final int attempt = msg.what;
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "poll attempt "+(attempt+1));
         try {
@@ -76,7 +76,7 @@ public class Poller extends Handler {
                     LocalBroadcastManager
                             .getInstance(SoundCloudApplication.instance)
                             .sendBroadcast(new Intent(UploadService.TRANSCODING_FAILED)
-                                    .putExtra(Track.EXTRA, track));
+                                    .putExtra(PublicApiTrack.EXTRA, track));
                 }
                 Log.e(TAG, "Track failed to be prepared " + track +
                         (track != null && track.state != null ? ", [state: " + track.state + "]" : ""));
@@ -85,7 +85,7 @@ public class Poller extends Handler {
         }
     }
 
-    private void onTrackProcessed(Track track) {
+    private void onTrackProcessed(PublicApiTrack track) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Track successfully prepared by the api: " + track);
         }
@@ -100,11 +100,11 @@ public class Poller extends Handler {
         LocalBroadcastManager
                 .getInstance(SoundCloudApplication.instance)
                 .sendBroadcast(new Intent(UploadService.TRANSCODING_SUCCESS)
-                        .putExtra(Track.EXTRA, track));
+                        .putExtra(PublicApiTrack.EXTRA, track));
     }
 
 
-    private void persistTrack(Track track) {
+    private void persistTrack(PublicApiTrack track) {
         track.setUpdated();
         new TrackStorage().createOrUpdate(track);
     }

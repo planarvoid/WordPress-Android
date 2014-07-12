@@ -4,11 +4,10 @@ import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackUrn;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.streaming.StreamProxy;
@@ -53,7 +52,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     private PlaybackState internalState = PlaybackState.STOPPED;
 
-    private Track track;
+    private PublicApiTrack track;
     private int connectionRetries = 0;
 
     private boolean waitingForSeek;
@@ -87,12 +86,12 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     @Override
-    public void play(Track track) {
+    public void play(PublicApiTrack track) {
         play(track, POS_NOT_SET);
     }
 
     @Override
-    public void play(Track track, long fromPos) {
+    public void play(PublicApiTrack track, long fromPos) {
         if (mediaPlayer == null || releaseUnresettableMediaPlayer()) {
             createMediaPlayer();
         } else {

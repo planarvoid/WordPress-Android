@@ -6,9 +6,8 @@ import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import com.soundcloud.android.api.TempEndpoints;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.playlists.NewPlaylistTask;
+import com.soundcloud.android.api.legacy.TempEndpoints;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.sync.ApiSyncServiceTest;
@@ -25,7 +24,7 @@ public class NewPlaylistTaskTest {
         NewPlaylistTask task = new NewPlaylistTask(DefaultTestRunner.application.getCloudAPI());
 
         Request r = Request.to(TempEndpoints.PLAYLISTS).add("playlist[title]", "new playlist");
-        final Playlist playlist = task.doInBackground(r);
+        final PublicApiPlaylist playlist = task.doInBackground(r);
         assertNotNull(playlist);
         expect(playlist.getId()).toBeGreaterThan(0l);
     }
@@ -35,7 +34,7 @@ public class NewPlaylistTaskTest {
         addPendingHttpResponse(400, "Failz");
         NewPlaylistTask task = new NewPlaylistTask(DefaultTestRunner.application.getCloudAPI());
         Request r = Request.to(TempEndpoints.PLAYLISTS).add("playlist[title]", "new playlist");
-        final Playlist playlist = task.doInBackground(r);
+        final PublicApiPlaylist playlist = task.doInBackground(r);
         assertNull(playlist);
     }
 }

@@ -1,9 +1,9 @@
 package com.soundcloud.android.creators.upload.tasks;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.api.AsyncApiTask;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.Connection;
+import com.soundcloud.android.api.legacy.AsyncApiTask;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;

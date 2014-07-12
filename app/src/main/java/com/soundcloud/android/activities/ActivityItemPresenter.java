@@ -3,7 +3,6 @@ package com.soundcloud.android.activities;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.ActivityProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.CellPresenter;
 import com.soundcloud.propeller.PropertySet;

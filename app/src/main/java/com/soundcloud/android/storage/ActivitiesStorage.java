@@ -1,9 +1,9 @@
 package com.soundcloud.android.storage;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.activities.Activities;
-import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.api.legacy.model.LocalCollection;
+import com.soundcloud.android.api.legacy.model.activities.Activities;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;

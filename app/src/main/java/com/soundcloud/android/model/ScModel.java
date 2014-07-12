@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Longs;
-import com.soundcloud.android.model.behavior.Identifiable;
+import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
 
 import android.content.ContentValues;
 import android.os.Parcel;

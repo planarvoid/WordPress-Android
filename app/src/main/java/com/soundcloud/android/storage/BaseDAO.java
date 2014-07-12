@@ -5,8 +5,8 @@ import static com.soundcloud.android.storage.ResolverHelper.longListToStringArr;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
-import com.soundcloud.android.model.behavior.Identifiable;
-import com.soundcloud.android.model.behavior.Persisted;
+import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
+import com.soundcloud.android.api.legacy.model.behavior.Persisted;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;

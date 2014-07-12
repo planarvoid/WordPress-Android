@@ -14,17 +14,16 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.model.ModelCollection;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.RecommendedTracksCollection;
-import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.track.TrackWriteStorage;
+import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -62,7 +61,7 @@ public class PlayQueueOperationsTest {
     @Mock private Observer observer;
 
     private PlaySessionSource playSessionSource;
-    private Playlist playlist;
+    private PublicApiPlaylist playlist;
 
     @Before
     public void before() throws CreateModelException {
@@ -78,7 +77,7 @@ public class PlayQueueOperationsTest {
         when(sharedPreferences.getInt(eq(PlayQueueOperations.Keys.PLAY_POSITION.name()), anyInt())).thenReturn(1);
 
         playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
-        playlist = TestHelper.getModelFactory().createModel(Playlist.class);
+        playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
     }
 
@@ -175,10 +174,10 @@ public class PlayQueueOperationsTest {
 
     @Test
     public void getRelatedTracksShouldEmitTracksFromSuggestions() throws CreateModelException {
-        Observer<ModelCollection<TrackSummary>> relatedObserver = Mockito.mock(Observer.class);
+        Observer<ModelCollection<ApiTrack>> relatedObserver = Mockito.mock(Observer.class);
 
-        TrackSummary suggestion1 = TestHelper.getModelFactory().createModel(TrackSummary.class);
-        TrackSummary suggestion2 = TestHelper.getModelFactory().createModel(TrackSummary.class);
+        ApiTrack suggestion1 = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        ApiTrack suggestion2 = TestHelper.getModelFactory().createModel(ApiTrack.class);
         RecommendedTracksCollection collection = createCollection(suggestion1, suggestion2);
 
         when(rxHttpClient.<RecommendedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
@@ -198,16 +197,16 @@ public class PlayQueueOperationsTest {
     @Test
     public void shouldWriteRelatedTracksInLocalStorage() throws Exception {
         RecommendedTracksCollection collection = createCollection(
-                TestHelper.getModelFactory().createModel(TrackSummary.class));
+                TestHelper.getModelFactory().createModel(ApiTrack.class));
         when(rxHttpClient.<RecommendedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
 
         playQueueOperations.getRelatedTracks(Urn.forTrack(1)).subscribe(observer);
 
-        final List<TrackSummary> resources = Arrays.asList(collection.getCollection().get(0));
+        final List<ApiTrack> resources = Arrays.asList(collection.getCollection().get(0));
         verify(trackWriteStorage).storeTracksAsync(resources);
     }
 
-    private RecommendedTracksCollection createCollection(TrackSummary... suggestions) {
+    private RecommendedTracksCollection createCollection(ApiTrack... suggestions) {
         final RecommendedTracksCollection collection = new RecommendedTracksCollection();
         collection.setCollection(Lists.newArrayList(suggestions));
         return collection;

@@ -1,7 +1,6 @@
 package com.soundcloud.android.explore;
 
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.ExploreGenre;
 
 import android.os.Bundle;
 

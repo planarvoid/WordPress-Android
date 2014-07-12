@@ -2,8 +2,8 @@ package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackTest;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiTrackTest;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -19,16 +19,16 @@ public class TrackDAOTest extends AbstractDAOTest<TrackDAO> {
     public void shouldPersistAndLoadCorrectly() throws Exception {
         TestHelper.setUserId(100L);
 
-        Track t = TestHelper.getObjectMapper().readValue(
-                TrackTest.class.getResourceAsStream("track.json"),
-                Track.class);
+        PublicApiTrack t = TestHelper.getObjectMapper().readValue(
+                PublicApiTrackTest.class.getResourceAsStream("track.json"),
+                PublicApiTrack.class);
 
         long id = getDAO().create(t);
 
         expect(id).toEqual(t.getId());
         expect(Content.TRACKS).toHaveCount(1);
 
-        Track t2 = getDAO().queryById(id);
+        PublicApiTrack t2 = getDAO().queryById(id);
         expect(t2).not.toBeNull();
 
         compareTracks(t, t2);
@@ -37,7 +37,7 @@ public class TrackDAOTest extends AbstractDAOTest<TrackDAO> {
         expect(t2.state).toEqual(t.state);
     }
 
-    private void compareTracks(Track t, Track t2) {
+    private void compareTracks(PublicApiTrack t, PublicApiTrack t2) {
         expect(t2.getId()).toEqual(t.getId());
         expect(t2.title).toEqual(t.title);
         expect(t2.permalink).toEqual(t.permalink);

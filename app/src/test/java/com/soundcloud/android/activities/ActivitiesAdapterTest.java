@@ -5,22 +5,22 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.activities.Activity;
-import com.soundcloud.android.model.activities.AffiliationActivity;
-import com.soundcloud.android.model.activities.CommentActivity;
-import com.soundcloud.android.model.activities.PlaylistActivity;
-import com.soundcloud.android.model.activities.PlaylistLikeActivity;
-import com.soundcloud.android.model.activities.PlaylistRepostActivity;
-import com.soundcloud.android.model.activities.PlaylistSharingActivity;
-import com.soundcloud.android.model.activities.TrackActivity;
-import com.soundcloud.android.model.activities.TrackLikeActivity;
-import com.soundcloud.android.model.activities.TrackRepostActivity;
-import com.soundcloud.android.model.activities.TrackSharingActivity;
+import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
+import com.soundcloud.android.api.legacy.model.activities.AffiliationActivity;
+import com.soundcloud.android.api.legacy.model.activities.CommentActivity;
+import com.soundcloud.android.api.legacy.model.activities.PlaylistActivity;
+import com.soundcloud.android.api.legacy.model.activities.PlaylistLikeActivity;
+import com.soundcloud.android.api.legacy.model.activities.PlaylistRepostActivity;
+import com.soundcloud.android.api.legacy.model.activities.PlaylistSharingActivity;
+import com.soundcloud.android.api.legacy.model.activities.TrackActivity;
+import com.soundcloud.android.api.legacy.model.activities.TrackLikeActivity;
+import com.soundcloud.android.api.legacy.model.activities.TrackRepostActivity;
+import com.soundcloud.android.api.legacy.model.activities.TrackSharingActivity;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -186,7 +186,7 @@ public class ActivitiesAdapterTest {
     public void shouldCallPresenterToCreateItemViewForAffiliationActivity() throws Exception {
         final AffiliationActivity activity = new AffiliationActivity();
         activity.setCreatedAt(new Date());
-        activity.setUser(TestHelper.getModelFactory().createModel(User.class));
+        activity.setUser(TestHelper.getModelFactory().createModel(PublicApiUser.class));
         adapter.addItems(Arrays.<Activity>asList(activity));
         adapter.getView(0, null, parent);
 
@@ -196,13 +196,13 @@ public class ActivitiesAdapterTest {
     // We can't use ModelCitizen unless we add a setter to Track.
     private <T extends TrackActivity> T createTrackActivity(Class<T> klazz) throws IllegalAccessException, InstantiationException, CreateModelException {
         T instance = klazz.newInstance();
-        instance.track = createModel(Track.class);
+        instance.track = createModel(PublicApiTrack.class);
         instance.setCreatedAt(new Date());
         if (instance instanceof TrackRepostActivity) {
-            ((TrackRepostActivity) instance).user = createModel(User.class);
+            ((TrackRepostActivity) instance).user = createModel(PublicApiUser.class);
         }
         if (instance instanceof TrackLikeActivity) {
-            ((TrackLikeActivity) instance).user = createModel(User.class);
+            ((TrackLikeActivity) instance).user = createModel(PublicApiUser.class);
         }
         return instance;
     }
@@ -210,13 +210,13 @@ public class ActivitiesAdapterTest {
     // We can't use ModelCitizen unless we add a setter to Playlist.
     private <T extends PlaylistActivity> T createPlaylistActivity(Class<T> klazz) throws IllegalAccessException, InstantiationException, CreateModelException {
         T instance = klazz.newInstance();
-        instance.playlist = createModel(Playlist.class);
+        instance.playlist = createModel(PublicApiPlaylist.class);
         instance.setCreatedAt(new Date());
         if (instance instanceof PlaylistRepostActivity) {
-            ((PlaylistRepostActivity) instance).user = createModel(User.class);
+            ((PlaylistRepostActivity) instance).user = createModel(PublicApiUser.class);
         }
         if (instance instanceof PlaylistLikeActivity) {
-            ((PlaylistLikeActivity) instance).user = createModel(User.class);
+            ((PlaylistLikeActivity) instance).user = createModel(PublicApiUser.class);
         }
         return instance;
     }

@@ -2,8 +2,8 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
 import com.soundcloud.android.preferences.DeveloperPreferences;
@@ -91,14 +91,14 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     }
 
     @Override
-    public void play(Track track) {
+    public void play(PublicApiTrack track) {
         trackPlaybackInfo = new TrackPlaybackInfo(track, 0L);
         configureNextPlayaToUseViaPreferences();
         currentPlaya.play(track);
     }
 
     @Override
-    public void play(Track track, long fromPos) {
+    public void play(PublicApiTrack track, long fromPos) {
         trackPlaybackInfo = new TrackPlaybackInfo(track, fromPos);
         configureNextPlayaToUseViaPreferences();
         currentPlaya.play(track, fromPos);
@@ -279,15 +279,15 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     }
 
     private static class TrackPlaybackInfo {
-        private final Track track;
+        private final PublicApiTrack track;
         private final long startPosition;
 
-        private TrackPlaybackInfo(Track track, long startPosition) {
+        private TrackPlaybackInfo(PublicApiTrack track, long startPosition) {
             this.track = track;
             this.startPosition = startPosition;
         }
 
-        public Track getTrack() {
+        public PublicApiTrack getTrack() {
             return track;
         }
 

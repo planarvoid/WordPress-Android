@@ -1,12 +1,12 @@
 package com.soundcloud.android.associations;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
@@ -65,7 +65,7 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
         final Comment comment          = comments[0];
         final @Nullable Comment added  = comments[1];
 
-        Track t = SoundCloudApplication.sModelManager.getTrack(comment.track_id);
+        PublicApiTrack t = SoundCloudApplication.sModelManager.getTrack(comment.track_id);
         // udpate the cached track comments list
         if (t != null) {
             if (t.comments != null) {

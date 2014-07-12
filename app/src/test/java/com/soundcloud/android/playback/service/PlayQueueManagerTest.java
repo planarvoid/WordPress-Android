@@ -14,14 +14,13 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.RecommendedTracksCollection;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -76,7 +75,7 @@ public class PlayQueueManagerTest {
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(playQueue.isEmpty()).thenReturn(true);
 
-        Playlist playlist = TestHelper.getModelFactory().createModel(Playlist.class);
+        PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         playSessionSource  = new PlaySessionSource(ORIGIN_PAGE);
         playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
         playSessionSource.setExploreVersion("1.0");
@@ -171,7 +170,7 @@ public class PlayQueueManagerTest {
     public void shouldStoreTracksWhenSettingNewPlayQueue(){
         when(playQueue.isEmpty()).thenReturn(false);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        verify(playQueueOperations).saveQueue(playQueue,playSessionSource, 0L);
+        verify(playQueueOperations).saveQueue(playQueue, playSessionSource, 0L);
     }
 
     @Test
@@ -463,9 +462,9 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldPublishPlayQueueUpdateEventOnRelatedTracksReturned() throws Exception {
-        final TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
+        final ApiTrack apiTrack = TestHelper.getModelFactory().createModel(ApiTrack.class);
         final TrackUrn trackUrn = Urn.forTrack(123L);
-        when(playQueueOperations.getRelatedTracks(trackUrn)).thenReturn(Observable.just(new RecommendedTracksCollection(Lists.newArrayList(trackSummary), "123")));
+        when(playQueueOperations.getRelatedTracks(trackUrn)).thenReturn(Observable.just(new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123")));
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(123L), 0, playSessionSource), playSessionSource);
         playQueueManager.fetchRelatedTracks(trackUrn);
 
@@ -475,20 +474,20 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldCacheAndAddRelatedTracksToQueueWhenRelatedTracksReturn() throws CreateModelException {
-        final TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
+        final ApiTrack apiTrack = TestHelper.getModelFactory().createModel(ApiTrack.class);
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(123L), 0, playSessionSource), playSessionSource);
-        playQueueManager.onNext(new RecommendedTracksCollection(Lists.newArrayList(trackSummary), "123"));
+        playQueueManager.onNext(new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123"));
 
-        expect(playQueueManager.getPlayQueueView()).toContainExactly(123L, trackSummary.getId());
+        expect(playQueueManager.getPlayQueueView()).toContainExactly(123L, apiTrack.getId());
 
-        ArgumentCaptor<Track> captor = ArgumentCaptor.forClass(Track.class);
+        ArgumentCaptor<PublicApiTrack> captor = ArgumentCaptor.forClass(PublicApiTrack.class);
         verify(modelManager).cache(captor.capture());
-        expect(captor.getValue().getId()).toEqual(trackSummary.getId());
+        expect(captor.getValue().getId()).toEqual(apiTrack.getId());
     }
 
     @Test
     public void shouldSetIdleStateOnQueueAndBroadcastWhenDoneSuccessfulRelatedLoad(){
-        playQueueManager.onNext(new RecommendedTracksCollection(Collections.<TrackSummary>emptyList(), "123"));
+        playQueueManager.onNext(new RecommendedTracksCollection(Collections.<ApiTrack>emptyList(), "123"));
         playQueueManager.onCompleted();
         expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.IDLE);
         expectBroadcastPlayQueueUpdate();
@@ -534,14 +533,14 @@ public class PlayQueueManagerTest {
     public void clearAllClearsPlaylistId() {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L), 0, playSessionSource), playSessionSource);
-        expect(playQueueManager.getPlaylistId()).not.toEqual((long) Playlist.NOT_SET);
+        expect(playQueueManager.getPlaylistId()).not.toEqual((long) PublicApiPlaylist.NOT_SET);
         playQueueManager.clearAll();
-        expect(playQueueManager.getPlaylistId()).toEqual((long) Playlist.NOT_SET);
+        expect(playQueueManager.getPlaylistId()).toEqual((long) PublicApiPlaylist.NOT_SET);
     }
 
     @Test
     public void shouldReturnWhetherPlaylistIdIsCurrentPlayQueue() {
-        Playlist playlist = new Playlist(6L);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(6L);
         playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
@@ -550,7 +549,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldReturnWhetherCurrentPlayQueueIsAPlaylist() {
-        Playlist playlist = new Playlist(6L);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(6L);
         playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 

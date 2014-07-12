@@ -5,14 +5,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.OriginProvider;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.RecommendedTracksCollection;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import org.jetbrains.annotations.NotNull;
@@ -270,8 +269,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     @Override
     public void onNext(RecommendedTracksCollection relatedTracks) {
-        for (TrackSummary item : relatedTracks) {
-            final Track track = new Track(item);
+        for (ApiTrack item : relatedTracks) {
+            final PublicApiTrack track = new PublicApiTrack(item);
             modelManager.cache(track);
             playQueue.addTrack(track.getId(), PlaySessionSource.DiscoverySource.RECOMMENDER.value(),
                     relatedTracks.getSourceVersion());

@@ -1,6 +1,6 @@
 package com.soundcloud.android.blueprints;
 
-import com.soundcloud.android.model.TrackStats;
+import com.soundcloud.android.api.legacy.model.TrackStats;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 

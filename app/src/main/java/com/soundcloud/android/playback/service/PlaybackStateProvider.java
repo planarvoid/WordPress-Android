@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.service;
 
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,7 +12,7 @@ public class PlaybackStateProvider {
     public PlaybackStateProvider() {}
 
     @Nullable
-    public Track getCurrentTrack() {
+    public PublicApiTrack getCurrentTrack() {
         final PlaybackService instance = PlaybackService.instance;
         return instance == null ? null : instance.getCurrentTrack();
     }
@@ -20,10 +20,10 @@ public class PlaybackStateProvider {
     public long getCurrentTrackId() {
         final PlaybackService instance = PlaybackService.instance;
         if (instance == null ){
-            return Track.NOT_SET;
+            return PublicApiTrack.NOT_SET;
         } else {
-            final Track currentTrack = instance.getCurrentTrack();
-            return currentTrack == null ? Track.NOT_SET : currentTrack.getId();
+            final PublicApiTrack currentTrack = instance.getCurrentTrack();
+            return currentTrack == null ? PublicApiTrack.NOT_SET : currentTrack.getId();
         }
     }
 
@@ -52,7 +52,7 @@ public class PlaybackStateProvider {
         return instance != null && instance.isPlayerPlaying();
     }
 
-    public boolean isPlayingTrack(@NotNull Track track) {
+    public boolean isPlayingTrack(@NotNull PublicApiTrack track) {
         return getCurrentTrackId() == track.getId();
     }
 

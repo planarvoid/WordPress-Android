@@ -5,9 +5,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.PlaylistSummary;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +17,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistGridPresenter implements CellPresenter<PlaylistSummary> {
+public class PlaylistGridPresenter implements CellPresenter<ApiPlaylist> {
 
     private final ImageOperations imageOperations;
 
@@ -41,9 +41,9 @@ public class PlaylistGridPresenter implements CellPresenter<PlaylistSummary> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<PlaylistSummary> playlists) {
+    public void bindItemView(int position, View itemView, List<ApiPlaylist> playlists) {
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
-        final PlaylistSummary playlist = playlists.get(position);
+        final ApiPlaylist playlist = playlists.get(position);
 
         viewHolder.username.setText(playlist.getUsername());
         viewHolder.title.setText(playlist.getTitle());

@@ -4,9 +4,9 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.api.http.SoundCloudAPIRequest;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.SoundCloudAPIRequest;
 
 import javax.inject.Inject;
 

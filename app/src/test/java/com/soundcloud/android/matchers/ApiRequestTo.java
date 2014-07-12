@@ -1,6 +1,6 @@
 package com.soundcloud.android.matchers;
 
-import com.soundcloud.android.api.http.APIRequest;
+import com.soundcloud.android.api.APIRequest;
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 

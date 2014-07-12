@@ -4,9 +4,9 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 import com.localytics.android.LocalyticsSession;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -51,7 +51,7 @@ public class LocalyticsAnalyticsProviderTest {
 
     @Test
     public void shouldSetCustomerIdToUserIdWhenUserIsUpdated() {
-        User user = new User(123L);
+        PublicApiUser user = new PublicApiUser(123L);
         CurrentUserChangedEvent userEvent = CurrentUserChangedEvent.forUserUpdated(user);
         localyticsProvider.handleCurrentUserChangedEvent(userEvent);
         verify(localyticsSession).setCustomerId(Long.toString(123L));

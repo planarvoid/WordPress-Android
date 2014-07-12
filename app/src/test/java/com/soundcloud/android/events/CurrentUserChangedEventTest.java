@@ -2,7 +2,7 @@ package com.soundcloud.android.events;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +19,7 @@ public class CurrentUserChangedEventTest {
 
     @Test
     public void testForUserUpdated() throws Exception {
-        final User currentUser = new User();
+        final PublicApiUser currentUser = new PublicApiUser();
         CurrentUserChangedEvent event = CurrentUserChangedEvent.forUserUpdated(currentUser);
         expect(event.getKind()).toBe(CurrentUserChangedEvent.USER_UPDATED);
         expect(event.getCurrentUser()).toBe(currentUser);

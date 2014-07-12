@@ -1,9 +1,9 @@
 package com.soundcloud.android.blueprints;
 
-import com.soundcloud.android.model.Sharing;
-import com.soundcloud.android.model.TrackStats;
-import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.model.UserSummary;
+import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.api.legacy.model.TrackStats;
+import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiUser;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.annotation.Mapped;
@@ -12,7 +12,7 @@ import com.tobedevoured.modelcitizen.field.ConstructorCallback;
 
 import java.util.Date;
 
-@Blueprint(TrackSummary.class)
+@Blueprint(ApiTrack.class)
 public class TrackSummaryBlueprint {
 
     private static long runningId = 1L;
@@ -21,7 +21,7 @@ public class TrackSummaryBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new TrackSummary(String.format("soundcloud:sounds:%d", runningId++));
+            return new ApiTrack(String.format("soundcloud:sounds:%d", runningId++));
         }
     };
 
@@ -29,7 +29,7 @@ public class TrackSummaryBlueprint {
     String title = "new track " + System.currentTimeMillis();
 
     @Mapped
-    UserSummary user;
+    ApiUser user;
 
     @Mapped
     TrackStats stats;

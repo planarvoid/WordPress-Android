@@ -6,10 +6,8 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.T
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.http.HttpURLConnectionFactory;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.api.Params;
 import org.apache.http.HttpStatus;
 
 import android.content.Context;

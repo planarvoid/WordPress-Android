@@ -1,6 +1,6 @@
 package com.soundcloud.android.storage;
 
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.api.legacy.model.Playable;
 
 final class DatabaseSchema {
 

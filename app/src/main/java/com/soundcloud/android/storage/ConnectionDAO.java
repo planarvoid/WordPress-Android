@@ -1,6 +1,6 @@
 package com.soundcloud.android.storage;
 
-import com.soundcloud.android.model.Connection;
+import com.soundcloud.android.api.legacy.model.Connection;
 import com.soundcloud.android.storage.provider.Content;
 
 import android.content.ContentResolver;

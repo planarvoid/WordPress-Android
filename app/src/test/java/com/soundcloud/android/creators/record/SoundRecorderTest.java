@@ -5,7 +5,7 @@ import static com.soundcloud.android.creators.record.RemainingTimeCalculator.KEE
 
 import com.soundcloud.android.creators.record.reader.WavReader;
 import com.soundcloud.android.storage.RecordingStorage;
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.utils.IOUtils;

@@ -1,11 +1,11 @@
 package com.soundcloud.android.ads;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.api.model.ApiTrack;
 
 public class AudioAd {
 
-    private TrackSummary trackSummary;
+    private ApiTrack apiTrack;
 
     private VisualAd visualAd;
 
@@ -14,8 +14,8 @@ public class AudioAd {
     private String trackingFinishUrl;
     private String trackingSkipUrl;
 
-    public TrackSummary getTrackSummary() {
-        return trackSummary;
+    public ApiTrack getApiTrack() {
+        return apiTrack;
     }
 
     public VisualAd getVisualAd() {
@@ -23,8 +23,8 @@ public class AudioAd {
     }
 
     @JsonProperty("track")
-    public void setTrackSummary(TrackSummary trackSummary) {
-        this.trackSummary = trackSummary;
+    public void setApiTrack(ApiTrack apiTrack) {
+        this.apiTrack = apiTrack;
     }
 
     @JsonProperty("tracking_impression_url")

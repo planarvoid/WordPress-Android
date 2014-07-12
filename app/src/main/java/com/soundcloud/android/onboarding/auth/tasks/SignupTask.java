@@ -1,13 +1,13 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.storage.UserStorage;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
@@ -80,7 +80,7 @@ public class SignupTask extends AuthTask {
 
             switch (statusCode) {
                 case HttpStatus.SC_CREATED: // success case
-                    final User user = oldCloudAPI.getMapper().readValue(resp.getEntity().getContent(), User.class);
+                    final PublicApiUser user = oldCloudAPI.getMapper().readValue(resp.getEntity().getContent(), PublicApiUser.class);
                     return AuthTaskResult.success(user,SignupVia.API);
 
                 case HttpStatus.SC_UNPROCESSABLE_ENTITY:

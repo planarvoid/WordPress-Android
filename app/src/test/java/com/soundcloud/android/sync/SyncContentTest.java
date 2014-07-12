@@ -2,7 +2,7 @@ package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.xtremelabs.robolectric.Robolectric;

@@ -1,0 +1,16 @@
+package com.soundcloud.android.api.legacy.model.behavior;
+
+import com.soundcloud.android.storage.provider.BulkInsertMap;
+import org.jetbrains.annotations.NotNull;
+
+import android.content.ContentValues;
+import android.net.Uri;
+
+public interface Persisted {
+    ContentValues buildContentValues();
+    void putFullContentValues(@NotNull BulkInsertMap destination);
+    void putDependencyValues(@NotNull BulkInsertMap destination);
+    @Deprecated // use getUrn() instead
+    Uri toUri();
+    Uri getBulkInsertUri();
+}

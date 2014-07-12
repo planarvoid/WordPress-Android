@@ -6,12 +6,12 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.api.legacy.model.CollectionHolder;
+import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import org.apache.http.HttpStatus;
 
 import android.util.Log;
@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 @Deprecated
-public class RemoteCollectionLoader<T extends ScResource> implements CollectionLoader<T> {
+public class RemoteCollectionLoader<T extends PublicApiResource> implements CollectionLoader<T> {
 
     private final TrackStorage trackStorage;
 
@@ -66,15 +66,15 @@ public class RemoteCollectionLoader<T extends ScResource> implements CollectionL
         final Collection<T> trackHolders = Collections2.filter(holder.getCollection(), new Predicate<T>() {
             @Override
             public boolean apply(@Nullable T input) {
-                return input instanceof PlayableHolder && ((PlayableHolder) input).getPlayable() instanceof Track;
+                return input instanceof PlayableHolder && ((PlayableHolder) input).getPlayable() instanceof PublicApiTrack;
             }
         });
 
         if (!trackHolders.isEmpty()) {
-            final Collection<Track> tracks = Collections2.transform(trackHolders, new Function<T, Track>() {
+            final Collection<PublicApiTrack> tracks = Collections2.transform(trackHolders, new Function<T, PublicApiTrack>() {
                 @Override
-                public Track apply(T input) {
-                    return (Track) ((PlayableHolder) input).getPlayable();
+                public PublicApiTrack apply(T input) {
+                    return (PublicApiTrack) ((PlayableHolder) input).getPlayable();
                 }
             });
 

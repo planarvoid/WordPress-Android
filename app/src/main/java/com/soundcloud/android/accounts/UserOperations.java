@@ -1,11 +1,11 @@
 package com.soundcloud.android.accounts;
 
-import static com.soundcloud.android.api.http.SoundCloudAPIRequest.RequestBuilder;
+import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
 
 import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.UserStorage;
 import rx.Observable;
@@ -25,14 +25,14 @@ public class UserOperations extends ScheduledOperations {
     }
 
 
-    public Observable<User> refreshCurrentUser() {
-        final APIRequest<User> request = RequestBuilder.<User>get(APIEndpoints.CURRENT_USER.path())
+    public Observable<PublicApiUser> refreshCurrentUser() {
+        final APIRequest<PublicApiUser> request = RequestBuilder.<PublicApiUser>get(APIEndpoints.CURRENT_USER.path())
                 .forPublicAPI()
-                .forResource(User.class)
+                .forResource(PublicApiUser.class)
                 .build();
-        return httpClient.<User>fetchModels(request).mergeMap(new Func1<User, Observable<User>>() {
+        return httpClient.<PublicApiUser>fetchModels(request).mergeMap(new Func1<PublicApiUser, Observable<PublicApiUser>>() {
             @Override
-            public Observable<User> call(User user) {
+            public Observable<PublicApiUser> call(PublicApiUser user) {
                 return userStorage.createOrUpdateAsync(user);
             }
         });

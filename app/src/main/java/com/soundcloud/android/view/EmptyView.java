@@ -2,7 +2,7 @@ package com.soundcloud.android.view;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.http.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.utils.AnimUtils;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;

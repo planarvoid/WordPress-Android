@@ -6,16 +6,16 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.main.WebViewActivity;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.properties.Feature;
@@ -32,7 +32,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class ResolveActivity extends TrackedActivity implements FetchModelTask.Listener<ScResource> {
+public class ResolveActivity extends TrackedActivity implements FetchModelTask.Listener<PublicApiResource> {
 
     @Inject PublicCloudAPI oldCloudAPI;
     @Nullable private ResolveFetchTask resolveTask;
@@ -113,13 +113,13 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
     }
 
     @Override
-    public void onSuccess(ScResource resource) {
+    public void onSuccess(PublicApiResource resource) {
         resolveTask = null;
         startActivityForResource(resource);
         finish();
     }
 
-    private void startActivityForResource(ScResource resource) {
+    private void startActivityForResource(PublicApiResource resource) {
         if (resource instanceof Playable && featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
             startPlayback(resource);
             startStreamScreenWithAnExpandedPlayer();
@@ -140,11 +140,11 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
         startActivity(intent);
     }
 
-    private void startPlayback(ScResource resource) {
-        if (resource instanceof Playlist) {
-            playbackOperations.playPlaylist(((Playlist) resource), Screen.DEEPLINK);
-        } else if (resource instanceof Track) {
-            playbackOperations.playTrack(this, ((Track) resource), Screen.DEEPLINK);
+    private void startPlayback(PublicApiResource resource) {
+        if (resource instanceof PublicApiPlaylist) {
+            playbackOperations.playPlaylist(((PublicApiPlaylist) resource), Screen.DEEPLINK);
+        } else if (resource instanceof PublicApiTrack) {
+            playbackOperations.playTrack(this, ((PublicApiTrack) resource), Screen.DEEPLINK);
         } else {
             throw new IllegalArgumentException("Unknown resource type : " + resource.getClass().getCanonicalName());
         }

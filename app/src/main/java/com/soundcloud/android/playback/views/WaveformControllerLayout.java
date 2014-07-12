@@ -2,10 +2,10 @@ package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Comment;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.InputObject;
@@ -57,7 +57,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
     WaveformCommentLinesView commentLines;
     protected PlayerTimeView currentTimeDisplay;
 
-    protected @Nullable Track track;
+    protected @Nullable PublicApiTrack track;
     protected int queuePosition;
 
     protected boolean suspendTimeDisplay, onScreen;
@@ -385,7 +385,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         progressBar.setSecondaryProgress(percent);
     }
 
-    public void updateTrack(@Nullable final Track track, int queuePosition, boolean visibleNow) {
+    public void updateTrack(@Nullable final PublicApiTrack track, int queuePosition, boolean visibleNow) {
         this.queuePosition = queuePosition;
         if (track == null || (this.track != null
                 && this.track.getId() == track.getId()

@@ -1,13 +1,13 @@
 package com.soundcloud.android.blueprints;
 
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.annotation.NewInstance;
 import com.tobedevoured.modelcitizen.field.ConstructorCallback;
 import com.tobedevoured.modelcitizen.field.FieldCallback;
 
-@Blueprint(User.class)
+@Blueprint(PublicApiUser.class)
 public class UserBlueprint {
 
     private static long runningId = 1L;
@@ -16,7 +16,7 @@ public class UserBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new User("soundcloud:users:" + runningId++);
+            return new PublicApiUser("soundcloud:users:" + runningId++);
         }
     };
 
@@ -24,7 +24,7 @@ public class UserBlueprint {
     FieldCallback username = new FieldCallback() {
         @Override
         public Object get(Object referenceModel) {
-            return "user" + ((User) referenceModel).getId();
+            return "user" + ((PublicApiUser) referenceModel).getId();
         }
     };
 

@@ -7,9 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.api.http.json.JsonTransformer;
-import com.soundcloud.android.experiments.Assignment;
-import com.soundcloud.android.experiments.ExperimentStorage;
+import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.Robolectric;

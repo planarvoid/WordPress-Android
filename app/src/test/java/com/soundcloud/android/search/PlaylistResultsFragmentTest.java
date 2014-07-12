@@ -13,12 +13,12 @@ import static rx.android.OperatorPaged.Page;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylistCollection;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.PlaylistSummary;
-import com.soundcloud.android.model.PlaylistSummaryCollection;
-import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -54,7 +54,7 @@ public class PlaylistResultsFragmentTest {
 
     private Context context = Robolectric.application;
     private AbsListView content;
-    private MockObservable<Page<PlaylistSummaryCollection>> observable;
+    private MockObservable<Page<ApiPlaylistCollection>> observable;
     private TestEventBus eventBus = new TestEventBus();
 
     @InjectMocks
@@ -65,7 +65,7 @@ public class PlaylistResultsFragmentTest {
     @Mock
     private ListViewController listViewController;
     @Mock
-    private PagingItemAdapter<PlaylistSummary> adapter;
+    private PagingItemAdapter<ApiPlaylist> adapter;
     @Mock
     private ScModelManager modelManager;
     @Mock
@@ -73,7 +73,7 @@ public class PlaylistResultsFragmentTest {
     @Mock
     private Subscription subscription;
     @Captor
-    private ArgumentCaptor<Page<PlaylistSummaryCollection>> pageCaptor;
+    private ArgumentCaptor<Page<ApiPlaylistCollection>> pageCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -86,11 +86,11 @@ public class PlaylistResultsFragmentTest {
 
     @Test
     public void shouldPerformPlaylistTagSearchWithTagFromBundleInOnCreate() throws Exception {
-        PlaylistSummaryCollection collection = new PlaylistSummaryCollection();
-        PlaylistSummary playlist = new PlaylistSummary();
+        ApiPlaylistCollection collection = new ApiPlaylistCollection();
+        ApiPlaylist playlist = new ApiPlaylist();
         collection.setCollection(Lists.newArrayList(playlist));
         when(searchOperations.getPlaylistResults("selected tag")).thenReturn(
-                RxTestHelper.singlePage(Observable.<PlaylistSummaryCollection>from(collection)));
+                RxTestHelper.singlePage(Observable.<ApiPlaylistCollection>from(collection)));
 
         fragment.onCreate(null);
 
@@ -121,7 +121,7 @@ public class PlaylistResultsFragmentTest {
 
     @Test
     public void shouldOpenPlaylistActivityWhenClickingPlaylistItem() throws CreateModelException {
-        PlaylistSummary clickedPlaylist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
+        ApiPlaylist clickedPlaylist = TestHelper.getModelFactory().createModel(ApiPlaylist.class);
         when(adapter.getItem(0)).thenReturn(clickedPlaylist);
 
         fragment.onCreate(null);
@@ -132,13 +132,13 @@ public class PlaylistResultsFragmentTest {
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Actions.PLAYLIST);
-        expect(intent.getParcelableExtra(Playlist.EXTRA_URN)).toEqual(clickedPlaylist.getUrn());
+        expect(intent.getParcelableExtra(PublicApiPlaylist.EXTRA_URN)).toEqual(clickedPlaylist.getUrn());
         expect(Screen.fromIntent(intent)).toBe(Screen.SEARCH_PLAYLIST_DISCO);
     }
 
     @Test
     public void shouldPublishSearchEventWhenResultOnPlaylistTagResultsIsClicked() throws Exception {
-        PlaylistSummary clickedPlaylist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
+        ApiPlaylist clickedPlaylist = TestHelper.getModelFactory().createModel(ApiPlaylist.class);
         when(adapter.getItem(0)).thenReturn(clickedPlaylist);
 
         fragment.onCreate(null);

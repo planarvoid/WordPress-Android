@@ -2,11 +2,11 @@ package com.soundcloud.android.tests;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.http.HttpProperties;
-import com.soundcloud.android.api.http.PublicApiWrapper;
+import com.soundcloud.android.api.HttpProperties;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.api.ApiWrapper;
@@ -68,7 +68,7 @@ public final class AccountAssistant {
         ApiWrapper apiWrapper = AccountAssistant.createApiWrapper(context);
         try {
             Token token = getToken(apiWrapper, username, password);
-            User user = getLoggedInUser(apiWrapper);
+            PublicApiUser user = getLoggedInUser(apiWrapper);
             if (SoundCloudApplication.fromContext(context).addUserAccountAndEnableSync(user, token, SignupVia.NONE)){
                 return getAccount(context);
             }
@@ -157,9 +157,9 @@ public final class AccountAssistant {
         });
     }
 
-    static User getLoggedInUser(ApiWrapper apiWrapper) throws IOException {
+    static PublicApiUser getLoggedInUser(ApiWrapper apiWrapper) throws IOException {
         final InputStream content = apiWrapper.get(Request.to(Endpoints.MY_DETAILS)).getEntity().getContent();
-        return PublicApiWrapper.buildObjectMapper().readValue(content, User.class);
+        return PublicApiWrapper.buildObjectMapper().readValue(content, PublicApiUser.class);
     }
 
     static ApiWrapper createApiWrapper(Context context) {

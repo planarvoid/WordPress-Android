@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Charsets;
-import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.apache.http.HttpStatus;
 import org.junit.Before;

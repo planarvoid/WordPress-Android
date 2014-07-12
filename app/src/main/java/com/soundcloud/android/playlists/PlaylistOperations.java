@@ -1,8 +1,7 @@
 package com.soundcloud.android.playlists;
 
 
-import com.soundcloud.android.model.PlaylistUrn;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackUrn;
 import rx.Observable;
 
 import javax.inject.Inject;

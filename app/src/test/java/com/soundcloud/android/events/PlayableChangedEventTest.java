@@ -2,9 +2,9 @@ package com.soundcloud.android.events;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.propeller.PropertySet;
@@ -16,7 +16,7 @@ public class PlayableChangedEventTest {
 
     @Test
     public void shouldCreateEventForLike() {
-        Playable playable = new Playlist(123);
+        Playable playable = new PublicApiPlaylist(123);
         playable.likes_count = 5;
 
         PlayableChangedEvent event = PlayableChangedEvent.forLike(playable, true);
@@ -27,7 +27,7 @@ public class PlayableChangedEventTest {
 
     @Test
     public void shouldCreateEventForRepost() {
-        Playable playable = new Playlist(123);
+        Playable playable = new PublicApiPlaylist(123);
         playable.reposts_count = 5;
 
         PlayableChangedEvent event = PlayableChangedEvent.forRepost(playable, true);

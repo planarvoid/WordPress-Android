@@ -2,7 +2,6 @@ package com.soundcloud.android.explore;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.view.adapters.CellPresenter;
 
 import android.util.SparseArray;

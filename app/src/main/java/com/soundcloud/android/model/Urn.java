@@ -2,7 +2,10 @@ package com.soundcloud.android.model;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
+import com.soundcloud.android.playlists.PlaylistUrn;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 

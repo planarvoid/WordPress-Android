@@ -2,12 +2,12 @@ package com.soundcloud.android.robolectric;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.PlaylistSummary;
-import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.model.UserSummary;
-import com.soundcloud.android.model.activities.AffiliationActivity;
+import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.legacy.model.activities.AffiliationActivity;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -26,14 +26,14 @@ public class DatabaseHelper {
         this.database = database;
     }
 
-    public TrackSummary insertTrack() throws CreateModelException {
-        TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
+    public ApiTrack insertTrack() throws CreateModelException {
+        ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
         insertUser(track.getUser());
         insertTrack(track);
         return track;
     }
 
-    public long insertTrack(TrackSummary track) {
+    public long insertTrack(ApiTrack track) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Sounds._ID, track.getId());
         cv.put(TableColumns.Sounds.TITLE, track.getTitle());
@@ -49,14 +49,14 @@ public class DatabaseHelper {
         return id;
     }
 
-    public PlaylistSummary insertPlaylist() throws CreateModelException {
-        PlaylistSummary playlist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
+    public ApiPlaylist insertPlaylist() throws CreateModelException {
+        ApiPlaylist playlist = TestHelper.getModelFactory().createModel(ApiPlaylist.class);
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         return playlist;
     }
 
-    public long insertPlaylist(PlaylistSummary playlist) {
+    public long insertPlaylist(ApiPlaylist playlist) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Sounds._ID, playlist.getId());
         cv.put(TableColumns.Sounds._TYPE, Playable.DB_TYPE_PLAYLIST);
@@ -71,23 +71,23 @@ public class DatabaseHelper {
         return id;
     }
 
-    public TrackSummary insertPlaylistTrack(PlaylistSummary playlist, int position) throws CreateModelException {
-        TrackSummary trackSummary = insertTrack();
+    public ApiTrack insertPlaylistTrack(ApiPlaylist playlist, int position) throws CreateModelException {
+        ApiTrack apiTrack = insertTrack();
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlist.getId());
-        cv.put(TableColumns.PlaylistTracks.TRACK_ID, trackSummary.getId());
+        cv.put(TableColumns.PlaylistTracks.TRACK_ID, apiTrack.getId());
         cv.put(TableColumns.PlaylistTracks.POSITION, position);
         insertInto(Table.PLAYLIST_TRACKS, cv);
-        return trackSummary;
+        return apiTrack;
     }
 
-    public UserSummary insertUser() throws CreateModelException {
-        final UserSummary user = TestHelper.getModelFactory().createModel(UserSummary.class);
+    public ApiUser insertUser() throws CreateModelException {
+        final ApiUser user = TestHelper.getModelFactory().createModel(ApiUser.class);
         insertUser(user);
         return user;
     }
 
-    public long insertUser(UserSummary user) {
+    public long insertUser(ApiUser user) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Users._ID, user.getId());
         cv.put(TableColumns.Users.USERNAME, user.getUsername());
@@ -106,7 +106,7 @@ public class DatabaseHelper {
         return insertInto(Table.COLLECTION_ITEMS, cv);
     }
 
-    public long insertTrackPost(TrackSummary track, long timestamp) {
+    public long insertTrackPost(ApiTrack track, long timestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, track.getId());
@@ -117,7 +117,7 @@ public class DatabaseHelper {
         return insertInto(Table.ACTIVITIES, cv);
     }
 
-    public long insertTrackRepost(TrackSummary track, UserSummary reposter, long timestamp) {
+    public long insertTrackRepost(ApiTrack track, ApiUser reposter, long timestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, track.getId());
@@ -128,7 +128,7 @@ public class DatabaseHelper {
         return insertInto(Table.ACTIVITIES, cv);
     }
 
-    public long insertTrackRepostOfOwnTrack(TrackSummary track, UserSummary reposter, long timestamp) {
+    public long insertTrackRepostOfOwnTrack(ApiTrack track, ApiUser reposter, long timestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_ACTIVITIES.id);
         cv.put(TableColumns.Activities.SOUND_ID, track.getId());
@@ -139,7 +139,7 @@ public class DatabaseHelper {
         return insertInto(Table.ACTIVITIES, cv);
     }
 
-    public long insertPlaylistPost(PlaylistSummary playlist, long timestamp) {
+    public long insertPlaylistPost(ApiPlaylist playlist, long timestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, playlist.getId());
@@ -150,7 +150,7 @@ public class DatabaseHelper {
         return insertInto(Table.ACTIVITIES, cv);
     }
 
-    public long insertPlaylistRepost(PlaylistSummary playlist, UserSummary reposter, long timestamp) {
+    public long insertPlaylistRepost(ApiPlaylist playlist, ApiUser reposter, long timestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, playlist.getId());

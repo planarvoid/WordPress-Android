@@ -7,8 +7,6 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.ExploreGenre;
-import com.soundcloud.android.model.ExploreGenresSections;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;

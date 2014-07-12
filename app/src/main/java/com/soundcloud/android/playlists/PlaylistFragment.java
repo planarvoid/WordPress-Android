@@ -8,13 +8,12 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.PlaylistUrn;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackProperty;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -70,7 +69,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     private ListView listView;
     private View progressView;
 
-    private Observable<Playlist> loadPlaylist;
+    private Observable<PublicApiPlaylist> loadPlaylist;
     private Subscription subscription = Subscriptions.empty();
 
     private PlayablePresenter playablePresenter;
@@ -93,7 +92,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     private final View.OnClickListener onPlayToggleClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            final Playlist playlist = (Playlist) playablePresenter.getPlayable();
+            final PublicApiPlaylist playlist = (PublicApiPlaylist) playablePresenter.getPlayable();
             if (playQueueManager.isCurrentPlaylist(playlist.getId())) {
                 playbackOperations.togglePlayback();
             } else {
@@ -222,12 +221,12 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     private PlaylistUrn getPlaylistUrn() {
         // if possible, use the instance to get the ID as it can change during syncing
         if (playablePresenter != null) {
-            final Playlist playlist = (Playlist) playablePresenter.getPlayable();
+            final PublicApiPlaylist playlist = (PublicApiPlaylist) playablePresenter.getPlayable();
             if (playlist != null) {
                 return playlist.getUrn();
             }
         }
-        return getArguments().getParcelable(Playlist.EXTRA_URN);
+        return getArguments().getParcelable(PublicApiPlaylist.EXTRA_URN);
     }
 
     private void configureInfoViews(View layout) {
@@ -280,7 +279,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final int trackPosition = position - listView.getHeaderViewsCount();
-        final Playlist playlist = (Playlist) playablePresenter.getPlayable();
+        final PublicApiPlaylist playlist = (PublicApiPlaylist) playablePresenter.getPlayable();
         final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
 
         playbackOperations.playPlaylistFromPosition(getActivity(), playlist.toPropertySet(),
@@ -289,13 +288,13 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
                 trackPosition, Screen.fromBundle(getArguments()));
     }
 
-    protected void refreshMetaData(Playlist playlist) {
+    protected void refreshMetaData(PublicApiPlaylist playlist) {
         playablePresenter.setPlayable(playlist);
         engagementsController.setPlayable(playlist);
         infoHeaderText.setText(createHeaderText(playlist));
 
         // don't register clicks before we have a valid playlist
-        final List<Track> tracks = playlist.getTracks();
+        final List<PublicApiTrack> tracks = playlist.getTracks();
         if (tracks != null && tracks.size() > 0) {
             if (playToggle.getVisibility() != View.VISIBLE) {
                 playToggle.setVisibility(View.VISIBLE);
@@ -309,25 +308,25 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         headerUsernameText.setEnabled(true);
     }
 
-    private String createHeaderText(Playlist playlist) {
+    private String createHeaderText(PublicApiPlaylist playlist) {
         final String trackCount = getResources().getQuantityString(
                 R.plurals.number_of_sounds, playlist.getTrackCount(), playlist.getTrackCount());
         final String duration = ScTextUtils.formatTimestamp(playlist.duration, TimeUnit.MILLISECONDS);
         return getString(R.string.playlist_info_header_text, trackCount, duration);
     }
 
-    private void updateTracksAdapter(Playlist playlist) {
+    private void updateTracksAdapter(PublicApiPlaylist playlist) {
         final ItemAdapter<PropertySet> adapter = controller.getAdapter();
         adapter.clear();
-        for (Track track : playlist.getTracks()) {
+        for (PublicApiTrack track : playlist.getTracks()) {
             adapter.addItem(track.toPropertySet());
         }
         adapter.notifyDataSetChanged();
     }
 
-    private class PlaylistSubscriber extends DefaultSubscriber<Playlist> {
+    private class PlaylistSubscriber extends DefaultSubscriber<PublicApiPlaylist> {
         @Override
-        public void onNext(Playlist playlist) {
+        public void onNext(PublicApiPlaylist playlist) {
             Log.d(PlaylistDetailActivity.LOG_TAG, "got playlist; track count = " + playlist.getTracks().size());
             refreshMetaData(playlist);
             updateTracksAdapter(playlist);

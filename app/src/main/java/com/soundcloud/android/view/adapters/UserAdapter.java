@@ -6,14 +6,14 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ScBaseAdapter;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserAssociation;
-import com.soundcloud.android.model.UserHolder;
-import com.soundcloud.android.model.UserProperty;
+import com.soundcloud.android.api.legacy.model.UserAssociation;
+import com.soundcloud.android.api.legacy.model.UserHolder;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.propeller.PropertySet;
 
@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Temporarily used to adapt ScListFragment lists that use public API models to PropertySets and the new cell design
  */
-public class UserAdapter extends ScBaseAdapter<ScResource> implements FollowingOperations.FollowStatusChangedListener, UserItemPresenter.OnToggleFollowListener {
+public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements FollowingOperations.FollowStatusChangedListener, UserItemPresenter.OnToggleFollowListener {
 
     @Inject UserItemPresenter presenter;
     @Inject FollowingOperations followingOperations;
@@ -74,7 +74,7 @@ public class UserAdapter extends ScBaseAdapter<ScResource> implements FollowingO
     }
 
     @Override
-    public void addItems(List<ScResource> newItems) {
+    public void addItems(List<PublicApiResource> newItems) {
         super.addItems(newItems);
         this.users.addAll(toPropertySets(newItems));
     }
@@ -85,20 +85,20 @@ public class UserAdapter extends ScBaseAdapter<ScResource> implements FollowingO
         users.clear();
     }
 
-    public void updateItems(Map<Urn, ScResource> updatedItems) {
+    public void updateItems(Map<Urn, PublicApiResource> updatedItems) {
         for (int i = 0; i < users.size(); i++) {
             final Urn key = users.get(i).get(UserProperty.URN);
             if (updatedItems.containsKey(key)) {
-                users.set(i, ((User) updatedItems.get(key)).toPropertySet());
+                users.set(i, ((PublicApiUser) updatedItems.get(key)).toPropertySet());
             }
         }
         notifyDataSetChanged();
     }
 
-    private List<PropertySet> toPropertySets(List<ScResource> items) {
+    private List<PropertySet> toPropertySets(List<PublicApiResource> items) {
         List<PropertySet> newItems = new ArrayList<PropertySet>(items.size());
-        for (ScResource item : items) {
-            final User user = getUser(item);
+        for (PublicApiResource item : items) {
+            final PublicApiUser user = getUser(item);
             newItems.add(user
                     .toPropertySet()
                     .put(UserProperty.IS_FOLLOWED_BY_ME, followingOperations.isFollowing(user.getUrn())));
@@ -112,8 +112,8 @@ public class UserAdapter extends ScBaseAdapter<ScResource> implements FollowingO
         return ItemClickResults.LEAVING;
     }
 
-    private User getUser(ScResource item) {
-        return item instanceof UserAssociation ? ((UserAssociation) item).getUser() : (User) item;
+    private PublicApiUser getUser(PublicApiResource item) {
+        return item instanceof UserAssociation ? ((UserAssociation) item).getUser() : (PublicApiUser) item;
     }
 
     @Override

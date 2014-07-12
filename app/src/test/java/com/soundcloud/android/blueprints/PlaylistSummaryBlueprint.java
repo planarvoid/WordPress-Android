@@ -1,9 +1,9 @@
 package com.soundcloud.android.blueprints;
 
-import com.soundcloud.android.model.PlayableStats;
-import com.soundcloud.android.model.PlaylistSummary;
-import com.soundcloud.android.model.Sharing;
-import com.soundcloud.android.model.UserSummary;
+import com.soundcloud.android.api.legacy.model.PlayableStats;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.legacy.model.Sharing;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.annotation.Mapped;
@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-@Blueprint(PlaylistSummary.class)
+@Blueprint(ApiPlaylist.class)
 public class PlaylistSummaryBlueprint {
 
     private static long runningId = 1L;
@@ -23,7 +23,7 @@ public class PlaylistSummaryBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new PlaylistSummary("soundcloud:playlists:" + runningId++);
+            return new ApiPlaylist("soundcloud:playlists:" + runningId++);
         }
     };
 
@@ -31,7 +31,7 @@ public class PlaylistSummaryBlueprint {
     String title = "playlist " + System.currentTimeMillis();
 
     @Mapped
-    UserSummary user;
+    ApiUser user;
 
     @Default
     List<String> tags = Arrays.asList("tag1", "tag2", "tag3");

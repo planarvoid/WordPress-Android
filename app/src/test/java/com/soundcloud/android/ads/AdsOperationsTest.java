@@ -8,13 +8,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.track.TrackWriteStorage;
+import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.propeller.TxnResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class AdsOperationsTest {
     public void audioAdReturnsAudioAdFromMobileApi() throws Exception {
         final String endpoint = String.format(APIEndpoints.AUDIO_AD.path(), TRACK_URN.toEncodedString());
         when(rxHttpClient.<AudioAd>fetchModels(argThat(isMobileApiRequestTo("GET", endpoint)))).thenReturn(Observable.just(audioAd));
-        when(trackWriteStorage.storeTrackAsync(audioAd.getTrackSummary())).thenReturn(Observable.<TxnResult>empty());
+        when(trackWriteStorage.storeTrackAsync(audioAd.getApiTrack())).thenReturn(Observable.<TxnResult>empty());
 
         expect(adsOperations.audioAd(TRACK_URN).toBlocking().first()).toBe(audioAd);
     }
@@ -52,10 +52,10 @@ public class AdsOperationsTest {
     @Test
     public void audioAdWritesEmbeddedTrackToStorage() throws Exception {
         when(rxHttpClient.<AudioAd>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(audioAd));
-        when(trackWriteStorage.storeTrackAsync(audioAd.getTrackSummary())).thenReturn(Observable.<TxnResult>empty());
+        when(trackWriteStorage.storeTrackAsync(audioAd.getApiTrack())).thenReturn(Observable.<TxnResult>empty());
 
         adsOperations.audioAd(TRACK_URN).subscribe();
 
-        verify(trackWriteStorage).storeTrackAsync(audioAd.getTrackSummary());
+        verify(trackWriteStorage).storeTrackAsync(audioAd.getApiTrack());
     }
 }

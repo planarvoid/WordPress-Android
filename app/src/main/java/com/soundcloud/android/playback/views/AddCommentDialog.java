@@ -3,13 +3,13 @@ package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.associations.AddCommentTask;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import eu.inmite.android.lib.dialogs.BaseDialogFragment;
@@ -104,7 +104,7 @@ public class AddCommentDialog extends BaseDialogFragment {
 
         if (!TextUtils.isEmpty(commentBody))  {
             comment.body = commentBody;
-            final Track track = SoundCloudApplication.sModelManager.getTrack(comment.track_id);
+            final PublicApiTrack track = SoundCloudApplication.sModelManager.getTrack(comment.track_id);
             if (track != null) {
                 if (track.comments == null) track.comments = new ArrayList<Comment>();
                 // add dummy comment

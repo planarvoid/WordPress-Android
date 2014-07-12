@@ -3,10 +3,10 @@ package com.soundcloud.android.collections.tasks;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.api.http.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.collections.ScBaseAdapter;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.provider.Content;
@@ -27,7 +27,7 @@ public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Bool
     private final PublicCloudAPI api;
     private final String endpoint;
     private final Set<Long> resourceIds;
-    private final Map<Urn,ScResource> updatedResources;
+    private final Map<Urn,PublicApiResource> updatedResources;
     private WeakReference<ScBaseAdapter> adapterReference;
 
     public UpdateCollectionTask(PublicCloudAPI api, String endpoint, Set<Long> resourceIds) {
@@ -36,7 +36,7 @@ public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Bool
         this.api = api;
         this.endpoint = endpoint;
         this.resourceIds = resourceIds;
-        updatedResources = new HashMap<Urn, ScResource>(resourceIds.size());
+        updatedResources = new HashMap<Urn, PublicApiResource>(resourceIds.size());
     }
 
     public void setAdapter(ScBaseAdapter adapter) {
@@ -63,12 +63,12 @@ public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Bool
             /* in memory objects will only receive these lookups if you go through the cache,
             of course this can change eventually */
             final Request request1 = HttpUtils.addQueryParams(request, params);
-            for (ScResource r : api.readList(request1)){
+            for (PublicApiResource r : api.readList(request1)){
                 r.setUpdated();
-                updatedResources.put(r.getUrn(), SoundCloudApplication.sModelManager.cache(r, ScResource.CacheUpdateMode.FULL));
+                updatedResources.put(r.getUrn(), SoundCloudApplication.sModelManager.cache(r, PublicApiResource.CacheUpdateMode.FULL));
             }
 
-            new BaseDAO<ScResource>(SoundCloudApplication.instance.getContentResolver()) {
+            new BaseDAO<PublicApiResource>(SoundCloudApplication.instance.getContentResolver()) {
                 @Override public Content getContent() {
                     return Content.COLLECTIONS;
                 }

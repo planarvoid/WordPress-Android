@@ -1,8 +1,8 @@
 package com.soundcloud.android.storage;
 
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.activities.Activities;
-import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.activities.Activities;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.storage.provider.Content;
 
 import android.content.ContentResolver;
@@ -34,13 +34,13 @@ import java.util.Set;
     }
 
     public int insert(Content content, Activities activities) {
-        Set<ScResource> models = new HashSet<ScResource>();
+        Set<PublicApiResource> models = new HashSet<PublicApiResource>();
         for (Activity a : activities) {
             models.addAll(a.getDependentModels());
         }
 
         Map<Uri, List<ContentValues>> values = new HashMap<Uri, List<ContentValues>>();
-        for (ScResource m : models) {
+        for (PublicApiResource m : models) {
             final Uri uri = m.getBulkInsertUri();
             if (values.get(uri) == null) {
                 values.put(uri, new ArrayList<ContentValues>());

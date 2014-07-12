@@ -1,9 +1,7 @@
 package com.soundcloud.android.deeplinks;
 
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.api.Request;
@@ -16,10 +14,10 @@ import android.util.Log;
 
 import java.lang.ref.WeakReference;
 
-public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
+public class ResolveFetchTask extends AsyncTask<Uri, Void, PublicApiResource> {
     private static final String TAG = ResolveFetchTask.class.getSimpleName();
 
-    private WeakReference<FetchModelTask.Listener<ScResource>> listener;
+    private WeakReference<FetchModelTask.Listener<PublicApiResource>> listener;
     private PublicCloudAPI api;
     private Uri unresolvedUrl;
 
@@ -28,7 +26,7 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
     }
 
     @Override
-    protected ScResource doInBackground(Uri... params) {
+    protected PublicApiResource doInBackground(Uri... params) {
         Uri uri = fixUri(params[0]);
 
         // first resolve any click tracking urls
@@ -56,21 +54,21 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
         }
     }
 
-    private ScResource fetchResource(Uri resolvedUri) {
+    private PublicApiResource fetchResource(Uri resolvedUri) {
         final Request request = Request.to(resolvedUri.getPath() +
             (resolvedUri.getQuery() != null ? ("?"+resolvedUri.getQuery()) : ""));
 
         return new FetchModelTask(api){
             @Override
-            protected void persist(ScResource scResource) {
+            protected void persist(PublicApiResource scResource) {
                 // TODO: since we don't know which type of resource we're fetching, not sure how to persist it
             }
         }.resolve(request);
     }
 
     @Override
-    protected void onPostExecute(ScResource resource) {
-        FetchModelTask.Listener<ScResource> listener = getListener();
+    protected void onPostExecute(PublicApiResource resource) {
+        FetchModelTask.Listener<PublicApiResource> listener = getListener();
         if (listener != null) {
             if (resource != null) {
                 listener.onSuccess(resource);
@@ -80,11 +78,11 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
         }
     }
 
-    public void setListener(FetchModelTask.Listener<ScResource> listener) {
-        this.listener = new WeakReference<FetchModelTask.Listener<ScResource>>(listener);
+    public void setListener(FetchModelTask.Listener<PublicApiResource> listener) {
+        this.listener = new WeakReference<FetchModelTask.Listener<PublicApiResource>>(listener);
     }
 
-    private FetchModelTask.Listener<ScResource> getListener() {
+    private FetchModelTask.Listener<PublicApiResource> getListener() {
         return listener == null ? null : listener.get();
     }
 

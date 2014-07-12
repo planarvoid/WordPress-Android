@@ -10,16 +10,16 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.APIResponse;
-import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.model.Association;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.APIResponse;
+import com.soundcloud.android.api.SoundCloudRxHttpClient;
+import com.soundcloud.android.api.legacy.model.Association;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SuggestedUser;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserAssociation;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
+import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
@@ -65,22 +65,22 @@ public class FollowingOperationsTest {
     @Mock
     private Observer observer;
 
-    private User user;
+    private PublicApiUser user;
     private SuggestedUser suggestedUser;
     private List<SuggestedUser> suggestedUsers;
     private Collection<UserAssociation> userAssociations;
 
     @Before
     public void before() throws CreateModelException {
-        when(scModelManager.cache(any(User.class), any(ScResource.CacheUpdateMode.class))).thenReturn(mock(User.class));
+        when(scModelManager.cache(any(PublicApiUser.class), any(PublicApiResource.CacheUpdateMode.class))).thenReturn(mock(PublicApiUser.class));
 
         Observable<UserAssociation> observable = Observable.just(userAssociationOne);
-        when(userAssociationStorage.follow(any(User.class))).thenReturn(observable);
-        when(userAssociationStorage.unfollow(any(User.class))).thenReturn(observable);
+        when(userAssociationStorage.follow(any(PublicApiUser.class))).thenReturn(observable);
+        when(userAssociationStorage.unfollow(any(PublicApiUser.class))).thenReturn(observable);
 
         ops = new FollowingOperations(soundCloudRxHttpClient, userAssociationStorage, syncStateManager, followStatus, scModelManager, syncInitiator);
 
-        user = TestHelper.getModelFactory().createModel(User.class);
+        user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
 
         suggestedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
         suggestedUsers = TestHelper.createSuggestedUsers(3);

@@ -4,7 +4,7 @@ import static android.text.TextUtils.isEmpty;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
@@ -46,7 +46,7 @@ public class UserInfoFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         userId = getArguments().getLong("userId");
         ViewGroup fragmentLayout = (ViewGroup) inflater.inflate(R.layout.user_info_view, null);
-        User user = SoundCloudApplication.sModelManager.getUser(userId);
+        PublicApiUser user = SoundCloudApplication.sModelManager.getUser(userId);
         if (user != null) {
             updateViews(fragmentLayout, user);
         }
@@ -59,7 +59,7 @@ public class UserInfoFragment extends Fragment {
         configureEmptyView((ViewGroup) view);
     }
 
-    public void onSuccess(User user) {
+    public void onSuccess(PublicApiUser user) {
         emptyViewStatus = EmptyView.Status.OK;
         ViewGroup fragmentLayout = (ViewGroup) getView();
         if (fragmentLayout != null) {
@@ -76,7 +76,7 @@ public class UserInfoFragment extends Fragment {
         }
     }
 
-    private void updateViews(ViewGroup fragmentLayout, User user) {
+    private void updateViews(ViewGroup fragmentLayout, PublicApiUser user) {
         displayedInfo = setupWebsite(fragmentLayout, user)
                 | setupDiscogs(fragmentLayout, user)
                 | setupMyspace(fragmentLayout, user)
@@ -107,7 +107,7 @@ public class UserInfoFragment extends Fragment {
         }
     }
 
-    private boolean setupDiscogs(ViewGroup fragmentLayout, final User user) {
+    private boolean setupDiscogs(ViewGroup fragmentLayout, final PublicApiUser user) {
         TextView discogsName = (TextView) fragmentLayout.findViewById(R.id.discogs_name);
         if (!isEmpty(user.discogs_name)) {
 
@@ -130,7 +130,7 @@ public class UserInfoFragment extends Fragment {
         }
     }
 
-    private boolean setupDescription(ViewGroup fragmentLayout, User user) {
+    private boolean setupDescription(ViewGroup fragmentLayout, PublicApiUser user) {
         TextView description = (TextView) fragmentLayout.findViewById(R.id.description);
         if (!isEmpty(user.description)) {
             description.setVisibility(View.VISIBLE);
@@ -143,7 +143,7 @@ public class UserInfoFragment extends Fragment {
         }
     }
 
-    private boolean setupWebsite(ViewGroup fragmentLayout, final User user) {
+    private boolean setupWebsite(ViewGroup fragmentLayout, final PublicApiUser user) {
         TextView website = (TextView) fragmentLayout.findViewById(R.id.website);
         if (!isEmpty(user.website)) {
             website.setText(user.getWebSiteTitle());
@@ -164,7 +164,7 @@ public class UserInfoFragment extends Fragment {
         }
     }
 
-    private boolean setupMyspace(ViewGroup fragmentLayout, final User user) {
+    private boolean setupMyspace(ViewGroup fragmentLayout, final PublicApiUser user) {
         TextView myspaceName = (TextView) fragmentLayout.findViewById(R.id.myspace_name);
         if (!isEmpty(user.myspace_name)) {
             myspaceName.setMovementMethod(LinkMovementMethod.getInstance());

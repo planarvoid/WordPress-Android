@@ -4,8 +4,6 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Category;
-import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.rx.observers.DefaultFragmentObserver;
 import com.soundcloud.android.utils.Log;

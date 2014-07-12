@@ -4,8 +4,8 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.SyncAdapterService;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -86,7 +86,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                 // actual c2dm message
                 onReceiveMessage(intent);
             } else if (intent.getAction().equals(Actions.ACCOUNT_ADDED)) {
-                onAccountAdded(context, intent.getLongExtra(User.EXTRA_ID, -1L));
+                onAccountAdded(context, intent.getLongExtra(PublicApiUser.EXTRA_ID, -1L));
             } else {
                 Log.w(TAG, "unhandled intent: "+intent);
             }

@@ -7,10 +7,10 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.collections.ScBaseAdapter;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.api.Request;
@@ -32,11 +32,11 @@ import java.util.List;
 public class UpdateCollectionTaskTest {
     @Test
     public void shouldUpdateListAdapterWithNewItemsAfterStaleCheck() throws IOException {
-        final User existingUser = new User(1);
-        final ScBaseAdapter<ScResource> adapter = createAdapterWithContent(existingUser);
+        final PublicApiUser existingUser = new PublicApiUser(1);
+        final ScBaseAdapter<PublicApiResource> adapter = createAdapterWithContent(existingUser);
         SoundCloudApplication.sModelManager.cache(existingUser);
 
-        List<ScResource> expectedItems = createStatleUserWithCity("refreshed");
+        List<PublicApiResource> expectedItems = createStatleUserWithCity("refreshed");
         PublicCloudAPI api = mock(PublicCloudAPI.class);
         when(api.readList(any(Request.class))).thenReturn(expectedItems);
 
@@ -44,19 +44,19 @@ public class UpdateCollectionTaskTest {
         task.setAdapter(adapter);
         task.doInBackground();
 
-        expect(((User) adapter.getItem(0)).getCity()).toEqual("refreshed");
-        expect(((User) adapter.getItem(0)).last_updated).toBeGreaterThan(0L);
+        expect(((PublicApiUser) adapter.getItem(0)).getCity()).toEqual("refreshed");
+        expect(((PublicApiUser) adapter.getItem(0)).last_updated).toBeGreaterThan(0L);
     }
 
-    private List<ScResource> createStatleUserWithCity(String city) {
-        List<ScResource> staleItems = new LinkedList<ScResource>();
-        User updatedUser = new User(1);
+    private List<PublicApiResource> createStatleUserWithCity(String city) {
+        List<PublicApiResource> staleItems = new LinkedList<PublicApiResource>();
+        PublicApiUser updatedUser = new PublicApiUser(1);
         updatedUser.setCity(city);
         staleItems.add(updatedUser);
         return staleItems;
     }
 
-    private ScBaseAdapter<ScResource> createAdapterWithContent(ScResource user) {
+    private ScBaseAdapter<PublicApiResource> createAdapterWithContent(PublicApiResource user) {
         FakeAdapter adapter = new FakeAdapter(Content.USER.uri);
         adapter.addItems(Arrays.asList(user));
         return adapter;

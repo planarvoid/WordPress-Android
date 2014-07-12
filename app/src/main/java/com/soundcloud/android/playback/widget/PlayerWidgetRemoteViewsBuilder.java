@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.widget;
 
 import com.google.common.base.Optional;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.api.legacy.model.Playable;
 
 import android.content.Context;
 

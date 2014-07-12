@@ -5,10 +5,10 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import org.junit.Before;
@@ -30,7 +30,7 @@ public class BulkStorageTest {
     @Mock
     private ContentResolver contentResolver;
     @Mock
-    private Observer<Collection<? extends ScResource>> observer;
+    private Observer<Collection<? extends PublicApiResource>> observer;
 
     private BulkStorage bulkStorage;
 
@@ -41,10 +41,10 @@ public class BulkStorageTest {
 
     @Test
     public void shouldStoreMixedResourceCollectionAsBulkInsert() {
-        final Track track = new Track();
-        final User user = new User();
-        final Playlist playlist = new Playlist();
-        Collection<? extends ScResource> resources = Arrays.asList(track, user, playlist);
+        final PublicApiTrack track = new PublicApiTrack();
+        final PublicApiUser user = new PublicApiUser();
+        final PublicApiPlaylist playlist = new PublicApiPlaylist();
+        Collection<? extends PublicApiResource> resources = Arrays.asList(track, user, playlist);
         bulkStorage.bulkInsert(resources);
 
         verify(contentResolver).bulkInsert(eq(Content.TRACKS.uri), any(ContentValues[].class));
@@ -54,10 +54,10 @@ public class BulkStorageTest {
 
     @Test
     public void shouldStoreMixedResourceCollectionAsBulkInsertObservable() {
-        final Track track = new Track();
-        final User user = new User();
-        final Playlist playlist = new Playlist();
-        Collection<? extends ScResource> resources = Arrays.asList(track, user, playlist);
+        final PublicApiTrack track = new PublicApiTrack();
+        final PublicApiUser user = new PublicApiUser();
+        final PublicApiPlaylist playlist = new PublicApiPlaylist();
+        Collection<? extends PublicApiResource> resources = Arrays.asList(track, user, playlist);
         bulkStorage.bulkInsertAsync(resources).subscribe(observer);
 
         verify(contentResolver).bulkInsert(eq(Content.TRACKS.uri), any(ContentValues[].class));

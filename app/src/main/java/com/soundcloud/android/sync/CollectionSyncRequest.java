@@ -1,8 +1,8 @@
 package com.soundcloud.android.sync;
 
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.api.http.PublicApiWrapper;
-import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
 

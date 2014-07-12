@@ -2,7 +2,7 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -17,11 +17,11 @@ import android.os.Parcel;
 public class PlaySessionSourceTest {
     private static final String ORIGIN_PAGE = "origin:page";
     private static final String EXPLORE_TAG = "explore:123";
-    private Playlist playlist;
+    private PublicApiPlaylist playlist;
 
     @Before
     public void setUp() throws Exception {
-        playlist = TestHelper.getModelFactory().createModel(Playlist.class);
+        playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
     }
 
     @Test

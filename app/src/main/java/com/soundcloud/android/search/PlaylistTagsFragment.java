@@ -10,7 +10,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.model.PlaylistTagsCollection;
+import com.soundcloud.android.playlists.PlaylistTagsCollection;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyViewController;

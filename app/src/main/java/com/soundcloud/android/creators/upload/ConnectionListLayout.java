@@ -1,11 +1,11 @@
 package com.soundcloud.android.creators.upload;
 
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.onboarding.auth.ConnectActivity;
 import com.soundcloud.android.cache.ConnectionsCache;
-import com.soundcloud.android.model.Connection;
+import com.soundcloud.android.api.legacy.model.Connection;
 import com.soundcloud.android.creators.upload.tasks.NewConnectionTask;
 
 import android.app.Activity;

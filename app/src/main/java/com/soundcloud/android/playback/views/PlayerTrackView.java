@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.views;
 
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 
 public interface PlayerTrackView {
@@ -11,7 +11,7 @@ public interface PlayerTrackView {
 
     public void onDestroy();
 
-    public void setTrackState(Track track, int queuePosition, PlaybackStateProvider stateProvider);
+    public void setTrackState(PublicApiTrack track, int queuePosition, PlaybackStateProvider stateProvider);
 
     public long getTrackId();
 

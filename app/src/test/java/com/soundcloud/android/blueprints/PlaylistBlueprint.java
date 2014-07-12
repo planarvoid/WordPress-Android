@@ -1,14 +1,14 @@
 package com.soundcloud.android.blueprints;
 
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.annotation.Mapped;
 import com.tobedevoured.modelcitizen.annotation.NewInstance;
 import com.tobedevoured.modelcitizen.field.ConstructorCallback;
 
-@Blueprint(Playlist.class)
+@Blueprint(PublicApiPlaylist.class)
 public class PlaylistBlueprint {
 
     private static long runningId = 1L;
@@ -17,7 +17,7 @@ public class PlaylistBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new Playlist(runningId++);
+            return new PublicApiPlaylist(runningId++);
         }
     };
 
@@ -25,5 +25,5 @@ public class PlaylistBlueprint {
     String title = "new playlist " + System.currentTimeMillis();
 
     @Mapped
-    User user;
+    PublicApiUser user;
 }

@@ -4,8 +4,8 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -26,7 +26,7 @@ public class PlayerTrackDetailsLayoutTest {
 
     @Test
     public void showLikesRowWhenTrackHasLikes() throws Exception {
-        Track track = new Track(1L);
+        PublicApiTrack track = new PublicApiTrack(1L);
         track.likes_count = 1;
         detailsLayout.setTrack(track);
 
@@ -36,7 +36,7 @@ public class PlayerTrackDetailsLayoutTest {
 
     @Test
     public void hideLikesRowWhenTrackHasNoLikes() throws Exception {
-        Track track = new Track(1L);
+        PublicApiTrack track = new PublicApiTrack(1L);
         track.likes_count = 0;
         detailsLayout.setTrack(track);
 
@@ -46,7 +46,7 @@ public class PlayerTrackDetailsLayoutTest {
 
     @Test
     public void showRepostsRowWhenTrackHasReposts() throws Exception {
-        Track track = new Track(1L);
+        PublicApiTrack track = new PublicApiTrack(1L);
         track.reposts_count = 1;
         detailsLayout.setTrack(track);
 
@@ -56,7 +56,7 @@ public class PlayerTrackDetailsLayoutTest {
 
     @Test
     public void hideRepostsRowWhenTrackHasNoReposts() throws Exception {
-        Track track = new Track(1L);
+        PublicApiTrack track = new PublicApiTrack(1L);
         track.reposts_count = 0;
         detailsLayout.setTrack(track);
 
@@ -66,7 +66,7 @@ public class PlayerTrackDetailsLayoutTest {
 
     @Test
     public void showCommentRowWhenTrackHasComments() throws Exception {
-        Track track = new Track(1L);
+        PublicApiTrack track = new PublicApiTrack(1L);
         track.comments = Lists.newArrayList(new Comment());
         track.comment_count = 1;
         detailsLayout.setTrack(track);
@@ -77,7 +77,7 @@ public class PlayerTrackDetailsLayoutTest {
 
     @Test
     public void hideCommentRowWhenTrackHasNoComments() throws Exception {
-        Track track = new Track(1L);
+        PublicApiTrack track = new PublicApiTrack(1L);
         track.comments = Lists.newArrayList();
         track.comment_count = 0;
         detailsLayout.setTrack(track);

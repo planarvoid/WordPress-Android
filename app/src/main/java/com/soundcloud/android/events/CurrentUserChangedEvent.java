@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import org.jetbrains.annotations.Nullable;
 
 public final class CurrentUserChangedEvent {
@@ -10,17 +10,17 @@ public final class CurrentUserChangedEvent {
 
     private final int kind;
     @Nullable
-    private final User currentUser;
+    private final PublicApiUser currentUser;
 
     public static CurrentUserChangedEvent forLogout() {
         return new CurrentUserChangedEvent(USER_REMOVED, null);
     }
 
-    public static CurrentUserChangedEvent forUserUpdated(final User currentUser) {
+    public static CurrentUserChangedEvent forUserUpdated(final PublicApiUser currentUser) {
         return new CurrentUserChangedEvent(USER_UPDATED, currentUser);
     }
 
-    private CurrentUserChangedEvent(int kind, @Nullable User user) {
+    private CurrentUserChangedEvent(int kind, @Nullable PublicApiUser user) {
         this.kind = kind;
         currentUser = user;
     }
@@ -30,7 +30,7 @@ public final class CurrentUserChangedEvent {
     }
 
     @Nullable
-    public User getCurrentUser() {
+    public PublicApiUser getCurrentUser() {
         return currentUser;
     }
 }

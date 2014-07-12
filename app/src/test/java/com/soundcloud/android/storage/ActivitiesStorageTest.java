@@ -1,11 +1,11 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.api.http.PublicApiWrapper.CloudDateFormat.toTime;
+import static com.soundcloud.android.api.legacy.PublicApiWrapper.CloudDateFormat.toTime;
 
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.activities.Activities;
-import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.api.legacy.model.LocalCollection;
+import com.soundcloud.android.api.legacy.model.activities.Activities;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;

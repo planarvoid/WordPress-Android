@@ -13,7 +13,7 @@ import java.util.Set;
 
 /**
  * For organizing and inserting content values associated with Uris for the bulk create
- * of dependencies. Used in {@link com.soundcloud.android.model.ScResource#putDependencyValues(BulkInsertMap)}
+ * of dependencies. Used in {@link com.soundcloud.android.api.legacy.model.PublicApiResource#putDependencyValues(BulkInsertMap)}
  */
 public class BulkInsertMap extends HashMap<Uri, Set<BulkInsertMap.ResourceValues>> {
 

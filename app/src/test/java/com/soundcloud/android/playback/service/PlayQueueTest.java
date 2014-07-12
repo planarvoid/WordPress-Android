@@ -5,8 +5,8 @@ import static com.soundcloud.android.Expect.expect;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -26,11 +26,11 @@ public class PlayQueueTest {
     private static final PlayQueueItem PLAY_QUEUE_ITEM_2 = PlayQueueItem.fromTrack(2L, "source2", "version2");
 
     private PlaySessionSource playSessionSource;
-    private Playlist playlist;
+    private PublicApiPlaylist playlist;
 
     @Before
     public void setUp() throws Exception {
-        playlist = TestHelper.getModelFactory().createModel(Playlist.class);
+        playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         playSessionSource  = new PlaySessionSource(ORIGIN_PAGE);
         playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
         playSessionSource.setExploreVersion("1.0");
@@ -65,7 +65,7 @@ public class PlayQueueTest {
         final AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
         playQueue.insertAudioAdAtPosition(audioAd, 1);
 
-        expect(playQueue.getUrnAtPosition(1)).toEqual(audioAd.getTrackSummary().getUrn());
+        expect(playQueue.getUrnAtPosition(1)).toEqual(audioAd.getApiTrack().getUrn());
         expect(playQueue.size()).toBe(4);
     }
 

@@ -3,7 +3,7 @@ package com.soundcloud.android.creators.upload;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.TestApplication;
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.shadows.ShadowVorbisEncoder;
 import com.xtremelabs.robolectric.Robolectric;

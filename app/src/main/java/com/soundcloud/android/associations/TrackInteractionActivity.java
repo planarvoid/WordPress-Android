@@ -3,9 +3,9 @@ package com.soundcloud.android.associations;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.playback.PlaybackOperations;
 
@@ -45,7 +45,7 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
             public void onClick(View v) {
                 // if it comes from a mention, might not have a user
                 if (playable.user != null) {
-                    playbackOperations.playTrack(TrackInteractionActivity.this, (Track) playable, getCurrentScreen());
+                    playbackOperations.playTrack(TrackInteractionActivity.this, (PublicApiTrack) playable, getCurrentScreen());
                 }
             }
         });
@@ -77,9 +77,9 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
         // I inlined this lookup from a method I removed from the Track class, since I wanted to get rid of
         // the dependency to ScModelManager in Track.java
         if (intent == null) throw new IllegalArgumentException("intent is null");
-        Track track = intent.getParcelableExtra(Track.EXTRA);
+        PublicApiTrack track = intent.getParcelableExtra(PublicApiTrack.EXTRA);
         if (track == null) {
-            track = SoundCloudApplication.sModelManager.getTrack(intent.getLongExtra(Track.EXTRA_ID, 0));
+            track = SoundCloudApplication.sModelManager.getTrack(intent.getLongExtra(PublicApiTrack.EXTRA_ID, 0));
         }
         if (track == null) {
             throw new IllegalArgumentException("Could not obtain track from intent " + intent);

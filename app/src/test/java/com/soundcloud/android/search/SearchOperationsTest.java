@@ -18,18 +18,18 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.PlaylistSummary;
-import com.soundcloud.android.model.PlaylistSummaryCollection;
-import com.soundcloud.android.model.PlaylistTagsCollection;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SearchResultsCollection;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.UnknownResource;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylistCollection;
+import com.soundcloud.android.playlists.PlaylistTagsCollection;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
+import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.BulkStorage;
@@ -113,16 +113,16 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldFilterUnknownResourcesForSearchAll() throws Exception {
-        ScResource track = new Track();
-        ScResource playlist = new Playlist();
-        ScResource user = new User();
-        ScResource unknown = new UnknownResource();
+        PublicApiResource track = new PublicApiTrack();
+        PublicApiResource playlist = new PublicApiPlaylist();
+        PublicApiResource user = new PublicApiUser();
+        PublicApiResource unknown = new UnknownResource();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(
                 track, playlist, unknown, user));
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
         when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
-        Track cachedTrack = new Track();
-        when(modelManager.cache(track, ScResource.CacheUpdateMode.FULL)).thenReturn(cachedTrack);
+        PublicApiTrack cachedTrack = new PublicApiTrack();
+        when(modelManager.cache(track, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(cachedTrack);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
@@ -133,20 +133,20 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldCacheSearchResultsInModelManager() throws Exception {
-        ScResource track = new Track();
+        PublicApiResource track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track));
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
         when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
-        verify(modelManager).cache(track, ScResource.CacheUpdateMode.FULL);
+        verify(modelManager).cache(track, PublicApiResource.CacheUpdateMode.FULL);
     }
 
     @Test
     public void shouldWriteSearchResultsToLocalStorage() {
-        final Track track = new Track();
-        SearchResultsCollection collection = new SearchResultsCollection(Arrays.<ScResource>asList(track));
+        final PublicApiTrack track = new PublicApiTrack();
+        SearchResultsCollection collection = new SearchResultsCollection(Arrays.<PublicApiResource>asList(track));
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
         when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
 
@@ -157,24 +157,24 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldEmitCachedModelsOnSearchResults() throws Exception {
-        ScResource track = new Track();
+        PublicApiResource track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track));
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
         when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
-        Track cachedTrack = new Track();
-        when(modelManager.cache(track, ScResource.CacheUpdateMode.FULL)).thenReturn(cachedTrack);
+        PublicApiTrack cachedTrack = new PublicApiTrack();
+        when(modelManager.cache(track, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(cachedTrack);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
         ArgumentCaptor<OperatorPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
         verify(observer).onNext(captor.capture());
-        Track firstResultsTrack = (Track) Lists.newArrayList(captor.getValue().getPagedCollection()).get(0);
+        PublicApiTrack firstResultsTrack = (PublicApiTrack) Lists.newArrayList(captor.getValue().getPagedCollection()).get(0);
         expect(firstResultsTrack).toBe(cachedTrack);
     }
 
     @Test
     public void filteredCollectionKeepsNextHref() throws Exception {
-        final ArrayList<ScResource> results = Lists.<ScResource>newArrayList(TestHelper.getModelFactory().createModel(Track.class));
+        final ArrayList<PublicApiResource> results = Lists.<PublicApiResource>newArrayList(TestHelper.getModelFactory().createModel(PublicApiTrack.class));
         SearchResultsCollection collection = new SearchResultsCollection(results, "next-href");
 
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
@@ -190,7 +190,7 @@ public class SearchOperationsTest {
 
     @Test
     public void hasNextPageWhenNextHRefNotBlank() throws Exception {
-        ScResource track = new Track();
+        PublicApiResource track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track), "a NextHref");
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
         when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
@@ -203,7 +203,7 @@ public class SearchOperationsTest {
 
     @Test
     public void hasNextPageIsFalseWhenNextHRefBlank() throws Exception {
-        ScResource track = new Track();
+        PublicApiResource track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track), "");
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
         when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
@@ -216,7 +216,7 @@ public class SearchOperationsTest {
 
     @Test
     public void fetchesNextPageObservableBasedOnNextHref() throws Exception {
-        ScResource track = new Track();
+        PublicApiResource track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track), "http://soundcloud.com/next-href.json");
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
 
@@ -291,7 +291,7 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldDeliverPlaylistDiscoveryResultsToObserver() throws CreateModelException {
-        PlaylistSummaryCollection collection = buildPlaylistSummariesResponse();
+        ApiPlaylistCollection collection = buildPlaylistSummariesResponse();
 
         searchOperations.getPlaylistResults("electronic").subscribe(observer);
 
@@ -303,20 +303,20 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldWritePlaylistDiscoveryResultToLocalStorage() throws CreateModelException {
-        PlaylistSummaryCollection collection = buildPlaylistSummariesResponse();
+        ApiPlaylistCollection collection = buildPlaylistSummariesResponse();
 
         searchOperations.getPlaylistResults("electronic").subscribe(observer);
 
-        final List<Playlist> resources = Arrays.asList(new Playlist(collection.getCollection().get(0)));
+        final List<PublicApiPlaylist> resources = Arrays.asList(new PublicApiPlaylist(collection.getCollection().get(0)));
         verify(bulkStorage).bulkInsertAsync(resources);
     }
 
-    private PlaylistSummaryCollection buildPlaylistSummariesResponse() throws CreateModelException {
-        PlaylistSummary playlist = TestHelper.getModelFactory().createModel(PlaylistSummary.class);
-        PlaylistSummaryCollection collection = new PlaylistSummaryCollection();
+    private ApiPlaylistCollection buildPlaylistSummariesResponse() throws CreateModelException {
+        ApiPlaylist playlist = TestHelper.getModelFactory().createModel(ApiPlaylist.class);
+        ApiPlaylistCollection collection = new ApiPlaylistCollection();
         collection.setCollection(Arrays.asList(playlist));
-        when(rxHttpClient.<PlaylistSummaryCollection>fetchModels(any(APIRequest.class))).thenReturn(
-                Observable.<PlaylistSummaryCollection>from(collection));
+        when(rxHttpClient.<ApiPlaylistCollection>fetchModels(any(APIRequest.class))).thenReturn(
+                Observable.<ApiPlaylistCollection>from(collection));
         return collection;
     }
 
@@ -329,9 +329,9 @@ public class SearchOperationsTest {
         ArgumentCaptor<Page> resultCaptor = ArgumentCaptor.forClass(Page.class);
         verify(observer).onNext(resultCaptor.capture());
 
-        PlaylistSummary playlistSummary = (PlaylistSummary) Lists.newArrayList(
+        ApiPlaylist apiPlaylist = (ApiPlaylist) Lists.newArrayList(
                 resultCaptor.getValue().getPagedCollection()).get(0);
-        expect(playlistSummary.getTags()).toContainExactly("electronic", "tag1", "tag2", "tag3");
+        expect(apiPlaylist.getTags()).toContainExactly("electronic", "tag1", "tag2", "tag3");
     }
 
     @Test
@@ -343,9 +343,9 @@ public class SearchOperationsTest {
         ArgumentCaptor<Page> resultCaptor = ArgumentCaptor.forClass(Page.class);
         verify(observer).onNext(resultCaptor.capture());
 
-        PlaylistSummary playlistSummary = (PlaylistSummary) Lists.newArrayList(
+        ApiPlaylist apiPlaylist = (ApiPlaylist) Lists.newArrayList(
                 resultCaptor.getValue().getPagedCollection()).get(0);
-        expect(playlistSummary.getTags()).toContainExactly("tag2", "tag1", "tag3");
+        expect(apiPlaylist.getTags()).toContainExactly("tag2", "tag1", "tag3");
     }
 
     @Test
@@ -357,9 +357,9 @@ public class SearchOperationsTest {
         ArgumentCaptor<Page> resultCaptor = ArgumentCaptor.forClass(Page.class);
         verify(observer).onNext(resultCaptor.capture());
 
-        PlaylistSummary playlistSummary = (PlaylistSummary) Lists.newArrayList(
+        ApiPlaylist apiPlaylist = (ApiPlaylist) Lists.newArrayList(
                 resultCaptor.getValue().getPagedCollection()).get(0);
-        expect(playlistSummary.getTags()).toContainExactly("Tag2", "tag1", "tag3");
+        expect(apiPlaylist.getTags()).toContainExactly("Tag2", "tag1", "tag3");
     }
 
     @Test
@@ -371,9 +371,9 @@ public class SearchOperationsTest {
         ArgumentCaptor<Page> resultCaptor = ArgumentCaptor.forClass(Page.class);
         verify(observer).onNext(resultCaptor.capture());
 
-        PlaylistSummary playlistSummary = (PlaylistSummary) Lists.newArrayList(
+        ApiPlaylist apiPlaylist = (ApiPlaylist) Lists.newArrayList(
                 resultCaptor.getValue().getPagedCollection()).get(0);
-        expect(playlistSummary.getTags()).toContainExactly("ag2", "tag1", "tag2", "tag3");
+        expect(apiPlaylist.getTags()).toContainExactly("ag2", "tag1", "tag2", "tag3");
     }
 
     @Test

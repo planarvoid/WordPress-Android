@@ -4,13 +4,13 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -53,7 +53,7 @@ public class EngagementsController {
     private CompositeSubscription subscription = new CompositeSubscription();
 
     public interface AddToPlaylistListener {
-        void onAddToPlaylist(Track track);
+        void onAddToPlaylist(PublicApiTrack track);
     }
 
     @Inject
@@ -138,8 +138,8 @@ public class EngagementsController {
             addToPlaylistBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (playable instanceof Track && addToPlaylistListener != null) {
-                        addToPlaylistListener.onAddToPlaylist((Track) playable);
+                    if (playable instanceof PublicApiTrack && addToPlaylistListener != null) {
+                        addToPlaylistListener.onAddToPlaylist((PublicApiTrack) playable);
                     }
                 }
             });

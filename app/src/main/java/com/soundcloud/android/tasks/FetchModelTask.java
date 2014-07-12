@@ -1,11 +1,11 @@
 package com.soundcloud.android.tasks;
 
-import static com.soundcloud.android.api.PublicCloudAPI.NotFoundException;
+import static com.soundcloud.android.api.legacy.PublicCloudAPI.NotFoundException;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +17,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class FetchModelTask<Model extends ScResource> extends ParallelAsyncTask<Request, Void, Model> {
+public abstract class FetchModelTask<Model extends PublicApiResource> extends ParallelAsyncTask<Request, Void, Model> {
 
     protected PublicCloudAPI api;
     private Set<WeakReference<Listener<Model>>> listenerWeakReferences;
@@ -74,7 +74,7 @@ public abstract class FetchModelTask<Model extends ScResource> extends ParallelA
             Model model = api.read(request);
             model.setUpdated();
             persist(model);
-            SoundCloudApplication.sModelManager.cache(model, ScResource.CacheUpdateMode.FULL);
+            SoundCloudApplication.sModelManager.cache(model, PublicApiResource.CacheUpdateMode.FULL);
             return model;
         } catch (NotFoundException e) {
             return null;

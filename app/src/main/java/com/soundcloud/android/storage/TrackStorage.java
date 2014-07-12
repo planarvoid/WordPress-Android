@@ -3,10 +3,10 @@ package com.soundcloud.android.storage;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.Content;
@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Deprecated
-public class TrackStorage extends ScheduledOperations implements Storage<Track> {
+public class TrackStorage extends ScheduledOperations implements Storage<PublicApiTrack> {
     private TrackDAO trackDAO;
     private ContentResolver resolver;
     private ScModelManager modelManager;
@@ -51,10 +51,10 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
         this.modelManager = modelManager;
     }
 
-    public Observable<Track> createPlayImpressionAsync(final Track track) {
-        return schedule(Observable.create(new Observable.OnSubscribe<Track>() {
+    public Observable<PublicApiTrack> createPlayImpressionAsync(final PublicApiTrack track) {
+        return schedule(Observable.create(new Observable.OnSubscribe<PublicApiTrack>() {
             @Override
-            public void call(Subscriber<? super Track> observer) {
+            public void call(Subscriber<? super PublicApiTrack> observer) {
                 if (createPlayImpression(track)) {
                     observer.onNext(track);
                 }
@@ -63,34 +63,34 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
         }));
     }
 
-    public boolean createPlayImpression(Track track) {
+    public boolean createPlayImpression(PublicApiTrack track) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(TableColumns.TrackMetadata._ID, track.getId());
         return resolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 
     @Override
-    public Track store(Track track) {
-        modelManager.cache(track, ScResource.CacheUpdateMode.FULL);
+    public PublicApiTrack store(PublicApiTrack track) {
+        modelManager.cache(track, PublicApiResource.CacheUpdateMode.FULL);
         trackDAO.create(track);
         return track;
     }
 
     @Override
-    public Observable<Track> storeAsync(final Track track) {
-        return schedule(Observable.create(new Observable.OnSubscribe<Track>() {
+    public Observable<PublicApiTrack> storeAsync(final PublicApiTrack track) {
+        return schedule(Observable.create(new Observable.OnSubscribe<PublicApiTrack>() {
             @Override
-            public void call(Subscriber<? super Track> observer) {
+            public void call(Subscriber<? super PublicApiTrack> observer) {
                 observer.onNext(store(track));
                 observer.onCompleted();
             }
         }));
     }
 
-    public Observable<Collection<Track>> storeCollectionAsync(final Collection<Track> tracks) {
-        return schedule(Observable.create(new Observable.OnSubscribe<Collection<Track>>() {
+    public Observable<Collection<PublicApiTrack>> storeCollectionAsync(final Collection<PublicApiTrack> tracks) {
+        return schedule(Observable.create(new Observable.OnSubscribe<Collection<PublicApiTrack>>() {
             @Override
-            public void call(Subscriber<? super Collection<Track>> observer) {
+            public void call(Subscriber<? super Collection<PublicApiTrack>> observer) {
                 storeCollection(tracks);
                 observer.onNext(tracks);
                 observer.onCompleted();
@@ -98,21 +98,21 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
         }));
     }
 
-    private int storeCollection(Collection<Track> tracks) {
+    private int storeCollection(Collection<PublicApiTrack> tracks) {
         return trackDAO.createCollection(tracks);
     }
 
 
-    public long createOrUpdate(Track track) {
+    public long createOrUpdate(PublicApiTrack track) {
         return trackDAO.createOrUpdate(track);
     }
 
-    public Observable<Track> getTrackAsync(final long id) {
-        return schedule(Observable.create(new Observable.OnSubscribe<Track>() {
+    public Observable<PublicApiTrack> getTrackAsync(final long id) {
+        return schedule(Observable.create(new Observable.OnSubscribe<PublicApiTrack>() {
             @Override
-            public void call(Subscriber<? super Track> observer) {
+            public void call(Subscriber<? super PublicApiTrack> observer) {
                 try {
-                    final Track cachedTrack = modelManager.getCachedTrack(id);
+                    final PublicApiTrack cachedTrack = modelManager.getCachedTrack(id);
                     if (cachedTrack != null){
                         observer.onNext(cachedTrack);
                     } else {
@@ -126,8 +126,8 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
         }));
     }
 
-    public Track getTrack(long id) throws NotFoundException {
-        final Track track = trackDAO.queryById(id);
+    public PublicApiTrack getTrack(long id) throws NotFoundException {
+        final PublicApiTrack track = trackDAO.queryById(id);
         if (track == null) {
             throw new NotFoundException(id);
         } else {

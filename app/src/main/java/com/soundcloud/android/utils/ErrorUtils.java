@@ -1,7 +1,7 @@
 package com.soundcloud.android.utils;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.http.APIRequestException;
+import com.soundcloud.android.api.APIRequestException;
 import com.soundcloud.android.sync.SyncFailedException;
 import rx.exceptions.OnErrorNotImplementedException;
 

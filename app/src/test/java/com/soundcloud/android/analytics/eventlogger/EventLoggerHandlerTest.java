@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -47,7 +47,7 @@ public class EventLoggerHandlerTest {
 
     @Test
     public void shouldInsertTrackingEventsIntoDatabase() throws Exception {
-        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
 
         final EventLoggerEvent event1 = Mockito.mock(EventLoggerEvent.class);
         eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, event1));

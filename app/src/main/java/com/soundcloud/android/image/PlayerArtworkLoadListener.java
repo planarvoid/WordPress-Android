@@ -2,7 +2,7 @@ package com.soundcloud.android.image;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.playback.views.ArtworkTrackView;
 
 import android.graphics.Bitmap;
@@ -15,13 +15,13 @@ public class PlayerArtworkLoadListener extends SimpleImageLoadingListener implem
 
     private final ImageLoaderUtils imageLoaderUtils;
     private final WeakReference<ArtworkTrackView> trackViewRef;
-    private final Track track;
+    private final PublicApiTrack track;
 
-    public PlayerArtworkLoadListener(ArtworkTrackView trackView, Track track) {
+    public PlayerArtworkLoadListener(ArtworkTrackView trackView, PublicApiTrack track) {
         this(trackView, track, new ImageLoaderUtils(trackView.getContext()));
     }
 
-    PlayerArtworkLoadListener(ArtworkTrackView trackView, Track track, ImageLoaderUtils imageLoaderUtils) {
+    PlayerArtworkLoadListener(ArtworkTrackView trackView, PublicApiTrack track, ImageLoaderUtils imageLoaderUtils) {
         trackViewRef = new WeakReference<ArtworkTrackView>(trackView);
         this.track = track;
         this.imageLoaderUtils = imageLoaderUtils;

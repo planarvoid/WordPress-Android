@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.waveform.WaveformData;
 import org.junit.Test;
 
 import java.util.Arrays;

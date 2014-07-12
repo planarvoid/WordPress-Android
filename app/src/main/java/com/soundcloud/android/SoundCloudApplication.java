@@ -9,13 +9,13 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsModule;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
-import com.soundcloud.android.model.ContentStats;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.ContentStats;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
@@ -231,7 +231,7 @@ public class SoundCloudApplication extends Application {
         return instance.objectGraph;
     }
 
-    public boolean addUserAccountAndEnableSync(User user, Token token, SignupVia via) {
+    public boolean addUserAccountAndEnableSync(PublicApiUser user, Token token, SignupVia via) {
         Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
         if (account != null) {
             // move this when we can't guarantee we will only have 1 account active at a time

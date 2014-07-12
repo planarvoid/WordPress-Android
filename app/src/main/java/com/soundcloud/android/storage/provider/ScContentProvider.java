@@ -5,10 +5,10 @@ import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTyp
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.LIKE;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.image.ApiImageSize;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.DatabaseManager;
@@ -361,7 +361,7 @@ public class ScContentProvider extends ContentProvider {
 
     private void appendSoundType(SCQueryBuilder qb, Content content) {
         qb.appendWhere(" " + TableColumns.SoundView._TYPE + " = '" +
-                (content.modelType == Track.class ? Playable.DB_TYPE_TRACK : Playable.DB_TYPE_PLAYLIST)
+                (content.modelType == PublicApiTrack.class ? Playable.DB_TYPE_TRACK : Playable.DB_TYPE_PLAYLIST)
                 + "'");
     }
 

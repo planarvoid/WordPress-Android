@@ -2,7 +2,7 @@ package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;

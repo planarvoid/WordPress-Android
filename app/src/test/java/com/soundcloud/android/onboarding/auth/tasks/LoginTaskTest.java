@@ -8,8 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -36,7 +36,7 @@ public class LoginTaskTest {
     @Mock private Bundle bundle;
     @Mock private FetchUserTask fetchUserTask;
     @Mock private Token token;
-    @Mock private User user;
+    @Mock private PublicApiUser user;
     @Mock private UserStorage userStorage;
 
     @Before

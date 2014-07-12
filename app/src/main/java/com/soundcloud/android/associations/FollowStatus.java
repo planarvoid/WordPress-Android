@@ -4,9 +4,9 @@ import static com.soundcloud.android.associations.FollowingOperations.FollowStat
 
 import com.google.common.collect.ImmutableSet;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserUrn;
+import com.soundcloud.android.api.legacy.model.LocalCollection;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
@@ -84,7 +84,7 @@ import java.util.WeakHashMap;
         return followings.contains(urn.numericId);
     }
 
-    public boolean isFollowing(User user) {
+    public boolean isFollowing(PublicApiUser user) {
         return user != null && isFollowing(user.getUrn());
     }
 

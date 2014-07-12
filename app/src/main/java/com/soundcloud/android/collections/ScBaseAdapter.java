@@ -4,20 +4,20 @@ package com.soundcloud.android.collections;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.ReturnData;
 import com.soundcloud.android.collections.tasks.UpdateCollectionTask;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.behavior.Creation;
-import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.android.api.legacy.model.behavior.Creation;
+import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
@@ -164,7 +164,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         return getCount() == 0;
     }
 
-    public void updateItems(Map<Urn, ScResource> updatedItems){
+    public void updateItems(Map<Urn, PublicApiResource> updatedItems){
         notifyDataSetChanged();
     }
 
@@ -257,12 +257,12 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
                 Refreshable refreshable = (Refreshable) newItem;
                 if (refreshable.isIncomplete() || (onWifi && refreshable.isStale())) {
                     Refreshable resource = refreshable.getRefreshableResource();
-                    if (resource instanceof Track) {
-                        trackUpdates.add(((Track) resource).getId());
-                    } else if (resource instanceof User) {
-                        userUpdates.add(((User) resource).getId());
-                    } else if (resource instanceof Playlist) {
-                        playlistUpdates.add(((Playlist) resource).getId());
+                    if (resource instanceof PublicApiTrack) {
+                        trackUpdates.add(((PublicApiTrack) resource).getId());
+                    } else if (resource instanceof PublicApiUser) {
+                        userUpdates.add(((PublicApiUser) resource).getId());
+                    } else if (resource instanceof PublicApiPlaylist) {
+                        playlistUpdates.add(((PublicApiPlaylist) resource).getId());
                     }
                 }
             }

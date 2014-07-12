@@ -1,15 +1,14 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 
-import static com.soundcloud.android.api.http.SoundCloudAPIRequest.RequestBuilder;
+import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.model.CategoryGroup;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.SoundCloudRxHttpClient;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
 import rx.functions.Func1;

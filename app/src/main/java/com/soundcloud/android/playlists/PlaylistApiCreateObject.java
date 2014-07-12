@@ -5,11 +5,11 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.soundcloud.android.api.http.json.Views;
-import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.api.legacy.json.Views;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.Sharing;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.api.Params;
 
 import java.util.ArrayList;
@@ -21,14 +21,14 @@ public class PlaylistApiCreateObject {
     @JsonView(Views.Full.class) String title;
     @JsonView(Views.Full.class) String sharing;
     @JsonView(Views.Full.class) public List<ScModel> tracks;
-    public PlaylistApiCreateObject(Playlist p) {
+    public PlaylistApiCreateObject(PublicApiPlaylist p) {
 
         this.title = p.getTitle();
         this.sharing =  p.getSharing() == Sharing.PRIVATE ? Params.Track.PRIVATE : Params.Track.PUBLIC;
 
         // convert to ScModel as we only want to serialize the id
         this.tracks = new ArrayList<ScModel>();
-        for (Track t : p.getTracks()) {
+        for (PublicApiTrack t : p.getTracks()) {
             tracks.add(new ScModel(t.getId()));
         }
     }

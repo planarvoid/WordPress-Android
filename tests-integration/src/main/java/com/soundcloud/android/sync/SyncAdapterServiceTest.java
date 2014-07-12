@@ -4,7 +4,7 @@ import static com.soundcloud.android.tests.AccountAssistant.initAsyncTask;
 import static com.soundcloud.android.tests.AccountAssistant.loginAsDefault;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.model.ContentStats;
+import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 

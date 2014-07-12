@@ -1,8 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.model.PlaylistUrn;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;

@@ -14,12 +14,12 @@ import static org.mockito.Mockito.when;
 import static rx.android.OperatorPaged.Page;
 
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.SearchResultsCollection;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -145,7 +145,7 @@ public class SearchResultsFragmentTest {
     public void shouldStartPlaybackWhenClickingPlayableRow() throws Exception {
         when(searchOperations.getAllSearchResults(anyString()))
                 .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
-        when(adapter.getItem(0)).thenReturn(new Track());
+        when(adapter.getItem(0)).thenReturn(new PublicApiTrack());
 
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
@@ -156,7 +156,7 @@ public class SearchResultsFragmentTest {
     public void shouldSendSearchEverythingTrackingScreenOnItemClick() throws Exception {
         when(searchOperations.getAllSearchResults(anyString()))
                 .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
-        when(adapter.getItem(0)).thenReturn(new Track());
+        when(adapter.getItem(0)).thenReturn(new PublicApiTrack());
 
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_ALL));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
@@ -168,7 +168,7 @@ public class SearchResultsFragmentTest {
     public void shouldSendSearchTracksTrackingScreenOnItemClick() throws Exception {
         when(searchOperations.getTrackSearchResults(anyString()))
                 .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
-        when(adapter.getItem(0)).thenReturn(new Track());
+        when(adapter.getItem(0)).thenReturn(new PublicApiTrack());
 
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_TRACKS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
@@ -180,7 +180,7 @@ public class SearchResultsFragmentTest {
     public void shouldSendSearchPlaylistsTrackingScreenOnItemClick() throws Exception {
         when(searchOperations.getPlaylistSearchResults(anyString()))
                 .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
-        when(adapter.getItem(0)).thenReturn(new Playlist());
+        when(adapter.getItem(0)).thenReturn(new PublicApiPlaylist());
 
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_PLAYLISTS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
@@ -192,7 +192,7 @@ public class SearchResultsFragmentTest {
     public void shouldPublishSearchEventWhenResultOnTracksTabIsClicked() throws Exception {
         when(searchOperations.getTrackSearchResults(anyString()))
                 .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
-        when(adapter.getItem(anyInt())).thenReturn(new Track());
+        when(adapter.getItem(anyInt())).thenReturn(new PublicApiTrack());
 
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_TRACKS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
@@ -207,7 +207,7 @@ public class SearchResultsFragmentTest {
     public void shouldPublishSearchEventWhenResultOnPlaylistsTabIsClicked() throws Exception {
         when(searchOperations.getPlaylistSearchResults(anyString()))
                 .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
-        when(adapter.getItem(anyInt())).thenReturn(new Playlist());
+        when(adapter.getItem(anyInt())).thenReturn(new PublicApiPlaylist());
 
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_PLAYLISTS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
@@ -222,7 +222,7 @@ public class SearchResultsFragmentTest {
     public void shouldPublishSearchEventWhenResultOnPeopleTabIsClicked() throws Exception {
         when(searchOperations.getUserSearchResults(anyString()))
                 .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
-        when(adapter.getItem(anyInt())).thenReturn(new User());
+        when(adapter.getItem(anyInt())).thenReturn(new PublicApiUser());
 
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_USERS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);

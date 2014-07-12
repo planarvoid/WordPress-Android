@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Objects;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.utils.ScTextUtils;
 
 public class TrackSourceInfo {
@@ -14,7 +14,7 @@ public class TrackSourceInfo {
     private String sourceVersion;
 
     private long playlistId = Playable.NOT_SET;
-    private long playlistOwnerId = User.NOT_SET;
+    private long playlistOwnerId = PublicApiUser.NOT_SET;
     private int playlistPosition;
 
     public TrackSourceInfo(String originScreen, boolean userTriggered) {

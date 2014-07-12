@@ -2,13 +2,13 @@ package com.soundcloud.android.playback;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.LegacyPlayerTrackView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.LegacyTrackOperations;
+import com.soundcloud.android.tracks.LegacyTrackOperations;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.RecyclingPager.RecyclingPagerAdapter;
 import org.jetbrains.annotations.Nullable;
@@ -41,8 +41,8 @@ public abstract class  PlayerTrackPagerAdapter<T extends View & PlayerTrackView>
     protected PlayQueueView playQueue = PlayQueueView.EMPTY;
 
     // FIXME : Using ReplaySubjects here is pretty wasteful. We just want the last (post sync) item. Make custom subject
-    private final LruCache<Long, ReplaySubject<Track>> trackSubjectCache =
-            new LruCache<Long, ReplaySubject<Track>>(TRACK_CACHE_SIZE);
+    private final LruCache<Long, ReplaySubject<PublicApiTrack>> trackSubjectCache =
+            new LruCache<Long, ReplaySubject<PublicApiTrack>>(TRACK_CACHE_SIZE);
 
     public PlayerTrackPagerAdapter(LegacyTrackOperations trackOperations, PlaybackStateProvider stateProvider) {
         this.trackOperations = trackOperations;
@@ -167,8 +167,8 @@ public abstract class  PlayerTrackPagerAdapter<T extends View & PlayerTrackView>
         return trackViewsByPosition.inverse().get(position);
     }
 
-    public ReplaySubject<Track> getTrackObservable(long id) {
-        ReplaySubject<Track> trackSubject = trackSubjectCache.get(id);
+    public ReplaySubject<PublicApiTrack> getTrackObservable(long id) {
+        ReplaySubject<PublicApiTrack> trackSubject = trackSubjectCache.get(id);
         if (trackSubject == null) {
             trackSubject = ReplaySubject.create();
             trackOperations.loadSyncedTrack(id, AndroidSchedulers.mainThread()).subscribe(trackSubject);
@@ -181,7 +181,7 @@ public abstract class  PlayerTrackPagerAdapter<T extends View & PlayerTrackView>
         getTrackObservable(id).subscribe(new TrackSubscriber(id));
     }
 
-    private class TrackSubscriber extends DefaultSubscriber<Track> {
+    private class TrackSubscriber extends DefaultSubscriber<PublicApiTrack> {
         private final long trackId;
 
         private TrackSubscriber(long trackId) {
@@ -189,7 +189,7 @@ public abstract class  PlayerTrackPagerAdapter<T extends View & PlayerTrackView>
         }
 
         @Override
-        public void onNext(Track track) {
+        public void onNext(PublicApiTrack track) {
             for (T playerTrackView : trackViewsByPosition.keySet()) {
                 final Integer position = trackViewsByPosition.get(playerTrackView);
                 final long idOfQueueView = getIdByPosition(position);
@@ -200,7 +200,7 @@ public abstract class  PlayerTrackPagerAdapter<T extends View & PlayerTrackView>
         }
     }
 
-    protected void setTrackOnPlayerTrackView(Track track, T playerTrackView, Integer queuePosition) {
+    protected void setTrackOnPlayerTrackView(PublicApiTrack track, T playerTrackView, Integer queuePosition) {
         playerTrackView.setTrackState(track, queuePosition, stateProvider);
     }
 

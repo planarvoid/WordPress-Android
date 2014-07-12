@@ -1,7 +1,7 @@
 package com.soundcloud.android.blueprints;
 
-import com.soundcloud.android.model.Category;
-import com.soundcloud.android.model.SuggestedUser;
+import com.soundcloud.android.onboarding.suggestions.Category;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.MappedList;
 

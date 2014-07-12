@@ -4,7 +4,7 @@ import static com.soundcloud.android.creators.record.RecordActivity.CreateState.
 
 import com.robotium.solo.Solo;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.tests.SlowTest;
 import com.soundcloud.android.tests.with.With;
 
@@ -94,7 +94,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
         uploadSound("A trimmed test upload", null, true);
 
         assertSoundUploaded();
-        Track track = assertSoundTranscoded();
+        PublicApiTrack track = assertSoundTranscoded();
         assertTrackDuration(track, 5000 + ROBO_SLEEP);
     }
 
@@ -111,7 +111,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
 
         assertSoundEncoded(recordingTime * 4);
         assertSoundUploaded();
-        Track track = assertSoundTranscoded();
+        PublicApiTrack track = assertSoundTranscoded();
         assertTrackDuration(track, 5000 + ROBO_SLEEP);
     }
 
