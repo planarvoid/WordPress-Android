@@ -169,6 +169,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         // system will relaunch it. Make sure it gets stopped again in that case.
         scheduleServiceShutdownCheck();
         instance = this;
+
+        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
     }
 
     @Override

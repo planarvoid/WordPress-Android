@@ -318,6 +318,15 @@ public class PlaybackOperationsTest {
     }
 
     @Test
+    public void stopServiceSendsStopActionToService() {
+        playbackOperations.stopService();
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        Intent sentIntent = application.getNextStartedService();
+        expect(sentIntent.getAction()).toBe(PlaybackService.Actions.STOP_ACTION);
+    }
+
+    @Test
     public void playPlaylistSetsPlayQueueOnPlayQueueManagerFromPlaylist() throws CreateModelException {
         List<Track> tracks = TestHelper.createTracks(3);
         Playlist playlist = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
@@ -139,6 +140,23 @@ public class PlaybackServiceTest {
     public void onCreateRegistersNoisyListenerToListenForAudioBecomingNoisyBroadcast() throws Exception {
         playbackService.onCreate();
         expect(getReceiversForAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)).toContain(playbackReceiver);
+    }
+
+    @Test
+    public void onCreatePublishedServiceLifecycleForCreated() throws Exception {
+        playbackService.onCreate();
+
+        PlayerLifeCycleEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYER_LIFE_CYCLE);
+        expect(broadcasted.getKind()).toBe(PlayerLifeCycleEvent.STATE_CREATED);
+    }
+
+    @Test
+    public void onDestroyPublishedServiceLifecycleForDestroyed() throws Exception {
+        playbackService.onCreate();
+        playbackService.onDestroy();
+
+        PlayerLifeCycleEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYER_LIFE_CYCLE);
+        expect(broadcasted.getKind()).toBe(PlayerLifeCycleEvent.STATE_DESTROYED);
     }
 
     @Test

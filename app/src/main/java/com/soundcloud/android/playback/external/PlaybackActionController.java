@@ -31,6 +31,9 @@ public class PlaybackActionController {
         } else if (PlaybackAction.TOGGLE_PLAYBACK.equals(action)) {
             eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.toggle(source, playSessionController.isPlaying()));
             playbackOperations.togglePlayback();
+        } else if (PlaybackAction.CLOSE.equals(action)) {
+            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.close(source));
+            playbackOperations.stopService();
         }
     }
 

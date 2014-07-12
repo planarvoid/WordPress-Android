@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.views;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.playback.external.PlaybackAction;
-import com.soundcloud.android.playback.service.PlaybackService;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -35,9 +34,7 @@ public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
 
     public void linkButtonsNotification(Context context) {
         linkPlayerControls(context);
-        final Intent close = new Intent(PlaybackService.Actions.STOP_ACTION);
-        setOnClickPendingIntent(R.id.close, PendingIntent.getService(context,
-                PENDING_INTENT_REQUEST_CODE, close, 0));
+        setOnClickPendingIntent(R.id.close, createPendingIntent(context, PlaybackAction.CLOSE));
     }
 
     public void setIcon(Uri bitmapUri) {

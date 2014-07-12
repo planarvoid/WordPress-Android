@@ -200,6 +200,10 @@ public class PlaybackOperations {
         seek(SEEK_POSITION_RESET);
     }
 
+    public void stopService() {
+        context.startService(new Intent(PlaybackService.Actions.STOP_ACTION));
+    }
+
     public void seek(long position) {
         Intent intent = new Intent(PlaybackService.Actions.SEEK);
         intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, position);
