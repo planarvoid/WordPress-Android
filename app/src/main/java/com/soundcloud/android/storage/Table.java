@@ -139,7 +139,7 @@ public enum Table {
     }
 
     @Deprecated // should be a private method
-    static List<String> alterColumns(SQLiteDatabase db,
+    public static List<String> alterColumns(SQLiteDatabase db,
                                             final String table,
                                             final String createString,
                                             final String[] fromAppend,
