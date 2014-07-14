@@ -27,6 +27,8 @@ import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxGlobalErrorHandler;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
@@ -85,6 +87,7 @@ public class SoundCloudApplication extends Application {
     @Inject PlaybackSessionAnalyticsController playSessionAnalyticsController;
     @Inject PlaylistTagStorage playlistTagStorage;
     @Inject PlaybackNotificationController playbackNotificationController;
+    @Inject FeatureFlags featureFlags;
 
     // we need this object to exist througout the life time of the app,
     // even if it appears to be unused
@@ -150,9 +153,12 @@ public class SoundCloudApplication extends Application {
         widgetController.subscribe();
         peripheralsController.subscribe();
         playSessionController.subscribe();
-        adsController.subscribe();
         playSessionAnalyticsController.subscribe();
         playbackNotificationController.subscribe();
+
+        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
+            adsController.subscribe();
+        }
     }
 
     private void registerRxGlobalErrorHandler() {
