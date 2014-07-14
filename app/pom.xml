@@ -309,7 +309,7 @@
         <dependency>
             <groupId>com.soundcloud.android</groupId>
             <artifactId>android-crop</artifactId>
-            <version>0.9.9</version>
+            <version>0.9.10</version>
             <scope>compile</scope>
             <type>aar</type>
         </dependency>
