@@ -1,9 +1,8 @@
 package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Objects;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -29,8 +28,8 @@ public class PlaySessionSource implements Parcelable{
     }
 
     private final String originScreen;
-    private long playlistId = PublicApiPlaylist.NOT_SET;
-    private long playlistOwnerId = PublicApiUser.NOT_SET;
+    private long playlistId = Consts.NOT_SET;
+    private long playlistOwnerId = Consts.NOT_SET;
     private String exploreVersion;
 
     public PlaySessionSource(Parcel in) {
