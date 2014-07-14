@@ -261,6 +261,15 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackUrn()));
     }
 
+    public void removeAtPosition(int position) {
+        if(position < playQueue.getCurrentPosition()){
+            playQueue.setPosition(playQueue.getCurrentPosition() - 1);
+        }
+        playQueue.removeAtPosition(position);
+        broadcastQueueUpdate();
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackUrn()));
+    }
+
     private void loadRecommendedTracks() {
         setNewRelatedLoadingState(FetchRecommendedState.LOADING);
         gotRecommendedTracks = false;

@@ -59,7 +59,7 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void insertsAudioAdAtPosition() throws Exception {
+    public void insertsAudioAdAtPosition() throws CreateModelException {
         PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), 0, playSessionSource);
 
         final AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
@@ -70,6 +70,15 @@ public class PlayQueueTest {
     }
 
     @Test
+    public void shouldRemoveAtPosition() {
+        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), 0, playSessionSource);
+
+        playQueue.removeAtPosition(1);
+
+        expect(playQueue.getUrnAtPosition(1)).toEqual(TrackUrn.forTrack(3L));
+        expect(playQueue.size()).toBe(2);
+    }
+
     public void shouldReportCorrectSize() {
         PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), 2, playSessionSource);
         expect(playQueue.size()).toEqual(3);

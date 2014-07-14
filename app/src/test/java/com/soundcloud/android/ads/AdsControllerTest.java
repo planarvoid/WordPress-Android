@@ -74,6 +74,16 @@ public class AdsControllerTest {
     }
 
     @Test
+    public void playQueueEventRemovesPreviousPlayQueueItemIfIsAd() {
+        when(playQueueManager.getCurrentPosition()).thenReturn(3);
+        when(playQueueManager.isAudioAdAtPosition(2)).thenReturn(true);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(CURRENT_TRACK_URN));
+
+        verify(playQueueManager).removeAtPosition(2);
+    }
+
+    @Test
     public void trackChangeEventDoesNothingIfNextTrackIsAudioAd() {
         when(playQueueManager.getNextTrackUrn()).thenReturn(NEXT_TRACK_URN);
         when(trackOperations.track(NEXT_TRACK_URN)).thenReturn(Observable.just(MONETIZEABLE_PROPERTY_SET));

@@ -51,6 +51,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         playQueueItems.add(position, PlayQueueItem.fromAudioAd(audioAd));
     }
 
+    public void removeAtPosition(int position) {
+        playQueueItems.remove(position);
+    }
+
     public boolean moveToPrevious() {
         if (hasPreviousTrack()) {
             currentPosition--;

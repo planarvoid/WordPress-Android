@@ -330,6 +330,25 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void broadcastsQueueChangeEventWhenItemIsRemoved() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), 1, playSessionSource), playSessionSource);
+
+        playQueueManager.removeAtPosition(1);
+
+        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
+        expectBroadcastPlayQueueUpdate();
+    }
+
+    @Test
+    public void removeItemAtPosition() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L, 3L), 1, playSessionSource), playSessionSource);
+
+        playQueueManager.removeAtPosition(1);
+
+        expect(playQueueManager.getQueueSize()).toEqual(2);
+        expect(playQueueManager.getUrnAtPosition(1)).toEqual(TrackUrn.forTrack(3L));
+    }
+
     public void shouldMoveToNextTrackWithManualSetToFalse() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         when(playQueue.hasNextTrack()).thenReturn(true);
@@ -527,6 +546,24 @@ public class PlayQueueManagerTest {
         expect(playQueueManager.getCurrentPlayQueue()).not.toEqual(PlayQueue.empty());
         playQueueManager.clearAll();
         expect(playQueueManager.getCurrentPlayQueue()).toEqual(PlayQueue.empty());
+    }
+
+    @Test
+    public void shouldUpdateCurrentPositionWhenRemovingItemBeforeCurrentPosition() throws CreateModelException {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L, 4L), 3, playSessionSource), playSessionSource);
+
+        playQueueManager.removeAtPosition(1);
+
+        expect(playQueueManager.getCurrentPosition()).toEqual(2);
+    }
+
+    @Test
+    public void shouldNotUpdateCurrentPositionWhenRemovingItemAfterCurrentPosition() throws CreateModelException {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L, 4L), 2, playSessionSource), playSessionSource);
+
+        playQueueManager.removeAtPosition(3);
+
+        expect(playQueueManager.getCurrentPosition()).toEqual(2);
     }
 
     @Test

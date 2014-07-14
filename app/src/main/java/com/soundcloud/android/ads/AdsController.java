@@ -58,6 +58,16 @@ public class AdsController {
         }
     };
 
+    private Action1<PlayQueueEvent> removeAdOnPreviousPosition = new Action1<PlayQueueEvent>() {
+        @Override
+        public void call(PlayQueueEvent event) {
+            int prevPosition = playQueueManager.getCurrentPosition() - 1;
+            if (playQueueManager.isAudioAdAtPosition(prevPosition)) {
+                playQueueManager.removeAtPosition(prevPosition);
+            }
+        }
+    };
+
     @Inject
     public AdsController(EventBus eventBus, AdsOperations adsOperations, PlayQueueManager playQueueManager, TrackOperations trackOperations) {
         this.eventBus = eventBus;
@@ -68,6 +78,7 @@ public class AdsController {
 
     public void subscribe() {
         eventBus.queue(EventQueue.PLAY_QUEUE)
+                .doOnNext(removeAdOnPreviousPosition)
                 .doOnNext(unsubscribeFromPreviousAdOp)
                 .filter(hasNextNonAudioAdTrackFilter)
                 .subscribe(new PlayQueueSubscriber());
