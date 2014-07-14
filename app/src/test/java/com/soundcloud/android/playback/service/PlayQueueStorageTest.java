@@ -7,7 +7,6 @@ import com.soundcloud.android.robolectric.StorageIntegrationTest;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ChangeResult;
-import com.soundcloud.propeller.Query;
 import com.soundcloud.propeller.TxnResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,11 +44,11 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         TxnResult txnResult = observer.getOnNextEvents().get(0);
         expect(txnResult.success()).toBeTrue();
         expect(count(Table.PLAY_QUEUE.name)).toBe(2);
-        expect(exists(Query.from(Table.PLAY_QUEUE.name)
+        expect(exists(Table.PLAY_QUEUE.name, filter()
                 .whereEq(TableColumns.PlayQueue.TRACK_ID, 123L)
                 .whereEq(TableColumns.PlayQueue.SOURCE, "source1")
                 .whereEq(TableColumns.PlayQueue.SOURCE_VERSION, "version1"))).toBeTrue();
-        expect(exists(Query.from(Table.PLAY_QUEUE.name)
+        expect(exists(Table.PLAY_QUEUE.name, filter()
                 .whereEq(TableColumns.PlayQueue.TRACK_ID, 456L)
                 .whereEq(TableColumns.PlayQueue.SOURCE, "source2")
                 .whereEq(TableColumns.PlayQueue.SOURCE_VERSION, "version2"))).toBeTrue();

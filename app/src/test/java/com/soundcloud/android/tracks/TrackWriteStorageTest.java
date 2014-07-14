@@ -10,7 +10,6 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ChangeResult;
-import com.soundcloud.propeller.Query;
 import com.soundcloud.propeller.TxnResult;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -108,7 +107,7 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     }
 
     private void expectTrackInserted(ApiTrack track) {
-        expect(exists(Query.from(Table.SOUNDS.name)
+        expect(exists(Table.SOUNDS.name, filter()
                         .whereEq(TableColumns.Sounds._ID, track.getId())
                         .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
                         .whereEq(TableColumns.Sounds.TITLE, track.getTitle())
@@ -130,7 +129,7 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     }
 
     private void expectUserInserted(ApiUser user) {
-        expect(exists(Query.from(Table.SOUND_VIEW.name)
+        expect(exists(Table.SOUND_VIEW.name, filter()
                         .whereEq(TableColumns.SoundView.USER_ID, user.getId())
                         .whereEq(TableColumns.SoundView.USERNAME, user.getUsername())
         )).toBeTrue();
