@@ -467,6 +467,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static boolean upgradeTo26(SQLiteDatabase database, int oldVersion) {
         try {
             Table.SOUNDS.alterColumns(database);
+            Table.SOUND_VIEW.recreate(database);
             return true;
         } catch (SQLException exception) {
             SoundCloudApplication.handleSilentException("error during upgrade26 " +
