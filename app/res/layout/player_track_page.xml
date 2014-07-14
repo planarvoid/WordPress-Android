@@ -4,7 +4,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <com.soundcloud.android.playback.ui.PlayerArtworkView
+    <com.soundcloud.android.playback.ui.view.PlayerArtworkView
             android:id="@+id/track_page_artwork"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
