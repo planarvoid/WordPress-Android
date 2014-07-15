@@ -3,17 +3,17 @@ package com.soundcloud.android.playback.service.mediaplayer;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.streaming.StreamProxy;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.ScTextUtils;
 import rx.Subscription;
@@ -34,6 +34,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.Locale;
 
 public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener,MediaPlayer.OnBufferingUpdateListener {
@@ -182,7 +183,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        SoundCloudApplication.handleSilentException(String.format(MEDIA_PLAYER_IO_ERROR_MSG_FORMAT, what, extra), 
+        SoundCloudApplication.handleSilentException(
+                String.format(Locale.US, MEDIA_PLAYER_IO_ERROR_MSG_FORMAT, what, extra),
                 new MediaPlayerIOException(extra));
         return handleMediaPlayerError(mp, getProgress());
 
