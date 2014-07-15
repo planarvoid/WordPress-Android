@@ -3,12 +3,14 @@ package com.soundcloud.android.playback.service.skippy;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
+import static com.soundcloud.android.skippy.Skippy.*;
 import static com.soundcloud.android.skippy.Skippy.Error;
 import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason;
 import static com.soundcloud.android.skippy.Skippy.State;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -80,7 +82,7 @@ public class SkippyAdapterTest {
     @Before
     public void setUp() throws Exception {
         userUrn = TestHelper.getModelFactory().createModel(UserUrn.class);
-        when(skippyFactory.create(any(Skippy.PlayListener.class))).thenReturn(skippy);
+        when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, playbackOperations,
                 stateChangeHandler, eventBus, connectionHelper, applicationProperties);
         skippyAdapter.setListener(listener);
@@ -95,40 +97,40 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void playDoesNotInteractWithSkippyIfNoListenerPresent(){
+    public void playDoesNotInteractWithSkippyIfNoListenerPresent() {
         skippyAdapter.setListener(null);
         skippyAdapter.play(track);
         verifyZeroInteractions(skippy);
     }
 
     @Test
-    public void playDoesNotInteractWithSkippyIfAudioFocusFailsToBeGranted(){
+    public void playDoesNotInteractWithSkippyIfAudioFocusFailsToBeGranted() {
         when(listener.requestAudioFocus()).thenReturn(false);
         skippyAdapter.play(track);
         verifyZeroInteractions(skippy);
     }
 
     @Test
-    public void playBroadcastsErrorStateIfAudioFocusFailsToBeGranted(){
+    public void playBroadcastsErrorStateIfAudioFocusFailsToBeGranted() {
         when(listener.requestAudioFocus()).thenReturn(false);
         skippyAdapter.play(track);
-        verify(listener).onPlaystateChanged(new Playa.StateTransition(PlayaState.IDLE , Playa.Reason.ERROR_FAILED, track.getUrn(), 0, 0));
+        verify(listener).onPlaystateChanged(new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FAILED, track.getUrn(), 0, 0));
     }
 
     @Test
-    public void playCallsPlayUrlOnSkippy(){
+    public void playCallsPlayUrlOnSkippy() {
         skippyAdapter.play(track);
         verify(skippy).play(STREAM_URL, 0);
     }
 
     @Test
-    public void playRemovesStateChangeMessagesFromHandler(){
+    public void playRemovesStateChangeMessagesFromHandler() {
         skippyAdapter.play(track);
         verify(stateChangeHandler).removeMessages(0);
     }
 
     @Test
-    public void playLogsPlayThroughPlaybackOperations(){
+    public void playLogsPlayThroughPlaybackOperations() {
         TestObservables.MockObservable<TrackUrn> mockObservable = TestObservables.emptyObservable();
         when(playbackOperations.logPlay(track.getUrn())).thenReturn(mockObservable);
         skippyAdapter.play(track);
@@ -136,14 +138,14 @@ public class SkippyAdapterTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void shouldThrowExceptionIfSoundCloudDoesNotExistWhenTryingToPlay(){
+    public void shouldThrowExceptionIfSoundCloudDoesNotExistWhenTryingToPlay() {
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
         skippyAdapter.play(new Track(1L));
 
     }
 
     @Test
-    public void playUrlWithTheCurrentUrlAndPositionCallsSeekAndResumeOnSkippy(){
+    public void playUrlWithTheCurrentUrlAndPositionCallsSeekAndResumeOnSkippy() {
         skippyAdapter.play(track);
         skippyAdapter.play(track, 123L);
         InOrder inOrder = Mockito.inOrder(skippy);
@@ -152,7 +154,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void playUrlWithTheSameUrlAfterErrorCallsPlayUrlOnSkippy(){
+    public void playUrlWithTheSameUrlAfterErrorCallsPlayUrlOnSkippy() {
         skippyAdapter.play(track);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FAILED, PROGRESS, DURATION, STREAM_URL);
         skippyAdapter.play(track);
@@ -161,7 +163,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void playUrlWithTheSameUrlAfterCompleteCallsPlayUrlOnSkippy(){
+    public void playUrlWithTheSameUrlAfterCompleteCallsPlayUrlOnSkippy() {
         skippyAdapter.play(track);
         skippyAdapter.onStateChanged(State.IDLE, Reason.COMPLETE, Error.OK, PROGRESS, DURATION, STREAM_URL);
         skippyAdapter.play(track);
@@ -170,75 +172,75 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void pauseCallsPauseOnSkippy(){
+    public void pauseCallsPauseOnSkippy() {
         skippyAdapter.pause();
         verify(skippy).pause();
     }
 
     @Test
-    public void stopCallsPauseOnSkippy(){
+    public void stopCallsPauseOnSkippy() {
         skippyAdapter.stop();
         verify(skippy).pause();
     }
 
     @Test
-    public void destroyCallsDestroySkippy(){
+    public void destroyCallsDestroySkippy() {
         skippyAdapter.destroy();
         verify(skippy).destroy();
     }
 
     @Test
-    public void seekCallsPauseOnSkippyIfPerformSeekTrue(){
+    public void seekCallsPauseOnSkippyIfPerformSeekTrue() {
         skippyAdapter.seek(123L, true);
         verify(skippy).seek(123L);
     }
 
     @Test
-    public void seekDoesNotCallPauseOnSkippyIfPerformSeekFalse(){
+    public void seekDoesNotCallPauseOnSkippyIfPerformSeekFalse() {
         skippyAdapter.seek(123L, false);
         verify(skippy, never()).seek(any(Long.class));
     }
 
     @Test
-    public void seekCallsOnProgressWithSeekPosition(){
+    public void seekCallsOnProgressWithSeekPosition() {
         when(skippy.getDuration()).thenReturn(456L);
         skippyAdapter.seek(123L, true);
         verify(listener).onProgressEvent(123L, 456L);
     }
 
     @Test
-    public void setVolumeCallsSetVolumeOnSkippy(){
+    public void setVolumeCallsSetVolumeOnSkippy() {
         skippyAdapter.setVolume(123F);
         verify(skippy).setVolume(123F);
     }
 
     @Test
-    public void returnAlwaysReturnsTrue(){ // just on Skippy, not on MediaPlayer
+    public void returnAlwaysReturnsTrue() { // just on Skippy, not on MediaPlayer
         expect(skippyAdapter.resume()).toBeTrue();
     }
 
     @Test
-    public void resumeCallsResumeOnSkippyIfInPausedState(){
+    public void resumeCallsResumeOnSkippyIfInPausedState() {
         skippyAdapter.resume();
         verify(skippy).resume();
     }
 
     @Test
-    public void getProgressReturnsGetPositionFromSkippy(){
+    public void getProgressReturnsGetPositionFromSkippy() {
         skippyAdapter.play(track);
         skippyAdapter.getProgress();
         verify(skippy).getPosition();
     }
 
     @Test
-    public void doesNotPropogateProgressChangesForIncorrectUri(){
+    public void doesNotPropogateProgressChangesForIncorrectUri() {
         skippyAdapter.play(track);
         skippyAdapter.onProgressChange(123L, 456L, "WrongStreamUrl");
         verify(listener, never()).onProgressEvent(anyLong(), anyLong());
     }
 
     @Test
-    public void propogatesProgressChangesForPlayingUri(){
+    public void propogatesProgressChangesForPlayingUri() {
         skippyAdapter.play(track);
         skippyAdapter.onProgressChange(123L, 456L, STREAM_URL);
         verify(listener).onProgressEvent(123L, 456L);
@@ -246,7 +248,7 @@ public class SkippyAdapterTest {
 
 
     @Test
-    public void doesNotPropogateStateChangesForIncorrectUrl(){
+    public void doesNotPropogateStateChangesForIncorrectUrl() {
         skippyAdapter.play(track);
         skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK, PROGRESS, DURATION, "WrongStreamUrl");
         verify(stateChangeHandler, never()).sendMessage(any(Message.class));
@@ -409,22 +411,64 @@ public class SkippyAdapterTest {
 
     @Test
     public void onErrorPublishesPlaybackErrorEvent() throws Exception {
-        skippyAdapter.onErrorMessage("category", "message", STREAM_URL, CDN_HOST);
+        ErrorCategory errorCategory = mock(ErrorCategory.class);
+        when(errorCategory.getCategory()).thenReturn(ErrorCategory.Category.CODEC_DECODER);
+        skippyAdapter.onErrorMessage(errorCategory, "sourceFile", 1, "message", "uri", CDN_HOST);
 
         final PlaybackErrorEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_ERROR);
         expect(event.getBitrate()).toEqual("128");
         expect(event.getFormat()).toEqual("mp3");
         expect(event.getProtocol()).toEqual(PlaybackProtocol.HLS);
-        expect(event.getCategory()).toEqual("category");
+        expect(event.getCategory()).toEqual("CODEC_DECODER");
         expect(event.getCdnHost()).toEqual(CDN_HOST);
     }
 
     @Test
-    public void shouldNotPerformAnyActionIfUserIsNotLoggedInWhenGettingPerformanceCallback(){
+    public void shouldNotPerformAnyActionIfUserIsNotLoggedInWhenGettingPerformanceCallback() {
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.FRAGMENT_DOWNLOAD_RATE, 1000L, STREAM_URL, CDN_HOST);
         verify(accountOperations, never()).getLoggedInUserUrn();
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
+    }
+
+    @Test
+    public void newInstanceOfSkippyAdapterShouldHaveZeroAttemptedPlaybackAttempts() {
+        expect(skippyAdapter.getNumberOfAttemptedPlaysBeforeDecoderError()).toBe(0);
+    }
+
+    @Test
+    public void shouldIncrementNumberOfAttemptedPlaysWhenPlayingNewTrack() {
+        skippyAdapter.play(track);
+        expect(skippyAdapter.getNumberOfAttemptedPlaysBeforeDecoderError()).toBe(1);
+    }
+
+    @Test
+    public void shouldIncrementNumberOfAttemptedPlaysWhenPlayingNewTrackMultipleTimes() {
+        when(playbackOperations.buildHLSUrlForTrack(track)).thenReturn("track1");
+        skippyAdapter.play(track);
+        when(playbackOperations.buildHLSUrlForTrack(track)).thenReturn("track2");
+        skippyAdapter.play(track);
+        expect(skippyAdapter.getNumberOfAttemptedPlaysBeforeDecoderError()).toBe(2);
+    }
+
+    @Test
+    public void shouldResetNumberOfSuccessfulPlaysAfterADecoderError() {
+        ErrorCategory errorCategory = mock(ErrorCategory.class);
+        when(errorCategory.getCategory()).thenReturn(ErrorCategory.Category.GENERIC_DECODER);
+        skippyAdapter.play(track);
+        expect(skippyAdapter.getNumberOfAttemptedPlaysBeforeDecoderError()).toBe(1);
+        skippyAdapter.onErrorMessage(errorCategory, "sourceFile", 1, "errormsg", "uri", "cdn");
+        expect(skippyAdapter.getNumberOfAttemptedPlaysBeforeDecoderError()).toBe(0);
+    }
+
+    @Test
+    public void shouldNotResetNumberOfSuccessfulPlaysAfterIfErrorIsNotADecoderError() {
+        ErrorCategory errorCategory = mock(ErrorCategory.class);
+        when(errorCategory.getCategory()).thenReturn(ErrorCategory.Category.CODEC_DECODER);
+        skippyAdapter.play(track);
+        expect(skippyAdapter.getNumberOfAttemptedPlaysBeforeDecoderError()).toBe(1);
+        skippyAdapter.onErrorMessage(errorCategory, "sourceFile", 1, "errormsg", "uri", "cdn");
+        expect(skippyAdapter.getNumberOfAttemptedPlaysBeforeDecoderError()).toBe(1);
     }
 
 }

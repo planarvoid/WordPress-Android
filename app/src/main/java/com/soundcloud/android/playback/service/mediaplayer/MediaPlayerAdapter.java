@@ -4,17 +4,18 @@ import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackUrn;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.streaming.StreamProxy;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ScTextUtils;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
@@ -42,6 +43,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     public static final int MAX_CONNECT_RETRIES = 3;
     public static final int SEEK_COMPLETE_PROGRESS_DELAY = 3000;
+    private static final String MEDIA_PLAYER_IO_ERROR_MSG_FORMAT = "what(%d) extra(%d)";
 
     private final StreamProxy proxy;
     private final Context context;
@@ -180,6 +182,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
+        SoundCloudApplication.handleSilentException(String.format(MEDIA_PLAYER_IO_ERROR_MSG_FORMAT, what, extra), 
+                new MediaPlayerIOException(extra));
         return handleMediaPlayerError(mp, getProgress());
 
     }
@@ -579,5 +583,28 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         }
 
 
+    }
+
+    private static class MediaPlayerIOException extends Exception {
+
+        private final int errorReason;
+
+        private MediaPlayerIOException(int reason) {
+            this.errorReason = Math.abs(reason);
+        }
+
+        @Override
+        public String getMessage() {
+            return "MediaPlayerIOErrorReason(" +errorReason+")";
+
+        }
+
+        @Override
+        public StackTraceElement[] getStackTrace() {
+            return new StackTraceElement[]{new StackTraceElement(MediaPlayerIOException.class.getSimpleName(),
+                    ScTextUtils.EMPTY_STRING,
+                    "MediaPlayerAdapter.java",
+                    errorReason)};
+        }
     }
 }
