@@ -1,6 +1,9 @@
 package com.soundcloud.android.tracks;
 
-import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.propeller.query.Query.from;
+import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
@@ -57,11 +60,11 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
 
         storage.storeTrackAsync(track).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnCompletedEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents().size(), is(1));
+        assertThat(observer.getOnCompletedEvents().size(), is(1));
         TxnResult result = observer.getOnNextEvents().get(0);
-        expect(result.success()).toBeTrue();
-        expect(((ChangeResult) result.getResults().get(0)).getNumRowsAffected()).toEqual(1);
+        assertThat(result.success(), is(true));
+        assertThat(((ChangeResult) result.getResults().get(0)).getNumRowsAffected(), is(1));
     }
 
     @Test
@@ -99,15 +102,15 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
 
         storage.storeTracksAsync(tracks).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnCompletedEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents().size(), is(1));
+        assertThat(observer.getOnCompletedEvents().size(), is(1));
         TxnResult result = observer.getOnNextEvents().get(0);
-        expect(result.success()).toBeTrue();
-        expect(result.getResults()).toNumber(4);
+        assertThat(result.success(), is(true));
+        assertThat(result.getResults().size(), is(4));
     }
 
     private void expectTrackInserted(ApiTrack track) {
-        expect(exists(Table.SOUNDS.name, filter()
+        assertThat(select(from(Table.SOUNDS.name)
                         .whereEq(TableColumns.Sounds._ID, track.getId())
                         .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
                         .whereEq(TableColumns.Sounds.TITLE, track.getTitle())
@@ -125,13 +128,13 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
                         .whereEq(TableColumns.Sounds.REPOSTS_COUNT, track.getStats().getRepostsCount())
                         .whereEq(TableColumns.Sounds.PLAYBACK_COUNT, track.getStats().getPlaybackCount())
                         .whereEq(TableColumns.Sounds.COMMENT_COUNT, track.getStats().getCommentsCount())
-        )).toBeTrue();
+        ), counts(1));
     }
 
     private void expectUserInserted(ApiUser user) {
-        expect(exists(Table.SOUND_VIEW.name, filter()
+        assertThat(select(from(Table.SOUND_VIEW.name)
                         .whereEq(TableColumns.SoundView.USER_ID, user.getId())
                         .whereEq(TableColumns.SoundView.USERNAME, user.getUsername())
-        )).toBeTrue();
+        ), counts(1));
     }
 }
