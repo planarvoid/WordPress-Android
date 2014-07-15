@@ -454,6 +454,14 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.soundcloud.propeller</groupId>
+            <artifactId>propeller</artifactId>
+            <version>${propeller.version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <profiles>

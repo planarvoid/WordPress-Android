@@ -1,6 +1,11 @@
 package com.soundcloud.android.playback.service;
 
-import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.propeller.query.Query.from;
+import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
+import static com.soundcloud.propeller.test.matchers.QueryMatchers.isEmpty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.StorageIntegrationTest;
@@ -20,6 +25,8 @@ import java.util.Arrays;
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueStorageTest extends StorageIntegrationTest {
 
+    private static final String PLAY_QUEUE_TABLE = Table.PLAY_QUEUE.name;
+
     private PlayQueueStorage storage;
 
     @Before
@@ -30,7 +37,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldInsertPlayQueueAndReplaceExistingItems() {
         insertPlayQueueItem(PlayQueueItem.fromTrack(1L, "existing", "existing_version"));
-        expect(count(Table.PLAY_QUEUE.name)).toBe(1);
+        assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
 
         TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
         PlayQueueItem playQueueItem1 = PlayQueueItem.fromTrack(123L, "source1", "version1");
@@ -39,32 +46,33 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
         storage.storeAsync(playQueue).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents().size(), is(1));
 
         TxnResult txnResult = observer.getOnNextEvents().get(0);
-        expect(txnResult.success()).toBeTrue();
-        expect(count(Table.PLAY_QUEUE.name)).toBe(2);
-        expect(exists(Table.PLAY_QUEUE.name, filter()
+        assertThat(txnResult.success(), is(true));
+
+        assertThat(select(from(PLAY_QUEUE_TABLE)), counts(2));
+        assertThat(select(from(PLAY_QUEUE_TABLE)
                 .whereEq(TableColumns.PlayQueue.TRACK_ID, 123L)
                 .whereEq(TableColumns.PlayQueue.SOURCE, "source1")
-                .whereEq(TableColumns.PlayQueue.SOURCE_VERSION, "version1"))).toBeTrue();
-        expect(exists(Table.PLAY_QUEUE.name, filter()
+                .whereEq(TableColumns.PlayQueue.SOURCE_VERSION, "version1")), counts(1));
+        assertThat(select(from(PLAY_QUEUE_TABLE)
                 .whereEq(TableColumns.PlayQueue.TRACK_ID, 456L)
                 .whereEq(TableColumns.PlayQueue.SOURCE, "source2")
-                .whereEq(TableColumns.PlayQueue.SOURCE_VERSION, "version2"))).toBeTrue();
+                .whereEq(TableColumns.PlayQueue.SOURCE_VERSION, "version2")), counts(1));
     }
 
     @Test
     public void shouldDeleteAllPlayQueueItems() {
         TestObserver<ChangeResult> observer = new TestObserver<ChangeResult>();
         insertPlayQueueItem(PlayQueueItem.fromTrack(123L, "source", "source_version"));
-        expect(count(Table.PLAY_QUEUE.name)).toBe(1);
+        assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
 
         storage.clearAsync().subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).getNumRowsAffected()).toBe(1);
-        expect(count(Table.PLAY_QUEUE.name)).toBe(0);
+        assertThat(observer.getOnNextEvents().size(), is(1));
+        assertThat(observer.getOnNextEvents().get(0).getNumRowsAffected(), is(1));
+        assertThat(select(from(PLAY_QUEUE_TABLE)), isEmpty());
     }
 
     @Test
@@ -72,13 +80,13 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         TestObserver<PlayQueueItem> observer = new TestObserver<PlayQueueItem>();
         final PlayQueueItem expectedItem = PlayQueueItem.fromTrack(123L, "source", "source_version");
         insertPlayQueueItem(expectedItem);
-        expect(count(Table.PLAY_QUEUE.name)).toBe(1);
+        assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
 
         storage.loadAsync().subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents().size(), is(1));
         PlayQueueItem item = observer.getOnNextEvents().get(0);
-        expect(item).toEqual(expectedItem);
+        assertThat(item, is(equalTo(expectedItem)));
     }
 
     private long insertPlayQueueItem(PlayQueueItem playQueueItem) {

@@ -1,24 +1,22 @@
 package com.soundcloud.android.robolectric;
 
 import com.soundcloud.android.storage.DatabaseManager;
-import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.query.WhereBuilder;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
+import com.soundcloud.propeller.test.IntegrationTest;
 import com.xtremelabs.robolectric.Robolectric;
+import org.junit.Rule;
+import org.junit.rules.ExternalResource;
 import rx.schedulers.Schedulers;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 // use as a test base class when writing database integration tests
-public abstract class StorageIntegrationTest {
+public abstract class StorageIntegrationTest extends IntegrationTest {
 
-    private SQLiteDatabase database = new DatabaseManager(Robolectric.application).getWritableDatabase();
-    private PropellerDatabase propeller = new PropellerDatabase(database);
-    private DatabaseHelper helper = new DatabaseHelper(database);
-    private DatabaseScheduler scheduler = new DatabaseScheduler(propeller, Schedulers.immediate());
+    @Rule public final HelperObjectsRule helpers = new HelperObjectsRule();
+
+    private DatabaseHelper helper;
+    private DatabaseScheduler scheduler;
 
     protected DatabaseHelper testHelper() {
         return helper;
@@ -28,36 +26,17 @@ public abstract class StorageIntegrationTest {
         return scheduler;
     }
 
-    protected SQLiteDatabase database() {
-        return database;
+    @Override
+    protected SQLiteDatabase provideDatabase() {
+        return new DatabaseManager(Robolectric.application).getWritableDatabase();
     }
 
-    protected PropellerDatabase propeller() {
-        return propeller;
-    }
-
-    protected boolean exists(String table, Where conditions) {
-        return count(table, conditions) > 0;
-    }
-
-    protected boolean exists(String table) {
-        return exists(table, filter());
-    }
-
-    protected int count(String table, Where conditions) {
-        final Query query = Query.count(table).where((WhereBuilder) conditions);
-        final Cursor cursor = database.rawQuery(query.build(), query.getArguments());
-        if (cursor.moveToNext()) {
-            return cursor.getInt(0);
+    public final class HelperObjectsRule extends ExternalResource {
+        @Override
+        protected void before() throws Throwable {
+            helper = new DatabaseHelper(database());
+            scheduler = new DatabaseScheduler(propeller(), Schedulers.immediate());
         }
-        return -1;
-    }
 
-    protected int count(String table) {
-        return count(table, filter());
-    }
-
-    protected WhereBuilder filter() {
-        return new WhereBuilder();
     }
 }
