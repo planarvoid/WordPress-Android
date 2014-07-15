@@ -11,13 +11,15 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.associations.EngagementsController;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.playback.service.PlaybackStateProvider;
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.views.PlayablePresenter;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.AnimUtils;
@@ -55,17 +57,18 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Inject LegacyPlaylistOperations legacyPlaylistOperations;
     @Inject PlaylistOperations playlistOperations;
     @Inject PlaybackOperations playbackOperations;
-    @Inject PlaybackStateProvider playbackStateProvider;
     @Inject ImageOperations imageOperations;
     @Inject EngagementsController engagementsController;
     @Inject PullToRefreshController pullToRefreshController;
     @Inject PlayQueueManager playQueueManager;
+    @Inject EventBus eventBus;
 
     private ListView listView;
     private View progressView;
 
     private Observable<PublicApiPlaylist> loadPlaylist;
     private Subscription playlistSubscription = Subscriptions.empty();
+    private Subscription eventSubscription = Subscriptions.empty();
 
     private PlayablePresenter playablePresenter;
     private View headerUsernameText;
@@ -102,7 +105,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     PlaylistFragment(PlaylistDetailsController controller,
                      PlaybackOperations playbackOperations,
                      LegacyPlaylistOperations legacyPlaylistOperations,
-                     PlaybackStateProvider playbackStateProvider,
+                     EventBus eventBus,
                      ImageOperations imageOperations,
                      EngagementsController engagementsController,
                      PullToRefreshController pullToRefreshController,
@@ -110,7 +113,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         this.controller = controller;
         this.playbackOperations = playbackOperations;
         this.legacyPlaylistOperations = legacyPlaylistOperations;
-        this.playbackStateProvider = playbackStateProvider;
+        this.eventBus = eventBus;
         this.imageOperations = imageOperations;
         this.engagementsController = engagementsController;
         this.pullToRefreshController = pullToRefreshController;
@@ -170,12 +173,21 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onResume() {
         super.onResume();
-        refreshNowPlayingState();
+
+        eventSubscription = eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED,
+                new DefaultSubscriber<Playa.StateTransition>() {
+            @Override
+            public void onNext(Playa.StateTransition event) {
+                playToggle.setChecked(playQueueManager.isCurrentPlaylist(getPlaylistUrn().numericId)
+                        && event.playSessionIsActive());
+            }
+        });
     }
 
-    private void refreshNowPlayingState() {
-        controller.getAdapter().notifyDataSetChanged();
-        playToggle.setChecked(playQueueManager.isCurrentPlaylist(getPlaylistUrn().numericId) && playbackStateProvider.isSupposedToBePlaying());
+    @Override
+    public void onPause() {
+        eventSubscription.unsubscribe();
+        super.onPause();
     }
 
     @Override

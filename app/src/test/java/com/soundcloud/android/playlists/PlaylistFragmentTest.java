@@ -17,14 +17,18 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.EngagementsController;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -53,11 +57,11 @@ public class PlaylistFragmentTest {
     private PlaylistFragment fragment;
     private FragmentActivity activity = new FragmentActivity();
     private PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
+    private TestEventBus eventBus = new TestEventBus();
 
     @Mock private PlaylistDetailsController controller;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private LegacyPlaylistOperations playlistOperations;
-    @Mock private PlaybackStateProvider playbackStateProvider;
     @Mock private ImageOperations imageOperations;
     @Mock private EngagementsController engagementsController;
     @Mock private ItemAdapter adapter;
@@ -66,7 +70,7 @@ public class PlaylistFragmentTest {
 
     @Before
     public void setUp() throws Exception {
-        fragment = new PlaylistFragment(controller, playbackOperations, playlistOperations, playbackStateProvider,
+        fragment = new PlaylistFragment(controller, playbackOperations, playlistOperations, eventBus,
                 imageOperations, engagementsController, ptrController, playQueueManager);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
@@ -143,13 +147,27 @@ public class PlaylistFragmentTest {
     @Test
     public void shouldSetToggleToPlayStateWhenPlayingCurrentPlaylistOnResume() throws Exception {
         when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(true);
-        when(playbackStateProvider.isSupposedToBePlaying()).thenReturn(true);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET));
 
         View layout = createFragmentView();
         fragment.onResume();
 
         ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
         expect(toggleButton.isChecked()).toBeTrue();
+    }
+
+    @Test
+    public void shouldNotSetToggleToPlayStateWhenPlayingDifferentPlaylistOnResume() throws Exception {
+        when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(false);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET));
+
+        View layout = createFragmentView();
+        fragment.onResume();
+
+        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
+        expect(toggleButton.isChecked()).toBeFalse();
     }
 
     @Test
@@ -335,9 +353,11 @@ public class PlaylistFragmentTest {
     @Test
     public void shouldSetPlayingStateWhenPlaybackStateChanges() throws Exception {
         when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(true);
-        when(playbackStateProvider.isSupposedToBePlaying()).thenReturn(true);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET));
+
         View layout = createFragmentView();
-        fragment.onStart();
+        fragment.onResume();
 
         Robolectric.getShadowApplication().sendBroadcast(new Intent(PlaybackService.Broadcasts.PLAYSTATE_CHANGED));
 
