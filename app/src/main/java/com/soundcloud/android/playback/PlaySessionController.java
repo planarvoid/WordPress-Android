@@ -111,9 +111,7 @@ public class PlaySessionController {
 
                 if (saveQueueAfterTrackChange || (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete())) {
                     if (stateTransition.trackEnded()) {
-                        if (playQueueManager.autoNextTrack()) {
-                            playbackOperations.playCurrent();
-                        } else {
+                        if (!playQueueManager.autoNextTrack()) {
                             eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(currentPlayingUrn));
                         }
                     }
