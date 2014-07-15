@@ -1,7 +1,5 @@
 package com.soundcloud.android.waveform;
 
-import com.soundcloud.android.model.WaveformData;
-
 public class WaveformResult {
     private WaveformData waveformData;
     private Source source;

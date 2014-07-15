@@ -3,7 +3,7 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.storage.provider.Content;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +32,7 @@ public class EmptyViewBuilder {
     }
 
     @Deprecated
-    public EmptyViewBuilder forContent(final Context context, final Uri contentUri, @Nullable final User user) {
+    public EmptyViewBuilder forContent(final Context context, final Uri contentUri, @Nullable final PublicApiUser user) {
 
         switch (Content.match(contentUri)) {
             case ME_SOUND_STREAM:
@@ -131,7 +131,7 @@ public class EmptyViewBuilder {
         emptyView.setSecondaryText(R.string.search_empty_subtext);
     }
 
-    private String getTextForUser(Context context, int userBasedText, @Nullable User user) {
+    private String getTextForUser(Context context, int userBasedText, @Nullable PublicApiUser user) {
         return context.getString(userBasedText,
                 user == null || user.username == null ? context.getString(R.string.this_user)
                         : user.username

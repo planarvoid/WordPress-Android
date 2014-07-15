@@ -3,9 +3,9 @@ package com.soundcloud.android.storage;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes;
 
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserAssociation;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -35,30 +35,30 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
     @Test
     public void shouldQueryForAll() {
         expect(getDAO().queryAll()).toNumber(0);
-        TestHelper.insertAsUserAssociation(new User(TARGET_USER_ID), SoundAssociation.Type.FOLLOWING);
-        TestHelper.insertAsUserAssociation(new User(TARGET_USER_ID), SoundAssociation.Type.FOLLOWER);
+        TestHelper.insertAsUserAssociation(new PublicApiUser(TARGET_USER_ID), SoundAssociation.Type.FOLLOWING);
+        TestHelper.insertAsUserAssociation(new PublicApiUser(TARGET_USER_ID), SoundAssociation.Type.FOLLOWER);
         expect(getDAO().queryAll()).toNumber(2);
     }
 
     @Test
     public void shouldInsertFollowing() {
-        User user = new User(1);
+        PublicApiUser user = new PublicApiUser(1);
         UserAssociation ua = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
-        ua.owner = new User(AbstractDAOTest.OWNER_ID);
+        ua.owner = new PublicApiUser(AbstractDAOTest.OWNER_ID);
         getDAO().create(ua);
 
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
         expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, TableColumns.UserAssociationView._ID, user.getId());
         expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, TableColumns.UserAssociationView.USER_ASSOCIATION_OWNER_ID, AbstractDAOTest.OWNER_ID);
         expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE, CollectionItemTypes.FOLLOWING);
-        expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, TableColumns.UserAssociationView._TYPE, User.TYPE);
+        expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, TableColumns.UserAssociationView._TYPE, PublicApiUser.TYPE);
     }
 
     @Test
     public void shouldInsertFollowingWithAdditionTimestamp() {
-        User user = new User(1);
+        PublicApiUser user = new PublicApiUser(1);
         UserAssociation ua = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
-        ua.owner = new User(AbstractDAOTest.OWNER_ID);
+        ua.owner = new PublicApiUser(AbstractDAOTest.OWNER_ID);
         ua.markForAddition(TOKEN);
         getDAO().create(ua);
 
@@ -72,9 +72,9 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
 
     @Test
     public void shouldInsertFollowingWithRemovalTimestamp() {
-        User user = new User(1);
+        PublicApiUser user = new PublicApiUser(1);
         UserAssociation ua = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
-        ua.owner = new User(AbstractDAOTest.OWNER_ID);
+        ua.owner = new PublicApiUser(AbstractDAOTest.OWNER_ID);
         ua.markForRemoval();
         getDAO().create(ua);
 
@@ -87,22 +87,22 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
 
     @Test
     public void shouldInsertFollower() {
-        User user = new User(1);
+        PublicApiUser user = new PublicApiUser(1);
         UserAssociation ua = new UserAssociation(UserAssociation.Type.FOLLOWER, user);
-        ua.owner = new User(AbstractDAOTest.OWNER_ID);
+        ua.owner = new PublicApiUser(AbstractDAOTest.OWNER_ID);
         getDAO().create(ua);
 
         expect(Content.ME_FOLLOWERS).toHaveCount(1);
         expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, TableColumns.UserAssociationView._ID, user.getId());
         expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, TableColumns.UserAssociationView.USER_ASSOCIATION_OWNER_ID, AbstractDAOTest.OWNER_ID);
         expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE, CollectionItemTypes.FOLLOWER);
-        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, TableColumns.UserAssociationView._TYPE, User.TYPE);
+        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, TableColumns.UserAssociationView._TYPE, PublicApiUser.TYPE);
     }
 
     @Test
     public void shouldRemoveFollowing() {
-        UserAssociation following = TestHelper.insertAsUserAssociation(new User(TARGET_USER_ID), UserAssociation.Type.FOLLOWING);
-        TestHelper.insertAsUserAssociation(new User(123L), SoundAssociation.Type.FOLLOWER);
+        UserAssociation following = TestHelper.insertAsUserAssociation(new PublicApiUser(TARGET_USER_ID), UserAssociation.Type.FOLLOWING);
+        TestHelper.insertAsUserAssociation(new PublicApiUser(123L), SoundAssociation.Type.FOLLOWER);
         expect(Content.ME_FOLLOWERS).toHaveCount(1);
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
         expect(Content.USERS).toHaveCount(2);
@@ -114,8 +114,8 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
 
     @Test
     public void shouldRemoveFollower() {
-        UserAssociation follower = TestHelper.insertAsUserAssociation(new User(TARGET_USER_ID), UserAssociation.Type.FOLLOWER);
-        TestHelper.insertAsUserAssociation(new User(123L), SoundAssociation.Type.FOLLOWING);
+        UserAssociation follower = TestHelper.insertAsUserAssociation(new PublicApiUser(TARGET_USER_ID), UserAssociation.Type.FOLLOWER);
+        TestHelper.insertAsUserAssociation(new PublicApiUser(123L), SoundAssociation.Type.FOLLOWING);
         expect(Content.ME_FOLLOWERS).toHaveCount(1);
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
         expect(Content.USERS).toHaveCount(2);
@@ -126,7 +126,7 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
     }
 
     private void insertUser() {
-        User user = new User(TARGET_USER_ID);
+        PublicApiUser user = new PublicApiUser(TARGET_USER_ID);
         TestHelper.insertWithDependencies(user);
         expect(Content.USERS).toHaveCount(1);
     }

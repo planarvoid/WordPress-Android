@@ -4,11 +4,11 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.api.http.SoundCloudAPIRequest;
-import com.soundcloud.android.model.TrackUrn;
-import com.soundcloud.android.track.TrackWriteStorage;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.SoundCloudAPIRequest;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.tracks.TrackWriteStorage;
 import rx.Observable;
 import rx.functions.Action1;
 
@@ -28,7 +28,7 @@ class AdsOperations {
     private final Action1<AudioAd> cacheAudioAdTrack = new Action1<AudioAd>() {
         @Override
         public void call(AudioAd audioAd) {
-            fireAndForget(trackWriteStorage.storeTrackAsync(audioAd.getTrackSummary()));
+            fireAndForget(trackWriteStorage.storeTrackAsync(audioAd.getApiTrack()));
         }
     };
 

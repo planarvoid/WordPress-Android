@@ -1,10 +1,10 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.LegacyPlayerTrackView;
-import com.soundcloud.android.track.LegacyTrackOperations;
+import com.soundcloud.android.tracks.LegacyTrackOperations;
 import com.soundcloud.android.view.EmptyView;
 
 import android.content.Context;
@@ -70,7 +70,7 @@ public class CommentingPlayerPagerAdapter extends PlayerTrackPagerAdapter<Legacy
     }
 
     @Override
-    protected void setTrackOnPlayerTrackView(Track track, LegacyPlayerTrackView playerTrackView, Integer queuePosition) {
+    protected void setTrackOnPlayerTrackView(PublicApiTrack track, LegacyPlayerTrackView playerTrackView, Integer queuePosition) {
         super.setTrackOnPlayerTrackView(track, playerTrackView, queuePosition);
         playerTrackView.setCommentMode(commentingPosition == queuePosition, false);
     }

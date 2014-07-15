@@ -7,9 +7,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.SoundCloudRxHttpClient;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.UserStorage;
@@ -31,7 +31,7 @@ public class UserOperationsTest {
     @Mock
     private UserStorage userStorage;
     @Mock
-    private Observer<User> userObserver;
+    private Observer<PublicApiUser> userObserver;
 
 
     @Before
@@ -41,8 +41,8 @@ public class UserOperationsTest {
 
     @Test
     public void shouldRefreshTheUserFromTheApiAndPersistToLocalStorage() throws CreateModelException {
-        User currentUser = TestHelper.getModelFactory().createModel(User.class);
-        when(httpClient.<User>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(currentUser));
+        PublicApiUser currentUser = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        when(httpClient.<PublicApiUser>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(currentUser));
 
         userOperations.refreshCurrentUser().subscribe(userObserver);
 

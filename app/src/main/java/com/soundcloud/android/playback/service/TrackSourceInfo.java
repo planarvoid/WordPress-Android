@@ -1,20 +1,19 @@
 package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Objects;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.ScTextUtils;
 
 public class TrackSourceInfo {
 
-    private String originScreen;
-    private boolean userTriggered;
+    private final String originScreen;
+    private final boolean userTriggered;
 
     private String source;
     private String sourceVersion;
 
-    private long playlistId = Playable.NOT_SET;
-    private long playlistOwnerId = User.NOT_SET;
+    private long playlistId = Consts.NOT_SET;
+    private long playlistOwnerId = Consts.NOT_SET;
     private int playlistPosition;
 
     public TrackSourceInfo(String originScreen, boolean userTriggered) {
@@ -27,6 +26,7 @@ public class TrackSourceInfo {
         this.sourceVersion = sourceVersion;
     }
 
+    @Deprecated // use URNs
     public void setOriginPlaylist(long playlistId, int position, long playlistOwnerId) {
         this.playlistId = playlistId;
         this.playlistPosition = position;
@@ -49,6 +49,7 @@ public class TrackSourceInfo {
         return sourceVersion;
     }
 
+    @Deprecated // use URNs
     public long getPlaylistId() {
         return playlistId;
     }
@@ -57,6 +58,7 @@ public class TrackSourceInfo {
         return playlistPosition;
     }
 
+    @Deprecated // use URNs
     public long getPlaylistOwnerId() {
         return playlistOwnerId;
     }
@@ -67,10 +69,6 @@ public class TrackSourceInfo {
 
     public boolean isFromPlaylist(){
         return playlistId > 0;
-    }
-
-    public boolean sharesSameOrigin(TrackSourceInfo trackSourceInfo){
-        return trackSourceInfo != null && trackSourceInfo.getOriginScreen().equals(originScreen);
     }
 
     @Override

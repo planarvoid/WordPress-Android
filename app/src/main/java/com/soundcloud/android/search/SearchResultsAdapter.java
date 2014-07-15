@@ -4,13 +4,13 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
@@ -27,7 +27,7 @@ import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 
-class SearchResultsAdapter extends PagingItemAdapter<ScResource>
+class SearchResultsAdapter extends PagingItemAdapter<PublicApiResource>
         implements FollowingOperations.FollowStatusChangedListener, UserItemPresenter.OnToggleFollowListener {
 
     static final int TYPE_USER = 0;
@@ -45,9 +45,9 @@ class SearchResultsAdapter extends PagingItemAdapter<ScResource>
                          TrackItemPresenter trackPresenter,
                          PlaylistItemPresenter playlistPresenter,
                          FollowingOperations followingOperations, EventBus eventBus) {
-        super(new CellPresenterEntity<ScResource>(TYPE_USER, new PropertySetSourceProxyPresenter(userPresenter, followingOperations)),
-                new CellPresenterEntity<ScResource>(TYPE_TRACK, new PropertySetSourceProxyPresenter(trackPresenter, followingOperations)),
-                new CellPresenterEntity<ScResource>(TYPE_PLAYLIST, new PropertySetSourceProxyPresenter(playlistPresenter, followingOperations)));
+        super(new CellPresenterEntity<PublicApiResource>(TYPE_USER, new PropertySetSourceProxyPresenter(userPresenter, followingOperations)),
+                new CellPresenterEntity<PublicApiResource>(TYPE_TRACK, new PropertySetSourceProxyPresenter(trackPresenter, followingOperations)),
+                new CellPresenterEntity<PublicApiResource>(TYPE_PLAYLIST, new PropertySetSourceProxyPresenter(playlistPresenter, followingOperations)));
         this.eventBus = eventBus;
         this.followingOperations = followingOperations;
         this.trackPresenter = trackPresenter;
@@ -62,12 +62,12 @@ class SearchResultsAdapter extends PagingItemAdapter<ScResource>
         if (itemViewType == IGNORE_ITEM_VIEW_TYPE) {
             return itemViewType;
         } else {
-            final ScResource item = getItem(position);
-            if (item instanceof User) {
+            final PublicApiResource item = getItem(position);
+            if (item instanceof PublicApiUser) {
                 return TYPE_USER;
-            } else if (item instanceof Track) {
+            } else if (item instanceof PublicApiTrack) {
                 return TYPE_TRACK;
-            } else if (item instanceof Playlist) {
+            } else if (item instanceof PublicApiPlaylist) {
                 return TYPE_PLAYLIST;
             } else {
                 throw new IllegalStateException("Unexpected item type in " + SearchResultsAdapter.class.getSimpleName());
@@ -82,7 +82,7 @@ class SearchResultsAdapter extends PagingItemAdapter<ScResource>
 
     @Override
     public void onToggleFollowClicked(int position, ToggleButton toggleButton) {
-        fireAndForget(followingOperations.toggleFollowing((User) getItem(position)));
+        fireAndForget(followingOperations.toggleFollowing((PublicApiUser) getItem(position)));
     }
 
     @Override
@@ -104,9 +104,9 @@ class SearchResultsAdapter extends PagingItemAdapter<ScResource>
     private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableChangedEvent> {
         @Override
         public void onNext(final PlayableChangedEvent event) {
-            final int index = Iterables.indexOf(items, new Predicate<ScResource>() {
+            final int index = Iterables.indexOf(items, new Predicate<PublicApiResource>() {
                 @Override
-                public boolean apply(ScResource item) {
+                public boolean apply(PublicApiResource item) {
                     return item.getUrn().equals(event.getUrn());
                 }
             });

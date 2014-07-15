@@ -2,13 +2,13 @@ package com.soundcloud.android.associations;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.collections.views.IconLayout;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.DrawableSpan;
 import com.soundcloud.android.collections.ListRow;
@@ -47,7 +47,7 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
         icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final User u = getOriginUser();
+                final PublicApiUser u = getOriginUser();
                 if (u == null) return;
 
                 Intent intent = new Intent(getContext(), ProfileActivity.class);
@@ -63,7 +63,7 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
         return activity.getPlayable();
     }
 
-    protected User getOriginUser() {
+    protected PublicApiUser getOriginUser() {
         return (activity == null || activity.getUser() == null) ? null : activity.getUser();
     }
 

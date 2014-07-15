@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.streaming;
 
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 
 import android.os.Bundle;
 

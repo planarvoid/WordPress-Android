@@ -6,9 +6,9 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.provider.Content;
@@ -38,15 +38,15 @@ public class TrackStorageTest {
     @Mock
     ScModelManager modelManager;
     @Mock
-    Observer<Track> observer;
+    Observer<PublicApiTrack> observer;
 
-    Track track;
+    PublicApiTrack track;
 
     @Before
     public void before() throws CreateModelException {
         storage = new TrackStorage(contentResolver, trackDAO, modelManager, Schedulers.immediate());
         modelFactory = TestHelper.getModelFactory();
-        track = modelFactory.createModel(Track.class);
+        track = modelFactory.createModel(PublicApiTrack.class);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class TrackStorageTest {
     @Test
     public void storeTrackCachesFullTrackInModelManager() throws Exception {
         storage.store(track);
-        verify(modelManager).cache(track, ScResource.CacheUpdateMode.FULL);
+        verify(modelManager).cache(track, PublicApiResource.CacheUpdateMode.FULL);
     }
 
     @Test(expected = NotFoundException.class)

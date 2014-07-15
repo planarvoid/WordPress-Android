@@ -5,7 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.creators.record.PlaybackStream;
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;

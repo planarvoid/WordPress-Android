@@ -3,6 +3,8 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
@@ -13,13 +15,11 @@ import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.Storage;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.UserStorage;
-import com.soundcloud.android.model.Connection;
+import com.soundcloud.android.api.legacy.model.Connection;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.activities.Activities;
-import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.api.legacy.model.activities.Activities;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.tasks.FetchUserTask;
@@ -88,7 +88,7 @@ public class ApiSyncer extends SyncStrategy {
                     result = syncMe(c);
                     if (result.success) {
                         resolver.notifyChange(Content.ME.uri, null);
-                        User loggedInUser = accountOperations.getLoggedInUser();
+                        PublicApiUser loggedInUser = accountOperations.getLoggedInUser();
                         eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(loggedInUser));
                     }
                     PreferenceManager.getDefaultSharedPreferences(context)
@@ -118,7 +118,7 @@ public class ApiSyncer extends SyncStrategy {
                 case TRACK:
                 case USER:
                     // sucks, but we'll kick out CP anyway
-                    Storage<? extends ScResource> storage = c == Content.TRACK ? new TrackStorage() : new UserStorage();
+                    Storage<? extends PublicApiResource> storage = c == Content.TRACK ? new TrackStorage() : new UserStorage();
                     result = doResourceFetchAndInsert(uri, storage);
                     break;
 
@@ -161,7 +161,7 @@ public class ApiSyncer extends SyncStrategy {
                 .with("limit", 200)
                 .with("representation", "mini");
 
-        List<SoundAssociation> associations = api.readFullCollection(request, ScResource.ScResourceHolder.class);
+        List<SoundAssociation> associations = api.readFullCollection(request, PublicApiResource.ResourceHolder.class);
         boolean changed = soundAssociationStorage.syncToLocal(associations, uri);
         ApiSyncResult result = new ApiSyncResult(uri);
         result.change = changed ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
@@ -226,7 +226,7 @@ public class ApiSyncer extends SyncStrategy {
 
     private ApiSyncResult syncMe(Content c) throws IOException {
         ApiSyncResult result = new ApiSyncResult(c.uri);
-        User user = new FetchUserTask(api).resolve(c.request());
+        PublicApiUser user = new FetchUserTask(api).resolve(c.request());
         result.synced_at = System.currentTimeMillis();
         if (user != null) {
             userStorage.createOrUpdate(user);
@@ -307,7 +307,7 @@ public class ApiSyncer extends SyncStrategy {
      * @return the result of the operation
      * @throws IOException
      */
-    private <T extends ScResource> ApiSyncResult doResourceFetchAndInsert(Uri contentUri, Storage<T> storage) throws IOException {
+    private <T extends PublicApiResource> ApiSyncResult doResourceFetchAndInsert(Uri contentUri, Storage<T> storage) throws IOException {
         ApiSyncResult result = new ApiSyncResult(contentUri);
         T resource = api.read(Content.match(contentUri).request(contentUri));
 
@@ -341,9 +341,9 @@ public class ApiSyncer extends SyncStrategy {
             HttpUtils.addQueryParams(request, "representation", "compact");
         }
 
-        List<ScResource> resources = api.readFullCollection(request, ScResource.ScResourceHolder.class);
+        List<PublicApiResource> resources = api.readFullCollection(request, PublicApiResource.ResourceHolder.class);
 
-        new BaseDAO<ScResource>(resolver) {
+        new BaseDAO<PublicApiResource>(resolver) {
             @Override
             public Content getContent() {
                 return content;

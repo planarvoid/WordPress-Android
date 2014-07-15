@@ -1,6 +1,6 @@
 package com.soundcloud.android.blueprints;
 
-import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.ads.AudioAd;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Mapped;
@@ -9,6 +9,6 @@ import com.tobedevoured.modelcitizen.annotation.Mapped;
 public class AudioAdBlueprint {
 
     @Mapped
-    TrackSummary trackSummary;
+    ApiTrack apiTrack;
 
 }

@@ -11,14 +11,14 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserUrn;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.rx.ScSchedulers;
@@ -62,7 +62,7 @@ public class AccountOperations extends ScheduledOperations {
     private final EventBus eventBus;
     private final Lazy<AccountCleanupAction> accountCleanupAction;
 
-    private volatile User loggedInUser;
+    private volatile PublicApiUser loggedInUser;
 
     public enum AccountInfoKeys {
         USERNAME("currentUsername"),
@@ -107,10 +107,10 @@ public class AccountOperations extends ScheduledOperations {
      * Returns the logged in user. You should not rely on the return value unless you have checked the user is
      * actually logged in.
      */
-    public User getLoggedInUser() {
+    public PublicApiUser getLoggedInUser() {
         if (loggedInUser == null) {
             // this means we haven't received all user metadata yet, fall back temporarily to a minimal representation
-            User user = new User();
+            PublicApiUser user = new PublicApiUser();
             user.setId(getAccountDataLong(AccountInfoKeys.USER_ID.getKey()));
             user.username = getAccountDataString(AccountInfoKeys.USERNAME.getKey());
             user.permalink = getAccountDataString(AccountInfoKeys.USER_PERMALINK.getKey());
@@ -140,17 +140,17 @@ public class AccountOperations extends ScheduledOperations {
     public void loadLoggedInUser() {
         final long id = getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
         if (id != AccountOperations.NOT_SET) {
-            fireAndForget(userStorage.getUserAsync(id).doOnNext(new Action1<User>() {
+            fireAndForget(userStorage.getUserAsync(id).doOnNext(new Action1<PublicApiUser>() {
                 @Override
-                public void call(User user) {
+                public void call(PublicApiUser user) {
                     updateLoggedInUser(user);
                 }
             }));
         }
     }
 
-    private void updateLoggedInUser(final User user) {
-        loggedInUser = modelManager.cache(user, ScResource.CacheUpdateMode.FULL);
+    private void updateLoggedInUser(final PublicApiUser user) {
+        loggedInUser = modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL);
     }
 
     public void clearLoggedInUser() {
@@ -183,7 +183,7 @@ public class AccountOperations extends ScheduledOperations {
      * @return the new account, or null if account already existed or adding it failed
      */
     @Nullable
-    public Account addOrReplaceSoundCloudAccount(User user, Token token, SignupVia via) {
+    public Account addOrReplaceSoundCloudAccount(PublicApiUser user, Token token, SignupVia via) {
         boolean accountexists = false;
         Account account = getSoundCloudAccount();
         if (account != null) {
@@ -300,7 +300,7 @@ public class AccountOperations extends ScheduledOperations {
         tokenOperations.storeSoundCloudTokenData(getSoundCloudAccount(), token);
     }
 
-    public boolean shouldCheckForConfirmedEmailAddress(User currentUser) {
+    public boolean shouldCheckForConfirmedEmailAddress(PublicApiUser currentUser) {
         boolean alreadyConfirmed = currentUser.isPrimaryEmailConfirmed();
 
         long lastReminded = getAccountDataLong(Consts.PrefKeys.LAST_EMAIL_CONFIRMATION_REMINDER);

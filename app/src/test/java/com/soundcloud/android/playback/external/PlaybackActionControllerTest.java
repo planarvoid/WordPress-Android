@@ -67,6 +67,22 @@ public class PlaybackActionControllerTest {
     }
 
     @Test
+    public void closeActionCallsStopServiceOnPlaybackOperations() throws Exception {
+        controller.handleAction(PlaybackAction.CLOSE, "source");
+
+        verify(playbackOperations).stopService();
+    }
+
+    @Test
+    public void closeActionCallsTracksCloseEventWithSource() throws Exception {
+        controller.handleAction(PlaybackAction.CLOSE, "source");
+
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        expect(event.getAttributes().get("action")).toEqual("close");
+        expect(event.getAttributes().get("location")).toEqual("source");
+    }
+
+    @Test
     public void shouldTrackSkipEventWithSource() {
         controller.handleAction(PlaybackAction.NEXT, "source");
 

@@ -10,9 +10,10 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.api.http.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.associations.CommentAdapter;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -26,9 +27,8 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.ContentStats;
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.api.legacy.model.ContentStats;
+import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.playlists.PlaylistChangedReceiver;
 import com.soundcloud.android.profile.MyTracksAdapter;
 import com.soundcloud.android.properties.Feature;
@@ -406,7 +406,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     private void listenForPlaylistChanges() {
         playlistChangedReceiver = new PlaylistChangedReceiver(adapter);
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Playlist.ACTION_CONTENT_CHANGED);
+        intentFilter.addAction(PublicApiPlaylist.ACTION_CONTENT_CHANGED);
         getActivity().registerReceiver(playlistChangedReceiver, intentFilter);
     }
 

@@ -6,9 +6,9 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -49,7 +49,7 @@ public class AddCommentTaskTest {
     public void shouldSendBroadcastAfterPost() throws Exception {
         Comment c = new Comment();
         c.track_id = 100;
-        SoundCloudApplication.sModelManager.cache(new Track(100l));
+        SoundCloudApplication.sModelManager.cache(new PublicApiTrack(100l));
 
         mockSuccessfulCommentCreation();
         expect(task.execute(c).get()).not.toBeNull();
@@ -69,7 +69,7 @@ public class AddCommentTaskTest {
     public void shouldNotPostCommentWhenException() throws Exception {
         Comment c = new Comment();
         c.track_id = 100;
-        SoundCloudApplication.sModelManager.cache(new Track(100l));
+        SoundCloudApplication.sModelManager.cache(new PublicApiTrack(100l));
         TestHelper.addPendingIOException("/tracks/100/comments");
         expect(task.execute(c).get()).toBeNull();
         expect(findBroadcast(Actions.CONNECTION_ERROR)).not.toBeNull();
@@ -79,7 +79,7 @@ public class AddCommentTaskTest {
     @Test
     public void shouldUseIdFromTrackIfAvailable() throws Exception {
         Comment c = new Comment();
-        c.track = new Track();
+        c.track = new PublicApiTrack();
         c.track.setId(100);
         mockSuccessfulCommentCreation();
         expect(task.execute(c).get()).not.toBeNull();
@@ -94,7 +94,7 @@ public class AddCommentTaskTest {
     @Test
     public void shouldAddCommentToCache() throws Exception {
         Comment c = new Comment();
-        c.track = new Track();
+        c.track = new PublicApiTrack();
         c.track.setId(100);
         SoundCloudApplication.sModelManager.cache(c.track);
 

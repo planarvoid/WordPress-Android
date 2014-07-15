@@ -3,7 +3,7 @@ package com.soundcloud.android.storage;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,13 +17,13 @@ import rx.schedulers.Schedulers;
 public class UserStorageTest {
 
     private UserStorage userStorage;
-    private User user = new User();
+    private PublicApiUser user = new PublicApiUser();
 
     @Mock
     private UserDAO userDAO;
 
     @Mock
-    private Observer<User> observer;
+    private Observer<PublicApiUser> observer;
 
     @Before
     public void setup() {

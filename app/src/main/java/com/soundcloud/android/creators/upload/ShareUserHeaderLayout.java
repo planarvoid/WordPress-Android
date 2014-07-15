@@ -2,10 +2,10 @@ package com.soundcloud.android.creators.upload;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 public class ShareUserHeaderLayout extends RelativeLayout {
 
-    public ShareUserHeaderLayout(final ScActivity activity, User user, ImageOperations imageOperations) {
+    public ShareUserHeaderLayout(final ScActivity activity, PublicApiUser user, ImageOperations imageOperations) {
         super(activity);
         View.inflate(getContext(), R.layout.share_user_header, this);
 

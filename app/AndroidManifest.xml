@@ -397,6 +397,7 @@
                 <action android:name="com.soundcloud.android.playback.external.toggleplayback"/>
                 <action android:name="com.soundcloud.android.playback.external.previous"/>
                 <action android:name="com.soundcloud.android.playback.external.next"/>
+                <action android:name="com.soundcloud.android.playback.external.close"/>
             </intent-filter>
         </receiver>
 

@@ -9,12 +9,10 @@ import static com.soundcloud.android.creators.record.RecordActivity.CreateState.
 
 import com.robotium.solo.Solo;
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.creators.record.reader.VorbisReader;
-import com.soundcloud.android.creators.upload.LocationPickerActivity;
-import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.creators.upload.UploadService;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.preferences.DeveloperPreferences;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
@@ -246,7 +244,8 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         }
     }
 
-    protected @Nullable Track assertSoundTranscoded() {
+    protected @Nullable
+    PublicApiTrack assertSoundTranscoded() {
         // sandbox fails sometimes, only check live system
         if (env == Env.LIVE) {
             Intent intent = waitForIntent(UploadService.TRANSCODING_SUCCESS, TRANSCODING_WAIT_TIME);
@@ -259,7 +258,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
                 }
                 return null;
             }  else {
-                Track track = intent.getParcelableExtra(Track.EXTRA);
+                PublicApiTrack track = intent.getParcelableExtra(PublicApiTrack.EXTRA);
                 assertNotNull("track is null", track);
                 return track;
             }
@@ -294,7 +293,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         }
     }
 
-    protected void assertTrackDuration(Track track, long durationInMs) {
+    protected void assertTrackDuration(PublicApiTrack track, long durationInMs) {
         Log.d(getClass().getSimpleName(), "assertTrack("+track+")");
         if (track != null) {
             assertTrue("track is not finished: "+track, track.isFinished());

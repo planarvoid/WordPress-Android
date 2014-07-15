@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.api.legacy.model.Comment;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;

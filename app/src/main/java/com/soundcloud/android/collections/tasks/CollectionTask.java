@@ -2,7 +2,7 @@ package com.soundcloud.android.collections.tasks;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.tasks.ParallelAsyncTask;
 import com.soundcloud.android.utils.Log;
 

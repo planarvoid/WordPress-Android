@@ -5,18 +5,19 @@ import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTyp
 import static com.soundcloud.android.storage.TableColumns.ActivityView;
 import static com.soundcloud.android.storage.TableColumns.CollectionItems;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
+import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.PlaylistProperty;
-import com.soundcloud.android.model.TrackProperty;
-import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropertySet;
-import com.soundcloud.propeller.Query;
+import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
@@ -46,8 +47,8 @@ class SoundStreamStorage {
                         ActivityView.CREATED_AT,
                         ActivityView.TYPE,
                         ActivityView.USER_USERNAME,
-                        soundAssociationQuery(LIKE, userUrn.numericId, SoundView.USER_LIKE),
-                        soundAssociationQuery(REPOST, userUrn.numericId, SoundView.USER_REPOST)
+                        exists(soundAssociationQuery(LIKE, userUrn.numericId)).as(SoundView.USER_LIKE),
+                        exists(soundAssociationQuery(REPOST, userUrn.numericId)).as(SoundView.USER_REPOST)
                 )
                 .whereEq(ActivityView.CONTENT_ID, Content.ME_SOUND_STREAM.id)
                 .whereLt(ActivityView.CREATED_AT, timestamp)
@@ -64,13 +65,12 @@ class SoundStreamStorage {
         return scheduler.scheduleQuery(query).map(new TrackUrnMapper());
     }
 
-    private Query soundAssociationQuery(int collectionType, long userId, String colName) {
-        Query association = Query.from(Table.COLLECTION_ITEMS.name, Table.SOUNDS.name);
-        association.joinOn(ActivityView.SOUND_ID, CollectionItems.ITEM_ID);
-        association.joinOn(ActivityView.SOUND_TYPE, CollectionItems.RESOURCE_TYPE);
-        association.whereEq(CollectionItems.COLLECTION_TYPE, collectionType);
-        association.whereEq(Table.COLLECTION_ITEMS.name + "." + CollectionItems.USER_ID, userId);
-        return association.exists().as(colName);
+    private Query soundAssociationQuery(int collectionType, long userId) {
+        return Query.from(Table.COLLECTION_ITEMS.name, Table.SOUNDS.name)
+                .joinOn(ActivityView.SOUND_ID, CollectionItems.ITEM_ID)
+                .joinOn(ActivityView.SOUND_TYPE, CollectionItems.RESOURCE_TYPE)
+                .whereEq(CollectionItems.COLLECTION_TYPE, collectionType)
+                .whereEq(Table.COLLECTION_ITEMS.name + "." + CollectionItems.USER_ID, userId);
     }
 
     private static final class TrackUrnMapper extends RxResultMapper<TrackUrn> {

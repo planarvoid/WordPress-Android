@@ -2,7 +2,7 @@ package com.soundcloud.android.storage;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
@@ -13,7 +13,7 @@ import android.net.Uri;
 
 import javax.inject.Inject;
 
-public class UserStorage extends ScheduledOperations implements Storage<User> {
+public class UserStorage extends ScheduledOperations implements Storage<PublicApiUser> {
     private UserDAO userDAO;
 
     @Deprecated // use @Inject instead
@@ -33,52 +33,52 @@ public class UserStorage extends ScheduledOperations implements Storage<User> {
     }
 
     @Override
-    public User store(User user) {
+    public PublicApiUser store(PublicApiUser user) {
         userDAO.create(user.buildContentValues());
         return user;
     }
 
     @Override
-    public Observable<User> storeAsync(final User user) {
-        return schedule(Observable.create(new Observable.OnSubscribe<User>() {
+    public Observable<PublicApiUser> storeAsync(final PublicApiUser user) {
+        return schedule(Observable.create(new Observable.OnSubscribe<PublicApiUser>() {
             @Override
-            public void call(Subscriber<? super User> observer) {
+            public void call(Subscriber<? super PublicApiUser> observer) {
                 observer.onNext(store(user));
                 observer.onCompleted();
             }
         }));
     }
 
-    public User createOrUpdate(User user) {
+    public PublicApiUser createOrUpdate(PublicApiUser user) {
         userDAO.createOrUpdate(user.getId(), user.buildContentValues());
         return user;
     }
 
-    public Observable<User> createOrUpdateAsync(final User user) {
-        return schedule(Observable.create(new Observable.OnSubscribe<User>() {
+    public Observable<PublicApiUser> createOrUpdateAsync(final PublicApiUser user) {
+        return schedule(Observable.create(new Observable.OnSubscribe<PublicApiUser>() {
             @Override
-            public void call(Subscriber<? super User> observer) {
+            public void call(Subscriber<? super PublicApiUser> observer) {
                 observer.onNext(createOrUpdate(user));
                 observer.onCompleted();
             }
         }));
     }
 
-    public Observable<User> getUserAsync(final long id) {
-        return schedule(Observable.create(new Observable.OnSubscribe<User>() {
+    public Observable<PublicApiUser> getUserAsync(final long id) {
+        return schedule(Observable.create(new Observable.OnSubscribe<PublicApiUser>() {
             @Override
-            public void call(Subscriber<? super User> subscriber) {
+            public void call(Subscriber<? super PublicApiUser> subscriber) {
                 subscriber.onNext(getUser(id));
                 subscriber.onCompleted();
             }
         }));
     }
 
-    public User getUser(long id) {
+    public PublicApiUser getUser(long id) {
         return userDAO.queryById(id);
     }
 
-    public User getUserByUri(Uri uri) {
+    public PublicApiUser getUserByUri(Uri uri) {
         return userDAO.queryByUri(uri);
     }
 

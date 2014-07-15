@@ -2,10 +2,10 @@ package com.soundcloud.android.storage;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +36,7 @@ public class CollectionStorage {
      */
     @Deprecated
     public Set<Long> getStoredIds(final Content content, List<Long> ids) {
-        BaseDAO<ScResource> dao = getDaoForContent(content);
+        BaseDAO<PublicApiResource> dao = getDaoForContent(content);
         Set<Long> storedIds = new HashSet<Long>();
         for (int i=0; i < ids.size(); i += BaseDAO.RESOLVER_BATCH_SIZE) {
             List<Long> batch = ids.subList(i, Math.min(i + BaseDAO.RESOLVER_BATCH_SIZE, ids.size()));
@@ -77,7 +77,7 @@ public class CollectionStorage {
 
     // TODO really pass in api as parameter?
     @Deprecated
-    private List<ScResource> fetchMissingCollectionItems(PublicCloudAPI api,
+    private List<PublicApiResource> fetchMissingCollectionItems(PublicCloudAPI api,
                                                         @NotNull List<Long> modelIds,
                                                         final Content content,
                                                         boolean ignoreStored) throws IOException {
@@ -90,14 +90,14 @@ public class CollectionStorage {
             ids.removeAll(getStoredIds(content, modelIds));
         }
         // TODO this has to be abstracted more. Hesitant to do so until the api is more final
-        Request request = Track.class.equals(content.modelType) ||
+        Request request = PublicApiTrack.class.equals(content.modelType) ||
                SoundAssociation.class.equals(content.modelType) ? Content.TRACKS.request() : Content.USERS.request();
 
         return api.readListFromIds(request, ids);
     }
 
-    private BaseDAO<ScResource> getDaoForContent(final Content content) {
-        return new BaseDAO<ScResource>(resolver) {
+    private BaseDAO<PublicApiResource> getDaoForContent(final Content content) {
+        return new BaseDAO<PublicApiResource>(resolver) {
             @Override
             public Content getContent() {
                 return content;

@@ -2,7 +2,7 @@ package com.soundcloud.android.experiments;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.api.http.json.JsonTransformer;
+import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.ErrorUtils;

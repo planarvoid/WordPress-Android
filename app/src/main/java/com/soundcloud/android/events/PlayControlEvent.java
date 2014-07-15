@@ -75,6 +75,13 @@ public final class PlayControlEvent {
                 .putAttribute("location", source);
     }
 
+    public static PlayControlEvent close(String source) {
+        return new PlayControlEvent()
+                .putAttribute("action", "close")
+                .putAttribute("click or swipe", "click")
+                .putAttribute("location", source);
+    }
+
     public static PlayControlEvent play(String source) {
         return toggle(source, false);
     }

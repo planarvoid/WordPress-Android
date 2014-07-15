@@ -1,7 +1,6 @@
 package com.soundcloud.android.waveform;
 
-import com.soundcloud.android.model.TrackUrn;
-import com.soundcloud.android.model.WaveformData;
+import com.soundcloud.android.tracks.TrackUrn;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;

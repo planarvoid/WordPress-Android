@@ -4,19 +4,19 @@ import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
 import com.google.common.collect.Maps;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.LegacyTrackOperations;
+import com.soundcloud.android.tracks.LegacyTrackOperations;
 import dagger.Lazy;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -46,7 +46,7 @@ public class PlaySessionController {
     private StateTransition lastStateTransition = StateTransition.DEFAULT;
 
     private TrackUrn currentPlayingUrn; // the track that is currently loaded in the playback service
-    private Track currentPlayQueueTrack; // the track that is currently set in the queue
+    private PublicApiTrack currentPlayQueueTrack; // the track that is currently set in the queue
 
     private final Map<TrackUrn, PlaybackProgress> progressMap = Maps.newHashMap();
 
@@ -69,7 +69,7 @@ public class PlaySessionController {
         eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber());
     }
 
-    public boolean isPlayingTrack(Track track) {
+    public boolean isPlayingTrack(PublicApiTrack track) {
         return isPlayingTrack(track.getUrn());
     }
 
@@ -147,9 +147,9 @@ public class PlaySessionController {
         }
     }
 
-    private final class CurrentTrackSubscriber extends DefaultSubscriber<Track> {
+    private final class CurrentTrackSubscriber extends DefaultSubscriber<PublicApiTrack> {
         @Override
-        public void onNext(Track track) {
+        public void onNext(PublicApiTrack track) {
             currentPlayQueueTrack = track;
             updateRemoteAudioManager();
         }

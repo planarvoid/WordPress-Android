@@ -2,7 +2,7 @@ package com.soundcloud.android.search;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
-import com.soundcloud.android.model.PlaylistTagsCollection;
+import com.soundcloud.android.playlists.PlaylistTagsCollection;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.ScTextUtils;

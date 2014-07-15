@@ -3,8 +3,8 @@ package com.soundcloud.android.events;
 import static com.soundcloud.android.Expect.expect;
 import static org.junit.Assert.assertEquals;
 
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +34,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromLikedTrack() throws Exception {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", new Track(30));
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", new PublicApiTrack(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 2);
         assertEquals(uiEventAttributes.get("context"), "screen");
@@ -44,7 +44,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromLikedPlaylist() throws Exception {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", new Playlist(30));
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", new PublicApiPlaylist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 2);
         assertEquals(uiEventAttributes.get("context"), "screen");
@@ -54,7 +54,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromUnlikedTrack() throws Exception {
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", new Track(30));
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", new PublicApiTrack(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 3);
         assertEquals(uiEventAttributes.get("context"), "screen");
@@ -64,7 +64,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromUnlikedPlaylist() throws Exception {
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", new Playlist(30));
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", new PublicApiPlaylist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 3);
         assertEquals(uiEventAttributes.get("context"), "screen");
@@ -74,7 +74,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromRepostedTrack() throws Exception {
-        UIEvent uiEvent = UIEvent.fromToggleRepost(true, "screen", new Track(30));
+        UIEvent uiEvent = UIEvent.fromToggleRepost(true, "screen", new PublicApiTrack(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 4);
         assertEquals(uiEventAttributes.get("context"), "screen");
@@ -84,7 +84,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromRepostedPlaylist() throws Exception {
-        UIEvent uiEvent = UIEvent.fromToggleRepost(true, "screen", new Playlist(30));
+        UIEvent uiEvent = UIEvent.fromToggleRepost(true, "screen", new PublicApiPlaylist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 4);
         assertEquals(uiEventAttributes.get("context"), "screen");
@@ -94,7 +94,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromUnrepostedTrack() throws Exception {
-        UIEvent uiEvent = UIEvent.fromToggleRepost(false, "screen", new Track(30));
+        UIEvent uiEvent = UIEvent.fromToggleRepost(false, "screen", new PublicApiTrack(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 5);
         assertEquals(uiEventAttributes.get("context"), "screen");
@@ -104,7 +104,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromUnrepostedPlaylist() throws Exception {
-        UIEvent uiEvent = UIEvent.fromToggleRepost(false, "screen", new Playlist(30));
+        UIEvent uiEvent = UIEvent.fromToggleRepost(false, "screen", new PublicApiPlaylist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 5);
         assertEquals(uiEventAttributes.get("context"), "screen");
@@ -143,7 +143,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromTrackShare() throws Exception {
-        UIEvent uiEvent = UIEvent.fromShare("screen", new Track(30));
+        UIEvent uiEvent = UIEvent.fromShare("screen", new PublicApiTrack(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 8);
         assertEquals(uiEventAttributes.get("context"), "screen");
@@ -153,7 +153,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromPlaylistShare() throws Exception {
-        UIEvent uiEvent = UIEvent.fromShare("screen", new Playlist(30));
+        UIEvent uiEvent = UIEvent.fromShare("screen", new PublicApiPlaylist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         assertEquals(uiEvent.getKind(), 8);
         assertEquals(uiEventAttributes.get("context"), "screen");

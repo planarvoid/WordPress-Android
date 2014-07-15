@@ -8,16 +8,16 @@ import static com.soundcloud.android.robolectric.TestHelper.getActivities;
 import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.storage.ActivitiesStorage;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Shortcut;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackHolder;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.activities.Activities;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.api.legacy.model.Shortcut;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.api.legacy.model.TrackHolder;
+import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TableColumns;
@@ -71,7 +71,7 @@ public class ScContentProviderTest {
     public void shouldCleanupTracks() throws Exception {
         TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
         int i = 0;
-        for (Track t : tracks) {
+        for (PublicApiTrack t : tracks) {
             TestHelper.insertAsSoundAssociation(t, i < tracks.size() / 2 ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.TRACK_REPOST);
             i++;
         }
@@ -79,7 +79,7 @@ public class ScContentProviderTest {
         expect(Content.TRACKS).toHaveCount(15);
         expect(Content.USERS).toHaveCount(14);
 
-        Playlist playlist  = readJson(Playlist.class, "/com/soundcloud/android/sync/playlist.json");
+        PublicApiPlaylist playlist  = readJson(PublicApiPlaylist.class, "/com/soundcloud/android/sync/playlist.json");
         TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_LIKE);
 
         expect(Content.TRACKS).toHaveCount(56); // added 41 from playlist
@@ -107,14 +107,14 @@ public class ScContentProviderTest {
     public void shouldCleanupPlaylist() throws Exception {
         TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
         int i = 0;
-        for (Track t : tracks) {
+        for (PublicApiTrack t : tracks) {
             TestHelper.insertAsSoundAssociation(t, i < tracks.size() / 2 ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.TRACK_REPOST);
             i++;
         }
         expect(Content.TRACKS).toHaveCount(15);
         expect(Content.USERS).toHaveCount(14);
 
-        Playlist playlist = readJson(Playlist.class, "/com/soundcloud/android/sync/playlist.json");
+        PublicApiPlaylist playlist = readJson(PublicApiPlaylist.class, "/com/soundcloud/android/sync/playlist.json");
         TestHelper.insertWithDependencies(playlist);
 
         expect(Content.TRACKS).toHaveCount(56); // added 41 from playlist
@@ -163,7 +163,7 @@ public class ScContentProviderTest {
 
         expect(Content.TRACK).toHaveCount(20);
         expect(Content.USERS).toHaveCount(11);
-        Track t = SoundCloudApplication.sModelManager.getTrack(61350393l);
+        PublicApiTrack t = SoundCloudApplication.sModelManager.getTrack(61350393l);
 
         expect(t).not.toBeNull();
         expect(t.user.permalink).toEqual("westafricademocracyradio");
@@ -251,7 +251,7 @@ public class ScContentProviderTest {
     public void shouldHaveATracksEndpointWithRandom() throws Exception {
         TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
 
-        for (Track t : tracks) {
+        for (PublicApiTrack t : tracks) {
             expect(TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE)).not.toBeNull();
         }
         Cursor c = resolver.query(Content.TRACK.withQuery(RANDOM, "0"), null, null, null, null);
@@ -272,7 +272,7 @@ public class ScContentProviderTest {
     @Test
     public void shouldHaveATracksEndpointWhichReturnsOnlyCachedItems() throws Exception {
         TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
-        for (Track t : tracks) {
+        for (PublicApiTrack t : tracks) {
             expect(TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE)).not.toBeNull();
         }
 
@@ -291,8 +291,8 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveFavoriteEndpointWhichOnlyReturnsCachedItems() throws Exception {
-        List<Track> tracks = TestHelper.readResourceList("/com/soundcloud/android/storage/provider/user_favorites.json");
-        for (Track t : tracks) {
+        List<PublicApiTrack> tracks = TestHelper.readResourceList("/com/soundcloud/android/storage/provider/user_favorites.json");
+        for (PublicApiTrack t : tracks) {
             expect(TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE)).not.toBeNull();
         }
 
@@ -313,7 +313,7 @@ public class ScContentProviderTest {
     public void shouldHaveFavoriteEndpointWhichReturnsRandomItems() throws Exception {
         TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
 
-        for (Track t : tracks) {
+        for (PublicApiTrack t : tracks) {
             expect(TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE)).not.toBeNull();
         }
 
@@ -431,14 +431,14 @@ public class ScContentProviderTest {
         expect(Content.USERS).toHaveCount(318);
         expect(Content.TRACKS).toHaveCount(143);
 
-        User u = TestHelper.loadLocalContentItem(Content.USERS.uri, User.class, "_id = 9");
+        PublicApiUser u = TestHelper.loadLocalContentItem(Content.USERS.uri, PublicApiUser.class, "_id = 9");
 
         expect(u).not.toBeNull();
         expect(u.username).toEqual("Katharina");
         expect(u.avatar_url).toEqual("https://i1.sndcdn.com/avatars-000013690441-hohfv1-tiny.jpg?2479809");
         expect(u.permalink_url).toEqual("http://soundcloud.com/katharina");
 
-        Track t = TestHelper.loadLocalContent(new Track(64629168).toUri(), Track.class).get(0);
+        PublicApiTrack t = TestHelper.loadLocalContent(new PublicApiTrack(64629168).toUri(), PublicApiTrack.class).get(0);
         expect(t).not.toBeNull();
         expect(t.title).toEqual("Halls - Roses For The Dead (Max Cooper remix)");
         expect(t.artwork_url).toEqual("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809");
@@ -467,8 +467,8 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldSupportLimitParameter() {
-        TestHelper.insertWithDependencies(Content.TRACKS.uri, new Track(1));
-        TestHelper.insertWithDependencies(Content.TRACKS.uri, new Track(2));
+        TestHelper.insertWithDependencies(Content.TRACKS.uri, new PublicApiTrack(1));
+        TestHelper.insertWithDependencies(Content.TRACKS.uri, new PublicApiTrack(2));
 
         expect(Content.TRACKS).toHaveCount(2);
 
@@ -482,9 +482,9 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldSupportOffsetParameter() {
-        TestHelper.insertWithDependencies(Content.TRACKS.uri, new Track(1));
-        TestHelper.insertWithDependencies(Content.TRACKS.uri, new Track(2));
-        TestHelper.insertWithDependencies(Content.TRACKS.uri, new Track(3));
+        TestHelper.insertWithDependencies(Content.TRACKS.uri, new PublicApiTrack(1));
+        TestHelper.insertWithDependencies(Content.TRACKS.uri, new PublicApiTrack(2));
+        TestHelper.insertWithDependencies(Content.TRACKS.uri, new PublicApiTrack(3));
 
         expect(Content.TRACKS).toHaveCount(3);
 

@@ -2,9 +2,9 @@ package com.soundcloud.android.events;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.UserUrn;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;

@@ -3,14 +3,14 @@ package com.soundcloud.android.sync.content;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.api.TempEndpoints;
-import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.TempEndpoints;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.playlists.PlaylistApiCreateObject;
 import com.soundcloud.android.playlists.PlaylistApiUpdateObject;
 import com.soundcloud.android.storage.PlaylistStorage;
@@ -53,19 +53,19 @@ class PlaylistSyncHelper {
     /* package */
     public int pushLocalPlaylists(Context context, PublicCloudAPI api, SyncStateManager syncStateManager) throws IOException {
         // check for local playlists that need to be pushed
-        List<Playlist> playlistsToUpload = playlistStorage.getLocalPlaylists();
+        List<PublicApiPlaylist> playlistsToUpload = playlistStorage.getLocalPlaylists();
 
-        for (Playlist p : playlistsToUpload) {
+        for (PublicApiPlaylist p : playlistsToUpload) {
             Uri toDelete = p.toUri();
 
             final String content = getApiCreateJson(p);
             Log.d(ApiSyncService.LOG_TAG, "Pushing new playlist to api: " + content);
 
             Request r = Request.to(TempEndpoints.PLAYLISTS).withContent(content, "application/json");
-            Playlist playlist;
-            final ScResource result = api.create(r);
-            if (result instanceof Playlist) {
-                playlist = (Playlist) result;
+            PublicApiPlaylist playlist;
+            final PublicApiResource result = api.create(r);
+            if (result instanceof PublicApiPlaylist) {
+                playlist = (PublicApiPlaylist) result;
             } else {
                 // Debugging. Return objects sometimes are not playlists. Need to log this to get more info about the cause of this
                 SoundCloudApplication.handleSilentException("Error adding new playlist " + p, new PlaylistUpdateException(content));
@@ -73,7 +73,7 @@ class PlaylistSyncHelper {
             }
 
             // update local state
-            p.updateFrom(playlist, ScResource.CacheUpdateMode.FULL);
+            p.updateFrom(playlist, PublicApiResource.CacheUpdateMode.FULL);
             modelManager.removeFromCache(toDelete);
 
             playlistStorage.store(playlist);
@@ -92,15 +92,15 @@ class PlaylistSyncHelper {
         final Request request = Request.to(Content.ME_PLAYLISTS.remoteUri)
                 .add("representation", "compact").with("limit", 200);
 
-        List<ScResource> resources = api.readFullCollection(request, ScResource.ScResourceHolder.class);
+        List<PublicApiResource> resources = api.readFullCollection(request, PublicApiResource.ResourceHolder.class);
 
         // manually build the sound association holder
         List<SoundAssociation> associations = new ArrayList<SoundAssociation>();
-        for (ScResource resource : resources) {
-            Playlist playlist = (Playlist) resource;
+        for (PublicApiResource resource : resources) {
+            PublicApiPlaylist playlist = (PublicApiPlaylist) resource;
 
             // update metadata in MM with mini mode to avoid overwriting local tracks
-            modelManager.cache(playlist, ScResource.CacheUpdateMode.MINI);
+            modelManager.cache(playlist, PublicApiResource.CacheUpdateMode.MINI);
             associations.add(new SoundAssociation(playlist));
 
             final List<Long> trackIds = playlistStorage.getPlaylistTrackIds(playlist.getId());
@@ -125,7 +125,7 @@ class PlaylistSyncHelper {
         return result;
     }
 
-    public String getApiCreateJson(Playlist playlist) throws JsonProcessingException {
+    public String getApiCreateJson(PublicApiPlaylist playlist) throws JsonProcessingException {
         PlaylistApiCreateObject createObject = new PlaylistApiCreateObject(playlist);
 
         if (createObject.tracks.isEmpty()) {
@@ -153,19 +153,19 @@ class PlaylistSyncHelper {
      * @return
      * @throws IOException
      */
-    public Playlist syncPlaylist(Uri playlistUri, /** inject this **/PublicCloudAPI apiWrapper) throws IOException {
-        final Playlist playlist = resolvePlaylistWithAdditions(playlistUri, apiWrapper);
-        modelManager.cache(playlist, ScResource.CacheUpdateMode.FULL);
+    public PublicApiPlaylist syncPlaylist(Uri playlistUri, /** inject this **/PublicCloudAPI apiWrapper) throws IOException {
+        final PublicApiPlaylist playlist = resolvePlaylistWithAdditions(playlistUri, apiWrapper);
+        modelManager.cache(playlist, PublicApiResource.CacheUpdateMode.FULL);
         return playlistStorage.store(playlist);
     }
 
-    private Playlist resolvePlaylistWithAdditions(Uri playlistUri, /** inject this **/PublicCloudAPI apiWrapper) throws IOException {
-        Playlist playlist = safeFetchPlaylist(apiWrapper, playlistUri);
+    private PublicApiPlaylist resolvePlaylistWithAdditions(Uri playlistUri, /** inject this **/PublicCloudAPI apiWrapper) throws IOException {
+        PublicApiPlaylist playlist = safeFetchPlaylist(apiWrapper, playlistUri);
 
         List<Long> unpushedTracks = playlistStorage.getUnpushedTracksForPlaylist(playlist.getId());
         if (!unpushedTracks.isEmpty()) {
             Set<Long> toAdd = new LinkedHashSet<Long>(unpushedTracks.size());
-            for (Track t : playlist.getTracks()) {
+            for (PublicApiTrack t : playlist.getTracks()) {
                 toAdd.add(t.getId());
             }
             toAdd.addAll(unpushedTracks);
@@ -174,9 +174,9 @@ class PlaylistSyncHelper {
             Log.d(ApiSyncService.LOG_TAG, "Pushing new playlist content to api: " + content);
 
             Request r = Content.PLAYLIST.request(playlistUri).withContent(content, "application/json");
-            final ScResource scResource = apiWrapper.update(r);
-            if (scResource instanceof Playlist){
-                return (Playlist) scResource;
+            final PublicApiResource scResource = apiWrapper.update(r);
+            if (scResource instanceof PublicApiPlaylist){
+                return (PublicApiPlaylist) scResource;
             } else {
                 // Debugging. Return objects sometimes are not playlists. In this case the user will lose addition.
                 // This is an edge case so I think its acceptable until we can figure out the root of the problem [JS]
@@ -187,10 +187,10 @@ class PlaylistSyncHelper {
         return playlist;
     }
 
-    private Playlist safeFetchPlaylist(PublicCloudAPI apiWrapper, Uri playlistUri) throws IOException {
-        ScResource scResource = apiWrapper.read(Content.match(playlistUri).request(playlistUri));
-        if (scResource instanceof Playlist){
-            return (Playlist) scResource;
+    private PublicApiPlaylist safeFetchPlaylist(PublicCloudAPI apiWrapper, Uri playlistUri) throws IOException {
+        PublicApiResource scResource = apiWrapper.read(Content.match(playlistUri).request(playlistUri));
+        if (scResource instanceof PublicApiPlaylist){
+            return (PublicApiPlaylist) scResource;
         } else {
             // log for debugging and throw
             final UnknownResourceException exception = new UnknownResourceException(playlistUri);

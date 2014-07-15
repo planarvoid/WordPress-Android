@@ -3,13 +3,13 @@ package com.soundcloud.android.collections;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.Shortcut;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.activities.TrackActivity;
-import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.android.api.legacy.model.Shortcut;
+import com.soundcloud.android.api.legacy.model.activities.TrackActivity;
+import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -28,11 +28,11 @@ import java.util.List;
 @RunWith(DefaultTestRunner.class)
 public class ScBaseAdapterTest {
 
-    private ScBaseAdapter<User> adapter;
+    private ScBaseAdapter<PublicApiUser> adapter;
 
     @Before
     public void setup() throws Exception {
-        adapter = new ScBaseAdapter<User>(Content.USER.uri) {
+        adapter = new ScBaseAdapter<PublicApiUser>(Content.USER.uri) {
             @Override
             protected IconLayout createRow(Context context, int position, ViewGroup parent) {
                 return null;
@@ -56,7 +56,7 @@ public class ScBaseAdapterTest {
         List<ScModel> staleModels = new LinkedList<ScModel>();
 
         // tracks
-        staleModels.add(new Track(1) {
+        staleModels.add(new PublicApiTrack(1) {
             @Override
             public boolean isStale() {
                 return true;
@@ -70,10 +70,10 @@ public class ScBaseAdapterTest {
 
             @Override
             public Refreshable getRefreshableResource() {
-                return new Track(2);
+                return new PublicApiTrack(2);
             }
         });
-        staleModels.add(new Track(3) {
+        staleModels.add(new PublicApiTrack(3) {
             @Override
             public boolean isStale() {
                 return false; // not stale, should not appear
@@ -85,7 +85,7 @@ public class ScBaseAdapterTest {
         });
 
         // users
-        staleModels.add(new User(1) {
+        staleModels.add(new PublicApiUser(1) {
             @Override
             public boolean isStale() {
                 return true;
@@ -93,7 +93,7 @@ public class ScBaseAdapterTest {
         });
 
         // playlists
-        staleModels.add(new Playlist(1) {
+        staleModels.add(new PublicApiPlaylist(1) {
             @Override
             public boolean isStale() {
                 return true;

@@ -1,7 +1,7 @@
 package com.soundcloud.android.creators.upload;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Connection;
+import com.soundcloud.android.api.legacy.model.Connection;
 
 import android.content.Context;
 import android.graphics.Color;

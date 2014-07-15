@@ -4,12 +4,12 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.DeprecatedRecordingProfile;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.DeprecatedRecordingProfile;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
@@ -335,9 +335,9 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
                     case RECORD:
                         recorder.stopRecording();
                         // XXX use prefs
-                        if (accountOperations.getAccountDataBoolean(User.DataKeys.SEEN_CREATE_AUTOSAVE)) {
+                        if (accountOperations.getAccountDataBoolean(PublicApiUser.DataKeys.SEEN_CREATE_AUTOSAVE)) {
                             showToast(R.string.create_autosave_message);
-                            accountOperations.setAccountData(User.DataKeys.SEEN_CREATE_AUTOSAVE, Boolean.TRUE.toString());
+                            accountOperations.setAccountData(PublicApiUser.DataKeys.SEEN_CREATE_AUTOSAVE, Boolean.TRUE.toString());
                         }
                         break;
                 }

@@ -12,16 +12,16 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Sharing;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.UnknownResource;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.CollectionHolder;
+import com.soundcloud.android.api.legacy.model.LocalCollection;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.PlaylistStorage;
 import com.soundcloud.android.storage.SoundAssociationStorage;
@@ -76,12 +76,12 @@ public class PlaylistSyncHelperTest {
     @Mock
     private Context context;
     @Mock
-    private Playlist playlist;
+    private PublicApiPlaylist playlist;
     @Mock
     private LocalCollection localCollection;
 
-    private Playlist remotePlaylist = new Playlist(123L);
-    private Track remoteTrack = new Track(123L);
+    private PublicApiPlaylist remotePlaylist = new PublicApiPlaylist(123L);
+    private PublicApiTrack remoteTrack = new PublicApiTrack(123L);
 
     @Before
     public void setup() throws IOException {
@@ -90,12 +90,12 @@ public class PlaylistSyncHelperTest {
         when(playlist.getTitle()).thenReturn("Skrillex goes to Deleware");
         when(playlist.getSharing()).thenReturn(Sharing.PRIVATE);
 
-        Observable<Playlist> storageObservable = Observable.from(playlist);
+        Observable<PublicApiPlaylist> storageObservable = Observable.from(playlist);
         when(playlistStorage.loadPlaylistAsync(123L)).thenReturn(storageObservable);
         when(playlistStorage.store(playlist)).thenReturn(playlist);
 
         when(publicCloudAPI.readList(argThat(isLegacyRequestToUrl("/playlists/123/tracks"))))
-                        .thenReturn(Lists.<ScResource>newArrayList(remoteTrack));
+                        .thenReturn(Lists.<PublicApiResource>newArrayList(remoteTrack));
 
         when(syncStateManager.fromContent(Matchers.<Uri>any())).thenReturn(localCollection);
     }
@@ -104,8 +104,8 @@ public class PlaylistSyncHelperTest {
     public void syncMePlaylistsShouldPostLocalPlaylistToApi() throws Exception {
         when(publicCloudAPI.readFullCollection(
                         argThat(isLegacyRequestToUrl("/me/playlists?representation=compact&limit=200")),
-                        Matchers.<Class<CollectionHolder<Playlist>>>any())
-        ).thenReturn(Collections.<Playlist>emptyList());
+                        Matchers.<Class<CollectionHolder<PublicApiPlaylist>>>any())
+        ).thenReturn(Collections.<PublicApiPlaylist>emptyList());
 
         when(playlistStorage.getLocalPlaylists()).thenReturn(Lists.newArrayList(playlist));
         playlistSyncHelper.pushLocalPlaylists(context, publicCloudAPI, syncStateManager);
@@ -126,8 +126,8 @@ public class PlaylistSyncHelperTest {
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(publicCloudAPI.readFullCollection(
                         argThat(isLegacyRequestToUrl("/me/playlists?representation=compact&limit=200")),
-                        Matchers.<Class<CollectionHolder<Playlist>>>any())
-        ).thenReturn(Collections.<Playlist>emptyList());
+                        Matchers.<Class<CollectionHolder<PublicApiPlaylist>>>any())
+        ).thenReturn(Collections.<PublicApiPlaylist>emptyList());
 
         when(playlistStorage.getLocalPlaylists()).thenReturn(Lists.newArrayList(playlist));
 
@@ -138,7 +138,7 @@ public class PlaylistSyncHelperTest {
         when(publicCloudAPI.create(any(Request.class))).thenReturn(apiPlaylist);
         playlistSyncHelper.pushLocalPlaylists(context, publicCloudAPI, syncStateManager);
 
-        verify(playlist, never()).updateFrom(any(Playlist.class), any(ScResource.CacheUpdateMode.class));
+        verify(playlist, never()).updateFrom(any(PublicApiPlaylist.class), any(PublicApiResource.CacheUpdateMode.class));
         verify(modelManager, never()).removeFromCache(oldPlaylistUri);
         verify(playlistStorage, never()).removePlaylist(oldPlaylistUri);
     }
@@ -148,21 +148,21 @@ public class PlaylistSyncHelperTest {
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(publicCloudAPI.readFullCollection(
                         argThat(isLegacyRequestToUrl("/me/playlists?representation=compact&limit=200")),
-                        Matchers.<Class<CollectionHolder<Playlist>>>any())
-        ).thenReturn(Collections.<Playlist>emptyList());
+                        Matchers.<Class<CollectionHolder<PublicApiPlaylist>>>any())
+        ).thenReturn(Collections.<PublicApiPlaylist>emptyList());
 
         when(playlistStorage.getLocalPlaylists()).thenReturn(Lists.newArrayList(playlist));
 
         final Uri oldPlaylistUri = Uri.parse("/old/playlist/uri");
         when(playlist.toUri()).thenReturn(oldPlaylistUri);
 
-        final Playlist apiPlaylist = Mockito.mock(Playlist.class);
+        final PublicApiPlaylist apiPlaylist = Mockito.mock(PublicApiPlaylist.class);
         when(publicCloudAPI.create(any(Request.class))).thenReturn(apiPlaylist);
         playlistSyncHelper.pushLocalPlaylists(context, publicCloudAPI, syncStateManager);
 
         InOrder inOrder = Mockito.inOrder(playlist, modelManager, playlistStorage, soundAssociationStorage, syncStateManager, playlistStorage);
 
-        inOrder.verify(playlist).updateFrom(apiPlaylist, ScResource.CacheUpdateMode.FULL);
+        inOrder.verify(playlist).updateFrom(apiPlaylist, PublicApiResource.CacheUpdateMode.FULL);
         inOrder.verify(modelManager).removeFromCache(oldPlaylistUri);
         inOrder.verify(playlistStorage).store(apiPlaylist);
         inOrder.verify(soundAssociationStorage).addCreation(apiPlaylist);
@@ -175,7 +175,7 @@ public class PlaylistSyncHelperTest {
         when(publicCloudAPI.read(argThat(isLegacyRequestToUrl("/playlists/123")))).thenReturn(playlist);
         when(playlistStorage.getUnpushedTracksForPlaylist(123L)).thenReturn(Collections.<Long>emptyList());
         playlistSyncHelper.syncPlaylist(Content.PLAYLIST.forId(123L), publicCloudAPI);
-        verify(modelManager).cache(playlist, ScResource.CacheUpdateMode.FULL);
+        verify(modelManager).cache(playlist, PublicApiResource.CacheUpdateMode.FULL);
         verify(playlistStorage).store(playlist);
     }
 
@@ -204,18 +204,18 @@ public class PlaylistSyncHelperTest {
         when(publicCloudAPI.read(argThat(isLegacyRequestToUrl("/playlists/123")))).thenReturn(playlist);
         when(playlistStorage.getUnpushedTracksForPlaylist(123L)).thenReturn(Lists.newArrayList(4L, 5L, 6L));
 
-        Playlist updatedPlaylist = Mockito.mock(Playlist.class);
+        PublicApiPlaylist updatedPlaylist = Mockito.mock(PublicApiPlaylist.class);
         when(publicCloudAPI.update(any(Request.class))).thenReturn(updatedPlaylist);
         when(playlistStorage.store(updatedPlaylist)).thenReturn(updatedPlaylist);
 
-        final Playlist actual = playlistSyncHelper.syncPlaylist(Content.PLAYLIST.forId(123L), publicCloudAPI);
+        final PublicApiPlaylist actual = playlistSyncHelper.syncPlaylist(Content.PLAYLIST.forId(123L), publicCloudAPI);
         expect(actual).not.toEqual(playlist);
     }
 
     @Test
     public void pushUnpushedTracksShouldCallCreateOnApiWithUpdatedPlaylistRequest() throws IOException {
         when(publicCloudAPI.read(argThat(isLegacyRequestToUrl("/playlists/123")))).thenReturn(playlist);
-        when(playlist.getTracks()).thenReturn(Lists.newArrayList(new Track(1L), new Track(2L), new Track(3L)));
+        when(playlist.getTracks()).thenReturn(Lists.newArrayList(new PublicApiTrack(1L), new PublicApiTrack(2L), new PublicApiTrack(3L)));
         when(playlistStorage.getUnpushedTracksForPlaylist(123L)).thenReturn(Lists.newArrayList(4L, 5L, 6L));
 
         playlistSyncHelper.syncPlaylist(Content.PLAYLIST.forId(123L), publicCloudAPI);
@@ -232,7 +232,7 @@ public class PlaylistSyncHelperTest {
 
     @Test
     public void syncMePlaylistsShouldSyncNoRemotePlaylists() throws Exception {
-        setupMyPlaylistsRemote(Collections.<Playlist>emptyList());
+        setupMyPlaylistsRemote(Collections.<PublicApiPlaylist>emptyList());
 
         playlistSyncHelper.pullRemotePlaylists(publicCloudAPI);
 
@@ -246,7 +246,7 @@ public class PlaylistSyncHelperTest {
         setupMyPlaylistsRemote(Lists.newArrayList(playlist));
 
         playlistSyncHelper.pullRemotePlaylists(publicCloudAPI);
-        verify(modelManager).cache(playlist, ScResource.CacheUpdateMode.MINI);
+        verify(modelManager).cache(playlist, PublicApiResource.CacheUpdateMode.MINI);
     }
 
     public void syncMePlaylistsSyncsRemotePlaylist() throws Exception {
@@ -258,7 +258,7 @@ public class PlaylistSyncHelperTest {
         verify(soundAssociationStorage).syncToLocal(captor.capture(), eq(Content.ME_PLAYLISTS.uri));
 
         List<SoundAssociation> syncedAssociations = captor.getValue();
-        final Playlist syncedPlaylist = (Playlist) syncedAssociations.get(0).playable;
+        final PublicApiPlaylist syncedPlaylist = (PublicApiPlaylist) syncedAssociations.get(0).playable;
         expect(syncedPlaylist).toBe(remotePlaylist);
     }
 
@@ -274,7 +274,7 @@ public class PlaylistSyncHelperTest {
         verify(soundAssociationStorage).syncToLocal(captor.capture(), eq(Content.ME_PLAYLISTS.uri));
 
         List<SoundAssociation> syncedAssociations = captor.getValue();
-        final Playlist syncedPlaylist = (Playlist) syncedAssociations.get(0).playable;
+        final PublicApiPlaylist syncedPlaylist = (PublicApiPlaylist) syncedAssociations.get(0).playable;
         expect(syncedPlaylist.getTracks()).toBeEmpty();
     }
 
@@ -290,7 +290,7 @@ public class PlaylistSyncHelperTest {
         verify(soundAssociationStorage).syncToLocal(captor.capture(), eq(Content.ME_PLAYLISTS.uri));
 
         List<SoundAssociation> syncedAssociations = captor.getValue();
-        final Playlist syncedPlaylist = (Playlist) syncedAssociations.get(0).playable;
+        final PublicApiPlaylist syncedPlaylist = (PublicApiPlaylist) syncedAssociations.get(0).playable;
         expect(syncedPlaylist.getTracks().get(0)).toBe(remoteTrack);
     }
 
@@ -322,10 +322,10 @@ public class PlaylistSyncHelperTest {
     }
 
 
-    private void setupMyPlaylistsRemote(List<Playlist> remotePlaylists) throws java.io.IOException {
+    private void setupMyPlaylistsRemote(List<PublicApiPlaylist> remotePlaylists) throws java.io.IOException {
         when(publicCloudAPI.readFullCollection(
                         argThat(isLegacyRequestToUrl("/me/playlists?representation=compact&limit=200")),
-                        Matchers.<Class<CollectionHolder<Playlist>>>any())
+                        Matchers.<Class<CollectionHolder<PublicApiPlaylist>>>any())
         ).thenReturn(remotePlaylists);
     }
 

@@ -3,14 +3,14 @@ package com.soundcloud.android.creators.upload;
 import static com.soundcloud.android.Consts.Notifications.UPLOADING_NOTIFY_ID;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.storage.RecordingStorage;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.service.LocalBinder;
@@ -110,7 +110,7 @@ public class UploadService extends Service {
 
     private static class Upload {
         final Recording recording;
-        Track track;
+        PublicApiTrack track;
         Notification notification;
 
         public Upload(Recording r){
@@ -286,7 +286,7 @@ public class UploadService extends Service {
             } else if (TRANSFER_SUCCESS.equals(action)) {
                 Upload upload = uploads.get(recording.getId());
                 if (upload == null) return;
-                upload.track = intent.getParcelableExtra(Track.EXTRA);
+                upload.track = intent.getParcelableExtra(PublicApiTrack.EXTRA);
 
                 new Poller(createLooper("poller_" + upload.track.getId(), Process.THREAD_PRIORITY_BACKGROUND),
                         publicCloudAPI,
@@ -301,7 +301,7 @@ public class UploadService extends Service {
 
             } else if (TRANSCODING_SUCCESS.equals(action) || TRANSCODING_FAILED.equals(action)) {
                 releaseWakelock();
-                onTranscodingDone(intent.<Track>getParcelableExtra(Track.EXTRA));
+                onTranscodingDone(intent.<PublicApiTrack>getParcelableExtra(PublicApiTrack.EXTRA));
             }
 
 
@@ -322,7 +322,7 @@ public class UploadService extends Service {
         }
     };
 
-    private Notification transcodingFailedNotification(Track track) {
+    private Notification transcodingFailedNotification(PublicApiTrack track) {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 new Intent(Actions.YOUR_SOUNDS), PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -351,7 +351,7 @@ public class UploadService extends Service {
         }
     }
 
-    private void onTranscodingDone(Track track) {
+    private void onTranscodingDone(PublicApiTrack track) {
         releaseLocks();
 
         if (!track.isFinished()) {
@@ -369,16 +369,16 @@ public class UploadService extends Service {
         }
     }
 
-    private void sendNotification(ScResource r, Notification n) {
+    private void sendNotification(PublicApiResource r, Notification n) {
         // ugly way to help uniqueness
         notificationManager.notify(getNotificationId(r), n);
     }
 
-    private void cancelNotification(ScResource r) {
+    private void cancelNotification(PublicApiResource r) {
         notificationManager.cancel(getNotificationId(r));
     }
 
-    private int getNotificationId(ScResource r){
+    private int getNotificationId(PublicApiResource r){
         return (int) (9990000 + r.getId());
     }
 
@@ -481,7 +481,7 @@ public class UploadService extends Service {
             n.contentView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
 
             if (Consts.SdkSwitches.useRichNotifications && recording.hasArtwork()){
-                Bitmap b = ImageUtils.getConfiguredBitmap(recording.artwork_path,
+                Bitmap b = ImageUtils.getConfiguredBitmap(recording.getArtwork(),
                         (int) getResources().getDimension(R.dimen.notification_image_width),
                         (int) getResources().getDimension(R.dimen.notification_image_height));
                 if (b != null){

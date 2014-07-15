@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.views;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.api.legacy.model.Comment;
 import com.soundcloud.android.utils.InputObject;
 
 import android.content.Context;

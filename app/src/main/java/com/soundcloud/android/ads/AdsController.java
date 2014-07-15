@@ -2,11 +2,11 @@ package com.soundcloud.android.ads;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.model.TrackProperty;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
@@ -44,17 +44,21 @@ public class AdsController {
         }
     };
 
-    private final Action1<PlayQueueEvent> unsubscribeFromPreviousAdOp = new Action1<PlayQueueEvent>() {
-        @Override
-        public void call(PlayQueueEvent playQueueEvent) {
-            audioAdSubscription.unsubscribe();
-        }
-    };
-
     private final Func1<PropertySet, Observable<AudioAd>> fetchAudioAdFunction = new Func1<PropertySet, Observable<AudioAd>>() {
         @Override
         public Observable<AudioAd> call(PropertySet propertySet) {
             return adsOperations.audioAd(propertySet.get(TrackProperty.URN));
+        }
+    };
+
+    private Action1<PlayQueueEvent> resetAudioAd = new Action1<PlayQueueEvent>() {
+        @Override
+        public void call(PlayQueueEvent event) {
+            int prevPosition = playQueueManager.getCurrentPosition() - 1;
+            if (playQueueManager.isAudioAdAtPosition(prevPosition)) {
+                playQueueManager.removeAtPosition(prevPosition);
+            }
+            audioAdSubscription.unsubscribe();
         }
     };
 
@@ -68,7 +72,7 @@ public class AdsController {
 
     public void subscribe() {
         eventBus.queue(EventQueue.PLAY_QUEUE)
-                .doOnNext(unsubscribeFromPreviousAdOp)
+                .doOnNext(resetAudioAd)
                 .filter(hasNextNonAudioAdTrackFilter)
                 .subscribe(new PlayQueueSubscriber());
     }

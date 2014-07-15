@@ -3,9 +3,9 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.http.PublicApiWrapper;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class LoadCommentsTaskTest {
 
     @Test
     public void shouldSetTrackObjectOnCommentIfCached() throws Exception {
-        Track t = new Track();
+        PublicApiTrack t = new PublicApiTrack();
         t.setId(100);
         SoundCloudApplication.sModelManager.cache(t);
 

@@ -5,9 +5,9 @@ import static com.soundcloud.android.robolectric.TestHelper.getActivities;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.http.PublicApiWrapper;
-import com.soundcloud.android.model.ContentStats;
-import com.soundcloud.android.model.activities.Activities;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.model.ContentStats;
+import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;

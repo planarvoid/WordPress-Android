@@ -3,9 +3,9 @@ package com.soundcloud.android.playback.views;
 import static com.soundcloud.android.associations.PlayableInteractionActivity.EXTRA_INTERACTION_TYPE;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.associations.TrackInteractionActivity;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.search.SearchByTagActivity;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
@@ -103,11 +103,11 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
         mTxtInfo = (TextView) findViewById(R.id.txtInfo);
     }
 
-    public void setTrack(Track track) {
+    public void setTrack(PublicApiTrack track) {
         fillTrackDetails(track);
     }
 
-    private void fillTrackDetails(Track track) {
+    private void fillTrackDetails(PublicApiTrack track) {
         mTrackId = track.getId();
 
         boolean filledStats = false;
@@ -182,7 +182,7 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
         }
     }
 
-    private void populateTags(final Track track) {
+    private void populateTags(final PublicApiTrack track) {
 
         // check for equality to avoid extra view inflation
         if (mLastTags != null && mLastTags.hasSameTags(track)) {
@@ -232,7 +232,7 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
 
     private void openInteractionActivity(Activity.Type interactionType) {
         getContext().startActivity(new Intent(getContext(), TrackInteractionActivity.class)
-                .putExtra(Track.EXTRA_ID, mTrackId)
+                .putExtra(PublicApiTrack.EXTRA_ID, mTrackId)
                 .putExtra(EXTRA_INTERACTION_TYPE, interactionType));
     }
 
@@ -241,12 +241,12 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
         final String genre;
         final List<String> humanTags;
 
-        public TagsHolder(Track track) {
+        public TagsHolder(PublicApiTrack track) {
             this.genre = track.genre;
             this.humanTags = track.humanTags();
         }
 
-        public boolean hasSameTags(Track track){
+        public boolean hasSameTags(PublicApiTrack track){
             return track != null && TextUtils.equals(track.genre, genre) && humanTags.equals(track.humanTags());
         }
 

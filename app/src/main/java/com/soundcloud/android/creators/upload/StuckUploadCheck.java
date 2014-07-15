@@ -1,6 +1,6 @@
 package com.soundcloud.android.creators.upload;
 
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 
@@ -9,7 +9,7 @@ import android.content.Context;
 import android.util.Log;
 
 /**
- * Checks for uploads which are stuck in state {@link com.soundcloud.android.model.Recording.Status.UPLOADING}, for
+ * Checks for uploads which are stuck in state {@link com.soundcloud.android.api.legacy.model.Recording.Status.UPLOADING}, for
  * example after a service crash.
  */
 public class StuckUploadCheck implements Runnable {

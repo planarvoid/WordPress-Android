@@ -11,13 +11,13 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.AbstractLoginActivity;
 import com.soundcloud.android.onboarding.auth.AcceptTermsLayout;
 import com.soundcloud.android.onboarding.auth.AddUserInfoTaskFragment;
@@ -92,7 +92,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private StartState state = StartState.TOUR;
 
     private String lastGoogleAccountSelected;
-    @Nullable private User user;
+    @Nullable private PublicApiUser user;
 
     private View tourBottomBar, tourLogo, overlayBg, overlayHolder;
 
@@ -589,7 +589,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     }
 
     @Override
-    public void onAuthTaskComplete(User user, SignupVia via, boolean wasApiSignupTask) {
+    public void onAuthTaskComplete(PublicApiUser user, SignupVia via, boolean wasApiSignupTask) {
         if (wasApiSignupTask){
             SignupLog.writeNewSignupAsync();
             this.user = user;

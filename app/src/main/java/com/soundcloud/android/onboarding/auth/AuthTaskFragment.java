@@ -2,7 +2,7 @@ package com.soundcloud.android.onboarding.auth;
 
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
@@ -30,7 +30,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     private WeakReference<OnAuthResultListener> listenerRef;
 
     public interface OnAuthResultListener {
-        void onAuthTaskComplete(User user, SignupVia signupVia, boolean shouldAddUserInfo);
+        void onAuthTaskComplete(PublicApiUser user, SignupVia signupVia, boolean shouldAddUserInfo);
         void onError(String message);
     }
 

@@ -3,12 +3,12 @@ package com.soundcloud.android.stream;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -98,7 +98,7 @@ public class SoundStreamAdapterTest {
     }
 
     private void publishPlaylistLikeEvent(long id) {
-        Playlist playlist = new Playlist(id);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(id);
         playlist.user_like = true;
         playlist.likes_count = 1;
         eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(playlist, true));

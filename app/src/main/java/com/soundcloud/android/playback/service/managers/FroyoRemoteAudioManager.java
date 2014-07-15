@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.service.managers;
 
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.playback.service.RemoteControlReceiver;
 
 import android.content.BroadcastReceiver;
@@ -37,7 +37,7 @@ public class FroyoRemoteAudioManager extends FroyoAudioManager implements IRemot
     }
 
     @Override
-    public void onTrackChanged(Track track, Bitmap artwork) {
+    public void onTrackChanged(PublicApiTrack track, Bitmap artwork) {
     }
 
     @Override

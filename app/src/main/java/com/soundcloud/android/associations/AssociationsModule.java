@@ -1,8 +1,8 @@
 package com.soundcloud.android.associations;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateManager;

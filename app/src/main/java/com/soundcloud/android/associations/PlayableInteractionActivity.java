@@ -5,8 +5,8 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.playback.views.PlayablePresenter;
 
 import android.content.Intent;

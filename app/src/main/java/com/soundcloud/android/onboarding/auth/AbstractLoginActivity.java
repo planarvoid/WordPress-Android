@@ -5,11 +5,11 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoriesFragment;
 
@@ -92,7 +92,7 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
     }
 
     @Override
-    public void onAuthTaskComplete(User user, SignupVia via, boolean shouldAddUserInfo){
+    public void onAuthTaskComplete(PublicApiUser user, SignupVia via, boolean shouldAddUserInfo){
         final Bundle result = new Bundle();
         result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
         result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
@@ -100,7 +100,7 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
         resultBundle = result;
 
         sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
-                .putExtra(User.EXTRA_ID, user.getId())
+                .putExtra(PublicApiUser.EXTRA_ID, user.getId())
                 .putExtra(SignupVia.EXTRA, via.name));
 
         if (result.getBoolean(Consts.Keys.WAS_SIGNUP) || wasAuthorizedViaSignupScreen()) {

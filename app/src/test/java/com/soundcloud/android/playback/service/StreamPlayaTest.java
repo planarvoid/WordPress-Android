@@ -11,7 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
@@ -51,7 +51,7 @@ public class StreamPlayaTest {
     @Mock
     private FeatureFlags featureFlags;
     @Mock
-    private Track track;
+    private PublicApiTrack track;
     @Mock
     private StreamPlaya.PlayerSwitcherInfo playerSwitcherInfo;
 
@@ -450,7 +450,7 @@ public class StreamPlayaTest {
         when(sharedPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false)).thenReturn(true);
         startPlaybackOnSkippy();
         streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND, track.getUrn()));
-        verify(mediaPlayerAdapter, never()).play(any(Track.class), anyLong());
+        verify(mediaPlayerAdapter, never()).play(any(PublicApiTrack.class), anyLong());
     }
 
     @Test
@@ -460,7 +460,7 @@ public class StreamPlayaTest {
         when(skippyAdapter.getProgress()).thenReturn(1L);
 
         streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND, track.getUrn()));
-        verify(mediaPlayerAdapter, never()).play(any(Track.class), anyLong());
+        verify(mediaPlayerAdapter, never()).play(any(PublicApiTrack.class), anyLong());
     }
 
     @Test

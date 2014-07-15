@@ -7,8 +7,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -36,7 +36,7 @@ public class ResolveActivityTest {
 
     @Test
     public void shouldPlayTrack() throws CreateModelException {
-        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         activity.onSuccess(track);
 
         verify(playbackOperations).playTrack(activity, track, Screen.DEEPLINK);
@@ -44,7 +44,7 @@ public class ResolveActivityTest {
 
     @Test
     public void shouldPlayPlaylist() throws CreateModelException {
-        Playlist playlist = TestHelper.getModelFactory().createModel(Playlist.class);
+        PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         activity.onSuccess(playlist);
 
         verify(playbackOperations).playPlaylist(playlist, Screen.DEEPLINK);
@@ -52,7 +52,7 @@ public class ResolveActivityTest {
 
     @Test
     public void shouldShowTheStreamWithAnExpandedPlayer() throws CreateModelException {
-        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         activity.onSuccess(track);
 
         Intent expected = new Intent(Actions.STREAM);

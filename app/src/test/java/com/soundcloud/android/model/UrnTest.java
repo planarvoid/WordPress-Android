@@ -2,8 +2,11 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.playlists.PlaylistUrn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.users.UserUrn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

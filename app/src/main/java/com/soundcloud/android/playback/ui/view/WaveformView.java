@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.ui.view;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.WaveformData;
+import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.view.FixedWidthView;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 

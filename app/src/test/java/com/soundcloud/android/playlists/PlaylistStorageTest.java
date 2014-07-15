@@ -3,9 +3,9 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.model.PlaylistSummary;
-import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.robolectric.DatabaseHelper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.DatabaseManager;
@@ -45,16 +45,16 @@ public class PlaylistStorageTest {
 
     @Test
     public void trackUrnsLoadsUrnsOfAllTrackItemsInAGivenPlaylist() throws CreateModelException {
-        PlaylistSummary playlistSummary = helper.insertPlaylist();
-        List<TrackSummary> trackSummaryList = Lists.newArrayListWithCapacity(3);
+        ApiPlaylist apiPlaylist = helper.insertPlaylist();
+        List<ApiTrack> apiTrackList = Lists.newArrayListWithCapacity(3);
         for (int i = 0; i < 3; i++) {
-            trackSummaryList.add(helper.insertPlaylistTrack(playlistSummary, i));
+            apiTrackList.add(helper.insertPlaylistTrack(apiPlaylist, i));
         }
 
         TestObserver<TrackUrn> observer = new TestObserver<TrackUrn>();
-        storage.trackUrns(playlistSummary.getUrn()).subscribe(observer);
+        storage.trackUrns(apiPlaylist.getUrn()).subscribe(observer);
         expect(observer.getOnNextEvents()).toContainExactly(
-                trackSummaryList.get(0).getUrn(), trackSummaryList.get(1).getUrn(), trackSummaryList.get(2).getUrn()
+                apiTrackList.get(0).getUrn(), apiTrackList.get(1).getUrn(), apiTrackList.get(2).getUrn()
         );
     }
 

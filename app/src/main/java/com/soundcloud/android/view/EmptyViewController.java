@@ -1,6 +1,6 @@
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.api.http.APIRequestException;
+import com.soundcloud.android.api.APIRequestException;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;

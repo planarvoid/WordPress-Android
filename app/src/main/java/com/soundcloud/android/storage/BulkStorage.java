@@ -1,6 +1,6 @@
 package com.soundcloud.android.storage;
 
-import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
@@ -27,15 +27,15 @@ public class BulkStorage extends ScheduledOperations {
         this.contentResolver = contentResolver;
     }
 
-    public void bulkInsert(Iterable<? extends ScResource> resources) {
+    public void bulkInsert(Iterable<? extends PublicApiResource> resources) {
         BulkInsertMap insertMap = new BulkInsertMap();
-        for (ScResource r : resources) {
+        for (PublicApiResource r : resources) {
             r.putFullContentValues(insertMap);
         }
         insertMap.insert(contentResolver);
     }
 
-    public <T extends Iterable<? extends ScResource>> Observable<T> bulkInsertAsync(final T resources) {
+    public <T extends Iterable<? extends PublicApiResource>> Observable<T> bulkInsertAsync(final T resources) {
         return schedule(Observable.create(new Observable.OnSubscribe<T>() {
             @Override
             public void call(Subscriber<? super T> subscriber) {

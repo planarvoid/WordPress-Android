@@ -11,12 +11,12 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -68,7 +68,7 @@ public class AccountOperationsTest {
     @Mock
     private Observer observer;
     @Mock
-    private User user;
+    private PublicApiUser user;
     @Mock
     private Token token;
     @Mock
@@ -192,7 +192,7 @@ public class AccountOperationsTest {
     public void shouldSetLoggedInUserToNewUserIfAccountAdditionSucceeds() {
         Account account = new Account("username", SC_ACCOUNT_TYPE);
         when(user.getUsername()).thenReturn("username");
-        when(modelManager.cache(user, ScResource.CacheUpdateMode.FULL)).thenReturn(user);
+        when(modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(user);
         when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
 
         accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
@@ -317,7 +317,7 @@ public class AccountOperationsTest {
         mockValidToken();
         mockExpiredEmailConfirmationReminder();
 
-        User currentUser = new User(123L);
+        PublicApiUser currentUser = new PublicApiUser(123L);
         currentUser.setPrimaryEmailConfirmed(false);
 
         expect(accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)).toBeTrue();
@@ -329,7 +329,7 @@ public class AccountOperationsTest {
         mockValidToken();
         mockExpiredEmailConfirmationReminder();
 
-        User currentUser = new User(123L);
+        PublicApiUser currentUser = new PublicApiUser(123L);
         currentUser.setPrimaryEmailConfirmed(true);
 
         expect(accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)).toBeFalse();
@@ -341,7 +341,7 @@ public class AccountOperationsTest {
         mockValidToken();
         mockRecentEmailConfirmationReminder();
 
-        User currentUser = new User(123L);
+        PublicApiUser currentUser = new PublicApiUser(123L);
         currentUser.setPrimaryEmailConfirmed(false);
 
         expect(accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)).toBeFalse();
@@ -353,7 +353,7 @@ public class AccountOperationsTest {
         mockInvalidToken();
         mockExpiredEmailConfirmationReminder();
 
-        User currentUser = new User(123L);
+        PublicApiUser currentUser = new PublicApiUser(123L);
         currentUser.setPrimaryEmailConfirmed(false);
 
         expect(accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)).toBeFalse();
@@ -363,7 +363,7 @@ public class AccountOperationsTest {
     public void shouldReturnDummyUserWithMinimumAccountInfoIfNotYetLoaded() {
         mockSoundCloudAccount();
 
-        final User loggedInUser = accountOperations.getLoggedInUser();
+        final PublicApiUser loggedInUser = accountOperations.getLoggedInUser();
 
         expect(loggedInUser.getId()).toEqual(123L);
         expect(loggedInUser.getUsername()).toEqual("username");
@@ -374,7 +374,7 @@ public class AccountOperationsTest {
     public void shouldLoadUserFromLocalStorageBasedOnAccountIdAndUpdateLoggedInUser() {
         mockSoundCloudAccount();
         when(userStorage.getUserAsync(123L)).thenReturn(Observable.just(user));
-        when(modelManager.cache(user, ScResource.CacheUpdateMode.FULL)).thenReturn(user);
+        when(modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(user);
 
         accountOperations.loadLoggedInUser();
 
@@ -384,7 +384,7 @@ public class AccountOperationsTest {
     @Test
     public void shouldNotLoadUserFromLocalStorageIfAccountIdIsNotSet() {
         when(userStorage.getUserAsync(123L)).thenReturn(Observable.just(user));
-        when(modelManager.cache(user, ScResource.CacheUpdateMode.FULL)).thenReturn(user);
+        when(modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(user);
 
         accountOperations.loadLoggedInUser();
 
@@ -425,7 +425,7 @@ public class AccountOperationsTest {
     public void purgingUserDataShouldClearLoggedInUser() {
         mockSoundCloudAccount();
         when(userStorage.getUserAsync(123L)).thenReturn(Observable.just(user));
-        when(modelManager.cache(user, ScResource.CacheUpdateMode.FULL)).thenReturn(user);
+        when(modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(user);
         accountOperations.loadLoggedInUser();
         expect(accountOperations.getLoggedInUser()).toBe(user);
 

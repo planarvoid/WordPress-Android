@@ -4,10 +4,9 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -37,7 +36,7 @@ public class WaveformOperationsTest {
     @Mock
     private Observer<WaveformResult> observer;
     @Mock
-    private Track track;
+    private PublicApiTrack track;
     @Mock
     private WaveformView waveformView;
 

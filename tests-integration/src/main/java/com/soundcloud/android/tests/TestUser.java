@@ -1,17 +1,11 @@
 package com.soundcloud.android.tests;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.ApiSyncService;
-import com.soundcloud.android.sync.content.UserAssociationSyncer;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Token;
-import rx.schedulers.Schedulers;
 
-import android.app.Activity;
 import android.content.Context;
 
 import java.io.IOException;
@@ -20,7 +14,7 @@ public class TestUser {
     private final String username, email, password;
 
     private Token token;
-    private User user;
+    private PublicApiUser user;
 
     public static String generateEmail() {
         return "someemail-"+System.currentTimeMillis()+"@test.com";
@@ -48,7 +42,7 @@ public class TestUser {
         ApiWrapper apiWrapper = AccountAssistant.createApiWrapper(context);
         try {
             Token token = getToken(apiWrapper);
-            User user = getUser(apiWrapper);
+            PublicApiUser user = getUser(apiWrapper);
             return SoundCloudApplication.fromContext(context).addUserAccountAndEnableSync(user, token, SignupVia.NONE);
 
         } catch (IOException e) {
@@ -56,7 +50,7 @@ public class TestUser {
         }
     }
 
-    protected User getUser(ApiWrapper apiWrapper) throws IOException {
+    protected PublicApiUser getUser(ApiWrapper apiWrapper) throws IOException {
         if (user == null){
             user = AccountAssistant.getLoggedInUser(apiWrapper);
         }

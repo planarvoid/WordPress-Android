@@ -1,8 +1,8 @@
 package com.soundcloud.android.deeplinks;
 
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.api.AsyncApiTask;
+import com.soundcloud.android.api.legacy.AsyncApiTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;

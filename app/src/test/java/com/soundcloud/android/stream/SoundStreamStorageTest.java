@@ -4,14 +4,14 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.PlaylistProperty;
-import com.soundcloud.android.model.PlaylistSummary;
-import com.soundcloud.android.model.TrackProperty;
-import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.StorageIntegrationTest;
 import com.soundcloud.propeller.PropertySet;
@@ -42,7 +42,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadingStreamItemsIncludesTrackPosts() throws CreateModelException {
-        final TrackSummary track = testHelper().insertTrack();
+        final ApiTrack track = testHelper().insertTrack();
         testHelper().insertTrackPost(track, TIMESTAMP);
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
         final PropertySet trackPost = createTrackPropertySet(track);
@@ -53,8 +53,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadingStreamItemsIncludesTrackReposts() throws CreateModelException {
-        final UserSummary reposter = testHelper().insertUser();
-        final TrackSummary track = testHelper().insertTrack();
+        final ApiUser reposter = testHelper().insertUser();
+        final ApiTrack track = testHelper().insertTrack();
         testHelper().insertTrackRepost(track, reposter, TIMESTAMP);
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
         final PropertySet trackRepost = createTrackPropertySet(track)
@@ -66,7 +66,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadingStreamItemsIncludesPlaylistPosts() throws CreateModelException {
-        final PlaylistSummary playlist = testHelper().insertPlaylist();
+        final ApiPlaylist playlist = testHelper().insertPlaylist();
         testHelper().insertPlaylistPost(playlist, TIMESTAMP);
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
         final PropertySet playlistPost = createPlaylistPropertySet(playlist);
@@ -77,8 +77,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadingStreamItemsIncludesPlaylistReposts() throws CreateModelException {
-        final UserSummary reposter = testHelper().insertUser();
-        final PlaylistSummary playlist = testHelper().insertPlaylist();
+        final ApiUser reposter = testHelper().insertUser();
+        final ApiPlaylist playlist = testHelper().insertPlaylist();
         testHelper().insertPlaylistRepost(playlist, reposter, TIMESTAMP);
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
         PropertySet playlistRepost = createPlaylistPropertySet(playlist)
@@ -90,7 +90,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldIncludeLikesStateForPlaylistAndUser() throws CreateModelException {
-        final PlaylistSummary playlist = testHelper().insertPlaylist();
+        final ApiPlaylist playlist = testHelper().insertPlaylist();
         testHelper().insertPlaylistPost(playlist, TIMESTAMP);
         final int currentUserId = 123;
         testHelper().insertPlaylistLike(playlist.getId(), currentUserId);
@@ -129,8 +129,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadingStreamItemsDoesNotIncludeOwnContentRepostedByOtherPeople() throws CreateModelException {
-        final UserSummary reposter = testHelper().insertUser();
-        final TrackSummary track = testHelper().insertTrack();
+        final ApiUser reposter = testHelper().insertUser();
+        final ApiTrack track = testHelper().insertTrack();
         testHelper().insertTrackRepostOfOwnTrack(track, reposter, TIMESTAMP);
 
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
@@ -141,7 +141,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadingStreamItemsTakesIntoAccountTheGivenLimit() throws CreateModelException {
-        final TrackSummary firstTrack = testHelper().insertTrack();
+        final ApiTrack firstTrack = testHelper().insertTrack();
         testHelper().insertTrackPost(firstTrack, TIMESTAMP);
         testHelper().insertTrackPost(testHelper().insertTrack(), TIMESTAMP - 1);
 
@@ -155,7 +155,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
     @Test
     public void loadingStreamItemsOnlyLoadsItemsOlderThanTheGivenTimestamp() throws CreateModelException {
         testHelper().insertTrackPost(testHelper().insertTrack(), TIMESTAMP);
-        final TrackSummary oldestTrack = testHelper().insertTrack();
+        final ApiTrack oldestTrack = testHelper().insertTrack();
         testHelper().insertTrackPost(oldestTrack, TIMESTAMP - 1);
 
         TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
@@ -167,9 +167,9 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void trackUrnsLoadsUrnsOfAllTrackItemsInSoundStream() throws CreateModelException {
-        final TrackSummary trackOne = testHelper().insertTrack();
+        final ApiTrack trackOne = testHelper().insertTrack();
         testHelper().insertTrackPost(trackOne, TIMESTAMP);
-        final TrackSummary trackTwo = testHelper().insertTrack();
+        final ApiTrack trackTwo = testHelper().insertTrack();
         testHelper().insertTrackRepost(trackTwo, testHelper().insertUser(), TIMESTAMP - 1);
         testHelper().insertPlaylistPost(testHelper().insertPlaylist(), TIMESTAMP - 2);
 
@@ -178,7 +178,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         expect(observer.getOnNextEvents()).toContainExactly(trackOne.getUrn(), trackTwo.getUrn());
     }
 
-    private PropertySet createTrackPropertySet(final TrackSummary track) throws CreateModelException {
+    private PropertySet createTrackPropertySet(final ApiTrack track) throws CreateModelException {
         return PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forTrack(track.getId())),
                 PlayableProperty.TITLE.bind(track.getTitle()),
@@ -188,7 +188,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 TrackProperty.PLAY_COUNT.bind(track.getStats().getPlaybackCount()));
     }
 
-    private PropertySet createPlaylistPropertySet(PlaylistSummary playlist) {
+    private PropertySet createPlaylistPropertySet(ApiPlaylist playlist) {
         return PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forPlaylist(playlist.getId())),
                 PlayableProperty.TITLE.bind(playlist.getTitle()),

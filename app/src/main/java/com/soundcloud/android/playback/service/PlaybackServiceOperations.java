@@ -4,13 +4,13 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.APIResponse;
-import com.soundcloud.android.api.http.HttpProperties;
-import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.api.http.SoundCloudAPIRequest;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.APIResponse;
+import com.soundcloud.android.api.HttpProperties;
+import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.SoundCloudAPIRequest;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.api.Token;
 import rx.Observable;
 import rx.functions.Func1;
@@ -34,7 +34,7 @@ public class PlaybackServiceOperations {
         this.rxHttpClient = rxHttpClient;
     }
 
-    public String buildHLSUrlForTrack(Track track) {
+    public String buildHLSUrlForTrack(PublicApiTrack track) {
         checkState(accountOperations.isUserLoggedIn(), "SoundCloud User account does not exist");
         Token token = accountOperations.getSoundCloudToken();
         return Uri.parse(httpProperties.getPrivateApiHostWithHttpScheme() + APIEndpoints.HLS_STREAM.unencodedPath(track.getUrn()))

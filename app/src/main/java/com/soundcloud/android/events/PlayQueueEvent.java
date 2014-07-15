@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import rx.functions.Func1;
 

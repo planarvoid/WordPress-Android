@@ -9,19 +9,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.APIRequestException;
-import com.soundcloud.android.api.http.APIResponse;
-import com.soundcloud.android.api.http.RxHttpClient;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.APIRequestException;
+import com.soundcloud.android.api.APIResponse;
+import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.SoundAssociationStorage;
@@ -77,7 +77,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void likingATrackShouldSendPUTRequestToApiAndThenStoreTheAssociation() throws Exception {
-        final Track track = new Track(1L);
+        final PublicApiTrack track = new PublicApiTrack(1L);
         final SoundAssociation trackLike = new SoundAssociation(track);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/track_likes/1"))))
                 .thenReturn(Observable.just(response));
@@ -85,13 +85,13 @@ public class SoundAssociationOperationsTest {
 
         operations.like(track).subscribe(observer);
 
-        verify(modelManager).cache((Playable) track, ScResource.CacheUpdateMode.NONE);
+        verify(modelManager).cache((Playable) track, PublicApiResource.CacheUpdateMode.NONE);
         verify(observer).onNext(trackLike);
     }
 
     @Test
     public void likingATrackShouldPublishPlayableChangedEvent() throws Exception {
-        final Track track = new Track(1L);
+        final PublicApiTrack track = new PublicApiTrack(1L);
         final SoundAssociation trackLike = new SoundAssociation(track);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/track_likes/1"))))
                 .thenReturn(Observable.just(response));
@@ -109,7 +109,7 @@ public class SoundAssociationOperationsTest {
     public void whenLikingATrackFailsItShouldNotPublishChangeEvent() throws Exception {
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
 
-        operations.like(new Track(1L)).subscribe(observer);
+        operations.like(new PublicApiTrack(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
         expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toBeEmpty();
@@ -117,7 +117,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void unlikingATrackShouldSendDELETERequestToApiAndThenRemoveTheAssociation() throws Exception {
-        final Track track = new Track(1L);
+        final PublicApiTrack track = new PublicApiTrack(1L);
         final SoundAssociation trackUnlike = new SoundAssociation(track);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_likes/1"))))
                 .thenReturn(Observable.just(response));
@@ -125,13 +125,13 @@ public class SoundAssociationOperationsTest {
 
         operations.unlike(track).subscribe(observer);
 
-        verify(modelManager).cache((Playable) track, ScResource.CacheUpdateMode.NONE);
+        verify(modelManager).cache((Playable) track, PublicApiResource.CacheUpdateMode.NONE);
         verify(observer).onNext(trackUnlike);
     }
 
     @Test
     public void unlikingATrackShouldPublishChangeEvent() throws Exception {
-        final Track track = new Track(1L);
+        final PublicApiTrack track = new PublicApiTrack(1L);
         final SoundAssociation trackUnlike = new SoundAssociation(track);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_likes/1"))))
                 .thenReturn(Observable.just(response));
@@ -149,7 +149,7 @@ public class SoundAssociationOperationsTest {
     public void whenUnlikingATrackFailsItShouldNotPublishChangeEvent() throws Exception {
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
 
-        operations.unlike(new Track(1L)).subscribe(observer);
+        operations.unlike(new PublicApiTrack(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
         expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toBeEmpty();
@@ -157,7 +157,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void whenUnlikingATrackFailsBecauseItWasAlreadyRemovedFromServerItShouldBeRemovedFromStorageToo() {
-        final Track track = new Track(1L);
+        final PublicApiTrack track = new PublicApiTrack(1L);
         final SoundAssociation trackUnlike = new SoundAssociation(track);
 
         APIResponse response404 = mock(APIResponse.class);
@@ -173,7 +173,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void whenUnlikingATrackFailsBecauseThereIsNoNetworkTheErrorShouldBePropagated() {
-        final Track track = new Track(1L);
+        final PublicApiTrack track = new PublicApiTrack(1L);
         APIResponse emptyResponse = mock(APIResponse.class);
         when(emptyResponse.getStatusCode()).thenThrow(new NullPointerException());
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_likes/1"))))
@@ -186,7 +186,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void likingAPlaylistShouldSendPUTRequestToApiAndThenStoreTheAssociation() throws Exception {
-        final Playlist playlist = new Playlist(1L);
+        final PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
         final SoundAssociation like = new SoundAssociation(playlist);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/playlist_likes/1"))))
                 .thenReturn(Observable.just(response));
@@ -194,13 +194,13 @@ public class SoundAssociationOperationsTest {
 
         operations.like(playlist).subscribe(observer);
 
-        verify(modelManager).cache((Playable) playlist, ScResource.CacheUpdateMode.NONE);
+        verify(modelManager).cache((Playable) playlist, PublicApiResource.CacheUpdateMode.NONE);
         verify(observer).onNext(like);
     }
 
     @Test
     public void unlikingAPlaylistShouldSendDELETERequestToApiAndThenRemoveTheAssociation() throws Exception {
-        final Playlist playlist = new Playlist(1L);
+        final PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
         final SoundAssociation unlike = new SoundAssociation(playlist);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/playlist_likes/1"))))
                 .thenReturn(Observable.just(response));
@@ -217,7 +217,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void repostingATrackShouldSendPUTRequestToApiAndThenStoreTheAssociation() throws Exception {
-        final Track track = new Track(1L);
+        final PublicApiTrack track = new PublicApiTrack(1L);
         final SoundAssociation repost = new SoundAssociation(track);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/track_reposts/1"))))
                 .thenReturn(Observable.just(response));
@@ -225,13 +225,13 @@ public class SoundAssociationOperationsTest {
 
         operations.repost(track).subscribe(observer);
 
-        verify(modelManager).cache((Playable) track, ScResource.CacheUpdateMode.NONE);
+        verify(modelManager).cache((Playable) track, PublicApiResource.CacheUpdateMode.NONE);
         verify(observer).onNext(repost);
     }
 
     @Test
     public void repostingATrackShouldPublishChangeEvent() throws Exception {
-        final Track track = new Track(1L);
+        final PublicApiTrack track = new PublicApiTrack(1L);
         final SoundAssociation repost = new SoundAssociation(track);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/track_reposts/1"))))
                 .thenReturn(Observable.just(response));
@@ -249,7 +249,7 @@ public class SoundAssociationOperationsTest {
     public void whenRepostingATrackFailsItShouldNotPublishChangeEvent() throws Exception {
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
 
-        operations.repost(new Track(1L)).subscribe(observer);
+        operations.repost(new PublicApiTrack(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
         expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toBeEmpty();
@@ -257,7 +257,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void unrepostingATrackShouldSendDELETERequestToApiAndThenStoreTheAssociation() throws Exception {
-        final Track track = new Track(1L);
+        final PublicApiTrack track = new PublicApiTrack(1L);
         final SoundAssociation unrepost = new SoundAssociation(track);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_reposts/1"))))
                 .thenReturn(Observable.just(response));
@@ -265,13 +265,13 @@ public class SoundAssociationOperationsTest {
 
         operations.unrepost(track).subscribe(observer);
 
-        verify(modelManager).cache((Playable) track, ScResource.CacheUpdateMode.NONE);
+        verify(modelManager).cache((Playable) track, PublicApiResource.CacheUpdateMode.NONE);
         verify(observer).onNext(unrepost);
     }
 
     @Test
     public void unrepostingATrackShouldPublishChangeEvent() throws Exception {
-        final Track track = new Track(1L);
+        final PublicApiTrack track = new PublicApiTrack(1L);
         final SoundAssociation unrepost = new SoundAssociation(track);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_reposts/1"))))
                 .thenReturn(Observable.just(response));
@@ -289,7 +289,7 @@ public class SoundAssociationOperationsTest {
     public void whenUnrepostingATrackFailsItShouldNotPublishChangeEvent() throws Exception {
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
 
-        operations.unrepost(new Track(1L)).subscribe(observer);
+        operations.unrepost(new PublicApiTrack(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
         expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toBeEmpty();
@@ -297,7 +297,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void whenUnrepostingATrackFailsBecauseItWasAlreadyRemovedFromServerItShouldBeRemovedFromStorageToo() {
-        final Track track = new Track(1L);
+        final PublicApiTrack track = new PublicApiTrack(1L);
         final SoundAssociation unrepost = new SoundAssociation(track);
 
         APIResponse response404 = mock(APIResponse.class);
@@ -313,7 +313,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void repostingAPlaylistShouldSendPUTRequestToApiAndThenStoreTheAssociation() throws Exception {
-        final Playlist playlist = new Playlist(1L);
+        final PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
         final SoundAssociation repost = new SoundAssociation(playlist);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/playlist_reposts/1"))))
                 .thenReturn(Observable.just(response));
@@ -321,13 +321,13 @@ public class SoundAssociationOperationsTest {
 
         operations.repost(playlist).subscribe(observer);
 
-        verify(modelManager).cache((Playable) playlist, ScResource.CacheUpdateMode.NONE);
+        verify(modelManager).cache((Playable) playlist, PublicApiResource.CacheUpdateMode.NONE);
         verify(observer).onNext(repost);
     }
 
     @Test
     public void unrepostingAPlaylistShouldSendDELETERequestToApiAndThenRemoveTheAssociation() throws Exception {
-        final Playlist playlist = new Playlist(1L);
+        final PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
         final SoundAssociation unrepost = new SoundAssociation(playlist);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/playlist_reposts/1"))))
                 .thenReturn(Observable.just(response));
@@ -335,7 +335,7 @@ public class SoundAssociationOperationsTest {
 
         operations.unrepost(playlist).subscribe(observer);
 
-        verify(modelManager).cache((Playable) playlist, ScResource.CacheUpdateMode.NONE);
+        verify(modelManager).cache((Playable) playlist, PublicApiResource.CacheUpdateMode.NONE);
         verify(observer).onNext(unrepost);
     }
 }

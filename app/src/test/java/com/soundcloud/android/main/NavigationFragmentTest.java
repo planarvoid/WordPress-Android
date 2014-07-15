@@ -10,8 +10,8 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -23,7 +23,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -71,7 +70,7 @@ public class NavigationFragmentTest {
 
         View navProfileView = LayoutInflater.from(Robolectric.application).inflate(R.layout.nav_profile_item, null, false);
         when(layoutInflater.inflate(R.layout.nav_profile_item, container, false)).thenReturn(navProfileView);
-        User user = TestHelper.getModelFactory().createModel(User.class);
+        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
         when(accountOperations.getLoggedInUser()).thenReturn(user);
     }
 

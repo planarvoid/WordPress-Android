@@ -1,15 +1,15 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.model.User;
 
 public class AuthTaskResult {
     private boolean     success;
-    private User        user;
+    private PublicApiUser user;
     private SignupVia   signupVia;
     private Exception   exception;
 
-    public static AuthTaskResult success(User user, SignupVia signupVia) {
+    public static AuthTaskResult success(PublicApiUser user, SignupVia signupVia) {
         return new AuthTaskResult(user,signupVia);
     }
 
@@ -21,7 +21,7 @@ public class AuthTaskResult {
         return failure(new AuthTaskException(errorMessage));
     }
 
-    private AuthTaskResult(User user, SignupVia signupVia) {
+    private AuthTaskResult(PublicApiUser user, SignupVia signupVia) {
         success = true;
         this.user = user;
         this.signupVia = signupVia;
@@ -36,7 +36,7 @@ public class AuthTaskResult {
         return success;
     }
 
-    public User getUser() {
+    public PublicApiUser getUser() {
         return user;
     }
 

@@ -5,7 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.SearchActionBarController;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.storage.provider.Content;

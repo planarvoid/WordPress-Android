@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -19,7 +19,7 @@ final class PlayQueueItem {
 
     public static PlayQueueItem fromAudioAd(AudioAd audioAd){
         // TODO : Proper source + version?
-        return new PlayQueueItem(audioAd.getTrackSummary().getId(), ScTextUtils.EMPTY_STRING, ScTextUtils.EMPTY_STRING, true);
+        return new PlayQueueItem(audioAd.getApiTrack().getId(), ScTextUtils.EMPTY_STRING, ScTextUtils.EMPTY_STRING, true);
     }
 
     private PlayQueueItem(long trackId, String source, String sourceVersion, boolean isAudioAd) {

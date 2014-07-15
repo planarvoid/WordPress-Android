@@ -9,15 +9,15 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.model.TrackProperty;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -71,6 +71,16 @@ public class AdsControllerTest {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(CURRENT_TRACK_URN));
 
         verify(playQueueManager, never()).insertAd(any(AudioAd.class));
+    }
+
+    @Test
+    public void playQueueEventRemovesPreviousPlayQueueItemIfIsAd() {
+        when(playQueueManager.getCurrentPosition()).thenReturn(3);
+        when(playQueueManager.isAudioAdAtPosition(2)).thenReturn(true);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(CURRENT_TRACK_URN));
+
+        verify(playQueueManager).removeAtPosition(2);
     }
 
     @Test

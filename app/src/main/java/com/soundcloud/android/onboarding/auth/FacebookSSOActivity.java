@@ -1,12 +1,12 @@
 package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.TempEndpoints;
+import com.soundcloud.android.api.legacy.TempEndpoints;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.api.AsyncApiTask;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.AsyncApiTask;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;

@@ -1,7 +1,7 @@
 package com.soundcloud.android.cache;
 
-import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.api.legacy.model.Connection;
+import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStateManager;

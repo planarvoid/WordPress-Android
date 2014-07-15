@@ -1,6 +1,6 @@
 package com.soundcloud.android.image;
 
-import com.soundcloud.android.api.http.HttpProperties;
+import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.model.Urn;
 
 import javax.inject.Inject;

@@ -4,9 +4,9 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.activities.ActivitiesAdapter;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.activities.Activity;
-import com.soundcloud.android.model.activities.PlaylistActivity;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
+import com.soundcloud.android.api.legacy.model.activities.PlaylistActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.xtremelabs.robolectric.Robolectric;
@@ -25,7 +25,7 @@ public class PlaylistChangedReceiverTest {
     @Test
     public void shouldHandlePlaylistActivityChange() throws IOException {
 
-        Playlist playlist = new Playlist(123L);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(123L);
         playlist.setTrackCount(10);
 
         PlaylistActivity playlistActivity = new PlaylistActivity();
@@ -35,9 +35,9 @@ public class PlaylistChangedReceiverTest {
         receiver = new PlaylistChangedReceiver(baseAdapter);
         baseAdapter.addItems(Lists.<Activity>newArrayList(playlistActivity));
 
-        final Intent intent = new Intent(Playlist.ACTION_CONTENT_CHANGED);
-        intent.putExtra(Playlist.EXTRA_ID, 123L);
-        intent.putExtra(Playlist.EXTRA_TRACKS_COUNT, 30);
+        final Intent intent = new Intent(PublicApiPlaylist.ACTION_CONTENT_CHANGED);
+        intent.putExtra(PublicApiPlaylist.EXTRA_ID, 123L);
+        intent.putExtra(PublicApiPlaylist.EXTRA_TRACKS_COUNT, 30);
         receiver.onReceive(Robolectric.application, intent);
         expect(playlist.getTrackCount()).toEqual(30);
     }

@@ -6,9 +6,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.APIResponse;
-import com.soundcloud.android.api.http.RxHttpClient;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.APIResponse;
+import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;

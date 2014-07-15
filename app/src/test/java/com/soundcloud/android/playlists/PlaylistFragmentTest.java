@@ -13,12 +13,11 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.PlaylistUrn;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -53,7 +52,7 @@ public class PlaylistFragmentTest {
 
     private PlaylistFragment fragment;
     private FragmentActivity activity = new FragmentActivity();
-    private Playlist playlist = new Playlist(1L);
+    private PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
 
     @Mock private PlaylistDetailsController controller;
     @Mock private PlaybackOperations playbackOperations;
@@ -77,6 +76,20 @@ public class PlaylistFragmentTest {
     }
 
     @Test
+    public void shouldForwardOnViewCreatedEventToController() {
+        View layout = createFragmentView();
+
+        verify(controller).onViewCreated(layout, Robolectric.application.getResources());
+    }
+
+    @Test
+    public void shouldForwardOnDestroyViewEventToController() {
+        fragment.onDestroyView();
+
+        verify(controller).onDestroyView();
+    }
+
+    @Test
     public void shouldNotShowPlayToggleButtonWithNoTracks() throws Exception {
         View layout = createFragmentView();
 
@@ -86,7 +99,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldHidePlayToggleButtonWithNoTracks() throws Exception {
-        final Track track = TestHelper.getModelFactory().createModel(Track.class);
+        final PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         playlist.tracks = Lists.newArrayList(track);
         View layout = createFragmentView();
 
@@ -97,9 +110,9 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldHidePlayToggleButtonOnSecondPlaylistEmissionWithNoTracks() throws Exception {
-        final Track track = TestHelper.getModelFactory().createModel(Track.class);
+        final PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         playlist.tracks = Lists.newArrayList(track);
-        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(Arrays.asList(playlist, new Playlist(playlist.getId()))));
+        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(Arrays.asList(playlist, new PublicApiPlaylist(playlist.getId()))));
         View layout = createFragmentView();
 
         ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
@@ -146,7 +159,7 @@ public class PlaylistFragmentTest {
     }
 
     public void shouldOpenUserProfileWhenUsernameTextIsClicked() throws Exception {
-        User user = new User();
+        PublicApiUser user = new PublicApiUser();
         playlist.setUser(user);
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
         when(playQueueManager.getPlaylistId()).thenReturn(playlist.getId());
@@ -179,7 +192,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void callsShowContentWhenErrorIsReturned() throws Exception {
-        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.<Playlist>error(new Exception("something bad happened")));
+        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.<PublicApiPlaylist>error(new Exception("something bad happened")));
         createFragmentView();
 
         InOrder inOrder = Mockito.inOrder(controller);
@@ -196,7 +209,7 @@ public class PlaylistFragmentTest {
     @Test
     public void setsEmptyViewToErrorWhenErrorIsReturned() throws Exception {
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
-                Observable.<Playlist>error(new Exception("something bad happened")));
+                Observable.<PublicApiPlaylist>error(new Exception("something bad happened")));
         createFragmentView();
         verify(controller).setEmptyViewStatus(EmptyView.Status.ERROR);
     }
@@ -209,7 +222,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void setsPlayableOnEngagementsControllerTwiceWhenPlaylistEmittedTwice() throws Exception {
-        Playlist playlist2 = new Playlist(2L);
+        PublicApiPlaylist playlist2 = new PublicApiPlaylist(2L);
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
                 Observable.from(Arrays.asList(playlist, playlist2)));
         createFragmentView();
@@ -221,8 +234,8 @@ public class PlaylistFragmentTest {
 
     @Test
     public void clearsAndAddsAllItemsToAdapterWhenPlaylistIsReturned() throws Exception {
-        final Track track1 = createTrackWithTitle("Track 1");
-        final Track track2 = createTrackWithTitle("Track 2");
+        final PublicApiTrack track1 = createTrackWithTitle("Track 1");
+        final PublicApiTrack track2 = createTrackWithTitle("Track 2");
 
         playlist.tracks = Lists.newArrayList(track1, track2);
 
@@ -236,10 +249,10 @@ public class PlaylistFragmentTest {
 
     @Test
     public void clearsAndAddsAllItemsToAdapterForEachPlaylistWhenPlaylistIsEmittedMultipleTimes() throws Exception {
-        final Track track1 = createTrackWithTitle("Track 1");
-        final Track track2 = createTrackWithTitle("Title 2");
+        final PublicApiTrack track1 = createTrackWithTitle("Track 1");
+        final PublicApiTrack track2 = createTrackWithTitle("Title 2");
         playlist.tracks = Lists.newArrayList(track1);
-        Playlist playlist2 = new Playlist(playlist.getId());
+        PublicApiPlaylist playlist2 = new PublicApiPlaylist(playlist.getId());
         playlist2.tracks = Lists.newArrayList(track1, track2);
 
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
@@ -257,10 +270,10 @@ public class PlaylistFragmentTest {
 
     @Test
     public void updatesContentWhenRefreshIsSuccessful() throws CreateModelException {
-        final Track track1 = createTrackWithTitle("Track 1");
-        final Track track2 = createTrackWithTitle("Track 2");
+        final PublicApiTrack track1 = createTrackWithTitle("Track 1");
+        final PublicApiTrack track2 = createTrackWithTitle("Track 2");
         playlist.tracks = Lists.newArrayList(track1);
-        Playlist playlist2 = new Playlist(playlist.getId());
+        PublicApiPlaylist playlist2 = new PublicApiPlaylist(playlist.getId());
         playlist2.tracks = Lists.newArrayList(track2);
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
         when(playlistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist2));
@@ -277,7 +290,7 @@ public class PlaylistFragmentTest {
     @Test
     public void showsToastErrorWhenContentAlreadyShownAndRefreshFails() {
         when(playlistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
-                Observable.<Playlist>error(new Exception("cannot refresh")));
+                Observable.<PublicApiPlaylist>error(new Exception("cannot refresh")));
         when(controller.hasContent()).thenReturn(true);
 
         createFragmentView();
@@ -288,11 +301,11 @@ public class PlaylistFragmentTest {
 
     @Test
     public void doesNotShowInlineErrorWhenContentWhenAlreadyShownAndRefreshFails() throws CreateModelException {
-        final Track track = TestHelper.getModelFactory().createModel(Track.class);
+        final PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         playlist.tracks = Lists.newArrayList(track);
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
         when(playlistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
-                Observable.<Playlist>error(new Exception("cannot refresh")));
+                Observable.<PublicApiPlaylist>error(new Exception("cannot refresh")));
         when(controller.hasContent()).thenReturn(true);
 
         createFragmentView();
@@ -304,7 +317,7 @@ public class PlaylistFragmentTest {
     @Test
     public void hidesRefreshStateWhenRefreshFails() {
         when(playlistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
-                Observable.<Playlist>error(new Exception("cannot refresh")));
+                Observable.<PublicApiPlaylist>error(new Exception("cannot refresh")));
         when(controller.hasContent()).thenReturn(true);
 
         createFragmentView();
@@ -344,15 +357,15 @@ public class PlaylistFragmentTest {
         expect(toggleButton.isChecked()).toBeFalse();
     }
 
-    private Track createTrackWithTitle(String title) throws com.tobedevoured.modelcitizen.CreateModelException {
-        final Track model = TestHelper.getModelFactory().createModel(Track.class);
+    private PublicApiTrack createTrackWithTitle(String title) throws com.tobedevoured.modelcitizen.CreateModelException {
+        final PublicApiTrack model = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         model.setTitle(title);
         return model;
     }
 
     private View createFragmentView() {
         Bundle bundle = new Bundle();
-        bundle.putParcelable(Playlist.EXTRA_URN, playlist.getUrn());
+        bundle.putParcelable(PublicApiPlaylist.EXTRA_URN, playlist.getUrn());
         Screen.SIDE_MENU_STREAM.addToBundle(bundle);
         fragment.setArguments(bundle);
         fragment.onCreate(null);

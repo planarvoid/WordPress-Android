@@ -2,7 +2,7 @@ package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.creators.upload.UploadService.TAG;
 
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 

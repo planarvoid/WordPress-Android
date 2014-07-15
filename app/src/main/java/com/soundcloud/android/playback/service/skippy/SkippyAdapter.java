@@ -11,13 +11,13 @@ import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackUrn;
-import com.soundcloud.android.model.UserUrn;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackServiceOperations;
@@ -76,12 +76,12 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     @Override
-    public void play(Track track) {
+    public void play(PublicApiTrack track) {
         play(track, 0);
     }
 
     @Override
-    public void play(Track track, long fromPos) {
+    public void play(PublicApiTrack track, long fromPos) {
         currentTrackUrn = track.getUrn();
 
         if (!accountOperations.isUserLoggedIn()) {
@@ -117,7 +117,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         }
     }
 
-    private void logPlayCount(Track track) {
+    protected void logPlayCount(PublicApiTrack track) {
         playbackOperations.logPlay(track.getUrn()).subscribe(new DefaultSubscriber<TrackUrn>() {
             @Override
             public void onNext(TrackUrn trackUrn) {

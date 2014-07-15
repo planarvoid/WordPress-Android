@@ -2,12 +2,12 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.api.AsyncApiTask;
+import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.AsyncApiTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -45,7 +45,7 @@ public class LoadCommentsTask extends AsyncApiTask<Long, Void, List<Comment>> {
     @Override
     protected void onPostExecute(List<Comment> comments) {
         if (comments != null) {
-            Track cached =  SoundCloudApplication.sModelManager.getTrack(mTrackId);
+            PublicApiTrack cached =  SoundCloudApplication.sModelManager.getTrack(mTrackId);
 
             if (cached != null) {
                 cached.comments = comments;

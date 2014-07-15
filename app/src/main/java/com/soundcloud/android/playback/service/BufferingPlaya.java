@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.service;
 
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 
 import javax.inject.Inject;
 
@@ -11,12 +11,12 @@ public class BufferingPlaya implements Playa {
     }
 
     @Override
-    public void play(Track track) {
+    public void play(PublicApiTrack track) {
 
     }
 
     @Override
-    public void play(Track track, long fromPos) {
+    public void play(PublicApiTrack track, long fromPos) {
 
     }
 

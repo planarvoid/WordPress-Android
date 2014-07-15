@@ -10,11 +10,11 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.LocalCollection;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.android.storage.PlaylistStorage;
@@ -41,7 +41,7 @@ import android.os.Bundle;
 public class LegacyPlaylistOperationsTest {
 
     private LegacyPlaylistOperations playlistOperations;
-    private Playlist playlist;
+    private PublicApiPlaylist playlist;
     private Subscriber<SyncResult> syncSubscriber = new TestSubscriber<SyncResult>();
 
     @Mock
@@ -59,21 +59,21 @@ public class LegacyPlaylistOperationsTest {
     @Mock
     private Account account;
     @Mock
-    private Observer<Playlist> observer;
+    private Observer<PublicApiPlaylist> observer;
 
     @Before
     public void setup() {
         playlistOperations = new LegacyPlaylistOperations(playlistStorage, soundAssociationStorage,
                 syncInitiator, syncStateManager);
-        playlist = new Playlist(123L);
+        playlist = new PublicApiPlaylist(123L);
 
-        Observable<Playlist> storageObservable = Observable.from(playlist);
+        Observable<PublicApiPlaylist> storageObservable = Observable.from(playlist);
         when(playlistStorage.loadPlaylistAsync(123L)).thenReturn(storageObservable);
     }
 
     @Test
     public void shouldCreateNewPlaylist() {
-        User currentUser = new User();
+        PublicApiUser currentUser = new PublicApiUser();
         long firstTrackId = 1L;
 
         when(playlistStorage.createNewUserPlaylistAsync(
@@ -99,9 +99,9 @@ public class LegacyPlaylistOperationsTest {
 
     @Test
     public void loadPlaylistShouldSyncPlaylistWhenNotPresentInLocalStorage() throws Exception {
-        final Playlist playlist = new Playlist(1L);
+        final PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
         when(playlistStorage.loadPlaylistWithTracksAsync(playlist.getId())).thenReturn(
-                Observable.<Playlist>error(new NotFoundException(playlist.getId())), Observable.just(playlist));
+                Observable.<PublicApiPlaylist>error(new NotFoundException(playlist.getId())), Observable.just(playlist));
         when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(true));
 
         playlistOperations.loadPlaylist(playlist.getUrn()).subscribe(observer);
@@ -111,10 +111,10 @@ public class LegacyPlaylistOperationsTest {
 
     @Test
     public void loadPlaylistShouldForwardErrorsFromLocalStorage() throws Exception {
-        final Playlist playlist = new Playlist(1L);
+        final PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
         Exception exception = new Exception();
         when(playlistStorage.loadPlaylistWithTracksAsync(playlist.getId())).thenReturn(
-                Observable.<Playlist>error(exception));
+                Observable.<PublicApiPlaylist>error(exception));
 
         playlistOperations.loadPlaylist(playlist.getUrn()).subscribe(observer);
 
@@ -125,8 +125,8 @@ public class LegacyPlaylistOperationsTest {
 
     @Test
     public void loadPlaylistShouldNotSyncAndEmitPlaylistImmediatelyIfPlaylistUpToDate() {
-        final Playlist playlist = new Playlist(1L);
-        expect(Playlist.isLocal(playlist.getId())).toBeFalse();
+        final PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
+        expect(PublicApiPlaylist.isLocal(playlist.getId())).toBeFalse();
 
         when(syncState.isSyncDue()).thenReturn(false);
         when(syncStateManager.fromContent(playlist.toUri())).thenReturn(syncState);
@@ -145,7 +145,7 @@ public class LegacyPlaylistOperationsTest {
 
     @Test
     public void loadPlaylistShouldEmitPlaylistThenTriggerSyncIfPlaylistExistsButNeedsSyncing() {
-        final Playlist playlist = new Playlist(1L);
+        final PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
 
         when(syncState.isSyncDue()).thenReturn(true);
         when(syncStateManager.fromContent(playlist.toUri())).thenReturn(syncState);
@@ -166,8 +166,8 @@ public class LegacyPlaylistOperationsTest {
 
     @Test
     public void loadPlaylistTriggersSyncAndEmitsPlaylistIfPlaylistExistsButIsALocalPlaylist() {
-        final Playlist playlist = new Playlist(-123L);
-        expect(Playlist.isLocal(playlist.getId())).toBeTrue();
+        final PublicApiPlaylist playlist = new PublicApiPlaylist(-123L);
+        expect(PublicApiPlaylist.isLocal(playlist.getId())).toBeTrue();
 
         when(syncState.isSyncDue()).thenReturn(false);
         when(syncStateManager.fromContent(playlist.toUri())).thenReturn(syncState);
@@ -184,7 +184,7 @@ public class LegacyPlaylistOperationsTest {
 
     @Test
     public void loadPlaylistShouldEmitErrorOnFailedPlaylistSync() throws Exception {
-        final Playlist playlist = new Playlist(1L);
+        final PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
         when(syncState.isSyncDue()).thenReturn(true);
         when(syncStateManager.fromContent(playlist.toUri())).thenReturn(syncState);
         when(playlistStorage.loadPlaylistWithTracksAsync(playlist.getId())).thenReturn(
@@ -204,7 +204,7 @@ public class LegacyPlaylistOperationsTest {
 
     @Test
     public void refreshPlaylistSyncsAndEmitsPlaylistFromLocalStorage() throws Exception {
-        final Playlist playlist = new Playlist(1L);
+        final PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
         when(playlistStorage.loadPlaylistWithTracksAsync(playlist.getId())).thenReturn(Observable.just(playlist));
         when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(true));
 

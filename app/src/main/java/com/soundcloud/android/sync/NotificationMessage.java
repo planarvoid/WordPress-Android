@@ -4,10 +4,10 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.image.ApiImageSize;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.activities.Activities;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.service.sync.NotificationImageDownloader;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
@@ -82,7 +82,7 @@ class NotificationMessage {
         } else if (!comments.isEmpty() && likes.isEmpty() && reposts.isEmpty()) {
             // only comments
             List<Playable> playables = comments.getUniquePlayables();
-            List<User> users = comments.getUniqueUsers();
+            List<PublicApiUser> users = comments.getUniqueUsers();
 
             ticker = res.getQuantityString(
                     R.plurals.dashboard_notifications_activity_ticker_comment,
@@ -111,7 +111,7 @@ class NotificationMessage {
         } else {
            // mix of likes, comments, reposts
             List<Playable> playables = activities.getUniquePlayables();
-            List<User> users = activities.getUniqueUsers();
+            List<PublicApiUser> users = activities.getUniqueUsers();
             ticker = res.getQuantityString(R.plurals.dashboard_notifications_activity_ticker_activity,
                     activities.size(),
                     activities.size());
@@ -128,7 +128,7 @@ class NotificationMessage {
         }
     }
 
-    static void showNewFollower(SoundCloudApplication app, User u) {
+    static void showNewFollower(SoundCloudApplication app, PublicApiUser u) {
         showDashboardNotification(app,
                 app.getString(R.string.dashboard_notifications_ticker_follower),
                 app.getString(R.string.dashboard_notifications_title_follower),
@@ -188,7 +188,7 @@ class NotificationMessage {
     }
 
     /* package */ static String getIncomingNotificationMessage(SoundCloudApplication app, Activities activites) {
-        List<User> users = activites.getUniqueUsers();
+        List<PublicApiUser> users = activites.getUniqueUsers();
         switch (users.size()) {
             case 0:
                 return ""; // should not get this far, but in case

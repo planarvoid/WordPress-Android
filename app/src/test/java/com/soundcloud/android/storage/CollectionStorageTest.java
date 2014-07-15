@@ -13,10 +13,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.model.SoundAssociationHolder;
-import com.soundcloud.android.model.SoundAssociationTest;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.SoundAssociationHolder;
+import com.soundcloud.android.api.legacy.model.SoundAssociationTest;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -57,8 +57,8 @@ public class CollectionStorageTest {
         Arrays.fill(requestedIds, 1L);
         requestedIds[0] = 2L;
 
-        Track track1 = buildCompleteTrack(1L);
-        Track track2 = buildCompleteTrack(2L);
+        PublicApiTrack track1 = buildCompleteTrack(1L);
+        PublicApiTrack track2 = buildCompleteTrack(2L);
 
         TestHelper.bulkInsert(track1, track2);
 
@@ -94,7 +94,7 @@ public class CollectionStorageTest {
     public void shouldWriteMissingCollectionItems() throws Exception {
         addPendingHttpResponse(getClass(), "5_users.json");
 
-        List<User> users = new ArrayList<User>();
+        List<PublicApiUser> users = new ArrayList<PublicApiUser>();
         for (int i = 0; i < 2; i++){
             users.add(createUserWithId(i));
         }
@@ -125,22 +125,22 @@ public class CollectionStorageTest {
         expect(Content.ME_LIKES).toHaveCount(0);
     }
 
-    public static List<Track> createTracks() {
-        List<Track> items = new ArrayList<Track>();
+    public static List<PublicApiTrack> createTracks() {
+        List<PublicApiTrack> items = new ArrayList<PublicApiTrack>();
 
-        User u1 = new User();
+        PublicApiUser u1 = new PublicApiUser();
         u1.permalink = "u1";
         u1.setId(100L);
 
-        Track t = new Track();
+        PublicApiTrack t = new PublicApiTrack();
         t.setId(200L);
         t.user = u1;
 
-        User u2 = new User();
+        PublicApiUser u2 = new PublicApiUser();
         u2.permalink = "u2";
         u2.setId(300L);
 
-        Track t2 = new Track();
+        PublicApiTrack t2 = new PublicApiTrack();
         t2.setId(400);
         t2.user = u2;
 
@@ -149,16 +149,16 @@ public class CollectionStorageTest {
         return items;
     }
 
-    private User createUserWithId(long id){
-        User u = new User();
+    private PublicApiUser createUserWithId(long id){
+        PublicApiUser u = new PublicApiUser();
         u.setId(id);
         return u;
     }
 
-    private Track buildCompleteTrack(long id) {
-        Track track = new Track(id);
+    private PublicApiTrack buildCompleteTrack(long id) {
+        PublicApiTrack track = new PublicApiTrack(id);
         track.created_at = new Date();
-        track.state = Track.State.FINISHED;
+        track.state = PublicApiTrack.State.FINISHED;
         track.duration = 100;
         expect(track.isCompleteTrack()).toBeTrue();
         return track;

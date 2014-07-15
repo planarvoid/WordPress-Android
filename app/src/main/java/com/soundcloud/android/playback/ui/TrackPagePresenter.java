@@ -6,7 +6,8 @@ import static com.soundcloud.android.playback.ui.PlayerArtworkController.PlayerA
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.playback.ui.view.PlayerArtworkView;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;

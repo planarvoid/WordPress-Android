@@ -1,15 +1,16 @@
 package com.soundcloud.android.playback.service;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.TrackProperty;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.track.TrackOperations;
+import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
@@ -41,13 +42,19 @@ public class PlaybackNotificationController {
     private final int targetIconWidth;
     private final int targetIconHeight;
 
+    /** NOTE : this requires this class to be instantiated before the playback service or it will not receive the first
+     ** One way to fix this would be to make the queue a replay queue, but its currently not necessary */
+    private PlayerLifeCycleEvent lastPlayerLifecycleEvent = PlayerLifeCycleEvent.forDestroyed();
+
     private Observable<Notification> notificationObservable;
     private Subscription imageSubscription = Subscriptions.empty();
 
     private final Action1<Notification> notifyAction = new Action1<Notification>() {
         @Override
         public void call(Notification notification) {
-            notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notification);
+            if (lastPlayerLifecycleEvent.isServiceAlive()){
+                notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notification);
+            }
         }
     };
 
@@ -89,6 +96,13 @@ public class PlaybackNotificationController {
     public void subscribe() {
         eventBus.queue(EventQueue.PLAY_QUEUE).filter(PlayQueueEvent.TRACK_HAS_CHANGED_FILTER)
                 .mergeMap(onPlayQueueEventFunc).doOnNext(notifyAction).subscribe();
+
+        eventBus.subscribe(EventQueue.PLAYER_LIFE_CYCLE, new DefaultSubscriber<PlayerLifeCycleEvent>() {
+            @Override
+            public void onNext(PlayerLifeCycleEvent args) {
+                lastPlayerLifecycleEvent = args;
+            }
+        });
     }
 
     Observable<Notification> playingNotification() {
@@ -117,7 +131,9 @@ public class PlaybackNotificationController {
                 @Override
                 public void onNext(Bitmap args) {
                     presenter.setIcon(notification, imageOperations.getLocalImageUri(trackUrn, getApiImageSize()));
-                    notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notification);
+                    if (lastPlayerLifecycleEvent.isServiceAlive()){
+                        notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notification);
+                    }
                 }
             });
         }

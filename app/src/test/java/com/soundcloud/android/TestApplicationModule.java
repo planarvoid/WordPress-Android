@@ -5,12 +5,12 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.analytics.AnalyticsProvider;
+import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
-import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.api.http.json.JsonTransformer;
+import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.playback.service.PlaybackNotificationController;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;

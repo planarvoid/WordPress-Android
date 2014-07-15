@@ -5,7 +5,7 @@ import static com.soundcloud.android.Consts.Notifications.RECORD_NOTIFY_ID;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.utils.ScTextUtils;
 

@@ -7,14 +7,14 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.OriginProvider;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.SoundCloudRxHttpClient;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.image.ApiImageSize;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.playback.service.Playa;
@@ -41,7 +41,7 @@ import java.util.List;
 public class LegacyPlayerTrackView extends FrameLayout implements PlayerTrackView,
         LoadCommentsTask.LoadCommentsListener, WaveformControllerLayout.WaveformListener, EngagementsController.AddToPlaylistListener {
 
-    protected Track track;
+    protected PublicApiTrack track;
     protected boolean onScreen;
     protected WaveformControllerLayout waveformController;
 
@@ -60,7 +60,7 @@ public class LegacyPlayerTrackView extends FrameLayout implements PlayerTrackVie
     private TextView mDebugTextView;
 
     public interface PlayerTrackViewListener extends WaveformControllerLayout.WaveformListener {
-        void onAddToPlaylist(Track track);
+        void onAddToPlaylist(PublicApiTrack track);
         void onCloseCommentMode();
     }
     public LegacyPlayerTrackView(final Context context, AttributeSet attrs) {
@@ -115,7 +115,7 @@ public class LegacyPlayerTrackView extends FrameLayout implements PlayerTrackVie
     }
 
     @Override
-    public void onAddToPlaylist(Track track) {
+    public void onAddToPlaylist(PublicApiTrack track) {
         // just forward to player. This will be nicer after the player refactor
         mListener.onAddToPlaylist(track);
     }
@@ -126,7 +126,7 @@ public class LegacyPlayerTrackView extends FrameLayout implements PlayerTrackVie
         waveformController.setOnScreen(onScreen);
     }
 
-    public void setTrackState(Track track, int queuePosition, PlaybackStateProvider playbackStateProvider){
+    public void setTrackState(PublicApiTrack track, int queuePosition, PlaybackStateProvider playbackStateProvider){
         this.track = track;
         mQueuePosition = queuePosition;
         waveformController.updateTrack(this.track, mQueuePosition, true);

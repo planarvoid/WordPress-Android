@@ -6,8 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -45,7 +45,7 @@ public class TrackGridPresenterTest {
 
     @Test
     public void shouldBindItemView() throws CreateModelException {
-        TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
+        ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
 
         View itemView = mock(View.class);
         when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
@@ -60,7 +60,7 @@ public class TrackGridPresenterTest {
 
     @Test
     public void shouldHideGenreIfNoGenreAvailable() throws CreateModelException {
-        TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
+        ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
         track.setGenre(null);
 
         View itemView = mock(View.class);

@@ -1,7 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.res.Resources;

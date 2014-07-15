@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
                 style="@style/ListItemContainer"
                 android:id="@+id/track_info_row"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical">
-    <com.soundcloud.android.view.OptimisedImageView style="@style/PlayableIcon"
+    <com.soundcloud.android.view.OptimisedImageView
+               style="@style/PlayableIcon"
                android:id="@+id/icon"
                android:layout_alignParentLeft="true"
                android:layout_alignParentTop="true"
@@ -13,7 +15,8 @@
                android:layout_height="@dimen/activity_icon_height"
                android:layout_marginRight="@dimen/list_icon_margin_right"
                android:gravity="center_vertical" />
-    <TextView android:id="@+id/user"
+    <com.soundcloud.android.view.CustomFontTextView
+              android:id="@+id/user"
               android:layout_height="wrap_content"
               style="@style/Widget.TextView.Playable.Username"
               android:text="@string/user"
@@ -23,8 +26,10 @@
               android:layout_width="wrap_content"
               android:layout_alignTop="@id/icon"
               android:layout_toRightOf="@id/icon"
-              android:layout_toLeftOf="@+id/created_at"/>
-    <TextView android:id="@id/created_at"
+              android:layout_toLeftOf="@+id/created_at"
+              app:custom_font="fonts/Roboto-Light.ttf" />
+    <com.soundcloud.android.view.CustomFontTextView
+              android:id="@id/created_at"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               style="@style/TextAppearance.List.CreatedAt"
@@ -32,8 +37,10 @@
               android:paddingLeft="0dip"
               android:singleLine="true"
               android:ellipsize="end"
-              android:layout_alignParentRight="true"/>
-    <TextView android:id="@+id/title"
+              android:layout_alignParentRight="true"
+              app:custom_font="fonts/Roboto-Light.ttf" />
+    <com.soundcloud.android.view.CustomFontTextView
+              android:id="@+id/title"
               android:layout="@id/user"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
@@ -41,5 +48,6 @@
               android:layout_below="@id/user"
               style="@style/TextAppearance.List.Main"
               android:textStyle="normal"
-              android:text="@string/track" />
+              android:text="@string/track"
+              app:custom_font="fonts/Roboto-Light.ttf" />
 </RelativeLayout>

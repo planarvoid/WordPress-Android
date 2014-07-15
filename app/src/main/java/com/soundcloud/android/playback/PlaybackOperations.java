@@ -8,17 +8,17 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -57,7 +57,7 @@ public class PlaybackOperations {
         @Override
         public boolean apply(ScModel input) {
             return input instanceof PlayableHolder &&
-                    ((PlayableHolder) input).getPlayable() instanceof Track;
+                    ((PlayableHolder) input).getPlayable() instanceof PublicApiTrack;
         }
     };
 
@@ -84,18 +84,18 @@ public class PlaybackOperations {
     /**
      * Single play, the tracklist will be of length 1
      */
-    public void playTrack(Context activityContext, Track track, Screen screen) {
+    public void playTrack(Context activityContext, PublicApiTrack track, Screen screen) {
         playFromIdList(activityContext, Lists.newArrayList(track.getId()), 0, track, new PlaySessionSource(screen));
     }
 
-    private void playTrack(Context activityContext, Track track, PlaySessionSource playSessionSource, boolean loadRelated) {
+    private void playTrack(Context activityContext, PublicApiTrack track, PlaySessionSource playSessionSource, boolean loadRelated) {
         playFromIdList(activityContext, Lists.newArrayList(track.getId()), 0, track, playSessionSource, loadRelated);
     }
 
     /**
      * Created by anything played from the {@link com.soundcloud.android.explore.ExploreFragment} section.
      */
-    public void playExploreTrack(Context activityContext, Track track, String exploreTag, String screenTag) {
+    public void playExploreTrack(Context activityContext, PublicApiTrack track, String exploreTag, String screenTag) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screenTag);
         playSessionSource.setExploreVersion(exploreTag);
         playTrack(activityContext, track, playSessionSource, true);
@@ -111,12 +111,12 @@ public class PlaybackOperations {
         playTracks(activityContext, initialTrackUrn, allTracks, startPosition, playSessionSource);
     }
 
-    public void playPlaylist(Playlist playlist, Screen screen) {
+    public void playPlaylist(PublicApiPlaylist playlist, Screen screen) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen.get());
         playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
-        final List<Long> trackIds = Lists.transform(playlist.getTracks(), new Function<Track, Long>() {
+        final List<Long> trackIds = Lists.transform(playlist.getTracks(), new Function<PublicApiTrack, Long>() {
             @Override
-            public Long apply(Track track) {
+            public Long apply(PublicApiTrack track) {
                 return track.getId();
             }
         });
@@ -130,19 +130,19 @@ public class PlaybackOperations {
         }
 
         Playable playable = ((PlayableHolder) data.get(position)).getPlayable();
-        if (playable instanceof Track) {
+        if (playable instanceof PublicApiTrack) {
 
             final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
             final int adjustedPosition = Collections2.filter(data.subList(0, position), PLAYABLE_HOLDER_PREDICATE).size();
 
             if (uri != null) {
-                playFromUri(activityContext, uri, position, (Track) playable, playSessionSource);
+                playFromUri(activityContext, uri, position, (PublicApiTrack) playable, playSessionSource);
             } else {
-                playFromIdList(activityContext, getPlayableIdsFromModels(data), adjustedPosition, (Track) playable, playSessionSource);
+                playFromIdList(activityContext, getPlayableIdsFromModels(data), adjustedPosition, (PublicApiTrack) playable, playSessionSource);
             }
 
-        } else if (playable instanceof Playlist) {
-            PlaylistDetailActivity.start(activityContext, (Playlist) playable, modelManager, screen);
+        } else if (playable instanceof PublicApiPlaylist) {
+            PlaylistDetailActivity.start(activityContext, (PublicApiPlaylist) playable, modelManager, screen);
         } else {
             throw new AssertionError("Unexpected playable type");
         }
@@ -167,7 +167,7 @@ public class PlaybackOperations {
         }
     }
 
-    public void startPlaybackWithRecommendations(Track track, Screen screen) {
+    public void startPlaybackWithRecommendations(PublicApiTrack track, Screen screen) {
         modelManager.cache(track);
         startPlaybackWithRecommendations(track.getId(), screen);
     }
@@ -200,6 +200,10 @@ public class PlaybackOperations {
         seek(SEEK_POSITION_RESET);
     }
 
+    public void stopService() {
+        context.startService(new Intent(PlaybackService.Actions.STOP_ACTION));
+    }
+
     public void seek(long position) {
         Intent intent = new Intent(PlaybackService.Actions.SEEK);
         intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, position);
@@ -225,7 +229,7 @@ public class PlaybackOperations {
     }
 
     @Deprecated
-    private Subscription playFromUri(final Context activityContext, Uri uri, final int startPosition, final Track initialTrack,
+    private Subscription playFromUri(final Context activityContext, Uri uri, final int startPosition, final PublicApiTrack initialTrack,
                                      final PlaySessionSource playSessionSource) {
         if (shouldChangePlayQueue(initialTrack.getUrn(), playSessionSource)) {
             return trackStorage.getTrackIdsForUriAsync(uri)
@@ -241,7 +245,7 @@ public class PlaybackOperations {
     private Subscriber<List<Long>> trackListLoadedSubscriber(final Context context, final int startPosition,
                                                              final PlaySessionSource playSessionSource,
                                                              final TrackUrn initialTrackUrn,
-                                                             @Nullable final Track initialTrack) {
+                                                             @Nullable final PublicApiTrack initialTrack) {
         showPlayer(context, initialTrackUrn, initialTrack);
         return new DefaultSubscriber<List<Long>>() {
             @Override
@@ -254,12 +258,12 @@ public class PlaybackOperations {
         };
     }
 
-    private void playFromIdList(Context activityContext, List<Long> idList, int startPosition, Track initialTrack,
+    private void playFromIdList(Context activityContext, List<Long> idList, int startPosition, PublicApiTrack initialTrack,
                                 PlaySessionSource playSessionSource) {
         playFromIdList(activityContext, idList, startPosition, initialTrack, playSessionSource, false);
     }
 
-    private void playFromIdList(Context activityContext, List<Long> idList, int startPosition, Track initialTrack,
+    private void playFromIdList(Context activityContext, List<Long> idList, int startPosition, PublicApiTrack initialTrack,
                                 PlaySessionSource playSessionSource, boolean loadRelated) {
         showPlayer(activityContext, initialTrack.getUrn(), initialTrack);
 
@@ -274,7 +278,7 @@ public class PlaybackOperations {
     }
 
     @Deprecated
-    private void showPlayer(Context activityContext, TrackUrn trackUrn, @Nullable Track initialTrack) {
+    private void showPlayer(Context activityContext, TrackUrn trackUrn, @Nullable PublicApiTrack initialTrack) {
         modelManager.cache(initialTrack);
         if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
             eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
@@ -285,7 +289,7 @@ public class PlaybackOperations {
 
     private void openLegacyPlayer(Context activityContext, long initialTrackId) {
         Intent playerActivityIntent = new Intent(Actions.PLAYER)
-                .putExtra(Track.EXTRA_ID, initialTrackId)
+                .putExtra(PublicApiTrack.EXTRA_ID, initialTrackId)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         activityContext.startActivity(playerActivityIntent);
     }

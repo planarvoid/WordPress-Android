@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.playback.ui.PlayerArtworkView.OnWidthChangedListener;
+import static com.soundcloud.android.playback.ui.view.PlayerArtworkView.OnWidthChangedListener;
 import static com.soundcloud.android.playback.ui.progress.ProgressController.ProgressAnimationControllerFactory;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.OnScrubListener;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
@@ -14,6 +14,7 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
+import com.soundcloud.android.playback.ui.view.PlayerArtworkView;
 
 import android.graphics.Bitmap;
 import android.view.View;

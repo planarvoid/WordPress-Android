@@ -13,12 +13,12 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
@@ -66,10 +66,10 @@ public class EngagementsControllerTest {
 
     @Test
     public void shouldPublishUIEventWhenLikingPlayable() {
-        controller.setPlayable(new Track(1L));
+        controller.setPlayable(new PublicApiTrack(1L));
 
         when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class)))
-                .thenReturn(Observable.just(new SoundAssociation(new Track())));
+                .thenReturn(Observable.just(new SoundAssociation(new PublicApiTrack())));
         rootView.findViewById(R.id.toggle_like).performClick();
 
         UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
@@ -79,10 +79,10 @@ public class EngagementsControllerTest {
 
     @Test
     public void shouldPublishUIEventWhenUnlikingPlayable() {
-        controller.setPlayable(new Track(1L));
+        controller.setPlayable(new PublicApiTrack(1L));
 
         when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class)))
-                .thenReturn(Observable.just(new SoundAssociation(new Track())));
+                .thenReturn(Observable.just(new SoundAssociation(new PublicApiTrack())));
         ToggleButton likeToggle = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         likeToggle.setChecked(true);
         likeToggle.performClick();
@@ -94,10 +94,10 @@ public class EngagementsControllerTest {
 
     @Test
     public void shouldPublishUIEventWhenRepostingPlayable() {
-        controller.setPlayable(new Track(1L));
+        controller.setPlayable(new PublicApiTrack(1L));
 
         when(soundAssocOps.toggleRepost(anyBoolean(), any(Playable.class)))
-                .thenReturn(Observable.just(new SoundAssociation(new Track())));
+                .thenReturn(Observable.just(new SoundAssociation(new PublicApiTrack())));
         rootView.findViewById(R.id.toggle_repost).performClick();
 
         UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
@@ -107,10 +107,10 @@ public class EngagementsControllerTest {
 
     @Test
     public void shouldPublishUIEventWhenUnrepostingPlayable() {
-        controller.setPlayable(new Track(1L));
+        controller.setPlayable(new PublicApiTrack(1L));
 
         when(soundAssocOps.toggleRepost(anyBoolean(), any(Playable.class)))
-                .thenReturn(Observable.just(new SoundAssociation(new Track())));
+                .thenReturn(Observable.just(new SoundAssociation(new PublicApiTrack())));
         ToggleButton repostToggle = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
         repostToggle.setChecked(true);
         repostToggle.performClick();
@@ -123,7 +123,7 @@ public class EngagementsControllerTest {
 
     @Test
     public void shouldPublishUIEventWhenSharingPlayable() {
-        controller.setPlayable(new Track(1L));
+        controller.setPlayable(new PublicApiTrack(1L));
 
         rootView.findViewById(R.id.btn_share).performClick();
 
@@ -140,7 +140,7 @@ public class EngagementsControllerTest {
 
     @Test
     public void shouldLikeTrackWhenCheckingLikeButton() {
-        Track track = new Track();
+        PublicApiTrack track = new PublicApiTrack();
         controller.setPlayable(track);
 
         ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
@@ -158,7 +158,7 @@ public class EngagementsControllerTest {
 
     @Test
     public void shouldResetLikeButtonToPreviousStateWhenLikingFails() {
-        Track track = new Track();
+        PublicApiTrack track = new PublicApiTrack();
         controller.setPlayable(track);
 
         ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
@@ -176,7 +176,7 @@ public class EngagementsControllerTest {
 
     @Test
     public void shouldRepostTrackWhenCheckingRepostButton() {
-        Track track = new Track();
+        PublicApiTrack track = new PublicApiTrack();
         controller.setPlayable(track);
 
         ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
@@ -194,7 +194,7 @@ public class EngagementsControllerTest {
 
     @Test
     public void shouldResetRepostButtonToPreviousStateWhenRepostingFails() {
-        Track track = new Track();
+        PublicApiTrack track = new PublicApiTrack();
         controller.setPlayable(track);
 
         ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
@@ -212,7 +212,7 @@ public class EngagementsControllerTest {
 
     @Test
     public void shouldUnsubscribeFromOngoingSubscriptionsWhenActivityDestroyed() {
-        Track track = new Track();
+        PublicApiTrack track = new PublicApiTrack();
         controller.setPlayable(track);
 
         ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
@@ -232,7 +232,7 @@ public class EngagementsControllerTest {
 
     @Test
     public void shouldBeAbleToUnsubscribeThenResubscribeToChangeEvents() {
-        final Track track = new Track(1L);
+        final PublicApiTrack track = new PublicApiTrack(1L);
         controller.setPlayable(track);
 
         controller.stopListeningForChanges();
@@ -247,7 +247,7 @@ public class EngagementsControllerTest {
 
     @Test
     public void shouldUpdateLikeOrRepostButtonWhenCurrentPlayableChanged() {
-        Track track = new Track(1L);
+        PublicApiTrack track = new PublicApiTrack(1L);
         track.user_like = false;
         track.user_repost = false;
         controller.setPlayable(track);
@@ -257,7 +257,7 @@ public class EngagementsControllerTest {
         ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
         expect(repostButton.isChecked()).toBeFalse();
 
-        Track likedTrack = new Track(1L);
+        PublicApiTrack likedTrack = new PublicApiTrack(1L);
         likedTrack.user_like = true;
         likedTrack.user_repost = true;
 
@@ -269,7 +269,7 @@ public class EngagementsControllerTest {
 
     @Test
     public void shouldNotUpdateLikeOrRepostButtonStateForOtherPlayables() {
-        Track track = new Track(1L);
+        PublicApiTrack track = new PublicApiTrack(1L);
         controller.setPlayable(track);
 
         ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
@@ -277,7 +277,7 @@ public class EngagementsControllerTest {
         ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
         expect(repostButton.isChecked()).toBeFalse();
 
-        Track likedTrack = new Track(2L);
+        PublicApiTrack likedTrack = new PublicApiTrack(2L);
         likedTrack.user_like = true;
         likedTrack.user_repost = true;
 
@@ -297,7 +297,7 @@ public class EngagementsControllerTest {
         };
 
         controller.setOriginProvider(originProvider);
-        controller.setPlayable(new Track(1L));
+        controller.setPlayable(new PublicApiTrack(1L));
 
         rootView.findViewById(R.id.btn_share).performClick();
 

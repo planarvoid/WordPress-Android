@@ -5,8 +5,8 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.WaveformData;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.WaveformControllerLayout;
@@ -52,7 +52,7 @@ public class NowPlayingProgressBar extends ProgressBar {
     @Nullable
     private Bitmap waveformMask;
     @Nullable
-    private Track track;
+    private PublicApiTrack track;
 
     private long refreshDelay;
 
@@ -143,7 +143,7 @@ public class NowPlayingProgressBar extends ProgressBar {
     }
 
     private void setCurrentTrack() {
-        final Track currentTrack = playbackStateProvider.getCurrentTrack();
+        final PublicApiTrack currentTrack = playbackStateProvider.getCurrentTrack();
         if (track != currentTrack || waveformState == WaveformControllerLayout.WaveformState.ERROR) {
 
             if (track != currentTrack) waveformErrorCount = 0;

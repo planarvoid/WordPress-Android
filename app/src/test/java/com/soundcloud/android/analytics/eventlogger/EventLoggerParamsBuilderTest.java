@@ -9,13 +9,13 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Maps;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.experiments.ExperimentOperations;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.UserUrn;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -36,7 +36,7 @@ public class EventLoggerParamsBuilderTest {
     private static final String USER_AGENT_UNENCODED = "SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)";
     private static final String CDN_URL = "host.com";
     @Mock
-    private Track track;
+    private PublicApiTrack track;
     @Mock
     private TrackSourceInfo trackSourceInfo;
     @Mock

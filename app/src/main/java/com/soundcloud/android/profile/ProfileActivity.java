@@ -7,7 +7,9 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.associations.ToggleFollowSubscriber;
 import com.soundcloud.android.collections.ScListFragment;
@@ -17,9 +19,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.playback.ui.PlayerController;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.UserStorage;
@@ -60,12 +60,12 @@ import javax.inject.Inject;
 
 public class ProfileActivity extends ScActivity implements
         FollowingOperations.FollowStatusChangedListener,
-        ActionBar.OnNavigationListener, FetchModelTask.Listener<User>, ViewPager.OnPageChangeListener {
+        ActionBar.OnNavigationListener, FetchModelTask.Listener<PublicApiUser>, ViewPager.OnPageChangeListener {
 
     public static final String EXTRA_USER_ID = "userId";
     public static final String EXTRA_USER = "user";
 
-    /* package */ @Nullable User user;
+    /* package */ @Nullable PublicApiUser user;
 
     private TextView username, followerCount, followerMessage, location;
     private ToggleButton toggleFollow;
@@ -73,7 +73,7 @@ public class ProfileActivity extends ScActivity implements
     private FetchUserTask loadUserTask;
     protected ViewPager pager;
     protected SlidingTabLayout indicator;
-    private UserDetailsFragment userDetailsFragment;
+    private UserInfoFragment userInfoFragment;
     private int initialOtherFollowers;
 
     @Inject ImageOperations imageOperations;
@@ -148,7 +148,7 @@ public class ProfileActivity extends ScActivity implements
         }
 
         if (user != null) {
-            userDetailsFragment = UserDetailsFragment.newInstance(user.getId());
+            userInfoFragment = UserInfoFragment.newInstance(user.getId());
 
             if (isLoggedInUser()){
                 toggleFollow.setVisibility(View.GONE);
@@ -181,7 +181,7 @@ public class ProfileActivity extends ScActivity implements
 
     protected void handleIntent(Intent intent) {
         if (intent.hasExtra(EXTRA_USER)) {
-            loadUserByObject((User) intent.getParcelableExtra(EXTRA_USER));
+            loadUserByObject((PublicApiUser) intent.getParcelableExtra(EXTRA_USER));
         } else if (intent.hasExtra(EXTRA_USER_ID)) {
             loadUserById(intent.getLongExtra(EXTRA_USER_ID, -1));
         } else if (intent.getData() == null || !loadUserByUri(intent.getData())){
@@ -279,11 +279,11 @@ public class ProfileActivity extends ScActivity implements
     private void loadUserById(long userId) {
         if (userId != -1) {
             // check DB first as the cached user might be incomplete
-            final User u = SoundCloudApplication.sModelManager.getUser(userId);
+            final PublicApiUser u = SoundCloudApplication.sModelManager.getUser(userId);
             setUser(u != null ? u : SoundCloudApplication.sModelManager.getCachedUser(userId));
         }
         if (user == null) {
-            user = new User();
+            user = new PublicApiUser();
             user.setId(userId);
         }
     }
@@ -298,12 +298,12 @@ public class ProfileActivity extends ScActivity implements
         return user != null;
     }
 
-    private void loadUserByObject(User user) {
+    private void loadUserByObject(PublicApiUser user) {
         if (user == null || user.getId() == -1) return;
 
         // show a user out of db if possible because he will be a complete user unlike
         // a parceled user that came from a track, list or comment
-        final User dbUser = SoundCloudApplication.sModelManager.getUser(user.getId());
+        final PublicApiUser dbUser = SoundCloudApplication.sModelManager.getUser(user.getId());
         setUser(dbUser != null ? dbUser : user);
     }
 
@@ -325,7 +325,7 @@ public class ProfileActivity extends ScActivity implements
        return user != null && user.getId() == getCurrentUserId();
     }
 
-    private void toggleFollowing(User user) {
+    private void toggleFollowing(PublicApiUser user) {
         followingOperations.toggleFollowing(user)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new ToggleFollowSubscriber(toggleFollow));
@@ -333,24 +333,24 @@ public class ProfileActivity extends ScActivity implements
     }
 
     @Override
-    public void onSuccess(User user) {
+    public void onSuccess(PublicApiUser user) {
         user.last_updated = System.currentTimeMillis();
         setUser(user);
 
         // update user locally and ensure 1 instance
-        this.user = SoundCloudApplication.sModelManager.cache(user, ScResource.CacheUpdateMode.FULL);
+        this.user = SoundCloudApplication.sModelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL);
 
         // TODO: move to a *Operations class to decouple from storage layer
         fireAndForget(userStorage.storeAsync(this.user));
-        userDetailsFragment.onSuccess(this.user);
+        userInfoFragment.onSuccess(this.user);
     }
 
     @Override
     public void onError(Object context) {
-        userDetailsFragment.onError();
+        userInfoFragment.onError();
     }
 
-    private void setUser(final User user) {
+    private void setUser(final PublicApiUser user) {
         if (user == null || user.getId() < 0) return;
         this.user = user;
 
@@ -408,7 +408,7 @@ public class ProfileActivity extends ScActivity implements
         }
     }
 
-    public User getUser() {
+    public PublicApiUser getUser() {
         return user;
     }
 
@@ -431,7 +431,7 @@ public class ProfileActivity extends ScActivity implements
 
     private static class Configuration {
         FetchUserTask loadUserTask;
-        User user;
+        PublicApiUser user;
         int pagerIndex;
     }
 
@@ -498,7 +498,7 @@ public class ProfileActivity extends ScActivity implements
         public Fragment getItem(int position) {
             Tab currentTab = Tab.values()[position];
             if (currentTab == Tab.details){
-                return userDetailsFragment;
+                return userInfoFragment;
             } else {
                 Content content;
                 Uri contentUri;

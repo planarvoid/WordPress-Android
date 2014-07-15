@@ -8,8 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.RxHttpClient;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.utils.DeviceHelper;

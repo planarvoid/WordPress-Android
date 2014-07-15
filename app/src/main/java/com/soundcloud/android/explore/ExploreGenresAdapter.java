@@ -1,6 +1,5 @@
 package com.soundcloud.android.explore;
 
-import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import rx.Observer;
 

@@ -6,7 +6,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.TrackedActivity;
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
 
@@ -149,7 +149,7 @@ public class UploadMonitorActivity extends TrackedActivity {
         }
 
         if (recording.hasArtwork()) {
-            ImageUtils.setImage(recording.artwork_path, ((ImageView) findViewById(R.id.icon)),
+            ImageUtils.setImage(recording.getArtwork(), ((ImageView) findViewById(R.id.icon)),
                     (int) getResources().getDimension(R.dimen.share_progress_icon_width),
                     (int) getResources().getDimension(R.dimen.share_progress_icon_height));
         }

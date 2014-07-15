@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.service.managers;
 
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -44,11 +44,11 @@ public class ICSRemoteAudioManager extends FroyoRemoteAudioManager {
     }
 
     @Override
-    public void onTrackChanged(Track track, Bitmap artwork) {
+    public void onTrackChanged(PublicApiTrack track, Bitmap artwork) {
         applyRemoteMetadata(track, artwork);
     }
 
-    private void applyRemoteMetadata(Track track, Bitmap artwork) {
+    private void applyRemoteMetadata(PublicApiTrack track, Bitmap artwork) {
         client.editMetadata(false)
                 .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, artwork)
                 .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, track.title)

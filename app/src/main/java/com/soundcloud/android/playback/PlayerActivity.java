@@ -9,15 +9,15 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -251,7 +251,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     }
 
     @Override
-    public void onAddToPlaylist(Track track) {
+    public void onAddToPlaylist(PublicApiTrack track) {
         if (playbackService != null && track != null && isForeground()) {
             AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track, playQueueManager.getScreenTag());
             from.show(getSupportFragmentManager(), "playlist_dialog");
@@ -346,11 +346,11 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 playbackOperations.startPlaybackWithRecommendations(id, Screen.fromIntent(intent, Screen.DEEPLINK));
             }
 
-        } else if (intent.hasExtra(Track.EXTRA_ID)) {
-            playQueue = new PlayQueueView(intent.getLongExtra(Track.EXTRA_ID, -1l));
+        } else if (intent.hasExtra(PublicApiTrack.EXTRA_ID)) {
+            playQueue = new PlayQueueView(intent.getLongExtra(PublicApiTrack.EXTRA_ID, -1l));
 
-        } else if (intent.getParcelableExtra(Track.EXTRA) != null) {
-            final Track track = intent.getParcelableExtra(Track.EXTRA);
+        } else if (intent.getParcelableExtra(PublicApiTrack.EXTRA) != null) {
+            final PublicApiTrack track = intent.getParcelableExtra(PublicApiTrack.EXTRA);
             playQueue = new PlayQueueView(Lists.newArrayList(track.getId()), 0);
 
             if (Actions.PLAY.equals(action)){
@@ -409,7 +409,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private void updatePlayerInfoPanelFromTrackPager() {
         if (isTabletLandscapeLayout) {
             final long currentId = getCurrentDisplayedTrackId();
-            final Observable<Track> trackObservable = trackPagerAdapter.getTrackObservable(currentId);
+            final Observable<PublicApiTrack> trackObservable = trackPagerAdapter.getTrackObservable(currentId);
 
             if (trackObservable != null) {
                 trackObservable.subscribe(playerInfoPanelSubscriber);
@@ -417,9 +417,9 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         }
     }
 
-    private DefaultSubscriber<Track> playerInfoPanelSubscriber = new DefaultSubscriber<Track>() {
+    private DefaultSubscriber<PublicApiTrack> playerInfoPanelSubscriber = new DefaultSubscriber<PublicApiTrack>() {
         @Override
-        public void onNext(final Track track) {
+        public void onNext(final PublicApiTrack track) {
             playablePresenter.setPlayable(track);
             engagementsController.setPlayable(track);
             trackDetailsView.setTrack(track);

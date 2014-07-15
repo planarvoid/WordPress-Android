@@ -1,10 +1,9 @@
 package com.soundcloud.android.api;
 
-import com.soundcloud.android.api.http.HttpProperties;
-import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.api.http.json.JacksonJsonTransformer;
-import com.soundcloud.android.api.http.json.JsonTransformer;
+import com.soundcloud.android.api.json.JacksonJsonTransformer;
+import com.soundcloud.android.api.json.JsonTransformer;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.rx.ScSchedulers;
 import dagger.Module;
 import dagger.Provides;

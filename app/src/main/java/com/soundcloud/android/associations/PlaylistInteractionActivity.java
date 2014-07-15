@@ -3,10 +3,10 @@ package com.soundcloud.android.associations;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.storage.provider.Content;
 
@@ -32,7 +32,7 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
             @Override
             public void onClick(View v) {
                 PlaylistDetailActivity.start(
-                        PlaylistInteractionActivity.this, (Playlist) playable,
+                        PlaylistInteractionActivity.this, (PublicApiPlaylist) playable,
                         SoundCloudApplication.sModelManager, getCurrentScreen());
             }
         });
@@ -58,13 +58,13 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
     @Override
     protected Playable getPlayableFromIntent(Intent intent) {
         Bundle bundle = intent.getExtras();
-        Playlist playlist;
-        if (bundle.containsKey(Playlist.EXTRA)) {
-            playlist = bundle.getParcelable(Playlist.EXTRA);
-        } else if (bundle.containsKey(Playlist.EXTRA_ID)) {
-            playlist = SoundCloudApplication.sModelManager.getPlaylist(bundle.getLong(Playlist.EXTRA_ID, 0));
-        } else if (bundle.containsKey(Playlist.EXTRA_URI)) {
-            Uri uri1 = bundle.getParcelable(Playlist.EXTRA_URI);
+        PublicApiPlaylist playlist;
+        if (bundle.containsKey(PublicApiPlaylist.EXTRA)) {
+            playlist = bundle.getParcelable(PublicApiPlaylist.EXTRA);
+        } else if (bundle.containsKey(PublicApiPlaylist.EXTRA_ID)) {
+            playlist = SoundCloudApplication.sModelManager.getPlaylist(bundle.getLong(PublicApiPlaylist.EXTRA_ID, 0));
+        } else if (bundle.containsKey(PublicApiPlaylist.EXTRA_URI)) {
+            Uri uri1 = bundle.getParcelable(PublicApiPlaylist.EXTRA_URI);
             playlist = SoundCloudApplication.sModelManager.getPlaylist(uri1);
         } else {
             throw new IllegalArgumentException("Could not obtain playlist from bundle");

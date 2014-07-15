@@ -2,13 +2,13 @@ package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.activities.Activities;
-import com.soundcloud.android.model.activities.Activity;
-import com.soundcloud.android.model.activities.AffiliationActivity;
-import com.soundcloud.android.model.activities.CommentActivity;
-import com.soundcloud.android.model.activities.TrackActivity;
-import com.soundcloud.android.model.activities.TrackLikeActivity;
-import com.soundcloud.android.model.activities.TrackSharingActivity;
+import com.soundcloud.android.api.legacy.model.activities.Activities;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
+import com.soundcloud.android.api.legacy.model.activities.AffiliationActivity;
+import com.soundcloud.android.api.legacy.model.activities.CommentActivity;
+import com.soundcloud.android.api.legacy.model.activities.TrackActivity;
+import com.soundcloud.android.api.legacy.model.activities.TrackLikeActivity;
+import com.soundcloud.android.api.legacy.model.activities.TrackSharingActivity;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.TestHelper;

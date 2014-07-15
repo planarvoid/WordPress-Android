@@ -5,10 +5,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.TrackProperty;
-import com.soundcloud.android.model.TrackUrn;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +26,7 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
     private final LayoutInflater layoutInflater;
     private final ImageOperations imageOperations;
 
-    private TrackUrn playingTrack = Urn.forTrack(ScModel.NOT_SET);
+    private TrackUrn playingTrack = TrackUrn.NOT_SET;
 
     @Inject
     public TrackItemPresenter(LayoutInflater layoutInflater, ImageOperations imageOperations) {

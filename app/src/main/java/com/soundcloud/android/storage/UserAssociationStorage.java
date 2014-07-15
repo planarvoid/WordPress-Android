@@ -4,12 +4,12 @@ package com.soundcloud.android.storage;
 import static com.soundcloud.android.storage.ResolverHelper.getWhereInClause;
 import static com.soundcloud.android.storage.ResolverHelper.longListToStringArr;
 
-import com.soundcloud.android.model.Association;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.SuggestedUser;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserAssociation;
+import com.soundcloud.android.api.legacy.model.Association;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
+import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
@@ -35,7 +35,7 @@ import java.util.List;
  * Use this storage facade to persist information about user-to-user relations to the database.
  * These relations currently are: followers and followings.
  *
- * @see com.soundcloud.android.model.UserAssociation.Type
+ * @see com.soundcloud.android.api.legacy.model.UserAssociation.Type
  */
 public class UserAssociationStorage extends ScheduledOperations {
     private final ContentResolver resolver;
@@ -74,7 +74,7 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param user the user that is being followed
      * @return the new association created
      */
-    public Observable<UserAssociation> follow(final User user) {
+    public Observable<UserAssociation> follow(final PublicApiUser user) {
         return schedule(Observable.create(new Observable.OnSubscribe<UserAssociation>() {
             @Override
             public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
@@ -97,7 +97,7 @@ public class UserAssociationStorage extends ScheduledOperations {
             public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
                 UserAssociation following = queryFollowingByTargetUserId(suggestedUser.getId());
                 if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL) {
-                    following = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(suggestedUser))
+                    following = new UserAssociation(UserAssociation.Type.FOLLOWING, new PublicApiUser(suggestedUser))
                             .markForAddition(suggestedUser.getToken());
                     followingsDAO.create(following);
                 }
@@ -115,12 +115,12 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param users The users to be followed
      * @return the UserAssociations inserted
      */
-    public Observable<UserAssociation> followList(final List<User> users) {
+    public Observable<UserAssociation> followList(final List<PublicApiUser> users) {
         return schedule(Observable.create(new Observable.OnSubscribe<UserAssociation>() {
             @Override
             public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
                 List<UserAssociation> userAssociations = new ArrayList<UserAssociation>(users.size());
-                for (User user : users) {
+                for (PublicApiUser user : users) {
                     userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition());
                 }
                 followingsDAO.createCollection(userAssociations);
@@ -146,7 +146,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                 List<UserAssociation> userAssociations = new ArrayList<UserAssociation>(suggestedUsers.size());
                 for (SuggestedUser suggestedUser : suggestedUsers) {
                     userAssociations.add(new UserAssociation(
-                            UserAssociation.Type.FOLLOWING, new User(suggestedUser)
+                            UserAssociation.Type.FOLLOWING, new PublicApiUser(suggestedUser)
                     ).markForAddition(suggestedUser.getToken()));
                 }
                 followingsDAO.createCollection(userAssociations);
@@ -164,7 +164,7 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param user the user whose following should be removed
      * @return
      */
-    public Observable<UserAssociation> unfollow(final User user) {
+    public Observable<UserAssociation> unfollow(final PublicApiUser user) {
         return schedule(Observable.create(new Observable.OnSubscribe<UserAssociation>() {
             @Override
             public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
@@ -187,12 +187,12 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param users the users to mark for removal
      * @return the number of insertions/updates performed
      */
-    public Observable<UserAssociation> unfollowList(final List<User> users) {
+    public Observable<UserAssociation> unfollowList(final List<PublicApiUser> users) {
         return schedule(Observable.create(new Observable.OnSubscribe<UserAssociation>() {
             @Override
             public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
                 List<UserAssociation> userAssociations = new ArrayList<UserAssociation>(users.size());
-                for (User user : users) {
+                for (PublicApiUser user : users) {
                     userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForRemoval());
                 }
                 followingsDAO.createCollection(userAssociations);
@@ -222,10 +222,10 @@ public class UserAssociationStorage extends ScheduledOperations {
     }
 
     @Deprecated//This should operate on List<UserAssociation>, not ScResource
-    public int insertAssociations(@NotNull List<? extends ScResource> resources, @NotNull Uri collectionUri, long userId) {
+    public int insertAssociations(@NotNull List<? extends PublicApiResource> resources, @NotNull Uri collectionUri, long userId) {
         BulkInsertMap map = new BulkInsertMap();
         for (int i = 0; i < resources.size(); i++) {
-            ScResource r = resources.get(i);
+            PublicApiResource r = resources.get(i);
             if (r == null) continue;
 
             r.putFullContentValues(map);

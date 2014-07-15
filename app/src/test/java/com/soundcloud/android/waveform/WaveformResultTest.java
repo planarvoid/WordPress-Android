@@ -2,7 +2,6 @@ package com.soundcloud.android.waveform;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;

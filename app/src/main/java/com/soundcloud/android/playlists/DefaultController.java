@@ -1,8 +1,7 @@
 package com.soundcloud.android.playlists;
 
 
-import com.soundcloud.android.view.adapters.ItemAdapter;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.android.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
 import android.view.View;
@@ -10,19 +9,15 @@ import android.widget.ListView;
 
 import javax.inject.Inject;
 
-class DefaultController implements PlaylistDetailsController {
+class DefaultController extends PlaylistDetailsController {
 
-    private final InlinePlaylistTracksAdapter adapter;
     private ListView listView;
+    private InlinePlaylistTracksAdapter adapter;
 
     @Inject
-    DefaultController(InlinePlaylistTracksAdapter itemAdapter) {
+    DefaultController(InlinePlaylistTracksAdapter itemAdapter, EventBus eventBus) {
+        super(itemAdapter.getTrackPresenter(), itemAdapter, eventBus);
         this.adapter = itemAdapter;
-    }
-
-    @Override
-    public ItemAdapter<PropertySet> getAdapter() {
-        return adapter;
     }
 
     @Override
@@ -32,6 +27,7 @@ class DefaultController implements PlaylistDetailsController {
 
     @Override
     public void onViewCreated(View layout, Resources resources) {
+        super.onViewCreated(layout, resources);
         listView = (ListView) layout.findViewById(android.R.id.list);
     }
 

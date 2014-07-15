@@ -8,12 +8,10 @@ import static org.mockito.Mockito.when;
 import static rx.android.OperatorPaged.Page;
 
 import com.soundcloud.android.actionbar.PullToRefreshController;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.ExploreGenre;
-import com.soundcloud.android.model.SuggestedTracksCollection;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -116,12 +114,12 @@ public class ExploreTracksFragmentTest {
 
     @Test
     public void shouldPlaySelectedTrackWhenItemClicked() throws CreateModelException {
-        final TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
+        final ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
         when(adapter.getItem(0)).thenReturn(track);
 
         fragment.onItemClick(null, null, 0, 0);
 
-        verify(playbackOperations).playExploreTrack(activity, new Track(track), null, "screen");
+        verify(playbackOperations).playExploreTrack(activity, new PublicApiTrack(track), null, "screen");
     }
 
     @Test
@@ -130,13 +128,13 @@ public class ExploreTracksFragmentTest {
         collection.setTrackingTag("tag");
         when(exploreTracksOperations.getSuggestedTracks(any(ExploreGenre.class)))
                 .thenReturn(Observable.just(RxTestHelper.singlePage(collection)));
-        final TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
+        final ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
         when(adapter.getItem(0)).thenReturn(track);
 
         fragment.onCreate(null);
         fragment.onItemClick(null, null, 0, 0);
 
-        verify(playbackOperations).playExploreTrack(activity, new Track(track), "tag", "screen");
+        verify(playbackOperations).playExploreTrack(activity, new PublicApiTrack(track), "tag", "screen");
     }
 
     private View createFragmentView() {

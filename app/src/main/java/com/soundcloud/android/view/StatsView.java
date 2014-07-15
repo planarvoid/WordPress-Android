@@ -1,8 +1,8 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
@@ -199,8 +199,8 @@ public class StatsView extends View {
             reposts = 0;
         }
 
-        if (playable instanceof Track){
-            final Track track = (Track) playable;
+        if (playable instanceof PublicApiTrack){
+            final PublicApiTrack track = (PublicApiTrack) playable;
             plays = (int) track.playback_count;
             comments = (showFullStats) ? track.comment_count : 0;
         } else {

@@ -12,6 +12,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
+import com.soundcloud.android.playback.ui.view.PlayerArtworkView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Before;

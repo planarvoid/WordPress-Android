@@ -5,7 +5,7 @@ import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMa
 import static com.soundcloud.android.utils.IOUtils.readInputStream;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.api.Endpoints;
@@ -26,10 +26,10 @@ public class FetchUserTaskTest {
             createRegexRequestMatcherForUriWithClientId("GET", "/users/12345"),
             new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("user.json"))));
 
-        final User[] user = {null};
-        FetchModelTask.Listener<User> listener = new FetchModelTask.Listener<User>() {
+        final PublicApiUser[] user = {null};
+        FetchModelTask.Listener<PublicApiUser> listener = new FetchModelTask.Listener<PublicApiUser>() {
             @Override
-            public void onSuccess(User u) {
+            public void onSuccess(PublicApiUser u) {
                 user[0] = u;
             }
             @Override
@@ -43,7 +43,7 @@ public class FetchUserTaskTest {
         expect(user[0].username).toEqual("SoundCloud Android @ MWC");
         expect(user[0].isPrimaryEmailConfirmed()).toBeFalse();
 
-        User u = new UserStorage().getUser(3135930);
+        PublicApiUser u = new UserStorage().getUser(3135930);
         expect(u).not.toBeNull();
         expect(u.username).toEqual("SoundCloud Android @ MWC");
     }

@@ -2,9 +2,9 @@ package com.soundcloud.android.view.adapters;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.text.TextUtils;
@@ -16,7 +16,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class TrackGridPresenter implements CellPresenter<TrackSummary> {
+public class TrackGridPresenter implements CellPresenter<ApiTrack> {
 
     private final ImageOperations imageOperations;
 
@@ -41,9 +41,9 @@ public class TrackGridPresenter implements CellPresenter<TrackSummary> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<TrackSummary> tracks) {
+    public void bindItemView(int position, View itemView, List<ApiTrack> tracks) {
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
-        TrackSummary track = tracks.get(position);
+        ApiTrack track = tracks.get(position);
 
         viewHolder.username.setText(track.getUserName());
         viewHolder.title.setText(track.getTitle());

@@ -1,5 +1,6 @@
 package com.soundcloud.android.storage;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -137,6 +138,7 @@ public enum Table {
         return alterColumns(db, name, createString, fromAppendCols, toAppendCols);
     }
 
+    @Deprecated // should be a private method
     public static List<String> alterColumns(SQLiteDatabase db,
                                             final String table,
                                             final String createString,

@@ -7,9 +7,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,9 +26,9 @@ public class BulkInsertMapTest {
 
     @Test
     public void shouldNotInsertMultipleInstancesOfTheSameResource() {
-        User user = new User(1);
+        PublicApiUser user = new PublicApiUser(1);
 
-        Track track = new Track();
+        PublicApiTrack track = new PublicApiTrack();
         track.user = user;
 
         // SA and Track share the same user
@@ -56,7 +56,7 @@ public class BulkInsertMapTest {
     @Test
     public void shouldUseLinkedHashSetToPreserveOrder() throws Exception {
         final BulkInsertMap map = new BulkInsertMap();
-        new Track().putFullContentValues(map);
+        new PublicApiTrack().putFullContentValues(map);
         final Set<BulkInsertMap.ResourceValues> actual = map.get(Content.TRACKS.uri);
         expect(LinkedHashSet.class.isAssignableFrom(actual.getClass())).toBeTrue();
     }

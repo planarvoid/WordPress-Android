@@ -7,13 +7,13 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.http.APIRequestException;
-import com.soundcloud.android.api.http.PublicApiWrapper;
+import com.soundcloud.android.api.APIRequestException;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserAssociation;
+import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.rx.observers.SuccessSubscriber;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -120,7 +120,7 @@ public class UserAssociationSyncer extends SyncStrategy {
             case ME_FOLLOWINGS:
                 // load the first page of items to get proper last_seen ordering
                 // parse and add first items
-                List<ScResource> resources = api.readList(Request.to(content.remoteUri)
+                List<PublicApiResource> resources = api.readList(Request.to(content.remoteUri)
                         .add(PublicApiWrapper.LINKED_PARTITIONING, "1")
                         .add("limit", Consts.LIST_PAGE_SIZE));
 
@@ -131,7 +131,7 @@ public class UserAssociationSyncer extends SyncStrategy {
                 added = userAssociationStorage.insertAssociations(resources, content.uri, userId);
 
                 // remove items from master remote list and adjust start index
-                for (ScResource u : resources) {
+                for (PublicApiResource u : resources) {
                     remote.remove(u.getId());
                 }
                 startPosition = resources.size();
@@ -240,9 +240,9 @@ public class UserAssociationSyncer extends SyncStrategy {
                  Tokens were expired. Delete the user associations and followings from memory.
                  TODO : retry logic somehow
                   */
-                final Collection<User> users = Collections2.transform(userAssociations, new Function<UserAssociation, User>() {
+                final Collection<PublicApiUser> users = Collections2.transform(userAssociations, new Function<UserAssociation, PublicApiUser>() {
                     @Override
-                    public User apply(UserAssociation input) {
+                    public PublicApiUser apply(UserAssociation input) {
                         return input.getUser();
                     }
                 });

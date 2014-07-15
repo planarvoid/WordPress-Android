@@ -9,20 +9,20 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Predicate;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.track.LegacyTrackOperations;
+import com.soundcloud.android.tracks.LegacyTrackOperations;
 import dagger.Lazy;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class PlaySessionControllerTest {
 
     private static final long TRACK_ID = 123L;
     private static final TrackUrn TRACK_URN = Urn.forTrack(TRACK_ID);
-    private static final Track TRACK = new Track(TRACK_ID);
+    private static final PublicApiTrack TRACK = new PublicApiTrack(TRACK_ID);
 
     @Mock
     private PlaybackOperations playbackOperations;
@@ -127,7 +127,7 @@ public class PlaySessionControllerTest {
     public void playQueueChangedHandlerDoesNotSetTrackOnAudioManagerIfTrackChangeNotSupported() {
         when(audioManager.isTrackChangeSupported()).thenReturn(false);
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(TRACK.getUrn()));
-        verify(audioManager, never()).onTrackChanged(any(Track.class), any(Bitmap.class));
+        verify(audioManager, never()).onTrackChanged(any(PublicApiTrack.class), any(Bitmap.class));
     }
 
     @Test

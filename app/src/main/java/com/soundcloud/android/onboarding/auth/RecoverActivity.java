@@ -2,8 +2,8 @@ package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.onboarding.auth.tasks.RecoverPasswordTask;

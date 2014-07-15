@@ -2,12 +2,12 @@ package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.IOUtils;
@@ -150,7 +150,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
     private void onUploadSuccess(HttpResponse response) {
         try {
-            Track track = api.getMapper().readValue(response.getEntity().getContent(), Track.class);
+            PublicApiTrack track = api.getMapper().readValue(response.getEntity().getContent(), PublicApiTrack.class);
             trackStorage.createOrUpdate(track);
             soundAssociationStorage.addCreation(track);
 
@@ -177,10 +177,10 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         }
     }
 
-    private void broadcast(String action, Track... track) {
+    private void broadcast(String action, PublicApiTrack... track) {
         final Intent intent = new Intent(action).putExtra(UploadService.EXTRA_RECORDING, upload);
         if (track.length > 0) {
-            intent.putExtra(Track.EXTRA, track[0]);
+            intent.putExtra(PublicApiTrack.EXTRA, track[0]);
         }
         broadcastManager.sendBroadcast(intent);
     }

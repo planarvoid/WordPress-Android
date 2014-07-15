@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.propeller.Property;
 
 import java.util.Date;

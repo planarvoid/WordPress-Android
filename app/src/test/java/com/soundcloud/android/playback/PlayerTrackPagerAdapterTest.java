@@ -8,14 +8,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.LegacyPlayerTrackView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.track.LegacyTrackOperations;
+import com.soundcloud.android.tracks.LegacyTrackOperations;
 import com.soundcloud.android.view.EmptyView;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,7 +66,7 @@ public class PlayerTrackPagerAdapterTest {
         when(playQueue.isLoading()).thenReturn(false);
         when(playQueue.lastLoadWasEmpty()).thenReturn(false);
         when(playQueue.lastLoadFailed()).thenReturn(false);
-        when(trackOperations.loadSyncedTrack(anyLong(), same(AndroidSchedulers.mainThread()))).thenReturn(Observable.just(new Track()));
+        when(trackOperations.loadSyncedTrack(anyLong(), same(AndroidSchedulers.mainThread()))).thenReturn(Observable.just(new PublicApiTrack()));
         when(container.getContext()).thenReturn(mock(Activity.class));
     }
 
@@ -201,7 +201,7 @@ public class PlayerTrackPagerAdapterTest {
 
     @Test
     public void setsTrackStatenOnPlayerTrackViewWhenGettingViewAtValidPlayQueuePosition() throws Exception {
-        final Track track = new Track(1L);
+        final PublicApiTrack track = new PublicApiTrack(1L);
         adapter.setPlayQueue(new PlayQueueView(1L));
         when(trackOperations.loadSyncedTrack(1, AndroidSchedulers.mainThread())).thenReturn(Observable.just(track));
         adapter.getView(0, null, mock(ViewGroup.class));

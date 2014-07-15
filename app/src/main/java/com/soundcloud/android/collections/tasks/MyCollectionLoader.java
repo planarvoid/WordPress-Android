@@ -2,17 +2,17 @@ package com.soundcloud.android.collections.tasks;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
-import com.soundcloud.android.model.Friend;
-import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.api.legacy.model.Friend;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserAssociation;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.api.CloudAPI;
 import org.apache.http.HttpStatus;
@@ -83,9 +83,9 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
         List<ScModel> items = new ArrayList<ScModel>();
         if (itemsCursor != null) {
             while (itemsCursor.moveToNext())
-                if (Track.class.equals(resourceType)) {
+                if (PublicApiTrack.class.equals(resourceType)) {
                     items.add(SoundCloudApplication.sModelManager.getCachedTrackFromCursor(itemsCursor));
-                } else if (User.class.equals(resourceType)) {
+                } else if (PublicApiUser.class.equals(resourceType)) {
                     items.add(SoundCloudApplication.sModelManager.getCachedUserFromCursor(itemsCursor));
                 } else if (Friend.class.equals(resourceType)) {
                     items.add(new Friend(SoundCloudApplication.sModelManager.getCachedUserFromCursor(itemsCursor)));
@@ -93,7 +93,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
                     items.add(new SoundAssociation(itemsCursor));
                 } else if (UserAssociation.class.equals(resourceType)) {
                     items.add(new UserAssociation(itemsCursor));
-                } else if (Playlist.class.equals(resourceType)) {
+                } else if (PublicApiPlaylist.class.equals(resourceType)) {
                     items.add(SoundCloudApplication.sModelManager.getCachedPlaylistFromCursor(itemsCursor));
                 } else {
                     throw new IllegalArgumentException("NOT HANDLED YET " + resourceType);

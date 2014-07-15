@@ -11,9 +11,10 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.TrackProperty;
+import com.soundcloud.android.playback.ui.view.PlayerArtworkView;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.WaveformView;

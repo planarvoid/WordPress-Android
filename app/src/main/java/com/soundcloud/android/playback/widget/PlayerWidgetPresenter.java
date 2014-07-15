@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.widget;
 
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.utils.Log;
 

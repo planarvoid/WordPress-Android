@@ -7,14 +7,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.model.ExploreGenre;
-import com.soundcloud.android.model.SuggestedTracksCollection;
-import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.SoundCloudRxHttpClient;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.track.TrackWriteStorage;
+import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,7 +85,7 @@ public class ExploreTracksOperationsTest {
     }
 
     private SuggestedTracksCollection buildSuggestedTracksResponse() throws CreateModelException {
-        TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
+        ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
         SuggestedTracksCollection collection = new SuggestedTracksCollection();
         collection.setCollection(Arrays.asList(track));
         when(rxHttpClient.<SuggestedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(

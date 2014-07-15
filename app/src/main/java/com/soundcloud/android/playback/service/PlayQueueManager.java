@@ -3,18 +3,17 @@ package com.soundcloud.android.playback.service;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.OriginProvider;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.RecommendedTracksCollection;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.model.TrackUrn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.TrackUrn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -200,14 +199,16 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return playQueue.getCurrentTrackSourceInfo(playSessionSource);
     }
 
+    @Deprecated // use URNs
     public long getPlaylistId() {
         return playSessionSource.getPlaylistId();
     }
 
     public boolean isPlaylist() {
-        return getPlaylistId() != Playable.NOT_SET;
+        return getPlaylistId() != Consts.NOT_SET;
     }
 
+    @Deprecated // use URNs
     public boolean isCurrentPlaylist(long playlistId) {
         return getPlaylistId() == playlistId;
     }
@@ -262,6 +263,15 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackUrn()));
     }
 
+    public void removeAtPosition(int position) {
+        if(position < playQueue.getCurrentPosition()){
+            playQueue.setPosition(playQueue.getCurrentPosition() - 1);
+        }
+        playQueue.removeAtPosition(position);
+        broadcastQueueUpdate();
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackUrn()));
+    }
+
     private void loadRecommendedTracks() {
         setNewRelatedLoadingState(FetchRecommendedState.LOADING);
         gotRecommendedTracks = false;
@@ -270,8 +280,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     @Override
     public void onNext(RecommendedTracksCollection relatedTracks) {
-        for (TrackSummary item : relatedTracks) {
-            final Track track = new Track(item);
+        for (ApiTrack item : relatedTracks) {
+            final PublicApiTrack track = new PublicApiTrack(item);
             modelManager.cache(track);
             playQueue.addTrack(track.getId(), PlaySessionSource.DiscoverySource.RECOMMENDER.value(),
                     relatedTracks.getSourceVersion());

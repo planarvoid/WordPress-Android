@@ -1,6 +1,6 @@
 package com.soundcloud.android.storage;
 
-import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.storage.provider.Content;
 import org.jetbrains.annotations.NotNull;
 

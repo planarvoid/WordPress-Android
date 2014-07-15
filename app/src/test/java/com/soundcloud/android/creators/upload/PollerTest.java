@@ -3,9 +3,9 @@ package com.soundcloud.android.creators.upload;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -100,11 +100,11 @@ public class PollerTest {
     }
 
     private void addProcessingTrackAndRunPoll(long id) {
-        Track t = new Track();
-        t.user = new User();
+        PublicApiTrack t = new PublicApiTrack();
+        t.user = new PublicApiUser();
         t.user.setId(USER_ID);
         t.setId(id);
-        t.state = Track.State.PROCESSING;
+        t.state = PublicApiTrack.State.PROCESSING;
         t.setUpdated();
         TestHelper.insertWithDependencies(t);
 
@@ -121,20 +121,20 @@ public class PollerTest {
     }
 
     private void expectLocalTracksStreamable(long id) {
-        Track track = getTrack(id);
+        PublicApiTrack track = getTrack(id);
         expect(track).not.toBeNull();
         expect(track.state.isStreamable()).toBeTrue();
     }
 
     private void expectLocalTracksNotStreamable(long id) {
-        Track track = getTrack(id);
+        PublicApiTrack track = getTrack(id);
         expect(track).not.toBeNull();
         expect(track.state.isStreamable()).toBeFalse();
     }
 
-    private Track getTrack(long id) {
+    private PublicApiTrack getTrack(long id) {
         try {
-            return TestHelper.loadLocalContent(Content.TRACKS.forId(id), Track.class).get(0);
+            return TestHelper.loadLocalContent(Content.TRACKS.forId(id), PublicApiTrack.class).get(0);
         } catch (Exception e) {
             throw new AssertionError(e);
         }

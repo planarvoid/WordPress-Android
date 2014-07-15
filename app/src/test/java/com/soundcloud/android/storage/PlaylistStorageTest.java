@@ -8,12 +8,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import org.junit.Before;
@@ -54,11 +54,11 @@ public class PlaylistStorageTest {
 
     @Test
     public void shouldLoadExistingPlaylist() throws Exception {
-        Playlist playlist = new Playlist(1L);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
         when(playlistDAO.queryById(1L)).thenReturn(playlist);
         when(modelManager.cache(playlist)).thenReturn(playlist);
 
-        Playlist loadedPlaylist = storage.loadPlaylist(1L);
+        PublicApiPlaylist loadedPlaylist = storage.loadPlaylist(1L);
 
         expect(loadedPlaylist).not.toBeNull();
         expect(loadedPlaylist).toEqual(playlist);
@@ -68,13 +68,13 @@ public class PlaylistStorageTest {
 
     @Test
     public void shouldLoadExistingPlaylistWithTracks() throws NotFoundException {
-        Playlist playlist = new Playlist(1L);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
         when(playlistDAO.queryById(1L)).thenReturn(playlist);
         when(modelManager.cache(playlist)).thenReturn(playlist);
-        when(modelManager.cache(playlist, ScResource.CacheUpdateMode.FULL)).thenReturn(playlist);
-        when(trackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forQuery("1"))).thenReturn(Arrays.asList(new Track()));
+        when(modelManager.cache(playlist, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(playlist);
+        when(trackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forQuery("1"))).thenReturn(Arrays.asList(new PublicApiTrack()));
 
-        Playlist loadedPlaylist = storage.loadPlaylistWithTracks(1L);
+        PublicApiPlaylist loadedPlaylist = storage.loadPlaylistWithTracks(1L);
         expect(loadedPlaylist).not.toBeNull();
         expect(loadedPlaylist).toEqual(playlist);
         expect(loadedPlaylist.getTrackCount()).toEqual(1);
@@ -83,39 +83,39 @@ public class PlaylistStorageTest {
 
     @Test
     public void shouldCachePlaylistAndTracksAfterLoading() throws NotFoundException {
-        Playlist playlist = new Playlist(1L);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
         when(playlistDAO.queryById(1L)).thenReturn(playlist);
         when(modelManager.cache(playlist)).thenReturn(playlist);
-        when(modelManager.cache(playlist, ScResource.CacheUpdateMode.FULL)).thenReturn(playlist);
-        final Track track = new Track();
+        when(modelManager.cache(playlist, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(playlist);
+        final PublicApiTrack track = new PublicApiTrack();
         when(trackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forQuery("1"))).thenReturn(Arrays.asList(track));
 
-        Playlist loadedPlaylist = storage.loadPlaylistWithTracks(1L);
+        PublicApiPlaylist loadedPlaylist = storage.loadPlaylistWithTracks(1L);
         loadedPlaylist.getTracks().get(0); // access the first track should trigger the cache
 
         verify(modelManager).cache(track);
-        verify(modelManager).cache(playlist, ScResource.CacheUpdateMode.FULL);
+        verify(modelManager).cache(playlist, PublicApiResource.CacheUpdateMode.FULL);
     }
 
     @Test
     public void playlistTracklistShouldBeMutableAfterLoading() throws NotFoundException {
-        Playlist playlist = new Playlist(1L);
-        final Track track = new Track(123L);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
+        final PublicApiTrack track = new PublicApiTrack(123L);
 
         when(playlistDAO.queryById(1L)).thenReturn(playlist);
         when(modelManager.cache(track)).thenReturn(track);
         when(modelManager.cache(playlist)).thenReturn(playlist);
-        when(modelManager.cache(playlist, ScResource.CacheUpdateMode.FULL)).thenReturn(playlist);
+        when(modelManager.cache(playlist, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(playlist);
         when(trackDAO.queryAllByUri(eq(Content.PLAYLIST_TRACKS.forId(1L)))).thenReturn(Arrays.asList(track));
 
-        Playlist loadedPlaylist = storage.loadPlaylistWithTracks(1L);
-        expect(loadedPlaylist.getTracks().set(0, new Track(456L))).toBe(track);
+        PublicApiPlaylist loadedPlaylist = storage.loadPlaylistWithTracks(1L);
+        expect(loadedPlaylist.getTracks().set(0, new PublicApiTrack(456L))).toBe(track);
     }
 
     @Test
     public void shouldStorePlaylist() throws Exception {
-        Playlist playlist = new Playlist(1L);
-        playlist.tracks = Lists.newArrayList(new Track(1L));
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
+        playlist.tracks = Lists.newArrayList(new PublicApiTrack(1L));
 
         storage.store(playlist);
 
@@ -124,23 +124,23 @@ public class PlaylistStorageTest {
 
     @Test
     public void storePlaylistRemovesOldTracksIfPlaylistEmpty() throws Exception {
-        Playlist playlist = new Playlist(1L);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
         storage.store(playlist);
         verify(resolver).delete(Content.PLAYLIST_TRACKS.forQuery("1"), null, null);
     }
 
     @Test
     public void storePlaylistDoesNotRemoveTracksIfPlaylistNotEmpty() throws Exception {
-        Playlist playlist = new Playlist(1L);
-        playlist.tracks = Lists.newArrayList(new Track(1L));
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
+        playlist.tracks = Lists.newArrayList(new PublicApiTrack(1L));
         storage.store(playlist);
         verify(resolver, never()).delete(any(Uri.class), Matchers.<String>any(), Matchers.<String[]>any());
     }
 
     @Test
     public void shouldGetPlaylistsCreatedByUser() {
-        Playlist playlist = new Playlist(1L);
-        Track track = new Track();
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
+        PublicApiTrack track = new PublicApiTrack();
 
         Cursor cursor = new TestCursor(1);
         when(resolver.query(Content.PLAYLISTS.uri, null, TableColumns.SoundView._ID + " < 0", null, TableColumns.SoundView._ID + " DESC")).thenReturn(cursor);
@@ -148,15 +148,15 @@ public class PlaylistStorageTest {
         when(modelManager.cache(track)).thenReturn(track);
         when(trackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forId(playlist.getId()))).thenReturn(Arrays.asList(track));
 
-        List<Playlist> playlists = storage.getLocalPlaylists();
+        List<PublicApiPlaylist> playlists = storage.getLocalPlaylists();
         expect(playlists).toContainExactly(playlist);
         expect(playlist.tracks).toContainExactly(track);
     }
 
     @Test
     public void shouldAddTrackToPlaylist() throws Exception {
-        Playlist playlist = new Playlist(1L);
-        Track track = new Track();
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
+        PublicApiTrack track = new PublicApiTrack();
         expect(playlist.getTrackCount()).toBe(0);
 
         storage.addTrackToPlaylist(playlist, track.getId());
@@ -187,7 +187,7 @@ public class PlaylistStorageTest {
     //TODO: this does not yet test purging of playlist activity records
     @Test
     public void shouldRemovePlaylistAndAllDependentResources() {
-        Playlist playlist = new Playlist(1L);
+        PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
 
         storage.removePlaylist(playlist.toUri());
 

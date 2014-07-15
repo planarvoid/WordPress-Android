@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.views;
 
-import com.soundcloud.android.model.WaveformData;
+import com.soundcloud.android.waveform.WaveformData;
 import org.jetbrains.annotations.NotNull;
 
 import android.graphics.Canvas;

@@ -3,12 +3,12 @@ package com.soundcloud.android.playback.views;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.PlayerArtworkLoadListener;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.AnimUtils;
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +75,7 @@ public class ArtworkTrackView extends LegacyPlayerTrackView {
     }
 
     @Override
-    public void setTrackState(Track track, int queuePosition, PlaybackStateProvider playbackStateProvider){
+    public void setTrackState(PublicApiTrack track, int queuePosition, PlaybackStateProvider playbackStateProvider){
         final boolean changed = !track.equals(this.track);
         super.setTrackState(track, queuePosition, playbackStateProvider);
 

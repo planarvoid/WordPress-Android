@@ -7,11 +7,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
-import com.soundcloud.android.model.ExploreGenre;
-import com.soundcloud.android.model.SuggestedTracksCollection;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.ListViewController;
@@ -37,7 +35,7 @@ public class ExploreTracksFragment extends Fragment
 
     private String trackingTag;
 
-    @Inject PagingItemAdapter<TrackSummary> adapter;
+    @Inject PagingItemAdapter<ApiTrack> adapter;
     @Inject PlaybackOperations playbackOperations;
     @Inject ExploreTracksOperations exploreTracksOperations;
     @Inject PullToRefreshController pullToRefreshController;
@@ -110,7 +108,7 @@ public class ExploreTracksFragment extends Fragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final Track track = new Track(adapter.getItem(position));
+        final PublicApiTrack track = new PublicApiTrack(adapter.getItem(position));
         final String screenTagExtra = getArguments().getString(SCREEN_TAG_EXTRA);
         playbackOperations.playExploreTrack(getActivity(), track, trackingTag, screenTagExtra);
     }

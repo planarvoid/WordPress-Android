@@ -2,7 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.adapters.CellPresenter;
 import com.soundcloud.propeller.PropertySet;
@@ -20,7 +20,7 @@ public class InlinePlaylistTracksAdapterTest {
     @Mock
     private EmptyPlaylistTracksPresenter emptyRowPresenter;
     @Mock
-    private CellPresenter<Track> trackRowPresenter;
+    private CellPresenter<PublicApiTrack> trackRowPresenter;
 
     @Test
     public void reports2DifferentItemTypes() {

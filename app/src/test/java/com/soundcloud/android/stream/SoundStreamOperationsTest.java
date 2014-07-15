@@ -13,7 +13,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.model.UserUrn;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.propeller.PropertySet;

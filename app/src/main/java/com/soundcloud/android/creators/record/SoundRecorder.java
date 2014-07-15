@@ -4,7 +4,7 @@ package com.soundcloud.android.creators.record;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.creators.record.filter.FadeFilter;
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.playback.service.managers.FroyoAudioManager;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.preferences.DeveloperPreferences;

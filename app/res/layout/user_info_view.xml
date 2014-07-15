@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical"
+                  android:padding="12dp">
+
+        <com.soundcloud.android.view.CustomFontTextView
+                  android:id="@+id/website"
+                  style="@style/Profile.Info.Link"
+                  android:visibility="gone"
+                  android:text="@string/website"
+                  android:drawableLeft="@drawable/favicon_website" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+                  android:id="@+id/discogs_name"
+                  style="@style/Profile.Info.Link"
+                  android:visibility="gone"
+                  android:text="@string/discogs"
+                  android:drawableLeft="@drawable/favicon_discogs" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+                  android:id="@+id/myspace_name"
+                  style="@style/Profile.Info.Link"
+                  android:visibility="gone"
+                  android:text="@string/myspace"
+                  android:drawableLeft="@drawable/favicon_myspace" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+                  android:id="@+id/description"
+                  style="@style/Profile.Info"
+                  android:visibility="gone"
+                  android:padding="4dp" />
+    </LinearLayout>
+</ScrollView>
+

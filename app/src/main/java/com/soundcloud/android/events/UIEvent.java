@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -97,7 +97,7 @@ public final class UIEvent {
     }
 
     private static String getPlayableType(Playable playable) {
-        return (playable instanceof Track ? "track" : "playlist");
+        return (playable instanceof PublicApiTrack ? "track" : "playlist");
     }
 
     public UIEvent(int kind) {

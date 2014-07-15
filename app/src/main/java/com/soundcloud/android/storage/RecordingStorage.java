@@ -1,11 +1,11 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.model.Recording.getUserIdFromFile;
-import static com.soundcloud.android.model.Recording.isAmplitudeFile;
+import static com.soundcloud.android.api.legacy.model.Recording.getUserIdFromFile;
+import static com.soundcloud.android.api.legacy.model.Recording.isAmplitudeFile;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.IOUtils;

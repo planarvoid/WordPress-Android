@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.streaming;
 
 import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
-import com.soundcloud.android.api.http.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Stream;
 

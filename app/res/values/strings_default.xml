@@ -193,7 +193,6 @@
   <string name="facebook_authentication_error_no_connection_message">Please try again shortly or log in using your SoundCloud username and password.</string>
   <string name="facebook_authentication_failed_message">Please try again shortly or log in using your SoundCloud username and password.</string>
   <string name="facebook_authentication_failed_title">Hmm, we aren\'t able to connect to Facebook right now.</string>
-  <string name="from">from</string>
   <string name="image_load_error">There was a problem loading the image</string>
   <string name="image_where">How would you like to add an image?</string>
   <string name="info_empty_other_message">This person hasn\'t added a profile description yet.</string>

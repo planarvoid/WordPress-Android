@@ -4,7 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soundcloud.android.model.FoursquareVenue;
+import com.soundcloud.android.api.legacy.model.FoursquareVenue;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;

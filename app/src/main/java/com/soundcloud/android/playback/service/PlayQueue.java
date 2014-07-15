@@ -7,8 +7,8 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.TrackUrn;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.tracks.TrackUrn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -49,6 +49,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     public void insertAudioAdAtPosition(AudioAd audioAd, int position) {
         playQueueItems.add(position, PlayQueueItem.fromAudioAd(audioAd));
+    }
+
+    public void removeAtPosition(int position) {
+        playQueueItems.remove(position);
     }
 
     public boolean moveToPrevious() {
@@ -94,7 +98,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
         final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(playSessionSource.getOriginScreen(), currentTrackIsUserTriggered);
         trackSourceInfo.setSource(getCurrentTrackSource(), getCurrentTrackSourceVersion());
-        if (playSessionSource.getPlaylistId() != Playlist.NOT_SET) {
+        if (playSessionSource.getPlaylistId() != PublicApiPlaylist.NOT_SET) {
             trackSourceInfo.setOriginPlaylist(playSessionSource.getPlaylistId(), getCurrentPosition(), playSessionSource.getPlaylistOwnerId());
         }
         return trackSourceInfo;
