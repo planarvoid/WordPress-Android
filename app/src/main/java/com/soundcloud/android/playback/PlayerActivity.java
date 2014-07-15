@@ -463,6 +463,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                         && getCurrentDisplayedTrackPosition() != playQueue.getPosition()) {
                     // play whatever track is currently on the screen
                     playbackOperations.setPlayQueuePosition(getCurrentDisplayedTrackPosition());
+                    playbackOperations.playCurrent();
                 } else {
                     playbackService.togglePlayback();
                 }
