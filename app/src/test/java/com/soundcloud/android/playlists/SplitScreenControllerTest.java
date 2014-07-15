@@ -4,9 +4,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,27 +27,37 @@ public class SplitScreenControllerTest {
 
     private SplitScreenController controller;
 
-    @Mock
-    private ItemAdapter<PropertySet> adapter;
-    @Mock
-    private ListView listView;
-    @Mock
-    private EmptyView emptyView;
-    @Mock
-    private View container;
-    @Mock
-    private Resources resources;
-    @Mock
-    private View layout;
+    private TestEventBus eventBus = new TestEventBus();
 
+    @Mock private TrackItemPresenter trackPresenter;
+    @Mock private ItemAdapter<PropertySet> adapter;
+    @Mock private ListView listView;
+    @Mock private EmptyView emptyView;
+    @Mock private View container;
+    @Mock private Resources resources;
+    @Mock private View layout;
 
     @Before
     public void setUp() throws Exception {
-        controller = new SplitScreenController(adapter);
+        controller = new SplitScreenController(trackPresenter, adapter, eventBus);
         when(layout.findViewById(android.R.id.list)).thenReturn(listView);
         when(layout.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(layout.findViewById(R.id.container)).thenReturn(container);
         controller.onViewCreated(layout, resources);
+    }
+
+    @Test
+    public void shouldListenForTrackChangeEventsAndUpdateTrackPresenter() {
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(TrackUrn.forTrack(123L)));
+
+        verify(trackPresenter).setPlayingTrack(TrackUrn.forTrack(123L));
+    }
+
+    @Test
+    public void shouldUnsubscribeFromEventQueuesInOnDestroyView() {
+        controller.onDestroyView();
+
+        eventBus.verifyUnsubscribed();
     }
 
     @Test

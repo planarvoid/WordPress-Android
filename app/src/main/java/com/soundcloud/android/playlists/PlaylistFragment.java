@@ -13,14 +13,13 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.views.PlayablePresenter;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -33,10 +32,6 @@ import rx.subscriptions.Subscriptions;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -70,7 +65,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     private View progressView;
 
     private Observable<PublicApiPlaylist> loadPlaylist;
-    private Subscription subscription = Subscriptions.empty();
+    private Subscription playlistSubscription = Subscriptions.empty();
 
     private PlayablePresenter playablePresenter;
     private View headerUsernameText;
@@ -78,16 +73,6 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     private ToggleButton playToggle;
 
     private boolean listShown;
-
-    // We still need to use broadcasts on this screen, since header does not fire play control events
-    private final BroadcastReceiver playbackStatusListener = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (isAdded()) {
-                refreshNowPlayingState();
-            }
-        }
-    };
 
     private final View.OnClickListener onPlayToggleClick = new View.OnClickListener() {
         @Override
@@ -172,12 +157,12 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
         showContent(listShown);
 
-        subscription = loadPlaylist.subscribe(new PlaylistSubscriber());
+        playlistSubscription = loadPlaylist.subscribe(new PlaylistSubscriber());
     }
 
     @Override
     public void onRefreshStarted(View view) {
-        subscription = legacyPlaylistOperations.refreshPlaylist(getPlaylistUrn())
+        playlistSubscription = legacyPlaylistOperations.refreshPlaylist(getPlaylistUrn())
                 .observeOn(mainThread())
                 .subscribe(new RefreshSubscriber());
     }
@@ -197,24 +182,19 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     public void onStart() {
         super.onStart();
         engagementsController.startListeningForChanges();
-        // Listen for playback changes, so that we can update the now-playing indicator
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(PlaybackService.Broadcasts.META_CHANGED);
-        intentFilter.addAction(PlaybackService.Broadcasts.PLAYSTATE_CHANGED);
-        getActivity().registerReceiver(playbackStatusListener, intentFilter);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        getActivity().unregisterReceiver(playbackStatusListener);
         engagementsController.stopListeningForChanges();
     }
 
     @Override
     public void onDestroyView() {
+        controller.onDestroyView();
         pullToRefreshController.onDestroyView();
-        subscription.unsubscribe();
+        playlistSubscription.unsubscribe();
         super.onDestroyView();
     }
 

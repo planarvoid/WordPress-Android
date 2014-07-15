@@ -3,7 +3,12 @@ package com.soundcloud.android.playlists;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,20 +23,34 @@ public class DefaultControllerTest {
 
     private DefaultController controller;
 
-    @Mock
-    private InlinePlaylistTracksAdapter adapter;
-    @Mock
-    private ListView listView;
-    @Mock
-    private Resources resources;
-    @Mock
-    private View layout;
+    private TestEventBus eventBus = new TestEventBus();
+
+    @Mock private TrackItemPresenter trackPresenter;
+    @Mock private InlinePlaylistTracksAdapter adapter;
+    @Mock private ListView listView;
+    @Mock private Resources resources;
+    @Mock private View layout;
 
     @Before
     public void setUp() throws Exception {
-        controller = new DefaultController(adapter);
         when(layout.findViewById(android.R.id.list)).thenReturn(listView);
+        when(adapter.getTrackPresenter()).thenReturn(trackPresenter);
+        controller = new DefaultController(adapter, eventBus);
         controller.onViewCreated(layout, resources);
+    }
+
+    @Test
+    public void shouldListenForTrackChangeEventsAndUpdateTrackPresenter() {
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(TrackUrn.forTrack(123L)));
+
+        verify(trackPresenter).setPlayingTrack(TrackUrn.forTrack(123L));
+    }
+
+    @Test
+    public void shouldUnsubscribeFromEventQueuesInOnDestroyView() {
+        controller.onDestroyView();
+
+        eventBus.verifyUnsubscribed();
     }
 
     @Test

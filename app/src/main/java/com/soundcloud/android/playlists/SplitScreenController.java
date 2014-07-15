@@ -1,8 +1,10 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.res.Resources;
@@ -11,29 +13,24 @@ import android.widget.ListView;
 
 import javax.inject.Inject;
 
-class SplitScreenController implements PlaylistDetailsController {
+class SplitScreenController extends PlaylistDetailsController {
 
-    private final ItemAdapter<PropertySet> adapter;
     private EmptyView emptyView;
     private View listViewContainer;
 
     @Inject
-    SplitScreenController(ItemAdapter<PropertySet> adapter) {
-        this.adapter = adapter;
-    }
-
-    @Override
-    public ItemAdapter<com.soundcloud.propeller.PropertySet> getAdapter() {
-        return adapter;
+    SplitScreenController(TrackItemPresenter trackPresenter, ItemAdapter<PropertySet> adapter, EventBus eventBus) {
+        super(trackPresenter, adapter, eventBus);
     }
 
     @Override
     public boolean hasContent() {
-        return !adapter.isEmpty();
+        return !getAdapter().isEmpty();
     }
 
     @Override
     public void onViewCreated(View layout, Resources resources) {
+        super.onViewCreated(layout, resources);
         emptyView = (EmptyView) layout.findViewById(android.R.id.empty);
         emptyView.setMessageText(resources.getString(R.string.empty_playlist_description));
 

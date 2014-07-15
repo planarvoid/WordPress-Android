@@ -76,6 +76,20 @@ public class PlaylistFragmentTest {
     }
 
     @Test
+    public void shouldForwardOnViewCreatedEventToController() {
+        View layout = createFragmentView();
+
+        verify(controller).onViewCreated(layout, Robolectric.application.getResources());
+    }
+
+    @Test
+    public void shouldForwardOnDestroyViewEventToController() {
+        fragment.onDestroyView();
+
+        verify(controller).onDestroyView();
+    }
+
+    @Test
     public void shouldNotShowPlayToggleButtonWithNoTracks() throws Exception {
         View layout = createFragmentView();
 
