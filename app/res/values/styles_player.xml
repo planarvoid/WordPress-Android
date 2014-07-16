@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- NEW PLAYER -->
 
@@ -119,7 +119,7 @@
         <item name="android:layout_centerVertical">true</item>
         <item name="android:paddingRight">6dp</item>
         <item name="android:paddingLeft">6dp</item>
-        <item name="android:textSize">12dp</item> <!-- This text cannot be scaled due to fixed timestamp height -->
+        <item name="android:textSize" tools:ignore="SpUsage">12dp</item> <!-- This text cannot be scaled due to fixed timestamp height -->
         <item name="android:textColor">@color/timestamp_primary</item>
         <item name="custom_font">fonts/Roboto-Light.ttf</item>
     </style>
