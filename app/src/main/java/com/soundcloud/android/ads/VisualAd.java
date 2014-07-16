@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class VisualAd {
 
-    private final String imageUrl;
-    private final String clickthroughUrl;
-    private final String trackingImpressionUrl;
-    private final String trackingClickUrl;
+    private String imageUrl;
+    private String clickthroughUrl;
+    private String trackingImpressionUrl;
+    private String trackingClickUrl;
 
     public VisualAd(@JsonProperty("image_url") String imageUrl,
                     @JsonProperty("clickthrough_url") String clickthroughUrl,
