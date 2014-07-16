@@ -23,9 +23,9 @@ public class TimestampView extends RelativeLayout implements ProgressAware, OnSc
     private boolean suppressProgress;
     private long duration;
 
-    private TextView progressText;
-    private TextView durationText;
-    private View background;
+    private final TextView progressText;
+    private final TextView durationText;
+    private final View background;
 
     public TimestampView(Context context, AttributeSet attrs) {
         super(context, attrs);
