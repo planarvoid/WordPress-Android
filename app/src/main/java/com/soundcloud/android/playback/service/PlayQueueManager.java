@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AudioAd;
@@ -196,7 +195,10 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     public void loadPlayQueue() {
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
         currentPosition = playQueueOperations.getLastStoredPlayPosition();
-        if (playQueueObservable != null) {
+        if (playQueueObservable == null) {
+            // this is so the player can finish() instead of display waiting to the user
+            broadcastNewPlayQueue();
+        } else {
             playQueueSubscription = playQueueObservable.subscribe(new DefaultSubscriber<PlayQueue>() {
                 @Override
                 public void onNext(PlayQueue savedQueue) {
@@ -205,9 +207,6 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
             });
             // return so player can have the resume information while load is in progress
             playbackProgressInfo = new PlaybackProgressInfo(playQueueOperations.getLastStoredPlayingTrackId(), playQueueOperations.getLastStoredSeekPosition());
-        } else {
-            // this is so the player can finish() instead of display waiting to the user
-            broadcastNewPlayQueue();
         }
     }
 
@@ -289,7 +288,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     public void insertAudioAd(AudioAd audioAd) {
         if (adPosition != Consts.NOT_SET) {
-            throw new RuntimeException("Existing AudioAd must be cleared before inserting a new one");
+            throw new IllegalStateException("Existing AudioAd must be cleared before inserting a new one");
         }
         adPosition = getNextPosition();
         playQueue.insertAudioAd(audioAd, adPosition);

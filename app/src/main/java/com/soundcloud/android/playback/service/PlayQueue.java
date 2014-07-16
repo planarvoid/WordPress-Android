@@ -106,7 +106,6 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         if (o == null || getClass() != o.getClass()) return false;
 
         PlayQueue playQueue = (PlayQueue) o;
-
         return Objects.equal(playQueueItems, playQueue.playQueueItems);
     }
 

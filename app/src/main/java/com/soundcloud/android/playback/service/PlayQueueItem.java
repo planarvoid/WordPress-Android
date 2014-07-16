@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.service;
 import com.google.common.base.Objects;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 
 final class PlayQueueItem {
