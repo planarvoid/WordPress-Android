@@ -13,11 +13,13 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.playback.service.PlaybackNotificationController;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
+import com.soundcloud.android.playback.service.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
+import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import dagger.Module;
 import dagger.Provides;
@@ -147,6 +149,13 @@ public class TestApplicationModule {
     @Provides
     public DatabaseScheduler databaseScheduler() {
         return mock(DatabaseScheduler.class);
+    }
+
+    @Provides
+    public SkippyFactory skippyFactory() {
+        final SkippyFactory skippyFactory = mock(SkippyFactory.class);
+        when(skippyFactory.create()).thenReturn(mock(Skippy.class));
+        return skippyFactory;
     }
 }
 
