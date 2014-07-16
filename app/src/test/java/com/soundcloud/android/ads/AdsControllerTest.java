@@ -1,6 +1,7 @@
 package com.soundcloud.android.ads;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -23,6 +24,7 @@ import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
@@ -61,7 +63,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(CURRENT_TRACK_URN));
 
-        verify(playQueueManager).insertAd(audioAd);
+        verify(playQueueManager).insertAudioAd(audioAd);
     }
 
     @Test
@@ -70,17 +72,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(CURRENT_TRACK_URN));
 
-        verify(playQueueManager, never()).insertAd(any(AudioAd.class));
-    }
-
-    @Test
-    public void playQueueEventRemovesPreviousPlayQueueItemIfIsAd() {
-        when(playQueueManager.getCurrentPosition()).thenReturn(3);
-        when(playQueueManager.isAudioAdAtPosition(2)).thenReturn(true);
-
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(CURRENT_TRACK_URN));
-
-        verify(playQueueManager).removeAtPosition(2);
+        verify(playQueueManager, never()).insertAudioAd(any(AudioAd.class));
     }
 
     @Test
@@ -93,7 +85,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(CURRENT_TRACK_URN));
 
-        verify(playQueueManager, never()).insertAd(any(AudioAd.class));
+        verify(playQueueManager, never()).insertAudioAd(any(AudioAd.class));
     }
 
     @Test
@@ -106,7 +98,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(CURRENT_TRACK_URN));
 
-        verify(playQueueManager, never()).insertAd(any(AudioAd.class));
+        verify(playQueueManager, never()).insertAudioAd(any(AudioAd.class));
     }
 
     @Test
@@ -117,7 +109,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(CURRENT_TRACK_URN));
 
-        verify(playQueueManager, never()).insertAd(any(AudioAd.class));
+        verify(playQueueManager, never()).insertAudioAd(any(AudioAd.class));
     }
 
     @Test
@@ -129,7 +121,35 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(CURRENT_TRACK_URN));
 
-        verify(playQueueManager, never()).insertAd(any(AudioAd.class));
+        verify(playQueueManager, never()).insertAudioAd(any(AudioAd.class));
+    }
+
+    @Test
+    public void trackChangeEventClearsAudioAd() {
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(CURRENT_TRACK_URN));
+
+        verify(playQueueManager).clearAudioAd();
+    }
+
+    @Test
+    public void queueUpdateEventDoesNotClearAudioAd() {
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(CURRENT_TRACK_URN));
+
+        verify(playQueueManager, never()).clearAudioAd();
+    }
+
+    @Test
+    public void trackChangeClearsAllAdsWhenAddingNewAd() {
+        when(playQueueManager.getNextTrackUrn()).thenReturn(NEXT_TRACK_URN);
+        when(trackOperations.track(NEXT_TRACK_URN)).thenReturn(Observable.just(MONETIZEABLE_PROPERTY_SET));
+        when(adsOperations.audioAd(NEXT_TRACK_URN)).thenReturn(Observable.just(audioAd));
+        when(playQueueManager.hasNextTrack()).thenReturn(true);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(CURRENT_TRACK_URN));
+
+        InOrder inOrder = inOrder(playQueueManager);
+        inOrder.verify(playQueueManager).clearAudioAd();
+        inOrder.verify(playQueueManager).insertAudioAd(any(AudioAd.class));
     }
 
     @Test

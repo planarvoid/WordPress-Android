@@ -49,7 +49,7 @@ public class PlaybackSessionAnalyticsController {
         @Override
         public void onNext(PlayQueueEvent event) {
             if (lastStateTransition.playSessionIsActive()) {
-                if (event.getKind() == PlayQueueEvent.NEW_QUEUE){
+                if (event.isNewQueue()){
                     publishStopEvent(lastStateTransition.getTrackUrn(), currentTrackSourceInfo, PlaybackSessionEvent.STOP_REASON_NEW_QUEUE);
                 } else {
                     publishStopEvent(lastStateTransition.getTrackUrn(), currentTrackSourceInfo, PlaybackSessionEvent.STOP_REASON_SKIP);

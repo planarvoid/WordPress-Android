@@ -189,7 +189,7 @@ public class PlaybackOperations {
     }
 
     public void previousTrack() {
-        playQueueManager.previousTrack();
+        playQueueManager.moveToPreviousTrack();
     }
 
     public void nextTrack() {
@@ -251,8 +251,8 @@ public class PlaybackOperations {
             @Override
             public void onNext(List<Long> idList) {
                 final int updatedPosition = correctStartPositionAndDeduplicateList(idList, startPosition, initialTrackUrn);
-                PlayQueue playQueue = PlayQueue.fromIdList(idList, updatedPosition, playSessionSource);
-                playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+                PlayQueue playQueue = PlayQueue.fromIdList(idList, playSessionSource);
+                playQueueManager.setNewPlayQueue(playQueue, updatedPosition, playSessionSource);
                 playCurrent();
             }
         };
@@ -308,12 +308,12 @@ public class PlaybackOperations {
     private void startPlaySession(final List<Long> trackList, int startPosition,
                                   PlaySessionSource playSessionSource, boolean loadRecommended) {
 
-        PlayQueue playQueue = PlayQueue.fromIdList(trackList, startPosition, playSessionSource);
-        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        PlayQueue playQueue = PlayQueue.fromIdList(trackList, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
         playCurrent();
 
         if (loadRecommended) {
-            playQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackUrn());
+            playQueueManager.fetchTracksRelatedToCurrentTrack();
         }
     }
 

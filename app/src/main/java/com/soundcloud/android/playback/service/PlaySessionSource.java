@@ -92,6 +92,10 @@ public class PlaySessionSource implements Parcelable{
         return ScTextUtils.isNotBlank(exploreVersion) ? exploreVersion : ScTextUtils.EMPTY_STRING;
     }
 
+    public boolean isFromPlaylist() {
+        return playlistId != Consts.NOT_SET;
+    }
+
     @Override
     public int describeContents() {
         return 0;

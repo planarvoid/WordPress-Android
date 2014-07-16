@@ -59,4 +59,12 @@ public class PlayQueueEvent {
         return kind == NEW_QUEUE || kind == QUEUE_UPDATE;
     }
 
+    public boolean isTrackChange() {
+        return kind == TRACK_CHANGE;
+    }
+
+    public boolean isNewQueue() {
+        return kind == NEW_QUEUE;
+    }
+
 }

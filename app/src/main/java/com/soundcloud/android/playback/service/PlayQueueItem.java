@@ -13,25 +13,24 @@ final class PlayQueueItem {
     private final String sourceVersion;
     private final boolean isAudioAd;
 
-    public static PlayQueueItem fromTrack(long trackId, String source, String sourceVersion){
-        return new PlayQueueItem(trackId, source, sourceVersion, false);
+    public static PlayQueueItem fromTrack(TrackUrn trackUrn, String source, String sourceVersion) {
+        return new PlayQueueItem(trackUrn, source, sourceVersion, false);
     }
 
-    public static PlayQueueItem fromAudioAd(AudioAd audioAd){
+    public static PlayQueueItem fromTrack(TrackUrn trackUrn, PlaySessionSource playSessionSource) {
+        return new PlayQueueItem(trackUrn, playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion(), false);
+    }
+
+    public static PlayQueueItem fromAudioAd(AudioAd audioAd) {
         // TODO : Proper source + version?
-        return new PlayQueueItem(audioAd.getApiTrack().getId(), ScTextUtils.EMPTY_STRING, ScTextUtils.EMPTY_STRING, true);
+        return new PlayQueueItem(audioAd.getApiTrack().getUrn(), ScTextUtils.EMPTY_STRING, ScTextUtils.EMPTY_STRING, true);
     }
 
-    private PlayQueueItem(long trackId, String source, String sourceVersion, boolean isAudioAd) {
-        this.trackUrn = Urn.forTrack(trackId);
+    private PlayQueueItem(TrackUrn trackUrn, String source, String sourceVersion, boolean isAudioAd) {
+        this.trackUrn = trackUrn;
         this.source = source;
         this.sourceVersion = sourceVersion;
         this.isAudioAd = isAudioAd;
-    }
-
-    @Deprecated
-    public long getTrackId() {
-        return trackUrn.numericId;
     }
 
     public TrackUrn getTrackUrn() {

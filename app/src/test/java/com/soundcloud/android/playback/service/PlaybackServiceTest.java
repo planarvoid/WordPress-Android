@@ -90,7 +90,6 @@ public class PlaybackServiceTest {
 
         when(playbackReceiverFactory.create(playbackService, accountOperations, playQueueManager, eventBus)).thenReturn(playbackReceiver);
         when(audioManagerProvider.get()).thenReturn(remoteAudioManager);
-        when(playQueueManager.getCurrentPlayQueue()).thenReturn(playQueue);
         when(trackOperations.markTrackAsPlayed(track)).thenReturn(Observable.just(track));
     }
 

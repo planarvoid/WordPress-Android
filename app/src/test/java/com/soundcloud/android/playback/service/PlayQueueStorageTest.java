@@ -7,10 +7,12 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.StorageIntegrationTest;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import org.junit.Before;
@@ -36,13 +38,13 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldInsertPlayQueueAndReplaceExistingItems() {
-        insertPlayQueueItem(PlayQueueItem.fromTrack(1L, "existing", "existing_version"));
+        insertPlayQueueItem(PlayQueueItem.fromTrack(Urn.forTrack(1), "existing", "existing_version"));
         assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
 
         TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
-        PlayQueueItem playQueueItem1 = PlayQueueItem.fromTrack(123L, "source1", "version1");
-        PlayQueueItem playQueueItem2 = PlayQueueItem.fromTrack(456L, "source2", "version2");
-        PlayQueue playQueue = new PlayQueue(Arrays.asList(playQueueItem1, playQueueItem2), 0);
+        PlayQueueItem playQueueItem1 = PlayQueueItem.fromTrack(Urn.forTrack(123L), "source1", "version1");
+        PlayQueueItem playQueueItem2 = PlayQueueItem.fromTrack(Urn.forTrack(456L), "source2", "version2");
+        PlayQueue playQueue = new PlayQueue(Arrays.asList(playQueueItem1, playQueueItem2));
 
         storage.storeAsync(playQueue).subscribe(observer);
 
@@ -65,7 +67,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldDeleteAllPlayQueueItems() {
         TestObserver<ChangeResult> observer = new TestObserver<ChangeResult>();
-        insertPlayQueueItem(PlayQueueItem.fromTrack(123L, "source", "source_version"));
+        insertPlayQueueItem(PlayQueueItem.fromTrack(Urn.forTrack(123L), "source", "source_version"));
         assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
 
         storage.clearAsync().subscribe(observer);
@@ -78,7 +80,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldLoadAllPlayQueueItems() {
         TestObserver<PlayQueueItem> observer = new TestObserver<PlayQueueItem>();
-        final PlayQueueItem expectedItem = PlayQueueItem.fromTrack(123L, "source", "source_version");
+        final PlayQueueItem expectedItem = PlayQueueItem.fromTrack(Urn.forTrack(123L), "source", "source_version");
         insertPlayQueueItem(expectedItem);
         assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
 
@@ -91,7 +93,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
     private long insertPlayQueueItem(PlayQueueItem playQueueItem) {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.PlayQueue.TRACK_ID, playQueueItem.getTrackId());
+        cv.put(TableColumns.PlayQueue.TRACK_ID, playQueueItem.getTrackUrn().numericId);
         cv.put(TableColumns.PlayQueue.SOURCE, playQueueItem.getSource());
         cv.put(TableColumns.PlayQueue.SOURCE_VERSION, playQueueItem.getSourceVersion());
         return testHelper().insertInto(Table.PLAY_QUEUE, cv);

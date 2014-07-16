@@ -243,13 +243,13 @@ public class PlaySessionControllerTest {
     @Test
     public void onStateTransitionForTrackEndSavesQueueWithPositionWithZero() throws Exception {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE, TRACK_URN, 123, 456));
-        verify(playQueueManager).saveCurrentPosition(0);
+        verify(playQueueManager).saveCurrentProgress(0);
     }
 
     @Test
     public void onStateTransitionForReasonNoneSavesQueueWithPositionFromTransition() throws Exception {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, TRACK_URN, 123, 456));
-        verify(playQueueManager).saveCurrentPosition(123);
+        verify(playQueueManager).saveCurrentProgress(123);
     }
 
     @Test
@@ -259,25 +259,25 @@ public class PlaySessionControllerTest {
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state1);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state2);
-        verify(playQueueManager).saveCurrentPosition(123);
+        verify(playQueueManager).saveCurrentProgress(123);
     }
 
     @Test
     public void onStateTransitionForQueueCompleteDoesNotSavePosition() throws Exception {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.PLAY_QUEUE_COMPLETE, TRACK_URN));
-        verify(playQueueManager, never()).saveCurrentPosition(anyInt());
+        verify(playQueueManager, never()).saveCurrentProgress(anyInt());
     }
 
     @Test
     public void onStateTransitionForBufferingDoesNotSaveQueuePosition() throws Exception {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, TRACK_URN, 123, 456));
-        verify(playQueueManager, never()).saveCurrentPosition(anyInt());
+        verify(playQueueManager, never()).saveCurrentProgress(anyInt());
     }
 
     @Test
     public void onStateTransitionForPlayingDoesNotSaveQueuePosition() throws Exception {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN, 123, 456));
-        verify(playQueueManager, never()).saveCurrentPosition(anyInt());
+        verify(playQueueManager, never()).saveCurrentProgress(anyInt());
     }
 
 }

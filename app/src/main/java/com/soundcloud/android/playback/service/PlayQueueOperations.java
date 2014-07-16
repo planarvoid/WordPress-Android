@@ -75,19 +75,19 @@ public class PlayQueueOperations {
                     .map(new Func1<List<PlayQueueItem>, PlayQueue>() {
                         @Override
                         public PlayQueue call(List<PlayQueueItem> playQueueItems) {
-                            return new PlayQueue(playQueueItems, getLastStoredPlayPosition());
+                            return new PlayQueue(playQueueItems);
                         }
                     }).observeOn(AndroidSchedulers.mainThread());
         }
         return null;
     }
 
-    public Subscription saveQueue(PlayQueue playQueue, PlaySessionSource playSessionSource, long seekPosition) {
+    public Subscription saveQueue(PlayQueue playQueue, int position, TrackUrn currentUrn, PlaySessionSource playSessionSource, long seekPosition) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         // TODO: migrate the preferences to store the URN, not the ID
-        editor.putLong(Keys.TRACK_ID.name(), playQueue.getCurrentTrackUrn().numericId);
-        editor.putInt(Keys.PLAY_POSITION.name(), playQueue.getCurrentPosition());
+        editor.putLong(Keys.TRACK_ID.name(), currentUrn.numericId);
+        editor.putInt(Keys.PLAY_POSITION.name(), position);
         editor.putLong(Keys.SEEK_POSITION.name(), seekPosition);
 
         playSessionSource.saveToPreferences(editor);

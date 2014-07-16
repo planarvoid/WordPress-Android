@@ -122,7 +122,7 @@ public class PlaySessionController {
     }
 
     private void saveProgress(StateTransition stateTransition) {
-        playQueueManager.saveCurrentPosition(stateTransition.trackEnded() ? 0 : stateTransition.getProgress().getPosition());
+        playQueueManager.saveCurrentProgress(stateTransition.trackEnded() ? 0 : stateTransition.getProgress().getPosition());
     }
 
     private class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {

@@ -23,6 +23,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
@@ -91,7 +92,7 @@ public class PlayQueueOperationsTest {
 
     @Test
     public void shouldLoadAPreviouslyStoredPlayQueue() throws Exception {
-        PlayQueueItem playQueueItem = PlayQueueItem.fromTrack(1L, "source1", "version1");
+        PlayQueueItem playQueueItem = PlayQueueItem.fromTrack(Urn.forTrack(1L), "source1", "version1");
         when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
 
         Observable<PlayQueueItem> itemObservable = Observable.just(playQueueItem);
@@ -107,15 +108,14 @@ public class PlayQueueOperationsTest {
     public void shouldCreateQueueFromItemsObservable() throws Exception {
         when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
 
-        PlayQueueItem playQueueItem1 = PlayQueueItem.fromTrack(1L, "source1", "version1");
-        PlayQueueItem playQueueItem2 = PlayQueueItem.fromTrack(2L, "source2", "version2");
+        PlayQueueItem playQueueItem1 = PlayQueueItem.fromTrack(Urn.forTrack(1L), "source1", "version1");
+        PlayQueueItem playQueueItem2 = PlayQueueItem.fromTrack(Urn.forTrack(2L), "source2", "version2");
         Observable<PlayQueueItem> itemObservable = Observable.from(Lists.newArrayList(playQueueItem1, playQueueItem2));
 
         when(playQueueStorage.loadAsync()).thenReturn(itemObservable);
 
         PlayQueue playQueue = playQueueOperations.getLastStoredPlayQueue().toBlockingObservable().lastOrDefault(null);
         expect(playQueue).toContainExactly(playQueueItem1, playQueueItem2);
-        expect(playQueue.getCurrentPosition()).toEqual(1);
     }
 
     @Test
@@ -127,10 +127,10 @@ public class PlayQueueOperationsTest {
 
     @Test
     public void saveShouldWritePlayQueueMetaDataToPreferences() throws Exception {
-        when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
-        when(playQueue.getCurrentPosition()).thenReturn(4);
+        TrackUrn currentTrackUrn = Urn.forTrack(123);
+        int currentPosition = 4;
 
-        expect(playQueueOperations.saveQueue(playQueue, playSessionSource, 200L)).not.toBeNull();
+        expect(playQueueOperations.saveQueue(playQueue, currentPosition, currentTrackUrn, playSessionSource, 200L)).not.toBeNull();
         verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.SEEK_POSITION.name(), 200L);
         verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.TRACK_ID.name(), 123L);
         verify(sharedPreferencesEditor).putInt(PlayQueueOperations.Keys.PLAY_POSITION.name(), 4);
@@ -141,10 +141,9 @@ public class PlayQueueOperationsTest {
     @Test
     public void saveShouldStoreAllPlayQueueItems() throws Exception {
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
-        when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
         when(playQueueStorage.storeAsync(playQueue)).thenReturn(observable);
 
-        playQueueOperations.saveQueue(playQueue, playSessionSource, 200L);
+        playQueueOperations.saveQueue(playQueue, 0, Urn.forTrack(123L), playSessionSource, 200L);
 
         expect(observable.subscribedTo()).toBeTrue();
     }

@@ -160,7 +160,7 @@ public class PlaybackOperationsTest {
     public void playExploreTrackCallsFetchRelatedTracksOnPlayQueueManager() {
         playbackOperations.playExploreTrack(Robolectric.application, track, EXPLORE_VERSION, ORIGIN_SCREEN.get());
 
-        verify(playQueueManager).fetchRelatedTracks(track.getUrn());
+        verify(playQueueManager).fetchTracksRelatedToCurrentTrack();
     }
 
     @Test
@@ -286,7 +286,7 @@ public class PlaybackOperationsTest {
     public void shouldPerformPreviousAction() {
         playbackOperations.previousTrack();
 
-        verify(playQueueManager).previousTrack();
+        verify(playQueueManager).moveToPreviousTrack();
     }
 
     @Test
@@ -360,14 +360,14 @@ public class PlaybackOperationsTest {
         ArgumentCaptor<PlayQueue> playQueueCaptor = ArgumentCaptor.forClass(PlayQueue.class);
         PlaySessionSource playSessionSource = new PlaySessionSource(Screen.YOUR_LIKES);
 
-        verify(playQueueManager).setNewPlayQueue(playQueueCaptor.capture(), eq(playSessionSource));
+        verify(playQueueManager).setNewPlayQueue(playQueueCaptor.capture(), eq(0), eq(playSessionSource));
 
         final PlayQueue playQueue = playQueueCaptor.getValue();
         expect(playQueue.size()).toEqual(3);
         List<Long> shuffledIds = new ArrayList<Long>(3);
-        do {
-            shuffledIds.add(playQueue.getCurrentTrackId());
-        } while (playQueue.moveToNext(true));
+        for (int i = 0; i < playQueue.size(); i++){
+            shuffledIds.add(playQueue.getTrackId(i));
+        }
         expect(shuffledIds).toContainExactlyInAnyOrder(1L, 2L, 3L);
     }
 
@@ -499,7 +499,7 @@ public class PlaybackOperationsTest {
     public void startPlaybackWithRecommendationsByTrackCallsFetchRecommendationsOnPlayQueueManager() throws Exception {
         PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN);
-        verify(playQueueManager).fetchRelatedTracks(track.getUrn());
+        verify(playQueueManager).fetchTracksRelatedToCurrentTrack();
     }
 
     @Test
@@ -517,7 +517,7 @@ public class PlaybackOperationsTest {
     @Test
     public void startPlaybackWithRecommendationsByIdCallsFetchRelatedOnPlayQueueManager() throws Exception {
         playbackOperations.startPlaybackWithRecommendations(123L, ORIGIN_SCREEN);
-        verify(playQueueManager).fetchRelatedTracks(Urn.forTrack(123L));
+        verify(playQueueManager).fetchTracksRelatedToCurrentTrack();
     }
 
     @Test
@@ -597,7 +597,7 @@ public class PlaybackOperationsTest {
 
     private void checkSetNewPlayQueueArgs(int startPosition, PlaySessionSource playSessionSource, Long... ids){
         verify(playQueueManager).setNewPlayQueue(
-                eq(PlayQueue.fromIdList(Lists.newArrayList(ids), startPosition, playSessionSource)),
+                eq(PlayQueue.fromIdList(Lists.newArrayList(ids), playSessionSource)), eq(startPosition),
                 eq(playSessionSource));
     }
 

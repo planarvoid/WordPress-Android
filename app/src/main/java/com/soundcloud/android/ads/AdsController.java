@@ -54,9 +54,8 @@ public class AdsController {
     private Action1<PlayQueueEvent> resetAudioAd = new Action1<PlayQueueEvent>() {
         @Override
         public void call(PlayQueueEvent event) {
-            int prevPosition = playQueueManager.getCurrentPosition() - 1;
-            if (playQueueManager.isAudioAdAtPosition(prevPosition)) {
-                playQueueManager.removeAtPosition(prevPosition);
+            if (event.isTrackChange()) {
+                playQueueManager.clearAudioAd();
             }
             audioAdSubscription.unsubscribe();
         }
@@ -92,7 +91,7 @@ public class AdsController {
     private class AudioAdSubscriber extends DefaultSubscriber<AudioAd> {
         @Override
         public void onNext(AudioAd audioAd) {
-            playQueueManager.insertAd(audioAd);
+            playQueueManager.insertAudioAd(audioAd);
         }
     }
 

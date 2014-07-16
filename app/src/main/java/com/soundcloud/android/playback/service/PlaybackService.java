@@ -214,7 +214,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         // before stopping the service, so that pause/resume isn't slow.
         // Also delay stopping the service if we're transitioning between
         // tracks.
-        } else if (!getPlayQueueInternal().isEmpty()) {
+        } else if (!playQueueManager.isQueueEmpty()) {
             delayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
             return true;
 
@@ -334,7 +334,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             .putExtra(BroadcastExtras.ID, getTrackId())
             .putExtra(BroadcastExtras.USER_ID, getTrackUserId())
             .putExtra(BroadcastExtras.PROGRESS_POSITION, getProgress())
-            .putExtra(BroadcastExtras.QUEUE_POSITION, getPlayQueueInternal().getCurrentPosition());
+            .putExtra(BroadcastExtras.QUEUE_POSITION, playQueueManager.getCurrentPosition());
 
         stateTransition.addToIntent(intent);
         sendBroadcast(intent);
@@ -352,12 +352,12 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     // TODO : Handle tracks that are not in local storage (quicksearch)
     /* package */ void openCurrent() {
-        if (!getPlayQueueInternal().isEmpty()) {
-            streamPlayer.startBufferingMode(getPlayQueueInternal().getCurrentTrackUrn());
+        if (!playQueueManager.isQueueEmpty()) {
+            streamPlayer.startBufferingMode(playQueueManager.getCurrentTrackUrn());
 
 
             loadTrackSubscription.unsubscribe();
-            loadTrackSubscription = trackOperations.loadTrack(getPlayQueueInternal().getCurrentTrackId(), AndroidSchedulers.mainThread())
+            loadTrackSubscription = trackOperations.loadTrack(playQueueManager.getCurrentTrackId(), AndroidSchedulers.mainThread())
                     .subscribe(new TrackInformationSubscriber());
         }
     }
@@ -450,7 +450,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             pause();
         } else if (currentTrack != null) {
             play();
-        } else if (!getPlayQueueInternal().isEmpty()) {
+        } else if (!playQueueManager.isQueueEmpty()) {
             openCurrent();
         } else {
             waitingForPlaylist = true;
@@ -513,10 +513,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     public void restartTrack() {
         openCurrent();
-    }
-
-    PlayQueue getPlayQueueInternal() {
-        return playQueueManager.getCurrentPlayQueue();
     }
 
     private long getTrackUserId() {

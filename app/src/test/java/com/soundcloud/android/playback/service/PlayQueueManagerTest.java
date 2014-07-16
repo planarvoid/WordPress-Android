@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
@@ -65,6 +66,7 @@ public class PlayQueueManagerTest {
     @Mock
     private PlayQueueOperations playQueueOperations;
 
+    private PublicApiPlaylist playlist;
     private PlaySessionSource playSessionSource;
 
     @Before
@@ -75,40 +77,45 @@ public class PlayQueueManagerTest {
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(playQueue.isEmpty()).thenReturn(true);
 
-        PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
-        playSessionSource  = new PlaySessionSource(ORIGIN_PAGE);
+        playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
         playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
         playSessionSource.setExploreVersion("1.0");
     }
 
     @Test(expected = NullPointerException.class)
-    public void shouldNotAcceptNullValueWhenSettingNewPlayqueue(){
+    public void shouldNotAcceptNullValueWhenSettingNewPlayqueue() {
         playQueueManager.setNewPlayQueue(null, playSessionSource);
     }
 
     @Test
     public void shouldSetNewPlayQueueAsCurrentPlayQueue() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        expect(playQueueManager.getCurrentPlayQueue()).toEqual(playQueue);
+        expectPlayQueueContentToBeEqual(playQueueManager, playQueue);
     }
 
     @Test
-    public void getPlayQueuePositionReturnsCurrentPositionFromPlayQueue() {
-        when(playQueue.getCurrentPosition()).thenReturn(5);
+    public void getCurrentPositionReturnsCurrentPosition() {
+        int newPosition = 5;
+        when(playQueue.size()).thenReturn(6);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        expect(playQueueManager.getCurrentPosition()).toEqual(5);
+
+        playQueueManager.setPosition(newPosition);
+
+        expect(playQueueManager.getCurrentPosition()).toEqual(newPosition);
     }
 
     @Test
-    public void getCurrentTrackIdReturnsCurrentTrackIdFromPlayQueue() {
-        when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(5L));
-        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+    public void getCurrentTrackUrnReturnsCurrentTrackUrnFromPlayQueue() {
+        playQueueManager.setNewPlayQueue(playQueue, 5, playSessionSource);
+        when(playQueue.getUrn(5)).thenReturn(Urn.forTrack(5L));
+
         expect(playQueueManager.getCurrentTrackUrn()).toEqual(Urn.forTrack(5L));
     }
 
     @Test
     public void getCurrentPlayQueueCountReturnsSizeOfCurrentQueue() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 0, playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), playSessionSource), playSessionSource);
 
         expect(playQueueManager.getQueueSize()).toBe(3);
     }
@@ -122,91 +129,123 @@ public class PlayQueueManagerTest {
 
     @Test
     public void isQueueEmptyReturnsFalseIfQueueSizeGreaterThanZero() throws Exception {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 0, playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), playSessionSource), playSessionSource);
 
         expect(playQueueManager.isQueueEmpty()).toBeFalse();
     }
 
     @Test
     public void getUrnAtPositionReturnsTrackUrnForPlayQueueItem() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 0, playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), playSessionSource), playSessionSource);
 
         expect(playQueueManager.getUrnAtPosition(2)).toEqual(Urn.forTrack(3L));
     }
 
     @Test
     public void shouldSetNewPlayQueueCurrentTrackToManuallyTriggered() {
+        when(playQueue.isEmpty()).thenReturn(false);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        verify(playQueue).setCurrentTrackToUserTriggered();
+
+        expect(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).toBeTrue();
     }
 
     @Test
-    public void shouldBroadcastPlayQueueChangedWhenSettingNewPlayqueue() {
+    public void shouldReturnEmptyEventLoggerParamsWhenQueueIsEmpty() throws Exception {
+        playQueueManager.setNewPlayQueue(PlayQueue.empty(), playSessionSource);
+        expect(playQueueManager.getCurrentTrackSourceInfo()).toBeNull();
+    }
+
+    @Test
+    public void shouldReturnSetAsPartOfLoggerParams() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), playSessionSource), 1, playSessionSource);
+
+        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
+        expect(trackSourceInfo.getPlaylistId()).toEqual(playlist.getId());
+        expect(trackSourceInfo.getPlaylistPosition()).toEqual(1);
+    }
+
+    @Test
+    public void shouldReturnExploreVersionAsPartOfLoggerParams() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), playSessionSource), 1, playSessionSource);
+
+        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
+        expect(trackSourceInfo.getSource()).toEqual("explore");
+        expect(trackSourceInfo.getSourceVersion()).toEqual("1.0");
+    }
+
+    @Test
+    public void shouldBroadcastPlayQueueChangedWhenSettingNewPlayQueue() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expectBroadcastNewPlayQueue();
     }
 
     @Test
     public void shouldPublishPlayQueueChangedEventOnSetNewPlayQueue() {
-        when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(3L));
+        when(playQueue.getUrn(0)).thenReturn(Urn.forTrack(3L));
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
         expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).toNumber(1);
         expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.NEW_QUEUE);
-        expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getCurrentTrackUrn())
-                .toEqual(playQueue.getCurrentTrackUrn());
+        expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getCurrentTrackUrn()).toEqual(Urn.forTrack(3L));
     }
 
     @Test
-    public void shouldSaveCurrentPositionWhenSettingNonEmptyPlayQueue(){
+    public void shouldSaveCurrentPositionWhenSettingNonEmptyPlayQueue() {
+        int currentPosition = 5;
+        TrackUrn currentUrn = Urn.forTrack(3L);
         when(playQueue.isEmpty()).thenReturn(false);
-        when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(3L));
+        when(playQueue.getUrn(currentPosition)).thenReturn(currentUrn);
 
-        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        verify(playQueueOperations).saveQueue(playQueue, playSessionSource, 0);
+        playQueueManager.setNewPlayQueue(playQueue, currentPosition, playSessionSource);
+        verify(playQueueOperations).saveQueue(playQueue, currentPosition, currentUrn, playSessionSource, 0);
     }
 
     @Test
-    public void shouldStoreTracksWhenSettingNewPlayQueue(){
+    public void shouldStoreTracksWhenSettingNewPlayQueue() {
+        TrackUrn currentUrn = Urn.forTrack(3L);
         when(playQueue.isEmpty()).thenReturn(false);
+        when(playQueue.getUrn(0)).thenReturn(currentUrn);
+
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        verify(playQueueOperations).saveQueue(playQueue, playSessionSource, 0L);
+        verify(playQueueOperations).saveQueue(playQueue, 0, currentUrn, playSessionSource, 0L);
     }
 
     @Test
     public void shouldNotUpdateCurrentPositionIfPlayqueueIsNull() {
-        playQueueManager.saveCurrentPosition(22L);
+        playQueueManager.saveCurrentProgress(22L);
         verifyZeroInteractions(sharedPreferences);
     }
 
     @Test
     public void saveProgressSavesPlayQueueInfoUsingPlayQueueOperations() {
+        TrackUrn currentUrn = Urn.forTrack(3L);
         when(playQueue.isEmpty()).thenReturn(false);
+        when(playQueue.getUrn(0)).thenReturn(currentUrn);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        playQueueManager.saveCurrentPosition(123L);
+        playQueueManager.saveCurrentProgress(123L);
 
         InOrder inOrder = Mockito.inOrder(playQueueOperations);
-        inOrder.verify(playQueueOperations).saveQueue(playQueue, playSessionSource, 0L);
-        inOrder.verify(playQueueOperations).saveQueue(playQueue, playSessionSource, 123L);
+        inOrder.verify(playQueueOperations).saveQueue(playQueue, 0, currentUrn, playSessionSource, 0L);
+        inOrder.verify(playQueueOperations).saveQueue(playQueue, 0, currentUrn, playSessionSource, 123L);
     }
 
     @Test
     public void getPlayProgressInfoReturnsLastSavedProgressInfo() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(123L), 0, playSessionSource), playSessionSource);
-        playQueueManager.saveCurrentPosition(456L);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(123L), playSessionSource), playSessionSource);
+        playQueueManager.saveCurrentProgress(456L);
         expect(playQueueManager.getPlayProgressInfo()).toEqual(new PlaybackProgressInfo(123L, 456L));
     }
 
     @Test
     public void doesNotChangePlayQueueIfPositionSetToCurrent() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 1, playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), playSessionSource), playSessionSource);
         playQueueManager.setPosition(1);
         verifyZeroInteractions(playQueue);
     }
 
     @Test
     public void doesNotSendTrackChangeEventIfPositionSetToCurrent() throws Exception {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 1, playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
 
         playQueueManager.setPosition(1);
 
@@ -220,7 +259,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldPublishTrackChangeEventOnSetPosition() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), 0, playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), playSessionSource), playSessionSource);
 
         playQueueManager.setPosition(2);
 
@@ -229,37 +268,57 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldPublishTrackChangeEventOnPreviousTrack() {
-        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        when(playQueue.hasPreviousTrack()).thenReturn(true);
+        playQueueManager.setNewPlayQueue(playQueue, 5, playSessionSource);
+        when(playQueue.hasPreviousTrack(5)).thenReturn(true);
 
-        playQueueManager.previousTrack();
+        playQueueManager.moveToPreviousTrack();
 
         expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.TRACK_CHANGE);
     }
 
     @Test
     public void shouldMoveToPreviousTrack() {
-        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        when(playQueue.hasPreviousTrack()).thenReturn(true);
+        playQueueManager.setNewPlayQueue(playQueue, 5, playSessionSource);
+        when(playQueue.hasPreviousTrack(5)).thenReturn(true);
 
-        playQueueManager.previousTrack();
+        playQueueManager.moveToPreviousTrack();
 
-        verify(playQueue).moveToPrevious();
+        expect(playQueueManager.getCurrentPosition()).toBe(4);
     }
 
     @Test
     public void shouldNotPublishTrackChangeWhenCallingPreviousOnFirstTrack() {
-        when(playQueue.moveToPrevious()).thenReturn(false);
+        when(playQueue.hasPreviousTrack(0)).thenReturn(false);
 
-        playQueueManager.previousTrack();
+        playQueueManager.moveToPreviousTrack();
 
         expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).toBeEmpty();
     }
 
     @Test
+    public void shouldNotMoveToPreviousTrackIfAtHeadOfQueue() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L), playSessionSource), playSessionSource);
+
+        playQueueManager.moveToPreviousTrack();
+
+        expect(playQueueManager.getCurrentPosition()).toBe(0);
+    }
+
+    @Test
+    public void moveToPreviousShouldResultInManualTrigger() {
+        playQueueManager.setNewPlayQueue(playQueue, 5, playSessionSource);
+        when(playQueue.hasPreviousTrack(5)).thenReturn(true);
+        when(playQueue.isEmpty()).thenReturn(false);
+
+        playQueueManager.moveToPreviousTrack();
+
+        expect(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).toBeTrue();
+    }
+
+    @Test
     public void shouldPublishTrackChangeEventOnNextTrack() {
-        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        when(playQueue.hasNextTrack()).thenReturn(true);
+        playQueueManager.setNewPlayQueue(playQueue, 0, playSessionSource);
+        when(playQueue.hasNextTrack(0)).thenReturn(true);
         playQueueManager.nextTrack();
 
         expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE, new Predicate<PlayQueueEvent>() {
@@ -271,121 +330,175 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldMoveToNextTrackWithManualSetToTrue() {
+    public void shouldToNextTrackSetUserTriggeredFlagToTrue() {
+        when(playQueue.isEmpty()).thenReturn(false);
+        when(playQueue.hasNextTrack(0)).thenReturn(true);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        when(playQueue.hasNextTrack()).thenReturn(true);
 
         playQueueManager.nextTrack();
 
-        verify(playQueue).moveToNext(true);
+        expect(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).toBeTrue();
+    }
+
+    @Test
+    public void shouldAutoNextTrackSetUserTriggerTrackFlagToFalse() {
+        when(playQueue.isEmpty()).thenReturn(false);
+        when(playQueue.hasNextTrack(0)).thenReturn(true);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+
+        playQueueManager.autoNextTrack();
+
+        expect(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).toBeFalse();
+    }
+
+    @Test
+    public void shouldSuccessfullyMoveToNextTrack() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), playSessionSource), playSessionSource);
+
+        expect(playQueueManager.nextTrack()).toBeTrue();
+        expect(playQueueManager.getCurrentPosition()).toBe(1);
+    }
+
+    @Test
+    public void shouldNotMoveToNextTrackIfAtEndOfQueue() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), playSessionSource), 1, playSessionSource);
+
+        expect(playQueueManager.nextTrack()).toBeFalse();
+        expect(playQueueManager.getCurrentPosition()).toBe(1);
+    }
+
+    @Test
+    public void shouldReturnPlayQueueViewWithAppendState() {
+        PlayQueue playQueue = PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, 2, playSessionSource);
+
+        final PlayQueueView playQueueView = playQueueManager.getViewWithAppendState(PlayQueueManager.FetchRecommendedState.LOADING);
+        expect(playQueueView).toContainExactly(1L, 2L, 3L);
+        expect(playQueueView.getPosition()).toBe(2);
+        expect(playQueueView.getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.LOADING);
     }
 
     @Test
     public void nextTrackReturnsFalseIfNoNextTrack() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        when(playQueue.hasNextTrack()).thenReturn(false);
+        when(playQueue.hasNextTrack(0)).thenReturn(false);
         expect(playQueueManager.nextTrack()).toBeFalse();
     }
 
     @Test
     public void nextTrackReturnsTrueIfHasNextTrack() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        when(playQueue.hasNextTrack()).thenReturn(true);
+        when(playQueue.hasNextTrack(0)).thenReturn(true);
         expect(playQueueManager.nextTrack()).toBeTrue();
     }
 
     @Test
     public void getNextTrackUrnReturnsNextTrackUrn() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), 0, playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), playSessionSource), playSessionSource);
         expect(playQueueManager.getNextTrackUrn()).toEqual(Urn.forTrack(2L));
     }
 
     @Test
     public void getNextTrackUrnReturnsNotSetTrackUrnIfNoNextTrack() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), 1, playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), playSessionSource), 1, playSessionSource);
         expect(playQueueManager.getNextTrackUrn()).toEqual(TrackUrn.NOT_SET);
     }
 
     @Test
     public void insertsAudioAdAtPosition() throws CreateModelException {
-        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        when(playQueue.getCurrentPosition()).thenReturn(1);
+        playQueueManager.setNewPlayQueue(playQueue, 1, playSessionSource);
 
         AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
-        playQueueManager.insertAd(audioAd);
+        playQueueManager.insertAudioAd(audioAd);
 
-        verify(playQueue).insertAudioAdAtPosition(audioAd, 2);
+        verify(playQueue).insertAudioAd(audioAd, 2);
     }
 
     @Test
-    public void broadcastsQueueChangeEventWhenAudioAdIsInserted() throws CreateModelException {
-        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        when(playQueue.getCurrentPosition()).thenReturn(1);
+    public void publishesQueueChangeEventWhenAudioAdIsInserted() throws CreateModelException {
+        playQueueManager.setNewPlayQueue(playQueue, 1, playSessionSource);
 
         AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
-        playQueueManager.insertAd(audioAd);
+        playQueueManager.insertAudioAd(audioAd);
 
         expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
-        expectBroadcastPlayQueueUpdate();
     }
 
     @Test
-    public void broadcastsQueueChangeEventWhenItemIsRemoved() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), 1, playSessionSource), playSessionSource);
+    public void clearAdRemovedTheAd() throws CreateModelException {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L, 3L), playSessionSource), playSessionSource);
+        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        playQueueManager.insertAudioAd(audioAd);
 
-        playQueueManager.removeAtPosition(1);
+        playQueueManager.clearAudioAd();
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
-        expectBroadcastPlayQueueUpdate();
+        expect(playQueueManager.getQueueSize()).toEqual(3);
+        expect(playQueueManager.getUrnAtPosition(1)).toEqual(TrackUrn.forTrack(2L));
     }
 
     @Test
-    public void removeItemAtPosition() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L, 3L), 1, playSessionSource), playSessionSource);
+    public void clearAdDoesNotRemoveAdFromCurrentPosition() throws CreateModelException {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L, 3L), playSessionSource), playSessionSource);
+        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        playQueueManager.insertAudioAd(audioAd);
 
-        playQueueManager.removeAtPosition(1);
+        playQueueManager.setPosition(1);
+        playQueueManager.clearAudioAd();
 
-        expect(playQueueManager.getQueueSize()).toEqual(2);
-        expect(playQueueManager.getUrnAtPosition(1)).toEqual(TrackUrn.forTrack(3L));
+        expect(playQueueManager.getQueueSize()).toEqual(4);
     }
 
-    public void shouldMoveToNextTrackWithManualSetToFalse() {
-        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        when(playQueue.hasNextTrack()).thenReturn(true);
+    @Test
+    public void publishesQueueChangeEventWhenAdIsCleared() throws CreateModelException {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), playSessionSource), playSessionSource);
+        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        playQueueManager.insertAudioAd(audioAd);
 
-        playQueueManager.autoNextTrack();
+        playQueueManager.clearAudioAd();
 
-        verify(playQueue).moveToNext(false);
+        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
+    }
+
+    @Test
+    public void doesNotPublishQueueChangeEventWhenAdIsNotCleared() throws CreateModelException {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), playSessionSource), playSessionSource);
+        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        playQueueManager.insertAudioAd(audioAd);
+
+        playQueueManager.setPosition(1);
+        playQueueManager.clearAudioAd();
+
+        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).not.toEqual(PlayQueueEvent.QUEUE_UPDATE);
     }
 
     @Test
     public void autoNextReturnsFalseIfNoNextTrack() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        when(playQueue.hasNextTrack()).thenReturn(false);
+        when(playQueue.hasNextTrack(0)).thenReturn(false);
         expect(playQueueManager.autoNextTrack()).toBeFalse();
     }
 
     @Test
     public void autoNextReturnsTrueIfHasNextTrack() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        when(playQueue.hasNextTrack()).thenReturn(true);
+        when(playQueue.hasNextTrack(0)).thenReturn(true);
         expect(playQueueManager.autoNextTrack()).toBeTrue();
     }
 
     @Test
     public void hasNextTrackReturnsHasNextTrackFromCurrentPlayQueue() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        when(playQueue.hasNextTrack()).thenReturn(true);
+        when(playQueue.hasNextTrack(0)).thenReturn(true);
         expect(playQueueManager.hasNextTrack()).toBeTrue();
     }
 
     @Test
     public void shouldNotPublishTrackChangeWhenCallingNextOnLastTrack() {
-        when(playQueue.moveToNext(true)).thenReturn(false);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L), playSessionSource), playSessionSource);
 
         playQueueManager.nextTrack();
 
-        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).toBeEmpty();
+        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).not.toEqual(PlayQueueEvent.TRACK_CHANGE);
     }
 
     @Test
@@ -396,13 +509,13 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldHaveNoPlayProgressInfoWhenPlaybackOperationsHasReturnsNoObservable(){
+    public void shouldHaveNoPlayProgressInfoWhenPlaybackOperationsHasReturnsNoObservable() {
         playQueueManager.loadPlayQueue();
         expect(playQueueManager.getPlayProgressInfo()).toBeNull();
     }
 
     @Test
-    public void shouldSetPlayProgressInfoWhenReloadingPlayQueue(){
+    public void shouldSetPlayProgressInfoWhenReloadingPlayQueue() {
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.<PlayQueue>empty());
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
@@ -414,59 +527,64 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldReloadPlayQueueFromLocalStorage(){
+    public void shouldReloadPlayQueueFromLocalStorage() {
+        PlayQueue playQueue = PlayQueue.fromIdList(Arrays.asList(1L, 2L, 3L), playSessionSource);
+
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
         playQueueManager.loadPlayQueue();
 
-        final PlayQueue currentPlayQueue = playQueueManager.getCurrentPlayQueue();
-        expect(currentPlayQueue).toBe(playQueue);
+        expectPlayQueueContentToBeEqual(playQueueManager, playQueue);
     }
 
     @Test
-    public void shouldReloadShouldBeTrueIfThePlayQueueIsEmpty(){
+    public void shouldReloadShouldBeTrueIfThePlayQueueIsEmpty() {
         expect(playQueueManager.shouldReloadQueue()).toBeTrue();
     }
 
     @Test
-    public void shouldReloadShouldBeFalseWithNonEmptyQueue(){
+    public void shouldReloadShouldBeFalseWithNonEmptyQueue() {
         when(playQueue.isEmpty()).thenReturn(false);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expect(playQueueManager.shouldReloadQueue()).toBeFalse();
     }
 
     @Test
-    public void reloadedPlayQueueIsNotSavedWhenSet(){
+    public void reloadedPlayQueueIsNotSavedWhenSet() {
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
         when(playQueue.isEmpty()).thenReturn(false);
         playQueueManager.loadPlayQueue();
-        verify(playQueueOperations, never()).saveQueue(any(PlayQueue.class), any(PlaySessionSource.class), anyLong());
+        verify(playQueueOperations, never()).saveQueue(any(PlayQueue.class), anyInt(), any(TrackUrn.class), any(PlaySessionSource.class), anyLong());
     }
 
     @Test
-    public void shouldGetRelatedTracksObservableWhenFetchingRelatedTracks(){
+    public void shouldGetRelatedTracksObservableWhenFetchingRelatedTracks() {
+        TrackUrn currentUrn = Urn.forTrack(123L);
         when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(Observable.<RecommendedTracksCollection>empty());
+        when(playQueue.getUrn(0)).thenReturn(currentUrn);
 
-        playQueueManager.fetchRelatedTracks(Urn.forTrack(123L));
-        verify(playQueueOperations).getRelatedTracks(Urn.forTrack(123L));
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        playQueueManager.fetchTracksRelatedToCurrentTrack();
+
+        verify(playQueueOperations).getRelatedTracks(currentUrn);
     }
 
     @Test
-    public void shouldSubscribeToRelatedTracksObservableWhenFetchingRelatedTracks(){
+    public void shouldSubscribeToRelatedTracksObservableWhenFetchingRelatedTracks() {
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
         when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(observable);
 
-        playQueueManager.fetchRelatedTracks(Urn.forTrack(123L));
+        playQueueManager.fetchTracksRelatedToCurrentTrack();
         expect(observable.subscribedTo()).toBeTrue();
     }
 
     @Test
-    public void shouldSetLoadingStateOnQueueAndBroadcastWhenFetchingRelatedTracks(){
+    public void shouldSetLoadingStateOnQueueAndBroadcastWhenFetchingRelatedTracks() {
         when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(Observable.<RecommendedTracksCollection>never());
-        playQueueManager.fetchRelatedTracks(Urn.forTrack(123L));
+        playQueueManager.fetchTracksRelatedToCurrentTrack();
         expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.LOADING);
         expectBroadcastPlayQueueUpdate();
     }
@@ -474,7 +592,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldNotPublishPlayQueueRelatedTracksEventOnEmptyRelatedLoad() throws CreateModelException {
         when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(Observable.<RecommendedTracksCollection>empty());
-        playQueueManager.fetchRelatedTracks(Urn.forTrack(123L));
+        playQueueManager.fetchTracksRelatedToCurrentTrack();
 
         eventBus.verifyNoEventsOn(EventQueue.PLAY_QUEUE);
     }
@@ -484,17 +602,16 @@ public class PlayQueueManagerTest {
         final ApiTrack apiTrack = TestHelper.getModelFactory().createModel(ApiTrack.class);
         final TrackUrn trackUrn = Urn.forTrack(123L);
         when(playQueueOperations.getRelatedTracks(trackUrn)).thenReturn(Observable.just(new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123")));
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(123L), 0, playSessionSource), playSessionSource);
-        playQueueManager.fetchRelatedTracks(trackUrn);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(123L), playSessionSource), playSessionSource);
+        playQueueManager.fetchTracksRelatedToCurrentTrack();
 
         expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
-
     }
 
     @Test
     public void shouldCacheAndAddRelatedTracksToQueueWhenRelatedTracksReturn() throws CreateModelException {
         final ApiTrack apiTrack = TestHelper.getModelFactory().createModel(ApiTrack.class);
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(123L), 0, playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(123L), playSessionSource), playSessionSource);
         playQueueManager.onNext(new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123"));
 
         expect(playQueueManager.getPlayQueueView()).toContainExactly(123L, apiTrack.getId());
@@ -505,7 +622,7 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldSetIdleStateOnQueueAndBroadcastWhenDoneSuccessfulRelatedLoad(){
+    public void shouldSetIdleStateOnQueueAndBroadcastWhenDoneSuccessfulRelatedLoad() {
         playQueueManager.onNext(new RecommendedTracksCollection(Collections.<ApiTrack>emptyList(), "123"));
         playQueueManager.onCompleted();
         expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.IDLE);
@@ -513,14 +630,14 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldSetEmptyStateOnQueueAndBroadcastWhenDoneEmptyRelatedLoad(){
+    public void shouldSetEmptyStateOnQueueAndBroadcastWhenDoneEmptyRelatedLoad() {
         playQueueManager.onCompleted();
         expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.EMPTY);
         expectBroadcastPlayQueueUpdate();
     }
 
     @Test
-    public void shouldSetErrorStateOnQueueAndBroadcastWhenOnErrorCalled(){
+    public void shouldSetErrorStateOnQueueAndBroadcastWhenOnErrorCalled() {
         playQueueManager.onError(new Throwable());
         expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.ERROR);
         expectBroadcastPlayQueueUpdate();
@@ -542,34 +659,16 @@ public class PlayQueueManagerTest {
     @Test
     public void clearAllShouldSetPlayQueueToEmpty() {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L), 0, playSessionSource), playSessionSource);
-        expect(playQueueManager.getCurrentPlayQueue()).not.toEqual(PlayQueue.empty());
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L), playSessionSource), playSessionSource);
+        expect(playQueueManager.isQueueEmpty()).toBeFalse();
         playQueueManager.clearAll();
-        expect(playQueueManager.getCurrentPlayQueue()).toEqual(PlayQueue.empty());
-    }
-
-    @Test
-    public void shouldUpdateCurrentPositionWhenRemovingItemBeforeCurrentPosition() throws CreateModelException {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L, 4L), 3, playSessionSource), playSessionSource);
-
-        playQueueManager.removeAtPosition(1);
-
-        expect(playQueueManager.getCurrentPosition()).toEqual(2);
-    }
-
-    @Test
-    public void shouldNotUpdateCurrentPositionWhenRemovingItemAfterCurrentPosition() throws CreateModelException {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L, 4L), 2, playSessionSource), playSessionSource);
-
-        playQueueManager.removeAtPosition(3);
-
-        expect(playQueueManager.getCurrentPosition()).toEqual(2);
+        expect(playQueueManager.isQueueEmpty()).toBeTrue();
     }
 
     @Test
     public void clearAllClearsPlaylistId() {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L), 0, playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L), playSessionSource), playSessionSource);
         expect(playQueueManager.getPlaylistId()).not.toEqual((long) PublicApiPlaylist.NOT_SET);
         playQueueManager.clearAll();
         expect(playQueueManager.getPlaylistId()).toEqual((long) PublicApiPlaylist.NOT_SET);
@@ -595,14 +694,14 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldReturnTrueIfGivenTrackIsCurrentTrack() {
-        when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
+        when(playQueue.getUrn(0)).thenReturn(Urn.forTrack(123L));
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expect(playQueueManager.isCurrentTrack(Urn.forTrack(123))).toBeTrue();
     }
 
     @Test
     public void shouldReturnFalseIfGivenTrackIsNotCurrentTrack() {
-        when(playQueue.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
+        when(playQueue.getUrn(0)).thenReturn(Urn.forTrack(123L));
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expect(playQueueManager.isCurrentTrack(Urn.forTrack(456))).toBeFalse();
     }
@@ -612,7 +711,7 @@ public class PlayQueueManagerTest {
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
         when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(observable);
 
-        playQueueManager.fetchRelatedTracks(Urn.forTrack(123L));
+        playQueueManager.fetchTracksRelatedToCurrentTrack();
         playQueueManager.retryRelatedTracksFetch();
         expect(observable.subscribers()).toNumber(2);
     }
@@ -639,5 +738,12 @@ public class PlayQueueManagerTest {
                 return input.getAction().equals(PlayQueueManager.RELATED_LOAD_STATE_CHANGED_ACTION);
             }
         })).not.toBeNull();
+    }
+
+    private void expectPlayQueueContentToBeEqual(PlayQueueManager playQueueManager, PlayQueue playQueue) {
+        expect(playQueueManager.getQueueSize()).toBe(playQueue.size());
+        for (int i = 0; i < playQueueManager.getQueueSize(); i++) {
+            expect(playQueueManager.getUrnAtPosition(i)).toEqual(playQueue.getUrn(i));
+        }
     }
 }
