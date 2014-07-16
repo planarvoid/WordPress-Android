@@ -1,5 +1,6 @@
 package com.soundcloud.android.ads;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiTrack;
 
@@ -14,37 +15,27 @@ public class AudioAd {
     private String trackingFinishUrl;
     private String trackingSkipUrl;
 
+    @JsonCreator
+    public AudioAd(@JsonProperty("track") ApiTrack apiTrack,
+                   @JsonProperty("_embedded") RelatedResources relatedResources,
+                   @JsonProperty("tracking_impression_url") String trackingImpressionUrl,
+                   @JsonProperty("tracking_play_url") String trackingPlayUrl,
+                   @JsonProperty("tracking_finish_url") String trackingFinishUrl,
+                   @JsonProperty("tracking_skip_url") String trackingSkipUrl) {
+        this.apiTrack = apiTrack;
+        this.visualAd = relatedResources.visualAd;
+        this.trackingImpressionUrl = trackingImpressionUrl;
+        this.trackingPlayUrl = trackingPlayUrl;
+        this.trackingFinishUrl = trackingFinishUrl;
+        this.trackingSkipUrl = trackingSkipUrl;
+    }
+
     public ApiTrack getApiTrack() {
         return apiTrack;
     }
 
     public VisualAd getVisualAd() {
         return visualAd;
-    }
-
-    @JsonProperty("track")
-    public void setApiTrack(ApiTrack apiTrack) {
-        this.apiTrack = apiTrack;
-    }
-
-    @JsonProperty("tracking_impression_url")
-    public void setTrackingImpressionUrl(String trackingImpressionUrl) {
-        this.trackingImpressionUrl = trackingImpressionUrl;
-    }
-
-    @JsonProperty("tracking_play_url")
-    public void setTrackingPlayUrl(String trackingPlayUrl) {
-        this.trackingPlayUrl = trackingPlayUrl;
-    }
-
-    @JsonProperty("tracking_finish_url")
-    public void setTrackingFinishUrl(String trackingFinishUrl) {
-        this.trackingFinishUrl = trackingFinishUrl;
-    }
-
-    @JsonProperty("tracking_skip_url")
-    public void setTrackingSkipUrl(String trackingSkipUrl) {
-        this.trackingSkipUrl = trackingSkipUrl;
     }
 
     public String getTrackingImpressionUrl() {
@@ -63,16 +54,11 @@ public class AudioAd {
         return trackingSkipUrl;
     }
 
-    @JsonProperty("_embedded")
-    public void setRelatedResources(RelatedResources relatedResources) {
-        this.visualAd = relatedResources.visualAd;
-    }
-
     private static class RelatedResources {
-        private VisualAd visualAd;
+        private final VisualAd visualAd;
 
-        @JsonProperty("visual_ad")
-        void setVisualAd(VisualAd visualAd) {
+        @JsonCreator
+        private RelatedResources(@JsonProperty("visual_ad") VisualAd visualAd) {
             this.visualAd = visualAd;
         }
     }
