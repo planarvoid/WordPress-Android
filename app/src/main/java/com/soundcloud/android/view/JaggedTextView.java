@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 
 import android.content.Context;
@@ -50,6 +51,7 @@ public class JaggedTextView extends CustomFontTextView {
         // Does not support background drawable
     }
 
+    @VisibleForTesting
     public boolean isShowingBackground() {
         return showBackground;
     }

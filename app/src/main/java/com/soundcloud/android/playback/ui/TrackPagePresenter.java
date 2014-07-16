@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.ui.view.PlayerArtworkView;
+import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
@@ -97,6 +98,7 @@ class TrackPagePresenter implements View.OnClickListener {
         imageOperations.displayInVisualPlayer(track.getUrn(), ApiImageSize.getFullImageSize(resources),
                 holder.artworkController.getImageView(), holder.artworkController.getImageListener());
         holder.waveformController.displayWaveform(waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()));
+        holder.timestamp.setInitialProgress(track.getDuration());
 
         holder.footerUser.setText(track.getUserName());
         holder.footerTitle.setText(track.getTitle());
@@ -124,7 +126,7 @@ class TrackPagePresenter implements View.OnClickListener {
         setVisibility(holder.getPlayControls(), !playSessionIsActive);
         holder.footerPlayToggle.setChecked(playSessionIsActive && isCurrentTrack);
         setWaveformPlayState(holder, stateTransition, isCurrentTrack);
-        setArtworkPlayState(holder, stateTransition, isCurrentTrack);
+        setViewPlayState(holder, stateTransition, isCurrentTrack);
     }
 
     private void setWaveformPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
@@ -139,21 +141,23 @@ class TrackPagePresenter implements View.OnClickListener {
         }
     }
 
-    private void setArtworkPlayState(TrackPageHolder holder, StateTransition stateTransition, boolean isCurrentTrack) {
-        if (stateTransition.playSessionIsActive()){
-            if (isCurrentTrack && stateTransition.isPlayerPlaying()){
-                holder.artworkController.showPlayingState(stateTransition.getProgress());
+    private void setViewPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
+        if (state.playSessionIsActive()) {
+            if (isCurrentTrack && state.isPlayerPlaying()) {
+                holder.artworkController.showPlayingState(state.getProgress());
             } else {
                 holder.artworkController.showSessionActiveState();
             }
-
-            holder.title.showBackground(true);
-            holder.user.showBackground(true);
         } else {
             holder.artworkController.showIdleState();
-            holder.title.showBackground(false);
-            holder.user.showBackground(false);
         }
+        setTextBackgrounds(holder, state.playSessionIsActive());
+    }
+
+    private void setTextBackgrounds(TrackPageHolder holder, boolean visible) {
+        holder.title.showBackground(visible);
+        holder.user.showBackground(visible);
+        holder.timestamp.showBackground(visible);
     }
 
     public void clearScrubState(View trackView) {
@@ -204,6 +208,7 @@ class TrackPagePresenter implements View.OnClickListener {
         holder.title = (JaggedTextView) trackView.findViewById(R.id.track_page_title);
         holder.user = (JaggedTextView) trackView.findViewById(R.id.track_page_user);
         holder.artworkView = (PlayerArtworkView) trackView.findViewById(R.id.track_page_artwork);
+        holder.timestamp = (TimestampView) trackView.findViewById(R.id.timestamp);
         holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
         holder.more = trackView.findViewById(R.id.track_page_more);
         holder.close = trackView.findViewById(R.id.player_close);
@@ -223,6 +228,7 @@ class TrackPagePresenter implements View.OnClickListener {
         holder.waveformController = waveformControllerFactory.create(waveform);
         holder.artworkController = artworkControllerFactory.create(holder.artworkView);
         holder.waveformController.addScrubListener(holder.artworkController);
+        holder.waveformController.addScrubListener(holder.timestamp);
 
         final PopupMenu popupMenu = new PopupMenu(trackView.getContext(), holder.more);
         popupMenu.inflate(R.menu.player_page_actions);
@@ -240,6 +246,7 @@ class TrackPagePresenter implements View.OnClickListener {
         JaggedTextView title;
         JaggedTextView user;
         WaveformViewController waveformController;
+        TimestampView timestamp;
         PlayerArtworkView artworkView;
         PlayerArtworkController artworkController;
         ToggleButton likeToggle;
@@ -270,7 +277,7 @@ class TrackPagePresenter implements View.OnClickListener {
         }
 
         public ProgressAware[] getProgressAwareViews() {
-            return new ProgressAware[] { waveformController, artworkController };
+            return new ProgressAware[] { waveformController, artworkController, timestamp };
         }
     }
 

@@ -46,6 +46,8 @@
     <color name="wave_progress_below">#ffbf99</color>
 
     <color name="artwork_overlay">#cc000000</color>
+    <color name="timestamp_primary">@color/white</color>
+    <color name="timestamp_secondary">#e5e5e5</color>
 
     <!-- Creators -->
     <color name="record_upload_border">#525252</color>

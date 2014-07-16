@@ -250,7 +250,7 @@ public class WaveformView extends FrameLayout {
     }
 
     private Drawable createLoadingDrawable(int color) {
-        return new ProgressLineDrawable(color, baseline - spaceWidth, spaceWidth);
+        return new ProgressLineDrawable(color, baseline, spaceWidth);
     }
 
     void setWaveformBitmaps(Pair<Bitmap, Bitmap> bitmaps) {

@@ -16,6 +16,7 @@ import com.soundcloud.android.robolectric.CursorMatcher;
 import com.soundcloud.android.robolectric.IntentMatcher;
 import com.soundcloud.android.robolectric.NotificationMatcher;
 import com.soundcloud.android.robolectric.UriMatcher;
+import com.soundcloud.android.robolectric.ViewMatcher;
 import com.soundcloud.android.storage.provider.Content;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,6 +25,7 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.view.View;
 
 @SuppressWarnings({"unchecked", "UnusedDeclaration", "TypeParameterExplicitlyExtendsObject"})
 public class Expect {
@@ -82,6 +84,10 @@ public class Expect {
 
     public static <T extends Intent, M extends IntentMatcher<T, M>> IntentMatcher<T, ?> expect(T actual) {
         return wrapped(IntentMatcher.class, actual);
+    }
+
+    public static <T extends View, M extends ViewMatcher<T, M>> ViewMatcher<T, ?> expect(T actual) {
+        return wrapped(ViewMatcher.class, actual);
     }
 
     @SuppressWarnings("UnusedDeclaration")

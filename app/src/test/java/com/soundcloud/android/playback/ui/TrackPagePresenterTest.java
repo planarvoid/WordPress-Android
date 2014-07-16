@@ -6,12 +6,16 @@ import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHol
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.ui.view.PlayerArtworkView;
+import com.soundcloud.android.playback.ui.view.TimestampView;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -64,7 +68,7 @@ public class TrackPagePresenterTest {
 
     @Before
     public void setUp() throws Exception {
-        Robolectric.Reflection.setFinalStaticField(Build.VERSION.class, "SDK", String.valueOf(Build.VERSION_CODES.HONEYCOMB)); // Required by nineoldandroids
+        TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // Required by nineoldandroids
         presenter = new TrackPagePresenter(resources, imageOperations, waveformOperations, listener, waveformFactory, artworkFactory);
         when(container.getContext()).thenReturn(Robolectric.application);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
@@ -97,7 +101,7 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void pausedStateSetsHidesBackgroundOnTitle() {
+    public void pausedStateHidesBackgroundOnTitle() {
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true);
         expect(getHolder(trackView).title.isShowingBackground()).toBeFalse();
     }
@@ -106,6 +110,18 @@ public class TrackPagePresenterTest {
     public void playingStateHidesBackgroundOnUser() {
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true);
         expect(getHolder(trackView).user.isShowingBackground()).toBeFalse();
+    }
+
+    @Test
+    public void playingStateShowsBackgroundOnTimestamp() {
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true);
+        expect(getHolder(trackView).timestamp.isShowingBackground()).toBeTrue();
+    }
+
+    @Test
+    public void pauseStateHidesBackgroundOnTimestamp() {
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true);
+        expect(getHolder(trackView).timestamp.isShowingBackground()).toBeFalse();
     }
 
     @Test
@@ -183,13 +199,13 @@ public class TrackPagePresenterTest {
     @Test
     public void setExpandedShouldHideFooterControl() {
         presenter.setExpanded(trackView, true);
-        expect(getHolder(trackView).footer.getVisibility()).toEqual(View.GONE);
+        expect(getHolder(trackView).footer).toBeGone();
     }
 
     @Test
     public void setCollapsedShouldShowFooterControl() {
         presenter.setCollapsed(trackView);
-        expect(getHolder(trackView).footer.getVisibility()).toEqual(View.VISIBLE);
+        expect(getHolder(trackView).footer).toBeVisible();
     }
 
     @Test

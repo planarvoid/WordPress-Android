@@ -76,6 +76,22 @@ public class ScrubControllerTest {
     }
 
     @Test
+    public void onScrollCannotUpdateListenerWithProportionGreaterThanOne() {
+        touchListener.onTouch(scrollView, MotionEvent.obtain(0,0,MotionEvent.ACTION_DOWN, 0,0,0));
+        when(progressHelper.getProgressFromPosition(11)).thenReturn(1.1f);
+        scrollListener.onScroll(11,10);
+        verify(scrubListener).displayScrubPosition(1.0f);
+    }
+
+    @Test
+    public void onScrollCannotUpdateListenerWithProportionLessThanZero() {
+        touchListener.onTouch(scrollView, MotionEvent.obtain(0,0,MotionEvent.ACTION_DOWN, 0,0,0));
+        when(progressHelper.getProgressFromPosition(-1)).thenReturn(-0.1f);
+        scrollListener.onScroll(-1,10);
+        verify(scrubListener).displayScrubPosition(0.0f);
+    }
+
+    @Test
     public void onScrollRemovesExistingSeekMessagesIfDragging() {
         touchListener.onTouch(scrollView, MotionEvent.obtain(0,0,MotionEvent.ACTION_DOWN, 0,0,0));
         when(progressHelper.getProgressFromPosition(5)).thenReturn(.5f);
