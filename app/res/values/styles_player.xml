@@ -108,7 +108,7 @@
     </style>
 
     <style name="TimestampDivider">
-        <item name="android:layout_width">1dp</item>
+        <item name="android:layout_width">1px</item>
         <item name="android:layout_height">10dp</item>
         <item name="android:background">@color/timestamp_secondary</item>
     </style>
