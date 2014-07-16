@@ -179,7 +179,6 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
     @Override
     protected void onPause() {
-        super.onPause();
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
 
         safeUnregisterReceiver(unauthoriedRequestReceiver);
@@ -188,6 +187,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         if (actionBarController != null) {
             actionBarController.onPause();
         }
+        super.onPause();
     }
 
     @Override
