@@ -6,14 +6,14 @@ import com.soundcloud.android.api.model.ApiTrack;
 
 public class AudioAd {
 
-    private ApiTrack apiTrack;
+    private final ApiTrack apiTrack;
 
-    private VisualAd visualAd;
+    private final VisualAd visualAd;
 
-    private String trackingImpressionUrl;
-    private String trackingPlayUrl;
-    private String trackingFinishUrl;
-    private String trackingSkipUrl;
+    private final String trackingImpressionUrl;
+    private final String trackingPlayUrl;
+    private final String trackingFinishUrl;
+    private final String trackingSkipUrl;
 
     @JsonCreator
     public AudioAd(@JsonProperty("track") ApiTrack apiTrack,
