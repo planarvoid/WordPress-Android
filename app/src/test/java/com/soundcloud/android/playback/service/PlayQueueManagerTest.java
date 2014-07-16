@@ -5,8 +5,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -76,6 +78,7 @@ public class PlayQueueManagerTest {
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(playQueue.isEmpty()).thenReturn(true);
+        when(playQueue.copy()).thenReturn(playQueue);
 
         playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
@@ -227,6 +230,34 @@ public class PlayQueueManagerTest {
         InOrder inOrder = Mockito.inOrder(playQueueOperations);
         inOrder.verify(playQueueOperations).saveQueue(playQueue, 0, currentUrn, playSessionSource, 0L);
         inOrder.verify(playQueueOperations).saveQueue(playQueue, 0, currentUrn, playSessionSource, 123L);
+    }
+
+    @Test
+    public void saveProgressDoesNotPassAudioAdsInPlayQueue() throws CreateModelException {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L), playSessionSource), playSessionSource);
+        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        playQueueManager.insertAudioAd(audioAd);
+
+        playQueueManager.saveCurrentProgress(12L);
+
+        ArgumentCaptor<PlayQueue> captor = ArgumentCaptor.forClass(PlayQueue.class);
+        verify(playQueueOperations, times(2)).saveQueue(captor.capture(), anyInt(), any(TrackUrn.class), any(PlaySessionSource.class), anyLong());
+        expect(captor.getValue().size()).toBe(1);
+    }
+
+    @Test
+    public void saveProgressUpdatesSavePositionIfAdIsRemovedFromQueue() throws CreateModelException {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
+        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        playQueueManager.insertAudioAd(audioAd);
+
+        playQueueManager.setPosition(3);
+        playQueueManager.saveCurrentProgress(12L);
+
+        InOrder inOrder = Mockito.inOrder(playQueueOperations);
+        // Saves first time when we call setNewPlayQueue
+        inOrder.verify(playQueueOperations).saveQueue(any(PlayQueue.class), eq(1), any(TrackUrn.class), any(PlaySessionSource.class), anyLong());
+        inOrder.verify(playQueueOperations).saveQueue(any(PlayQueue.class), eq(2), any(TrackUrn.class), any(PlaySessionSource.class), anyLong());
     }
 
     @Test

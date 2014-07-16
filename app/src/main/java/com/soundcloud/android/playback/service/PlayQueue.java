@@ -7,6 +7,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.tracks.TrackUrn;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +22,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     public static PlayQueue fromIdList(List<Long> trackIds, PlaySessionSource playSessionSource) {
         return new PlayQueue(getPlayQueueItemsFromIds(trackIds, playSessionSource));
+    }
+
+    public PlayQueue copy() {
+        return new PlayQueue(new ArrayList<PlayQueueItem>(playQueueItems));
     }
 
     public PlayQueue(List<PlayQueueItem> playQueueItems) {

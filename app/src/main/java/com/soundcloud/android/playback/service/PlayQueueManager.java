@@ -183,10 +183,19 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public void saveCurrentProgress(long currentTrackProgress) {
-        if (!playQueue.isEmpty()) {
-            playQueueOperations.saveQueue(playQueue, currentPosition, getCurrentTrackUrn(), playSessionSource, currentTrackProgress);
-            playbackProgressInfo = new PlaybackProgressInfo(getCurrentTrackId(), currentTrackProgress);
+        if (playQueue.isEmpty()) {
+            return;
         }
+        int savePosition = currentPosition;
+        PlayQueue saveQueue = playQueue.copy();
+        if (adPosition != Consts.NOT_SET) {
+            saveQueue.remove(adPosition);
+            if (adPosition <= currentPosition) {
+                savePosition--;
+            }
+        }
+        playQueueOperations.saveQueue(saveQueue, savePosition, getCurrentTrackUrn(), playSessionSource, currentTrackProgress);
+        playbackProgressInfo = new PlaybackProgressInfo(getCurrentTrackId(), currentTrackProgress);
     }
 
     /**
