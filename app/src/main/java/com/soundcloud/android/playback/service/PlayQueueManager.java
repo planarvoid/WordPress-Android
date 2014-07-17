@@ -176,6 +176,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         stopLoadingOperations();
 
+        this.adPosition = Consts.NOT_SET;
         this.playQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
         this.currentTrackIsUserTriggered = true;
         this.playSessionSource = playSessionSource;

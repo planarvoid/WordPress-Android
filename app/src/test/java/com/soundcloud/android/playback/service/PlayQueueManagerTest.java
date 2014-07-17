@@ -244,9 +244,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void saveProgressDoesNotPassAudioAdsInPlayQueue() throws CreateModelException {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L), playSessionSource), playSessionSource);
-        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
-        playQueueManager.insertAudioAd(audioAd);
+        playQueueManagerWithOneTrackAndAd();
 
         playQueueManager.saveCurrentProgress(12L);
 
@@ -481,6 +479,16 @@ public class PlayQueueManagerTest {
         playQueueManager.clearAudioAd();
 
         expect(playQueueManager.getQueueSize()).toEqual(4);
+    }
+
+    @Test
+    public void clearAdDoesNothingWhenThereIsNoAdInQueue() throws CreateModelException {
+        playQueueManagerWithOneTrackAndAd();
+
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), playSessionSource), playSessionSource);
+        playQueueManager.clearAudioAd();
+
+        expect(playQueueManager.getQueueSize()).toBe(2);
     }
 
     @Test
@@ -758,6 +766,12 @@ public class PlayQueueManagerTest {
         when(playQueue.isAudioAd(0)).thenReturn(true);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expect(playQueueManager.isAudioAdAtPosition(0)).toBeTrue();
+    }
+
+    private void playQueueManagerWithOneTrackAndAd() throws CreateModelException {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L), playSessionSource), playSessionSource);
+        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        playQueueManager.insertAudioAd(audioAd);
     }
 
     private void expectBroadcastNewPlayQueue() {
