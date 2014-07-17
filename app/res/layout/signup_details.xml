@@ -1,71 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.soundcloud.android.onboarding.auth.UserDetailsLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                  android:layout_width="fill_parent"
-                                                  android:layout_height="fill_parent">
-    <LinearLayout style="@style/SignUp.Content">
-        <TextView style="@style/SignUp.Header"
-                  android:text="@string/authentication_add_info_msg"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
 
-                  android:layout_marginTop="20dp"
-                  android:layout_marginBottom="20dp"/>
+    <LinearLayout style="@style/SignUp.Content">
+
+        <TextView
+            style="@style/SignUp.Header"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/authentication_add_info_msg" />
 
         <TableLayout style="@style/SignUp.LoginForm">
+
             <TableRow style="@style/SignUp.LabelRow">
-                <FrameLayout android:id="@+id/image_layout"
-                             android:layout_height="100dip"
-                             android:layout_width="100dip"
-                             android:layout_margin="5dp">
 
-                    <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.AddImageLabel"
-                                                                    android:id="@+id/txt_artwork_bg"
-                                                                    android:text="@string/add_image"/>
+                <FrameLayout
+                    android:id="@+id/image_layout"
+                    android:layout_width="100dip"
+                    android:layout_height="100dip"
+                    android:layout_margin="5dp">
 
-                    <ImageView android:id="@+id/artwork"
-                               android:visibility="gone"
-                               android:layout_height="100dip"
-                               android:layout_width="100dip"
-                               android:scaleType="centerCrop"
-                               android:clickable="true"/>
+                    <com.soundcloud.android.view.CustomFontTextView
+                        android:id="@+id/txt_artwork_bg"
+                        style="@style/SignUp.AddImageLabel"
+                        android:text="@string/add_image" />
+
+                    <ImageView
+                        android:id="@+id/artwork"
+                        android:layout_width="100dip"
+                        android:layout_height="100dip"
+                        android:clickable="true"
+                        android:scaleType="centerCrop"
+                        android:visibility="gone" />
                 </FrameLayout>
 
-                <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.MultiLineInfoLabel"
-                                                                android:id="@+id/txt_image_msg"
-                                                                android:text="@string/authentication_add_info_add_image_msg"
-                                                                android:layout_height="fill_parent"
-                                                                android:layout_width="fill_parent"
-                                                                android:layout_weight="1"
-                                                                android:layout_marginTop="0dp"/>
+                <com.soundcloud.android.view.CustomFontTextView
+                    android:id="@+id/txt_image_msg"
+                    style="@style/SignUp.MultiLineInfoLabel"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_marginTop="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/authentication_add_info_add_image_msg" />
             </TableRow>
 
             <TableRow style="@style/SignUp.SeparatorRow">
-                <View style="@style/SignUp.SeparatorView"/>
+                <View style="@style/SignUp.SeparatorView" />
             </TableRow>
 
             <TableRow style="@style/SignUp.LabelRow">
-                <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.Label"
-                                                                android:text="@string/username"/>
 
-                <com.soundcloud.android.view.ClearText android:id="@+id/txt_username"
-                                                       android:hint="@string/authentication_add_info_username_hint"
-                                                       style="@style/SignUp.TextEntry"
-                                                       android:imeOptions="actionDone"/>
+                <com.soundcloud.android.view.CustomFontTextView
+                    style="@style/SignUp.Label"
+                    android:text="@string/username" />
+
+                <com.soundcloud.android.view.ClearText
+                    android:id="@+id/txt_username"
+                    style="@style/SignUp.TextEntry"
+                    android:hint="@string/authentication_add_info_username_hint"
+                    android:imeOptions="actionDone" />
             </TableRow>
         </TableLayout>
 
-        <LinearLayout android:layout_width="fill_parent"
-                      android:layout_height="@dimen/tour_bottom_bar_height"
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/tour_bottom_bar_height"
+            android:layout_marginTop="10dip">
 
-                      android:layout_marginTop="10dip">
-            <Button style="@style/Tour.Button"
-                    android:id="@+id/btn_skip"
-                    android:text="@string/btn_skip"
-                    android:layout_height="@dimen/tour_buttons_height"
-                    android:layout_marginRight="10dip"/>
+            <Button
+                android:id="@+id/btn_skip"
+                style="@style/Tour.Button"
+                android:layout_height="@dimen/tour_buttons_height"
+                android:layout_marginRight="10dip"
+                android:text="@string/btn_skip" />
 
-            <Button style="@style/Tour.Button"
-                    android:id="@+id/btn_save"
-                    android:text="@string/btn_save"
-                    android:layout_height="@dimen/tour_buttons_height"/>
+            <Button
+                android:id="@+id/btn_save"
+                style="@style/Tour.Button"
+                android:layout_height="@dimen/tour_buttons_height"
+                android:text="@string/btn_save" />
         </LinearLayout>
     </LinearLayout>
 </com.soundcloud.android.onboarding.auth.UserDetailsLayout>
