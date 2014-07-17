@@ -20,6 +20,7 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -189,7 +190,16 @@ public class PlayQueueManagerTest {
 
         expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).toNumber(1);
         expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.NEW_QUEUE);
-        expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getCurrentTrackUrn()).toEqual(Urn.forTrack(3L));
+    }
+
+    @Test
+    public void shouldPublishTrackChangedEventOnSetNewPlayQueue(){
+        final TrackUrn trackUrn = Urn.forTrack(3L);
+        when(playQueue.getUrn(0)).thenReturn(trackUrn);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+
+        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE_TRACK)).toNumber(1);
+        expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE_TRACK).getCurrentTrackUrn()).toEqual(trackUrn);
     }
 
     @Test
@@ -278,14 +288,10 @@ public class PlayQueueManagerTest {
     public void doesNotSendTrackChangeEventIfPositionSetToCurrent() throws Exception {
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
 
+        final CurrentPlayQueueTrackEvent lastEvent = eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK);
         playQueueManager.setPosition(1);
 
-        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE, new Predicate<PlayQueueEvent>() {
-            @Override
-            public boolean apply(PlayQueueEvent event) {
-                return event.getKind() == PlayQueueEvent.TRACK_CHANGE;
-            }
-        })).toBeEmpty();
+        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK)).toBe(lastEvent);
     }
 
     @Test
@@ -294,17 +300,18 @@ public class PlayQueueManagerTest {
 
         playQueueManager.setPosition(2);
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.TRACK_CHANGE);
+        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK).getCurrentTrackUrn()).toEqual(Urn.forTrack(3L));
     }
 
     @Test
     public void shouldPublishTrackChangeEventOnPreviousTrack() {
         playQueueManager.setNewPlayQueue(playQueue, 5, playSessionSource);
         when(playQueue.hasPreviousTrack(5)).thenReturn(true);
+        when(playQueue.getUrn(4)).thenReturn(Urn.forTrack(3L));
 
         playQueueManager.moveToPreviousTrack();
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.TRACK_CHANGE);
+        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK).getCurrentTrackUrn()).toEqual(Urn.forTrack(3L));
     }
 
     @Test
@@ -350,14 +357,11 @@ public class PlayQueueManagerTest {
     public void shouldPublishTrackChangeEventOnNextTrack() {
         playQueueManager.setNewPlayQueue(playQueue, 0, playSessionSource);
         when(playQueue.hasNextTrack(0)).thenReturn(true);
+        when(playQueue.getUrn(1)).thenReturn(Urn.forTrack(3L));
+
         playQueueManager.nextTrack();
 
-        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE, new Predicate<PlayQueueEvent>() {
-            @Override
-            public boolean apply(PlayQueueEvent input) {
-                return input.getKind() == PlayQueueEvent.TRACK_CHANGE;
-            }
-        })).not.toBeEmpty();
+        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK).getCurrentTrackUrn()).toEqual(Urn.forTrack(3L));
     }
 
     @Test
@@ -496,10 +500,12 @@ public class PlayQueueManagerTest {
         AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
         playQueueManager.insertAudioAd(audioAd);
 
+        final PlayQueueEvent lastEvent = eventBus.lastEventOn(EventQueue.PLAY_QUEUE);
+
         playQueueManager.setPosition(1);
         playQueueManager.clearAudioAd();
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).not.toEqual(PlayQueueEvent.QUEUE_UPDATE);
+        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE)).toBe(lastEvent);
     }
 
     @Test
@@ -526,10 +532,10 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldNotPublishTrackChangeWhenCallingNextOnLastTrack() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L), playSessionSource), playSessionSource);
-
+        final CurrentPlayQueueTrackEvent lastEvent = eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK);
         playQueueManager.nextTrack();
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).not.toEqual(PlayQueueEvent.TRACK_CHANGE);
+        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK)).toBe(lastEvent);
     }
 
     @Test

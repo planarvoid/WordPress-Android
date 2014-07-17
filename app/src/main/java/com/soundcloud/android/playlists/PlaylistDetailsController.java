@@ -39,7 +39,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware {
 
     void onViewCreated(View layout, Resources resources) {
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE, new TrackChangedSubscriber(adapter, trackPresenter)),
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(adapter, trackPresenter)),
                 eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(adapter))
         );
     }

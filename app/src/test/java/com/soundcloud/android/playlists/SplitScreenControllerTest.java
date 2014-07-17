@@ -4,8 +4,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -47,8 +47,15 @@ public class SplitScreenControllerTest {
     }
 
     @Test
-    public void shouldListenForTrackChangeEventsAndUpdateTrackPresenter() {
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(TrackUrn.forTrack(123L)));
+    public void shouldListenForPositionChangeEventsAndUpdateTrackPresenter() {
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TrackUrn.forTrack(123L)));
+
+        verify(trackPresenter).setPlayingTrack(TrackUrn.forTrack(123L));
+    }
+
+    @Test
+    public void shouldListenForNewQueueEventsAndUpdateTrackPresenter() {
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TrackUrn.forTrack(123L)));
 
         verify(trackPresenter).setPlayingTrack(TrackUrn.forTrack(123L));
     }

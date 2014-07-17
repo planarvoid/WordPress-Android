@@ -10,9 +10,9 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -87,19 +87,11 @@ public class PeripheralsControllerTest {
     }
 
     @Test
-    public void shouldNotBroadcastTrackInformationOnPlayQueueUpdate() throws Exception {
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(createTrack().getUrn()));
-        verify(context).sendBroadcast(any(Intent.class)); // once to account for PLAY_STATE_CHANGED subscription (replay queue)
-    }
-
-    @Test
     public void shouldBroadcastTrackInformationWhenThePlayQueueChanges() {
-        final long currentTrackId = 3L;
-        when(playQueueManager.getCurrentTrackId()).thenReturn(currentTrackId);
         final PublicApiTrack track = createTrack();
-        when(trackOperations.loadTrack(eq(currentTrackId), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackOperations.loadTrack(eq(track.getId()), any(Scheduler.class))).thenReturn(Observable.just(track));
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(track.getUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(track.getUrn()));
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
         expect(secondBroadcast.getAction()).toEqual("com.android.music.metachanged");

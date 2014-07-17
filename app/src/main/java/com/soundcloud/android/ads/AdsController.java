@@ -1,12 +1,13 @@
 package com.soundcloud.android.ads;
 
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
@@ -28,9 +29,16 @@ public class AdsController {
 
     private Subscription audioAdSubscription = Subscriptions.empty();
 
-    private final Func1<PlayQueueEvent, Boolean> hasNextNonAudioAdTrackFilter = new Func1<PlayQueueEvent, Boolean>() {
+    private Func1<PlayQueueEvent, Boolean> isQueueUpdateFilter = new Func1<PlayQueueEvent, Boolean>() {
         @Override
         public Boolean call(PlayQueueEvent playQueueEvent) {
+            return playQueueEvent.isQueueUpdate();
+        }
+    };
+
+    private final Func1<Object, Boolean> hasNextNonAudioAdTrackFilter = new Func1<Object, Boolean>() {
+        @Override
+        public Boolean call(Object event) {
             return playQueueManager.hasNextTrack()
                     && !playQueueManager.isNextTrackAudioAd()
                     && !playQueueManager.isCurrentTrackAudioAd();
@@ -51,12 +59,10 @@ public class AdsController {
         }
     };
 
-    private Action1<PlayQueueEvent> resetAudioAd = new Action1<PlayQueueEvent>() {
+    private Action1<CurrentPlayQueueTrackEvent> resetAudioAd = new Action1<CurrentPlayQueueTrackEvent>() {
         @Override
-        public void call(PlayQueueEvent event) {
-            if (event.isTrackChange()) {
-                playQueueManager.clearAudioAd();
-            }
+        public void call(CurrentPlayQueueTrackEvent event) {
+            playQueueManager.clearAudioAd();
             audioAdSubscription.unsubscribe();
         }
     };
@@ -70,15 +76,20 @@ public class AdsController {
     }
 
     public void subscribe() {
-        eventBus.queue(EventQueue.PLAY_QUEUE)
+        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
                 .doOnNext(resetAudioAd)
+                .filter(hasNextNonAudioAdTrackFilter)
+                .subscribe(new PlayQueueSubscriber());
+
+        eventBus.queue(EventQueue.PLAY_QUEUE)
+                .filter(isQueueUpdateFilter)
                 .filter(hasNextNonAudioAdTrackFilter)
                 .subscribe(new PlayQueueSubscriber());
     }
 
-    private class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
+    private class PlayQueueSubscriber extends DefaultSubscriber<Object> {
         @Override
-        public void onNext(PlayQueueEvent event) {
+        public void onNext(Object event) {
             audioAdSubscription = trackOperations.track(playQueueManager.getNextTrackUrn())
                     .filter(isMonetizeableFilter)
                     .mergeMap(fetchAudioAdFunction)

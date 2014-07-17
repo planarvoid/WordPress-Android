@@ -2,20 +2,21 @@ package com.soundcloud.android.playback.widget;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.associations.SoundAssociationOperations;
-import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.associations.SoundAssociationOperations;
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.tracks.TrackUrn;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -57,8 +58,7 @@ public class PlayerWidgetController {
         eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
 
-        eventBus.queue(EventQueue.PLAY_QUEUE).filter(PlayQueueEvent.TRACK_HAS_CHANGED_FILTER)
-                .subscribe(new PlayQueueSubscriber());
+        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK).subscribe(new PlayQueueTrackSubscriber());
     }
 
     public void update() {
@@ -71,11 +71,11 @@ public class PlayerWidgetController {
     }
 
     private void updatePlayableInformation() {
-        long currentTrackId = playQueueManager.getCurrentTrackId();
-        if (currentTrackId == Playable.NOT_SET) {
+        TrackUrn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
+        if (TrackUrn.NOT_SET.equals(currentTrackUrn)) {
             presenter.reset(context);
         } else {
-            loadTrack(currentTrackId).subscribe(new CurrentTrackSubscriber());
+            loadTrack(currentTrackUrn).subscribe(new CurrentTrackSubscriber());
         }
     }
 
@@ -96,11 +96,11 @@ public class PlayerWidgetController {
     }
 
     private Observable<PublicApiTrack> loadCurrentTrack() {
-        return loadTrack(playQueueManager.getCurrentTrackId());
+        return loadTrack(playQueueManager.getCurrentTrackUrn());
     }
 
-    private Observable<PublicApiTrack> loadTrack(long trackId) {
-        return trackOperations.loadTrack(trackId, AndroidSchedulers.mainThread());
+    private Observable<PublicApiTrack> loadTrack(TrackUrn trackUrn) {
+        return trackOperations.loadTrack(trackUrn.numericId, AndroidSchedulers.mainThread());
     }
 
     /**
@@ -137,10 +137,10 @@ public class PlayerWidgetController {
         }
     }
 
-    private class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
+    private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
-        public void onNext(PlayQueueEvent event) {
-            loadCurrentTrack().subscribe(new CurrentTrackSubscriber());
+        public void onNext(CurrentPlayQueueTrackEvent event) {
+            loadTrack(event.getCurrentTrackUrn()).subscribe(new CurrentTrackSubscriber());
         }
     }
 

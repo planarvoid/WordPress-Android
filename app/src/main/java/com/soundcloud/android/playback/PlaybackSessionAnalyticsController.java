@@ -2,16 +2,16 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.tracks.TrackUrn;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -42,14 +42,14 @@ public class PlaybackSessionAnalyticsController {
 
     public void subscribe() {
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlayStateSubscriber());
-        eventBus.queue(EventQueue.PLAY_QUEUE).filter(PlayQueueEvent.TRACK_HAS_CHANGED_FILTER).subscribe(new PlayQueueSubscriber());
+        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK).subscribe(new PlayQueueSubscriber());
     }
 
-    private class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
+    private class PlayQueueSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
-        public void onNext(PlayQueueEvent event) {
+        public void onNext(CurrentPlayQueueTrackEvent event) {
             if (lastStateTransition.playSessionIsActive()) {
-                if (event.isNewQueue()){
+                if (event.wasNewQueue()){
                     publishStopEvent(lastStateTransition.getTrackUrn(), currentTrackSourceInfo, PlaybackSessionEvent.STOP_REASON_NEW_QUEUE);
                 } else {
                     publishStopEvent(lastStateTransition.getTrackUrn(), currentTrackSourceInfo, PlaybackSessionEvent.STOP_REASON_SKIP);

@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -133,7 +134,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     public void setPosition(int position) {
         if (position != currentPosition && position < playQueue.size()) {
             this.currentPosition = position;
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(getCurrentTrackUrn()));
+            publishPositionUpdate();
         }
     }
 
@@ -141,7 +142,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         if (playQueue.hasPreviousTrack(currentPosition)) {
             currentPosition--;
             currentTrackIsUserTriggered = true;
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(getCurrentTrackUrn()));
+            publishPositionUpdate();
         }
     }
 
@@ -165,7 +166,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         if (playQueue.hasNextTrack(currentPosition)) {
             currentPosition++;
             currentTrackIsUserTriggered = manual;
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(getCurrentTrackUrn()));
+            publishPositionUpdate();
             return true;
         } else {
             return false;
@@ -217,6 +218,10 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
             // return so player can have the resume information while load is in progress
             playbackProgressInfo = new PlaybackProgressInfo(playQueueOperations.getLastStoredPlayingTrackId(), playQueueOperations.getLastStoredSeekPosition());
         }
+    }
+
+    private void publishPositionUpdate() {
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(getCurrentTrackUrn()));
     }
 
     @Nullable
@@ -357,7 +362,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     private void publishQueueUpdate() {
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(getCurrentTrackUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
     }
 
     private void broadcastRelatedLoadStateChanged() {
@@ -370,7 +375,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         Intent intent = new Intent(PLAYQUEUE_CHANGED_ACTION)
                 .putExtra(PlayQueueView.EXTRA, getViewWithAppendState(fetchState));
         context.sendBroadcast(intent);
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(getCurrentTrackUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(getCurrentTrackUrn()));
     }
 
     private void stopLoadingOperations() {

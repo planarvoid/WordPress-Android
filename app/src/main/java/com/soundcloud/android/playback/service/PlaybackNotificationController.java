@@ -1,16 +1,16 @@
 package com.soundcloud.android.playback.service;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.PlayerLifeCycleEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
@@ -58,9 +58,9 @@ public class PlaybackNotificationController {
         }
     };
 
-    private final Func1<PlayQueueEvent, Observable<Notification>> onPlayQueueEventFunc = new Func1<PlayQueueEvent, Observable<Notification>>() {
+    private final Func1<CurrentPlayQueueTrackEvent, Observable<Notification>> onPlayQueueEventFunc = new Func1<CurrentPlayQueueTrackEvent, Observable<Notification>>() {
         @Override
-        public Observable<Notification> call(PlayQueueEvent playQueueEvent) {
+        public Observable<Notification> call(CurrentPlayQueueTrackEvent playQueueEvent) {
             imageSubscription.unsubscribe();
             notificationObservable = trackOperations.track(playQueueEvent.getCurrentTrackUrn()).observeOn(AndroidSchedulers.mainThread())
                     .mergeMap(notificationFunction).cache();
@@ -94,7 +94,7 @@ public class PlaybackNotificationController {
     }
 
     public void subscribe() {
-        eventBus.queue(EventQueue.PLAY_QUEUE).filter(PlayQueueEvent.TRACK_HAS_CHANGED_FILTER)
+        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
                 .mergeMap(onPlayQueueEventFunc).doOnNext(notifyAction).subscribe();
 
         eventBus.subscribe(EventQueue.PLAYER_LIFE_CYCLE, new DefaultSubscriber<PlayerLifeCycleEvent>() {

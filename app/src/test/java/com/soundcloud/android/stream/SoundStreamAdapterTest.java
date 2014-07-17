@@ -4,14 +4,14 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import com.soundcloud.propeller.PropertySet;
@@ -57,7 +57,7 @@ public class SoundStreamAdapterTest {
     public void trackChangedEventShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
         final TrackUrn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playingTrack));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
         verify(trackItemPresenter).setPlayingTrack(playingTrack);
     }
 
@@ -65,7 +65,7 @@ public class SoundStreamAdapterTest {
     public void newQueueEventShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
         final TrackUrn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(playingTrack));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
         verify(trackItemPresenter).setPlayingTrack(playingTrack);
     }
 
