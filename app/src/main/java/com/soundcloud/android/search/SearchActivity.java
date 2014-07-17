@@ -215,8 +215,8 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
         private static final int TYPE_TEXT = 0;
         private static final int TYPE_TAG = 1;
 
-        private String query;
-        private int type;
+        private final String query;
+        private final int type;
 
         private Search(String query, int type) {
             this.query = query;
