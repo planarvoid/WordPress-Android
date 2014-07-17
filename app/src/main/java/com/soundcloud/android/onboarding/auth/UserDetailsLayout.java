@@ -3,6 +3,7 @@ package com.soundcloud.android.onboarding.auth;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.onboarding.OnboardActivity;
@@ -117,7 +118,7 @@ public class UserDetailsLayout extends RelativeLayout {
         avatarView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                avatarFile = null;
+                resetAvatarFile();
                 avatarView.setVisibility(View.GONE);
                 avatarText.setVisibility(View.VISIBLE);
 
@@ -146,7 +147,7 @@ public class UserDetailsLayout extends RelativeLayout {
         }
     }
 
-    public File generateTempAvatarFile(){
+    public File generateTempAvatarFile() {
         avatarFile = ImageUtils.createTempAvatarFile(getContext());
         return avatarFile;
     }
@@ -161,9 +162,13 @@ public class UserDetailsLayout extends RelativeLayout {
         }
     }
 
-    public void onImageTake(int resultCode, Intent result) {
-        if (resultCode == Activity.RESULT_OK && avatarFile != null) {
-            ImageUtils.sendCropIntent((Activity) getContext(), Uri.fromFile(avatarFile));
+    public void onImageTake(int resultCode) {
+        if (avatarFile != null) {
+            if (resultCode == Activity.RESULT_OK) {
+                ImageUtils.sendCropIntent((Activity) getContext(), Uri.fromFile(avatarFile));
+            } else {
+                resetAvatarFile();
+            }
         }
     }
 
@@ -201,5 +206,14 @@ public class UserDetailsLayout extends RelativeLayout {
 
         username.setText(bundle.getCharSequence(BUNDLE_USERNAME));
         setImage((File) bundle.getSerializable(BUNDLE_FILE));
+    }
+
+    @VisibleForTesting
+    void setAvatarTemporaryFile(File file) {
+        avatarFile = file;
+    }
+
+    private void resetAvatarFile() {
+        avatarFile = null;
     }
 }

@@ -639,7 +639,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
             case RequestCodes.GALLERY_IMAGE_TAKE: {
                 if (getUserDetails() != null) {
-                    getUserDetails().onImageTake(resultCode, intent);
+                    getUserDetails().onImageTake(resultCode);
                 }
                 break;
             }
