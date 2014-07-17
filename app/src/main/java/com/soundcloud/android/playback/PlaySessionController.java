@@ -5,18 +5,18 @@ import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
 import com.google.common.collect.Maps;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.tracks.TrackUrn;
 import dagger.Lazy;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -65,7 +65,7 @@ public class PlaySessionController {
 
     public void subscribe() {
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlayStateSubscriber());
-        eventBus.queue(EventQueue.PLAY_QUEUE).filter(PlayQueueEvent.TRACK_HAS_CHANGED_FILTER).subscribe(new PlayQueueSubscriber());
+        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK).subscribe(new PlayQueueTrackSubscriber());
         eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber());
     }
 
@@ -125,11 +125,12 @@ public class PlaySessionController {
         playQueueManager.saveCurrentPosition(stateTransition.trackEnded() ? 0 : stateTransition.getProgress().getPosition());
     }
 
-    private class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
+    private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
-        public void onNext(PlayQueueEvent event) {
+        public void onNext(CurrentPlayQueueTrackEvent event) {
             currentTrackSubscription.unsubscribe();
-            currentTrackSubscription = trackOperations.loadTrack(playQueueManager.getCurrentTrackId(), AndroidSchedulers.mainThread())
+            currentTrackSubscription = trackOperations
+                    .loadTrack(event.getCurrentTrackUrn().numericId, AndroidSchedulers.mainThread())
                     .subscribe(new CurrentTrackSubscriber());
 
             if (lastStateTransition.playSessionIsActive()) {

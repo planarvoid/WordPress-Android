@@ -7,6 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
@@ -14,6 +15,7 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.tracks.TrackUrn;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +60,7 @@ public class PlayerPagerControllerTest {
     public void onPlayQueueEventForTrackChangeUpdatesPagerAndAdapter() {
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(Urn.forTrack(123)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TrackUrn.NOT_SET));
 
         verify(viewPager).setCurrentItem(eq(3), anyBoolean());
     }
@@ -67,7 +69,7 @@ public class PlayerPagerControllerTest {
     public void onPlayQueueEventForNewQueueUpdatesPagerAndAdapter() {
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.forTrack(123)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(123L)));
 
         verify(viewPager).setCurrentItem(eq(3), anyBoolean());
     }
@@ -76,7 +78,7 @@ public class PlayerPagerControllerTest {
     public void onPlayQueueEventShouldNotNotifyDataSetChangeOnTrackChange() {
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(Urn.forTrack(123L)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L)));
 
         verify(adapter, never()).notifyDataSetChanged();
     }
@@ -86,7 +88,7 @@ public class PlayerPagerControllerTest {
         when(viewPager.getCurrentItem()).thenReturn(2);
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.forTrack(123)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TrackUrn.NOT_SET));
 
         verify(viewPager).setCurrentItem(3, true);
     }
@@ -96,7 +98,7 @@ public class PlayerPagerControllerTest {
         when(viewPager.getCurrentItem()).thenReturn(2);
         when(playQueueManager.getCurrentPosition()).thenReturn(4);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.forTrack(123)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TrackUrn.NOT_SET));
 
         verify(viewPager).setCurrentItem(4, false);
     }
@@ -120,21 +122,21 @@ public class PlayerPagerControllerTest {
 
     @Test
     public void onPlayQueueChangedNotifiesDataSetChangedOnAdapter() {
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.forTrack(123)));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
 
         verify(adapter).notifyDataSetChanged();
     }
 
     @Test
     public void onPlayQueueChangedSetsTrackPagerAdapterIfNotSet() {
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.forTrack(123)));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
 
         verify(viewPager).setAdapter(adapter);
     }
 
     @Test
     public void onPlayQueueUpdateSetsTrackPagerAdapterIfNotSet() {
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(Urn.forTrack(123)));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
 
         verify(viewPager).setAdapter(adapter);
     }

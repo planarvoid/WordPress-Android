@@ -3,15 +3,14 @@ package com.soundcloud.android.peripherals;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.LegacyTrackOperations;
 import com.soundcloud.android.utils.ScTextUtils;
-import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
@@ -40,7 +39,7 @@ public class PeripheralsController {
     public void subscribe() {
         eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlayStateChangedSubscriber());
-        eventBus.queue(EventQueue.PLAY_QUEUE).filter(PlayQueueEvent.TRACK_HAS_CHANGED_FILTER).subscribe(new PlayQueueChangedSubscriber());
+        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK).subscribe(new PlayQueueChangedSubscriber());
     }
 
     private void notifyPlayStateChanged(boolean isPlaying) {
@@ -72,10 +71,6 @@ public class PeripheralsController {
         context.sendBroadcast(intent);
     }
 
-    private Observable<PublicApiTrack> loadCurrentTrack() {
-        return trackOperations.loadTrack(playQueueManager.getCurrentTrackId(), AndroidSchedulers.mainThread());
-    }
-
     private class CurrentUserChangedSubscriber extends DefaultSubscriber<CurrentUserChangedEvent> {
         @Override
         public void onNext(CurrentUserChangedEvent event) {
@@ -90,10 +85,10 @@ public class PeripheralsController {
         }
     }
 
-    private class PlayQueueChangedSubscriber extends DefaultSubscriber<PlayQueueEvent> {
+    private class PlayQueueChangedSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
-        public void onNext(PlayQueueEvent event) {
-            loadCurrentTrack().subscribe(new CurrentTrackSubscriber());
+        public void onNext(CurrentPlayQueueTrackEvent event) {
+            trackOperations.loadTrack(event.getCurrentTrackUrn().numericId, AndroidSchedulers.mainThread()).subscribe(new CurrentTrackSubscriber());
         }
     }
 

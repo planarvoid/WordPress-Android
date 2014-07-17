@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -119,14 +120,14 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     public void setPosition(int position) {
         if (position != playQueue.getCurrentPosition() && position < playQueue.size()) {
             playQueue.setPosition(position);
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackUrn()));
+            publishPositionUpdate();
         }
     }
 
     public void previousTrack() {
         if (playQueue.hasPreviousTrack()) {
             playQueue.moveToPrevious();
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackUrn()));
+            publishPositionUpdate();
         }
     }
 
@@ -149,12 +150,11 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     private boolean nextTrackInternal(boolean manual) {
         if (playQueue.hasNextTrack()) {
             playQueue.moveToNext(manual);
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromTrackChange(playQueue.getCurrentTrackUrn()));
+            publishPositionUpdate();
             return true;
         } else {
             return false;
         }
-
     }
 
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
@@ -192,6 +192,10 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
             // this is so the player can finish() instead of display waiting to the user
             broadcastNewPlayQueue();
         }
+    }
+
+    private void publishPositionUpdate() {
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(getCurrentTrackUrn()));
     }
 
     @Nullable
@@ -260,7 +264,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     public void insertAd(AudioAd audioAd) {
         playQueue.insertAudioAdAtPosition(audioAd, getNextPosition());
         broadcastQueueUpdate();
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
     }
 
     public void removeAtPosition(int position) {
@@ -269,7 +273,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         }
         playQueue.removeAtPosition(position);
         broadcastQueueUpdate();
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
     }
 
     private void loadRecommendedTracks() {
@@ -294,7 +298,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         // TODO, save new tracks to database
         if (gotRecommendedTracks){
             setNewRelatedLoadingState(FetchRecommendedState.IDLE);
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueue.getCurrentTrackUrn()));
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
         } else {
             setNewRelatedLoadingState(FetchRecommendedState.EMPTY);
         }
@@ -321,7 +325,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         Intent intent = new Intent(PLAYQUEUE_CHANGED_ACTION)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(fetchState));
         context.sendBroadcast(intent);
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(playQueue.getCurrentTrackUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(getCurrentTrackUrn()));
     }
 
     private void stopLoadingOperations() {

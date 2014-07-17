@@ -2,14 +2,14 @@ package com.soundcloud.android.playback.ui;
 
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.subscriptions.CompositeSubscription;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -23,7 +23,7 @@ public class PlayerPagerController {
     private final PlayQueueManager playQueueManager;
     private final PlaybackOperations playbackOperations;
     private final PlayerPresenter presenter;
-    private Subscription subscription;
+    private CompositeSubscription subscription;
     private ViewPager trackPager;
 
     @Inject
@@ -33,12 +33,13 @@ public class PlayerPagerController {
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.playbackOperations = playbackOperations;
-        this.subscription = Subscriptions.empty();
+        this.subscription = new CompositeSubscription();
     }
 
     void onViewCreated(View view) {
         setPager((ViewPager) view.findViewById(R.id.player_track_pager));
-        subscription = eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
+        subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
+        subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE_TRACK, new PlayQueueTrackSubscriber()));
     }
 
     void onDestroyView() {
@@ -67,9 +68,13 @@ public class PlayerPagerController {
     private final class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
         @Override
         public void onNext(PlayQueueEvent event) {
-            if (event.isContentChange()) {
-                onPlayQueueChanged();
-            }
+            onPlayQueueChanged();
+        }
+    }
+
+    private final class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
+        @Override
+        public void onNext(CurrentPlayQueueTrackEvent event) {
             setQueuePosition(playQueueManager.getCurrentPosition());
         }
     }
