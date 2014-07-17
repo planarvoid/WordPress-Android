@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
+import static android.support.v4.view.PagerAdapter.POSITION_NONE;
+import static android.support.v4.view.PagerAdapter.POSITION_UNCHANGED;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.Reason;
@@ -15,8 +17,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -25,6 +25,8 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -204,11 +206,15 @@ public class TrackPagerAdapterTest {
     }
 
     @Test
-    public void clearsOutTrackViewMapWhenDataSetIsChanged() {
-        getPageView();
-        adapter.notifyDataSetChanged();
+    public void reusePageWhenTracksDidNotChangeInThePlayQueue() {
+        expect(adapter.getItemPosition(getPageView())).toBe(POSITION_UNCHANGED);
+    }
 
-        expect(adapter.isPositionByViewMapEmpty()).toBeTrue();
+    @Test
+    public void recreatePageWhenTracksChangedInThePlayQueue() {
+        getPageView();
+        final View differentView = mock(View.class);
+        expect(adapter.getItemPosition(differentView)).toBe(POSITION_NONE);
     }
 
     private View getPageView() {

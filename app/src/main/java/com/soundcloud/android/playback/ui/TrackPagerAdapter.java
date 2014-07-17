@@ -1,10 +1,8 @@
 package com.soundcloud.android.playback.ui;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -12,8 +10,10 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.RecyclingPager.RecyclingPagerAdapter;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -42,7 +42,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     private final LruCache<TrackUrn, ReplaySubject<PlayerTrack>> trackObservableCache =
             new LruCache<TrackUrn, ReplaySubject<PlayerTrack>>(TRACK_CACHE_SIZE);
-    private final Map<View, Integer> positionsByTrackViews = new HashMap<View, Integer>(EXPECTED_TRACKVIEW_COUNT);
+    private final Map<View, ViewPageData> trackByViews = new HashMap<View, ViewPageData>(EXPECTED_TRACKVIEW_COUNT);
     private final Func1<PropertySet, PlayerTrack> toPlayerTrack = new Func1<PropertySet, PlayerTrack>() {
         @Override
         public PlayerTrack call(PropertySet source) {
@@ -83,15 +83,23 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     }
 
     @Override
+    public int getItemViewTypeFromObject(Object object) {
+        return TYPE_TRACK_VIEW;
+    }
+
+    @Override
     public View getView(int position, View convertView, ViewGroup container) {
         TrackUrn urn = playQueueManager.getUrnAtPosition(position);
 
         final boolean isNewView = convertView == null;
-        final View contentView = isNewView
-                ? trackPagePresenter.createTrackPage(container)
-                : trackPagePresenter.clearView(convertView, urn);
+        final View contentView;
+        if (isNewView) {
+            contentView = trackPagePresenter.createTrackPage(container);
+        } else {
+            contentView = trackPagePresenter.clearView(convertView, urn);
+        }
 
-        positionsByTrackViews.put(contentView, position); // forcePut to remove existing entry
+        trackByViews.put(contentView, new ViewPageData(position, urn)); // forcePut to remove existing entry
         if (isNewView) {
             subscribe(contentView);
         }
@@ -111,26 +119,29 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         return trackPage;
     }
 
-    @Override
-    public void notifyDataSetChanged() {
-        positionsByTrackViews.clear();
-        super.notifyDataSetChanged();
-    }
-
     void onTrackChange() {
-        for (Map.Entry<View, Integer> entry : positionsByTrackViews.entrySet()) {
-            trackPagePresenter.clearScrubState(entry.getKey());
+        for (View view : trackByViews.keySet()) {
+            trackPagePresenter.clearScrubState(view);
         }
     }
 
     @Override
     public int getItemPosition(Object object) {
+        if (isViewInSamePosition(((View) object))) {
+            return POSITION_UNCHANGED;
+        }
+        trackByViews.remove(object);
         return POSITION_NONE;
     }
 
-    @Override
-    public int getItemViewTypeFromObject(Object object) {
-        return TYPE_TRACK_VIEW;
+    private boolean isViewInSamePosition(View view) {
+        if (trackByViews.containsKey(view)) {
+            final ViewPageData viewPageData = trackByViews.get(view);
+            final TrackUrn trackInPlayQueue = playQueueManager.getUrnAtPosition(viewPageData.positionInPlayQueue);
+
+            return viewPageData.track.equals(trackInPlayQueue);
+        }
+        return false;
     }
 
     @Override
@@ -155,15 +166,12 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     }
 
     private boolean isViewPresentingCurrentTrack(View trackPage) {
-        if (positionsByTrackViews.containsKey(trackPage)) {
-            return playQueueManager.isCurrentPosition(positionsByTrackViews.get(trackPage));
-        }
-        return false;
+        return playQueueManager.isCurrentTrack(trackByViews.get(trackPage).track);
     }
 
     private Boolean isTrackRelatedToView(View trackPage, TrackUrn trackUrn) {
-        if (positionsByTrackViews.containsKey(trackPage)) {
-            return playQueueManager.getUrnAtPosition(positionsByTrackViews.get(trackPage)).equals(trackUrn);
+        if (trackByViews.containsKey(trackPage)) {
+            return trackByViews.get(trackPage).track.equals(trackUrn);
         }
         return false;
     }
@@ -258,8 +266,13 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         }
     }
 
-    @VisibleForTesting
-    boolean isPositionByViewMapEmpty() {
-        return positionsByTrackViews.isEmpty();
+    private static class ViewPageData {
+        private final int positionInPlayQueue;
+        private final TrackUrn track;
+
+        private ViewPageData(int positionInPlayQueue, @NotNull TrackUrn track) {
+            this.positionInPlayQueue = positionInPlayQueue;
+            this.track = track;
+        }
     }
 }
