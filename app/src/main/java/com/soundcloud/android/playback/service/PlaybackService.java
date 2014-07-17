@@ -353,12 +353,21 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     // TODO : Handle tracks that are not in local storage (quicksearch)
     /* package */ void openCurrent() {
         if (!getPlayQueueInternal().isEmpty()) {
-            streamPlayer.startBufferingMode(getPlayQueueInternal().getCurrentTrackUrn());
 
+            final TrackUrn currentPlayQueueTrackUrn = playQueueManager.getCurrentTrackUrn();
+            if (currentPlayQueueTrackUrn.equals(getCurrentTrackUrn()) && currentTrackIsStreamable()){
+                if (!streamPlayer.isPlayerPlaying()) {
+                    startTrack(currentTrack);
+                }
+            } else {
+                streamPlayer.startBufferingMode(currentPlayQueueTrackUrn);
+                loadTrackSubscription.unsubscribe();
 
-            loadTrackSubscription.unsubscribe();
-            loadTrackSubscription = trackOperations.loadTrack(getPlayQueueInternal().getCurrentTrackId(), AndroidSchedulers.mainThread())
-                    .subscribe(new TrackInformationSubscriber());
+                final long currentTrackId = playQueueManager.getCurrentTrackId();
+                final Observable<PublicApiTrack> publicApiTrackObservable = trackOperations.loadTrack(currentTrackId, AndroidSchedulers.mainThread());
+                loadTrackSubscription = publicApiTrackObservable
+                        .subscribe(new TrackInformationSubscriber());
+            }
         }
     }
 
@@ -376,6 +385,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private TrackUrn getCurrentTrackUrn() {
         return currentTrack == null ? TrackUrn.NOT_SET : currentTrack.getUrn();
+    }
+
+    private boolean currentTrackIsStreamable() {
+        return currentTrack != null && currentTrack.isStreamable();
     }
 
     /* package */ void openCurrent(PublicApiTrack track) {

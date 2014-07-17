@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.service;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,6 +13,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
@@ -21,6 +23,7 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowService;
@@ -205,6 +208,36 @@ public class PlaybackServiceTest {
         when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(trackMockObservable);
         playbackService.openCurrent(new PublicApiTrack());
         expect(trackMockObservable.subscribedTo()).toBeTrue();
+    }
+
+    @Test
+    public void openCurrentStartsBufferingMode() throws Exception {
+        playbackService.onCreate();
+        final TrackUrn trackUrn = Urn.forTrack(1L);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(trackUrn);
+        when(playQueueManager.getCurrentTrackId()).thenReturn(1L);
+        when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<PublicApiTrack>empty());
+
+        playbackService.openCurrent();
+        verify(streamPlayer).startBufferingMode(trackUrn);
+    }
+
+    @Test
+    public void openCurrentDoesNotStartBufferingModeSecondTimeWithSameStreamableTrack() throws Exception {
+        playbackService.onCreate();
+        final TrackUrn trackUrn = Urn.forTrack(1L);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(trackUrn);
+        when(playQueueManager.getCurrentTrackId()).thenReturn(1L);
+        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
+        when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<PublicApiTrack>empty());
+        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<PublicApiTrack>empty());
+
+        final PublicApiTrack track1 = new PublicApiTrack(1L);
+        track1.stream_url = "streamurl";
+
+        playbackService.openCurrent(track1);
+        playbackService.openCurrent();
+        verify(streamPlayer, never()).startBufferingMode(trackUrn);
     }
 
     @Test
