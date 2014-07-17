@@ -8,8 +8,12 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
+import rx.Subscription;
+import rx.subjects.BehaviorSubject;
+import rx.subscriptions.Subscriptions;
 
 import android.app.SearchManager;
 import android.content.Intent;
@@ -18,6 +22,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.Menu;
+
 
 public class SearchActivity extends ScActivity implements PlaylistTagsFragment.TagEventsListener {
 
@@ -31,15 +36,18 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     private SearchActionBarController searchActionBarController;
     private String query;
 
-    private final SearchActionBarController.SearchCallback mSearchCallback = new SearchActionBarController.SearchCallback() {
+    private BehaviorSubject<Search> performSearchObservable;
+    private Subscription performSearchSubscription = Subscriptions.empty();
+
+    private final SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {
         @Override
         public void performTextSearch(String query) {
-            addContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
+            performSearchObservable.onNext(new Search(query, Search.TYPE_TEXT));
         }
 
         @Override
         public void performTagSearch(String tag) {
-            addContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
+            performSearchObservable.onNext(new Search(tag, Search.TYPE_TAG));
         }
 
         @Override
@@ -50,8 +58,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     };
 
     @SuppressWarnings("unused")
-    public SearchActivity() {
-    }
+    public SearchActivity() { }
 
     @VisibleForTesting
     SearchActivity(SearchActionBarController searchActionBarController) {
@@ -73,11 +80,25 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
         super.onCreate(savedInstanceState);
         setContentView(R.layout.container_layout);
 
+        performSearchObservable = BehaviorSubject.create();
+
         if (savedInstanceState == null) {
             handleIntent();
         } else if (savedInstanceState.containsKey(STATE_QUERY)) {
             query = savedInstanceState.getString(STATE_QUERY);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        performSearchSubscription = performSearchObservable.subscribe(new SearchSubscriber());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        performSearchSubscription.unsubscribe();
     }
 
     @Override
@@ -105,7 +126,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     @Override
     protected ActionBarController createActionBarController() {
         if (searchActionBarController == null) {
-            searchActionBarController = new SearchActionBarController(this, new PublicApi(this), mSearchCallback, eventBus);
+            searchActionBarController = new SearchActionBarController(this, new PublicApi(this), searchCallback, eventBus);
         }
         return searchActionBarController;
     }
@@ -133,7 +154,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     @Override
     public void onTagSelected(String tag) {
         searchActionBarController.setQuery("#" + tag);
-        addContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
+        performSearchObservable.onNext(new Search(tag, Search.TYPE_TAG));
     }
 
     @Override
@@ -175,7 +196,31 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
 
     private void showResultsFromIntent(String query) {
         this.query = query;
-        addContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
+        performSearchObservable.onNext(new Search(query, Search.TYPE_TEXT));
+    }
+
+    private class SearchSubscriber extends DefaultSubscriber<Search> {
+        @Override
+        public void onNext(Search search) {
+            if (search.type == Search.TYPE_TEXT) {
+                addContent(TabbedSearchFragment.newInstance(search.query), TabbedSearchFragment.TAG);
+            } else if (search.type == Search.TYPE_TAG) {
+                addContent(PlaylistResultsFragment.newInstance(search.query), PlaylistResultsFragment.TAG);
+            }
+        }
+    }
+
+    private static class Search {
+        private static final int TYPE_TEXT = 0;
+        private static final int TYPE_TAG = 1;
+
+        private String query;
+        private int type;
+
+        private Search(String query, int type) {
+            this.query = query;
+            this.type = type;
+        }
     }
 
 }
