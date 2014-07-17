@@ -330,18 +330,6 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         }
     }
 
-    @VisibleForTesting
-    static class SkippyFactory {
-
-        @Inject
-        SkippyFactory() {
-        }
-
-        public Skippy create(Skippy.PlayListener listener) {
-            return new Skippy(listener);
-        }
-    }
-
 
     private static class SkippyException extends Exception {
         private ErrorCategory errorCategory;

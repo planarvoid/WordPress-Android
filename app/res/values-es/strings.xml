@@ -243,4 +243,34 @@
 
     <string name="navigation_drawer_open">Abre el panel de navegación</string>
     <string name="navigation_drawer_close">Cierra el panel de navegación</string>
+
+    <string name="shuffle">al azar</string>
+
+    <!-- Search -->
+    <string name="search_type_all">Todo</string>
+    <string name="search_type_tracks">Pistas</string>
+    <string name="search_type_playlists">Listas</string>
+    <string name="search_type_people">Personas</string>
+    <string name="search_recent_tags">RECIENTES</string>
+    <string name="search_popular_tags">ETIQUETAS POPULARES</string>
+    <string name="search_tags_title">Elige tu etiqueta favorita</string>
+    <string name="search_tags_subtitle">Descubre listas populares en SoundCloud</string>
+    <string name="search_empty">No se han encontrado resultados</string>
+    <string name="search_empty_subtext">Revisa la ortografía o prueba una búsqueda diferente</string>
+
+    <!-- Pull to refresh -->
+    <string name="ptr_swiping">Desliza hacia abajo para actualizar</string>
+    <string name="ptr_loading">Cargando</string>
+
+    <!-- Email opt-in -->
+    <string name="optin_title">Boletín de SoundCloud</string>
+    <string name="optin_question">¿Quieres recibir por email novedades sobre SoundCloud?</string>
+    <string name="optin_info">Esto incluye boletines informativos, actualizaciones de producto, ofertas especiales y encuestas. Puedes retirar tu consentimiento en cualquier momento. Para ello, abre Soundcloud.com y entra en la configuración.</string>
+    <string name="optin_yes">Sí, por favor</string>
+    <string name="optin_no">No, gracias</string>
+
+    <!-- Visual Player -->
+    <string name="add_to_playlist">Añadir a lista</string>
+    <string name="share">Compartir</string>
+    <string name="repost">Republicar</string>
 </resources>

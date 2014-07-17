@@ -9,13 +9,13 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsModule;
+import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
-import com.soundcloud.android.api.legacy.model.ContentStats;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
@@ -23,6 +23,7 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackSessionAnalyticsController;
 import com.soundcloud.android.playback.service.PlaybackNotificationController;
 import com.soundcloud.android.playback.service.PlaybackServiceModule;
+import com.soundcloud.android.playback.service.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
 import com.soundcloud.android.preferences.SettingsActivity;
@@ -31,8 +32,8 @@ import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxGlobalErrorHandler;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.search.PlaylistTagStorage;
+import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
@@ -88,6 +89,7 @@ public class SoundCloudApplication extends Application {
     @Inject PlaylistTagStorage playlistTagStorage;
     @Inject PlaybackNotificationController playbackNotificationController;
     @Inject FeatureFlags featureFlags;
+    @Inject SkippyFactory skippyFactory;
 
     // we need this object to exist througout the life time of the app,
     // even if it appears to be unused
@@ -139,6 +141,7 @@ public class SoundCloudApplication extends Application {
         }
 
         IOUtils.checkState(this);
+        skippyFactory.create().init(this); // initialise skippy so it can do it's expensive one-shot ops
 
         imageOperations.initialise(this, applicationProperties);
 

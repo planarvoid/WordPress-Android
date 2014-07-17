@@ -58,7 +58,7 @@ public class SkippyAdapterTest {
     @Mock
     private Skippy skippy;
     @Mock
-    private SkippyAdapter.SkippyFactory skippyFactory;
+    private SkippyFactory skippyFactory;
     @Mock
     private Playa.PlayaListener listener;
     @Mock
