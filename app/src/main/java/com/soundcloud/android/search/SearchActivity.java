@@ -58,10 +58,13 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     };
 
     @SuppressWarnings("unused")
-    public SearchActivity() { }
+    public SearchActivity() {
+        performSearchObservable = BehaviorSubject.create();
+    }
 
     @VisibleForTesting
     SearchActivity(SearchActionBarController searchActionBarController) {
+        performSearchObservable = BehaviorSubject.create();
         this.searchActionBarController = searchActionBarController;
     }
 
@@ -79,8 +82,6 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.container_layout);
-
-        performSearchObservable = BehaviorSubject.create();
 
         if (savedInstanceState == null) {
             handleIntent();
