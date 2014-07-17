@@ -65,7 +65,7 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void hidePlayerWhenPlayQueueIsEmpty() throws Exception {
+    public void hidePlayerWhenPlayQueueIsEmpty() {
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
         attachController();
 
@@ -75,13 +75,34 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void doNotHidePlayerWhenPlayQueueIsNotEmpty() throws Exception {
+    public void doNotHidePlayerWhenPlayQueueIsNotEmpty() {
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
         attachController();
 
         controller.onResume();
 
-        verify(playerView, never()).setVisibility(View.GONE);
+        verify(slidingPanel, never()).hidePanel();
+    }
+
+    @Test
+    public void showPanelIfQueueHasItems() {
+        when(playQueueManager.isQueueEmpty()).thenReturn(false);
+        attachController();
+
+        controller.onResume();
+
+        verify(slidingPanel, never()).showPanel();
+    }
+
+    @Test
+    public void doNotShowPanelIfItIsNotHidden() {
+        when(playQueueManager.isQueueEmpty()).thenReturn(false);
+        when(slidingPanel.isPanelHidden()).thenReturn(false);
+        attachController();
+
+        controller.onResume();
+
+        verify(slidingPanel, never()).showPanel();
     }
 
     @Test
@@ -105,7 +126,7 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void showsFooterPlayerWhenHiddenAndPlayTriggeredEventIsReceived() throws Exception {
+    public void showsFooterPlayerWhenHiddenAndPlayTriggeredEventIsReceived() {
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
         when(slidingPanel.isPanelHidden()).thenReturn(true);
         when(slidingPanel.getViewTreeObserver()).thenReturn(mock(ViewTreeObserver.class));

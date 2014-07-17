@@ -80,10 +80,9 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
     private void refreshVisibility() {
         if (playQueueManager.isQueueEmpty()) {
             slidingPanel.hidePanel();
-        } else {
+        } else if (slidingPanel.isPanelHidden()) {
             slidingPanel.showPanel();
-        }
-        if (slidingPanel.isPanelExpanded()) {
+        } else if (slidingPanel.isPanelExpanded()) {
             dimSystemBars(true);
         }
     }
