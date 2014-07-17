@@ -13,7 +13,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -41,9 +40,6 @@ public class PeripheralsControllerTest {
     private Context context;
 
     @Mock
-    private PlayQueueManager playQueueManager;
-
-    @Mock
     private LegacyTrackOperations trackOperations;
 
     @Captor
@@ -51,7 +47,7 @@ public class PeripheralsControllerTest {
 
     @Before
     public void setUp() {
-        controller = new PeripheralsController(context, eventBus, playQueueManager, trackOperations);
+        controller = new PeripheralsController(context, eventBus, trackOperations);
         controller.subscribe();
     }
 

@@ -2,7 +2,7 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.tracks.TrackUrn;
 
-public class CurrentPlayQueueTrackEvent {
+public final class CurrentPlayQueueTrackEvent {
     private static final int NEW_QUEUE = 0;
     private static final int POSITION_CHANGED = 1;
 

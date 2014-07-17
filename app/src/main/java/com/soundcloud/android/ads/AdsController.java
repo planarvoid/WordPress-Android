@@ -29,7 +29,7 @@ public class AdsController {
 
     private Subscription audioAdSubscription = Subscriptions.empty();
 
-    private Func1<PlayQueueEvent, Boolean> isQueueUpdateFilter = new Func1<PlayQueueEvent, Boolean>() {
+    private final Func1<PlayQueueEvent, Boolean> isQueueUpdateFilter = new Func1<PlayQueueEvent, Boolean>() {
         @Override
         public Boolean call(PlayQueueEvent playQueueEvent) {
             return playQueueEvent.isQueueUpdate();
@@ -59,7 +59,7 @@ public class AdsController {
         }
     };
 
-    private Action1<CurrentPlayQueueTrackEvent> resetAudioAd = new Action1<CurrentPlayQueueTrackEvent>() {
+    private final Action1<CurrentPlayQueueTrackEvent> resetAudioAd = new Action1<CurrentPlayQueueTrackEvent>() {
         @Override
         public void call(CurrentPlayQueueTrackEvent event) {
             playQueueManager.clearAudioAd();

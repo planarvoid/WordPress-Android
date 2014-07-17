@@ -6,7 +6,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.LegacyTrackOperations;
@@ -25,14 +24,12 @@ public class PeripheralsController {
 
     private final Context context;
     private final EventBus eventBus;
-    private final PlayQueueManager playQueueManager;
     private final LegacyTrackOperations trackOperations;
 
     @Inject
-    public PeripheralsController(Context context, EventBus eventBus, PlayQueueManager playQueueManager, LegacyTrackOperations trackOperations) {
+    public PeripheralsController(Context context, EventBus eventBus, LegacyTrackOperations trackOperations) {
         this.context = context;
         this.eventBus = eventBus;
-        this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
     }
 

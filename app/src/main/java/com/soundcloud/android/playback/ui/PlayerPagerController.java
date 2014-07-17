@@ -33,11 +33,12 @@ public class PlayerPagerController {
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.playbackOperations = playbackOperations;
-        this.subscription = new CompositeSubscription();
     }
 
     void onViewCreated(View view) {
         setPager((ViewPager) view.findViewById(R.id.player_track_pager));
+
+        subscription = new CompositeSubscription();
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE_TRACK, new PlayQueueTrackSubscriber()));
     }
