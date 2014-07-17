@@ -1,17 +1,18 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.tracks.TrackUrn;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -29,6 +30,8 @@ public class PlaybackSessionAnalyticsController {
 
     private TrackSourceInfo currentTrackSourceInfo;
     private Playa.StateTransition lastStateTransition = Playa.StateTransition.DEFAULT;
+
+    @Deprecated // TODO : remove this when we are 100% skippy and have reliable durations out of player
     private ReplaySubject<Integer> durationObservable;
 
     @Inject
@@ -118,6 +121,12 @@ public class PlaybackSessionAnalyticsController {
 
     private void publishStopEvent(final TrackUrn trackUrn, final TrackSourceInfo trackSourceInfo, final int stopReason) {
         if (lastPlayEventData != null && trackSourceInfo != null) {
+
+            final long duration = lastPlayEventData.getDuration();
+            if (duration <= 0){
+                logInvalidDuration(duration, trackSourceInfo);
+            }
+
             durationObservable.map(new Func1<Integer, PlaybackSessionEvent>() {
                 @Override
                 public PlaybackSessionEvent call(Integer duration) {
@@ -127,5 +136,10 @@ public class PlaybackSessionAnalyticsController {
             }).subscribe(eventBus.queue(EventQueue.PLAYBACK_SESSION));
             lastPlayEventData = null;
         }
+    }
+
+    private void logInvalidDuration(long duration, TrackSourceInfo trackSourceInfo) {
+        SoundCloudApplication.handleSilentException("[" + duration + "] - " + trackSourceInfo.toString(),
+                new IllegalStateException("EventLogger Invalid Duration"));
     }
 }
