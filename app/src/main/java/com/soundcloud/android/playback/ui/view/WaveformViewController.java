@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.ui.view;
 
 import static com.soundcloud.android.playback.ui.progress.ProgressController.ProgressAnimationControllerFactory;
-import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
+import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.ScrubControllerFactory;
 
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -24,17 +24,15 @@ import android.graphics.Bitmap;
 import android.util.Pair;
 import android.view.View;
 
-import javax.inject.Provider;
-
 public class WaveformViewController implements ScrubController.OnScrubListener, ProgressAware, WaveformView.OnWidthChangedListener {
 
     private final WaveformView waveformView;
+    private final Scheduler graphicsScheduler;
     private final float waveformWidthRatio;
     private final ProgressController leftProgressController;
     private final ProgressController rightProgressController;
     private final ProgressController dragProgressController;
 
-    private final Provider<Scheduler> waveformScheduler;
     private final ScrubController scrubController;
 
     private TranslateXHelper leftProgressHelper;
@@ -51,11 +49,10 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     WaveformViewController(WaveformView waveform,
                            ProgressAnimationControllerFactory animationControllerFactory,
-                           Provider<Scheduler> waveformScheduler,
-                           final ScrubControllerFactory scrubControllerFactory){
+                           final ScrubControllerFactory scrubControllerFactory, Scheduler graphicsScheduler){
         this.waveformView = waveform;
+        this.graphicsScheduler = graphicsScheduler;
         this.waveformWidthRatio = waveform.getWidthRatio();
-        this.waveformScheduler = waveformScheduler;
         this.scrubController = scrubControllerFactory.create(waveformView.getDragViewHolder());
 
         waveformView.setOnWidthChangedListener(this);
@@ -179,10 +176,10 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         scrubController.addScrubListener(listener);
     }
 
-    private void createWaveforms(Observable<WaveformResult> waveformResultObservable) {
+    private void createWaveforms(final Observable<WaveformResult> waveformResultObservable) {
         waveformSubscription.unsubscribe();
         waveformSubscription = waveformResultObservable
-                .subscribeOn(waveformScheduler.get()) // TODO : look at the scheduling here
+                .subscribeOn(graphicsScheduler)
                 .map(createWaveformsFunc())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new WaveformSubscriber());

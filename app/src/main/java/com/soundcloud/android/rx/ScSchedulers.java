@@ -13,16 +13,16 @@ public final class ScSchedulers {
 
     public static final Scheduler STORAGE_SCHEDULER;
     public static final Scheduler API_SCHEDULER;
-
-    private static final int NUM_THREADS = 3;
+    public static final Scheduler GRAPHICS_SCHEDULER;
 
     static {
-        STORAGE_SCHEDULER = Schedulers.from(createExecutor("RxStorageThreadPool"));
-        API_SCHEDULER = Schedulers.from(createExecutor("RxApiThreadPool"));
+        STORAGE_SCHEDULER = Schedulers.from(createExecutor("RxStorageThreadPool", 3));
+        API_SCHEDULER = Schedulers.from(createExecutor("RxApiThreadPool", 3));
+        GRAPHICS_SCHEDULER= Schedulers.from(createExecutor("RxGraphicsThreadPool", 1));
     }
 
-    private static Executor createExecutor(final String threadIdentifier) {
-        return Executors.newFixedThreadPool(NUM_THREADS, new ThreadFactory() {
+    private static Executor createExecutor(final String threadIdentifier, int numThreads) {
+        return Executors.newFixedThreadPool(numThreads, new ThreadFactory() {
             final AtomicLong counter = new AtomicLong();
 
             @Override

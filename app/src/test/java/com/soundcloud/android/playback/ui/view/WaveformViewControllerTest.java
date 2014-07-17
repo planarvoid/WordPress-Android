@@ -13,7 +13,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
@@ -22,6 +21,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
+import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.android.waveform.WaveformResult;
 import org.junit.Before;
@@ -31,7 +31,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
-import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
 import android.annotation.TargetApi;
@@ -40,8 +39,6 @@ import android.os.Build;
 import android.util.Pair;
 import android.view.View;
 import android.widget.ImageView;
-
-import javax.inject.Provider;
 
 @RunWith(SoundCloudTestRunner.class)
 public class WaveformViewControllerTest {
@@ -87,12 +84,7 @@ public class WaveformViewControllerTest {
         when(waveformResult.getWaveformData()).thenReturn(waveformData);
 
         waveformViewController = new WaveformViewControllerFactory(scrubControllerFactory, progressAnimationControllerFactory,
-                new Provider<Scheduler>() {
-            @Override
-            public Scheduler get() {
-                return Schedulers.immediate();
-            }
-        }).create(waveformView);
+               Schedulers.immediate()).create(waveformView);
     }
 
     @Test
