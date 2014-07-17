@@ -1,4 +1,6 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools"
+           tools:ignore="MissingTranslation">
+
     <string name="build_type">debug</string>
     <string name="localytics_app_key">50528391fafa3fd01426c66-0d7b596e-08d3-11e3-8d9f-005cf8cbabd8</string>
     <!-- Enable this if you want to see analytics data pushed to the dev applications in the respective analytics engines -->

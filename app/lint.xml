@@ -6,6 +6,7 @@
     <issue id="MissingQuantity" severity="warning"/>
 
     <!-- change before release -->
+    <issue id="MissingTranslation" severity="warning"/>
     <issue id="DuplicateDefinition" severity="warning"/>
     <issue id="Suspicious0dp" severity="warning"/>
 
