@@ -56,6 +56,8 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
             case R.id.artwork_overlay:
                 listener.onTogglePlay();
                 break;
+            default:
+                throw new IllegalArgumentException("Unexpected view ID");
         }
     }
 
@@ -92,7 +94,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
 
     @Override
     public void clearScrubState(View key) {
-
+        // No-op
     }
 
     public void setExpanded(View trackView, boolean isPlaying) {

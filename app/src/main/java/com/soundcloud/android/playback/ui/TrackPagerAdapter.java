@@ -295,7 +295,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         private final int positionInPlayQueue;
         private final TrackUrn track;
 
-        private ViewPageData(int positionInPlayQueue, @NotNull TrackUrn track) {
+        ViewPageData(int positionInPlayQueue, @NotNull TrackUrn track) {
             this.positionInPlayQueue = positionInPlayQueue;
             this.track = track;
         }

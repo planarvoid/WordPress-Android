@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.R;
@@ -78,6 +79,11 @@ public class AdPagePresenterTest {
         adView.findViewById(R.id.artwork_overlay).performClick();
 
         verify(trackPageListener).onTogglePlay();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void throwIllegalArgumentExceptionOnClickingUnexpectedView() {
+        presenter.onClick(mock(View.class));
     }
 
     private PropertySet buildAd() {
