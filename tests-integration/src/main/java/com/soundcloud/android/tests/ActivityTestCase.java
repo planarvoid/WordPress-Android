@@ -124,4 +124,15 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
         return new FeatureFlags(res);
     }
 
+    public MenuScreen getMenuScreen() {
+        return menuScreen;
+    }
+
+    public Waiter getWaiter() {
+        return waiter;
+    }
+
+    public Han getSolo() {
+        return solo;
+    }
 }

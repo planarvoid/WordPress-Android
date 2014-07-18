@@ -1,6 +1,6 @@
 package com.soundcloud.android.player;
 
-import static com.soundcloud.android.tests.hamcrest.IsVisible.Visible;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -9,9 +9,10 @@ import static org.hamcrest.core.IsNot.not;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TestUser;
+import com.soundcloud.android.tests.helpers.NavigationHelper;
+import com.soundcloud.android.tests.helpers.PlayerHelper;
 
 public class Player extends ActivityTestCase<MainActivity> {
 
@@ -146,21 +147,11 @@ public class Player extends ActivityTestCase<MainActivity> {
     }
 
     private void playExploreTrack() {
-        ExploreScreen exploreScreen = openExploreFromMenu();
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        exploreScreen.playFirstTrack();
-        playerElement = new VisualPlayerElement(solo);
-        waiter.waitForExpandedPlayer();
-        playerElement.waitForContent();
+        playerElement = PlayerHelper.openPlayer(this, NavigationHelper.openExploreFromMenu(this));
     }
 
     private void playSingleTrack(){
         menuScreen.open().clickLikes().clickItem(3);
         playerElement = new VisualPlayerElement(solo);
     }
-
-    private ExploreScreen openExploreFromMenu() {
-        return menuScreen.open().clickExplore();
-    }
-
 }

@@ -1,6 +1,6 @@
 package com.soundcloud.android.activity.resolve;
 
-import static com.soundcloud.android.tests.hamcrest.IsVisible.Visible;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
@@ -9,7 +9,6 @@ import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.tests.with.With;
 
 import android.net.Uri;
 

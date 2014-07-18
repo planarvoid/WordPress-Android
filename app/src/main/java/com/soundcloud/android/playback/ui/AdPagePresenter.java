@@ -52,7 +52,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         switch (view.getId()) {
             case R.id.footer_toggle:
             case R.id.player_play:
-            case R.id.artwork_image_view:
+            case R.id.track_page_artwork:
             case R.id.artwork_overlay:
                 listener.onTogglePlay();
                 break;
@@ -129,7 +129,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
 
     private void setupHolder(View trackView) {
         Holder holder = new Holder();
-        holder.artworkView = (ImageView) trackView.findViewById(R.id.artwork_image_view);
+        holder.artworkView = (ImageView) trackView.findViewById(R.id.track_page_artwork);
         holder.artworkIdleOverlay = trackView.findViewById(R.id.artwork_overlay);
         holder.playButton = trackView.findViewById(R.id.player_play);
         holder.footerPlayToggle = (ToggleButton) trackView.findViewById(R.id.footer_toggle);

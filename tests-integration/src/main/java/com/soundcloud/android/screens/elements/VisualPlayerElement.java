@@ -1,6 +1,5 @@
 package com.soundcloud.android.screens.elements;
 
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
@@ -19,6 +18,26 @@ public class VisualPlayerElement extends Element implements PlayerElement {
         return R.id.player_layout;
     }
 
+    public ViewElement previousButton() {
+        return solo.findElement(With.id(R.id.player_previous));
+    }
+
+    public ViewElement previousPageArea() {
+        return solo.findElement(With.id(R.id.track_page_previous));
+    }
+
+    public ViewElement playButton() {
+        return solo.findElement(With.id(R.id.player_play));
+    }
+
+    public ViewElement nextButton() {
+        return solo.findElement(With.id(R.id.player_next));
+    }
+
+    public ViewElement nextPageArea(){
+        return solo.findElement(With.id(R.id.track_page_next));
+    }
+
     private ViewElement playerContainer() {
         return solo.findElement(With.id(R.id.player_root));
     }
@@ -29,26 +48,6 @@ public class VisualPlayerElement extends Element implements PlayerElement {
 
     private ViewElement artwork() {
         return solo.findElement(With.id(R.id.track_page_artwork));
-    }
-
-    private ViewElement previousButton() {
-        return solo.findElement(With.id(R.id.player_previous));
-    }
-
-    private ViewElement previousPageArea() {
-        return solo.findElement(With.id(R.id.track_page_previous));
-    }
-
-    private ViewElement playButton() {
-        return solo.findElement(With.id(R.id.player_play));
-    }
-
-    private ViewElement nextButton() {
-        return solo.findElement(With.id(R.id.player_next));
-    }
-
-    private ViewElement nextPageArea(){
-        return solo.findElement(With.id(R.id.track_page_next));
     }
 
     private ViewElement footerPlayToggle() {

@@ -1,4 +1,4 @@
-package com.soundcloud.android.tests.hamcrest;
+package com.soundcloud.android.tests.matcher.view;
 
 
 import com.soundcloud.android.screens.elements.UIView;

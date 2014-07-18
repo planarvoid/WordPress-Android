@@ -2,7 +2,7 @@
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
     <ImageView
-            android:id="@+id/artwork_image_view"
+            android:id="@+id/track_page_artwork"
             style="@style/PlayerAdArtwork"/>
     <View android:id="@+id/artwork_overlay"
           android:layout_width="match_parent"

@@ -1,6 +1,5 @@
 package com.soundcloud.android.auth.signup;
 
-import static com.soundcloud.android.tests.hamcrest.IsVisible.Visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
