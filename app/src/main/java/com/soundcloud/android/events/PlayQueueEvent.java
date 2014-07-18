@@ -32,4 +32,9 @@ public class PlayQueueEvent {
         return o instanceof PlayQueueEvent
                 && ((PlayQueueEvent) o).getKind() == kind;
     }
+
+    @Override
+    public int hashCode() {
+        return kind;
+    }
 }

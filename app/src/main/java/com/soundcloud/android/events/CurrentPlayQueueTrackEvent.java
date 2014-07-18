@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import com.google.common.base.Objects;
 import com.soundcloud.android.tracks.TrackUrn;
 
 public final class CurrentPlayQueueTrackEvent {
@@ -45,5 +46,10 @@ public final class CurrentPlayQueueTrackEvent {
             return event.getKind() == kind && event.getCurrentTrackUrn().equals(currentTrackUrn);
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(kind, currentTrackUrn);
     }
 }
