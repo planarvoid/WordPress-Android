@@ -186,17 +186,11 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     }
 
     private boolean isViewPresentingCurrentTrack(View trackPage) {
-        if (trackByViews.containsKey(trackPage)) {
-            return playQueueManager.isCurrentTrack(trackByViews.get(trackPage).track);
-        }
-        return false;
+        return trackByViews.containsKey(trackPage) && playQueueManager.isCurrentTrack(trackByViews.get(trackPage).track);
     }
 
     private Boolean isTrackRelatedToView(View trackPage, TrackUrn trackUrn) {
-        if (trackByViews.containsKey(trackPage)) {
-            return trackByViews.get(trackPage).track.equals(trackUrn);
-        }
-        return false;
+        return trackByViews.containsKey(trackPage) && trackByViews.get(trackPage).track.equals(trackUrn);
     }
 
     private class TrackSubscriber extends DefaultSubscriber<PropertySet> {
