@@ -27,6 +27,7 @@ public class AdsController {
     private final PlayQueueManager playQueueManager;
     private final TrackOperations trackOperations;
 
+    private Observable<AudioAd> currentObservable;
     private Subscription audioAdSubscription = Subscriptions.empty();
 
     private final Func1<PlayQueueEvent, Boolean> isQueueUpdateFilter = new Func1<PlayQueueEvent, Boolean>() {
@@ -39,7 +40,8 @@ public class AdsController {
     private final Func1<Object, Boolean> hasNextNonAudioAdTrackFilter = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
-            return playQueueManager.hasNextTrack()
+            return currentObservable == null
+                    && playQueueManager.hasNextTrack()
                     && !playQueueManager.isNextTrackAudioAd()
                     && !playQueueManager.isCurrentTrackAudioAd();
         }
@@ -62,8 +64,9 @@ public class AdsController {
     private final Action1<CurrentPlayQueueTrackEvent> resetAudioAd = new Action1<CurrentPlayQueueTrackEvent>() {
         @Override
         public void call(CurrentPlayQueueTrackEvent event) {
-            playQueueManager.clearAudioAd();
+            currentObservable = null;
             audioAdSubscription.unsubscribe();
+            playQueueManager.clearAudioAd();
         }
     };
 
@@ -90,19 +93,31 @@ public class AdsController {
     private class PlayQueueSubscriber extends DefaultSubscriber<Object> {
         @Override
         public void onNext(Object event) {
-            audioAdSubscription = trackOperations.track(playQueueManager.getNextTrackUrn())
+            currentObservable = trackOperations.track(playQueueManager.getNextTrackUrn())
                     .filter(isMonetizeableFilter)
                     .mergeMap(fetchAudioAdFunction)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new AudioAdSubscriber());
-
+                    .observeOn(AndroidSchedulers.mainThread());
+            audioAdSubscription = currentObservable.subscribe(new AudioAdSubscriber(playQueueManager.getCurrentPosition()));
         }
     }
 
-    private class AudioAdSubscriber extends DefaultSubscriber<AudioAd> {
+    private final class AudioAdSubscriber extends DefaultSubscriber<AudioAd> {
+        private final int intendedPosition;
+
+        private AudioAdSubscriber(int intendedPosition) {
+            this.intendedPosition = intendedPosition;
+        }
+
         @Override
         public void onNext(AudioAd audioAd) {
-            playQueueManager.insertAudioAd(audioAd);
+            /*
+             * We're checking if we're still at the intended position before we try to insert the ad in the play queue.
+             * This is a temporary work-around for a race condition where unsubscribe doesn't happen immediately and
+             * we attempt to put an ad in the queue twice. Matthias, please help!
+             */
+            if (playQueueManager.getCurrentPosition() == intendedPosition) {
+                playQueueManager.insertAudioAd(audioAd);
+            }
         }
     }
 
