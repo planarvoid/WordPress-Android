@@ -318,4 +318,21 @@
   <string name="widget_touch_to_open">Toque para abrir SoundCloud</string>
   <string name="wifi_settings">Ajustes de la red</string>
   <string name="wifi_settings_summary">Edite la configuración. Use WIFI para un mejor rendimiento.</string>
+  <string name="following_zero">Seguido por ti</string>
+  <string name="number_of_liked_tracks_you_liked_zero">No tienes pistas favoritas</string>
+  <string name="side_menu_profile">Perfil</string>
+  <string name="playlist_load_error">No se ha podido cargar esta lista de reproducci?n</string>
+  <string name="dialog_select_google_account">Por favor, selecciona una cuenta de Google para iniciar sesi?n</string>
+  <string name="authentication_login_error_message">No se ha podido iniciar sesi?n. Int?ntalo de nuevo.</string>
+  <string name="authentication_add_info_error">No se ha podido actualizar tu informaci?n. Int?ntalo de nuevo.</string>
+  <string name="authentication_no_google_accounts">Por favor, establece primero una cuenta de Google.</string>
+  <string name="error_google_sign_in_failed">No se ha podido iniciar sesi?n en Google+. Visita plus.google.com para activar tu cuenta de Google+ e int?ntalo de nuevo</string>
+  <string name="title_notification_settings">Configuraci?n de notificaciones</string>
+  <string name="title_about">Acerca de</string>
+  <string name="title_legal">Aviso legal</string>
+  <string name="title_now_playing">Reproduciendo</string>
+  <string name="shuffle">al azar</string>
+  <string name="error_toast_user_not_logged_in">Inicia sesi?n para abrir este enlace</string>
+  <string name="authentication_clear_image">Mant?n pulsado para borrar la imagen</string>   <string name="info_empty_you_secondary">Inicia sesi?n en SoundCloud en tu escritorio para modificar tu perfil</string>
+  <string name="list_empty_user_followers_secondary">Comparte tus pistas y listas de reproducci?n favoritas para construir tu comunidad</string>
 </resources>
