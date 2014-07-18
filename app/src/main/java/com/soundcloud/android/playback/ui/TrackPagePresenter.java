@@ -6,18 +6,18 @@ import static com.soundcloud.android.playback.ui.PlayerArtworkController.PlayerA
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.playback.ui.view.PlayerArtworkView;
 import com.soundcloud.android.playback.ui.view.TimestampView;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
+import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.playback.ui.view.WaveformViewControllerFactory;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
+import com.soundcloud.propeller.PropertySet;
 
 import android.content.res.Resources;
 import android.support.v7.widget.PopupMenu;
@@ -29,22 +29,14 @@ import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 
-class TrackPagePresenter implements View.OnClickListener {
+class TrackPagePresenter implements PagePresenter, View.OnClickListener {
 
     private final Resources resources;
     private final ImageOperations imageOperations;
     private final WaveformOperations waveformOperations;
-    private final Listener listener;
+    private final TrackPageListener listener;
     private final WaveformViewControllerFactory waveformControllerFactory;
     private final PlayerArtworkControllerFactory artworkControllerFactory;
-
-    interface Listener {
-        void onTogglePlay();
-        void onNext();
-        void onPrevious();
-        void onFooterTap();
-        void onPlayerClose();
-    }
 
     @Inject
     public TrackPagePresenter(Resources resources, ImageOperations imageOperations,
@@ -85,13 +77,19 @@ class TrackPagePresenter implements View.OnClickListener {
         }
     }
 
-    public View createTrackPage(ViewGroup container) {
+    @Override
+    public View createItemView(ViewGroup container) {
         final View trackView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_track_page, container, false);
         setupHolder(trackView);
         return trackView;
     }
 
-    void populateTrackPage(View trackView, PlayerTrack track) {
+    @Override
+    public void bindItemView(View view, PropertySet track) {
+        bindItemView(view, new PlayerTrack(track));
+    }
+
+    private void bindItemView(View trackView, PlayerTrack track) {
         final TrackPageHolder holder = getViewHolder(trackView);
         holder.user.setText(track.getUserName());
         holder.title.setText(track.getTitle());
@@ -106,19 +104,20 @@ class TrackPagePresenter implements View.OnClickListener {
         setClickListener(holder.getOnClickViews(), this);
     }
 
-    public View clearView(View view, TrackUrn urn) {
+    public View clearItemView(View view) {
         final TrackPageHolder holder = getViewHolder(view);
         holder.user.setText(ScTextUtils.EMPTY_STRING);
         holder.title.setText(ScTextUtils.EMPTY_STRING);
 
-        imageOperations.displayPlaceholder(urn, holder.artworkController.getImageView());
         holder.waveformController.reset();
+        holder.artworkController.getImageView().setImageDrawable(null);
 
         holder.footerUser.setText(ScTextUtils.EMPTY_STRING);
         holder.footerTitle.setText(ScTextUtils.EMPTY_STRING);
         return view;
     }
 
+    @Override
     public void setPlayState(View trackView, StateTransition stateTransition, boolean isCurrentTrack) {
         final TrackPageHolder holder = getViewHolder(trackView);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
@@ -164,6 +163,7 @@ class TrackPagePresenter implements View.OnClickListener {
         getViewHolder(trackView).waveformController.scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
     }
 
+    @Override
     public void setProgress(View trackView, PlaybackProgress progress) {
         for (ProgressAware view : getViewHolder(trackView).getProgressAwareViews()){
             view.setProgress(progress);
@@ -174,7 +174,7 @@ class TrackPagePresenter implements View.OnClickListener {
         TrackPageHolder holder = getViewHolder(trackView);
         holder.footer.setVisibility(View.GONE);
         holder.waveformController.setWaveformVisibility(isPlaying);
-        holder.artworkController.lighten();
+        holder.artworkController.hideOverlay();
         holder.waveformController.setWaveformVisibility(true);
         setVisibility(holder.getFullScreenViews(), true);
     }
@@ -185,6 +185,10 @@ class TrackPagePresenter implements View.OnClickListener {
         holder.artworkController.darken();
         holder.waveformController.setWaveformVisibility(false);
         setVisibility(holder.getFullScreenViews(), false);
+    }
+
+    public boolean accept(View view) {
+        return view.getTag() instanceof TrackPageHolder;
     }
 
     private void setVisibility(View[] views, boolean visible) {
@@ -207,7 +211,7 @@ class TrackPagePresenter implements View.OnClickListener {
         TrackPageHolder holder = new TrackPageHolder();
         holder.title = (JaggedTextView) trackView.findViewById(R.id.track_page_title);
         holder.user = (JaggedTextView) trackView.findViewById(R.id.track_page_user);
-        holder.artworkView = (PlayerArtworkView) trackView.findViewById(R.id.track_page_artwork);
+        holder.artworkView = (PlayerTrackArtworkView) trackView.findViewById(R.id.track_page_artwork);
         holder.timestamp = (TimestampView) trackView.findViewById(R.id.timestamp);
         holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
         holder.more = trackView.findViewById(R.id.track_page_more);
@@ -247,7 +251,7 @@ class TrackPagePresenter implements View.OnClickListener {
         JaggedTextView user;
         WaveformViewController waveformController;
         TimestampView timestamp;
-        PlayerArtworkView artworkView;
+        PlayerTrackArtworkView artworkView;
         PlayerArtworkController artworkController;
         ToggleButton likeToggle;
         View more;

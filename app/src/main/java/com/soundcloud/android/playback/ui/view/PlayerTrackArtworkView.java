@@ -7,13 +7,13 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 
-public class PlayerArtworkView extends FrameLayout {
+public class PlayerTrackArtworkView extends FrameLayout {
 
     private OnWidthChangedListener onWidthChangedListener;
 
-    public PlayerArtworkView(Context context, AttributeSet attrs) {
+    public PlayerTrackArtworkView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        LayoutInflater.from(context).inflate(R.layout.player_artwork_view, this);
+        LayoutInflater.from(context).inflate(R.layout.player_track_artwork_view, this);
     }
 
     public void setOnWidthChangedListener(OnWidthChangedListener onWidthChangedListener) {

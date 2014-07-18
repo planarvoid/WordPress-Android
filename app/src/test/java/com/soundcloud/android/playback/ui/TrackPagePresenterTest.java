@@ -6,25 +6,22 @@ import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHol
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.playback.ui.view.PlayerArtworkView;
-import com.soundcloud.android.playback.ui.view.TimestampView;
-import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.playback.ui.view.WaveformViewControllerFactory;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -72,8 +69,8 @@ public class TrackPagePresenterTest {
         presenter = new TrackPagePresenter(resources, imageOperations, waveformOperations, listener, waveformFactory, artworkFactory);
         when(container.getContext()).thenReturn(Robolectric.application);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
-        when(artworkFactory.create(any(PlayerArtworkView.class))).thenReturn(artworkController);
-        trackView = presenter.createTrackPage(container);
+        when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
+        trackView = presenter.createItemView(container);
     }
 
     @Test
@@ -298,16 +295,16 @@ public class TrackPagePresenterTest {
     }
 
     private void populateTrackPage() throws CreateModelException {
-        presenter.populateTrackPage(trackView, buildPlayerTrack());
+        presenter.bindItemView(trackView, buildTrack());
     }
 
-    private PlayerTrack buildPlayerTrack() {
-        return new PlayerTrack(PropertySet.from(
+    private PropertySet buildTrack() {
+        return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 TrackProperty.WAVEFORM_URL.bind("http://waveform.url"),
                 PlayableProperty.TITLE.bind("someone's favorite song"),
                 PlayableProperty.CREATOR_NAME.bind("someone's favorite band"),
                 PlayableProperty.DURATION.bind(123456)
-        ));
+        );
     }
 }

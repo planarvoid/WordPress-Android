@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/footer_controls"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/player_footer_control">
+
+    <ToggleButton
+            android:id="@+id/footer_toggle"
+            style="@style/FooterToggle"
+            android:layout_marginRight="8dp"/>
+
+    <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/footer_user"
+            style="@style/FooterUser"
+            android:layout_toRightOf="@id/footer_toggle"
+            android:layout_marginTop="@dimen/player_footer_margin"
+            android:layout_marginRight="@dimen/player_footer_margin"/>
+
+    <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/footer_title"
+            style="@style/FooterTitle"
+            android:layout_below="@id/footer_user"
+            android:layout_toRightOf="@id/footer_toggle"
+            android:layout_marginRight="@dimen/player_footer_margin"/>
+</RelativeLayout>

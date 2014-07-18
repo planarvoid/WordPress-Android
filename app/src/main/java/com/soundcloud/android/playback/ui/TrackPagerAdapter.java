@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -10,6 +11,7 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.RecyclingPager.RecyclingPagerAdapter;
 import com.soundcloud.propeller.PropertySet;
@@ -20,6 +22,7 @@ import rx.functions.Func1;
 import rx.subjects.ReplaySubject;
 import rx.subscriptions.CompositeSubscription;
 
+import android.net.Uri;
 import android.support.v4.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +34,7 @@ import java.util.Map;
 public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     private static final int TYPE_TRACK_VIEW = 0;
+    private static final int TYPE_AD_VIEW = 1;
     private static final int EXPECTED_TRACKVIEW_COUNT = 4;
     private static final int TRACK_CACHE_SIZE = 10;
 
@@ -38,17 +42,13 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     private final PlaySessionController playSessionController;
     private final TrackOperations trackOperations;
     private final TrackPagePresenter trackPagePresenter;
+    private final AdPagePresenter adPagePresenter;
     private final EventBus eventBus;
 
-    private final LruCache<TrackUrn, ReplaySubject<PlayerTrack>> trackObservableCache =
-            new LruCache<TrackUrn, ReplaySubject<PlayerTrack>>(TRACK_CACHE_SIZE);
+
+    private final LruCache<TrackUrn, ReplaySubject<PropertySet>> trackObservableCache =
+            new LruCache<TrackUrn, ReplaySubject<PropertySet>>(TRACK_CACHE_SIZE);
     private final Map<View, ViewPageData> trackByViews = new HashMap<View, ViewPageData>(EXPECTED_TRACKVIEW_COUNT);
-    private final Func1<PropertySet, PlayerTrack> toPlayerTrack = new Func1<PropertySet, PlayerTrack>() {
-        @Override
-        public PlayerTrack call(PropertySet source) {
-            return new PlayerTrack(source);
-        }
-    };
     private final Func1<PlaybackProgressEvent, Boolean> currentTrackFilter = new Func1<PlaybackProgressEvent, Boolean>() {
         @Override
         public Boolean call(PlaybackProgressEvent progressEvent) {
@@ -59,11 +59,13 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     @Inject
     TrackPagerAdapter(PlayQueueManager playQueueManager, PlaySessionController playSessionController,
-                      TrackOperations trackOperations, TrackPagePresenter trackPagePresenter, EventBus eventBus) {
+                      TrackOperations trackOperations, TrackPagePresenter trackPagePresenter,
+                      AdPagePresenter adPagePresenter, EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.trackPagePresenter = trackPagePresenter;
         this.playSessionController = playSessionController;
+        this.adPagePresenter = adPagePresenter;
         this.eventBus = eventBus;
     }
 
@@ -74,17 +76,21 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     @Override
     public int getViewTypeCount() {
-        return 1;
+        return 2;
     }
 
     @Override
     public int getItemViewType(int position) {
-        return TYPE_TRACK_VIEW;
+        if (playQueueManager.isAudioAdAtPosition(position)) {
+            return TYPE_AD_VIEW;
+        } else {
+            return TYPE_TRACK_VIEW;
+        }
     }
 
     @Override
     public int getItemViewTypeFromObject(Object object) {
-        return TYPE_TRACK_VIEW;
+        return trackPagePresenter.accept(((View) object)) ? TYPE_TRACK_VIEW : TYPE_AD_VIEW;
     }
 
     @Override
@@ -92,36 +98,45 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         TrackUrn urn = playQueueManager.getUrnAtPosition(position);
 
         final boolean isNewView = convertView == null;
-        final View contentView;
-        if (isNewView) {
-            contentView = trackPagePresenter.createTrackPage(container);
-        } else {
-            contentView = trackPagePresenter.clearView(convertView, urn);
-        }
+        final PagePresenter presenter = getPresenter(position);
+        final View contentView = isNewView
+                ? presenter.createItemView(container)
+                : presenter.clearItemView(convertView);
 
         trackByViews.put(contentView, new ViewPageData(position, urn)); // forcePut to remove existing entry
         if (isNewView) {
-            subscribe(contentView);
+            subscribe(presenter, contentView);
         }
-        loadPlayerItem(contentView, urn);
+        getTrackObservable(urn)
+                .filter(new TrackIntendedViewFilter(contentView))
+                .subscribe(new TrackSubscriber(presenter, contentView));
         return contentView;
     }
 
-    private View subscribe(View trackPage) {
-        subscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber(trackPage)));
-        subscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerPanelSubscriber(trackPage)));
+    private PagePresenter getPresenter(int position) {
+        if (getItemViewType(position) == TYPE_TRACK_VIEW) {
+            return trackPagePresenter;
+        }
+        return adPagePresenter;
+    }
+
+    private View subscribe(PagePresenter presenter, View trackPage) {
+        subscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber(presenter, trackPage)));
+        subscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerPanelSubscriber(presenter, trackPage)));
         subscription.add(eventBus
                 .queue(EventQueue.PLAYBACK_PROGRESS)
                 .filter(currentTrackFilter)
                 .filter(new ProgressEventIntendedViewFilter(trackPage))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new PlaybackProgressSubscriber(trackPage)));
+                .subscribe(new PlaybackProgressSubscriber(presenter, trackPage)));
         return trackPage;
     }
 
     void onTrackChange() {
         for (View view : trackByViews.keySet()) {
-            trackPagePresenter.clearScrubState(view);
+            if (getItemViewTypeFromObject(view) == TYPE_TRACK_VIEW) {
+                trackPagePresenter.clearScrubState(view);
+            }
         }
     }
 
@@ -149,24 +164,32 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         return playQueueManager.getQueueSize();
     }
 
-    private void loadPlayerItem(View trackView, TrackUrn trackUrn) {
-        getTrackObservable(trackUrn)
-                .filter(new TrackIntendedViewFilter(trackView))
-                .subscribe(new TrackSubscriber(trackView));
-    }
-
-    public Observable<PlayerTrack> getTrackObservable(TrackUrn urn) {
-        ReplaySubject<PlayerTrack> trackSubject = trackObservableCache.get(urn);
+    private Observable<PropertySet> getTrackObservable(TrackUrn urn) {
+        ReplaySubject<PropertySet> trackSubject = trackObservableCache.get(urn);
         if (trackSubject == null) {
             trackSubject = ReplaySubject.create();
-            trackOperations.track(urn).map(toPlayerTrack).observeOn(AndroidSchedulers.mainThread()).subscribe(trackSubject);
+            trackOperations
+                    .track(urn)
+                    .map(new Func1<PropertySet, PropertySet>() {
+                        @Override
+                        public PropertySet call(PropertySet propertySet) {
+                            return propertySet
+                                    .put(AdProperty.CLICK_THROUGH_LINK, Uri.EMPTY)
+                                    .put(AdProperty.ARTWORK, Uri.parse("http://breadedcat.com/wp-content/uploads/2012/02/cat-breading-tutorial-004.jpg"));
+                        }
+                    })
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(trackSubject);
             trackObservableCache.put(urn, trackSubject);
         }
         return trackSubject;
     }
 
     private boolean isViewPresentingCurrentTrack(View trackPage) {
-        return playQueueManager.isCurrentTrack(trackByViews.get(trackPage).track);
+        if (trackByViews.containsKey(trackPage)) {
+            return playQueueManager.isCurrentTrack(trackByViews.get(trackPage).track);
+        }
+        return false;
     }
 
     private Boolean isTrackRelatedToView(View trackPage, TrackUrn trackUrn) {
@@ -176,66 +199,74 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         return false;
     }
 
-    private class TrackSubscriber extends DefaultSubscriber<PlayerTrack> {
+    private class TrackSubscriber extends DefaultSubscriber<PropertySet> {
+        private final PagePresenter presenter;
         private final View trackView;
 
-        private TrackSubscriber(View trackView) {
+        private TrackSubscriber(PagePresenter presenter, View trackView) {
+            this.presenter = presenter;
             this.trackView = trackView;
         }
 
         @Override
-        public void onNext(PlayerTrack track) {
+        public void onNext(PropertySet track) {
             if (!playSessionController.isPlaying()) {
                 resetProgress(track, trackView);
             }
-            trackPagePresenter.populateTrackPage(trackView, track);
+            presenter.bindItemView(trackView, track);
         }
 
-        private void resetProgress(final PlayerTrack track, final View trackView) {
-            final PlaybackProgress progress = playSessionController.getCurrentProgress(track.getUrn());
-            trackPagePresenter.setProgress(trackView, progress);
+        private void resetProgress(final PropertySet propertySet, final View trackView) {
+            final PlaybackProgress progress = playSessionController.getCurrentProgress(propertySet.get(TrackProperty.URN));
+            presenter.setProgress(trackView, progress);
         }
     }
 
     private final class PlaybackStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {
+        private final PagePresenter presenter;
         private final View trackPage;
 
-        public PlaybackStateSubscriber(View trackPage) {
+        public PlaybackStateSubscriber(PagePresenter presenter, View trackPage) {
+            this.presenter = presenter;
             this.trackPage = trackPage;
         }
 
         @Override
         public void onNext(Playa.StateTransition stateTransition) {
-            trackPagePresenter.setPlayState(trackPage, stateTransition, isViewPresentingCurrentTrack(trackPage));
+            presenter.setPlayState(trackPage, stateTransition, isViewPresentingCurrentTrack(trackPage));
         }
     }
 
-    private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
+    private  final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
+        private final PagePresenter presenter;
         private final View trackPage;
 
-        public PlaybackProgressSubscriber(View trackPage) {
+        public PlaybackProgressSubscriber(PagePresenter presenter, View trackPage) {
+            this.presenter = presenter;
             this.trackPage = trackPage;
         }
 
         @Override
         public void onNext(PlaybackProgressEvent progress) {
-            trackPagePresenter.setProgress(trackPage, progress.getPlaybackProgress());
+            presenter.setProgress(trackPage, progress.getPlaybackProgress());
         }
     }
 
     private final class PlayerPanelSubscriber extends DefaultSubscriber<PlayerUIEvent> {
+        private final PagePresenter presenter;
         private final View trackPage;
 
-        public PlayerPanelSubscriber(View trackPage) {
+        public PlayerPanelSubscriber(PagePresenter presenter, View trackPage) {
+            this.presenter = presenter;
             this.trackPage = trackPage;
         }
 
         @Override
         public void onNext(PlayerUIEvent event) {
             if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
-                trackPagePresenter.setExpanded(trackPage, playSessionController.isPlaying());
+                presenter.setExpanded(trackPage, playSessionController.isPlaying());
             } else if (event.getKind() == PlayerUIEvent.PLAYER_COLLAPSED) {
-                trackPagePresenter.setCollapsed(trackPage);
+                presenter.setCollapsed(trackPage);
             }
         }
     }
@@ -253,7 +284,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         }
     }
 
-    private final class TrackIntendedViewFilter implements Func1<PlayerTrack, Boolean> {
+    private final class TrackIntendedViewFilter implements Func1<PropertySet, Boolean> {
         private final View trackPage;
 
         private TrackIntendedViewFilter(View trackPage) {
@@ -261,8 +292,8 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         }
 
         @Override
-        public Boolean call(PlayerTrack track) {
-            return isTrackRelatedToView(trackPage, track.getUrn());
+        public Boolean call(PropertySet track) {
+            return isTrackRelatedToView(trackPage, track.get(TrackProperty.URN));
         }
     }
 

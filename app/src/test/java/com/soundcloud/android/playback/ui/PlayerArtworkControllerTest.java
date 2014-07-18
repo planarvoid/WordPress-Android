@@ -9,10 +9,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
-import com.soundcloud.android.playback.ui.view.PlayerArtworkView;
+import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Before;
@@ -25,24 +26,33 @@ import android.os.Build;
 import android.view.View;
 import android.widget.ImageView;
 
+import javax.inject.Provider;
+
 @RunWith(SoundCloudTestRunner.class)
 public class PlayerArtworkControllerTest {
     private PlayerArtworkController playerArtworkController;
 
     @Mock private ProgressAnimationControllerFactory animationControllerFactory;
-    @Mock private PlayerArtworkView playerArtworkView;
+    @Mock private PlayerTrackArtworkView playerTrackArtworkView;
     @Mock private ProgressController progressController;
     @Mock private ImageView wrappedImageView;
     @Mock private View artworkIdleOverlay;
     @Mock private PlaybackProgress playbackProgress;
+    @Mock private PlaySessionController playSessionController;
+    private final Provider<PlayerOverlayController> overlayControllerProvider = new Provider<PlayerOverlayController>() {
+        @Override
+        public PlayerOverlayController get() {
+            return new PlayerOverlayController(new OverlayAnimator(), playSessionController);
+        }
+    };;
 
     @Before
     public void setUp() throws Exception {
         TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // 9 old Androids
-        when(playerArtworkView.findViewById(R.id.artwork_image_view)).thenReturn(wrappedImageView);
+        when(playerTrackArtworkView.findViewById(R.id.artwork_image_view)).thenReturn(wrappedImageView);
         when(animationControllerFactory.create(wrappedImageView)).thenReturn(progressController);
-        when(playerArtworkView.findViewById(R.id.artwork_overlay)).thenReturn(artworkIdleOverlay);
-        playerArtworkController = new PlayerArtworkControllerFactory(animationControllerFactory).create(playerArtworkView);
+        when(playerTrackArtworkView.findViewById(R.id.artwork_overlay)).thenReturn(artworkIdleOverlay);
+        playerArtworkController = new PlayerArtworkControllerFactory(animationControllerFactory, overlayControllerProvider, playSessionController).create(playerTrackArtworkView);
     }
 
     @Test
@@ -60,6 +70,7 @@ public class PlayerArtworkControllerTest {
 
     @Test
     public void scrubStateCancelledStartsProgressAnimationFromLastPositionIfPlaying() {
+        when(playSessionController.isPlaying()).thenReturn(true);
         playerArtworkController.showPlayingState(playbackProgress);
         PlaybackProgress latest = new PlaybackProgress(5, 10);
 
@@ -110,7 +121,7 @@ public class PlayerArtworkControllerTest {
     @Test
     public void displayScrubPositionUsesHelperToSetImageViewPosition() {
         when(wrappedImageView.getMeasuredWidth()).thenReturn(20);
-        when(playerArtworkView.getWidth()).thenReturn(10);
+        when(playerTrackArtworkView.getWidth()).thenReturn(10);
         playerArtworkController.onArtworkSizeChanged();
         playerArtworkController.displayScrubPosition(.5f);
         verify(wrappedImageView).setTranslationX(-5);

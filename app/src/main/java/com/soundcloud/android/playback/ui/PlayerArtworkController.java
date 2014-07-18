@@ -1,46 +1,44 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.playback.ui.view.PlayerArtworkView.OnWidthChangedListener;
 import static com.soundcloud.android.playback.ui.progress.ProgressController.ProgressAnimationControllerFactory;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.OnScrubListener;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
+import static com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView.OnWidthChangedListener;
 
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageListener;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
-import com.soundcloud.android.playback.ui.view.PlayerArtworkView;
+import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 
 import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.ImageView;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 public class PlayerArtworkController implements ProgressAware, OnScrubListener, OnWidthChangedListener, ImageListener {
-
-    private static final int FADE_DURATION = 120;
-
-    private final PlayerArtworkView artworkView;
+    private final PlayerTrackArtworkView artworkView;
+    private final PlayerOverlayController playerOverlayController;
+    private final PlaySessionController playSessionController;
     private final ImageView wrappedImageView;
     private final ProgressController progressController;
     private final View artworkIdleOverlay;
 
-    private ObjectAnimator overlayAnimator;
     private TranslateXHelper helper;
-    private boolean isForcingDarkness;
-    private boolean isInPlayingState;
     private boolean suppressProgress;
 
     private PlaybackProgress latestProgress = PlaybackProgress.empty();
 
-    public PlayerArtworkController(PlayerArtworkView artworkView, ProgressAnimationControllerFactory animationControllerFactory) {
+    public PlayerArtworkController(PlayerTrackArtworkView artworkView, ProgressAnimationControllerFactory animationControllerFactory, PlayerOverlayController playerOverlayController, PlaySessionController playSessionController) {
         this.artworkView = artworkView;
+        this.playerOverlayController = playerOverlayController;
+        this.playSessionController = playSessionController;
         wrappedImageView = (ImageView) artworkView.findViewById(R.id.artwork_image_view);
         progressController = animationControllerFactory.create(wrappedImageView);
         artworkIdleOverlay = artworkView.findViewById(R.id.artwork_overlay);
@@ -58,20 +56,6 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         }
     }
 
-    public void showSessionActiveState() {
-        isInPlayingState = true;
-        progressController.cancelProgressAnimation();
-        if (!isForcingDarkness) {
-            hideOverlay();
-        }
-    }
-
-    public void showIdleState() {
-        isInPlayingState = false;
-        progressController.cancelProgressAnimation();
-        showOverlay();
-    }
-
     @Override
     public void setProgress(PlaybackProgress progress) {
         latestProgress = progress;
@@ -80,16 +64,14 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         }
     }
 
-    public void darken() {
-        isForcingDarkness = true;
-        showOverlay();
+    public void showSessionActiveState() {
+        progressController.cancelProgressAnimation();
+        playerOverlayController.showSessionActiveState(artworkIdleOverlay);
     }
 
-    public void lighten() {
-        isForcingDarkness = false;
-        if (isInPlayingState) {
-            hideOverlay();
-        }
+    public void showIdleState() {
+        progressController.cancelProgressAnimation();
+        playerOverlayController.showIdleState(artworkIdleOverlay);
     }
 
     @Override
@@ -97,11 +79,11 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         suppressProgress = newScrubState == SCRUB_STATE_SCRUBBING;
         if (suppressProgress) {
             progressController.cancelProgressAnimation();
-            darken();
+            playerOverlayController.darken(artworkIdleOverlay);
         } else {
-            lighten();
+            hideOverlay();
         }
-        if (newScrubState == SCRUB_STATE_CANCELLED && isInPlayingState) {
+        if (newScrubState == SCRUB_STATE_CANCELLED && playSessionController.isPlaying()) {
             progressController.startProgressAnimation(latestProgress);
         }
     }
@@ -133,28 +115,17 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         configureBounds();
     }
 
-    private void showOverlay() {
-        stopOverlayAnimation();
-        overlayAnimator = ObjectAnimator.ofFloat(artworkIdleOverlay, "alpha", ViewHelper.getAlpha(artworkIdleOverlay), 1f);
-        overlayAnimator.setDuration(FADE_DURATION);
-        overlayAnimator.start();
-    }
-
-    private void hideOverlay() {
-        stopOverlayAnimation();
-        overlayAnimator = ObjectAnimator.ofFloat(artworkIdleOverlay, "alpha", ViewHelper.getAlpha(artworkIdleOverlay), 0f);
-        overlayAnimator.setDuration(FADE_DURATION);
-        overlayAnimator.start();
-    }
-
-    private void stopOverlayAnimation() {
-        if (overlayAnimator != null && overlayAnimator.isRunning()) {
-            overlayAnimator.cancel();
-        }
-    }
 
     public ImageView getImageView() {
         return wrappedImageView;
+    }
+
+    public void hideOverlay() {
+        playerOverlayController.hideOverlay(artworkIdleOverlay);
+    }
+
+    public void darken() {
+        playerOverlayController.darken(artworkIdleOverlay);
     }
 
     private void configureBounds() {
@@ -169,13 +140,18 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
 
     public static class PlayerArtworkControllerFactory {
         private final ProgressAnimationControllerFactory animationControllerFactory;
+        private final Provider<PlayerOverlayController> overlayControllerProvider;
+        private final PlaySessionController playSessionController;
 
         @Inject
-        PlayerArtworkControllerFactory(ProgressAnimationControllerFactory animationControllerFactory) {
+        PlayerArtworkControllerFactory(ProgressAnimationControllerFactory animationControllerFactory, Provider<PlayerOverlayController> overlayControllerProvider, PlaySessionController playSessionController) {
             this.animationControllerFactory = animationControllerFactory;
+            this.overlayControllerProvider = overlayControllerProvider;
+            this.playSessionController = playSessionController;
         }
-        public PlayerArtworkController create(PlayerArtworkView artworkView){
-            return new PlayerArtworkController(artworkView, animationControllerFactory);
+
+        public PlayerArtworkController create(PlayerTrackArtworkView artworkView) {
+            return new PlayerArtworkController(artworkView, animationControllerFactory, overlayControllerProvider.get(), playSessionController);
         }
     }
 }

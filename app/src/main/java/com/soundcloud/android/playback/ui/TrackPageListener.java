@@ -8,7 +8,7 @@ import com.soundcloud.android.playback.PlaybackOperations;
 
 import javax.inject.Inject;
 
-class TrackPageListener implements TrackPagePresenter.Listener {
+class TrackPageListener {
 
     private final PlaybackOperations playbackOperations;
     private final PlaySessionController playSessionController;
@@ -23,27 +23,22 @@ class TrackPageListener implements TrackPagePresenter.Listener {
         this.eventBus = eventBus;
     }
 
-    @Override
     public void onTogglePlay() {
         playbackOperations.togglePlayback();
     }
 
-    @Override
     public void onNext() {
         playbackOperations.nextTrack();
     }
 
-    @Override
     public void onPrevious() {
         previousTrackOnInitialSecondsOfProgress();
     }
 
-    @Override
     public void onFooterTap() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
     }
 
-    @Override
     public void onPlayerClose() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
     }

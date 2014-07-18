@@ -153,8 +153,12 @@ public class ImageOperations {
                 new ImageListenerUILAdapter(imageListener));
     }
 
-    public void displayPlaceholder(Urn urn, ImageView imageView) {
-        imageView.setImageDrawable(getPlaceholderDrawable(urn, new ImageViewAware(imageView, false)));
+    public void displayInVisualPlayer(Uri uri, ImageView imageView, Drawable placeholderDrawable) {
+        final ImageViewAware imageAware = new ImageViewAware(imageView, false);
+        imageLoader.displayImage(
+                uri.toString(),
+                imageAware,
+                ImageOptionsFactory.placeholder(placeholderDrawable));
     }
 
     public void displayInPlayerView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, View parentView,

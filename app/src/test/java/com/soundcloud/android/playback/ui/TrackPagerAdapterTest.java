@@ -48,20 +48,23 @@ public class TrackPagerAdapterTest {
     @Mock private PlaySessionController playSessionController;
     @Mock private TrackOperations trackOperations;
     @Mock private TrackPagePresenter trackPagePresenter;
+    @Mock private AdPagePresenter adPagePresenter;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ViewGroup container;
 
     private TrackUrn trackUrn = Urn.forTrack(123L);
     private TestEventBus eventBus;
     private TrackPagerAdapter adapter;
+    private PropertySet track;
 
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        adapter = new TrackPagerAdapter(playQueueManager, playSessionController, trackOperations, trackPagePresenter, eventBus);
+        adapter = new TrackPagerAdapter(playQueueManager, playSessionController, trackOperations, trackPagePresenter, adPagePresenter, eventBus);
         final View mockedView1 = mock(View.class);
         final View mockedView2 = mock(View.class);
-        when(trackPagePresenter.createTrackPage(container)).thenReturn(mockedView1, mockedView2);
+        when(trackPagePresenter.createItemView(container)).thenReturn(mockedView1, mockedView2);
+        track = PropertySet.from(TrackProperty.URN.bind(TRACK_URN));
     }
 
     @Test
@@ -75,7 +78,7 @@ public class TrackPagerAdapterTest {
         View view = mock(View.class);
         when(trackOperations.track(TRACK_URN)).thenReturn(Observable.<PropertySet>empty());
         when(playQueueManager.getUrnAtPosition(0)).thenReturn(Urn.forTrack(123L));
-        when(trackPagePresenter.clearView(any(View.class), any(TrackUrn.class))).thenReturn(view);
+        when(trackPagePresenter.clearItemView(any(View.class))).thenReturn(view);
         expect(adapter.getView(0, view, container)).toBe(view);
     }
 
@@ -85,7 +88,7 @@ public class TrackPagerAdapterTest {
 
         getPageView();
 
-        verify(trackPagePresenter).createTrackPage(container);
+        verify(trackPagePresenter).createItemView(container);
     }
 
     @Test
@@ -172,7 +175,7 @@ public class TrackPagerAdapterTest {
     public void recyclingTrackViewDoesNotSetThePlayState() {
         final View view = getPageView();
         Mockito.reset(trackPagePresenter);
-        when(trackPagePresenter.clearView(view, Urn.forTrack(123L))).thenReturn(view);
+        when(trackPagePresenter.clearItemView(view)).thenReturn(view);
         View currentPageView = adapter.getView(3, view, container);
 
         verify(trackPagePresenter, never()).setPlayState(eq(currentPageView), any(StateTransition.class), eq(true));
@@ -187,7 +190,7 @@ public class TrackPagerAdapterTest {
 
         adapter.getView(2, view, container);
 
-        verify(trackPagePresenter).clearView(view, trackUrn);
+        verify(trackPagePresenter).clearItemView(view);
     }
 
     @Test
@@ -197,8 +200,41 @@ public class TrackPagerAdapterTest {
     }
 
     @Test
+    public void shouldCreateTrackViewForTracks() {
+        when(playQueueManager.isAudioAdAtPosition(3)).thenReturn(false);
+        getPageView();
+
+        verify(trackPagePresenter).createItemView(container);
+    }
+
+    @Test
+    public void shouldBindTrackViewForTracks() {
+        when(playQueueManager.isAudioAdAtPosition(3)).thenReturn(false);
+        final View pageView = getPageView();
+
+        verify(trackPagePresenter).bindItemView(pageView, track);
+    }
+
+    @Test
+    public void shouldCreateAdViewForAudioAds() {
+        when(playQueueManager.isAudioAdAtPosition(3)).thenReturn(true);
+        getPageView();
+
+        verify(adPagePresenter).createItemView(container);
+    }
+
+    @Test
+    public void shouldBindAdViewForAudioAds() {
+        when(playQueueManager.isAudioAdAtPosition(3)).thenReturn(true);
+        final View pageView = getPageView();
+
+        verify(adPagePresenter).bindItemView(pageView, track);
+    }
+
+    @Test
     public void resetAllScrubStateWhenTrackChange() {
         View currentPageView = getPageView();
+        when(trackPagePresenter.accept(currentPageView)).thenReturn(true);
 
         adapter.onTrackChange();
 
@@ -229,7 +265,7 @@ public class TrackPagerAdapterTest {
 
     private void setupGetCurrentViewPreconditions(int position, TrackUrn trackUrn) {
         when(playQueueManager.getUrnAtPosition(position)).thenReturn(trackUrn);
-        when(trackOperations.track(trackUrn)).thenReturn(Observable.just(PropertySet.from(TrackProperty.URN.bind(TRACK_URN))));
+        when(trackOperations.track(trackUrn)).thenReturn(Observable.just(track));
     }
 
     private void setCurrentTrackState(int position, TrackUrn trackUrn, boolean isCurrentTrack) {

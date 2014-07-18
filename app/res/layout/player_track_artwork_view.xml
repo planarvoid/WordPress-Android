@@ -5,7 +5,7 @@
        android:layout_height="match_parent">
     <com.soundcloud.android.view.AspectRatioImageView
             android:id="@+id/artwork_image_view"
-            style="@style/PlayerArtwork" />
+            style="@style/PlayerTrackArtwork" />
     <View android:id="@+id/artwork_overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
