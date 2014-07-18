@@ -69,7 +69,7 @@ public class AdPagePresenterTest {
 
     @Test
     public void togglePlayOnAdPageArtworkClick() {
-        adView.findViewById(R.id.artwork_image_view).performClick();
+        adView.findViewById(R.id.track_page_artwork).performClick();
 
         verify(trackPageListener).onTogglePlay();
     }
