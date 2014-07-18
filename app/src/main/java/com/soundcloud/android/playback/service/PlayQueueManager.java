@@ -58,7 +58,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     private FetchRecommendedState fetchState = FetchRecommendedState.IDLE;
 
     public enum FetchRecommendedState {
-        IDLE, LOADING, ERROR, EMPTY;
+        IDLE, LOADING, ERROR, EMPTY
     }
 
     @Inject
@@ -80,8 +80,12 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         Preconditions.checkState(Looper.getMainLooper().getThread() == Thread.currentThread(),
                 "Play queues must be set from the main thread only");
 
-        currentPosition = position;
-        setNewPlayQueueInternal(playQueue, playSessionSource);
+        if (this.playQueue.equals(playQueue) && this.playSessionSource.equals(playSessionSource)) {
+            setPosition(position);
+        } else {
+            currentPosition = position;
+            setNewPlayQueueInternal(playQueue, playSessionSource);
+        }
         saveCurrentProgress(0L);
     }
 

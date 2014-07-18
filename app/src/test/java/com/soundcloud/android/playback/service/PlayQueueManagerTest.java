@@ -99,6 +99,21 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void shouldUpdatePositionOnCurrentQueueWhenContentAndSourceAreUnchanged() {
+        PlaySessionSource source1 = new PlaySessionSource("screen:something");
+        PlayQueue queue1 = PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L, 5L), source1);
+        PlaySessionSource source2 = new PlaySessionSource("screen:something");
+        PlayQueue queue2 = PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L, 5L), source2);
+
+        playQueueManager.setNewPlayQueue(queue1, 0, source1);
+        playQueueManager.setNewPlayQueue(queue2, 2, source2);
+
+        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).toContainExactly(PlayQueueEvent.fromNewQueue());
+        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE_TRACK)).toContainExactly(CurrentPlayQueueTrackEvent.fromNewQueue(TrackUrn.forTrack(1L)),
+                CurrentPlayQueueTrackEvent.fromPositionChanged(TrackUrn.forTrack(3L)));
+    }
+
+    @Test
     public void getCurrentPositionReturnsCurrentPosition() {
         int newPosition = 5;
         when(playQueue.size()).thenReturn(6);

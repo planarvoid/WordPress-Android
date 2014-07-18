@@ -27,4 +27,9 @@ public class PlayQueueEvent {
         return kind == QUEUE_UPDATE;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof PlayQueueEvent
+                && ((PlayQueueEvent) o).getKind() == kind;
+    }
 }

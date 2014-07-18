@@ -22,6 +22,10 @@ public final class CurrentPlayQueueTrackEvent {
         return new CurrentPlayQueueTrackEvent(trackUrn, POSITION_CHANGED);
     }
 
+    public int getKind() {
+        return kind;
+    }
+
     public boolean wasPositionUpdate() {
         return kind == POSITION_CHANGED;
     }
@@ -32,5 +36,14 @@ public final class CurrentPlayQueueTrackEvent {
 
     public TrackUrn getCurrentTrackUrn() {
         return currentTrackUrn;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof CurrentPlayQueueTrackEvent) {
+            CurrentPlayQueueTrackEvent event = (CurrentPlayQueueTrackEvent) o;
+            return event.getKind() == kind && event.getCurrentTrackUrn().equals(currentTrackUrn);
+        }
+        return false;
     }
 }
