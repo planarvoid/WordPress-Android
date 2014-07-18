@@ -331,7 +331,6 @@
   <string name="title_about">Acerca de</string>
   <string name="title_legal">Aviso legal</string>
   <string name="title_now_playing">Reproduciendo</string>
-  <string name="shuffle">al azar</string>
   <string name="error_toast_user_not_logged_in">Inicia sesi?n para abrir este enlace</string>
   <string name="authentication_clear_image">Mant?n pulsado para borrar la imagen</string>   <string name="info_empty_you_secondary">Inicia sesi?n en SoundCloud en tu escritorio para modificar tu perfil</string>
   <string name="list_empty_user_followers_secondary">Comparte tus pistas y listas de reproducci?n favoritas para construir tu comunidad</string>
