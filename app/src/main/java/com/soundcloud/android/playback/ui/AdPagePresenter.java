@@ -56,6 +56,12 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
             case R.id.artwork_overlay:
                 listener.onTogglePlay();
                 break;
+            case R.id.player_close:
+                listener.onPlayerClose();
+                break;
+            case R.id.footer_controls:
+                listener.onFooterTap();
+                break;
             default:
                 throw new IllegalArgumentException("Unexpected view ID");
         }
@@ -127,17 +133,16 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         return (Holder) trackView.getTag();
     }
 
-    private void setupHolder(View trackView) {
+    private void setupHolder(View adView) {
         Holder holder = new Holder();
-        holder.artworkView = (ImageView) trackView.findViewById(R.id.track_page_artwork);
-        holder.artworkIdleOverlay = trackView.findViewById(R.id.artwork_overlay);
-        holder.playButton = trackView.findViewById(R.id.player_play);
-        holder.footerPlayToggle = (ToggleButton) trackView.findViewById(R.id.footer_toggle);
-        holder.close = trackView.findViewById(R.id.player_close);
+        holder.artworkView = (ImageView) adView.findViewById(R.id.track_page_artwork);
+        holder.artworkIdleOverlay = adView.findViewById(R.id.artwork_overlay);
+        holder.playButton = adView.findViewById(R.id.player_play);
+        holder.footerPlayToggle = (ToggleButton) adView.findViewById(R.id.footer_toggle);
+        holder.close = adView.findViewById(R.id.player_close);
+        holder.footer = adView.findViewById(R.id.footer_controls);
 
-        holder.footer = trackView.findViewById(R.id.footer_controls);
-
-        trackView.setTag(holder);
+        adView.setTag(holder);
     }
 
     static class Holder {
@@ -151,7 +156,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         private View footer;
 
         public View[] getOnClickViews() {
-            return new View[] { artworkView, artworkIdleOverlay, playButton, footerPlayToggle };
+            return new View[] { artworkView, artworkIdleOverlay, playButton, footerPlayToggle, close, footer };
         }
 
         public View[] getFullScreenViews() {
