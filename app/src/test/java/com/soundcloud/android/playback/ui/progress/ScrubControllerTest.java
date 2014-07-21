@@ -8,9 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 import org.junit.Before;
@@ -30,7 +28,6 @@ public class ScrubControllerTest {
 
     @Mock private ListenableHorizontalScrollView scrollView;
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private PlaySessionController playSessionController;
     @Mock private ProgressHelper progressHelper;
     @Mock private ScrubController.OnScrubListener scrubListener;
     @Mock private SeekHandlerFactory seekHandlerFactory;
@@ -47,7 +44,7 @@ public class ScrubControllerTest {
 
         when(seekHandlerFactory.create(any(ScrubController.class))).thenReturn(seekHandler);
 
-        scrubController = new ScrubController(scrollView, playbackOperations, playSessionController, seekHandlerFactory);
+        scrubController = new ScrubController(scrollView, playbackOperations, seekHandlerFactory);
         scrubController.setDuration(100);
         scrubController.setProgressHelper(progressHelper);
         scrubController.addScrubListener(scrubListener);

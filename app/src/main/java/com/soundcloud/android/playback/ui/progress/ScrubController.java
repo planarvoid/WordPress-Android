@@ -2,9 +2,7 @@ package com.soundcloud.android.playback.ui.progress;
 
 import static com.soundcloud.android.playback.ui.progress.SeekHandler.SeekHandlerFactory;
 
-import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 
 import android.graphics.Rect;
@@ -27,7 +25,6 @@ public class ScrubController {
 
     private final Handler seekHandler;
     private final PlaybackOperations playbackOperations;
-    private final PlaySessionController playSessionController;
     private final Set<OnScrubListener> listeners = new HashSet<OnScrubListener>();
     private final Rect scrubViewBounds = new Rect();
 
@@ -62,10 +59,9 @@ public class ScrubController {
     }
 
     ScrubController(ListenableHorizontalScrollView scrubView, PlaybackOperations playbackOperations,
-                    PlaySessionController playSessionController, SeekHandlerFactory seekHandlerFactory) {
+                    SeekHandlerFactory seekHandlerFactory) {
 
         this.playbackOperations = playbackOperations;
-        this.playSessionController = playSessionController;
         this.seekHandler = seekHandlerFactory.create(this);
 
         scrubView.setOnScrollListener(new ScrollListener());
@@ -139,19 +135,16 @@ public class ScrubController {
     public static class ScrubControllerFactory {
 
         private final PlaybackOperations playbackOperations;
-        private final PlaySessionController playSessionController;
         private final SeekHandlerFactory seekHandlerFactory;
 
         @Inject
-        public ScrubControllerFactory(PlaybackOperations playbackOperations, PlaySessionController playSessionController,
-                                      SeekHandlerFactory seekHandlerFactory) {
+        public ScrubControllerFactory(PlaybackOperations playbackOperations, SeekHandlerFactory seekHandlerFactory) {
             this.playbackOperations = playbackOperations;
-            this.playSessionController = playSessionController;
             this.seekHandlerFactory = seekHandlerFactory;
         }
 
         public ScrubController create(ListenableHorizontalScrollView scrubView) {
-            return new ScrubController(scrubView, playbackOperations, playSessionController, seekHandlerFactory);
+            return new ScrubController(scrubView, playbackOperations, seekHandlerFactory);
         }
 
     }

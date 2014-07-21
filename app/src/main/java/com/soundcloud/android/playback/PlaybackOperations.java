@@ -205,6 +205,7 @@ public class PlaybackOperations {
     }
 
     public void seek(long position) {
+
         Intent intent = new Intent(PlaybackService.Actions.SEEK);
         intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, position);
         context.startService(intent);
