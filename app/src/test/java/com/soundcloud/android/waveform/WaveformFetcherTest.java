@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,7 +61,16 @@ public class WaveformFetcherTest {
 
         fetcher.fetch(WAVEFORM_URL).subscribe(observer);
         verify(observer).onError(any(IOException.class));
-        verify(observer, Mockito.never()).onNext(any(WaveformData.class));
+        verify(observer, never()).onNext(any(WaveformData.class));
+    }
+
+    @Test
+    public void validResponseDoesNotEmitIOException() throws Exception {
+        setupValidWaveformResponse();
+
+        fetcher.fetch(WAVEFORM_URL).subscribe(observer);
+        verify(observer).onNext(any(WaveformData.class));
+        verify(observer, never()).onError(any(IOException.class));
     }
 
     @Test

@@ -48,12 +48,11 @@ class WaveformFetcher extends ScheduledOperations {
                     final String waveformApiUrl = transformWaveformUrl(waveformUrl);
                     final HttpURLConnection connection = waveformConnectionFactory.create(waveformApiUrl);
                     final int code = connection.getResponseCode();
-                    switch (code) {
-                        case HttpURLConnection.HTTP_OK:
-                            subscriber.onNext(parseWaveformData(connection.getInputStream()));
-                            subscriber.onCompleted();
-                        default:
-                            subscriber.onError(new IOException("invalid status code received: " + code));
+                    if (code == HttpURLConnection.HTTP_OK) {
+                        subscriber.onNext(parseWaveformData(connection.getInputStream()));
+                        subscriber.onCompleted();
+                    } else {
+                        subscriber.onError(new IOException("invalid status code received: " + code));
                     }
                 } catch (Exception e) {
                     subscriber.onError(e);
@@ -79,7 +78,6 @@ class WaveformFetcher extends ScheduledOperations {
     private static String transformWaveformUrl(String waveformUrl){
         return String.format(WAVEFORM_URL_PREFIX, Uri.parse(waveformUrl).getLastPathSegment());
     }
-
 
     private static WaveformData parseWaveformData(InputStream data) throws JSONException, IOException {
         final JSONObject obj = new JSONObject(IOUtils.readInputStream(data));
