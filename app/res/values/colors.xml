@@ -50,6 +50,9 @@
     <color name="timestamp_primary">@color/white</color>
     <color name="timestamp_secondary">#c5c5c5</color>
 
+    <!-- Player Ads -->
+    <color name="preview_artwork_overlay">#4c000000</color>
+
     <!-- Creators -->
     <color name="record_upload_border">#525252</color>
 

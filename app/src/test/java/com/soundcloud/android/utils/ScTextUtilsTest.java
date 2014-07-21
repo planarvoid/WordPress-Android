@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -13,6 +14,12 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(DefaultTestRunner.class)
 public class ScTextUtilsTest {
+    private Resources resources;
+
+    @Before
+    public void setUp() throws Exception {
+        resources = Robolectric.application.getResources();
+    }
 
     @Test
     public void testHexString() throws Exception {
@@ -198,18 +205,16 @@ public class ScTextUtilsTest {
 
     @Test
     public void shouldFormatFollowingMessage() {
-        Resources r = Robolectric.application.getResources();
-        expect(ScTextUtils.formatFollowingMessage(r, 0)).toEqual("Followed by you");
-        expect(ScTextUtils.formatFollowingMessage(r, 1)).toEqual("Followed by you and 1 other person");
-        expect(ScTextUtils.formatFollowingMessage(r, 100001)).toEqual("Followed by you and 100,001 other people");
+        expect(ScTextUtils.formatFollowingMessage(resources, 0)).toEqual("Followed by you");
+        expect(ScTextUtils.formatFollowingMessage(resources, 1)).toEqual("Followed by you and 1 other person");
+        expect(ScTextUtils.formatFollowingMessage(resources, 100001)).toEqual("Followed by you and 100,001 other people");
     }
 
     @Test
     public void shouldFormatFollowersMessage() {
-        Resources r = Robolectric.application.getResources();
-        expect(ScTextUtils.formatFollowersMessage(r, 0)).toEqual("Followed by 0 people");
-        expect(ScTextUtils.formatFollowersMessage(r, 1)).toEqual("Followed by 1 person");
-        expect(ScTextUtils.formatFollowersMessage(r, 100001)).toEqual("Followed by 100,001 people");
+        expect(ScTextUtils.formatFollowersMessage(resources, 0)).toEqual("Followed by 0 people");
+        expect(ScTextUtils.formatFollowersMessage(resources, 1)).toEqual("Followed by 1 person");
+        expect(ScTextUtils.formatFollowersMessage(resources, 100001)).toEqual("Followed by 100,001 people");
     }
 
     @Test
@@ -220,6 +225,19 @@ public class ScTextUtilsTest {
         expect(ScTextUtils.shortenLargeNumber(2000)).toEqual("2k+");
         expect(ScTextUtils.shortenLargeNumber(9999)).toEqual("9k+");
         expect(ScTextUtils.shortenLargeNumber(10000)).toEqual("9k+"); // 4 chars would make the text spill over again
+    }
+
+    @Test
+    public void shouldFormatSeconds() {
+        expect(ScTextUtils.formatSecondsOrMinutes(resources, 30, TimeUnit.SECONDS)).toEqual("30 sec.");
+        expect(ScTextUtils.formatSecondsOrMinutes(resources, 30, TimeUnit.MILLISECONDS)).toEqual("0 sec.");
+    }
+
+    @Test
+    public void shouldFormatMinutes() {
+        expect(ScTextUtils.formatSecondsOrMinutes(resources, 60, TimeUnit.SECONDS)).toEqual("1 min.");
+        expect(ScTextUtils.formatSecondsOrMinutes(resources, 72, TimeUnit.SECONDS)).toEqual("1 min.");
+        expect(ScTextUtils.formatSecondsOrMinutes(resources, 1, TimeUnit.HOURS)).toEqual("60 min.");
     }
 
     private void expectEmailValid(String string){

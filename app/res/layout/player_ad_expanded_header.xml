@@ -14,17 +14,18 @@
 
     <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/advertisement"
-            style="@style/AdText"
+            style="@style/AdText.Advertisement"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="@string/advertisement"/>
+            android:text="@string/advertisement" />
 
     <TextView android:id="@+id/why_ads"
               style="@style/AdButton.WhyAds"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:layout_alignParentRight="true"
-              android:layout_alignBaseline="@id/advertisement" />
+              android:layout_alignBaseline="@id/advertisement"
+              android:text="@string/why_ads" />
 
 </RelativeLayout>

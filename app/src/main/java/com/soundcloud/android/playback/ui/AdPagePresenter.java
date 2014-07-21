@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.res.Resources;
@@ -15,8 +16,11 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
+import java.util.concurrent.TimeUnit;
 
 public class AdPagePresenter implements PagePresenter, View.OnClickListener {
+    private final static int SKIP_DURATION_SEC = 15;
+
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final PlayerOverlayController artworkController;
@@ -45,13 +49,15 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
 
     @Override
     public void bindItemView(View view, PropertySet propertySet) {
-        bindItemView(view, new PlayerAd(propertySet));
+        bindItemView(view, new PlayerAd(propertySet, resources));
     }
 
     private void bindItemView(View view, PlayerAd playerAd) {
         final Holder holder = getViewHolder(view);
         holder.footerAdvertisement.setText(resources.getString(R.string.advertisement));
         holder.footerAdvertiser.setText(playerAd.getAdvertiser());
+        holder.previewTitle.setText(playerAd.getPreviewTitle());
+
         imageOperations.displayInVisualPlayer(playerAd.getArtwork(), holder.artworkView,
                 resources.getDrawable(R.drawable.placeholder));
         setClickListener(holder.getOnClickViews(), this);
@@ -79,7 +85,9 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
 
     @Override
     public void setProgress(View trackView, PlaybackProgress progress) {
-        // no-op
+        int secondsUntilSkip = SKIP_DURATION_SEC - ((int) TimeUnit.MILLISECONDS.toSeconds(progress.getPosition()));
+        String formattedTime = ScTextUtils.formatSecondsOrMinutes(resources, secondsUntilSkip, TimeUnit.SECONDS);
+        getViewHolder(trackView).timeUntilSkip.setText(formattedTime);
     }
 
     @Override
@@ -143,6 +151,8 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         holder.playButton = adView.findViewById(R.id.player_play);
         holder.footerPlayToggle = (ToggleButton) adView.findViewById(R.id.footer_toggle);
         holder.close = adView.findViewById(R.id.player_close);
+        holder.previewTitle = (TextView) adView.findViewById(R.id.preview_title);
+        holder.timeUntilSkip = (TextView) adView.findViewById(R.id.time_until_skip);
 
         holder.footer = adView.findViewById(R.id.footer_controls);
         holder.footerAdvertiser = (TextView) adView.findViewById(R.id.footer_title);
@@ -158,6 +168,8 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         private View playButton;
         private ToggleButton footerPlayToggle;
         private View close;
+        private TextView previewTitle;
+        private TextView timeUntilSkip;
         // Footer player
         private View footer;
         private TextView footerAdvertiser;

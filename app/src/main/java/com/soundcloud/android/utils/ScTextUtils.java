@@ -187,6 +187,14 @@ public class ScTextUtils {
             return (int) (elapsedSeconds1 / 31536000) == (int) (elapsedSeconds2 / 31536000);
     }
 
+    public static String formatSecondsOrMinutes(Resources resources, long time, TimeUnit unit) {
+        int seconds = (int) unit.toSeconds(time);
+        if (seconds < 60) {
+            return String.format(resources.getString(R.string.format_abbreviated_seconds), seconds);
+        }
+        return String.format(resources.getString(R.string.format_abbreviated_minutes), unit.toMinutes(time));
+    }
+
     public static String formatTimeElapsed(Resources r, double elapsedSeconds, boolean longerText) {
         if (elapsedSeconds < 60)
             return r.getQuantityString(longerText ? R.plurals.elapsed_seconds_ago : R.plurals.elapsed_seconds, (int) elapsedSeconds, (int) elapsedSeconds);
