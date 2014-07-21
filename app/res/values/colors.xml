@@ -124,9 +124,10 @@
     <color name="placeholder_image_beige">#8e8485</color>
 
     <!-- Misc -->
-    <color name="gray_text">#cccccc</color>
     <color name="dark_bg">#252525</color>
     <color name="txt_description_color">#666666</color>
+    <color name="light_gray_text">#cccccc</color>
+    <color name="gray_text">#999999</color>
     <color name="dark_gray_text">#333333</color>
     <color name="dark_gray_background">#333333</color>
     <color name="tab_bar_divider">#dddddd</color>

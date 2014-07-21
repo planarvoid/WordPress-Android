@@ -17,11 +17,20 @@
             android:background="@drawable/player_gradient_bottom"/>
 
     <include layout="@layout/player_footer_controls"/>
-    <include layout="@layout/player_expanded_close_control"/>
+    <include layout="@layout/player_ad_expanded_header"/>
 
     <Button
             android:id="@+id/player_play"
             android:layout_centerInParent="true"
             style="@style/PlayerToggle"/>
+
+    <Button
+            android:id="@+id/learn_more"
+            style="@style/AdButton.LearnMore"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="96dp" />
 
 </RelativeLayout>
