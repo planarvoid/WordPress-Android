@@ -9,6 +9,7 @@ import static org.hamcrest.core.IsNot.not;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TestUser;
 import com.soundcloud.android.tests.helpers.NavigationHelper;
@@ -151,7 +152,9 @@ public class Player extends ActivityTestCase<MainActivity> {
     }
 
     private void playSingleTrack(){
-        menuScreen.open().clickLikes().clickItem(3);
+        final ExploreScreen exploreScreen = menuScreen.open().clickExplore();
+        exploreScreen.touchTrendingAudioTab();
+        exploreScreen.playFirstTrack();
         playerElement = new VisualPlayerElement(solo);
     }
 }
