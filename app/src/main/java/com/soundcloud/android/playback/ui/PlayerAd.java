@@ -19,7 +19,7 @@ public class PlayerAd {
     }
 
     public String getAdvertiser() {
-        return source.get(PlayableProperty.TITLE);
+        return source.get(PlayableProperty.CREATOR_NAME);
     }
 
     Uri getClickThroughLink() {

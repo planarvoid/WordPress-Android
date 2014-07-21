@@ -89,7 +89,7 @@ public class AdPagePresenterTest {
 
     private PropertySet buildAd() {
         return PropertySet.from(
-                PlayableProperty.TITLE.bind("Advertiser"),
+                PlayableProperty.CREATOR_NAME.bind("Advertiser"),
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 AdProperty.ARTWORK.bind(Uri.EMPTY),
                 AdProperty.CLICK_THROUGH_LINK.bind(Uri.EMPTY)
