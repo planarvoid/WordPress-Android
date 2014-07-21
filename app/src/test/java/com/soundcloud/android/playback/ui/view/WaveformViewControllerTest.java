@@ -5,6 +5,7 @@ import static com.soundcloud.android.playback.ui.progress.ProgressController.Pro
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.ScrubControllerFactory;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
@@ -43,7 +44,8 @@ import android.widget.ImageView;
 @RunWith(SoundCloudTestRunner.class)
 public class WaveformViewControllerTest {
 
-    private  static final float WAVEFORM_WIDTH_RATIO = 2.0f;
+    private static final float WAVEFORM_WIDTH_RATIO = 2.0f;
+    private final PlaybackProgress playbackProgress = new PlaybackProgress(10, 100);
 
     private WaveformViewController waveformViewController;
 
@@ -59,7 +61,6 @@ public class WaveformViewControllerTest {
     @Mock private ProgressController leftAnimationController;
     @Mock private ProgressController rightAnimationController;
     @Mock private ProgressController dragAnimationController;
-    @Mock private PlaybackProgress playbackProgress;
     @Mock private WaveformResult waveformResult;
     @Mock private WaveformData waveformData;
     @Mock private Bitmap bitmap;
@@ -188,6 +189,18 @@ public class WaveformViewControllerTest {
         verify(leftAnimationController).setPlaybackProgress(playbackProgress);
         verify(rightAnimationController).setPlaybackProgress(playbackProgress);
         verify(dragAnimationController).setPlaybackProgress(playbackProgress);
+    }
+
+    @Test
+    public void setProgressSetsDurationOnScrubController() {
+        waveformViewController.setProgress(playbackProgress);
+        verify(scrubController).setDuration(playbackProgress.getDuration());
+    }
+
+    @Test
+    public void setProgressDoesNotSetDurationOnScrubControllerIfProgressEmpty() {
+        waveformViewController.setProgress(PlaybackProgress.empty());
+        verify(scrubController, never()).setDuration(anyLong());
     }
 
     @Test

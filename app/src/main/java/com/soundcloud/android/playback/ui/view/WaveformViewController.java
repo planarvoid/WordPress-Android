@@ -86,6 +86,9 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     public void setProgress(PlaybackProgress progress) {
         latestProgress = progress;
+        if (!progress.isEmpty()) {
+            scrubController.setDuration(progress.getDuration());
+        }
         if (!suppressProgress) {
             leftProgressController.setPlaybackProgress(progress);
             rightProgressController.setPlaybackProgress(progress);
@@ -158,6 +161,10 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     public void setWaveformVisibility(boolean visible) {
         waveformView.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    public void setDuration(long duration) {
+        scrubController.setDuration(duration);
     }
 
     private void startProgressAnimations(PlaybackProgress progress) {

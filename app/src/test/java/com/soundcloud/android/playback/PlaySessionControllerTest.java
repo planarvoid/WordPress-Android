@@ -148,17 +148,6 @@ public class PlaySessionControllerTest {
     }
 
     @Test
-    public void returnsLastProgressEventForCurrentUrnFromEventQueue() throws Exception {
-        TrackUrn trackUrn = Urn.forTrack(123L);
-        final Playa.StateTransition event = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, trackUrn);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, event);
-
-        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(new PlaybackProgress(1L, 2L), trackUrn);
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
-        expect(controller.getCurrentProgress()).toBe(playbackProgressEvent.getPlaybackProgress());
-    }
-
-    @Test
     public void returnsLastProgressEventByUrnFromEventQueue() throws Exception {
         
         final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(new PlaybackProgress(1L, 2L), TRACK_URN);

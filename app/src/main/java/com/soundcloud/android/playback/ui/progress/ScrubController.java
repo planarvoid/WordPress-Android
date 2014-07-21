@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.ui.progress.SeekHandler.SeekHandle
 
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 
 import android.graphics.Rect;
@@ -34,6 +35,7 @@ public class ScrubController {
     private Float pendingSeek;
     private int scrubState;
     private boolean dragging;
+    private long duration;
 
     public boolean isDragging() {
         return dragging;
@@ -43,13 +45,17 @@ public class ScrubController {
         pendingSeek = seekPos;
     }
 
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
     public interface OnScrubListener {
         void scrubStateChanged(int newScrubState);
         void displayScrubPosition(float scrubPosition);
     }
 
     void finishSeek(Float seekPercentage) {
-        final long position = (long) (seekPercentage * playSessionController.getCurrentProgress().getDuration());
+        final long position = (long) (seekPercentage * duration);
         playbackOperations.seek(position);
         setScrubState(SCRUB_STATE_NONE);
         pendingSeek = null;

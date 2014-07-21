@@ -39,6 +39,8 @@ import android.view.ViewGroup;
 @RunWith(SoundCloudTestRunner.class)
 public class TrackPagePresenterTest {
 
+    private static final int DURATION = 123456;
+
     @Mock
     private Resources resources;
     @Mock
@@ -71,6 +73,12 @@ public class TrackPagePresenterTest {
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         trackView = presenter.createItemView(container);
+    }
+
+    @Test
+    public void bindItemViewSetsDurationOnWaveformController() throws CreateModelException {
+        populateTrackPage();
+        verify(waveformViewController).setDuration(DURATION);
     }
 
     @Test
@@ -304,7 +312,7 @@ public class TrackPagePresenterTest {
                 TrackProperty.WAVEFORM_URL.bind("http://waveform.url"),
                 PlayableProperty.TITLE.bind("someone's favorite song"),
                 PlayableProperty.CREATOR_NAME.bind("someone's favorite band"),
-                PlayableProperty.DURATION.bind(123456)
+                PlayableProperty.DURATION.bind(DURATION)
         );
     }
 }

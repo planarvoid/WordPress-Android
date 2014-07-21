@@ -81,17 +81,13 @@ public class PlaySessionController {
         return lastStateTransition.playSessionIsActive();
     }
 
-    public PlaybackProgress getCurrentProgress() {
-        return getCurrentProgress(currentPlayingUrn);
-    }
-
     public PlaybackProgress getCurrentProgress(TrackUrn trackUrn) {
         final PlaybackProgress playbackProgress = progressMap.get(trackUrn);
         return playbackProgress == null ? PlaybackProgress.empty() : playbackProgress;
     }
 
     public boolean isProgressWithinTrackChangeThreshold() {
-        return getCurrentProgress().getPosition() < PROGRESS_THRESHOLD_FOR_TRACK_CHANGE;
+        return getCurrentProgress(currentPlayingUrn).getPosition() < PROGRESS_THRESHOLD_FOR_TRACK_CHANGE;
     }
 
     private class PlayStateSubscriber extends DefaultSubscriber<StateTransition> {

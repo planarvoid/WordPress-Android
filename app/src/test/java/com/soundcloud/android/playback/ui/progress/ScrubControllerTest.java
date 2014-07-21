@@ -46,9 +46,9 @@ public class ScrubControllerTest {
         ArgumentCaptor<View.OnTouchListener> touchListenerArgumentCaptor = ArgumentCaptor.forClass(View.OnTouchListener.class);
 
         when(seekHandlerFactory.create(any(ScrubController.class))).thenReturn(seekHandler);
-        when(playSessionController.getCurrentProgress()).thenReturn(new PlaybackProgress(10, 100));
 
         scrubController = new ScrubController(scrollView, playbackOperations, playSessionController, seekHandlerFactory);
+        scrubController.setDuration(100);
         scrubController.setProgressHelper(progressHelper);
         scrubController.addScrubListener(scrubListener);
 
