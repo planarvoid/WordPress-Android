@@ -18,6 +18,10 @@ public class PlaybackProgress {
         this.createdAt = SystemClock.uptimeMillis();
     }
 
+    public boolean isEmpty() {
+        return position == 0 && duration == 0;
+    }
+
     public long getDuration() {
         return duration;
     }

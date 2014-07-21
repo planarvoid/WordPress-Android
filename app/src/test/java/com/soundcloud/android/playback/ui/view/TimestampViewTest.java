@@ -68,6 +68,15 @@ public class TimestampViewTest {
     }
 
     @Test
+    public void doesNotUpdateDurationIfProgressEventIsEmpty() {
+        timestampView.setInitialProgress(MINUTES_10);
+
+        timestampView.setProgress(PlaybackProgress.empty());
+
+        expect(durationView).toHaveText("10:00");
+    }
+
+    @Test
     public void updatesTimestampBasedOnScrubPosition() {
         timestampView.setInitialProgress(MINUTES_10);
 
