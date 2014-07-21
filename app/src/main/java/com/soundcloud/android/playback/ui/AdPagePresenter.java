@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
@@ -47,6 +48,15 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         bindItemView(view, new PlayerAd(propertySet));
     }
 
+    private void bindItemView(View view, PlayerAd playerAd) {
+        final Holder holder = getViewHolder(view);
+        holder.footerAdvertisement.setText(resources.getString(R.string.advertisement));
+        holder.footerAdvertiser.setText(playerAd.getAdvertiser());
+        imageOperations.displayInVisualPlayer(playerAd.getArtwork(), holder.artworkView,
+                resources.getDrawable(R.drawable.placeholder));
+        setClickListener(holder.getOnClickViews(), this);
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -65,13 +75,6 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
             default:
                 throw new IllegalArgumentException("Unexpected view ID");
         }
-    }
-
-    private void bindItemView(View view, PlayerAd playerAd) {
-        final Holder holder = getViewHolder(view);
-        imageOperations.displayInVisualPlayer(playerAd.getArtwork(), holder.artworkView,
-                resources.getDrawable(R.drawable.placeholder));
-        setClickListener(holder.getOnClickViews(), this);
     }
 
     @Override
@@ -140,7 +143,10 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         holder.playButton = adView.findViewById(R.id.player_play);
         holder.footerPlayToggle = (ToggleButton) adView.findViewById(R.id.footer_toggle);
         holder.close = adView.findViewById(R.id.player_close);
+
         holder.footer = adView.findViewById(R.id.footer_controls);
+        holder.footerAdvertiser = (TextView) adView.findViewById(R.id.footer_title);
+        holder.footerAdvertisement = (TextView) adView.findViewById(R.id.footer_user);
 
         adView.setTag(holder);
     }
@@ -154,6 +160,8 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         private View close;
         // Footer player
         private View footer;
+        private TextView footerAdvertiser;
+        private TextView footerAdvertisement;
 
         public View[] getOnClickViews() {
             return new View[] { artworkView, artworkIdleOverlay, playButton, footerPlayToggle, close, footer };
