@@ -38,7 +38,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
     @Override
     public View createItemView(ViewGroup container) {
         final View adView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_ad_page, container, false);
-        setupHolder(adView);
+        adView.setTag(new Holder(adView));
         return adView;
     }
 
@@ -144,36 +144,33 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         return (Holder) trackView.getTag();
     }
 
-    private void setupHolder(View adView) {
-        Holder holder = new Holder();
-        holder.artworkView = (ImageView) adView.findViewById(R.id.track_page_artwork);
-        holder.artworkIdleOverlay = adView.findViewById(R.id.artwork_overlay);
-        holder.playButton = adView.findViewById(R.id.player_play);
-        holder.footerPlayToggle = (ToggleButton) adView.findViewById(R.id.footer_toggle);
-        holder.close = adView.findViewById(R.id.player_close);
-        holder.previewTitle = (TextView) adView.findViewById(R.id.preview_title);
-        holder.timeUntilSkip = (TextView) adView.findViewById(R.id.time_until_skip);
-
-        holder.footer = adView.findViewById(R.id.footer_controls);
-        holder.footerAdvertiser = (TextView) adView.findViewById(R.id.footer_title);
-        holder.footerAdvertisement = (TextView) adView.findViewById(R.id.footer_user);
-
-        adView.setTag(holder);
-    }
-
     static class Holder {
         // Expanded player
-        private ImageView artworkView;
-        private View artworkIdleOverlay;
-        private View playButton;
-        private ToggleButton footerPlayToggle;
-        private View close;
-        private TextView previewTitle;
-        private TextView timeUntilSkip;
+        private final ImageView artworkView;
+        private final View artworkIdleOverlay;
+        private final View playButton;
+        private final ToggleButton footerPlayToggle;
+        private final View close;
+        private final TextView previewTitle;
+        private final TextView timeUntilSkip;
         // Footer player
-        private View footer;
-        private TextView footerAdvertiser;
-        private TextView footerAdvertisement;
+        private final View footer;
+        private final TextView footerAdvertiser;
+        private final TextView footerAdvertisement;
+
+        Holder(View adView) {
+            artworkView = (ImageView) adView.findViewById(R.id.track_page_artwork);
+            artworkIdleOverlay = adView.findViewById(R.id.artwork_overlay);
+            playButton = adView.findViewById(R.id.player_play);
+            footerPlayToggle = (ToggleButton) adView.findViewById(R.id.footer_toggle);
+            close = adView.findViewById(R.id.player_close);
+            previewTitle = (TextView) adView.findViewById(R.id.preview_title);
+            timeUntilSkip = (TextView) adView.findViewById(R.id.time_until_skip);
+
+            footer = adView.findViewById(R.id.footer_controls);
+            footerAdvertiser = (TextView) adView.findViewById(R.id.footer_title);
+            footerAdvertisement = (TextView) adView.findViewById(R.id.footer_user);
+        }
 
         public View[] getOnClickViews() {
             return new View[] { artworkView, artworkIdleOverlay, playButton, footerPlayToggle, close, footer };
