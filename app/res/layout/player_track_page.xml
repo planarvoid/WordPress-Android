@@ -9,17 +9,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-    <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/player_gradient_height"
-            android:background="@drawable/player_gradient_top"/>
-
-    <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/player_gradient_height"
-            android:layout_alignParentBottom="true"
-            android:background="@drawable/player_gradient_bottom"/>
-
+    <include layout="@layout/player_gradient"/>
     <include layout="@layout/player_footer_controls"/>
 
     <com.soundcloud.android.view.JaggedTextView

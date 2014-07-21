@@ -5,17 +5,7 @@
                 android:layout_height="match_parent">
 
     <include layout="@layout/player_ad_artwork_view"/>
-    <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/player_gradient_height"
-            android:background="@drawable/player_gradient_top"/>
-
-    <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/player_gradient_height"
-            android:layout_alignParentBottom="true"
-            android:background="@drawable/player_gradient_bottom"/>
-
+    <include layout="@layout/player_gradient"/>
     <include layout="@layout/player_footer_controls"/>
     <include layout="@layout/player_ad_expanded_header"/>
 
