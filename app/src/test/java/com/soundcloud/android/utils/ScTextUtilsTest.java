@@ -72,14 +72,14 @@ public class ScTextUtilsTest {
 
     @Test
     public void shouldGetElapsedTime() throws Exception {
-        expect(ScTextUtils.getTimeElapsed(
+        expect(ScTextUtils.formatTimeElapsed(
                 Robolectric.application.getResources(),
                 System.currentTimeMillis() - 1000 * 60)).toEqual("1 minute");
     }
 
     private void expectTime(double seconds, String text) {
-        expect(ScTextUtils.getTimeString(Robolectric.application.getResources(), seconds, false)).toEqual(text);
-        expect(ScTextUtils.getTimeString(Robolectric.application.getResources(), seconds, true)).toEqual(text + " ago");
+        expect(ScTextUtils.formatTimeElapsed(Robolectric.application.getResources(), seconds, false)).toEqual(text);
+        expect(ScTextUtils.formatTimeElapsed(Robolectric.application.getResources(), seconds, true)).toEqual(text + " ago");
     }
 
     @Test

@@ -169,7 +169,7 @@ public class ScTextUtils {
 
     public static CharSequence getElapsedTimeString(Resources r, long start, boolean longerText) {
         double elapsed = Double.valueOf(Math.ceil((System.currentTimeMillis() - start) / 1000d)).longValue();
-        return getTimeString(r, elapsed, longerText);
+        return formatTimeElapsed(r, elapsed, longerText);
     }
 
     public static boolean usesSameTimeElapsedString(double elapsedSeconds1, double elapsedSeconds2) {
@@ -187,7 +187,7 @@ public class ScTextUtils {
             return (int) (elapsedSeconds1 / 31536000) == (int) (elapsedSeconds2 / 31536000);
     }
 
-    public static String getTimeString(Resources r, double elapsedSeconds, boolean longerText) {
+    public static String formatTimeElapsed(Resources r, double elapsedSeconds, boolean longerText) {
         if (elapsedSeconds < 60)
             return r.getQuantityString(longerText ? R.plurals.elapsed_seconds_ago : R.plurals.elapsed_seconds, (int) elapsedSeconds, (int) elapsedSeconds);
         else if (elapsedSeconds < 3600)
@@ -202,12 +202,12 @@ public class ScTextUtils {
             return r.getQuantityString(longerText ? R.plurals.elapsed_years_ago : R.plurals.elapsed_years, (int) (elapsedSeconds / 31536000), (int) (elapsedSeconds / 31536000));
     }
 
-    public static String getTimeElapsed(Resources r, long timestamp) {
-        return getTimeElapsed(r, timestamp, false);
+    public static String formatTimeElapsed(Resources r, long elapsedSeconds) {
+        return formatTimeElapsedSince(r, elapsedSeconds, false);
     }
 
-    public static String getTimeElapsed(Resources r, long timestamp, boolean longerText) {
-        return getTimeString(r, Math.max(0, (System.currentTimeMillis() - timestamp)/1000), longerText);
+    public static String formatTimeElapsedSince(Resources r, long timestamp, boolean longerText) {
+        return formatTimeElapsed(r, Math.max(0, (System.currentTimeMillis() - timestamp) / 1000), longerText);
     }
 
     public static boolean isEmail(CharSequence string) {

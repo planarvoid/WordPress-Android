@@ -128,7 +128,7 @@ public class SoundAssociation extends Association implements PlayableHolder {
     @Override
     public CharSequence getTimeSinceCreated(Context context) {
         if (mElapsedTime == null) {
-            mElapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
+            mElapsedTime = ScTextUtils.formatTimeElapsed(context.getResources(), created_at.getTime());
         }
         return mElapsedTime;
     }

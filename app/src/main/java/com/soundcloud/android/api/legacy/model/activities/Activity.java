@@ -121,7 +121,7 @@ public abstract class Activity extends ScModel implements Parcelable,
     }
 
     public void refreshTimeSinceCreated(Context context) {
-        _elapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), createdAt.getTime());
+        _elapsedTime = ScTextUtils.formatTimeElapsed(context.getResources(), createdAt.getTime());
     }
 
     public String getDateString() {

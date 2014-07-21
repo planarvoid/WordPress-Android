@@ -87,7 +87,7 @@ public class ActivityItemPresenter implements CellPresenter<PropertySet> {
     private void setTimeElapsed(View itemView, PropertySet propertySet) {
         final Date date = propertySet.get(ActivityProperty.DATE);
         final long elapsedSeconds = (System.currentTimeMillis() - date.getTime()) / 1000;
-        final String formattedTime = ScTextUtils.getTimeString(resources, elapsedSeconds, true);
+        final String formattedTime = ScTextUtils.formatTimeElapsed(resources, elapsedSeconds, true);
         ((TextView) itemView.findViewById(R.id.date)).setText(formattedTime);
     }
 }

@@ -36,7 +36,7 @@ public class PendingRecordingItemPresenter implements CellPresenter<Recording> {
         getTextView(itemView, R.id.list_item_header).setText(recording.getStatusMessage(resources));
         getTextView(itemView, R.id.list_item_subheader).setText(recording.getTitle(resources));
         getTextView(itemView, R.id.list_item_right_info).setText(recording.formattedDuration());
-        getTextView(itemView, R.id.time_since_recorded).setText(ScTextUtils.getTimeElapsed(resources, recording.lastModified(), true));
+        getTextView(itemView, R.id.time_since_recorded).setText(ScTextUtils.formatTimeElapsedSince(resources, recording.lastModified(), true));
         ((ImageView) itemView.findViewById(R.id.image)).setImageResource(R.drawable.placeholder_local_recordings);
 
         showRelevantAdditionalInformation(itemView, recording);

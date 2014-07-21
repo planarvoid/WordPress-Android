@@ -188,7 +188,7 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
 
     public void refreshTimeSinceCreated(Context context) {
         if (created_at != null) {
-            mElapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
+            mElapsedTime = ScTextUtils.formatTimeElapsed(context.getResources(), created_at.getTime());
         }
     }
 

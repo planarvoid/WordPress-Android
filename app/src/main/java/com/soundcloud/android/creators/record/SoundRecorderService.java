@@ -233,7 +233,7 @@ public class SoundRecorderService extends Service  {
     /* package */ void updateRecordTicker(Notification notification, long recordTime) {
         notification.setLatestEventInfo(this,
                 getString(R.string.cloud_recorder_event_title),
-                getString(R.string.cloud_recorder_event_message, ScTextUtils.getTimeString(getResources(),recordTime, false)),
+                getString(R.string.cloud_recorder_event_message, ScTextUtils.formatTimeElapsed(getResources(), recordTime, false)),
                 recordPendingIntent);
         notificationManager.notify(RECORD_NOTIFY_ID, notification);
     }

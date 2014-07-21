@@ -113,10 +113,10 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
         spanBuilder = createSpan();
 
         setImageSpan();
-        createdAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));
+        createdAt.setText(ScTextUtils.formatTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));
 
         user.setText(getOriginUser().username);
-        createdAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));
+        createdAt.setText(ScTextUtils.formatTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));
 
     }
 
