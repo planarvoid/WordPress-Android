@@ -100,8 +100,12 @@ public class PlaySessionController {
 
             if (!StateTransition.DEFAULT.equals(stateTransition)) {
 
-                final boolean saveQueueAfterTrackChange = currentPlayingUrn != null &&
+                final boolean isTrackChange = currentPlayingUrn != null &&
                         !stateTransition.isForTrack(currentPlayingUrn);
+
+                if (isTrackChange && stateTransition.playSessionIsActive()) {
+                    progressMap.clear();
+                }
 
                 lastStateTransition = stateTransition;
                 currentPlayingUrn = stateTransition.getTrackUrn();
@@ -109,7 +113,7 @@ public class PlaySessionController {
 
                 audioManager.setPlaybackState(stateTransition.playSessionIsActive());
 
-                if (saveQueueAfterTrackChange || (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete())) {
+                if (isTrackChange || (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete())) {
                     if (stateTransition.trackEnded()) {
                         if (!playQueueManager.autoNextTrack()) {
                             eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(currentPlayingUrn));
@@ -134,6 +138,7 @@ public class PlaySessionController {
                     .subscribe(new CurrentTrackSubscriber());
 
             if (lastStateTransition.playSessionIsActive()) {
+                progressMap.clear();
                 playbackOperations.playCurrent();
             }
         }

@@ -242,6 +242,27 @@ public class TrackPagerAdapterTest {
     }
 
     @Test
+    public void trackChangeSetsProgressOnAllTrackViews() {
+        TrackUrn firstUrn = Urn.forTrack(123L);
+        TrackUrn secondUrn = Urn.forTrack(125L);
+        PlaybackProgress firstProgress = new PlaybackProgress(100, 200);
+        PlaybackProgress secondProgress = new PlaybackProgress(50, 100);
+        View firstTrack = getPageView(0, firstUrn);
+        getPageView(1, Urn.forTrack(124L)); // Audio ad
+        View secondTrack = getPageView(2, secondUrn);
+        when(trackPagePresenter.accept(firstTrack)).thenReturn(true);
+        when(trackPagePresenter.accept(secondTrack)).thenReturn(true);
+        when(playSessionController.getCurrentProgress(firstUrn)).thenReturn(firstProgress);
+        when(playSessionController.getCurrentProgress(secondUrn)).thenReturn(secondProgress);
+
+        adapter.onTrackChange();
+
+        verify(trackPagePresenter).setProgress(firstTrack, firstProgress);
+        verify(trackPagePresenter).setProgress(secondTrack, secondProgress);
+        verify(adPagePresenter, never()).setProgress(any(View.class), any(PlaybackProgress.class));
+    }
+
+    @Test
     public void reusePageWhenTracksDidNotChangeInThePlayQueue() {
         expect(adapter.getItemPosition(getPageView())).toBe(POSITION_UNCHANGED);
     }

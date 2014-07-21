@@ -5,7 +5,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlaySessionController;
-import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -136,6 +135,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         for (View view : trackByViews.keySet()) {
             if (getItemViewTypeFromObject(view) == TYPE_TRACK_VIEW) {
                 trackPagePresenter.clearScrubState(view);
+                updateProgress(trackPagePresenter, view, trackByViews.get(view).trackUrn);
             }
         }
     }
@@ -153,8 +153,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         if (trackByViews.containsKey(view)) {
             final ViewPageData viewPageData = trackByViews.get(view);
             final TrackUrn trackInPlayQueue = playQueueManager.getUrnAtPosition(viewPageData.positionInPlayQueue);
-
-            return viewPageData.track.equals(trackInPlayQueue);
+            return viewPageData.trackUrn.equals(trackInPlayQueue);
         }
         return false;
     }
@@ -186,11 +185,15 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     }
 
     private boolean isViewPresentingCurrentTrack(View trackPage) {
-        return trackByViews.containsKey(trackPage) && playQueueManager.isCurrentTrack(trackByViews.get(trackPage).track);
+        return trackByViews.containsKey(trackPage) && playQueueManager.isCurrentTrack(trackByViews.get(trackPage).trackUrn);
     }
 
     private Boolean isTrackRelatedToView(View trackPage, TrackUrn trackUrn) {
-        return trackByViews.containsKey(trackPage) && trackByViews.get(trackPage).track.equals(trackUrn);
+        return trackByViews.containsKey(trackPage) && trackByViews.get(trackPage).trackUrn.equals(trackUrn);
+    }
+
+    private void updateProgress(final PagePresenter presenter, final View trackView, final TrackUrn urn) {
+        presenter.setProgress(trackView, playSessionController.getCurrentProgress(urn));
     }
 
     private class TrackSubscriber extends DefaultSubscriber<PropertySet> {
@@ -204,15 +207,8 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
         @Override
         public void onNext(PropertySet track) {
-            if (!playSessionController.isPlaying()) {
-                resetProgress(track, trackView);
-            }
             presenter.bindItemView(trackView, track);
-        }
-
-        private void resetProgress(final PropertySet propertySet, final View trackView) {
-            final PlaybackProgress progress = playSessionController.getCurrentProgress(propertySet.get(TrackProperty.URN));
-            presenter.setProgress(trackView, progress);
+            updateProgress(presenter, trackView, track.get(TrackProperty.URN));
         }
     }
 
@@ -293,11 +289,11 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     private static class ViewPageData {
         private final int positionInPlayQueue;
-        private final TrackUrn track;
+        private final TrackUrn trackUrn;
 
-        ViewPageData(int positionInPlayQueue, @NotNull TrackUrn track) {
+        ViewPageData(int positionInPlayQueue, @NotNull TrackUrn trackUrn) {
             this.positionInPlayQueue = positionInPlayQueue;
-            this.track = track;
+            this.trackUrn = trackUrn;
         }
     }
 }

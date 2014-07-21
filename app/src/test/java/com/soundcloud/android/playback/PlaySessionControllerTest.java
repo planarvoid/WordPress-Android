@@ -231,6 +231,16 @@ public class PlaySessionControllerTest {
     }
 
     @Test
+    public void onStateTransitionForPlayStoresPlayingTrackProgress() throws Exception {
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN, 1, 456));
+
+        TrackUrn nextTrackUrn = Urn.forTrack(321);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, nextTrackUrn, 123, 456));
+
+        expect(controller.getCurrentProgress(nextTrackUrn)).toEqual(new PlaybackProgress(123, 456));
+    }
+
+    @Test
     public void onStateTransitionForTrackEndSavesQueueWithPositionWithZero() throws Exception {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE, TRACK_URN, 123, 456));
         verify(playQueueManager).saveCurrentProgress(0);
