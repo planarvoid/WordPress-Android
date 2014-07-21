@@ -333,7 +333,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private void attachFragment(Fragment fragment, String tag, int titleResId) {
         getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.activity_open_enter, R.anim.hold)
-                .add(R.id.container, fragment, tag)
+                .replace(R.id.container, fragment, tag)
                 .commit();
         lastTitle = getString(titleResId);
     }
