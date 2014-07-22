@@ -30,8 +30,4 @@ public class PlayerAd {
         return String.format(resources.getString(R.string.next_up), "Monetizable track (creator name)");
     }
 
-    Uri getClickThroughLink() {
-        return source.get(AdProperty.CLICK_THROUGH_LINK);
-    }
-
 }

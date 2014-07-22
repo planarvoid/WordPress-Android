@@ -47,6 +47,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     private int currentPosition;
     private int adTrackPosition = Consts.NOT_SET;
+    private PropertySet adMetaData;
     private boolean currentTrackIsUserTriggered;
 
     private PlayQueue playQueue = PlayQueue.empty();
@@ -323,6 +324,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         }
         adTrackPosition = getNextPosition();
         playQueue.insertAudioAd(audioAd, adTrackPosition);
+        this.adMetaData = audioAd.toPropertySet();
         publishQueueUpdate();
     }
 
@@ -338,7 +340,15 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         if (position < currentPosition) {
             currentPosition--;
         }
-        adPosition = Consts.NOT_SET;
+        adTrackPosition = Consts.NOT_SET;
+        this.adMetaData = null;
+    }
+
+    public PropertySet getAudioAd() {
+        if (adMetaData == null) {
+            throw new IllegalStateException("No audio ad available.");
+        }
+        return adMetaData;
     }
 
     private void loadRecommendedTracks() {

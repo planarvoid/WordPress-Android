@@ -1,8 +1,10 @@
 package com.soundcloud.android.playback.ui;
 
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 
 import android.content.Context;
@@ -15,14 +17,17 @@ class AdPageListener {
 
     private final Context context;
     private final PlaybackOperations playbackOperations;
+    private PlayQueueManager playQueueManager;
     private final EventBus eventBus;
 
     @Inject
     public AdPageListener(Context context,
                           PlaybackOperations playbackOperations,
+                          PlayQueueManager playQueueManager,
                           EventBus eventBus) {
         this.context = context;
         this.playbackOperations = playbackOperations;
+        this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
     }
 
@@ -43,11 +48,18 @@ class AdPageListener {
     }
 
     public void onClickThrough()  {
-        // To be implemented
+        if (playQueueManager.isCurrentTrackAudioAd()) {
+            Uri uri = playQueueManager.getAudioAd().get(AdProperty.CLICK_THROUGH_LINK);
+            startActivity(uri);
+        }
     }
 
     public void onAboutAds() {
-        final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://soundcloud.com"));
+        startActivity(Uri.parse("https://soundcloud.com"));
+    }
+
+    private void startActivity(Uri uri) {
+        final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }

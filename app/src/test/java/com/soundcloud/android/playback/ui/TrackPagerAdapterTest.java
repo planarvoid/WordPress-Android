@@ -14,6 +14,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -31,12 +32,15 @@ import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 
 import android.support.v4.view.PagerAdapter;
+import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -52,6 +56,8 @@ public class TrackPagerAdapterTest {
     @Mock private AdPagePresenter adPagePresenter;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ViewGroup container;
+
+    @Captor private ArgumentCaptor<PropertySet> captorPropertySet;
 
     private TrackUrn trackUrn = Urn.forTrack(123L);
     private TestEventBus eventBus;
@@ -218,7 +224,7 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void shouldCreateAdViewForAudioAds() {
-        when(playQueueManager.isAudioAdAtPosition(3)).thenReturn(true);
+        setupAudioAd();
         getPageView();
 
         verify(adPagePresenter).createItemView(container);
@@ -226,10 +232,30 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void shouldBindAdViewForAudioAds() {
-        when(playQueueManager.isAudioAdAtPosition(3)).thenReturn(true);
+        setupAudioAd();
         final View pageView = getPageView();
 
-        verify(adPagePresenter).bindItemView(pageView, track);
+        verify(adPagePresenter).bindItemView(eq(pageView), any(PropertySet.class));
+    }
+
+    @Test
+    public void shouldBindAdViewWithAdPropertiesForAudioAds() {
+        PropertySet adPropertySet = PropertySet.create().put(AdProperty.ARTWORK, Uri.parse("http://artwork.com"));
+        setupAudioAd(adPropertySet);
+        View pageView = getPageView();
+
+        verify(adPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture());
+
+        expect(captorPropertySet.getValue().get(AdProperty.ARTWORK)).toBe(adPropertySet.get(AdProperty.ARTWORK));
+    }
+
+    @Test
+    public void shouldBindAdViewWithoutAdPropertiesForTracks() {
+        View pageView = getPageView();
+
+        verify(trackPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture());
+
+        expect(captorPropertySet.getValue().contains(AdProperty.ARTWORK)).toBeFalse();
     }
 
     @Test
@@ -317,5 +343,14 @@ public class TrackPagerAdapterTest {
         when(playQueueManager.isCurrentPosition(position)).thenReturn(isCurrentTrack);
         when(playQueueManager.isCurrentTrack(trackUrn)).thenReturn(isCurrentTrack);
         when(playQueueManager.getUrnAtPosition(position)).thenReturn(trackUrn);
+    }
+
+    private void setupAudioAd() {
+        setupAudioAd(PropertySet.create());
+    }
+
+    private void setupAudioAd(PropertySet propertySet) {
+        when(playQueueManager.getAudioAd()).thenReturn(propertySet);
+        when(playQueueManager.isAudioAdAtPosition(3)).thenReturn(true);
     }
 }

@@ -482,6 +482,20 @@ public class PlayQueueManagerTest {
         verify(playQueue).insertAudioAd(audioAd, 2);
     }
 
+    @Test (expected = IllegalStateException.class)
+    public void getAudioAdShouldThrowExceptionWhenNoAdAvailable() {
+        playQueueManager.getAudioAd();
+    }
+
+    @Test
+    public void shouldReturnAudioAdWhenAdAvailable() throws CreateModelException {
+        playQueueManager.setNewPlayQueue(playQueue, 1, playSessionSource);
+        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        playQueueManager.insertAudioAd(audioAd);
+
+        expect(playQueueManager.getAudioAd()).toEqual(audioAd.toPropertySet());
+    }
+
     @Test
     public void publishesQueueChangeEventWhenAudioAdIsInserted() throws CreateModelException {
         playQueueManager.setNewPlayQueue(playQueue, 1, playSessionSource);

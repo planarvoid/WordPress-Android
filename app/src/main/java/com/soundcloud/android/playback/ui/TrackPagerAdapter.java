@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -22,7 +21,6 @@ import rx.functions.Func1;
 import rx.subjects.ReplaySubject;
 import rx.subscriptions.CompositeSubscription;
 
-import android.net.Uri;
 import android.support.v4.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
@@ -103,11 +101,13 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
                 ? presenter.createItemView(container)
                 : presenter.clearItemView(convertView);
 
-        trackByViews.put(contentView, new ViewPageData(position, urn)); // forcePut to remove existing entry
+        final ViewPageData viewData = new ViewPageData(position, urn);
+        trackByViews.put(contentView, viewData); // forcePut to remove existing entry
         if (isNewView) {
-            subscribe(presenter, contentView);
+            subscribeToPlayEvents(presenter, contentView);
         }
-        getTrackObservable(urn)
+
+        getSoundObservable(viewData)
                 .filter(new TrackIntendedViewFilter(contentView))
                 .subscribe(new TrackSubscriber(presenter, contentView));
         return contentView;
@@ -120,7 +120,27 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         return adPagePresenter;
     }
 
-    private View subscribe(PagePresenter presenter, View trackPage) {
+    private Observable<PropertySet> getSoundObservable(ViewPageData viewData) {
+        final Observable<PropertySet> trackObservable;
+        if (playQueueManager.isAudioAdAtPosition(viewData.positionInPlayQueue)) {
+            trackObservable = getAdObservable(viewData.trackUrn, playQueueManager.getAudioAd());
+        } else {
+            trackObservable = getTrackObservable(viewData.trackUrn);
+        }
+        return trackObservable;
+    }
+
+    private Observable<PropertySet> getAdObservable(TrackUrn urn, final PropertySet audioAd) {
+        return getTrackObservable(urn)
+                .map(new Func1<PropertySet, PropertySet>() {
+                    @Override
+                    public PropertySet call(PropertySet propertySet) {
+                        return propertySet.merge(audioAd);
+                    }
+                });
+    }
+
+    private View subscribeToPlayEvents(PagePresenter presenter, View trackPage) {
         subscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber(presenter, trackPage)));
         subscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerPanelSubscriber(presenter, trackPage)));
         subscription.add(eventBus
@@ -189,14 +209,6 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
             trackSubject = ReplaySubject.create();
             trackOperations
                     .track(urn)
-                    .map(new Func1<PropertySet, PropertySet>() {
-                        @Override
-                        public PropertySet call(PropertySet propertySet) {
-                            return propertySet
-                                    .put(AdProperty.CLICK_THROUGH_LINK, Uri.EMPTY)
-                                    .put(AdProperty.ARTWORK, Uri.parse("http://breadedcat.com/wp-content/uploads/2012/02/cat-breading-tutorial-004.jpg"));
-                        }
-                    })
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(trackSubject);
             trackObservableCache.put(urn, trackSubject);
