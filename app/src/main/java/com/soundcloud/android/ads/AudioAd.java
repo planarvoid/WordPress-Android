@@ -2,8 +2,12 @@ package com.soundcloud.android.ads;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.propeller.PropertySet;
 
-public class AudioAd {
+import android.net.Uri;
+
+public class AudioAd implements PropertySetSource {
 
     private ApiTrack apiTrack;
 
@@ -20,6 +24,10 @@ public class AudioAd {
 
     public VisualAd getVisualAd() {
         return visualAd;
+    }
+
+    public void setVisualAd(VisualAd visualAd) {
+        this.visualAd = visualAd;
     }
 
     @JsonProperty("track")
@@ -69,12 +77,20 @@ public class AudioAd {
     }
 
     private static class RelatedResources {
-        private VisualAd visualAd;
 
+        private VisualAd visualAd;
         @JsonProperty("visual_ad")
         void setVisualAd(VisualAd visualAd) {
             this.visualAd = visualAd;
         }
+
+    }
+
+    @Override
+    public PropertySet toPropertySet() {
+        return PropertySet.create(2)
+                .put(AdProperty.ARTWORK, Uri.parse(visualAd.getImageUrl()))
+                .put(AdProperty.CLICK_THROUGH_LINK, Uri.parse(visualAd.getClickthroughUrl()));
     }
 
 }
