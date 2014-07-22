@@ -98,6 +98,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.waveformController.displayWaveform(waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()));
         holder.timestamp.setInitialProgress(track.getDuration());
         holder.waveformController.setDuration(track.getDuration());
+        holder.likeToggle.setChecked(track.isUserLike());
 
         holder.footerUser.setText(track.getUserName());
         holder.footerTitle.setText(track.getTitle());

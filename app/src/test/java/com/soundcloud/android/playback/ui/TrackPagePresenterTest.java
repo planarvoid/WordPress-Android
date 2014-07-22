@@ -82,9 +82,15 @@ public class TrackPagePresenterTest {
     }
 
     @Test
+    public void bindItemViewSetsCheckedStateFromTrackData() throws CreateModelException {
+        populateTrackPage();
+        expect(getHolder(trackView).likeToggle).toBeChecked();
+    }
+
+    @Test
     public void playingStateSetsToggleChecked() {
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true);
-        expect(getHolder(trackView).footerPlayToggle.isChecked()).toBeTrue();
+        expect(getHolder(trackView).footerPlayToggle).toBeChecked();
     }
 
     @Test
@@ -102,7 +108,7 @@ public class TrackPagePresenterTest {
     @Test
     public void pausedStateSetsToggleUnchecked() {
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true);
-        expect(getHolder(trackView).footerPlayToggle.isChecked()).toBeFalse();
+        expect(getHolder(trackView).footerPlayToggle).not.toBeChecked();
     }
 
     @Test
@@ -312,7 +318,8 @@ public class TrackPagePresenterTest {
                 TrackProperty.WAVEFORM_URL.bind("http://waveform.url"),
                 PlayableProperty.TITLE.bind("someone's favorite song"),
                 PlayableProperty.CREATOR_NAME.bind("someone's favorite band"),
-                PlayableProperty.DURATION.bind(DURATION)
+                PlayableProperty.DURATION.bind(DURATION),
+                PlayableProperty.IS_LIKED.bind(true)
         );
     }
 }

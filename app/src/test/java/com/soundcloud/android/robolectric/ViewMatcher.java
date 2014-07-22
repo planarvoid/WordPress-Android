@@ -3,6 +3,7 @@ package com.soundcloud.android.robolectric;
 import com.pivotallabs.greatexpectations.matchers.ObjectMatcher;
 
 import android.view.View;
+import android.widget.Checkable;
 import android.widget.TextView;
 
 public class ViewMatcher<T extends View, M extends ViewMatcher<T, M>> extends ObjectMatcher<T, M> {
@@ -28,6 +29,15 @@ public class ViewMatcher<T extends View, M extends ViewMatcher<T, M>> extends Ob
 
     public boolean toBeInvisible() {
         return actual.getVisibility() == View.INVISIBLE;
+    }
+
+    public boolean toBeChecked() {
+        if (actual instanceof Checkable) {
+            return ((Checkable) actual).isChecked();
+        } else {
+            failureMessage = "Widget does not implement Checkable";
+            return false;
+        }
     }
 
 }

@@ -33,4 +33,8 @@ class PlayerTrack {
         return source.get(TrackProperty.WAVEFORM_URL);
     }
 
+    boolean isUserLike() {
+        return source.get(PlayableProperty.IS_LIKED);
+    }
+
 }

@@ -2,13 +2,14 @@ package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.LIKE;
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
+import static com.soundcloud.android.storage.TableColumns.CollectionItems;
+import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.CursorReader;
@@ -48,11 +49,11 @@ public class TrackStorage {
 
     private Query soundAssociationQuery(int collectionType, long userId) {
         return Query.from(Table.COLLECTION_ITEMS.name, Table.SOUNDS.name)
-                .joinOn(SoundView._ID, TableColumns.CollectionItems.ITEM_ID)
-                .joinOn(SoundView._TYPE, TableColumns.CollectionItems.RESOURCE_TYPE)
-                .whereEq(TableColumns.CollectionItems.COLLECTION_TYPE, collectionType)
-                .whereEq(TableColumns.CollectionItems.RESOURCE_TYPE, TableColumns.Sounds.TYPE_TRACK)
-                .whereEq(Table.COLLECTION_ITEMS.name + "." + TableColumns.CollectionItems.USER_ID, userId);
+                .joinOn(Table.SOUND_VIEW.name + "." + SoundView._ID, CollectionItems.ITEM_ID)
+                .joinOn(SoundView._TYPE, CollectionItems.RESOURCE_TYPE)
+                .whereEq(CollectionItems.COLLECTION_TYPE, collectionType)
+                .whereEq(CollectionItems.RESOURCE_TYPE, Sounds.TYPE_TRACK)
+                .whereEq(Table.COLLECTION_ITEMS.name + "." + CollectionItems.USER_ID, userId);
     }
 
     private static final class TrackItemMapper extends RxResultMapper<PropertySet> {
@@ -68,6 +69,7 @@ public class TrackStorage {
             propertySet.put(TrackProperty.WAVEFORM_URL, cursorReader.getString(SoundView.WAVEFORM_URL));
             propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(SoundView.LIKES_COUNT));
             propertySet.put(TrackProperty.MONETIZABLE, cursorReader.getBoolean(SoundView.MONETIZABLE));
+            propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(SoundView.USER_LIKE));
 
             // synced tracks that might not have a user if they haven't been lazily updated yet
             final String creator = cursorReader.getString(SoundView.USERNAME);
