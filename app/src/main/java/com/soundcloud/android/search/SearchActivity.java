@@ -31,7 +31,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     private SearchActionBarController searchActionBarController;
     private String query;
 
-    private final SearchActionBarController.SearchCallback mSearchCallback = new SearchActionBarController.SearchCallback() {
+    private final SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {
         @Override
         public void performTextSearch(String query) {
             addContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
@@ -104,7 +104,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     @Override
     protected ActionBarController createActionBarController() {
         if (searchActionBarController == null) {
-            searchActionBarController = new SearchActionBarController(this, new PublicApi(this), mSearchCallback, eventBus);
+            searchActionBarController = new SearchActionBarController(this, new PublicApi(this), searchCallback, eventBus);
         }
         return searchActionBarController;
     }
