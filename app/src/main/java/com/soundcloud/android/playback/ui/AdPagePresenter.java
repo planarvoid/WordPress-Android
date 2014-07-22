@@ -24,10 +24,10 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final PlayerOverlayController artworkController;
-    private final TrackPageListener listener;
+    private final AdPageListener listener;
 
     @Inject
-    public AdPagePresenter(ImageOperations imageOperations, Resources resources, PlayerOverlayController playerOverlayController, TrackPageListener listener) {
+    public AdPagePresenter(ImageOperations imageOperations, Resources resources, PlayerOverlayController playerOverlayController, AdPageListener listener) {
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.artworkController = playerOverlayController;
@@ -77,6 +77,12 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
                 break;
             case R.id.footer_controls:
                 listener.onFooterTap();
+                break;
+            case R.id.learn_more:
+                listener.onClickThrough();
+                break;
+            case R.id.why_ads:
+                listener.onAboutAds();
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected view ID");
@@ -153,6 +159,8 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         private final View close;
         private final TextView previewTitle;
         private final TextView timeUntilSkip;
+        private final View learnMore;
+        private final View whyAds;
         // Footer player
         private final View footer;
         private final TextView footerAdvertiser;
@@ -166,6 +174,8 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
             close = adView.findViewById(R.id.player_close);
             previewTitle = (TextView) adView.findViewById(R.id.preview_title);
             timeUntilSkip = (TextView) adView.findViewById(R.id.time_until_skip);
+            learnMore = adView.findViewById(R.id.learn_more);
+            whyAds = adView.findViewById(R.id.why_ads);
 
             footer = adView.findViewById(R.id.footer_controls);
             footerAdvertiser = (TextView) adView.findViewById(R.id.footer_title);
@@ -173,7 +183,9 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         }
 
         public View[] getOnClickViews() {
-            return new View[] { artworkView, artworkIdleOverlay, playButton, footerPlayToggle, close, footer };
+            return new View[] { artworkView, artworkIdleOverlay, playButton,
+                    learnMore, whyAds,
+                    footerPlayToggle, close, footer };
         }
 
         public View[] getFullScreenViews() {

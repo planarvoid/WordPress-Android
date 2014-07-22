@@ -31,11 +31,11 @@ public class AdPagePresenterTest {
     private View adView;
     @Mock private ImageOperations imageOperations;
     @Mock private PlayerOverlayController playerOverlayController;
-    @Mock private TrackPageListener trackPageListener;
+    @Mock private AdPageListener pageListener;
 
     @Before
     public void setUp() throws Exception {
-        presenter = new AdPagePresenter(imageOperations, Robolectric.application.getResources(), playerOverlayController, trackPageListener);
+        presenter = new AdPagePresenter(imageOperations, Robolectric.application.getResources(), playerOverlayController, pageListener);
         adView = presenter.createItemView(new FrameLayout(Robolectric.application));
         presenter.bindItemView(adView, buildAd());
     }
@@ -58,28 +58,42 @@ public class AdPagePresenterTest {
     public void togglePlayOnFooterToggleClick() {
         adView.findViewById(R.id.footer_toggle).performClick();
 
-        verify(trackPageListener).onTogglePlay();
+        verify(pageListener).onTogglePlay();
     }
 
     @Test
     public void togglePlayOnPlayClick() {
         adView.findViewById(R.id.player_play).performClick();
 
-        verify(trackPageListener).onTogglePlay();
+        verify(pageListener).onTogglePlay();
     }
 
     @Test
     public void togglePlayOnAdPageArtworkClick() {
         adView.findViewById(R.id.track_page_artwork).performClick();
 
-        verify(trackPageListener).onTogglePlay();
+        verify(pageListener).onTogglePlay();
     }
 
     @Test
     public void togglePlayOnAdPageArtworkOverlayClick() {
         adView.findViewById(R.id.artwork_overlay).performClick();
 
-        verify(trackPageListener).onTogglePlay();
+        verify(pageListener).onTogglePlay();
+    }
+
+    @Test
+    public void clickThroughOnLearnMoreClick() {
+        adView.findViewById(R.id.learn_more).performClick();
+
+        verify(pageListener).onClickThrough();
+    }
+
+    @Test
+    public void showAboutAdsOnWhyAdsClick() {
+        adView.findViewById(R.id.why_ads).performClick();
+
+        verify(pageListener).onAboutAds();
     }
 
     @Test(expected = IllegalArgumentException.class)
