@@ -131,24 +131,35 @@ public class PlayerPagerControllerTest {
     }
 
     @Test
-    public void reportsPlayQueuePositionChangeOnIdleStateWithDifferentPagerPosition() {
+    public void reportsPlayQueuePositionChangeOnIdleStateAfterPageSelected() {
         when(viewPager.getCurrentItem()).thenReturn(2);
+        controller.onPageSelected(2);
         controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
         verify(playbackOperations).setPlayQueuePosition(2);
     }
 
     @Test
-    public void callsOnTrackChangedOnIdleStateWithDifferentPagerPosition() {
+    public void callsOnTrackChangedOnIdleStateAfterPageSelected() {
         when(viewPager.getCurrentItem()).thenReturn(2);
+        controller.onPageSelected(2);
         controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
         verify(adapter).onTrackChange();
     }
 
     @Test
-    public void doesNotCallTrackChangedOnIdleStateWithSamePosition() {
+    public void doesNotCallTrackChangedOnIdleStateWithoutPageSelected() {
         when(viewPager.getCurrentItem()).thenReturn(1);
         controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
         verify(adapter, never()).onTrackChange();
+    }
+
+    @Test
+    public void doesNotCallTrackChangedOnIdleStateWithoutPrecedingPageSelected() {
+        when(viewPager.getCurrentItem()).thenReturn(1);
+        controller.onPageSelected(2);
+        controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
+        controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
+        verify(adapter).onTrackChange(); // times(1)
     }
 
 }

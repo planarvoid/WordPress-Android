@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
 import com.nineoldandroids.animation.ObjectAnimator;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -26,7 +25,7 @@ public class PlayerPagerController implements ViewPager.OnPageChangeListener {
     private final PlayerPresenter presenter;
     private CompositeSubscription subscription;
     private ViewPager trackPager;
-    private int lastPlayQueuePosition = Consts.NOT_SET;
+    private boolean shouldChangeTrackOnIdle;
 
     @Inject
     public PlayerPagerController(TrackPagerAdapter adapter, PlayerPresenter playerPresenter, EventBus eventBus, PlayQueueManager playQueueManager, PlaybackOperations playbackOperations) {
@@ -56,9 +55,7 @@ public class PlayerPagerController implements ViewPager.OnPageChangeListener {
         this.trackPager = trackPager;
         this.trackPager.setOnPageChangeListener(this);
         trackPager.setAdapter(adapter);
-
-        lastPlayQueuePosition = playQueueManager.getCurrentPosition();
-        setQueuePosition(lastPlayQueuePosition);
+        setQueuePosition(playQueueManager.getCurrentPosition());
     }
 
     private void setQueuePosition(int position) {
@@ -92,15 +89,15 @@ public class PlayerPagerController implements ViewPager.OnPageChangeListener {
 
     @Override
     public void onPageSelected(int position) {
-        // no-op
+        shouldChangeTrackOnIdle = true;
     }
 
     @Override
     public void onPageScrollStateChanged(int state) {
-        if (state == ViewPager.SCROLL_STATE_IDLE && lastPlayQueuePosition != trackPager.getCurrentItem()) {
-            lastPlayQueuePosition = trackPager.getCurrentItem();
-            playbackOperations.setPlayQueuePosition(lastPlayQueuePosition);
+        if (shouldChangeTrackOnIdle && state == ViewPager.SCROLL_STATE_IDLE) {
+            playbackOperations.setPlayQueuePosition(trackPager.getCurrentItem());
             adapter.onTrackChange();
+            shouldChangeTrackOnIdle = false;
         }
     }
 }
