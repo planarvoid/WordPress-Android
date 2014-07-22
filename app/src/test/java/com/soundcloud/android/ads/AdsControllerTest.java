@@ -11,8 +11,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -20,6 +18,8 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 import rx.Subscription;
 
@@ -65,6 +66,42 @@ public class AdsControllerTest {
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
 
         verify(playQueueManager).insertAudioAd(audioAd);
+    }
+
+    @Test
+    public void trackChangeEventDoesNotFetchTrackFromStorageIfAlreadyTryingToFetchAd() throws CreateModelException {
+        when(playQueueManager.hasNextTrack()).thenReturn(true);
+        when(playQueueManager.getNextTrackUrn()).thenReturn(NEXT_TRACK_URN);
+        when(trackOperations.track(NEXT_TRACK_URN)).thenReturn(TestObservables.<PropertySet>endlessObservablefromSubscription(Mockito.mock(Subscription.class)));
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
+        verify(trackOperations).track(any(TrackUrn.class));
+    }
+
+
+    @Test
+    public void playQueueUpdateEventInsertsAudioAdIntoPlayQueue() throws CreateModelException {
+        when(playQueueManager.hasNextTrack()).thenReturn(true);
+        when(playQueueManager.getNextTrackUrn()).thenReturn(NEXT_TRACK_URN);
+        when(trackOperations.track(NEXT_TRACK_URN)).thenReturn(Observable.just(MONETIZEABLE_PROPERTY_SET));
+        when(adsOperations.audioAd(NEXT_TRACK_URN)).thenReturn(Observable.just(audioAd));
+
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
+
+        verify(playQueueManager).insertAudioAd(audioAd);
+    }
+
+    @Test
+    public void newQueueEventDoesNotInsertAudioAdIntoPlayQueue() throws CreateModelException {
+        when(playQueueManager.hasNextTrack()).thenReturn(true);
+        when(playQueueManager.getNextTrackUrn()).thenReturn(NEXT_TRACK_URN);
+        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(MONETIZEABLE_PROPERTY_SET));
+        when(adsOperations.audioAd(any(TrackUrn.class))).thenReturn(Observable.just(audioAd));
+
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+
+        verify(playQueueManager, never()).insertAudioAd(audioAd);
     }
 
     @Test
