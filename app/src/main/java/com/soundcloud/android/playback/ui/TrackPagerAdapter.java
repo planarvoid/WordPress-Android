@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
@@ -142,11 +143,19 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     @Override
     public int getItemPosition(Object object) {
-        if (isViewInSamePosition(((View) object))) {
+        final View view = (View) object;
+        if (isViewInSamePosition(view)) {
             return POSITION_UNCHANGED;
         }
-        trackByViews.remove(object);
-        return POSITION_NONE;
+
+        final ViewPageData viewPageData = getUpdatedViewPageData(view);
+        if (viewPageData != null) {
+            trackByViews.put(view, viewPageData);
+            return viewPageData.positionInPlayQueue;
+        } else {
+            trackByViews.remove(object);
+            return POSITION_NONE;
+        }
     }
 
     private boolean isViewInSamePosition(View view) {
@@ -156,6 +165,17 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
             return viewPageData.trackUrn.equals(trackInPlayQueue);
         }
         return false;
+    }
+
+    private ViewPageData getUpdatedViewPageData(View view) {
+        if (trackByViews.containsKey(view)) {
+            final ViewPageData viewPageData = trackByViews.get(view);
+            final int newPosition = playQueueManager.getPositionForUrn(viewPageData.trackUrn);
+            if (newPosition != Consts.NOT_SET) {
+                return new ViewPageData(newPosition, viewPageData.trackUrn);
+            }
+        }
+        return null;
     }
 
     @Override

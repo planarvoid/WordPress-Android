@@ -36,6 +36,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 
+import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -272,6 +273,26 @@ public class TrackPagerAdapterTest {
         getPageView();
         final View differentView = mock(View.class);
         expect(adapter.getItemPosition(differentView)).toBe(POSITION_NONE);
+    }
+
+    @Test
+    public void returnNewPositionWhenTrackHasChangedPositionsInQueue() throws Exception {
+        View view = getPageView();
+        when(playQueueManager.getUrnAtPosition(3)).thenReturn(Urn.forTrack(456L));
+        when(playQueueManager.getPositionForUrn(eq(Urn.forTrack(123L)))).thenReturn(2);
+        expect(adapter.getItemPosition(view)).toBe(2);
+    }
+
+    @Test
+    public void getItemPositionReturnsUnchangedAfterUpdatingTrackPosition() throws Exception {
+        View view = getPageView();
+        when(playQueueManager.getUrnAtPosition(3)).thenReturn(Urn.forTrack(456L));
+        when(playQueueManager.getPositionForUrn(eq(Urn.forTrack(123L)))).thenReturn(2);
+        adapter.getItemPosition(view); // updates position
+
+        when(playQueueManager.getUrnAtPosition(2)).thenReturn(Urn.forTrack(123L));
+        expect(adapter.getItemPosition(view)).toBe(PagerAdapter.POSITION_UNCHANGED);
+
     }
 
     private View getPageView() {
