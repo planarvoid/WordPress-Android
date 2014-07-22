@@ -3,6 +3,8 @@ package com.soundcloud.android.playback.service;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.OriginProvider;
@@ -129,6 +131,15 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     public TrackUrn getUrnAtPosition(int position) {
         return playQueue.getUrn(position);
+    }
+
+    public int getPositionForUrn(final TrackUrn trackUrn) {
+        return Iterables.indexOf(playQueue, new Predicate<PlayQueueItem>() {
+            @Override
+            public boolean apply(PlayQueueItem input) {
+                return input.getTrackUrn().equals(trackUrn);
+            }
+        });
     }
 
     public PlaybackProgressInfo getPlayProgressInfo() {

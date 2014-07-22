@@ -16,20 +16,21 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -158,6 +159,25 @@ public class PlayQueueManagerTest {
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), playSessionSource), playSessionSource);
 
         expect(playQueueManager.getUrnAtPosition(2)).toEqual(Urn.forTrack(3L));
+    }
+
+    @Test
+    public void getPositionForUrnReturnsNotSetForEmptyPlayQueue() throws Exception {
+        expect(playQueueManager.getPositionForUrn(Urn.forTrack(1L))).toEqual(Consts.NOT_SET);
+    }
+
+    @Test
+    public void getPositionForUrnReturnsNotSetForUrnIfNotInPlayQueue() throws Exception {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), playSessionSource), playSessionSource);
+
+        expect(playQueueManager.getPositionForUrn(Urn.forTrack(4L))).toEqual(Consts.NOT_SET);
+    }
+
+    @Test
+    public void getPositionForUrnReturnsPositionForUrnIfInPlayQueue() throws Exception {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L, 2L, 3L), playSessionSource), playSessionSource);
+
+        expect(playQueueManager.getPositionForUrn(Urn.forTrack(2L))).toEqual(1);
     }
 
     @Test
