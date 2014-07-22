@@ -138,6 +138,7 @@ public class UserAdapterTest {
     public void updateItemsReplacesCurrentItem() throws CreateModelException {
         PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
         PublicApiUser user2 = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        when(followingOperations.isFollowing(user2.getUrn())).thenReturn(true);
         adapter.addItems(Arrays.<PublicApiResource>asList(user, user2));
 
         PublicApiUser user3 = TestHelper.getModelFactory().createModel(PublicApiUser.class);
@@ -147,6 +148,15 @@ public class UserAdapterTest {
         updatedItems.put(user3.getUrn(), user3);
         adapter.updateItems(updatedItems);
 
-        expect(adapter.getItems()).toContainExactly(user, user3);
+        expect(adapter.getCount()).toBe(2);
+
+        adapter.bindRow(1, itemView);
+
+        verify(userPresenter).bindItemView(eq(1), refEq(itemView), propSetCaptor.capture());
+        PropertySet convertedUser = propSetCaptor.getValue().get(1);
+        expect(convertedUser.get(UserProperty.URN)).toEqual(user3.getUrn());
+        expect(convertedUser.get(UserProperty.USERNAME)).toEqual(user3.getUsername());
+        expect(convertedUser.get(UserProperty.FOLLOWERS_COUNT)).toEqual(user3.followers_count);
+        expect(convertedUser.get(UserProperty.IS_FOLLOWED_BY_ME)).toEqual(true);
     }
 }
