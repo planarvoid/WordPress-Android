@@ -17,6 +17,7 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -45,7 +46,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     private final EventBus eventBus;
 
     private int currentPosition;
-    private int adPosition = Consts.NOT_SET;
+    private int adTrackPosition = Consts.NOT_SET;
     private boolean currentTrackIsUserTriggered;
 
     private PlayQueue playQueue = PlayQueue.empty();
@@ -191,7 +192,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         stopLoadingOperations();
 
-        this.adPosition = Consts.NOT_SET;
+        this.adTrackPosition = Consts.NOT_SET;
         this.playQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
         this.currentTrackIsUserTriggered = true;
         this.playSessionSource = playSessionSource;
@@ -205,9 +206,9 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         }
         int savePosition = currentPosition;
         PlayQueue saveQueue = playQueue.copy();
-        if (adPosition != Consts.NOT_SET) {
-            saveQueue.remove(adPosition);
-            if (adPosition <= currentPosition) {
+        if (adTrackPosition != Consts.NOT_SET) {
+            saveQueue.remove(adTrackPosition);
+            if (adTrackPosition <= currentPosition) {
                 savePosition--;
             }
         }
@@ -317,17 +318,17 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public void insertAudioAd(AudioAd audioAd) {
-        if (adPosition != Consts.NOT_SET) {
+        if (adTrackPosition != Consts.NOT_SET) {
             throw new IllegalStateException("Existing AudioAd must be cleared before inserting a new one");
         }
-        adPosition = getNextPosition();
-        playQueue.insertAudioAd(audioAd, adPosition);
+        adTrackPosition = getNextPosition();
+        playQueue.insertAudioAd(audioAd, adTrackPosition);
         publishQueueUpdate();
     }
 
     public void clearAudioAd() {
-        if (adPosition != Consts.NOT_SET && adPosition != currentPosition) {
-            removeAd(adPosition);
+        if (adTrackPosition != Consts.NOT_SET && adTrackPosition != currentPosition) {
+            removeAd(adTrackPosition);
             publishQueueUpdate();
         }
     }
