@@ -110,6 +110,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         final TrackPageHolder holder = getViewHolder(view);
         holder.user.setText(ScTextUtils.EMPTY_STRING);
         holder.title.setText(ScTextUtils.EMPTY_STRING);
+        holder.likeToggle.setChecked(false);
 
         holder.waveformController.reset();
         holder.artworkController.getImageView().setImageDrawable(null);
