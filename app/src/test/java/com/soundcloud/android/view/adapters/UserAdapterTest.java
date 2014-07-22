@@ -68,7 +68,7 @@ public class UserAdapterTest {
 
     @Test
     public void bindsUserToRowViaPresenter() throws CreateModelException {
-        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        PublicApiUser user = createUser();
         adapter.addItems(Arrays.<PublicApiResource>asList(user));
 
         adapter.bindRow(0, itemView);
@@ -78,7 +78,7 @@ public class UserAdapterTest {
 
     @Test
     public void convertsUserToPropertySet() throws CreateModelException {
-        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        PublicApiUser user = createUser();
         when(followingOperations.isFollowing(user.getUrn())).thenReturn(true);
         adapter.addItems(Arrays.<PublicApiResource>asList(user));
         adapter.bindRow(0, itemView);
@@ -93,12 +93,12 @@ public class UserAdapterTest {
 
     @Test
     public void clearItemsClearsInitialPropertySets() throws CreateModelException {
-        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        PublicApiUser user = createUser();
         adapter.addItems(Arrays.<PublicApiResource>asList(user));
         adapter.bindRow(0, itemView);
         adapter.clearData();
 
-        PublicApiUser user2 = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        PublicApiUser user2 = createUser();
         adapter.addItems(Arrays.<PublicApiResource>asList(user2));
         adapter.bindRow(0, itemView);
 
@@ -109,7 +109,7 @@ public class UserAdapterTest {
 
     @Test
     public void itemClickStartsProfileActivityWithUserArgument() throws CreateModelException {
-        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        PublicApiUser user = createUser();
         adapter.addItems(Arrays.<PublicApiResource>asList(user));
 
         adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES);
@@ -121,7 +121,7 @@ public class UserAdapterTest {
 
     @Test
     public void toggleFollowingSubscribesToFollowObservable() throws CreateModelException {
-        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        PublicApiUser user = createUser();
         adapter.addItems(Arrays.<PublicApiResource>asList(user));
 
         final TestObservables.MockObservable<Boolean> observable = TestObservables.emptyObservable();
@@ -136,16 +136,14 @@ public class UserAdapterTest {
 
     @Test
     public void updateItemsReplacesCurrentItem() throws CreateModelException {
-        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
-        PublicApiUser user2 = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        PublicApiUser user = createUser();
+        PublicApiUser user2 = createUser();
         when(followingOperations.isFollowing(user2.getUrn())).thenReturn(true);
         adapter.addItems(Arrays.<PublicApiResource>asList(user, user2));
 
-        PublicApiUser user3 = TestHelper.getModelFactory().createModel(PublicApiUser.class);
-        user3.setUrn(user2.getUrn().toString());
-
+        PublicApiUser user2AfterUpdate = copyUser(user2);
         final HashMap<Urn, PublicApiResource> updatedItems = Maps.newHashMap();
-        updatedItems.put(user3.getUrn(), user3);
+        updatedItems.put(user2AfterUpdate.getUrn(), user2AfterUpdate);
         adapter.updateItems(updatedItems);
 
         expect(adapter.getCount()).toBe(2);
@@ -154,9 +152,19 @@ public class UserAdapterTest {
 
         verify(userPresenter).bindItemView(eq(1), refEq(itemView), propSetCaptor.capture());
         PropertySet convertedUser = propSetCaptor.getValue().get(1);
-        expect(convertedUser.get(UserProperty.URN)).toEqual(user3.getUrn());
-        expect(convertedUser.get(UserProperty.USERNAME)).toEqual(user3.getUsername());
-        expect(convertedUser.get(UserProperty.FOLLOWERS_COUNT)).toEqual(user3.followers_count);
+        expect(convertedUser.get(UserProperty.URN)).toEqual(user2AfterUpdate.getUrn());
+        expect(convertedUser.get(UserProperty.USERNAME)).toEqual(user2AfterUpdate.getUsername());
+        expect(convertedUser.get(UserProperty.FOLLOWERS_COUNT)).toEqual(user2AfterUpdate.followers_count);
         expect(convertedUser.get(UserProperty.IS_FOLLOWED_BY_ME)).toEqual(true);
+    }
+
+    private PublicApiUser copyUser(PublicApiUser user) throws CreateModelException {
+        final PublicApiUser userNewInstance = createUser();
+        userNewInstance.setUrn(user.getUrn().toString());
+        return userNewInstance;
+    }
+
+    private PublicApiUser createUser() throws CreateModelException {
+        return TestHelper.getModelFactory().createModel(PublicApiUser.class);
     }
 }
