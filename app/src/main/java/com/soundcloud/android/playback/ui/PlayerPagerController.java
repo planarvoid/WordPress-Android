@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import com.nineoldandroids.animation.ObjectAnimator;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -16,7 +17,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class PlayerPagerController {
+public class PlayerPagerController implements ViewPager.OnPageChangeListener {
 
     private final TrackPagerAdapter adapter;
     private final EventBus eventBus;
@@ -25,6 +26,7 @@ public class PlayerPagerController {
     private final PlayerPresenter presenter;
     private CompositeSubscription subscription;
     private ViewPager trackPager;
+    private int lastPlayQueuePosition = Consts.NOT_SET;
 
     @Inject
     public PlayerPagerController(TrackPagerAdapter adapter, PlayerPresenter playerPresenter, EventBus eventBus, PlayQueueManager playQueueManager, PlaybackOperations playbackOperations) {
@@ -52,9 +54,11 @@ public class PlayerPagerController {
     private void setPager(ViewPager trackPager) {
         this.presenter.initialize(trackPager);
         this.trackPager = trackPager;
-        this.trackPager.setOnPageChangeListener(new TrackPageChangeListener());
+        this.trackPager.setOnPageChangeListener(this);
         trackPager.setAdapter(adapter);
-        setQueuePosition(playQueueManager.getCurrentPosition());
+
+        lastPlayQueuePosition = playQueueManager.getCurrentPosition();
+        setQueuePosition(lastPlayQueuePosition);
     }
 
     private void setQueuePosition(int position) {
@@ -64,6 +68,7 @@ public class PlayerPagerController {
 
     private void onPlayQueueChanged() {
         adapter.notifyDataSetChanged();
+        setQueuePosition(playQueueManager.getCurrentPosition());
     }
 
     private final class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
@@ -80,22 +85,22 @@ public class PlayerPagerController {
         }
     }
 
-    private class TrackPageChangeListener implements ViewPager.OnPageChangeListener {
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        // no-op
+    }
 
-        @Override
-        public void onPageSelected(int position) {
-            playbackOperations.setPlayQueuePosition(position);
+    @Override
+    public void onPageSelected(int position) {
+        // no-op
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+        if (state == ViewPager.SCROLL_STATE_IDLE && lastPlayQueuePosition != trackPager.getCurrentItem()) {
+            lastPlayQueuePosition = trackPager.getCurrentItem();
+            playbackOperations.setPlayQueuePosition(lastPlayQueuePosition);
             adapter.onTrackChange();
-        }
-
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            // No-op
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
-            // No-op
         }
     }
 }

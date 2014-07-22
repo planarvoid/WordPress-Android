@@ -19,7 +19,6 @@ import com.soundcloud.android.tracks.TrackUrn;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.support.v4.view.ViewPager;
@@ -42,7 +41,7 @@ public class PlayerPagerControllerTest {
     @Before
     public void setUp() {
         controller = new PlayerPagerController(adapter, presenter, eventBus, playQueueManager, playbackOperations);
-        when(playQueueManager.isQueueEmpty()).thenReturn(true);
+        when(playQueueManager.getCurrentPosition()).thenReturn(1);
         when(container.findViewById(anyInt())).thenReturn(viewPager);
         controller.onViewCreated(container);
     }
@@ -111,16 +110,6 @@ public class PlayerPagerControllerTest {
     }
 
     @Test
-    public void shouldSetPlayQueuePositionOnPageChange() {
-        ArgumentCaptor<ViewPager.OnPageChangeListener> captor = ArgumentCaptor.forClass(ViewPager.OnPageChangeListener.class);
-        verify(viewPager).setOnPageChangeListener(captor.capture());
-
-        captor.getValue().onPageSelected(5);
-        verify(playbackOperations).setPlayQueuePosition(5);
-    }
-
-
-    @Test
     public void onPlayQueueChangedNotifiesDataSetChangedOnAdapter() {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
 
@@ -140,4 +129,26 @@ public class PlayerPagerControllerTest {
 
         verify(viewPager).setAdapter(adapter);
     }
+
+    @Test
+    public void reportsPlayQueuePositionChangeOnIdleStateWithDifferentPagerPosition() {
+        when(viewPager.getCurrentItem()).thenReturn(2);
+        controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
+        verify(playbackOperations).setPlayQueuePosition(2);
+    }
+
+    @Test
+    public void callsOnTrackChangedOnIdleStateWithDifferentPagerPosition() {
+        when(viewPager.getCurrentItem()).thenReturn(2);
+        controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
+        verify(adapter).onTrackChange();
+    }
+
+    @Test
+    public void doesNotCallTrackChangedOnIdleStateWithSamePosition() {
+        when(viewPager.getCurrentItem()).thenReturn(1);
+        controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
+        verify(adapter, never()).onTrackChange();
+    }
+
 }
