@@ -200,7 +200,6 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
             lastPlaya.setListener(null);
             lastPlaya.stop();
         }
-
     }
 
     private void configureNextPlayaToUseViaPreferences(){

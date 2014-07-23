@@ -174,6 +174,14 @@ public class StreamPlayaTest {
         verify(mediaPlayerAdapter).stop();
     }
 
+    @Test
+    public void mediaPlayerIsStoppedWhenStartingBufferingModeBeforeSwitchingToSkippy() throws Exception {
+        instantiateStreamPlaya();
+        streamPlayerWrapper.play(track);
+        when(sharedPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false)).thenReturn(true);
+        streamPlayerWrapper.startBufferingMode(Urn.forTrack(1L));
+        verify(mediaPlayerAdapter).stop();
+    }
 
     @Test
     public void mediaPlayerListenerSetToNullWhenStartingBufferingMode() throws Exception {
