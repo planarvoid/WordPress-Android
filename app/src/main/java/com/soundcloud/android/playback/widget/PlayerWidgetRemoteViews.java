@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.widget;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.playback.external.PlaybackAction;
 import com.soundcloud.android.playback.views.PlaybackRemoteViews;
 import com.soundcloud.android.profile.ProfileActivity;
