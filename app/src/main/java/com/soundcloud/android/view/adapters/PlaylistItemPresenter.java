@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
@@ -51,9 +52,15 @@ public class PlaylistItemPresenter implements CellPresenter<PropertySet> {
     }
 
     private void showTrackCount(View itemView, PropertySet propertySet) {
-        final int trackCount = propertySet.get(PlaylistProperty.TRACK_COUNT);
-        final String numberOfTracks = resources.getQuantityString(R.plurals.number_of_sounds, trackCount, trackCount);
-        getTextView(itemView, R.id.list_item_right_info).setText(numberOfTracks);
+        if (propertySet.contains(PlaylistProperty.TRACK_COUNT)){
+            final int trackCount = propertySet.get(PlaylistProperty.TRACK_COUNT);
+            final String numberOfTracks = resources.getQuantityString(R.plurals.number_of_sounds, trackCount, trackCount);
+            getTextView(itemView, R.id.list_item_right_info).setText(numberOfTracks);
+        } else {
+            final String message = "No track count available : " + propertySet.get(PlayableProperty.URN);
+            SoundCloudApplication.handleSilentException(message, new IllegalStateException("No track count available"));
+            getTextView(itemView, R.id.list_item_right_info).setText(ScTextUtils.EMPTY_STRING);
+        }
     }
 
     private void showReposter(View itemView, PropertySet propertySet) {

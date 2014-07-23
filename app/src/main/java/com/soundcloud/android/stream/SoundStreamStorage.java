@@ -7,6 +7,7 @@ import static com.soundcloud.android.storage.TableColumns.CollectionItems;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -15,6 +16,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.query.Query;
@@ -87,7 +89,7 @@ class SoundStreamStorage {
             final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
 
             propertySet.put(PlayableProperty.URN, readSoundUrn(cursorReader));
-            propertySet.put(PlayableProperty.TITLE, cursorReader.getString(SoundView.TITLE));
+            addTitle(cursorReader, propertySet);
             propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(SoundView.DURATION));
             propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(SoundView.USERNAME));
             propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(ActivityView.CREATED_AT));
@@ -99,6 +101,18 @@ class SoundStreamStorage {
 
             return propertySet;
         }
+
+        private void addTitle(CursorReader cursorReader, PropertySet propertySet) {
+            final String string = cursorReader.getString(SoundView.TITLE);
+            if (string == null){
+                SoundCloudApplication.handleSilentException("urn : " + readSoundUrn(cursorReader),
+                        new IllegalStateException("Unexpected null title in stream"));
+                propertySet.put(PlayableProperty.TITLE, ScTextUtils.EMPTY_STRING);
+            } else {
+                propertySet.put(PlayableProperty.TITLE, string);
+            }
+        }
+
 
         private void addOptionalPlaylistLike(CursorReader cursorReader, PropertySet propertySet) {
             if (getSoundType(cursorReader) == Playable.DB_TYPE_PLAYLIST) {
