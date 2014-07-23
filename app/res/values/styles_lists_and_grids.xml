@@ -34,12 +34,18 @@
         <item name="android:singleLine">false</item>
         <item name="android:lineSpacingMultiplier">1.2</item>
     </style>
+    <style name="ListItemText.PrimaryText.Regular">
+        <item name="custom_font">fonts/Roboto-Regular.ttf</item>
+    </style>
     <style name="ListItemText.SecondaryText">
         <item name="android:layout_marginLeft">12dp</item>
         <item name="android:textColor">@color/list_secondary</item>
         <item name="android:ellipsize">end</item>
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
+    </style>
+    <style name="ListItemText.SecondaryText.Regular">
+        <item name="custom_font">fonts/Roboto-Regular.ttf</item>
     </style>
     <style name="ListItemText.Numeric">
         <item name="android:textColor">@color/list_secondary</item>
