@@ -258,11 +258,12 @@ public class PublicApiTrack extends Playable {
     }
 
     public PropertySet toPropertySet() {
-        return super.toPropertySet()
-                .put(PlayableProperty.DURATION, duration)
-                .put(PlayableProperty.TITLE, title)
-                .put(TrackProperty.URN, Urn.forTrack(getId()))
-                .put(TrackProperty.PLAY_COUNT, playback_count);
+        final PropertySet bindings = super.toPropertySet();
+        bindings.put(PlayableProperty.DURATION, duration);
+        bindings.put(PlayableProperty.TITLE, title);
+        bindings.put(TrackProperty.URN, Urn.forTrack(getId()));
+        bindings.put(TrackProperty.PLAY_COUNT, playback_count);
+        return bindings;
     }
 
     @JsonIgnoreProperties(ignoreUnknown=true)
