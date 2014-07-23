@@ -76,11 +76,7 @@ public class SoundAssociationOperations {
                 .mergeMap(new Func1<PublicApiTrack, Observable<SoundAssociation>>() {
                     @Override
                     public Observable<SoundAssociation> call(PublicApiTrack track) {
-                        if (addLike) {
-                            return like(track);
-                        } else {
-                            return unlike(track);
-                        }
+                        return toggleLike(addLike, track);
                     }
                 }).map(new Func1<SoundAssociation, PropertySet>() {
                     @Override

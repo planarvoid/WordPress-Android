@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,10 +23,13 @@ import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +38,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
+import rx.Scheduler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +81,6 @@ public class SoundAssociationOperationsTest {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // LIKING / UN-LIKING
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
     @Test
     public void likingATrackShouldSendPUTRequestToApiAndThenStoreTheAssociation() throws Exception {
@@ -212,6 +216,25 @@ public class SoundAssociationOperationsTest {
         operations.unlike(playlist).subscribe(observer);
 
         verify(observer).onNext(unlike);
+    }
+
+    @Test
+    public void toggleTrackLikeShouldReturnPropertySetWithUpdatedLikeStatus() {
+        TrackUrn trackUrn = Urn.forTrack(1L);
+        PublicApiTrack track = new PublicApiTrack(1L);
+        track.user_like = true;
+        track.likes_count = 12;
+        SoundAssociation trackLike = new SoundAssociation(track);
+        when(legacyTrackOperations.loadTrack(eq(1L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/track_likes/1"))))
+                .thenReturn(Observable.just(response));
+        when(storage.addLikeAsync(track)).thenReturn(Observable.just(trackLike));
+
+        Observable<PropertySet> result = operations.toggleTrackLike(trackUrn, true);
+
+        PropertySet changeSet = result.toBlocking().first();
+        expect(changeSet.get(PlayableProperty.IS_LIKED)).toBeTrue();
+        expect(changeSet.get(PlayableProperty.LIKES_COUNT)).toBe(12);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
