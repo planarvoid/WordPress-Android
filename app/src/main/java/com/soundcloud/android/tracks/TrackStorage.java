@@ -7,6 +7,7 @@ import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -36,6 +37,7 @@ public class TrackStorage {
                         SoundView._ID,
                         SoundView.TITLE,
                         SoundView.USERNAME,
+                        SoundView.USER_ID,
                         SoundView.DURATION,
                         SoundView.PLAYBACK_COUNT,
                         SoundView.LIKES_COUNT,
@@ -74,6 +76,8 @@ public class TrackStorage {
             // synced tracks that might not have a user if they haven't been lazily updated yet
             final String creator = cursorReader.getString(SoundView.USERNAME);
             propertySet.put(PlayableProperty.CREATOR_NAME, creator == null ? ScTextUtils.EMPTY_STRING : creator);
+            final long creatorId = cursorReader.getLong(SoundView.USER_ID);
+            propertySet.put(PlayableProperty.CREATOR_URN, creatorId == Consts.NOT_SET ? UserUrn.NOT_SET : Urn.forUser(creatorId));
 
             return propertySet;
         }

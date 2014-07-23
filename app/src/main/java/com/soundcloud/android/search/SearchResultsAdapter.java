@@ -4,6 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -37,7 +38,6 @@ class SearchResultsAdapter extends PagingItemAdapter<PublicApiResource>
     private final EventBus eventBus;
     private final FollowingOperations followingOperations;
     private final TrackItemPresenter trackPresenter;
-    private final UserItemPresenter userPresenter;
     private Subscription eventSubscriptions = Subscriptions.empty();
 
     @Inject
@@ -51,7 +51,6 @@ class SearchResultsAdapter extends PagingItemAdapter<PublicApiResource>
         this.eventBus = eventBus;
         this.followingOperations = followingOperations;
         this.trackPresenter = trackPresenter;
-        this.userPresenter = userPresenter;
         followingOperations.requestUserFollowings(this);
         userPresenter.setToggleFollowListener(this);
     }
@@ -112,7 +111,8 @@ class SearchResultsAdapter extends PagingItemAdapter<PublicApiResource>
             });
 
             if (index > - 1) {
-                items.set(index, event.getPlayable());
+                Playable playable = (Playable) items.get(index);
+                playable.updateAssociations(event.getChangeSet());
                 notifyDataSetChanged();
             }
         }

@@ -71,14 +71,14 @@ public class SoundStreamAdapterTest {
 
     @Test
     public void playableChangedEventShouldUpdateAdapterToReflectTheLatestLikeStatus() {
-        final PropertySet unlikedPlaylist = buildUnlikedPlaylist(123);
-        final PropertySet likedPlaylist = buildLikedPlaylist(456);
+        final PropertySet unlikedPlaylist = buildUnlikedPlaylist(123L);
+        final PropertySet likedPlaylist = buildLikedPlaylist(456L);
 
         adapter.addItem(unlikedPlaylist);
         adapter.addItem(likedPlaylist);
         adapter.onViewCreated();
 
-        publishPlaylistLikeEvent(123); // 123 is now liked, too
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(Urn.forPlaylist(123L), true, 1));
 
         expect(adapter.getItems()).toContainExactly(
                 unlikedPlaylist.merge(
@@ -95,13 +95,6 @@ public class SoundStreamAdapterTest {
         adapter.onViewCreated();
         adapter.onDestroyView();
         eventBus.verifyUnsubscribed();
-    }
-
-    private void publishPlaylistLikeEvent(long id) {
-        PublicApiPlaylist playlist = new PublicApiPlaylist(id);
-        playlist.user_like = true;
-        playlist.likes_count = 1;
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(playlist, true));
     }
 
     private PropertySet buildLikedPlaylist(long id) {

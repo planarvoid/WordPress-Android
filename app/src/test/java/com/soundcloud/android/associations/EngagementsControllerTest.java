@@ -19,6 +19,7 @@ import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
@@ -240,7 +241,7 @@ public class EngagementsControllerTest {
 
         // make sure starting to listen again does not try to use a subscription that had already been closed
         // (in which case unsubscribe is called more than once)
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(track, true));
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(track.getUrn(), true, track.likes_count));
         ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         expect(likeButton.isChecked()).toBeTrue();
     }
@@ -257,13 +258,11 @@ public class EngagementsControllerTest {
         ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
         expect(repostButton.isChecked()).toBeFalse();
 
-        PublicApiTrack likedTrack = new PublicApiTrack(1L);
-        likedTrack.user_like = true;
-        likedTrack.user_repost = true;
-
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(likedTrack, true));
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED,
+                PlayableChangedEvent.forLike(track.getUrn(), true, track.likes_count));
         expect(likeButton.isChecked()).toBeTrue();
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forRepost(likedTrack, true));
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED,
+                PlayableChangedEvent.forRepost(track.getUrn(), true, track.reposts_count));
         expect(repostButton.isChecked()).toBeTrue();
     }
 
@@ -277,12 +276,8 @@ public class EngagementsControllerTest {
         ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
         expect(repostButton.isChecked()).toBeFalse();
 
-        PublicApiTrack likedTrack = new PublicApiTrack(2L);
-        likedTrack.user_like = true;
-        likedTrack.user_repost = true;
-
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(likedTrack, true));
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forRepost(likedTrack, true));
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(Urn.forTrack(2L), true, 1));
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forRepost(Urn.forTrack(2L), true, 1));
         expect(likeButton.isChecked()).toBeFalse();
         expect(repostButton.isChecked()).toBeFalse();
     }

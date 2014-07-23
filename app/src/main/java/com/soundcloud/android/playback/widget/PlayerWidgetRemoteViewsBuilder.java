@@ -2,24 +2,23 @@ package com.soundcloud.android.playback.widget;
 
 import com.google.common.base.Optional;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.legacy.model.Playable;
 
 import android.content.Context;
 
 public class PlayerWidgetRemoteViewsBuilder {
 
-    private Optional<Playable> optionalPlayable;
+    private Optional<WidgetTrack> optionalTrack;
     private Optional<Boolean> optionalIsPlaying;
 
     public PlayerWidgetRemoteViewsBuilder() {
-        optionalPlayable = Optional.absent();
+        optionalTrack = Optional.absent();
         optionalIsPlaying = Optional.absent();
     }
 
     public PlayerWidgetRemoteViews build(Context context) {
         PlayerWidgetRemoteViews widgetRemoteView = new PlayerWidgetRemoteViews(context);
 
-        if (!optionalIsPlaying.isPresent() && !optionalPlayable.isPresent()) {
+        if (!optionalIsPlaying.isPresent() && !optionalTrack.isPresent()) {
             setEmptyState(context, widgetRemoteView);
         }
 
@@ -27,7 +26,7 @@ public class PlayerWidgetRemoteViewsBuilder {
             setPlaybackStatus(widgetRemoteView);
         }
 
-        if (optionalPlayable.isPresent()) {
+        if (optionalTrack.isPresent()) {
             setPlayableProperties(context, widgetRemoteView);
         }
 
@@ -35,14 +34,14 @@ public class PlayerWidgetRemoteViewsBuilder {
     }
 
     private void setPlayableProperties(Context context, PlayerWidgetRemoteViews widgetRemoteView) {
-        Playable playable = optionalPlayable.get();
+        WidgetTrack track = optionalTrack.get();
 
-        widgetRemoteView.setImageViewResource(R.id.btn_like, playable.user_like
+        widgetRemoteView.setImageViewResource(R.id.btn_like, track.isUserLike()
                 ? R.drawable.ic_widget_favorited_states : R.drawable.ic_widget_like_states);
 
-        widgetRemoteView.setCurrentTrackTitle(playable.getTitle());
-        widgetRemoteView.setCurrentUsername(playable.getUsername());
-        widgetRemoteView.linkButtonsWidget(context, playable.getId(), playable.getUserId(), playable.user_like);
+        widgetRemoteView.setCurrentTrackTitle(track.getTitle());
+        widgetRemoteView.setCurrentUsername(track.getUserName());
+        widgetRemoteView.linkButtonsWidget(context, track.getUrn(), track.getUserUrn(), track.isUserLike());
     }
 
     private void setPlaybackStatus(PlayerWidgetRemoteViews widgetRemoteView) {
@@ -53,8 +52,8 @@ public class PlayerWidgetRemoteViewsBuilder {
         widgetRemoteView.setEmptyState(context);
     }
 
-    public PlayerWidgetRemoteViewsBuilder forPlayable(Playable playable) {
-        this.optionalPlayable = Optional.of(playable);
+    public PlayerWidgetRemoteViewsBuilder forTrack(WidgetTrack widgetTrack) {
+        this.optionalTrack = Optional.of(widgetTrack);
         return this;
     }
 

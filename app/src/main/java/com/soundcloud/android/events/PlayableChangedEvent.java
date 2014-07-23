@@ -1,43 +1,37 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 
 public final class PlayableChangedEvent {
 
-    private final Playable playable;
+    private final Urn soundUrn;
     private final PropertySet changeSet;
 
-    public static PlayableChangedEvent create(Playable playable, PropertySet changeSet) {
-        return new PlayableChangedEvent(playable, changeSet);
+    public static PlayableChangedEvent create(Urn soundUrn, PropertySet changeSet) {
+        return new PlayableChangedEvent(soundUrn, changeSet);
     }
 
-    public static PlayableChangedEvent forLike(Playable playable, boolean liked) {
-        return new PlayableChangedEvent(playable, PropertySet.from(
+    public static PlayableChangedEvent forLike(Urn soundUrn, boolean liked, int likesCount) {
+        return new PlayableChangedEvent(soundUrn, PropertySet.from(
                 PlayableProperty.IS_LIKED.bind(liked),
-                PlayableProperty.LIKES_COUNT.bind(playable.likes_count)));
+                PlayableProperty.LIKES_COUNT.bind(likesCount)));
     }
 
-    public static PlayableChangedEvent forRepost(Playable playable, boolean reposted) {
-        return new PlayableChangedEvent(playable, PropertySet.from(
+    public static PlayableChangedEvent forRepost(Urn soundUrn, boolean reposted, int repostCount) {
+        return new PlayableChangedEvent(soundUrn, PropertySet.from(
                 PlayableProperty.IS_REPOSTED.bind(reposted),
-                PlayableProperty.REPOSTS_COUNT.bind(playable.reposts_count)));
+                PlayableProperty.REPOSTS_COUNT.bind(repostCount)));
     }
 
-    private PlayableChangedEvent(Playable playable, PropertySet changeSet) {
-        this.playable = playable;
+    private PlayableChangedEvent(Urn soundUrn, PropertySet changeSet) {
+        this.soundUrn = soundUrn;
         this.changeSet = changeSet;
     }
 
-    @Deprecated // don't rely on Public API models going forward, use PropertySets
-    public Playable getPlayable() {
-        return playable;
-    }
-
     public Urn getUrn() {
-        return playable.getUrn();
+        return soundUrn;
     }
 
     public PropertySet getChangeSet() {

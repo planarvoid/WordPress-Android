@@ -7,6 +7,8 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.playback.external.PlaybackAction;
 import com.soundcloud.android.playback.views.PlaybackRemoteViews;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.annotation.TargetApi;
@@ -34,7 +36,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
         setPlaybackStatus(false);
         setCurrentTrackTitle(context.getString(R.string.widget_touch_to_open));
         setCurrentUsername(ScTextUtils.EMPTY_STRING);
-        linkButtonsWidget(context, ScModel.NOT_SET, ScModel.NOT_SET, false);
+        linkButtonsWidget(context, TrackUrn.NOT_SET, UserUrn.NOT_SET, false);
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -42,22 +44,19 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
         super(parcel);
     }
 
-    /* package */ void linkButtonsWidget(Context context, long trackId, long userId, boolean userLike) {
+    /* package */ void linkButtonsWidget(Context context, TrackUrn trackUrn, UserUrn userUrn, boolean userLike) {
         linkPlayerControls(context);
 
         final Intent player = new Intent(Actions.PLAYER).addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
-        // go to player
         setOnClickPendingIntent(R.id.title_txt, PendingIntent.getActivity(context, PENDING_INTENT_REQUEST_CODE, player, 0));
-        if (trackId != -1) {
-            final Intent browser = new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER_ID, userId);
-            // go to user
+        if (!trackUrn.equals(TrackUrn.NOT_SET)) {
+
+            final Intent userProfile = ProfileActivity.getIntent(context, userUrn);
             setOnClickPendingIntent(R.id.user_txt, PendingIntent.getActivity(context,
-                    PENDING_INTENT_REQUEST_CODE, browser, PendingIntent.FLAG_UPDATE_CURRENT));
+                    PENDING_INTENT_REQUEST_CODE, userProfile, PendingIntent.FLAG_UPDATE_CURRENT));
 
             final Intent toggleLike = new Intent(PlayerWidgetController.ACTION_LIKE_CHANGED);
             toggleLike.putExtra(PlayerWidgetController.EXTRA_IS_LIKE, userLike);
-
-            // toggle like
             setOnClickPendingIntent(R.id.btn_like, PendingIntent.getBroadcast(context,
                     PENDING_INTENT_REQUEST_CODE, toggleLike, PendingIntent.FLAG_UPDATE_CURRENT));
         }

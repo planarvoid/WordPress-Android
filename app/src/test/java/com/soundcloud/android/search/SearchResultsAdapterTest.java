@@ -93,7 +93,8 @@ public class SearchResultsAdapterTest {
         adapter.addItem(unlikedPlaylist);
 
         adapter.onViewCreated();
-        publishPlaylistLikeEvent(unlikedPlaylist.getId());
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED,
+                PlayableChangedEvent.forLike(Urn.forPlaylist(unlikedPlaylist.getId()), true, 1));
         adapter.getView(0, itemView, new FrameLayout(Robolectric.application));
 
         verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
@@ -122,14 +123,6 @@ public class SearchResultsAdapterTest {
         ToggleButton toggleButton = new ToggleButton(Robolectric.application);
         adapter.onToggleFollowClicked(0, toggleButton);
         expect(observable.subscribedTo()).toBeTrue();
-    }
-
-    private void publishPlaylistLikeEvent(long id) throws CreateModelException {
-        PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
-        playlist.setId(id);
-        playlist.user_like = true;
-        playlist.likes_count = 1;
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(playlist, true));
     }
 
 }

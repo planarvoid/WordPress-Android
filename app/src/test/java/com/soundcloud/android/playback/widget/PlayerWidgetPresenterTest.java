@@ -2,10 +2,9 @@ package com.soundcloud.android.playback.widget;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -39,10 +38,9 @@ public class PlayerWidgetPresenterTest {
         verifyUpdateViaPlayBackWidgetProvider();
     }
 
-
     @Test
-    public void shouldUpdateWidgetUsingPlayerAppWidgetProviderWhenPlayableChange() throws Exception {
-        presenter.updatePlayableInformation(context, mock(Playable.class));
+    public void shouldUpdateTrackUsingPlayerAppWidgetProviderWhenPlayableChange() throws Exception {
+        presenter.updateTrackInformation(context, TestPropertySets.forWidgetTrack());
 
         verifyUpdateViaPlayBackWidgetProvider();
     }
@@ -58,4 +56,5 @@ public class PlayerWidgetPresenterTest {
         ComponentName expectedComponentName = new ComponentName("com.soundcloud.android", PlayerAppWidgetProvider.class.getCanonicalName());
         verify(appWidgetManager).updateAppWidget(eq(expectedComponentName), any(RemoteViews.class));
     }
+
 }

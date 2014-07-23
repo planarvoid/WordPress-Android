@@ -152,7 +152,7 @@ public class PostsAdapterTest {
         adapter.addItems(Arrays.<PublicApiResource>asList(unlikedPlaylist));
 
         adapter.onViewCreated();
-        publishPlaylistLikeEvent(unlikedPlaylist.getId());
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(unlikedPlaylist.getUrn(), true, 1));
         adapter.bindRow(0, itemView);
 
         verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
@@ -214,13 +214,6 @@ public class PostsAdapterTest {
         adapter.onViewCreated();
         adapter.onDestroyView();
         eventBus.verifyUnsubscribed();
-    }
-
-    private void publishPlaylistLikeEvent(long id) {
-        PublicApiPlaylist playlist = new PublicApiPlaylist(id);
-        playlist.user_like = true;
-        playlist.likes_count = 1;
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(playlist, true));
     }
 
     private SoundAssociation getRepostedTrackSoundAssociation(PublicApiTrack track) throws CreateModelException {

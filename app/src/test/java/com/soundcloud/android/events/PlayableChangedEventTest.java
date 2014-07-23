@@ -2,10 +2,9 @@ package com.soundcloud.android.events;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistUrn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Test;
@@ -16,10 +15,10 @@ public class PlayableChangedEventTest {
 
     @Test
     public void shouldCreateEventForLike() {
-        Playable playable = new PublicApiPlaylist(123);
-        playable.likes_count = 5;
+        PlaylistUrn urn = Urn.forPlaylist(123L);
+        int likesCount = 5;
 
-        PlayableChangedEvent event = PlayableChangedEvent.forLike(playable, true);
+        PlayableChangedEvent event = PlayableChangedEvent.forLike(urn, true, likesCount);
         expect(event.getUrn()).toEqual(Urn.forPlaylist(123));
         expect(event.getChangeSet()).toEqual(
                 PropertySet.from(PlayableProperty.IS_LIKED.bind(true), PlayableProperty.LIKES_COUNT.bind(5)));
@@ -27,10 +26,10 @@ public class PlayableChangedEventTest {
 
     @Test
     public void shouldCreateEventForRepost() {
-        Playable playable = new PublicApiPlaylist(123);
-        playable.reposts_count = 5;
+        PlaylistUrn urn = Urn.forPlaylist(123L);
+        int repostCount = 5;
 
-        PlayableChangedEvent event = PlayableChangedEvent.forRepost(playable, true);
+        PlayableChangedEvent event = PlayableChangedEvent.forRepost(urn, true, repostCount);
         expect(event.getUrn()).toEqual(Urn.forPlaylist(123));
         expect(event.getChangeSet()).toEqual(
                 PropertySet.from(PlayableProperty.IS_REPOSTED.bind(true), PlayableProperty.REPOSTS_COUNT.bind(5)));

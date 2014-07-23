@@ -21,6 +21,10 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.storage.SoundAssociationStorage;
+import com.soundcloud.android.storage.TrackStorage;
+import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.android.tracks.LegacyTrackOperations;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
@@ -78,7 +82,9 @@ public class LegacyPlayerTrackView extends FrameLayout implements PlayerTrackVie
         SoundCloudApplication application = (SoundCloudApplication) context.getApplicationContext();
         SoundAssociationOperations soundAssocOps = new SoundAssociationOperations(
                 application.getEventBus(), new SoundAssociationStorage(), new SoundCloudRxHttpClient(),
-                SoundCloudApplication.sModelManager);
+                SoundCloudApplication.sModelManager, new LegacyTrackOperations(SoundCloudApplication.sModelManager,
+                new TrackStorage(), new SyncInitiator(application.getApplicationContext(),
+                application.getAccountOperations()), new SyncStateManager(application.getApplicationContext())));
 
         mPlayablePresenter = new PlayablePresenter(context);
         mEngagementsController = new EngagementsController(

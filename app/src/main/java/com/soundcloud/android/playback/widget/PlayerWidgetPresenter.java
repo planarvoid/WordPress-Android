@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.widget;
 
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.propeller.PropertySet;
 
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
@@ -29,9 +29,9 @@ class PlayerWidgetPresenter {
         pushUpdate(remoteViews);
     }
 
-    /* package */ void updatePlayableInformation(Context context, Playable playable) {
+    /* package */ void updateTrackInformation(Context context, PropertySet track) {
         PlayerWidgetRemoteViews remoteViews = new PlayerWidgetRemoteViewsBuilder()
-                .forPlayable(playable)
+                .forTrack(new WidgetTrack(track))
                 .build(context);
         pushUpdate(remoteViews);
     }

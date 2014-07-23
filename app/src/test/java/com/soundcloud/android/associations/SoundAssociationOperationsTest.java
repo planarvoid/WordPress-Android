@@ -25,6 +25,7 @@ import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.SoundAssociationStorage;
+import com.soundcloud.android.tracks.LegacyTrackOperations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,12 +55,14 @@ public class SoundAssociationOperationsTest {
     private Observer observer;
     @Mock
     private APIResponse response;
+    @Mock
+    private LegacyTrackOperations legacyTrackOperations;
     @Captor
     private ArgumentCaptor<PlayableChangedEvent> eventCaptor;
 
     @Before
     public void setUp() throws Exception {
-        operations = new SoundAssociationOperations(eventBus, storage, httpClient, modelManager);
+        operations = new SoundAssociationOperations(eventBus, storage, httpClient, modelManager, legacyTrackOperations);
     }
 
     @Test

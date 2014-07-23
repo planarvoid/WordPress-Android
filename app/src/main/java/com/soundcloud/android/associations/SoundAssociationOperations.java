@@ -9,6 +9,7 @@ import com.soundcloud.android.api.APIResponse;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
@@ -16,15 +17,18 @@ import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.storage.SoundAssociationStorage;
+import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.propeller.PropertySet;
 import org.apache.http.HttpStatus;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
 import java.util.List;
-
 
 /**
  * Contains all business logic related to interacting with playables (tracks, playlists)
@@ -38,17 +42,20 @@ public class SoundAssociationOperations {
     private final SoundAssociationStorage soundAssocStorage;
     private final RxHttpClient httpClient;
     private final ScModelManager modelManager;
+    private final LegacyTrackOperations legacyTrackOperations;
 
     @Inject
     public SoundAssociationOperations(
             EventBus eventBus,
             SoundAssociationStorage soundAssocStorage,
             RxHttpClient httpClient,
-            ScModelManager modelManager) {
+            ScModelManager modelManager,
+            LegacyTrackOperations legacyTrackOperations) {
         this.eventBus = eventBus;
         this.soundAssocStorage = soundAssocStorage;
         this.httpClient = httpClient;
         this.modelManager = modelManager;
+        this.legacyTrackOperations = legacyTrackOperations;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,16 +66,45 @@ public class SoundAssociationOperations {
         return soundAssocStorage.getTrackLikesAsIdsAsync();
     }
 
+    public Observable<PropertySet> toggleTrackLike(TrackUrn trackUrn, final boolean addLike) {
+        /*
+         * TODO: This is a temporary solution.
+         * We need to be able to load the like count based on track URN and then save the new like status in
+         * model manager and the collections table.
+         */
+        return legacyTrackOperations.loadTrack(trackUrn.numericId, AndroidSchedulers.mainThread())
+                .mergeMap(new Func1<PublicApiTrack, Observable<SoundAssociation>>() {
+                    @Override
+                    public Observable<SoundAssociation> call(PublicApiTrack track) {
+                        if (addLike) {
+                            return like(track);
+                        } else {
+                            return unlike(track);
+                        }
+                    }
+                }).map(new Func1<SoundAssociation, PropertySet>() {
+                    @Override
+                    public PropertySet call(SoundAssociation soundAssociation) {
+                        return PropertySet.from(
+                                PlayableProperty.IS_LIKED.bind(soundAssociation.getPlayable().user_like),
+                                PlayableProperty.LIKES_COUNT.bind(soundAssociation.getPlayable().likes_count));
+                    }
+                });
+    }
+
+    @Deprecated
     public Observable<SoundAssociation> toggleLike(boolean addLike, final Playable playable) {
         return addLike ? like(playable) : unlike(playable);
     }
 
+    @Deprecated
     public Observable<SoundAssociation> like(final Playable playable) {
         logPlayable("LIKE", playable);
         return httpClient.fetchResponse(buildRequestForLike(playable, true)).mergeMap(mapAddLikeResponse(playable))
                 .doOnCompleted(handleLikeStateChanged(playable, true));
     }
 
+    @Deprecated
     public Observable<SoundAssociation> unlike(final Playable playable) {
         logPlayable("UNLIKE", playable);
         return httpClient.fetchResponse(buildRequestForLike(playable, false)).mergeMap(mapRemoveLikeResponse(playable))
@@ -175,28 +211,28 @@ public class SoundAssociationOperations {
 
     // FIXME: the playable is written on a BG thread and read on the UI thread,
     // this might cause thread visibility issues.
-    private Action0 handleLikeStateChanged(final Playable playable, final boolean isSet) {
+    private Action0 handleLikeStateChanged(final Playable playable, final boolean isLiked) {
         return new Action0() {
             @Override
             public void call() {
                 logPlayable("CACHE/PUBLISH", playable);
                 modelManager.cache(playable, PublicApiResource.CacheUpdateMode.NONE);
                 Log.d(TAG, "publishing playable change event");
-                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(playable, isSet));
+                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(playable.getUrn(), isLiked, playable.likes_count));
             }
         };
     }
 
     // FIXME: the playable is written on a BG thread and read on the UI thread,
     // this might cause thread visibility issues.
-    private Action0 handleRepostStateChanged(final Playable playable, final boolean isSet) {
+    private Action0 handleRepostStateChanged(final Playable playable, final boolean isReposted) {
         return new Action0() {
             @Override
             public void call() {
                 logPlayable("CACHE/PUBLISH", playable);
                 modelManager.cache(playable, PublicApiResource.CacheUpdateMode.NONE);
                 Log.d(TAG, "publishing playable change event");
-                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forRepost(playable, isSet));
+                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forRepost(playable.getUrn(), isReposted, playable.reposts_count));
             }
         };
     }

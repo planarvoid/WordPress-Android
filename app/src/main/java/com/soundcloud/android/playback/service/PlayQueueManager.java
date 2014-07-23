@@ -14,6 +14,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -107,7 +108,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return playQueue.getUrn(currentPosition);
     }
 
-    public boolean isCurrentTrack(@NotNull TrackUrn trackUrn) {
+    public boolean isCurrentTrack(@NotNull Urn trackUrn) {
         return trackUrn.equals(getCurrentTrackUrn());
     }
 

@@ -2,9 +2,6 @@ package com.soundcloud.android.playback.widget;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -15,11 +12,14 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
+import rx.functions.Functions;
 
 import android.content.Context;
 
@@ -36,14 +36,14 @@ public class PlayerWidgetController {
     private final PlayerWidgetPresenter presenter;
     private final PlaySessionStateProvider playSessionsStateProvider;
     private final PlayQueueManager playQueueManager;
-    private final LegacyTrackOperations trackOperations;
+    private final TrackOperations trackOperations;
     private final SoundAssociationOperations soundAssociationOps;
     private final EventBus eventBus;
 
     @Inject
     public PlayerWidgetController(Context context, PlayerWidgetPresenter presenter,
                                   PlaySessionStateProvider playSessionsStateProvider, PlayQueueManager playQueueManager,
-                                  LegacyTrackOperations trackOperations, SoundAssociationOperations soundAssocicationOps, EventBus eventBus) {
+                                  TrackOperations trackOperations, SoundAssociationOperations soundAssocicationOps, EventBus eventBus) {
         this.context = context;
         this.presenter = presenter;
         this.playSessionsStateProvider = playSessionsStateProvider;
@@ -71,36 +71,34 @@ public class PlayerWidgetController {
     }
 
     private void updatePlayableInformation() {
+        updatePlayableInformation(Functions.<PropertySet>identity());
+    }
+
+    private void updatePlayableInformation(Func1<PropertySet, PropertySet> updateFunc) {
         TrackUrn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
         if (TrackUrn.NOT_SET.equals(currentTrackUrn)) {
             presenter.reset(context);
         } else {
-            loadTrack(currentTrackUrn).subscribe(new CurrentTrackSubscriber());
+            trackOperations.track(currentTrackUrn)
+                    .map(updateFunc)
+                    .subscribe(new CurrentTrackSubscriber());
         }
     }
 
     // TODO: This method is not specific to the widget, it should be done in a more generic engagements controller
     public void handleToggleLikeAction(boolean isLiked) {
-        fireAndForget(loadCurrentTrack()
+        fireAndForget(trackOperations.track(playQueueManager.getCurrentTrackUrn())
                 .flatMap(toggleLike(isLiked))
                 .observeOn(AndroidSchedulers.mainThread()));
     }
 
-    private Func1<PublicApiTrack, Observable<SoundAssociation>> toggleLike(final boolean isLiked) {
-        return new Func1<PublicApiTrack, Observable<SoundAssociation>>() {
+    private Func1<PropertySet, Observable<PropertySet>> toggleLike(final boolean isLiked) {
+        return new Func1<PropertySet, Observable<PropertySet>>() {
             @Override
-            public Observable<SoundAssociation> call(PublicApiTrack track) {
-                return soundAssociationOps.toggleLike(!isLiked, track);
+            public Observable<PropertySet> call(PropertySet track) {
+                return soundAssociationOps.toggleTrackLike(track.get(TrackProperty.URN), !isLiked);
             }
         };
-    }
-
-    private Observable<PublicApiTrack> loadCurrentTrack() {
-        return loadTrack(playQueueManager.getCurrentTrackUrn());
-    }
-
-    private Observable<PublicApiTrack> loadTrack(TrackUrn trackUrn) {
-        return trackOperations.loadTrack(trackUrn.numericId, AndroidSchedulers.mainThread());
     }
 
     /**
@@ -109,11 +107,14 @@ public class PlayerWidgetController {
      */
     private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableChangedEvent> {
         @Override
-        public void onNext(PlayableChangedEvent event) {
-            final Playable playable = event.getPlayable();
-
-            if (playable.getId() == playQueueManager.getCurrentTrackId()) {
-                presenter.updatePlayableInformation(context, playable);
+        public void onNext(final PlayableChangedEvent event) {
+            if (playQueueManager.isCurrentTrack(event.getUrn())) {
+                updatePlayableInformation(new Func1<PropertySet, PropertySet>() {
+                    @Override
+                    public PropertySet call(PropertySet propertySet) {
+                        return propertySet.merge(event.getChangeSet());
+                    }
+                });
             }
         }
     }
@@ -140,15 +141,15 @@ public class PlayerWidgetController {
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
         public void onNext(CurrentPlayQueueTrackEvent event) {
-            loadTrack(event.getCurrentTrackUrn()).subscribe(new CurrentTrackSubscriber());
+            trackOperations.track(event.getCurrentTrackUrn()).subscribe(new CurrentTrackSubscriber());
         }
     }
 
-    private class CurrentTrackSubscriber extends DefaultSubscriber<PublicApiTrack> {
+    private class CurrentTrackSubscriber extends DefaultSubscriber<PropertySet> {
         @Override
-        public void onNext(PublicApiTrack track) {
-            presenter.updatePlayableInformation(context, track);
+        public void onNext(PropertySet track) {
+            presenter.updateTrackInformation(context, track);
         }
-
     }
+
 }

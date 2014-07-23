@@ -408,6 +408,13 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         return cursor.getInt(cursor.getColumnIndex(TableColumns.Sounds._TYPE)) == DB_TYPE_TRACK;
     }
 
+    public void updateAssociations(PropertySet changeSet) {
+        user_like = changeSet.getOrElse(PlayableProperty.IS_LIKED, user_like);
+        likes_count = changeSet.getOrElse(PlayableProperty.LIKES_COUNT, likes_count);
+        user_repost = changeSet.getOrElse(PlayableProperty.IS_REPOSTED, user_repost);
+        reposts_count = changeSet.getOrElse(PlayableProperty.REPOSTS_COUNT, reposts_count);
+    }
+
     @Override
     public PropertySet toPropertySet() {
         return PropertySet.from(PlayableProperty.DURATION.bind(duration),

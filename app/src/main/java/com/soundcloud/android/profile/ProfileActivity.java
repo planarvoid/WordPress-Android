@@ -26,6 +26,7 @@ import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.tasks.FetchUserTask;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.EmptyViewBuilder;
@@ -63,6 +64,7 @@ public class ProfileActivity extends ScActivity implements
         ActionBar.OnNavigationListener, FetchModelTask.Listener<PublicApiUser>, ViewPager.OnPageChangeListener {
 
     public static final String EXTRA_USER_ID = "userId";
+    public static final String EXTRA_USER_URN = "userUrn";
     public static final String EXTRA_USER = "user";
 
     /* package */ @Nullable PublicApiUser user;
@@ -84,6 +86,7 @@ public class ProfileActivity extends ScActivity implements
     @Inject PlayerController playerController;
     @Inject ScreenPresenter presenter;
 
+    @Deprecated
     public static boolean startFromPlayable(Context context, Playable playable) {
         if (playable != null) {
             context.startActivity(
@@ -92,6 +95,10 @@ public class ProfileActivity extends ScActivity implements
             return true;
         }
         return false;
+    }
+
+    public static Intent getIntent(Context context, UserUrn userUrn) {
+        return new Intent(context, ProfileActivity.class).putExtra(EXTRA_USER_URN, userUrn);
     }
 
     public ProfileActivity() {
@@ -184,6 +191,9 @@ public class ProfileActivity extends ScActivity implements
             loadUserByObject((PublicApiUser) intent.getParcelableExtra(EXTRA_USER));
         } else if (intent.hasExtra(EXTRA_USER_ID)) {
             loadUserById(intent.getLongExtra(EXTRA_USER_ID, -1));
+        } else if (intent.hasExtra(EXTRA_USER_URN)) {
+            UserUrn urn = intent.getParcelableExtra(EXTRA_USER_URN);
+            loadUserById(urn.numericId);
         } else if (intent.getData() == null || !loadUserByUri(intent.getData())){
             loadYou();
         }
