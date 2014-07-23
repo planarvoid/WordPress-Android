@@ -10,7 +10,7 @@
 
     <com.soundcloud.android.view.CustomFontTextView
             android:id="@id/list_item_header"
-            style="@style/ListItemText.SecondaryText.Regular"
+            style="@style/ListItemText.SecondaryText"
             android:textColor="@color/list_primary"
             android:layout_toRightOf="@id/image"
             android:layout_toLeftOf="@id/toggle_btn_follow"
